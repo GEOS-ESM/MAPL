@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CFIO_GetAttNames &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CFIO_GetAttNames
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">27 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOUtilMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfioutilmod.f90.html'>ESMF_CFIOUtilMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">CFIO_GetAttNames</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/cfio_getattnames.html#src">CFIO_GetAttNames</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine CFIO_GetAttNames(fid, ngatts, aname, rc)  
+</h2>
+    
+
+    <p><code>CFIO_GetAttNames</code> &ndash; Get global attribute names</p>
+<p>This routine allows the user to get the names of
+ global attributes.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1998.08.05  Lucchesi           Initial interface design.</li>
+<li>1998.08.05  Lucchesi           Initial coding.</li>
+<li>1998.09.24  Lucchesi           Changed error handling.</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fid~11"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fid</strong></td>
+            <td>
+                <p>File handle</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ngatts~2"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ngatts</strong></td>
+            <td>
+                <p>Expected number of attributes (input)
+Actual number of attributes (output if rc=-2)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-aname"></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>aname</strong>(ngatts)</td>
+            <td>
+                <p>Array of attribute names</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~79"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code:
+ rc =  0  all is well
+ rc = -10  ngatts is incompatible with file
+ rc = -11  character string not long enough</p>
+<p>NetCDF Errors</p>
+<hr>
+<p>rc = -48  error from NF90_INQUIRE
+  rc = -57  error from NF90_INQ_ATTNAME</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~cfio_getattnames~~CallsGraph Pages: 1 -->
+<svg id="proccfio_getattnamesCallsGraph" width="396pt" height="116pt"
+ viewBox="0.00 0.00 396.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~cfio_getattnames~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>proc~~cfio_getattnames~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 392,-112 392,4 -4,4"/>
+<!-- proc~cfio_getattnames -->
+<g id="proc~~cfio_getattnames~~CallsGraph_node1" class="node">
+<title>proc~cfio_getattnames</title>
+<polygon fill="none" stroke="black" points="218,-66 0,-66 0,-42 218,-42 218,-66"/>
+<text text-anchor="middle" x="109" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOUtilMod::CFIO_GetAttNames</text>
+</g>
+<!-- nf90_inq_attname -->
+<g id="proc~~cfio_getattnames~~CallsGraph_node2" class="node">
+<title>nf90_inq_attname</title>
+<polygon fill="#777777" stroke="#777777" points="375.5,-108 266.5,-108 266.5,-84 375.5,-84 375.5,-108"/>
+<text text-anchor="middle" x="321" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_attname</text>
+</g>
+<!-- proc~cfio_getattnames&#45;&gt;nf90_inq_attname -->
+<g id="proc~~cfio_getattnames~~CallsGraph_edge1" class="edge">
+<title>proc~cfio_getattnames&#45;&gt;nf90_inq_attname</title>
+<path fill="none" stroke="#255000" d="M170.18,-66.04C197.16,-71.43 229.01,-77.8 256.39,-83.28"/>
+<polygon fill="#255000" stroke="#255000" points="255.77,-86.72 266.26,-85.25 257.14,-79.86 255.77,-86.72"/>
+</g>
+<!-- nf90_inquire -->
+<g id="proc~~cfio_getattnames~~CallsGraph_node3" class="node">
+<title>nf90_inquire</title>
+<polygon fill="#777777" stroke="#777777" points="360.5,-66 281.5,-66 281.5,-42 360.5,-42 360.5,-66"/>
+<text text-anchor="middle" x="321" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire</text>
+</g>
+<!-- proc~cfio_getattnames&#45;&gt;nf90_inquire -->
+<g id="proc~~cfio_getattnames~~CallsGraph_edge2" class="edge">
+<title>proc~cfio_getattnames&#45;&gt;nf90_inquire</title>
+<path fill="none" stroke="#255000" d="M218.08,-54C236.71,-54 255.21,-54 271.23,-54"/>
+<polygon fill="#255000" stroke="#255000" points="271.38,-57.5 281.38,-54 271.38,-50.5 271.38,-57.5"/>
+</g>
+<!-- proc~err -->
+<g id="proc~~cfio_getattnames~~CallsGraph_node4" class="node">
+<title>proc~err</title>
+<g id="a_proc~~cfio_getattnames~~CallsGraph_node4"><a xlink:href=".././proc/err.html" xlink:title="ESMF_CFIOUtilMod::err">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="388,-24 254,-24 254,0 388,0 388,-24"/>
+<text text-anchor="middle" x="321" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOUtilMod::err</text>
+</a>
+</g>
+</g>
+<!-- proc~cfio_getattnames&#45;&gt;proc~err -->
+<g id="proc~~cfio_getattnames~~CallsGraph_edge3" class="edge">
+<title>proc~cfio_getattnames&#45;&gt;proc~err</title>
+<path fill="none" stroke="#255000" d="M170.18,-41.96C195,-37 223.94,-31.21 249.73,-26.05"/>
+<polygon fill="#255000" stroke="#255000" points="250.69,-29.43 259.81,-24.04 249.32,-22.57 250.69,-29.43"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~cfio_getattnames~~CalledByGraph Pages: 1 -->
+<svg id="proccfio_getattnamesCalledByGraph" width="641pt" height="183pt"
+ viewBox="0.00 0.00 641.00 183.42" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~cfio_getattnames~~CalledByGraph" class="graph" transform="scale(2.58 2.58) rotate(0) translate(4 469)">
+<title>proc~~cfio_getattnames~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-469 1649,-469 1649,4 -4,4"/>
+<!-- proc~cfio_getattnames -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node1" class="node">
+<title>proc~cfio_getattnames</title>
+<polygon fill="none" stroke="black" points="1645,-150 1427,-150 1427,-126 1645,-126 1645,-150"/>
+<text text-anchor="middle" x="1536" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOUtilMod::CFIO_GetAttNames</text>
+</g>
+<!-- proc~esmf_cfiosdffileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node2" class="node">
+<title>proc~esmf_cfiosdffileopen</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node2"><a xlink:href=".././proc/esmf_cfiosdffileopen.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="1391,-150 1150,-150 1150,-126 1391,-126 1391,-150"/>
+<text text-anchor="middle" x="1270.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod::ESMF_CFIOSdfFileOpen</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getattnames -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge1" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getattnames</title>
+<path fill="none" stroke="#255000" d="M1391.3,-138C1399.71,-138 1408.18,-138 1416.58,-138"/>
+<polygon fill="#255000" stroke="#255000" points="1416.79,-141.5 1426.79,-138 1416.79,-134.5 1416.79,-141.5"/>
+</g>
+<!-- proc~esmf_cfiofileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node3" class="node">
+<title>proc~esmf_cfiofileopen</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node3"><a xlink:href=".././proc/esmf_cfiofileopen.html" xlink:title="ESMF_CFIOMod::ESMF_CFIOFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="1087.5,-255 881.5,-255 881.5,-231 1087.5,-231 1087.5,-255"/>
+<text text-anchor="middle" x="984.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOMod::ESMF_CFIOFileOpen</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfiosdffileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge2" class="edge">
+<title>proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfiosdffileopen</title>
+<path fill="none" stroke="#255000" d="M1018.08,-230.96C1069.73,-211.86 1170.38,-174.65 1227.42,-153.56"/>
+<polygon fill="#255000" stroke="#255000" points="1228.7,-156.82 1236.87,-150.07 1226.27,-150.25 1228.7,-156.82"/>
+</g>
+<!-- proc~esmf_cfiosdfvarread1d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node4" class="node">
+<title>proc~esmf_cfiosdfvarread1d_</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node4"><a xlink:href=".././proc/esmf_cfiosdfvarread1d_.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfVarRead1D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="1114,-171 855,-171 855,-147 1114,-147 1114,-171"/>
+<text text-anchor="middle" x="984.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod::ESMF_CFIOSdfVarRead1D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread1d_&#45;&gt;proc~esmf_cfiosdffileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge3" class="edge">
+<title>proc~esmf_cfiosdfvarread1d_&#45;&gt;proc~esmf_cfiosdffileopen</title>
+<path fill="none" stroke="#255000" d="M1114.2,-149.48C1122.75,-148.85 1131.36,-148.21 1139.91,-147.58"/>
+<polygon fill="#255000" stroke="#255000" points="1140.19,-151.07 1149.91,-146.84 1139.68,-144.09 1140.19,-151.07"/>
+</g>
+<!-- proc~esmf_cfiosdfvarread2d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node5" class="node">
+<title>proc~esmf_cfiosdfvarread2d_</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node5"><a xlink:href=".././proc/esmf_cfiosdfvarread2d_.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfVarRead2D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="1114,-129 855,-129 855,-105 1114,-105 1114,-129"/>
+<text text-anchor="middle" x="984.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod::ESMF_CFIOSdfVarRead2D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread2d_&#45;&gt;proc~esmf_cfiosdffileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge4" class="edge">
+<title>proc~esmf_cfiosdfvarread2d_&#45;&gt;proc~esmf_cfiosdffileopen</title>
+<path fill="none" stroke="#255000" d="M1114.2,-126.52C1122.75,-127.15 1131.36,-127.79 1139.91,-128.42"/>
+<polygon fill="#255000" stroke="#255000" points="1139.68,-131.91 1149.91,-129.16 1140.19,-124.93 1139.68,-131.91"/>
+</g>
+<!-- proc~esmf_cfiosdfvarread3d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node6" class="node">
+<title>proc~esmf_cfiosdfvarread3d_</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node6"><a xlink:href=".././proc/esmf_cfiosdfvarread3d_.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfVarRead3D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="1114,-87 855,-87 855,-63 1114,-63 1114,-87"/>
+<text text-anchor="middle" x="984.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod::ESMF_CFIOSdfVarRead3D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~esmf_cfiosdffileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge5" class="edge">
+<title>proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~esmf_cfiosdffileopen</title>
+<path fill="none" stroke="#255000" d="M1066.97,-87.03C1082.63,-89.7 1098.87,-92.73 1114,-96 1149.61,-103.7 1189.24,-114.44 1219.59,-123.13"/>
+<polygon fill="#255000" stroke="#255000" points="1218.92,-126.58 1229.5,-125.99 1220.86,-119.86 1218.92,-126.58"/>
+</g>
+<!-- interface~esmf_cfiosdfvarread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node7" class="node">
+<title>interface~esmf_cfiosdfvarread</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node7"><a xlink:href=".././interface/esmf_cfiosdfvarread.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfVarRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="807,-108 569,-108 569,-84 807,-84 807,-108"/>
+<text text-anchor="middle" x="688" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod::ESMF_CFIOSdfVarRead</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_cfiosdfvarread&#45;&gt;proc~esmf_cfiosdfvarread1d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge13" class="edge">
+<title>interface~esmf_cfiosdfvarread&#45;&gt;proc~esmf_cfiosdfvarread1d_</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M787.93,-108.05C798.56,-110.5 809.1,-113.45 819,-117 836.44,-123.25 837.57,-131.73 855,-138 861.8,-140.44 868.91,-142.61 876.14,-144.52"/>
+<polygon fill="transparent" stroke="transparent" points="875.5,-147.97 886.05,-146.97 877.19,-141.17 875.5,-147.97"/>
+</g>
+<!-- interface~esmf_cfiosdfvarread&#45;&gt;proc~esmf_cfiosdfvarread2d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge14" class="edge">
+<title>interface~esmf_cfiosdfvarread&#45;&gt;proc~esmf_cfiosdfvarread2d_</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M807.09,-104.42C819.46,-105.3 832.12,-106.21 844.7,-107.1"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="844.54,-110.6 854.76,-107.82 845.04,-103.62 844.54,-110.6"/>
+</g>
+<!-- interface~esmf_cfiosdfvarread&#45;&gt;proc~esmf_cfiosdfvarread3d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge15" class="edge">
+<title>interface~esmf_cfiosdfvarread&#45;&gt;proc~esmf_cfiosdfvarread3d_</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M807.09,-87.58C819.46,-86.7 832.12,-85.79 844.7,-84.9"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="845.04,-88.38 854.76,-84.18 844.54,-81.4 845.04,-88.38"/>
+</g>
+<!-- proc~find~2 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node8" class="node">
+<title>proc~find~2</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node8"><a xlink:href=".././proc/find~2.html" xlink:title="ESMF_CFIOCollectionMod::CFIOCollection%find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="819,-360 557,-360 557,-336 819,-336 819,-360"/>
+<text text-anchor="middle" x="688" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOCollectionMod::CFIOCollection%find</text>
+</a>
+</g>
+</g>
+<!-- proc~find~2&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge6" class="edge">
+<title>proc~find~2&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#255000" d="M784.95,-335.99C796.56,-333.52 808.14,-330.55 819,-327 869.76,-310.39 924.11,-279.84 955.88,-260.52"/>
+<polygon fill="#255000" stroke="#255000" points="957.92,-263.37 964.61,-255.15 954.26,-257.41 957.92,-263.37"/>
+</g>
+<!-- proc~mapl_cfioopenwrite -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node9" class="node">
+<title>proc~mapl_cfioopenwrite</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node9"><a xlink:href=".././proc/mapl_cfioopenwrite.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOOpenWrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="796,-318 580,-318 580,-294 796,-294 796,-318"/>
+<text text-anchor="middle" x="688" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOOpenWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge7" class="edge">
+<title>proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#255000" d="M770.69,-293.95C786.75,-291.26 803.44,-288.24 819,-285 856.79,-277.14 898.96,-266.33 931.15,-257.65"/>
+<polygon fill="#255000" stroke="#255000" points="932.06,-261.02 940.8,-255.03 930.23,-254.27 932.06,-261.02"/>
+</g>
+<!-- proc~mapl_cfioreadbundle -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node10" class="node">
+<title>proc~mapl_cfioreadbundle</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node10"><a xlink:href=".././proc/mapl_cfioreadbundle.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOReadBundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="497.5,-402 273.5,-402 273.5,-378 497.5,-378 497.5,-402"/>
+<text text-anchor="middle" x="385.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOReadBundle</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundle&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge8" class="edge">
+<title>proc~mapl_cfioreadbundle&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#255000" d="M491.3,-402C581.09,-408.33 712.41,-408.04 819,-369 880.44,-346.5 937.62,-292.36 965.58,-262.9"/>
+<polygon fill="#255000" stroke="#255000" points="968.41,-265 972.66,-255.3 963.29,-260.23 968.41,-265"/>
+</g>
+<!-- proc~mapl_cfioreadbundle&#45;&gt;proc~find~2 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge22" class="edge">
+<title>proc~mapl_cfioreadbundle&#45;&gt;proc~find~2</title>
+<path fill="none" stroke="transparent" d="M472.61,-377.96C509.63,-372.79 553.04,-366.72 591.08,-361.41"/>
+<polygon fill="transparent" stroke="transparent" points="591.72,-364.85 601.14,-360 590.75,-357.92 591.72,-364.85"/>
+</g>
+<!-- program~test~11 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node11" class="node">
+<title>program~test~11</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node11"><a xlink:href=".././program/test~11.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="715,-276 661,-276 661,-252 715,-252 715,-276"/>
+<text text-anchor="middle" x="688" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~11&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge9" class="edge">
+<title>program~test~11&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#255000" d="M715.13,-262.14C750.13,-259.64 814.4,-255.06 871.27,-251"/>
+<polygon fill="#255000" stroke="#255000" points="871.7,-254.48 881.43,-250.28 871.2,-247.5 871.7,-254.48"/>
+</g>
+<!-- program~test~2 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node12" class="node">
+<title>program~test~2</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node12"><a xlink:href=".././program/test~2.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="715,-234 661,-234 661,-210 715,-210 715,-234"/>
+<text text-anchor="middle" x="688" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~2&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge10" class="edge">
+<title>program~test~2&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#255000" d="M715.13,-223.86C750.13,-226.36 814.4,-230.94 871.27,-235"/>
+<polygon fill="#255000" stroke="#255000" points="871.2,-238.5 881.43,-235.72 871.7,-231.52 871.2,-238.5"/>
+</g>
+<!-- program~test~6 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node13" class="node">
+<title>program~test~6</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node13"><a xlink:href=".././program/test~6.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="715,-192 661,-192 661,-168 715,-168 715,-192"/>
+<text text-anchor="middle" x="688" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~6&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge11" class="edge">
+<title>program~test~6&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#255000" d="M715.02,-183.5C741.36,-187.21 783.19,-193.55 819,-201 856.79,-208.86 898.96,-219.67 931.15,-228.35"/>
+<polygon fill="#255000" stroke="#255000" points="930.23,-231.73 940.8,-230.97 932.06,-224.98 930.23,-231.73"/>
+</g>
+<!-- program~test~7 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node14" class="node">
+<title>program~test~7</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node14"><a xlink:href=".././program/test~7.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="715,-150 661,-150 661,-126 715,-126 715,-150"/>
+<text text-anchor="middle" x="688" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~7&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge12" class="edge">
+<title>program~test~7&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#255000" d="M715.11,-139.4C741.87,-141.48 784.35,-146.58 819,-159 836.44,-165.25 838.67,-171.25 855,-180 886.21,-196.72 922.49,-214.35 948.52,-226.69"/>
+<polygon fill="#255000" stroke="#255000" points="947.09,-229.88 957.62,-230.99 950.08,-223.55 947.09,-229.88"/>
+</g>
+<!-- interface~esmf_ioread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node15" class="node">
+<title>interface~esmf_ioread</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node15"><a xlink:href=".././interface/esmf_ioread.html" xlink:title="MAPL_CFIOMod::ESMF_ioRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="193,-465 21,-465 21,-441 193,-441 193,-465"/>
+<text text-anchor="middle" x="107" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::ESMF_ioRead</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_ioread&#45;&gt;proc~mapl_cfioreadbundle -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge27" class="edge">
+<title>interface~esmf_ioread&#45;&gt;proc~mapl_cfioreadbundle</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M171.16,-440.98C185.28,-438.16 200.17,-435.07 214,-432 252.16,-423.52 294.87,-413 328,-404.61"/>
+<polygon fill="#025563" stroke="#025563" points="329.13,-407.93 337.96,-402.08 327.41,-401.15 329.13,-407.93"/>
+</g>
+<!-- interface~mapl_cfioread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node16" class="node">
+<title>interface~mapl_cfioread</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node16"><a xlink:href=".././interface/mapl_cfioread.html" xlink:title="MAPL_CFIOMod::MAPL_CFIORead">
+<polygon fill="#a7506f" stroke="#a7506f" points="200.5,-423 13.5,-423 13.5,-399 200.5,-399 200.5,-423"/>
+<text text-anchor="middle" x="107" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIORead</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_cfioread&#45;&gt;proc~mapl_cfioreadbundle -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge28" class="edge">
+<title>interface~mapl_cfioread&#45;&gt;proc~mapl_cfioreadbundle</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M200.84,-403.95C220.79,-402.43 242.17,-400.81 263.02,-399.23"/>
+<polygon fill="#025563" stroke="#025563" points="263.51,-402.7 273.21,-398.45 262.98,-395.72 263.51,-402.7"/>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt2d__ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node17" class="node">
+<title>proc~esmf_cfiosdfvarreadt2d__</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node17"><a xlink:href=".././proc/esmf_cfiosdfvarreadt2d__.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfVarReadT2D__">
+<polygon fill="#d9534f" stroke="#d9534f" points="521,-192 250,-192 250,-168 521,-168 521,-192"/>
+<text text-anchor="middle" x="385.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod::ESMF_CFIOSdfVarReadT2D__</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt2d__&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge16" class="edge">
+<title>proc~esmf_cfiosdfvarreadt2d__&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#255000" d="M501.07,-167.99C508,-165.48 514.7,-162.51 521,-159 542.47,-147.03 535.56,-129.03 557,-117 560.28,-115.16 563.68,-113.47 567.17,-111.91"/>
+<polygon fill="#255000" stroke="#255000" points="568.62,-115.1 576.58,-108.12 566,-108.61 568.62,-115.1"/>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt3d__ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node18" class="node">
+<title>proc~esmf_cfiosdfvarreadt3d__</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node18"><a xlink:href=".././proc/esmf_cfiosdfvarreadt3d__.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfVarReadT3D__">
+<polygon fill="#d9534f" stroke="#d9534f" points="521,-150 250,-150 250,-126 521,-126 521,-150"/>
+<text text-anchor="middle" x="385.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod::ESMF_CFIOSdfVarReadT3D__</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt3d__&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge17" class="edge">
+<title>proc~esmf_cfiosdfvarreadt3d__&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#255000" d="M472.61,-125.96C509.63,-120.79 553.04,-114.72 591.08,-109.41"/>
+<polygon fill="#255000" stroke="#255000" points="591.72,-112.85 601.14,-108 590.75,-105.92 591.72,-112.85"/>
+</g>
+<!-- proc~esmf_cfiovarread1d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node19" class="node">
+<title>proc~esmf_cfiovarread1d_</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node19"><a xlink:href=".././proc/esmf_cfiovarread1d_.html" xlink:title="ESMF_CFIOMod::ESMF_CFIOVarRead1D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="497.5,-108 273.5,-108 273.5,-84 497.5,-84 497.5,-108"/>
+<text text-anchor="middle" x="385.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOMod::ESMF_CFIOVarRead1D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarread1d_&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge18" class="edge">
+<title>proc~esmf_cfiovarread1d_&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#255000" d="M497.54,-96C517.42,-96 538.29,-96 558.61,-96"/>
+<polygon fill="#255000" stroke="#255000" points="558.85,-99.5 568.85,-96 558.85,-92.5 558.85,-99.5"/>
+</g>
+<!-- proc~esmf_cfiovarread2d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node20" class="node">
+<title>proc~esmf_cfiovarread2d_</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node20"><a xlink:href=".././proc/esmf_cfiovarread2d_.html" xlink:title="ESMF_CFIOMod::ESMF_CFIOVarRead2D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="497.5,-66 273.5,-66 273.5,-42 497.5,-42 497.5,-66"/>
+<text text-anchor="middle" x="385.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOMod::ESMF_CFIOVarRead2D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarread2d_&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge19" class="edge">
+<title>proc~esmf_cfiovarread2d_&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#255000" d="M472.61,-66.04C509.63,-71.21 553.04,-77.28 591.08,-82.59"/>
+<polygon fill="#255000" stroke="#255000" points="590.75,-86.08 601.14,-84 591.72,-79.15 590.75,-86.08"/>
+</g>
+<!-- proc~esmf_cfiovarread3d_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node21" class="node">
+<title>proc~esmf_cfiovarread3d_</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node21"><a xlink:href=".././proc/esmf_cfiovarread3d_.html" xlink:title="ESMF_CFIOMod::ESMF_CFIOVarRead3D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="497.5,-24 273.5,-24 273.5,0 497.5,0 497.5,-24"/>
+<text text-anchor="middle" x="385.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOMod::ESMF_CFIOVarRead3D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarread3d_&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge20" class="edge">
+<title>proc~esmf_cfiovarread3d_&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#255000" d="M480,-24.02C493.84,-26.55 507.86,-29.52 521,-33 567.11,-45.21 618.12,-65.67 651.26,-79.95"/>
+<polygon fill="#255000" stroke="#255000" points="649.97,-83.21 660.54,-83.99 652.76,-76.79 649.97,-83.21"/>
+</g>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node22" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node22"><a xlink:href=".././proc/mapl_cfiocreatefromfile.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="505,-360 266,-360 266,-336 505,-336 505,-360"/>
+<text text-anchor="middle" x="385.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~find~2 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge21" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~find~2</title>
+<path fill="none" stroke="transparent" d="M505.27,-348C518.86,-348 532.82,-348 546.66,-348"/>
+<polygon fill="transparent" stroke="transparent" points="546.72,-351.5 556.72,-348 546.72,-344.5 546.72,-351.5"/>
+</g>
+<!-- proc~mapl_cfioreadbundleread -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node23" class="node">
+<title>proc~mapl_cfioreadbundleread</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node23"><a xlink:href=".././proc/mapl_cfioreadbundleread.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOReadBundleRead">
+<polygon fill="#d9534f" stroke="#d9534f" points="511,-318 260,-318 260,-294 511,-294 511,-318"/>
+<text text-anchor="middle" x="385.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOReadBundleRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundleread&#45;&gt;proc~find~2 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge23" class="edge">
+<title>proc~mapl_cfioreadbundleread&#45;&gt;proc~find~2</title>
+<path fill="none" stroke="transparent" d="M472.61,-318.04C509.63,-323.21 553.04,-329.28 591.08,-334.59"/>
+<polygon fill="transparent" stroke="transparent" points="590.75,-338.08 601.14,-336 591.72,-331.15 590.75,-338.08"/>
+</g>
+<!-- proc~mapl_cfioreadfield -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node24" class="node">
+<title>proc~mapl_cfioreadfield</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node24"><a xlink:href=".././proc/mapl_cfioreadfield.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOReadField">
+<polygon fill="#d9534f" stroke="#d9534f" points="212.5,-381 1.5,-381 1.5,-357 212.5,-357 212.5,-381"/>
+<text text-anchor="middle" x="107" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOReadField</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;proc~mapl_cfioreadbundle -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge25" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;proc~mapl_cfioreadbundle</title>
+<path fill="none" stroke="#025563" d="M212.53,-376.94C229,-378.19 246.14,-379.49 262.95,-380.77"/>
+<polygon fill="#025563" stroke="#025563" points="263.13,-384.29 273.36,-381.56 263.66,-377.31 263.13,-384.29"/>
+</g>
+<!-- proc~mapl_cfioreadparallel_ -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node25" class="node">
+<title>proc~mapl_cfioreadparallel_</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node25"><a xlink:href=".././proc/mapl_cfioreadparallel_.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOReadParallel_">
+<polygon fill="#d9534f" stroke="#d9534f" points="501.5,-276 269.5,-276 269.5,-252 501.5,-252 501.5,-276"/>
+<text text-anchor="middle" x="385.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOReadParallel_</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadparallel_&#45;&gt;proc~find~2 -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge24" class="edge">
+<title>proc~mapl_cfioreadparallel_&#45;&gt;proc~find~2</title>
+<path fill="none" stroke="transparent" d="M501.07,-276.01C508,-278.52 514.7,-281.49 521,-285 542.47,-296.97 535.56,-314.97 557,-327 560.28,-328.84 563.68,-330.53 567.17,-332.09"/>
+<polygon fill="transparent" stroke="transparent" points="566,-335.39 576.58,-335.88 568.62,-328.9 566,-335.39"/>
+</g>
+<!-- proc~mapl_cfioreadstate -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_node26" class="node">
+<title>proc~mapl_cfioreadstate</title>
+<g id="a_proc~~cfio_getattnames~~CalledByGraph_node26"><a xlink:href=".././proc/mapl_cfioreadstate.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOReadState">
+<polygon fill="#d9534f" stroke="#d9534f" points="214,-339 0,-339 0,-315 214,-315 214,-339"/>
+<text text-anchor="middle" x="107" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOReadState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadstate&#45;&gt;proc~mapl_cfioreadbundle -->
+<g id="proc~~cfio_getattnames~~CalledByGraph_edge26" class="edge">
+<title>proc~mapl_cfioreadstate&#45;&gt;proc~mapl_cfioreadbundle</title>
+<path fill="none" stroke="#025563" d="M184.71,-339.03C194.71,-341.52 204.7,-344.48 214,-348 231.32,-354.56 232.55,-362.8 250,-369 256.89,-371.45 264.08,-373.61 271.39,-375.52"/>
+<polygon fill="#025563" stroke="#025563" points="270.88,-379 281.43,-377.98 272.55,-372.2 270.88,-379"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccfio_getattnamesCalledByGraph = svgPanZoom('#proccfio_getattnamesCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">CFIO_GetAttNames</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">ngatts</span><span class="p">,</span><span class="w"> </span><span class="n">aname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !USES:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="k">Implicit NONE</span>
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
+<span class="c">!</span>
+<span class="c">! !INPUT/OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">integer     </span><span class="n">ngatts</span><span class="w">        </span><span class="c">!! Expected number of attributes (input)</span>
+<span class="w">                                </span><span class="c">!! Actual number of attributes (output if rc=-2)</span>
+<span class="c">!</span>
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">aname</span><span class="p">(</span><span class="n">ngatts</span><span class="p">)</span><span class="w">  </span><span class="c">!! Array of attribute names</span>
+<span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">       </span><span class="c">!! Error return code:</span>
+<span class="w">                         </span><span class="c">!!  rc =  0  all is well</span>
+<span class="w">                         </span><span class="c">!!  rc = -10  ngatts is incompatible with file</span>
+<span class="w">                         </span><span class="c">!!  rc = -11  character string not long enough</span>
+<span class="w">                         </span><span class="c">!!</span>
+<span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<span class="w">                         </span><span class="c">!!  -------------</span>
+<span class="w">                         </span><span class="c">!!   rc = -48  error from NF90_INQUIRE</span>
+<span class="w">                         </span><span class="c">!!   rc = -57  error from NF90_INQ_ATTNAME</span>
+
+<span class="c">!</span>
+<span class="c">!-------------------------------------------------------------------------</span>
+
+<span class="w">      </span><span class="kt">integer </span><span class="n">ngattsFile</span><span class="p">,</span><span class="w"> </span><span class="n">i</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="p">,</span><span class="n">dimSize</span><span class="p">,</span><span class="n">recDim</span>
+
+<span class="c">! Check number of attributes against file</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">nDims</span><span class="p">,</span><span class="n">dimSize</span><span class="p">,</span><span class="n">ngattsFile</span><span class="p">,</span><span class="n">recdim</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetAttNames: NF90_INQUIRE failed&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">48</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">ngattsFile</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">ngatts</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">10</span>
+<span class="w">        </span><span class="n">ngatts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ngattsFile</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="k">      endif</span>
+
+<span class="c">! Check length of aname string</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="p">(</span><span class="n">aname</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;CFIO_GetAttNames: length of aname array must be at &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="s1">&#39;least &#39;</span><span class="p">,</span><span class="n">MAXNCNAM</span><span class="p">,</span><span class="s1">&#39; bytes.&#39;</span>
+<span class="w">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">11</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="k">      endif</span>
+
+<span class="c">! Read global attribute names</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">ngatts</span>
+<span class="w">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_ATTNAME</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">NF90_GLOBAL</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">aname</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetAttNames: error reading attribute name&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">57</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      enddo</span>
+
+<span class="k">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="k">      end subroutine </span><span class="n">CFIO_GetAttNames</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-01T20:55:21.019912             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

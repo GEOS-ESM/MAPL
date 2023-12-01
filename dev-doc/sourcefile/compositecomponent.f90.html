@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CompositeComponent.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CompositeComponent.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for source files.">86 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CompositeComponent.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">CompositeComponent.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_compositecomponent.html">mapl_CompositeComponent</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/compositecomponent.f90.html#src">CompositeComponent.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~compositecomponent.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecompositecomponentf90EfferentGraph" width="641pt" height="80pt"
+ viewBox="0.00 0.00 641.00 79.88" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph" class="graph" transform="scale(1.28 1.28) rotate(0) translate(4 98.19)">
+<title>sourcefile~~compositecomponent.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-98.19 816,-98.19 816,4 -4,4"/>
+<!-- sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~compositecomponent.f90</title>
+<polygon fill="none" stroke="black" points="812,-66 658,-66 658,-42 812,-42 812,-66"/>
+<text text-anchor="middle" x="735" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">CompositeComponent.F90</text>
+</g>
+<!-- sourcefile~abstractcomposite.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractcomposite.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/abstractcomposite.f90.html" xlink:title="AbstractComposite.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="172.5,-86 36.5,-86 36.5,-62 172.5,-62 172.5,-86"/>
+<text text-anchor="middle" x="104.5" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractComposite.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~compositecomponent.f90&#45;&gt;sourcefile~abstractcomposite.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~compositecomponent.f90&#45;&gt;sourcefile~abstractcomposite.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M676.94,-66.03C659.38,-69.37 639.96,-72.71 622,-75 500.25,-90.56 469.23,-93.16 346.5,-94"/>
+</g>
+<!-- sourcefile~abstractframeworkcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~abstractframeworkcomponent.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~EfferentGraph_node3"><a xlink:href=".././sourcefile/abstractframeworkcomponent.f90.html" xlink:title="AbstractFrameworkComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="446,-24 245,-24 245,0 446,0 446,-24"/>
+<text text-anchor="middle" x="345.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractFrameworkComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~compositecomponent.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~compositecomponent.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M676.64,-42C659.16,-38.68 639.85,-35.35 622,-33 567.6,-25.85 506.82,-20.9 456.22,-17.6"/>
+<polygon fill="#255000" stroke="#255000" points="456.44,-14.11 446.24,-16.97 455.99,-21.1 456.44,-14.11"/>
+</g>
+<!-- sourcefile~concretecomposite.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~concretecomposite.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~EfferentGraph_node4"><a xlink:href=".././sourcefile/concretecomposite.f90.html" xlink:title="ConcreteComposite.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622,-66 482,-66 482,-42 622,-42 622,-66"/>
+<text text-anchor="middle" x="552" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConcreteComposite.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~compositecomponent.f90&#45;&gt;sourcefile~concretecomposite.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~compositecomponent.f90&#45;&gt;sourcefile~concretecomposite.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M657.76,-54C649.38,-54 640.84,-54 632.42,-54"/>
+<polygon fill="#255000" stroke="#255000" points="632.24,-50.5 622.24,-54 632.24,-57.5 632.24,-50.5"/>
+</g>
+<!-- sourcefile~surrogateframeworkcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~surrogateframeworkcomponent.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~EfferentGraph_node6"><a xlink:href=".././sourcefile/surrogateframeworkcomponent.f90.html" xlink:title="SurrogateFrameworkComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="209,-24 0,-24 0,0 209,0 209,-24"/>
+<text text-anchor="middle" x="104.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SurrogateFrameworkComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractframeworkcomponent.f90&#45;&gt;sourcefile~surrogateframeworkcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~abstractframeworkcomponent.f90&#45;&gt;sourcefile~surrogateframeworkcomponent.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M244.87,-12C236.4,-12 227.8,-12 219.23,-12"/>
+<polygon fill="#025500" stroke="#025500" points="219.2,-8.5 209.2,-12 219.2,-15.5 219.2,-8.5"/>
+</g>
+<!-- sourcefile~concretecomposite.f90&#45;&gt;sourcefile~abstractcomposite.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~concretecomposite.f90&#45;&gt;sourcefile~abstractcomposite.f90</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M512.24,-66.06C471.43,-77.69 405.1,-93.6 346.5,-94"/>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M344.5,-94C290.29,-94.37 229.4,-89.19 182.65,-84.01"/>
+<polygon fill="#002505" stroke="#002505" points="182.93,-80.52 172.6,-82.87 182.14,-87.48 182.93,-80.52"/>
+</g>
+<!-- sourcefile~concretecomposite.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~concretecomposite.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M492.4,-41.96C468.23,-37 440.05,-31.21 414.93,-26.05"/>
+<polygon fill="#002505" stroke="#002505" points="415.61,-22.62 405.11,-24.04 414.2,-29.48 415.61,-22.62"/>
+</g>
+<!-- sourcefile~stringcompositemap.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~stringcompositemap.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~EfferentGraph_node5"><a xlink:href=".././sourcefile/stringcompositemap.f90.html" xlink:title="StringCompositeMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="418.5,-66 272.5,-66 272.5,-42 418.5,-42 418.5,-66"/>
+<text text-anchor="middle" x="345.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringCompositeMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~concretecomposite.f90&#45;&gt;sourcefile~stringcompositemap.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~concretecomposite.f90&#45;&gt;sourcefile~stringcompositemap.f90</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M481.77,-54C464.81,-54 446.51,-54 429,-54"/>
+<polygon fill="#002505" stroke="#002505" points="428.81,-50.5 418.81,-54 428.81,-57.5 428.81,-50.5"/>
+</g>
+<!-- sourcefile~stringcompositemap.f90&#45;&gt;sourcefile~abstractcomposite.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~stringcompositemap.f90&#45;&gt;sourcefile~abstractcomposite.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M272.47,-60.03C244.19,-62.39 211.68,-65.11 182.9,-67.52"/>
+<polygon fill="#255000" stroke="#255000" points="182.56,-64.04 172.89,-68.36 183.15,-71.01 182.56,-64.04"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecompositecomponentf90EfferentGraph = svgPanZoom('#sourcefilecompositecomponentf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#EfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~compositecomponent.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecompositecomponentf90AfferentGraph" width="641pt" height="186pt"
+ viewBox="0.00 0.00 641.00 186.08" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph" class="graph" transform="scale(1.75 1.75) rotate(0) translate(4 322)">
+<title>sourcefile~~compositecomponent.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 1119,-322 1119,4 -4,4"/>
+<!-- sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~compositecomponent.f90</title>
+<polygon fill="none" stroke="black" points="154,-172 0,-172 0,-148 154,-148 154,-172"/>
+<text text-anchor="middle" x="77" y="-157.6" font-family="Helvetica,sans-Serif" font-size="10.50">CompositeComponent.F90</text>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~baseframeworkcomponent.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/baseframeworkcomponent.f90.html" xlink:title="BaseFrameworkComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="373,-172 190,-172 190,-148 373,-148 373,-172"/>
+<text text-anchor="middle" x="281.5" y="-157.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseFrameworkComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~compositecomponent.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M189.91,-160C181.45,-160 172.89,-160 164.47,-160"/>
+<polygon fill="#255000" stroke="#255000" points="164.28,-156.5 154.28,-160 164.28,-163.5 164.28,-156.5"/>
+</g>
+<!-- sourcefile~driver.f90~2 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~driver.f90~2</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/driver.f90~2.html" xlink:title="driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="721,-213 656,-213 656,-189 721,-189 721,-213"/>
+<text text-anchor="middle" x="688.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~driver.f90~2&#45;&gt;sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~driver.f90~2&#45;&gt;sourcefile~compositecomponent.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M655.97,-201.92C587.78,-203.69 421.55,-206.83 282.5,-200"/>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~maplgenericcomponent.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/maplgenericcomponent.f90.html" xlink:title="MaplGenericComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="574,-172 409,-172 409,-148 574,-148 574,-172"/>
+<text text-anchor="middle" x="491.5" y="-157.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~driver.f90~2&#45;&gt;sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~driver.f90~2&#45;&gt;sourcefile~maplgenericcomponent.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M655.74,-194.32C629.82,-188.87 592.3,-180.98 559.77,-174.14"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="560.35,-170.69 549.85,-172.06 558.91,-177.54 560.35,-170.69"/>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~compositecomponent.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M455.54,-172.01C414.5,-184.86 344.2,-203.03 282.5,-200"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M280.5,-200C228.7,-197.45 170.74,-185 130.15,-174.66"/>
+<polygon fill="#255000" stroke="#255000" points="130.78,-171.2 120.22,-172.08 129.02,-177.98 130.78,-171.2"/>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~baseframeworkcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~baseframeworkcomponent.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M408.89,-160C400.46,-160 391.83,-160 383.23,-160"/>
+<polygon fill="#255000" stroke="#255000" points="383.16,-156.5 373.16,-160 383.16,-163.5 383.16,-156.5"/>
+</g>
+<!-- sourcefile~test_compositecomponent.pf -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~test_compositecomponent.pf</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/test_compositecomponent.pf.html" xlink:title="Test_CompositeComponent.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="367,-130 196,-130 196,-106 367,-106 367,-130"/>
+<text text-anchor="middle" x="281.5" y="-115.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CompositeComponent.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_compositecomponent.pf&#45;&gt;sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~test_compositecomponent.pf&#45;&gt;sourcefile~compositecomponent.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M222.47,-130.04C198.64,-134.98 170.88,-140.74 146.09,-145.88"/>
+<polygon fill="#255000" stroke="#255000" points="145.12,-142.5 136.04,-147.96 146.54,-149.36 145.12,-142.5"/>
+</g>
+<!-- sourcefile~maplgeneric.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~maplgeneric.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/maplgeneric.f90.html" xlink:title="MaplGeneric.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="740,-171 637,-171 637,-147 740,-147 740,-171"/>
+<text text-anchor="middle" x="688.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGeneric.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~maplgenericcomponent.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M636.78,-159.26C620.76,-159.34 602.53,-159.44 584.56,-159.53"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="584.3,-156.03 574.32,-159.58 584.34,-163.03 584.3,-156.03"/>
+</g>
+<!-- sourcefile~test_concretecomposite.pf -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~test_concretecomposite.pf</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/test_concretecomposite.pf.html" xlink:title="Test_ConcreteComposite.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="767,-129 610,-129 610,-105 767,-105 767,-129"/>
+<text text-anchor="middle" x="688.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ConcreteComposite.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_concretecomposite.pf&#45;&gt;sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~test_concretecomposite.pf&#45;&gt;sourcefile~maplgenericcomponent.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M632.92,-129.04C609.35,-134.23 581.6,-140.35 557.02,-145.77"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="556.08,-142.4 547.06,-147.97 557.58,-149.23 556.08,-142.4"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="914,-171 803,-171 803,-147 914,-147 914,-171"/>
+<text text-anchor="middle" x="858.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~maplgeneric.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~maplgeneric.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M802.96,-159C786.21,-159 767.69,-159 750.54,-159"/>
+<polygon fill="#255000" stroke="#255000" points="750.07,-155.5 740.07,-159 750.07,-162.5 750.07,-155.5"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1105,-318 960,-318 960,-294 1105,-294 1105,-318"/>
+<text text-anchor="middle" x="1032.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M966.89,-293.95C960.93,-291.5 955.19,-288.55 950,-285 910.83,-258.2 882.7,-208.59 868.98,-180.27"/>
+<polygon fill="#255000" stroke="#255000" points="872.14,-178.78 864.73,-171.22 865.81,-181.76 872.14,-178.78"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1109.5,-276 955.5,-276 955.5,-252 1109.5,-252 1109.5,-276"/>
+<text text-anchor="middle" x="1032.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M970.57,-251.9C963.43,-249.44 956.41,-246.5 950,-243 920.01,-226.61 892.28,-198.06 875.62,-178.85"/>
+<polygon fill="#255000" stroke="#255000" points="878.11,-176.38 868.98,-171.01 872.77,-180.9 878.11,-176.38"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1106,-234 959,-234 959,-210 1106,-210 1106,-234"/>
+<text text-anchor="middle" x="1032.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M978.9,-209.95C969.19,-207.3 959.22,-204.3 950,-201 930.05,-193.87 908.49,-183.96 891.43,-175.56"/>
+<polygon fill="#255000" stroke="#255000" points="892.96,-172.41 882.45,-171.07 889.83,-178.67 892.96,-172.41"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node12"><a xlink:href=".././sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1064.5,-192 1000.5,-192 1000.5,-168 1064.5,-168 1064.5,-192"/>
+<text text-anchor="middle" x="1032.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1000.35,-176.2C979.16,-173.61 950.33,-170.09 924.28,-166.91"/>
+<polygon fill="#255000" stroke="#255000" points="924.43,-163.4 914.08,-165.66 923.58,-170.35 924.43,-163.4"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node13"><a xlink:href=".././sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1104.5,-150 960.5,-150 960.5,-126 1104.5,-126 1104.5,-150"/>
+<text text-anchor="middle" x="1032.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M960.05,-146.72C948.2,-148.17 935.97,-149.66 924.3,-151.09"/>
+<polygon fill="#255000" stroke="#255000" points="923.71,-147.63 914.2,-152.32 924.55,-154.58 923.71,-147.63"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node14"><a xlink:href=".././sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1112.5,-108 952.5,-108 952.5,-84 1112.5,-84 1112.5,-108"/>
+<text text-anchor="middle" x="1032.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M978.9,-108.05C969.19,-110.7 959.22,-113.7 950,-117 930.05,-124.13 908.49,-134.04 891.43,-142.44"/>
+<polygon fill="#255000" stroke="#255000" points="889.83,-139.33 882.45,-146.93 892.96,-145.59 889.83,-139.33"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mapl_historygridcomp.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node15"><a xlink:href=".././sourcefile/mapl_historygridcomp.f90.html" xlink:title="MAPL_HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1112.5,-66 952.5,-66 952.5,-42 1112.5,-42 1112.5,-66"/>
+<text text-anchor="middle" x="1032.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M970.57,-66.1C963.43,-68.56 956.41,-71.5 950,-75 920.01,-91.39 892.28,-119.94 875.62,-139.15"/>
+<polygon fill="#255000" stroke="#255000" points="872.77,-137.1 868.98,-146.99 878.11,-141.62 872.77,-137.1"/>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mapl_orbgridcompmod.f90</title>
+<g id="a_sourcefile~~compositecomponent.f90~~AfferentGraph_node16"><a xlink:href=".././sourcefile/mapl_orbgridcompmod.f90.html" xlink:title="MAPL_OrbGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1115,-24 950,-24 950,0 1115,0 1115,-24"/>
+<text text-anchor="middle" x="1032.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~compositecomponent.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M966.89,-24.05C960.93,-26.5 955.19,-29.45 950,-33 910.83,-59.8 882.7,-109.41 868.98,-137.73"/>
+<polygon fill="#255000" stroke="#255000" points="865.81,-136.24 864.73,-146.78 872.14,-139.22 865.81,-136.24"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecompositecomponentf90AfferentGraph = svgPanZoom('#sourcefilecompositecomponentf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#AfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl_CompositeComponent</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AbstractFrameworkComponent</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AbstractComposite</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ConcreteComposite</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="k">   private</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CompositeComponent</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CompositeComponent</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="c">!!$      private</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">composite</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_child_by_name</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_child_by_index</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_child_by_name</span><span class="p">,</span><span class="w"> </span><span class="n">get_child_by_index</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_child</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_parent</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_num_children</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="c">! Indirect design pattern accessors</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_composite</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_composite</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">end type </span><span class="n">CompositeComponent</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="k">contains</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="k">   function </span><span class="n">get_child_by_name</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CompositeComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComposite</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_node</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="n">child_node</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">composite</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">child_node</span><span class="p">)</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">         </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">child_node</span><span class="p">%</span><span class="n">get_component</span><span class="p">()</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="k">      </span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="k">   end function </span><span class="n">get_child_by_name</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">function </span><span class="n">get_child_by_index</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CompositeComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComposite</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_node</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="n">child_node</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">composite</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">child_node</span><span class="p">)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">         </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">child_node</span><span class="p">%</span><span class="n">get_component</span><span class="p">()</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="k">      </span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="k">   end function </span><span class="n">get_child_by_index</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">   </span><span class="k">function </span><span class="n">add_child</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">component</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CompositeComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">component</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComposite</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_composite</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="n">child_composite</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">composite</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">ConcreteComposite</span><span class="p">(</span><span class="n">component</span><span class="p">,</span><span class="w"> </span><span class="n">parent</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">composite</span><span class="p">))</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="c">! Possibly the introduction of a SurrogateComposite class at the</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="c">! top of the inheritance hierarchy would eliminate some of the</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="c">! SELECT TYPE statements below.  As an isolated instance</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="c">! the current solution is not completely abhorrent.</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">child_composite</span><span class="p">)</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">         </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">child_composite</span><span class="p">%</span><span class="n">get_component</span><span class="p">()</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">         </span><span class="k">select type</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">         </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">CompositeComponent</span><span class="p">)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">            </span><span class="n">child</span><span class="p">%</span><span class="n">composite</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">child_composite</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">         </span><span class="k">end select</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="k">      end select</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="k">   end function </span><span class="n">add_child</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">   </span><span class="k">function </span><span class="n">get_parent</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">parent</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CompositeComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComposite</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">parent_node</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="n">parent_node</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">composite</span><span class="p">%</span><span class="n">get_parent</span><span class="p">()</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">parent_node</span><span class="p">)</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">         </span><span class="n">parent</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">parent_node</span><span class="p">%</span><span class="n">get_component</span><span class="p">()</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="k">   end function </span><span class="n">get_parent</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">get_num_children</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">num_children</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CompositeComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="n">num_children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">composite</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_num_children</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_composite</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">composite</span><span class="p">)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CompositeComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComposite</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">composite</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">composite</span><span class="p">)</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">composite</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">composite</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="k">   end subroutine </span><span class="n">set_composite</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">   </span><span class="k">function </span><span class="n">get_composite</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">composite</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CompositeComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComposite</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">composite</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="n">composite</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">composite</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_composite</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="k">end module </span><span class="n">mapl_CompositeComponent</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-01T20:55:21.019912             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

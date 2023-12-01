@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>make_subfields_from_num_grids &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>make_subfields_from_num_grids
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">173 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/OpenMP_Support.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/openmp_support.f90.html'>OpenMP_Support.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_openmp_support.html'>MAPL_OpenMP_Support</a></li>
+            <li class="breadcrumb-item active" aria-current="page">make_subfields_from_num_grids</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/make_subfields_from_num_grids.html#src">make_subfields_from_num_grids</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function make_subfields_from_num_grids(primary_field, num_subgrids, unusable, rc) result(subfields)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-primary_field"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>primary_field</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-num_subgrids"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>num_subgrids</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~371"></span>
+              class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1873"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-subfields"></span>
+          type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>), allocatable, (:)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_subfields_from_num_grids~~CallsGraph Pages: 1 -->
+<svg id="procmake_subfields_from_num_gridsCallsGraph" width="641pt" height="241pt"
+ viewBox="0.00 0.00 641.00 241.21" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph" class="graph" transform="scale(3.45 3.45) rotate(0) translate(4 828)">
+<title>proc~~make_subfields_from_num_grids~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-828 2207,-828 2207,4 -4,4"/>
+<!-- proc~make_subfields_from_num_grids -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node1" class="node">
+<title>proc~make_subfields_from_num_grids</title>
+<polygon fill="none" stroke="black" points="318,-166 0,-166 0,-142 318,-142 318,-166"/>
+<text text-anchor="middle" x="159" y="-151.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_OpenMP_Support::make_subfields_from_num_grids</text>
+</g>
+<!-- ESMF_AttributeCopy -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeCopy</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1150.5,-796 996.5,-796 996.5,-772 1150.5,-772 1150.5,-796"/>
+<text text-anchor="middle" x="1073.5" y="-781.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeCopy</text>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;ESMF_AttributeCopy -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge1" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;ESMF_AttributeCopy</title>
+<path fill="none" stroke="#255000" d="M172.51,-166.44C243.43,-236.27 604.73,-582.38 967,-753 980.47,-759.34 995.53,-764.7 1009.95,-769.08"/>
+<polygon fill="#255000" stroke="#255000" points="1009.23,-772.52 1019.81,-771.96 1011.19,-765.8 1009.23,-772.52"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node3" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="517,-66 416,-66 416,-42 517,-42 517,-66"/>
+<text text-anchor="middle" x="466.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge2" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#255000" d="M188.18,-141.87C225.56,-126.09 293.85,-98.39 354,-80 370.76,-74.87 389.21,-70.19 406.19,-66.26"/>
+<polygon fill="#255000" stroke="#255000" points="407.02,-69.66 415.99,-64.03 405.47,-62.84 407.02,-69.66"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node4" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="509,-24 424,-24 424,0 509,0 509,-24"/>
+<text text-anchor="middle" x="466.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;esmf_fieldget -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge3" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#255000" d="M175.03,-141.83C206.3,-117.18 281.52,-61.27 354,-33 372.9,-25.63 394.64,-20.79 413.87,-17.64"/>
+<polygon fill="#255000" stroke="#255000" points="414.61,-21.06 423.97,-16.1 413.56,-14.15 414.61,-21.06"/>
+</g>
+<!-- interface~make_subgrids -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node5" class="node">
+<title>interface~make_subgrids</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node5"><a xlink:href=".././interface/make_subgrids.html" xlink:title="MAPL_OpenMP_Support::make_subgrids">
+<polygon fill="#a7506f" stroke="#a7506f" points="579,-146 354,-146 354,-122 579,-122 579,-146"/>
+<text text-anchor="middle" x="466.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::make_subgrids</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;interface~make_subgrids -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge4" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;interface~make_subgrids</title>
+<path fill="none" stroke="#255000" d="M318.12,-143.65C326.71,-143.09 335.28,-142.53 343.72,-141.97"/>
+<polygon fill="#255000" stroke="#255000" points="344.18,-145.45 353.93,-141.3 343.73,-138.46 344.18,-145.45"/>
+</g>
+<!-- proc~find_bounds -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node6" class="node">
+<title>proc~find_bounds</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node6"><a xlink:href=".././proc/find_bounds.html" xlink:title="MAPL_OpenMP_Support::find_bounds">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1178,-106 969,-106 969,-82 1178,-82 1178,-106"/>
+<text text-anchor="middle" x="1073.5" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::find_bounds</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~find_bounds -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge5" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~find_bounds</title>
+<path fill="none" stroke="#255000" d="M205.47,-141.94C244.54,-132.17 302.55,-119.07 354,-113 566.54,-87.94 816.79,-87.93 958.82,-90.65"/>
+<polygon fill="#255000" stroke="#255000" points="958.79,-94.15 968.86,-90.85 958.93,-87.16 958.79,-94.15"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node7" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node7"><a xlink:href=".././proc/mapl_gridget.html" xlink:title="mapl_MaplGrid::MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="1161,-262 986,-262 986,-238 1161,-238 1161,-262"/>
+<text text-anchor="middle" x="1073.5" y="-247.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge6" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#255000" d="M220.52,-166.01C258.68,-173.23 309.07,-182.14 354,-188 575.65,-216.93 837.59,-235.66 975.83,-244.35"/>
+<polygon fill="#255000" stroke="#255000" points="975.77,-247.85 985.97,-244.98 976.21,-240.87 975.77,-247.85"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node8"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1725,-458 1505,-458 1505,-434 1725,-434 1725,-458"/>
+<text text-anchor="middle" x="1615" y="-443.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge7" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M164.01,-166.2C194.67,-257.01 400.99,-824 772,-824 772,-824 772,-824 1074.5,-824 1264.9,-824 1325.98,-782.69 1469,-657 1533.77,-600.08 1583.65,-508.25 1604,-467.11"/>
+<polygon fill="#255000" stroke="#255000" points="1607.2,-468.54 1608.43,-458.02 1600.91,-465.48 1607.2,-468.54"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node9"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1722,-222 1508,-222 1508,-198 1722,-198 1722,-222"/>
+<text text-anchor="middle" x="1615" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge8" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M318.23,-155.91C616.18,-159.89 1250.2,-170.3 1469,-189 1489.69,-190.77 1511.93,-193.55 1532.63,-196.51"/>
+<polygon fill="#255000" stroke="#255000" points="1532.25,-199.99 1542.65,-197.97 1533.26,-193.06 1532.25,-199.99"/>
+</g>
+<!-- proc~make_subgrids_from_bounds -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node13" class="node">
+<title>proc~make_subgrids_from_bounds</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node13"><a xlink:href=".././proc/make_subgrids_from_bounds.html" xlink:title="MAPL_OpenMP_Support::make_subgrids_from_bounds">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="922.5,-506 623.5,-506 623.5,-482 922.5,-482 922.5,-506"/>
+<text text-anchor="middle" x="773" y="-491.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::make_subgrids_from_bounds</text>
+</a>
+</g>
+</g>
+<!-- interface~make_subgrids&#45;&gt;proc~make_subgrids_from_bounds -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge9" class="edge">
+<title>interface~make_subgrids&#45;&gt;proc~make_subgrids_from_bounds</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M477.98,-146.39C522.82,-199.4 698.74,-407.39 754.76,-473.62"/>
+<polygon fill="#025563" stroke="#025563" points="752.43,-476.29 761.56,-481.66 757.78,-471.76 752.43,-476.29"/>
+</g>
+<!-- proc~make_subgrids_from_num_grids -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node14" class="node">
+<title>proc~make_subgrids_from_num_grids</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node14"><a xlink:href=".././proc/make_subgrids_from_num_grids.html" xlink:title="MAPL_OpenMP_Support::make_subgrids_from_num_grids">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="931,-146 615,-146 615,-122 931,-122 931,-146"/>
+<text text-anchor="middle" x="773" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::make_subgrids_from_num_grids</text>
+</a>
+</g>
+</g>
+<!-- interface~make_subgrids&#45;&gt;proc~make_subgrids_from_num_grids -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge10" class="edge">
+<title>interface~make_subgrids&#45;&gt;proc~make_subgrids_from_num_grids</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M579.16,-127.47C587.51,-127.38 596.05,-127.31 604.64,-127.28"/>
+<polygon fill="#025563" stroke="#025563" points="604.77,-130.78 614.76,-127.25 604.75,-123.78 604.77,-130.78"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#063255" d="M1158.73,-262.05C1166.52,-265.64 1173.8,-270.2 1180,-276 1218.49,-312.01 1175.76,-354.95 1216,-389 1299.5,-459.66 1429.91,-465.17 1518.51,-458.82"/>
+<polygon fill="#063255" stroke="#063255" points="1518.87,-462.3 1528.57,-458.03 1518.32,-455.32 1518.87,-462.3"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#063255" d="M1161.13,-245.05C1241.1,-240.3 1363.13,-232.6 1469,-224 1478.35,-223.24 1488.04,-222.41 1497.77,-221.54"/>
+<polygon fill="#063255" stroke="#063255" points="1498.27,-225.01 1507.92,-220.62 1497.64,-218.03 1498.27,-225.01"/>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node10" class="node">
+<title>ESMF_AttributeGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1415.5,-380 1269.5,-380 1269.5,-356 1415.5,-356 1415.5,-380"/>
+<text text-anchor="middle" x="1342.5" y="-365.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeGet</text>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#063255" d="M1154.45,-262.02C1163.61,-265.56 1172.38,-270.13 1180,-276 1206.47,-296.39 1189.16,-322.1 1216,-342 1228.61,-351.35 1243.8,-357.52 1259.19,-361.55"/>
+<polygon fill="#063255" stroke="#063255" points="1258.78,-365.05 1269.31,-363.91 1260.36,-358.23 1258.78,-365.05"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node11" class="node">
+<title>ESMF_GridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1676.5,-348 1553.5,-348 1553.5,-324 1676.5,-324 1676.5,-348"/>
+<text text-anchor="middle" x="1615" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGet</text>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#063255" d="M1144.72,-262.07C1156.88,-265.61 1169.11,-270.17 1180,-276 1199.13,-286.25 1196.05,-300.45 1216,-309 1272.95,-333.4 1444.7,-336.88 1542.97,-336.77"/>
+<polygon fill="#063255" stroke="#063255" points="1543.13,-340.27 1553.12,-336.74 1543.11,-333.27 1543.13,-340.27"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node15" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node15"><a xlink:href=".././proc/mapl_gridhasde.html" xlink:title="mapl_MaplGrid::MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1438.5,-300 1246.5,-300 1246.5,-276 1438.5,-276 1438.5,-300"/>
+<text text-anchor="middle" x="1342.5" y="-285.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#063255" d="M1158.98,-262.02C1187,-266.01 1218.36,-270.47 1247.07,-274.56"/>
+<polygon fill="#063255" stroke="#063255" points="1246.72,-278.05 1257.11,-275.99 1247.7,-271.12 1246.72,-278.05"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node12" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node12"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2014,-458 1761,-458 1761,-434 2014,-434 2014,-458"/>
+<text text-anchor="middle" x="1887.5" y="-443.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1725.24,-446C1733.67,-446 1742.25,-446 1750.82,-446"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1750.88,-449.5 1760.88,-446 1750.88,-442.5 1750.88,-449.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node16" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node16"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="2002,-317 1773,-317 1773,-293 2002,-293 2002,-317"/>
+<text text-anchor="middle" x="1887.5" y="-302.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1639.06,-433.98C1687.25,-408.86 1798.72,-350.75 1854.09,-321.89"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1855.86,-324.92 1863.11,-317.19 1852.63,-318.71 1855.86,-324.92"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M1691.06,-222.01C1702.54,-224.55 1714.17,-227.53 1725,-231 1772.11,-246.09 1823.59,-271.32 1855.47,-288.06"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="1854.23,-291.37 1864.71,-292.97 1857.51,-285.19 1854.23,-291.37"/>
+</g>
+<!-- at -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node26" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="2153.5,-437 2099.5,-437 2099.5,-413 2153.5,-413 2153.5,-437"/>
+<text text-anchor="middle" x="2126.5" y="-422.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge19" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#722550" d="M2014.29,-434.85C2041.83,-432.41 2068.86,-430.02 2089.36,-428.2"/>
+<polygon fill="#722550" stroke="#722550" points="2089.81,-431.68 2099.46,-427.31 2089.19,-424.7 2089.81,-431.68"/>
+</g>
+<!-- insert -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node27" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="2153.5,-479 2099.5,-479 2099.5,-455 2153.5,-455 2153.5,-479"/>
+<text text-anchor="middle" x="2126.5" y="-464.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge20" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#722550" d="M2014.29,-457.15C2041.83,-459.59 2068.86,-461.98 2089.36,-463.8"/>
+<polygon fill="#722550" stroke="#722550" points="2089.19,-467.3 2099.46,-464.69 2089.81,-460.32 2089.19,-467.3"/>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_AttributeCopy -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge21" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_AttributeCopy</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M791.34,-506.03C823.51,-529.24 892.64,-583.35 931,-645 958.85,-689.75 928.51,-721.99 967,-758 972.86,-763.48 979.69,-767.86 987,-771.35"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="985.9,-774.68 996.47,-775.31 988.6,-768.22 985.9,-774.68"/>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge31" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M784.82,-481.64C812.76,-450.18 890.52,-365.6 967,-309 989.19,-292.58 1016.43,-277.46 1037.67,-266.63"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="1039.3,-269.73 1046.67,-262.12 1036.16,-263.47 1039.3,-269.73"/>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge32" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M790.21,-506.09C821.07,-529.81 888.96,-585.34 931,-645 953.46,-676.87 934.26,-703.83 967,-725 1046.5,-776.4 1088.6,-749.64 1180,-725 1361.31,-676.13 1536.71,-520.2 1594.29,-465.33"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="1596.84,-467.73 1601.63,-458.28 1591.99,-462.69 1596.84,-467.73"/>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge33" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M778.35,-481.74C794.75,-437.66 857.51,-286.75 967,-229 1055.87,-182.13 1336.29,-191.47 1497.28,-201.36"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="1497.51,-204.88 1507.71,-202.01 1497.95,-197.89 1497.51,-204.88"/>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_GridGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge26" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M870.26,-481.98C1033.48,-461.18 1357.68,-417.92 1469,-389 1506.41,-379.28 1547.68,-363.7 1576.59,-351.94"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="1577.98,-355.15 1585.9,-348.11 1575.32,-348.67 1577.98,-355.15"/>
+</g>
+<!-- ESMF_AttributeRemove -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node17" class="node">
+<title>ESMF_AttributeRemove</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1159,-426 988,-426 988,-402 1159,-402 1159,-426"/>
+<text text-anchor="middle" x="1073.5" y="-411.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeRemove</text>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_AttributeRemove -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge22" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_AttributeRemove</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M815.69,-481.93C854.71,-470.73 914.68,-453.76 967,-440 981.6,-436.16 997.38,-432.18 1012.18,-428.52"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="1013.37,-431.83 1022.24,-426.05 1011.7,-425.04 1013.37,-431.83"/>
+</g>
+<!-- ESMF_AttributeSet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node18" class="node">
+<title>ESMF_AttributeSet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1146,-384 1001,-384 1001,-360 1146,-360 1146,-384"/>
+<text text-anchor="middle" x="1073.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeSet</text>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_AttributeSet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge23" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_AttributeSet</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M792.62,-481.92C826.14,-460.73 899.42,-416.85 967,-393 974.64,-390.3 982.71,-387.92 990.86,-385.82"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="991.93,-389.16 1000.81,-383.39 990.27,-382.36 991.93,-389.16"/>
+</g>
+<!-- ESMF_GridAddCoord -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node21" class="node">
+<title>ESMF_GridAddCoord</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1152,-342 995,-342 995,-318 1152,-318 1152,-342"/>
+<text text-anchor="middle" x="1073.5" y="-327.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridAddCoord</text>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_GridAddCoord -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge24" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_GridAddCoord</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M786.29,-481.74C815.09,-453.75 890.36,-384.96 967,-351 972.77,-348.44 978.86,-346.2 985.07,-344.22"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="986.31,-347.5 994.92,-341.33 984.34,-340.79 986.31,-347.5"/>
+</g>
+<!-- ESMF_GridCreateNoPeriDim -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node22" class="node">
+<title>ESMF_GridCreateNoPeriDim</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1171.5,-716 975.5,-716 975.5,-692 1171.5,-692 1171.5,-716"/>
+<text text-anchor="middle" x="1073.5" y="-701.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCreateNoPeriDim</text>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_GridCreateNoPeriDim -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge25" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_GridCreateNoPeriDim</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M787.23,-506.33C814.49,-531.83 878.79,-592.39 931,-645 947.39,-661.51 946.63,-671.76 967,-683 970.53,-684.95 974.22,-686.72 978.01,-688.33"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="977.03,-691.7 987.62,-692 979.52,-685.16 977.03,-691.7"/>
+</g>
+<!-- ESMF_GridGetCoord -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node23" class="node">
+<title>ESMF_GridGetCoord</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1151,-674 996,-674 996,-650 1151,-650 1151,-674"/>
+<text text-anchor="middle" x="1073.5" y="-659.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGetCoord</text>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_GridGetCoord -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge27" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M785.79,-506.19C814.11,-534.72 889.44,-606.02 967,-641 973.12,-643.76 979.6,-646.16 986.22,-648.24"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="985.41,-651.65 995.99,-651.08 987.36,-644.93 985.41,-651.65"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node24" class="node">
+<title>ESMF_VMGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1132,-632 1015,-632 1015,-608 1132,-608 1132,-632"/>
+<text text-anchor="middle" x="1073.5" y="-617.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGet</text>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_VMGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge28" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M791.76,-506.07C824.78,-527.96 898.5,-574.2 967,-599 978.99,-603.34 992.08,-606.86 1004.84,-609.68"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="1004.47,-613.18 1014.97,-611.8 1005.9,-606.33 1004.47,-613.18"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node25" class="node">
+<title>ESMF_VMGetCurrent</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="1152,-590 995,-590 995,-566 1152,-566 1152,-590"/>
+<text text-anchor="middle" x="1073.5" y="-575.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGetCurrent</text>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge29" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M806.77,-506.02C844.89,-519.69 909.89,-542.05 967,-557 976.25,-559.42 986.02,-561.71 995.74,-563.83"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="995.31,-567.32 1005.82,-565.98 996.76,-560.47 995.31,-567.32"/>
+</g>
+<!-- interface~mapl_gridgetcorners -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node28" class="node">
+<title>interface~mapl_gridgetcorners</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node28"><a xlink:href=".././interface/mapl_gridgetcorners.html" xlink:title="MAPL_Base::MAPL_GridGetCorners">
+<polygon fill="#a7506f" stroke="#a7506f" points="1172,-548 975,-548 975,-524 1172,-524 1172,-548"/>
+<text text-anchor="middle" x="1073.5" y="-533.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_GridGetCorners</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;interface~mapl_gridgetcorners -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge30" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;interface~mapl_gridgetcorners</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M859.54,-506.04C896.31,-511.21 939.43,-517.28 977.21,-522.59"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="976.82,-526.07 987.21,-524 977.79,-519.14 976.82,-526.07"/>
+</g>
+<!-- proc~subset_array -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node30" class="node">
+<title>proc~subset_array</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node30"><a xlink:href=".././proc/subset_array.html" xlink:title="MAPL_OpenMP_Support::subset_array">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1180,-506 967,-506 967,-482 1180,-482 1180,-506"/>
+<text text-anchor="middle" x="1073.5" y="-491.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::subset_array</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subgrids_from_bounds&#45;&gt;proc~subset_array -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge34" class="edge">
+<title>proc~make_subgrids_from_bounds&#45;&gt;proc~subset_array</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M922.81,-494C934.22,-494 945.63,-494 956.77,-494"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="956.92,-497.5 966.92,-494 956.92,-490.5 956.92,-497.5"/>
+</g>
+<!-- proc~make_subgrids_from_num_grids&#45;&gt;interface~make_subgrids -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge35" class="edge">
+<title>proc~make_subgrids_from_num_grids&#45;&gt;interface~make_subgrids</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M614.76,-140.75C606.22,-140.74 597.7,-140.7 589.32,-140.63"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="589.19,-137.13 579.16,-140.53 589.12,-144.13 589.19,-137.13"/>
+</g>
+<!-- proc~make_subgrids_from_num_grids&#45;&gt;proc~find_bounds -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge36" class="edge">
+<title>proc~make_subgrids_from_num_grids&#45;&gt;proc~find_bounds</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M863.56,-122C897.87,-117.4 937.21,-112.13 972.44,-107.41"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="973.3,-110.82 982.75,-106.03 972.37,-103.89 973.3,-110.82"/>
+</g>
+<!-- proc~make_subgrids_from_num_grids&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge37" class="edge">
+<title>proc~make_subgrids_from_num_grids&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M805.1,-146.09C859.42,-167.19 971.52,-210.76 1031.89,-234.22"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="1030.88,-237.58 1041.47,-237.94 1033.42,-231.06 1030.88,-237.58"/>
+</g>
+<!-- proc~make_subgrids_from_num_grids&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge38" class="edge">
+<title>proc~make_subgrids_from_num_grids&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M786.79,-146.24C816.04,-173.48 891.21,-239.23 967,-271 1055.69,-308.17 1108.83,-244.33 1180,-309 1224.05,-349.03 1168.95,-401.53 1216,-438 1319.46,-518.19 1487.68,-484.1 1568.21,-460.94"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="1569.45,-464.22 1578.05,-458.04 1567.47,-457.51 1569.45,-464.22"/>
+</g>
+<!-- proc~make_subgrids_from_num_grids&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge39" class="edge">
+<title>proc~make_subgrids_from_num_grids&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M931.15,-125.69C1073.03,-121.42 1286.84,-123.08 1469,-158 1507.82,-165.44 1550.14,-181.62 1578.99,-193.97"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="1577.66,-197.21 1588.23,-197.99 1580.46,-190.79 1577.66,-197.21"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#720255" d="M1372.57,-300.09C1398.44,-311.22 1437.02,-328.72 1469,-347 1513.37,-372.36 1561.81,-406.96 1589.97,-427.83"/>
+<polygon fill="#720255" stroke="#720255" points="1587.91,-430.66 1598.02,-433.84 1592.1,-425.05 1587.91,-430.66"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#720255" d="M1430.49,-275.99C1443.77,-272.46 1457.02,-267.9 1469,-262 1487.94,-252.67 1485.99,-240.2 1505,-231 1509.38,-228.88 1513.95,-226.98 1518.64,-225.27"/>
+<polygon fill="#720255" stroke="#720255" points="1520.02,-228.49 1528.4,-222.01 1517.81,-221.85 1520.02,-228.49"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#720255" d="M1411.41,-300.05C1451.75,-307.21 1502.81,-316.27 1543.58,-323.5"/>
+<polygon fill="#720255" stroke="#720255" points="1542.99,-326.95 1553.45,-325.25 1544.21,-320.06 1542.99,-326.95"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node19" class="node">
+<title>ESMF_DELayoutGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="1690.5,-264 1539.5,-264 1539.5,-240 1690.5,-240 1690.5,-264"/>
+<text text-anchor="middle" x="1615" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DELayoutGet</text>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#720255" d="M1433.95,-275.96C1464.72,-271.87 1498.98,-267.31 1529.28,-263.27"/>
+<polygon fill="#720255" stroke="#720255" points="1529.95,-266.72 1539.4,-261.93 1529.03,-259.78 1529.95,-266.72"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node20" class="node">
+<title>ESMF_DistGridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1686.5,-306 1543.5,-306 1543.5,-282 1686.5,-282 1686.5,-306"/>
+<text text-anchor="middle" x="1615" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DistGridGet</text>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#720255" d="M1438.87,-290.12C1469.62,-290.8 1503.39,-291.55 1533,-292.2"/>
+<polygon fill="#720255" stroke="#720255" points="1533.22,-295.71 1543.29,-292.43 1533.37,-288.71 1533.22,-295.71"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node29" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node29"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="2203,-317 2050,-317 2050,-293 2203,-293 2203,-317"/>
+<text text-anchor="middle" x="2126.5" y="-302.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M2002.14,-305C2014.76,-305 2027.46,-305 2039.65,-305"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="2039.77,-308.5 2049.77,-305 2039.77,-301.5 2039.77,-308.5"/>
+</g>
+<!-- proc~mapl_gridgetcorners -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_node31" class="node">
+<title>proc~mapl_gridgetcorners</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CallsGraph_node31"><a xlink:href=".././proc/mapl_gridgetcorners.html" xlink:title="Base_Implementation::MAPL_GridGetCorners">
+<polygon fill="#d9534f" stroke="#d9534f" points="1469,-548 1216,-548 1216,-524 1469,-524 1469,-548"/>
+<text text-anchor="middle" x="1342.5" y="-533.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_GridGetCorners</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gridgetcorners&#45;&gt;proc~mapl_gridgetcorners -->
+<g id="proc~~make_subfields_from_num_grids~~CallsGraph_edge46" class="edge">
+<title>interface~mapl_gridgetcorners&#45;&gt;proc~mapl_gridgetcorners</title>
+<path fill="none" stroke="#182025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1172.03,-536C1183.09,-536 1194.5,-536 1205.94,-536"/>
+<polygon fill="#182025" fill-opacity="0.019608" stroke="#182025" stroke-opacity="0.019608" points="1205.99,-539.5 1215.99,-536 1205.99,-532.5 1205.99,-539.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmake_subfields_from_num_gridsCallsGraph = svgPanZoom('#procmake_subfields_from_num_gridsCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_subfields_from_num_grids~~CalledByGraph Pages: 1 -->
+<svg id="procmake_subfields_from_num_gridsCalledByGraph" width="641pt" height="36pt"
+ viewBox="0.00 0.00 641.00 35.53" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph" class="graph" transform="scale(2.65 2.65) rotate(0) translate(4 90)">
+<title>proc~~make_subfields_from_num_grids~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-90 1692,-90 1692,4 -4,4"/>
+<!-- proc~make_subfields_from_num_grids -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_node1" class="node">
+<title>proc~make_subfields_from_num_grids</title>
+<polygon fill="none" stroke="black" points="1688,-86 1370,-86 1370,-62 1688,-62 1688,-86"/>
+<text text-anchor="middle" x="1529" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_OpenMP_Support::make_subfields_from_num_grids</text>
+</g>
+<!-- interface~make_subfields -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_node2" class="node">
+<title>interface~make_subfields</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CalledByGraph_node2"><a xlink:href=".././interface/make_subfields.html" xlink:title="MAPL_OpenMP_Support::make_subfields">
+<polygon fill="#a7506f" stroke="#a7506f" points="1334,-86 1107,-86 1107,-62 1334,-62 1334,-86"/>
+<text text-anchor="middle" x="1220.5" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::make_subfields</text>
+</a>
+</g>
+</g>
+<!-- interface~make_subfields&#45;&gt;proc~make_subfields_from_num_grids -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_edge1" class="edge">
+<title>interface~make_subfields&#45;&gt;proc~make_subfields_from_num_grids</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1334.32,-74C1342.67,-74 1351.18,-74 1359.76,-74"/>
+<polygon fill="#255000" stroke="#255000" points="1359.85,-77.5 1369.85,-74 1359.85,-70.5 1359.85,-77.5"/>
+</g>
+<!-- proc~make_subfieldbundles_ordinary -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_node3" class="node">
+<title>proc~make_subfieldbundles_ordinary</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CalledByGraph_node3"><a xlink:href=".././proc/make_subfieldbundles_ordinary.html" xlink:title="MAPL_OpenMP_Support::make_subFieldBundles_ordinary">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1071,-66 755,-66 755,-42 1071,-42 1071,-66"/>
+<text text-anchor="middle" x="913" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::make_subFieldBundles_ordinary</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfieldbundles_ordinary&#45;&gt;interface~make_subfields -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_edge2" class="edge">
+<title>proc~make_subfieldbundles_ordinary&#45;&gt;interface~make_subfields</title>
+<path fill="none" stroke="#255000" d="M1071.22,-64.29C1079.75,-64.85 1088.25,-65.41 1096.63,-65.96"/>
+<polygon fill="#255000" stroke="#255000" points="1096.58,-69.46 1106.78,-66.62 1097.03,-62.47 1096.58,-69.46"/>
+</g>
+<!-- proc~make_substates_from_num_grids -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_node4" class="node">
+<title>proc~make_substates_from_num_grids</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CalledByGraph_node4"><a xlink:href=".././proc/make_substates_from_num_grids.html" xlink:title="MAPL_OpenMP_Support::make_substates_from_num_grids">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="369.5,-66 48.5,-66 48.5,-42 369.5,-42 369.5,-66"/>
+<text text-anchor="middle" x="209" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::make_substates_from_num_grids</text>
+</a>
+</g>
+</g>
+<!-- proc~make_substates_from_num_grids&#45;&gt;interface~make_subfields -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_edge3" class="edge">
+<title>proc~make_substates_from_num_grids&#45;&gt;interface~make_subfields</title>
+<path fill="none" stroke="#255000" d="M325.92,-66.02C366.39,-69.68 412.16,-73.2 454,-75 680.65,-84.74 945.4,-81.04 1096.67,-77.5"/>
+<polygon fill="#255000" stroke="#255000" points="1097,-80.99 1106.91,-77.26 1096.83,-74 1097,-80.99"/>
+</g>
+<!-- interface~make_subfieldbundles -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_node5" class="node">
+<title>interface~make_subfieldbundles</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CalledByGraph_node5"><a xlink:href=".././interface/make_subfieldbundles.html" xlink:title="MAPL_OpenMP_Support::make_subfieldBundles">
+<polygon fill="#a7506f" stroke="#a7506f" points="719,-66 454,-66 454,-42 719,-42 719,-66"/>
+<text text-anchor="middle" x="586.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::make_subfieldBundles</text>
+</a>
+</g>
+</g>
+<!-- proc~make_substates_from_num_grids&#45;&gt;interface~make_subfieldbundles -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_edge6" class="edge">
+<title>proc~make_substates_from_num_grids&#45;&gt;interface~make_subfieldbundles</title>
+<path fill="none" stroke="#255000" d="M369.52,-54C394.07,-54 419.29,-54 443.43,-54"/>
+<polygon fill="#255000" stroke="#255000" points="443.71,-57.5 453.71,-54 443.71,-50.5 443.71,-57.5"/>
+</g>
+<!-- interface~make_substates -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_node6" class="node">
+<title>interface~make_substates</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CalledByGraph_node6"><a xlink:href=".././interface/make_substates.html" xlink:title="MAPL_OpenMP_Support::make_substates">
+<polygon fill="#a7506f" stroke="#a7506f" points="701.5,-24 471.5,-24 471.5,0 701.5,0 701.5,-24"/>
+<text text-anchor="middle" x="586.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support::make_substates</text>
+</a>
+</g>
+</g>
+<!-- proc~make_substates_from_num_grids&#45;&gt;interface~make_substates -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_edge8" class="edge">
+<title>proc~make_substates_from_num_grids&#45;&gt;interface~make_substates</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M260.9,-41.96C303.03,-36.16 364.44,-30.06 418,-24 431.96,-22.42 446.57,-20.7 461.08,-19"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="461.59,-22.46 471.11,-17.82 460.78,-15.51 461.59,-22.46"/>
+</g>
+<!-- interface~make_subfieldbundles&#45;&gt;proc~make_subfieldbundles_ordinary -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_edge4" class="edge">
+<title>interface~make_subfieldbundles&#45;&gt;proc~make_subfieldbundles_ordinary</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M719.02,-54C727.48,-54 736.06,-54 744.65,-54"/>
+<polygon fill="#255000" stroke="#255000" points="744.74,-57.5 754.74,-54 744.74,-50.5 744.74,-57.5"/>
+</g>
+<!-- interface~make_substates&#45;&gt;proc~make_substates_from_num_grids -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_edge5" class="edge">
+<title>interface~make_substates&#45;&gt;proc~make_substates_from_num_grids</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M547.94,-24.03C514.02,-30.4 462.7,-36.94 418,-42 405.5,-43.41 392.57,-44.83 379.56,-46.2"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="379.18,-42.72 369.6,-47.24 379.9,-49.68 379.18,-42.72"/>
+</g>
+<!-- proc~create_subobjects -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_node7" class="node">
+<title>proc~create_subobjects</title>
+<g id="a_proc~~make_subfields_from_num_grids~~CalledByGraph_node7"><a xlink:href=".././proc/create_subobjects.html" xlink:title="mapl_MaplGenericComponent::MaplGenericComponent%create_subobjects">
+<polygon fill="#d9534f" stroke="#d9534f" points="418,-24 0,-24 0,0 418,0 418,-24"/>
+<text text-anchor="middle" x="209" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGenericComponent::MaplGenericComponent%create_subobjects</text>
+</a>
+</g>
+</g>
+<!-- proc~create_subobjects&#45;&gt;interface~make_substates -->
+<g id="proc~~make_subfields_from_num_grids~~CalledByGraph_edge7" class="edge">
+<title>proc~create_subobjects&#45;&gt;interface~make_substates</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M418.07,-12C432.77,-12 447.31,-12 461.31,-12"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="461.41,-15.5 471.41,-12 461.41,-8.5 461.41,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmake_subfields_from_num_gridsCalledByGraph = svgPanZoom('#procmake_subfields_from_num_gridsCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">    </span><span class="k">function </span><span class="n">make_subfields_from_num_grids</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">num_subgrids</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">subfields</span><span class="p">)</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subfields</span><span class="p">(:)</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">primary_field</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_subgrids</span>
+<span class="w">        </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">i</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_2d_r4</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_2d_r4</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_2d_r8</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_2d_r8</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_3d_r4</span><span class="p">(:,:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_3d_r4</span><span class="p">(:,:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_3d_r8</span><span class="p">(:,:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_3d_r8</span><span class="p">(:,:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_4d_r4</span><span class="p">(:,:,:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_4d_r4</span><span class="p">(:,:,:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_4d_r8</span><span class="p">(:,:,:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_4d_r8</span><span class="p">(:,:,:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_2d_i4</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_2d_i4</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_3d_i4</span><span class="p">(:,:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_3d_i4</span><span class="p">(:,:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_4d_i4</span><span class="p">(:,:,:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_4d_i4</span><span class="p">(:,:,:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_2d_i8</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_2d_i8</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_3d_i8</span><span class="p">(:,:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_3d_i8</span><span class="p">(:,:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_ptr_4d_i8</span><span class="p">(:,:,:,:)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ptr_4d_i8</span><span class="p">(:,:,:,:)</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typekind</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">local_count</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subgrids</span><span class="p">(:)</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">Interval</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bounds</span><span class="p">(:)</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">primary_grid</span>
+
+
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">primary_grid</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="c">!print*, &#39;No failure with field named:&#39;, name</span>
+<span class="w">        </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">primary_grid</span><span class="p">,</span><span class="n">localcellcountPerDim</span><span class="o">=</span><span class="n">local_count</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">bounds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">find_bounds</span><span class="p">(</span><span class="n">local_count</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">num_subgrids</span><span class="p">)</span>
+<span class="w">        </span><span class="n">subgrids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_subgrids</span><span class="p">(</span><span class="n">primary_grid</span><span class="p">,</span><span class="w"> </span><span class="n">num_subgrids</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">subfields</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)))</span>
+<span class="w">        </span><span class="c">!print *, __FILE__,__LINE__, num_subgrids, size(bounds), trim(name)</span>
+
+<span class="w">        </span><span class="c">! 1d, r4 or r8</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">subfields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">spread</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="nb">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ncopies</span><span class="o">=</span><span class="n">num_subgrids</span><span class="p">)</span>
+<span class="w">        </span><span class="c">! 2d, r4</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_2d_r4</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_2d_r4</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_2d_r4</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_2d_r4</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 2d, r8</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_2d_r8</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_2d_r8</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_2d_r8</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_2d_r8</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 3d, r4</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_3d_r4</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_3d_r4</span><span class="p">(</span><span class="mi">1</span><span class="p">:,</span><span class="mi">1</span><span class="p">:,</span><span class="nb">lbound</span><span class="p">(</span><span class="n">old_ptr_3d_r4</span><span class="p">,</span><span class="mi">3</span><span class="p">):)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_3d_r4</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">,</span><span class="nb">lbound</span><span class="p">(</span><span class="n">old_ptr_3d_r4</span><span class="p">,</span><span class="mi">3</span><span class="p">):)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_3d_r4</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 3d, r8</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_3d_r8</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_3d_r8</span><span class="p">(</span><span class="mi">1</span><span class="p">:,</span><span class="mi">1</span><span class="p">:,</span><span class="nb">lbound</span><span class="p">(</span><span class="n">old_ptr_3d_r8</span><span class="p">,</span><span class="mi">3</span><span class="p">):)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_3d_r8</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">,</span><span class="nb">lbound</span><span class="p">(</span><span class="n">old_ptr_3d_r8</span><span class="p">,</span><span class="mi">3</span><span class="p">):)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_3d_r8</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 4d, r4</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_4d_r4</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_4d_r4</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_4d_r4</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">,:,:)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_4d_r4</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 4d, r8</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_4d_r8</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_4d_r8</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_4d_r8</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">,:,:)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_4d_r8</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 2d, i4</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_I4</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_2d_i4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_2d_i4</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_2d_i4</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_2d_i4</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 3d, i4</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_I4</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_3d_i4</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_3d_i4</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_3d_i4</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">,:)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_3d_i4</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 4d, i4</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_I4</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_4d_i4</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_4d_i4</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_4d_i4</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">,:,:)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_4d_i4</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 2d, i8</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_I8</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_2d_i8</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_2d_i8</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_2d_i8</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_2d_i8</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 3d, i8</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_I8</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_3d_i8</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_3d_i8</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_3d_i8</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">,:)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_3d_i8</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="w">        </span><span class="c">! 4d, i8</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_I8</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">old_ptr_4d_i8</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">              </span><span class="n">new_ptr_4d_i8</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">old_ptr_4d_i8</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="p">,:,:)</span>
+<span class="w">              </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">new_ptr_4d_i8</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_field</span><span class="p">,</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+
+<span class="k">        end if</span>
+
+<span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end function </span><span class="n">make_subfields_from_num_grids</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-01T20:55:21.019912             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

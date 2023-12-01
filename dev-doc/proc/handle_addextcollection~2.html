@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>handle_AddExtCollection &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>handle_AddExtCollection
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">34 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ServerThread.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/serverthread.f90.html'>ServerThread.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_serverthreadmod.html'>pFIO_ServerThreadMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">handle_AddExtCollection</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/handle_addextcollection~2.html#src">handle_AddExtCollection</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine handle_AddExtCollection(this, message, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/serverthread.html'>ServerThread</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4195"></span>
+              class(<a href='../type/serverthread.html'>ServerThread</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-message~46"></span>
+              type(<a href='../type/addextcollectionmessage.html'>AddExtCollectionMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>message</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~978"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~handle_addextcollection~2~~CallsGraph Pages: 1 -->
+<svg id="prochandle_addextcollection2CallsGraph" width="641pt" height="140pt"
+ viewBox="0.00 0.00 641.00 140.28" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~handle_addextcollection~2~~CallsGraph" class="graph" transform="scale(3.69 3.69) rotate(0) translate(4 514)">
+<title>proc~~handle_addextcollection~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-514 2363,-514 2363,4 -4,4"/>
+<!-- proc~handle_addextcollection~2 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node1" class="node">
+<title>proc~handle_addextcollection~2</title>
+<polygon fill="none" stroke="black" points="359,-234 0,-234 0,-210 359,-210 359,-234"/>
+<text text-anchor="middle" x="179.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_ServerThreadMod::ServerThread%handle_AddExtCollection</text>
+</g>
+<!-- none~start -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node2" class="node">
+<title>none~start</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node2"><a xlink:href=".././type/distributedprofiler.html#boundprocedure-start" xlink:title="MAPL_DistributedProfiler::DistributedProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="727.5,-356 447.5,-356 447.5,-332 727.5,-332 727.5,-356"/>
+<text text-anchor="middle" x="587.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistributedProfiler::DistributedProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;none~start -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge1" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;none~start</title>
+<path fill="none" stroke="#255000" d="M211.81,-234.01C253.32,-249.68 329,-277.41 395,-297 436.55,-309.33 483.83,-320.96 521.02,-329.57"/>
+<polygon fill="#255000" stroke="#255000" points="520.7,-333.08 531.23,-331.91 522.27,-326.26 520.7,-333.08"/>
+</g>
+<!-- proc~get_connection -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node3" class="node">
+<title>proc~get_connection</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node3"><a xlink:href=".././proc/get_connection.html" xlink:title="pFIO_BaseThreadMod::BaseThread%get_connection">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1132,-419 841,-419 841,-395 1132,-395 1132,-419"/>
+<text text-anchor="middle" x="986.5" y="-404.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_BaseThreadMod::BaseThread%get_connection</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;proc~get_connection -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge2" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;proc~get_connection</title>
+<path fill="none" stroke="#255000" d="M193.22,-234.07C224.53,-262.91 309.03,-335.6 395,-365 537,-413.56 709.13,-420.39 830.81,-417.29"/>
+<polygon fill="#255000" stroke="#255000" points="831.05,-420.79 840.95,-417.01 830.86,-413.79 831.05,-420.79"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node4"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1486,-461 1266,-461 1266,-437 1486,-437 1486,-461"/>
+<text text-anchor="middle" x="1376" y="-446.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge3" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M189.93,-234.4C217.15,-269.08 300.01,-367.01 395,-405 708.19,-530.25 1123.35,-488.04 1295.24,-462.51"/>
+<polygon fill="#255000" stroke="#255000" points="1295.85,-465.96 1305.22,-461.01 1294.81,-459.03 1295.85,-465.96"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node5"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1845,-315 1631,-315 1631,-291 1845,-291 1845,-315"/>
+<text text-anchor="middle" x="1738" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge4" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M229.99,-234.09C273.23,-244.08 337.87,-257.62 395,-264 630.68,-290.32 1339.58,-299.44 1620.51,-302.07"/>
+<polygon fill="#255000" stroke="#255000" points="1620.69,-305.57 1630.72,-302.17 1620.76,-298.57 1620.69,-305.57"/>
+</g>
+<!-- proc~new_extdatacollection -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node6" class="node">
+<title>proc~new_extdatacollection</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node6"><a xlink:href=".././proc/new_extdatacollection.html" xlink:title="pFIO_ExtDataCollectionMod::new_ExtDataCollection">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="732,-255 443,-255 443,-231 732,-231 732,-255"/>
+<text text-anchor="middle" x="587.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtDataCollectionMod::new_ExtDataCollection</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;proc~new_extdatacollection -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge5" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;proc~new_extdatacollection</title>
+<path fill="none" stroke="#255000" d="M359.17,-231.24C383.65,-232.51 408.6,-233.8 432.59,-235.04"/>
+<polygon fill="#255000" stroke="#255000" points="432.64,-238.55 442.81,-235.57 433,-231.56 432.64,-238.55"/>
+</g>
+<!-- proc~v_begin~24 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node7" class="node">
+<title>proc~v_begin~24</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node7"><a xlink:href=".././proc/v_begin~24.html" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="752.5,-213 422.5,-213 422.5,-189 752.5,-189 752.5,-213"/>
+<text text-anchor="middle" x="587.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;proc~v_begin~24 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge6" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;proc~v_begin~24</title>
+<path fill="none" stroke="#255000" d="M359.17,-212.76C376.77,-211.85 394.63,-210.92 412.19,-210.02"/>
+<polygon fill="#255000" stroke="#255000" points="412.69,-213.5 422.49,-209.48 412.32,-206.5 412.69,-213.5"/>
+</g>
+<!-- proc~v_iter_get~23 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node8" class="node">
+<title>proc~v_iter_get~23</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node8"><a xlink:href=".././proc/v_iter_get~23.html" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVectorIterator%v_iter_get">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="777.5,-171 397.5,-171 397.5,-147 777.5,-147 777.5,-171"/>
+<text text-anchor="middle" x="587.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVectorIterator%v_iter_get</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;proc~v_iter_get~23 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge7" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;proc~v_iter_get~23</title>
+<path fill="none" stroke="#255000" d="M235.38,-209.93C278.59,-200.75 340.42,-188.32 395,-180 413.65,-177.16 433.39,-174.55 452.81,-172.2"/>
+<polygon fill="#255000" stroke="#255000" points="453.42,-175.66 462.94,-171 452.6,-168.71 453.42,-175.66"/>
+</g>
+<!-- proc~v_iter_next~23 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node9" class="node">
+<title>proc~v_iter_next~23</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node9"><a xlink:href=".././proc/v_iter_next~23.html" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVectorIterator%v_iter_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="780,-129 395,-129 395,-105 780,-105 780,-129"/>
+<text text-anchor="middle" x="587.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVectorIterator%v_iter_next</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;proc~v_iter_next~23 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge8" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;proc~v_iter_next~23</title>
+<path fill="none" stroke="#255000" d="M204.9,-209.98C243.99,-191.28 323.54,-155.58 395,-138 406.29,-135.22 418.05,-132.81 429.93,-130.72"/>
+<polygon fill="#255000" stroke="#255000" points="430.66,-134.15 439.94,-129.04 429.5,-127.24 430.66,-134.15"/>
+</g>
+<!-- proc~v_push_back~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node10" class="node">
+<title>proc~v_push_back~26</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node10"><a xlink:href=".././proc/v_push_back~26.html" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="765.5,-87 409.5,-87 409.5,-63 765.5,-63 765.5,-87"/>
+<text text-anchor="middle" x="587.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;proc~v_push_back~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge9" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;proc~v_push_back~26</title>
+<path fill="none" stroke="#255000" d="M195.79,-209.87C229.48,-183.88 313.63,-122.98 395,-96 402.56,-93.49 410.37,-91.27 418.32,-89.3"/>
+<polygon fill="#255000" stroke="#255000" points="419.14,-92.71 428.08,-87.02 417.55,-85.89 419.14,-92.71"/>
+</g>
+<!-- send -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node11" class="node">
+<title>send</title>
+<polygon fill="#777777" stroke="#777777" points="614.5,-45 560.5,-45 560.5,-21 614.5,-21 614.5,-45"/>
+<text text-anchor="middle" x="587.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">send</text>
+</g>
+<!-- proc~handle_addextcollection~2&#45;&gt;send -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge10" class="edge">
+<title>proc~handle_addextcollection~2&#45;&gt;send</title>
+<path fill="none" stroke="#255000" d="M191.1,-209.95C220.04,-177.98 304.32,-90.94 395,-54 445.93,-33.25 510.44,-30.49 550.07,-31.17"/>
+<polygon fill="#255000" stroke="#255000" points="550.23,-34.68 560.31,-31.44 550.41,-27.68 550.23,-34.68"/>
+</g>
+<!-- proc~start_self -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node16" class="node">
+<title>proc~start_self</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node16"><a xlink:href=".././proc/start_self.html" xlink:title="mapl_BaseProfiler::BaseProfiler%start_self">
+<polygon fill="#d9534f" stroke="#d9534f" points="1105.5,-377 867.5,-377 867.5,-353 1105.5,-353 1105.5,-377"/>
+<text text-anchor="middle" x="986.5" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%start_self</text>
+</a>
+</g>
+</g>
+<!-- none~start&#45;&gt;proc~start_self -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge11" class="edge">
+<title>none~start&#45;&gt;proc~start_self</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M727.63,-351.36C769.75,-353.59 815.8,-356.02 857.19,-358.21"/>
+<polygon fill="#255000" stroke="#255000" points="857.15,-361.72 867.32,-358.75 857.52,-354.73 857.15,-361.72"/>
+</g>
+<!-- proc~get_connection&#45;&gt;proc~mapl_return -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge13" class="edge">
+<title>proc~get_connection&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M1098.28,-419.01C1147.46,-424.34 1205.42,-430.62 1255.56,-436.05"/>
+<polygon fill="transparent" stroke="transparent" points="1255.49,-439.57 1265.81,-437.17 1256.25,-432.61 1255.49,-439.57"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node12" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node12"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1484.5,-419 1267.5,-419 1267.5,-395 1484.5,-395 1484.5,-419"/>
+<text text-anchor="middle" x="1376" y="-404.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_connection&#45;&gt;interface~mapl_assert -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge12" class="edge">
+<title>proc~get_connection&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M1132.07,-407C1173.32,-407 1217.76,-407 1257.2,-407"/>
+<polygon fill="transparent" stroke="transparent" points="1257.39,-410.5 1267.39,-407 1257.39,-403.5 1257.39,-410.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node14" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node14"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2170,-487 1917,-487 1917,-463 2170,-463 2170,-487"/>
+<text text-anchor="middle" x="2043.5" y="-472.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="transparent" d="M1486.2,-455.52C1520.97,-457.46 1559.59,-459.47 1595,-461 1699.5,-465.51 1817.78,-469.15 1906.49,-471.58"/>
+<polygon fill="transparent" stroke="transparent" points="1906.52,-475.08 1916.61,-471.86 1906.71,-468.09 1906.52,-475.08"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node15" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node15"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="2158,-387 1929,-387 1929,-363 2158,-363 2158,-387"/>
+<text text-anchor="middle" x="2043.5" y="-372.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M1486.1,-453.05C1588.82,-454.84 1746.57,-452.37 1881,-428 1924.42,-420.13 1972.22,-403.37 2004.46,-390.79"/>
+<polygon fill="transparent" stroke="transparent" points="2005.94,-393.97 2013.95,-387.04 2003.36,-387.46 2005.94,-393.97"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#512550" d="M1789.8,-315.05C1842.73,-327.61 1925.65,-347.28 1981.95,-360.64"/>
+<polygon fill="#512550" stroke="#512550" points="1981.25,-364.07 1991.79,-362.97 1982.87,-357.26 1981.25,-364.07"/>
+</g>
+<!-- none~resize~62 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node13" class="node">
+<title>none~resize~62</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node13"><a xlink:href=".././type/extcollectionvector.html#boundprocedure-resize~62" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="1146,-108 827,-108 827,-84 1146,-84 1146,-108"/>
+<text text-anchor="middle" x="986.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVector%resize</text>
+</a>
+</g>
+</g>
+<!-- proc~v_push_back~26&#45;&gt;none~resize~62 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge17" class="edge">
+<title>proc~v_push_back~26&#45;&gt;none~resize~62</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M765.52,-84.36C782.47,-85.26 799.64,-86.17 816.51,-87.06"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="816.8,-90.58 826.97,-87.61 817.17,-83.59 816.8,-90.58"/>
+</g>
+<!-- proc~v_grow_to~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node17" class="node">
+<title>proc~v_grow_to~26</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node17"><a xlink:href=".././proc/v_grow_to~26.html" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_grow_to">
+<polygon fill="#d9534f" stroke="#d9534f" points="1157,-66 816,-66 816,-42 1157,-42 1157,-66"/>
+<text text-anchor="middle" x="986.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_grow_to</text>
+</a>
+</g>
+</g>
+<!-- proc~v_push_back~26&#45;&gt;proc~v_grow_to~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge18" class="edge">
+<title>proc~v_push_back~26&#45;&gt;proc~v_grow_to~26</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M765.52,-65.64C778.87,-64.93 792.34,-64.22 805.71,-63.51"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="806.1,-66.99 815.9,-62.97 805.73,-60 806.1,-66.99"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node23" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node23"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1874,-377 1602,-377 1602,-353 1874,-353 1874,-377"/>
+<text text-anchor="middle" x="1738" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1481.43,-395C1506.82,-392.07 1533.88,-388.93 1559,-386 1580.44,-383.5 1603.33,-380.81 1625.32,-378.22"/>
+<polygon fill="#255000" stroke="#255000" points="1625.82,-381.69 1635.34,-377.04 1625,-374.73 1625.82,-381.69"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node24" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node24"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1881,-419 1595,-419 1595,-395 1881,-395 1881,-419"/>
+<text text-anchor="middle" x="1738" y="-404.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1484.52,-407C1515.88,-407 1550.76,-407 1584.34,-407"/>
+<polygon fill="#255000" stroke="#255000" points="1584.71,-410.5 1594.71,-407 1584.71,-403.5 1584.71,-410.5"/>
+</g>
+<!-- proc~v_resize_32~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node26" class="node">
+<title>proc~v_resize_32~26</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node26"><a xlink:href=".././proc/v_resize_32~26.html" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_resize_32">
+<polygon fill="#d9534f" stroke="#d9534f" points="1550.5,-108 1201.5,-108 1201.5,-84 1550.5,-84 1550.5,-108"/>
+<text text-anchor="middle" x="1376" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_resize_32</text>
+</a>
+</g>
+</g>
+<!-- none~resize~62&#45;&gt;proc~v_resize_32~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge21" class="edge">
+<title>none~resize~62&#45;&gt;proc~v_resize_32~26</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1146.23,-89.35C1161,-89.26 1176.06,-89.23 1191.04,-89.26"/>
+<polygon fill="transparent" stroke="transparent" points="1191.38,-92.76 1201.39,-89.28 1191.4,-85.76 1191.38,-92.76"/>
+</g>
+<!-- at -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node18" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="2309.5,-468 2255.5,-468 2255.5,-444 2309.5,-444 2309.5,-468"/>
+<text text-anchor="middle" x="2282.5" y="-453.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#025500" d="M2170.29,-464.92C2197.83,-462.71 2224.86,-460.54 2245.36,-458.9"/>
+<polygon fill="#025500" stroke="#025500" points="2245.78,-462.38 2255.46,-458.09 2245.22,-455.4 2245.78,-462.38"/>
+</g>
+<!-- insert -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node19" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="2309.5,-510 2255.5,-510 2255.5,-486 2309.5,-486 2309.5,-510"/>
+<text text-anchor="middle" x="2282.5" y="-495.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge23" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#025500" d="M2168.21,-487.01C2196.43,-489.74 2224.27,-492.45 2245.28,-494.49"/>
+<polygon fill="#025500" stroke="#025500" points="2245.03,-497.98 2255.32,-495.46 2245.7,-491.01 2245.03,-497.98"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node22" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node22"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="2359,-387 2206,-387 2206,-363 2359,-363 2359,-387"/>
+<text text-anchor="middle" x="2282.5" y="-372.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M2158.14,-375C2170.76,-375 2183.46,-375 2195.65,-375"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="2195.77,-378.5 2205.77,-375 2195.77,-371.5 2195.77,-378.5"/>
+</g>
+<!-- proc~start_self&#45;&gt;proc~mapl_return -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge28" class="edge">
+<title>proc~start_self&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002505" d="M1105.87,-368.28C1123.69,-371.96 1141.33,-377.58 1157,-386 1178.66,-397.63 1171.29,-416.46 1193,-428 1212.12,-438.16 1233.94,-444.4 1255.67,-448.09"/>
+<polygon fill="#002505" stroke="#002505" points="1255.23,-451.57 1265.64,-449.61 1256.28,-444.65 1255.23,-451.57"/>
+</g>
+<!-- proc~start_self&#45;&gt;interface~mapl_assert -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge25" class="edge">
+<title>proc~start_self&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#002505" d="M1098.28,-377.01C1148.08,-382.41 1206.9,-388.78 1257.48,-394.26"/>
+<polygon fill="#002505" stroke="#002505" points="1257.16,-397.75 1267.48,-395.35 1257.91,-390.79 1257.16,-397.75"/>
+</g>
+<!-- none~start~2 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node20" class="node">
+<title>none~start~2</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node20"><a xlink:href=".././type/baseprofiler.html#boundprocedure-start~2" xlink:title="mapl_BaseProfiler::BaseProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="1483,-377 1269,-377 1269,-353 1483,-353 1483,-377"/>
+<text text-anchor="middle" x="1376" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- proc~start_self&#45;&gt;none~start~2 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge26" class="edge">
+<title>proc~start_self&#45;&gt;none~start~2</title>
+<path fill="none" stroke="#002505" d="M1105.6,-358.73C1154.13,-358.08 1210.17,-358.09 1258.53,-358.75"/>
+<polygon fill="#002505" stroke="#002505" points="1258.68,-362.25 1268.73,-358.9 1258.78,-355.26 1258.68,-362.25"/>
+</g>
+<!-- proc~get_name -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node21" class="node">
+<title>proc~get_name</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node21"><a xlink:href=".././proc/get_name.html" xlink:title="MAPL_MeterNode::MeterNode%get_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1493,-335 1259,-335 1259,-311 1493,-311 1493,-335"/>
+<text text-anchor="middle" x="1376" y="-320.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%get_name</text>
+</a>
+</g>
+</g>
+<!-- proc~start_self&#45;&gt;proc~get_name -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge27" class="edge">
+<title>proc~start_self&#45;&gt;proc~get_name</title>
+<path fill="none" stroke="#002505" d="M1098.28,-352.99C1146.93,-347.72 1204.19,-341.51 1253.96,-336.12"/>
+<polygon fill="#002505" stroke="#002505" points="1254.57,-339.57 1264.14,-335.02 1253.82,-332.61 1254.57,-339.57"/>
+</g>
+<!-- proc~v_capacity~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node25" class="node">
+<title>proc~v_capacity~26</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node25"><a xlink:href=".././proc/v_capacity~26.html" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_capacity">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1548.5,-66 1203.5,-66 1203.5,-42 1548.5,-42 1548.5,-66"/>
+<text text-anchor="middle" x="1376" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_capacity</text>
+</a>
+</g>
+</g>
+<!-- proc~v_grow_to~26&#45;&gt;proc~v_capacity~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge29" class="edge">
+<title>proc~v_grow_to~26&#45;&gt;proc~v_capacity~26</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1157.18,-54C1169.18,-54 1181.31,-54 1193.38,-54"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1193.5,-57.5 1203.5,-54 1193.5,-50.5 1193.5,-57.5"/>
+</g>
+<!-- proc~v_set_capacity~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_node27" class="node">
+<title>proc~v_set_capacity~26</title>
+<g id="a_proc~~handle_addextcollection~2~~CallsGraph_node27"><a xlink:href=".././proc/v_set_capacity~26.html" xlink:title="pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_set_capacity">
+<polygon fill="#d9534f" stroke="#d9534f" points="1559,-24 1193,-24 1193,0 1559,0 1559,-24"/>
+<text text-anchor="middle" x="1376" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ExtCollectionVectorMod::ExtCollectionVector%v_set_capacity</text>
+</a>
+</g>
+</g>
+<!-- proc~v_grow_to~26&#45;&gt;proc~v_set_capacity~26 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge30" class="edge">
+<title>proc~v_grow_to~26&#45;&gt;proc~v_set_capacity~26</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1098.28,-41.99C1146.93,-36.72 1204.19,-30.51 1253.96,-25.12"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1254.57,-28.57 1264.14,-24.02 1253.82,-21.61 1254.57,-28.57"/>
+</g>
+<!-- none~start~2&#45;&gt;proc~start_self -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge31" class="edge">
+<title>none~start~2&#45;&gt;proc~start_self</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1268.73,-371.1C1221.44,-371.85 1165.36,-371.95 1115.76,-371.39"/>
+<polygon fill="transparent" stroke="transparent" points="1115.65,-367.89 1105.6,-371.27 1115.56,-374.89 1115.65,-367.89"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1874.33,-369.46C1889.1,-369.95 1904.08,-370.44 1918.7,-370.92"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1918.65,-374.42 1928.76,-371.25 1918.88,-367.42 1918.65,-374.42"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1792.56,-419C1844.55,-430.65 1923.47,-448.33 1978.69,-460.7"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1978.19,-464.18 1988.71,-462.95 1979.72,-457.35 1978.19,-464.18"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1852.88,-394.99C1874.46,-392.72 1897.14,-390.33 1919.01,-388.02"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1919.42,-391.5 1929,-386.97 1918.68,-384.54 1919.42,-391.5"/>
+</g>
+<!-- proc~v_resize_32~26&#45;&gt;none~resize~62 -->
+<g id="proc~~handle_addextcollection~2~~CallsGraph_edge35" class="edge">
+<title>proc~v_resize_32~26&#45;&gt;none~resize~62</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M1201.39,-102.72C1186.47,-102.77 1171.38,-102.76 1156.5,-102.7"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1156.25,-99.2 1146.23,-102.65 1156.21,-106.2 1156.25,-99.2"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprochandle_addextcollection2CallsGraph = svgPanZoom('#prochandle_addextcollection2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">handle_AddExtCollection</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">AddExtCollectionMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ExtCollectionVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ExtDataCollection</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ExtDataCollection</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connection</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ioserver_profiler</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">ioserver_profiler</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s2">&quot;add_Extcollection&quot;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">ext_collections</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">      </span><span class="c">! Is it a new collection?</span>
+<span class="w">      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">ext_collections</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">         </span><span class="n">collection</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">template</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">collection</span><span class="p">%</span><span class="n">template</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">            </span><span class="k">exit</span>
+<span class="k">         end if</span>
+<span class="k">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_ExtDataCollection</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">template</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">ext_collections</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      </span><span class="n">connection</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">get_connection</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">connection</span><span class="p">%</span><span class="n">send</span><span class="p">(</span><span class="n">IdMessage</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ioserver_profiler</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">ioserver_profiler</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s2">&quot;add_Extcollection&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">handle_AddExtCollection</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-01T20:55:21.019912             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
