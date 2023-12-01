@@ -5259,7 +5259,7 @@ ENDDO PARSER
   !
   subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
     use Fortran_read_file
-    use obs_platform
+    use MAPL_ObsUtilMod, only : obs_platform, union_platform
     !
     !  Plan:
     !- read and write  schema
@@ -5279,8 +5279,8 @@ ENDDO PARSER
     character (len=ESMF_MAXSTR) :: line, line2
     character (len=ESMF_MAXSTR) :: string
     character (len=ESMF_MAXSTR), allocatable :: str_piece(:)  
-    type(platform), allocatable :: PLFS(:)
-    type(platform) :: p1
+    type(obs_platform), allocatable :: PLFS(:)
+    type(obs_platform) :: p1
     integer :: k, i, j
     integer :: ios, ngeoval, count, nplf
     integer :: length_mx
