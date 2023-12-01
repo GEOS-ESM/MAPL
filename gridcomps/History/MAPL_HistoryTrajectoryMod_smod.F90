@@ -121,7 +121,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ! __ s1. overall print
          call ESMF_ConfigGetDim(config, nline, col, label=trim(string)//'obs_files:', rc=rc)
          _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
-         write(6,*) 'nline, col', nline, col
+         !! write(6,*) 'nline, col', nline, col
          allocate(ncol(1:nline))
 
          call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC )
@@ -533,9 +533,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             i=index(this%nc_time, '/')
             this%var_name_time= this%nc_time(i+1:)
 
-            write(6,'(100(2x,a))') 'grp_name,this%var_name_lat,this%var_name_lon,this%var_name_time', &
-                 trim(grp_name),trim(this%var_name_lat),trim(this%var_name_lon),trim(this%var_name_time)                 
-
+            call lgr%debug('%a', 'grp_name,this%var_name_lat,this%var_name_lon,this%var_name_time')
+            call lgr%debug('%a %a %a %a', &
+                 trim(grp_name),trim(this%var_name_lat),trim(this%var_name_lon),trim(this%var_name_time))
 
             L=0
             fid_s=this%obsfile_Ts_index
@@ -558,9 +558,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      filename = get_filename_from_template_use_index( &
                           this%obsfile_start_time, this%obsfile_interval, &
                           j, this%obs(k)%input_template, _RC)
-                     call lgr%debug('%a %a', 'true filename: ', trim(filename))
-                     call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)
-                     len = len + num_times
+                     if (filename /= '') then
+                        call lgr%debug('%a %a', 'true filename: ', trim(filename))
+                        call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)
+                        len = len + num_times
+                     end if
                      j=j+1
                   enddo
                enddo
@@ -577,18 +579,19 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      filename = get_filename_from_template_use_index( &
                           this%obsfile_start_time, this%obsfile_interval, &
                           j, this%obs(k)%input_template, _RC)
-                     call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
-                     call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
-                     call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
-                     call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
+                     if (filename /= '') then
+                        call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
+                        call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
+                        call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
+                        call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
 
+                        call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
+                        obstype_id_full(len+1:len+num_times) = k
+                        call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
+                             times_R8_full(1), times_R8_full(200))
 
-                     call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
-                     obstype_id_full(len+1:len+num_times) = k
-                     call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
-                          times_R8_full(1), times_R8_full(200))
-
-                     len = len + num_times
+                        len = len + num_times
+                     end if
                      j=j+1
                   enddo
                enddo
@@ -791,7 +794,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
-            write(6, '(2x,a,2x,a)') 'item%xname', trim(item%xname)
+            !!write(6, '(2x,a,2x,a)') 'item%xname', trim(item%xname)
 
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)

@@ -3,10 +3,11 @@
 
 module MAPL_ObsUtilMod
   use ESMF
-  use MAPL_FileMetadataUtilsMod
   use Plain_netCDF_Time
   use netCDF
   use MAPL_CommsMod, only : MAPL_AM_I_ROOT
+  use pFIO_FileMetadataMod, only : FileMetadata
+  use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   integer, parameter :: mx_ngeoval = 60
@@ -111,41 +112,6 @@ contains
     _RETURN(ESMF_SUCCESS)
 
   end function get_filename_from_template
-
-
-  function get_filename_from_template_use_index (obsfile_start_time, obsfile_interval, &
-       f_index, file_template, rc) result(filename)
-    use Plain_netCDF_Time, only : ESMF_time_to_two_integer
-    use  MAPL_StringTemplate, only : fill_grads_template    
-    character(len=ESMF_MAXSTR) :: filename
-    type(ESMF_Time), intent(in) :: obsfile_start_time
-    type(ESMF_TimeInterval), intent(in) :: obsfile_interval
-    character(len=*), intent(in) :: file_template
-    integer, intent(in) :: f_index
-    integer, optional, intent(out) :: rc
-
-    integer :: itime(2)
-    integer :: nymd, nhms
-    integer :: status
-    real(ESMF_KIND_R8) :: dT0_s
-    real(ESMF_KIND_R8) :: s
-    type(ESMF_TimeInterval) :: dT
-    type(ESMF_Time) :: time
-
-    call ESMF_TimeIntervalGet(obsfile_interval, s_r8=dT0_s, rc=status)
-    s = dT0_s * f_index
-    call ESMF_TimeIntervalSet(dT, s_r8=s, rc=status)
-    time = obsfile_start_time + dT
-
-    call ESMF_time_to_two_integer(time, itime, _RC)
-    nymd = itime(1)
-    nhms = itime(2)
-    call fill_grads_template ( filename, file_template, &
-         experiment_id='', nymd=nymd, nhms=nhms, _RC )
-
-    _RETURN(ESMF_SUCCESS)
-
-  end function get_filename_from_template_use_index
 
 
   subroutine time_real_to_ESMF (times_R8_1d, times_esmf_1d, datetime_units, rc)
@@ -430,33 +396,36 @@ contains
     call ESMF_time_to_two_integer(time, itime, _RC)
     nymd = itime(1)
     nhms = itime(2)
+    
+    ! parse time info
+    !
+    j= index(file_template, '*')
+    if (j>0) then
+       ! wild char exist
+       !!print*, 'pos of * in template =', j
+       file_template_left = file_template(1:j-1)
+       call fill_grads_template ( filename_left, file_template_left, &
+            experiment_id='', nymd=nymd, nhms=nhms, _RC )
+       filename= trim(filename_left)//trim(file_template(j:))
+    else
+       ! exact file name
+       call fill_grads_template ( filename, file_template, &
+            experiment_id='', nymd=nymd, nhms=nhms, _RC )
+    end if
 
-
-       j= index(file_template, '*')
-       if (j>0) then
-          ! wild char exist
-          !!print*, 'pos of * in template =', j
-          file_template_left = file_template(1:j-1)
-          call fill_grads_template ( filename_left, file_template_left, &
-               experiment_id='', nymd=nymd, nhms=nhms, _RC )
-          filename= trim(filename_left)//trim(file_template(j:))
-          cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
-          CALL execute_command_line(trim(cmd))
-          open(newunit=u, file='zzz_MAPL', status='unknown')
-          read(u, '(a)') filename
-          i=index(trim(filename), 'ls')
-          if (i==1) then
-             filename=''
-          end if
-          !       cmd="rm -f ./zzz_MAPL"
-          !       CALL execute_command_line(trim(cmd))
-          close(u)
-       else
-          ! exact file name
-          call fill_grads_template ( filename, file_template, &
-               experiment_id='', nymd=nymd, nhms=nhms, _RC )
-       end if
-
+    ! test on bash
+    !
+    cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
+    CALL execute_command_line(trim(cmd))
+    open(newunit=u, file='zzz_MAPL', status='unknown')
+    read(u, '(a)') filename
+    i=index(trim(filename), 'ls')
+    if (i==1) then
+       filename=''
+    end if
+    !       cmd="rm -f ./zzz_MAPL"
+    !       CALL execute_command_line(trim(cmd))
+    close(u)
 
     _RETURN(_SUCCESS)
 

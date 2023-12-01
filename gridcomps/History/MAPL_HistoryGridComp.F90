@@ -5290,6 +5290,9 @@ ENDDO PARSER
     integer :: nentry_name
     logical :: obs_flag
     integer, allocatable :: map(:)
+    type(Logger), pointer          :: lgr
+
+    lgr => logging%get_logger('HISTORY.sampler')
 
 
     ! -- note: work on HEAD node
@@ -5297,11 +5300,10 @@ ENDDO PARSER
     call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
-    print*, __FILE__, __LINE__
     
     call scan_count_match_bgn (unitr, 'PLATFORM.', count, .false.)
     rewind(unitr)
-    write(6,*) 'count PLATFORM.', count
+    call lgr%debug('%a %i8','count PLATFORM.', count)
     if (count==0) then
        rc = 0
        return
@@ -5321,7 +5323,7 @@ ENDDO PARSER
        PLFS(k)%name = line(i+1:j-1)
        marker=line(1:j)
 
-       write(6,*)  'marker=', trim(marker)
+       call lgr%debug('%a %a', 'marker=', trim(marker))
        call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'index:', .false.)
        backspace(unitr)
@@ -5329,7 +5331,6 @@ ENDDO PARSER
        i=index(line, ':')
        PLFS(k)%nc_index = trim(line(i+1:))
 
-       write(6,*)  'marker=', trim(marker)
        call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'longitude:', .false.)
        backspace(unitr)
@@ -5358,12 +5359,14 @@ ENDDO PARSER
        i=index(line, ':')
        PLFS(k)%file_name_template = trim(line(i+1:))     
 
-       write(6,*) 'ck  PLFS(k) ', &
+
+       call lgr%debug('%a %a %a %a %a', &
             trim( PLFS(k)%name ), &
             trim( PLFS(k)%nc_lon ), &
             trim( PLFS(k)%nc_lat ), &
             trim( PLFS(k)%nc_time ), &
-            trim( PLFS(k)%file_name_template )
+            trim( PLFS(k)%file_name_template ) )
+
     end do
 
 
@@ -5396,7 +5399,8 @@ ENDDO PARSER
        enddo
        PLFS(k)%ngeoval = ngeoval
        PLFS(k)%nentry_name = nseg
-       write(6,*)  'ngeoval=', ngeoval
+!!       call lgr%debug('%a %i','ngeoval=', ngeoval)
+
        allocate ( PLFS(k)%field_name (nseg, ngeoval) )
        nentry_name = nseg   ! assume the same for each field_name
     end do
