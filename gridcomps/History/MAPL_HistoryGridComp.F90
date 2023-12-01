@@ -669,7 +669,7 @@ contains
          match = .false.
          contLine = .false.
          con3 = .false.
-            
+
          do while (.true.)
             read(unitr, '(A)', end=1234) line
             j = index( adjustl(line), trim(adjustl(string)) )
@@ -678,7 +678,7 @@ contains
                j = index(line, trim(string)//'fields:')
                contLine = (j > 0)
                k = index(line, trim(string)//'obs_files:')
-               con3 = (k > 0)               
+               con3 = (k > 0)
             end if
             if (match .or. contLine .or. con3) then
                write(unitw,'(A)') trim(line)
@@ -687,7 +687,7 @@ contains
                if (adjustl(line) == '::') contLine = .false.
             end if
             if (con3) then
-               if (adjustl(line) == '::') con3 = .false.               
+               if (adjustl(line) == '::') con3 = .false.
             endif
          end do
 
@@ -889,7 +889,7 @@ contains
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
        if (rc==0) then
           if (nline > 0) then
-             list(n)%timeseries_output = .true.             
+             list(n)%timeseries_output = .true.
           endif
        endif
 
@@ -2453,7 +2453,12 @@ ENDDO PARSER
          print *, '    End_Date: ',       list(n)%end_date
          print *, '    End_Time: ',       list(n)%end_time
          endif
-         print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
+         if (trim(list(n)%output_grid_label)/='') then
+            print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
+         else
+            print *, ' Regrid Mthd: ',       'identity'
+         end if
+
 
          block
             integer :: im_world, jm_world,dims(3)

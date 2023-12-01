@@ -133,6 +133,10 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
+if (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+  target_compile_definitions(${this} PRIVATE SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+endif ()
+
 ecbuild_add_executable (
    TARGET pfio_open_close.x
    SOURCES pfio_open_close.F90
