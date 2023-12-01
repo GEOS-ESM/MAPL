@@ -496,9 +496,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
                allocate(this%obstype_id(0),_STAT)
-               this%epoch_index(1:2)=0
+               this%epoch_index(1:2) = 0
                this%nobs_epoch = 0
-               rc=0
+               rc = 0
                return
             end if
 

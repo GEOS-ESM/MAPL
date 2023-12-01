@@ -1,4 +1,5 @@
 ---
+preprocessor: cpp -traditional-cpp -E
 src_dir: ../../
 output_dir: dev-doc
 search: true
@@ -9,12 +10,12 @@ graph_maxnodes: 32
 include: ../../include/
          ../../gFTL/install/GFTL-1.10/include/v1
          ../../gFTL/install/GFTL-1.10/include/v2
-exclude: EsmfRegridder.F90
-         FieldBLAS_IntrinsicFunctions.F90
-         GeomManager.F90
-         MaplGeom.F90
-         Regridder.F90
-         StateSupplement.F90
+exclude: **/EsmfRegridder.F90
+         **/FieldBLAS_IntrinsicFunctions.F90
+         **/GeomManager.F90
+         **/MaplGeom.F90
+         **/Regridder.F90
+         **/StateSupplement.F90
 exclude_dir: ../../docs
              ../../Doxygen
              ../../ESMA_cmake
@@ -64,4 +65,4 @@ fpp_extensions: F90
 externalize: true
 ---
 
-{!../README.md!}
+{!../../README.md!}
