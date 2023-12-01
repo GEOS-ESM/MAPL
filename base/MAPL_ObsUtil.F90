@@ -436,8 +436,6 @@ contains
     if (i==1) then
        filename=''
     end if
-    !       cmd="rm -f ./zzz_MAPL"
-    !       CALL execute_command_line(trim(cmd))
     close(u)
 
     _RETURN(_SUCCESS)

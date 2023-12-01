@@ -20,7 +20,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MAPL_StringTemplate
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
-!!  use MAPL_ISO8601_DateTime_ESMF
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -145,8 +144,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          lgr => logging%get_logger('HISTORY.sampler')         
          if ( nobs == 0 ) then
             !
-            !   obsolete:
-            !-- no separate treatment for geovals, output will print out all variabls
             !   treatment-1:
             !
             traj%nobs_type = nline         ! here .rc format cannot have empty spaces
@@ -171,7 +168,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
             !
-            !   count '------' as ngeoval
+            !   count '------' in history.rc as special markers for ngeoval
             !
             call ESMF_ConfigFindLabel(config, trim(string)//'obs_files:', _RC)
             do i=1, nline
@@ -331,10 +328,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
             call iter%next()
          enddo
-
-!!         if (this%reinitialize) then
-!!            call this%reset_times_to_current_day(_RC)
-!!         end if
 
          _RETURN(_SUCCESS)
 

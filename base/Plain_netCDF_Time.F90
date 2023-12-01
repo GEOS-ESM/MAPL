@@ -606,8 +606,6 @@ contains
   end subroutine scan_count_match_bgn
 
 
-
-
   subroutine go_last_patn (iunps, substring, outline, rew)
     !---------------------------------------------------------------------
     !

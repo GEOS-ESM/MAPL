@@ -5294,7 +5294,7 @@ ENDDO PARSER
 
     lgr => logging%get_logger('HISTORY.sampler')
 
-
+    !
     ! -- note: work on HEAD node
     !
     call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
@@ -5358,7 +5358,6 @@ ENDDO PARSER
        read(unitr, '(a)') line
        i=index(line, ':')
        PLFS(k)%file_name_template = trim(line(i+1:))     
-
 
        call lgr%debug('%a %a %a %a %a', &
             trim( PLFS(k)%name ), &
@@ -5498,11 +5497,10 @@ ENDDO PARSER
 !             write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
 !          enddo
 
-
           !
           !   a) union the platform
           !
-          
+          !
           ! find the index for each str_piece
           map(:) = -1
           do i=1, nplatform  ! loc collection
@@ -5557,10 +5555,6 @@ ENDDO PARSER
     end do
     call free_file(unitr, _RC)
 
-!!    deallocate (map)
-!!    deallocate (PLFS)    
-
-    !! include '/Users/yyu11/sftp/myformat.inc'      
   end subroutine regen_rcx_for_obs_platform
 
       
