@@ -10,85 +10,58 @@
 
     <title>test_get_num_nodes &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">14 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">14 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/test_MeterNode.pf"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_meternode.pf.html'>test_MeterNode.pf</a></li>
-              <li><a href='../module/test_meternode.html'>test_MeterNode</a></li>
-          <li class="active">test_get_num_nodes</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_meternode.pf.html'>test_MeterNode.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_meternode.html'>test_MeterNode</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_get_num_nodes</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/test_get_num_nodes.html#src">test_get_num_nodes</a>
       </div>
@@ -174,80 +152,297 @@
     <em>None</em>
     <br>
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~test_get_num_nodes~~CallsGraph Pages: 1 -->
-<svg id="proctest_get_num_nodesCallsGraph" width="353pt" height="158pt"
- viewBox="0.00 0.00 353.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~test_get_num_nodes~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<svg id="proctest_get_num_nodesCallsGraph" width="641pt" height="110pt"
+ viewBox="0.00 0.00 641.00 109.91" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_get_num_nodes~~CallsGraph" class="graph" transform="scale(2.93 2.93) rotate(0) translate(4 318)">
 <title>proc~~test_get_num_nodes~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 349,-154 349,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-318 1874,-318 1874,4 -4,4"/>
 <!-- proc~test_get_num_nodes -->
 <g id="proc~~test_get_num_nodes~~CallsGraph_node1" class="node">
 <title>proc~test_get_num_nodes</title>
-<polygon fill="none" stroke="black" points="212,-87 0,-87 0,-63 212,-63 212,-87"/>
-<text text-anchor="middle" x="106" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_MeterNode::test_get_num_nodes</text>
-</g>
-<!-- add_child -->
-<g id="proc~~test_get_num_nodes~~CallsGraph_node2" class="node">
-<title>add_child</title>
-<polygon fill="#777777" stroke="#777777" points="328.5,-150 264.5,-150 264.5,-126 328.5,-126 328.5,-150"/>
-<text text-anchor="middle" x="296.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_child</text>
-</g>
-<!-- proc~test_get_num_nodes&#45;&gt;add_child -->
-<g id="proc~~test_get_num_nodes~~CallsGraph_edge1" class="edge">
-<title>proc~test_get_num_nodes&#45;&gt;add_child</title>
-<path fill="none" stroke="#255000" d="M143.34,-87.15C175.15,-97.78 221.31,-113.2 254.43,-124.28"/>
-<polygon fill="#255000" stroke="#255000" points="253.67,-127.71 264.27,-127.56 255.89,-121.07 253.67,-127.71"/>
+<polygon fill="none" stroke="black" points="212,-231 0,-231 0,-207 212,-207 212,-231"/>
+<text text-anchor="middle" x="106" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_MeterNode::test_get_num_nodes</text>
 </g>
 <!-- assertequal -->
-<g id="proc~~test_get_num_nodes~~CallsGraph_node3" class="node">
+<g id="proc~~test_get_num_nodes~~CallsGraph_node2" class="node">
 <title>assertequal</title>
-<polygon fill="#777777" stroke="#777777" points="334,-108 259,-108 259,-84 334,-84 334,-108"/>
-<text text-anchor="middle" x="296.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+<polygon fill="#777777" stroke="#777777" points="418,-294 343,-294 343,-270 418,-270 418,-294"/>
+<text text-anchor="middle" x="380.5" y="-279.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
 </g>
 <!-- proc~test_get_num_nodes&#45;&gt;assertequal -->
-<g id="proc~~test_get_num_nodes~~CallsGraph_edge2" class="edge">
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge1" class="edge">
 <title>proc~test_get_num_nodes&#45;&gt;assertequal</title>
-<path fill="none" stroke="#255000" d="M212.27,-86.73C225.06,-88.15 237.57,-89.55 248.84,-90.8"/>
-<polygon fill="#255000" stroke="#255000" points="248.5,-94.29 258.83,-91.91 249.28,-87.33 248.5,-94.29"/>
+<path fill="none" stroke="#255000" d="M142.59,-231.01C170.89,-240.22 211.64,-252.72 248,-261 275.94,-267.36 307.64,-272.49 332.92,-276.08"/>
+<polygon fill="#255000" stroke="#255000" points="332.59,-279.57 342.97,-277.48 333.55,-272.63 332.59,-279.57"/>
 </g>
-<!-- get_child -->
+<!-- none~add_child -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node3" class="node">
+<title>none~add_child</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node3"><a xlink:href=".././type/meternode.html#boundprocedure-add_child" xlink:title="MAPL_MeterNode::MeterNode%add_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="496.5,-252 264.5,-252 264.5,-228 496.5,-228 496.5,-252"/>
+<text text-anchor="middle" x="380.5" y="-237.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%add_child</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_num_nodes&#45;&gt;none~add_child -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge2" class="edge">
+<title>proc~test_get_num_nodes&#45;&gt;none~add_child</title>
+<path fill="none" stroke="#255000" d="M212.36,-227.12C226.09,-228.18 240.28,-229.27 254.3,-230.35"/>
+<polygon fill="#255000" stroke="#255000" points="254.24,-233.86 264.48,-231.14 254.77,-226.88 254.24,-233.86"/>
+</g>
+<!-- none~get_child -->
 <g id="proc~~test_get_num_nodes~~CallsGraph_node4" class="node">
-<title>get_child</title>
-<polygon fill="#777777" stroke="#777777" points="327,-66 266,-66 266,-42 327,-42 327,-66"/>
-<text text-anchor="middle" x="296.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_child</text>
+<title>none~get_child</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node4"><a xlink:href=".././type/meternode.html#boundprocedure-get_child" xlink:title="MAPL_MeterNode::MeterNode%get_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="495,-210 266,-210 266,-186 495,-186 495,-210"/>
+<text text-anchor="middle" x="380.5" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%get_child</text>
+</a>
 </g>
-<!-- proc~test_get_num_nodes&#45;&gt;get_child -->
+</g>
+<!-- proc~test_get_num_nodes&#45;&gt;none~get_child -->
 <g id="proc~~test_get_num_nodes~~CallsGraph_edge3" class="edge">
-<title>proc~test_get_num_nodes&#45;&gt;get_child</title>
-<path fill="none" stroke="#255000" d="M212.27,-63.27C227.84,-61.54 243.01,-59.85 256.03,-58.4"/>
-<polygon fill="#255000" stroke="#255000" points="256.44,-61.87 265.99,-57.29 255.66,-54.92 256.44,-61.87"/>
+<title>proc~test_get_num_nodes&#45;&gt;none~get_child</title>
+<path fill="none" stroke="#255000" d="M212.36,-210.88C226.59,-209.78 241.31,-208.65 255.83,-207.53"/>
+<polygon fill="#255000" stroke="#255000" points="256.14,-211.02 265.84,-206.76 255.6,-204.04 256.14,-211.02"/>
+</g>
+<!-- none~get_num_nodes -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node5" class="node">
+<title>none~get_num_nodes</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node5"><a xlink:href=".././type/meternode.html#boundprocedure-get_num_nodes" xlink:title="MAPL_MeterNode::MeterNode%get_num_nodes">
+<polygon fill="#a7506f" stroke="#a7506f" points="513,-108 248,-108 248,-84 513,-84 513,-108"/>
+<text text-anchor="middle" x="380.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%get_num_nodes</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_num_nodes&#45;&gt;none~get_num_nodes -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge4" class="edge">
+<title>proc~test_get_num_nodes&#45;&gt;none~get_num_nodes</title>
+<path fill="none" stroke="#255000" d="M133.62,-206.98C182.77,-184.8 287.77,-137.4 343.32,-112.33"/>
+<polygon fill="#255000" stroke="#255000" points="345.09,-115.37 352.77,-108.07 342.21,-108.99 345.09,-115.37"/>
+</g>
+<!-- none~find_child -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node9" class="node">
+<title>none~find_child</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node9"><a xlink:href=".././type/meternode.html#boundprocedure-find_child" xlink:title="MAPL_MeterNode::MeterNode%find_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="820,-230 588,-230 588,-206 820,-206 820,-230"/>
+<text text-anchor="middle" x="704" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%find_child</text>
+</a>
+</g>
+</g>
+<!-- none~add_child&#45;&gt;none~find_child -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge5" class="edge">
+<title>none~add_child&#45;&gt;none~find_child</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M496.66,-232.12C522.94,-230.32 551,-228.4 577.68,-226.58"/>
+<polygon fill="transparent" stroke="transparent" points="578.1,-230.06 587.83,-225.88 577.62,-223.07 578.1,-230.06"/>
+</g>
+<!-- none~get_depth -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node10" class="node">
+<title>none~get_depth</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node10"><a xlink:href=".././type/meternode.html#boundprocedure-get_depth" xlink:title="MAPL_MeterNode::MeterNode%get_depth">
+<polygon fill="#a7506f" stroke="#a7506f" points="821,-314 587,-314 587,-290 821,-290 821,-314"/>
+<text text-anchor="middle" x="704" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%get_depth</text>
+</a>
+</g>
+</g>
+<!-- none~add_child&#45;&gt;none~get_depth -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge6" class="edge">
+<title>none~add_child&#45;&gt;none~get_depth</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M480.79,-252.04C491.8,-254.5 502.73,-257.45 513,-261 530.3,-266.98 531.63,-275.22 549,-281 557.93,-283.97 567.29,-286.53 576.79,-288.72"/>
+<polygon fill="transparent" stroke="transparent" points="576.21,-292.17 586.73,-290.87 577.7,-285.33 576.21,-292.17"/>
+</g>
+<!-- none~push_back~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node13" class="node">
+<title>none~push_back~9</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node13"><a xlink:href=".././type/meternodevector.html#boundprocedure-push_back~9" xlink:title="MAPL_MeterNodeVector::MeterNodeVector%push_back">
+<polygon fill="#a7506f" stroke="#a7506f" points="856,-272 552,-272 552,-248 856,-248 856,-272"/>
+<text text-anchor="middle" x="704" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVector%push_back</text>
+</a>
+</g>
+</g>
+<!-- none~add_child&#45;&gt;none~push_back~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge7" class="edge">
+<title>none~add_child&#45;&gt;none~push_back~9</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M496.66,-247.16C511.37,-248.08 526.63,-249.03 541.89,-249.98"/>
+<polygon fill="transparent" stroke="transparent" points="541.72,-253.47 551.92,-250.6 542.16,-246.49 541.72,-253.47"/>
+</g>
+<!-- none~at~10 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node7" class="node">
+<title>none~at~10</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node7"><a xlink:href=".././type/meternodevector.html#boundprocedure-at~10" xlink:title="MAPL_MeterNodeVector::MeterNodeVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1171,-210 912,-210 912,-186 1171,-186 1171,-210"/>
+<text text-anchor="middle" x="1041.5" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVector%at</text>
+</a>
+</g>
+</g>
+<!-- none~get_child&#45;&gt;none~at~10 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge8" class="edge">
+<title>none~get_child&#45;&gt;none~at~10</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M495.03,-197.23C513.08,-197.13 531.55,-197.05 549,-197 686.78,-196.59 721.22,-196.62 859,-197 872.69,-197.04 886.97,-197.09 901.23,-197.15"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="901.59,-200.66 911.6,-197.2 901.62,-193.66 901.59,-200.66"/>
+</g>
+<!-- none~get_child&#45;&gt;none~find_child -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge9" class="edge">
+<title>none~get_child&#45;&gt;none~find_child</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M495.3,-205.08C521.97,-206.74 550.53,-208.52 577.67,-210.2"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="577.8,-213.72 588,-210.85 578.23,-206.73 577.8,-213.72"/>
 </g>
 <!-- get_num_nodes -->
-<g id="proc~~test_get_num_nodes~~CallsGraph_node5" class="node">
+<g id="proc~~test_get_num_nodes~~CallsGraph_node6" class="node">
 <title>get_num_nodes</title>
-<polygon fill="#777777" stroke="#777777" points="345,-24 248,-24 248,0 345,0 345,-24"/>
-<text text-anchor="middle" x="296.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_nodes</text>
+<polygon fill="#777777" stroke="#777777" points="752.5,-150 655.5,-150 655.5,-126 752.5,-126 752.5,-150"/>
+<text text-anchor="middle" x="704" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_nodes</text>
 </g>
-<!-- proc~test_get_num_nodes&#45;&gt;get_num_nodes -->
-<g id="proc~~test_get_num_nodes~~CallsGraph_edge4" class="edge">
-<title>proc~test_get_num_nodes&#45;&gt;get_num_nodes</title>
-<path fill="none" stroke="#255000" d="M143.34,-62.85C173.69,-52.71 217.11,-38.2 249.81,-27.27"/>
-<polygon fill="#255000" stroke="#255000" points="251.21,-30.49 259.59,-24 248.99,-23.85 251.21,-30.49"/>
+<!-- none~get_num_nodes&#45;&gt;get_num_nodes -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge10" class="edge">
+<title>none~get_num_nodes&#45;&gt;get_num_nodes</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M473.63,-108.04C528.95,-115.26 597.61,-124.23 645.32,-130.47"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="645.11,-133.97 655.48,-131.79 646.01,-127.03 645.11,-133.97"/>
+</g>
+<!-- none~begin~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node8" class="node">
+<title>none~begin~9</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node8"><a xlink:href=".././type/meternodevector.html#boundprocedure-begin~9" xlink:title="MAPL_MeterNodeVector::MeterNodeVector%begin">
+<polygon fill="#a7506f" stroke="#a7506f" points="843,-108 565,-108 565,-84 843,-84 843,-108"/>
+<text text-anchor="middle" x="704" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVector%begin</text>
+</a>
+</g>
+</g>
+<!-- none~get_num_nodes&#45;&gt;none~begin~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge11" class="edge">
+<title>none~get_num_nodes&#45;&gt;none~begin~9</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M513.19,-96C526.94,-96 540.98,-96 554.89,-96"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="554.99,-99.5 564.99,-96 554.99,-92.5 554.99,-99.5"/>
+</g>
+<!-- none~get~6 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node11" class="node">
+<title>none~get~6</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node11"><a xlink:href=".././type/meternodevectoriterator.html#boundprocedure-get~6" xlink:title="MAPL_MeterNodeVector::MeterNodeVectorIterator%get">
+<polygon fill="#a7506f" stroke="#a7506f" points="856.5,-66 551.5,-66 551.5,-42 856.5,-42 856.5,-66"/>
+<text text-anchor="middle" x="704" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVectorIterator%get</text>
+</a>
+</g>
+</g>
+<!-- none~get_num_nodes&#45;&gt;none~get~6 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge12" class="edge">
+<title>none~get_num_nodes&#45;&gt;none~get~6</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M473.63,-83.96C513.48,-78.76 560.27,-72.65 601.15,-67.31"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="601.67,-70.77 611.14,-66 600.77,-63.83 601.67,-70.77"/>
+</g>
+<!-- none~next~8 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node12" class="node">
+<title>none~next~8</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node12"><a xlink:href=".././type/meternodevectoriterator.html#boundprocedure-next~8" xlink:title="MAPL_MeterNodeVector::MeterNodeVectorIterator%next">
+<polygon fill="#a7506f" stroke="#a7506f" points="859,-24 549,-24 549,0 859,0 859,-24"/>
+<text text-anchor="middle" x="704" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVectorIterator%next</text>
+</a>
+</g>
+</g>
+<!-- none~get_num_nodes&#45;&gt;none~next~8 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge13" class="edge">
+<title>none~get_num_nodes&#45;&gt;none~next~8</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M407.89,-83.96C440.4,-69.62 497.64,-45.98 549,-33 559.72,-30.29 570.96,-27.91 582.27,-25.82"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="582.99,-29.25 592.22,-24.06 581.77,-22.36 582.99,-29.25"/>
+</g>
+<!-- none~at_32~6 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node14" class="node">
+<title>none~at_32~6</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node14"><a xlink:href=".././type/meternodevector.html#boundprocedure-at_32~6" xlink:title="MAPL_MeterNodeVector::MeterNodeVector%at_32">
+<polygon fill="#a7506f" stroke="#a7506f" points="1511.5,-210 1234.5,-210 1234.5,-186 1511.5,-186 1511.5,-210"/>
+<text text-anchor="middle" x="1373" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVector%at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~10&#45;&gt;none~at_32~6 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge14" class="edge">
+<title>none~at~10&#45;&gt;none~at_32~6</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1171.31,-198C1188.59,-198 1206.42,-198 1223.99,-198"/>
+<polygon fill="transparent" stroke="transparent" points="1224.3,-201.5 1234.3,-198 1224.3,-194.5 1224.3,-201.5"/>
+</g>
+<!-- none~find_child&#45;&gt;none~at~10 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge15" class="edge">
+<title>none~find_child&#45;&gt;none~at~10</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M820.46,-211.12C846.6,-209.56 874.61,-207.89 901.6,-206.28"/>
+<polygon fill="#025563" stroke="#025563" points="902.12,-209.76 911.89,-205.67 901.7,-202.77 902.12,-209.76"/>
+</g>
+<!-- none~capacity~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node15" class="node">
+<title>none~capacity~9</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node15"><a xlink:href=".././type/meternodevector.html#boundprocedure-capacity~9" xlink:title="MAPL_MeterNodeVector::MeterNodeVector%capacity">
+<polygon fill="#a7506f" stroke="#a7506f" points="1188,-262 895,-262 895,-238 1188,-238 1188,-262"/>
+<text text-anchor="middle" x="1041.5" y="-247.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVector%capacity</text>
+</a>
+</g>
+</g>
+<!-- none~push_back~9&#45;&gt;none~capacity~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge16" class="edge">
+<title>none~push_back~9&#45;&gt;none~capacity~9</title>
+<path fill="none" stroke="#255019" stroke-dasharray="5,2" stroke-opacity="0.003922" d="M856.07,-255.5C865.52,-255.22 875.04,-254.93 884.51,-254.65"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="884.88,-258.14 894.77,-254.34 884.67,-251.14 884.88,-258.14"/>
+</g>
+<!-- none~resize~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node16" class="node">
+<title>none~resize~9</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node16"><a xlink:href=".././type/meternodevector.html#boundprocedure-resize~9" xlink:title="MAPL_MeterNodeVector::MeterNodeVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="1181,-304 902,-304 902,-280 1181,-280 1181,-304"/>
+<text text-anchor="middle" x="1041.5" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVector%resize</text>
+</a>
+</g>
+</g>
+<!-- none~push_back~9&#45;&gt;none~resize~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge17" class="edge">
+<title>none~push_back~9&#45;&gt;none~resize~9</title>
+<path fill="none" stroke="#255019" stroke-dasharray="5,2" stroke-opacity="0.003922" d="M830.88,-272.01C854.91,-274.3 880.15,-276.71 904.47,-279.03"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="904.18,-282.51 914.47,-279.98 904.85,-275.55 904.18,-282.51"/>
+</g>
+<!-- none~at_size_kind~6 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node17" class="node">
+<title>none~at_size_kind~6</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node17"><a xlink:href=".././type/meternodevector.html#boundprocedure-at_size_kind~6" xlink:title="MAPL_MeterNodeVector::MeterNodeVector%at_size_kind">
+<polygon fill="#a7506f" stroke="#a7506f" points="1870,-210 1558,-210 1558,-186 1870,-186 1870,-210"/>
+<text text-anchor="middle" x="1714" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVector%at_size_kind</text>
+</a>
+</g>
+</g>
+<!-- none~at_32~6&#45;&gt;none~at_size_kind~6 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge18" class="edge">
+<title>none~at_32~6&#45;&gt;none~at_size_kind~6</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1511.88,-198C1523.7,-198 1535.73,-198 1547.73,-198"/>
+<polygon fill="#255000" stroke="#255000" points="1547.79,-201.5 1557.79,-198 1547.79,-194.5 1547.79,-201.5"/>
+</g>
+<!-- none~resize_32~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_node18" class="node">
+<title>none~resize_32~9</title>
+<g id="a_proc~~test_get_num_nodes~~CallsGraph_node18"><a xlink:href=".././type/meternodevector.html#boundprocedure-resize_32~9" xlink:title="MAPL_MeterNodeVector::MeterNodeVector%resize_32">
+<polygon fill="#a7506f" stroke="#a7506f" points="1522,-304 1224,-304 1224,-280 1522,-280 1522,-304"/>
+<text text-anchor="middle" x="1373" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNodeVector::MeterNodeVector%resize_32</text>
+</a>
+</g>
+</g>
+<!-- none~resize~9&#45;&gt;none~resize_32~9 -->
+<g id="proc~~test_get_num_nodes~~CallsGraph_edge19" class="edge">
+<title>none~resize~9&#45;&gt;none~resize_32~9</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M1181.28,-292C1191.95,-292 1202.76,-292 1213.53,-292"/>
+<polygon fill="#002505" stroke="#002505" points="1213.85,-295.5 1223.85,-292 1213.85,-288.5 1213.85,-295.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>                <script>
+                  var panproctest_get_num_nodesCallsGraph = svgPanZoom('#proctest_get_num_nodesCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -264,11 +459,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -287,23 +482,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -323,70 +524,39 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/test_get_num_nodes.html#src">test_get_num_nodes</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_get_num_nodes</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MeterNode</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">node</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_get_num_nodes</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MeterNode</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">node</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
 
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_num_nodes</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_num_nodes</span><span class="p">())</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">node</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_num_nodes</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">node</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_num_nodes</span><span class="p">())</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">node</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_num_nodes</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">node</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_num_nodes</span><span class="p">())</span>
 
-<span class="w">      </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;cat&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;dog&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;fish&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
+<span class="w">      </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;cat&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;dog&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;fish&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span>
 
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_num_nodes</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_num_nodes</span><span class="p">())</span>
 <span class="w">      </span>
 <span class="w">      </span>
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_get_num_nodes</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_get_num_nodes</span>
 </pre></div>
 
     </section>
@@ -399,32 +569,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

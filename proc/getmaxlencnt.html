@@ -10,85 +10,58 @@
 
     <title>getMaxLenCnt &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">39 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">39 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/ESMF_CFIOUtilMod.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/esmf_cfioutilmod.f90.html'>ESMF_CFIOUtilMod.F90</a></li>
-              <li><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
-          <li class="active">getMaxLenCnt</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfioutilmod.f90.html'>ESMF_CFIOUtilMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">getMaxLenCnt</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/getmaxlencnt.html#src">getMaxLenCnt</a>
       </div>
@@ -177,11 +155,11 @@ maxLen/count can been used to allocate array.</p>
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -201,7 +179,7 @@ maxLen/count can been used to allocate array.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~86"></span>
+              <span class="anchor" id="variable-count~87"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -263,11 +241,11 @@ maxLen/count can been used to allocate array.</p>
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -282,59 +260,65 @@ maxLen/count can been used to allocate array.</p>
 <!-- proc~getmaxlencnt -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_node1" class="node">
 <title>proc~getmaxlencnt</title>
-<polygon fill="none" stroke="black" points="1177,-256 982,-256 982,-232 1177,-232 1177,-256"/>
-<text text-anchor="middle" x="1079.5" y="-241.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOUtilMod::getMaxLenCnt</text>
+<polygon fill="none" stroke="black" points="1177,-255 982,-255 982,-231 1177,-231 1177,-255"/>
+<text text-anchor="middle" x="1079.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOUtilMod::getMaxLenCnt</text>
 </g>
 <!-- proc~esmf_cfioeosfilecreate -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_node2" class="node">
 <title>proc~esmf_cfioeosfilecreate</title>
 <g id="a_proc~~getmaxlencnt~~CalledByGraph_node2"><a xlink:href=".././proc/esmf_cfioeosfilecreate.html" xlink:title="ESMF_CFIOEosMod::ESMF_CFIOEosFileCreate">
-<polygon fill="#d9534f" stroke="#d9534f" points="756,-276 506,-276 506,-252 756,-252 756,-276"/>
-<text text-anchor="middle" x="631" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOEosMod::ESMF_CFIOEosFileCreate</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="756,-285 506,-285 506,-261 756,-261 756,-285"/>
+<text text-anchor="middle" x="631" y="-270.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOEosMod::ESMF_CFIOEosFileCreate</text>
 </a>
 </g>
 </g>
 <!-- proc~esmf_cfioeosfilecreate&#45;&gt;proc~getmaxlencnt -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_edge1" class="edge">
 <title>proc~esmf_cfioeosfilecreate&#45;&gt;proc~getmaxlencnt</title>
-<path fill="none" stroke="#255000" d="M756.08,-258.44C823.81,-255.41 906.82,-251.69 971.66,-248.79"/>
-<polygon fill="#255000" stroke="#255000" points="972.07,-252.27 981.9,-248.33 971.75,-245.28 972.07,-252.27"/>
+<path fill="none" stroke="#255000" d="M756,-273.11C813.85,-272.23 883.55,-269.82 946,-264 964.67,-262.26 984.71,-259.54 1003.4,-256.62"/>
+<polygon fill="#255000" stroke="#255000" points="1004.02,-260.07 1013.34,-255.03 1002.91,-253.16 1004.02,-260.07"/>
 </g>
 <!-- proc~getlist -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_node3" class="node">
+<g id="proc~~getmaxlencnt~~CalledByGraph_node4" class="node">
 <title>proc~getlist</title>
-<g id="a_proc~~getmaxlencnt~~CalledByGraph_node3"><a xlink:href=".././proc/getlist.html" xlink:title="ESMF_CFIOUtilMod::getList">
-<polygon fill="#d9534f" stroke="#d9534f" points="946,-236 792,-236 792,-212 946,-212 946,-236"/>
-<text text-anchor="middle" x="869" y="-221.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOUtilMod::getList</text>
+<g id="a_proc~~getmaxlencnt~~CalledByGraph_node4"><a xlink:href=".././proc/getlist.html" xlink:title="ESMF_CFIOUtilMod::getList">
+<polygon fill="#d9534f" stroke="#d9534f" points="946,-255 792,-255 792,-231 946,-231 946,-255"/>
+<text text-anchor="middle" x="869" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOUtilMod::getList</text>
 </a>
 </g>
 </g>
 <!-- proc~esmf_cfioeosfilecreate&#45;&gt;proc~getlist -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge3" class="edge">
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge5" class="edge">
 <title>proc~esmf_cfioeosfilecreate&#45;&gt;proc~getlist</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M703.15,-251.95C720.44,-249.03 738.89,-245.9 756,-243 766.09,-241.29 776.7,-239.49 787.19,-237.71"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="787.93,-241.14 797.2,-236.01 786.76,-234.24 787.93,-241.14"/>
-</g>
-<!-- proc~getlist&#45;&gt;proc~getmaxlencnt -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge2" class="edge">
-<title>proc~getlist&#45;&gt;proc~getmaxlencnt</title>
-<path fill="none" stroke="#255000" d="M946.16,-231.31C954.52,-232.11 963.14,-232.93 971.79,-233.76"/>
-<polygon fill="#255000" stroke="#255000" points="971.64,-237.27 981.93,-234.74 972.31,-230.3 971.64,-237.27"/>
+<path fill="none" stroke="#002505" d="M726.63,-260.97C744.83,-258.66 763.81,-256.25 781.72,-253.97"/>
+<polygon fill="#002505" stroke="#002505" points="782.37,-257.41 791.85,-252.68 781.49,-250.47 782.37,-257.41"/>
 </g>
 <!-- proc~esmf_cfiosdffilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_node4" class="node">
+<g id="proc~~getmaxlencnt~~CalledByGraph_node3" class="node">
 <title>proc~esmf_cfiosdffilecreate</title>
-<g id="a_proc~~getmaxlencnt~~CalledByGraph_node4"><a xlink:href=".././proc/esmf_cfiosdffilecreate.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfFileCreate">
+<g id="a_proc~~getmaxlencnt~~CalledByGraph_node3"><a xlink:href=".././proc/esmf_cfiosdffilecreate.html" xlink:title="ESMF_CFIOSdfMod::ESMF_CFIOSdfFileCreate">
 <polygon fill="#d9534f" stroke="#d9534f" points="754.5,-234 507.5,-234 507.5,-210 754.5,-210 754.5,-234"/>
 <text text-anchor="middle" x="631" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod::ESMF_CFIOSdfFileCreate</text>
 </a>
 </g>
 </g>
+<!-- proc~esmf_cfiosdffilecreate&#45;&gt;proc~getmaxlencnt -->
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge2" class="edge">
+<title>proc~esmf_cfiosdffilecreate&#45;&gt;proc~getmaxlencnt</title>
+<path fill="none" stroke="#255000" d="M754.83,-217.54C812.88,-216.57 883.09,-217.05 946,-222 965.48,-223.53 986.41,-226.32 1005.76,-229.37"/>
+<polygon fill="#255000" stroke="#255000" points="1005.29,-232.84 1015.72,-230.98 1006.41,-225.93 1005.29,-232.84"/>
+</g>
 <!-- proc~esmf_cfiosdffilecreate&#45;&gt;proc~getlist -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge4" class="edge">
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge6" class="edge">
 <title>proc~esmf_cfiosdffilecreate&#45;&gt;proc~getlist</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M754.84,-223.04C763.94,-223.12 772.99,-223.19 781.8,-223.27"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="781.97,-226.77 792,-223.36 782.03,-219.77 781.97,-226.77"/>
+<path fill="none" stroke="#002505" d="M754.84,-232.93C763.94,-233.74 772.99,-234.55 781.8,-235.33"/>
+<polygon fill="#002505" stroke="#002505" points="781.73,-238.84 792,-236.24 782.35,-231.86 781.73,-238.84"/>
+</g>
+<!-- proc~getlist&#45;&gt;proc~getmaxlencnt -->
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge3" class="edge">
+<title>proc~getlist&#45;&gt;proc~getmaxlencnt</title>
+<path fill="none" stroke="#255000" d="M946.16,-243C954.52,-243 963.14,-243 971.79,-243"/>
+<polygon fill="#255000" stroke="#255000" points="971.93,-246.5 981.93,-243 971.93,-239.5 971.93,-246.5"/>
 </g>
 <!-- proc~esmf_cfiofilecreate -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_node5" class="node">
@@ -346,10 +330,10 @@ maxLen/count can been used to allocate array.</p>
 </g>
 </g>
 <!-- proc~esmf_cfiofilecreate&#45;&gt;proc~esmf_cfiosdffilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge5" class="edge">
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge4" class="edge">
 <title>proc~esmf_cfiofilecreate&#45;&gt;proc~esmf_cfiosdffilecreate</title>
-<path fill="none" stroke="#255000" d="M470.2,-222C479.02,-222 488.01,-222 497.01,-222"/>
-<polygon fill="#255000" stroke="#255000" points="497.15,-225.5 507.15,-222 497.15,-218.5 497.15,-225.5"/>
+<path fill="none" stroke="#025500" d="M470.2,-222C479.02,-222 488.01,-222 497.01,-222"/>
+<polygon fill="#025500" stroke="#025500" points="497.15,-225.5 507.15,-222 497.15,-218.5 497.15,-225.5"/>
 </g>
 <!-- proc~mapl_cfiocreatewrite -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_node6" class="node">
@@ -361,7 +345,7 @@ maxLen/count can been used to allocate array.</p>
 </g>
 </g>
 <!-- proc~mapl_cfiocreatewrite&#45;&gt;proc~esmf_cfiofilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge6" class="edge">
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge7" class="edge">
 <title>proc~mapl_cfiocreatewrite&#45;&gt;proc~esmf_cfiofilecreate</title>
 <path fill="none" stroke="#255000" d="M202.85,-419.99C209.21,-417.51 215.34,-414.54 221,-411 287.96,-369.13 334.28,-283.23 353.1,-243.29"/>
 <polygon fill="#255000" stroke="#255000" points="356.29,-244.73 357.29,-234.18 349.93,-241.8 356.29,-244.73"/>
@@ -376,7 +360,7 @@ maxLen/count can been used to allocate array.</p>
 </g>
 </g>
 <!-- program~test&#45;&gt;proc~esmf_cfiofilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge7" class="edge">
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge8" class="edge">
 <title>program~test&#45;&gt;proc~esmf_cfiofilecreate</title>
 <path fill="none" stroke="#255000" d="M137.77,-389.39C160.94,-387.86 194.97,-383.12 221,-369 278.49,-337.82 326.66,-275.15 349.05,-242.63"/>
 <polygon fill="#255000" stroke="#255000" points="351.97,-244.56 354.66,-234.31 346.17,-240.64 351.97,-244.56"/>
@@ -391,23 +375,23 @@ maxLen/count can been used to allocate array.</p>
 </g>
 </g>
 <!-- program~test~10&#45;&gt;proc~esmf_cfiofilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge8" class="edge">
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge9" class="edge">
 <title>program~test~10&#45;&gt;proc~esmf_cfiofilecreate</title>
 <path fill="none" stroke="#255000" d="M137.69,-346.28C160.51,-344.02 194.06,-338.83 221,-327 269.48,-305.7 317.09,-265.2 342.84,-241.2"/>
 <polygon fill="#255000" stroke="#255000" points="345.25,-243.74 350.11,-234.32 340.44,-238.66 345.25,-243.74"/>
 </g>
-<!-- program~test~12 -->
+<!-- program~test~11 -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_node9" class="node">
-<title>program~test~12</title>
-<g id="a_proc~~getmaxlencnt~~CalledByGraph_node9"><a xlink:href=".././program/test~12.html" xlink:title="test">
+<title>program~test~11</title>
+<g id="a_proc~~getmaxlencnt~~CalledByGraph_node9"><a xlink:href=".././program/test~11.html" xlink:title="test">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-318 83.5,-318 83.5,-294 137.5,-294 137.5,-318"/>
 <text text-anchor="middle" x="110.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
 </a>
 </g>
 </g>
-<!-- program~test~12&#45;&gt;proc~esmf_cfiofilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge9" class="edge">
-<title>program~test~12&#45;&gt;proc~esmf_cfiofilecreate</title>
+<!-- program~test~11&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge10" class="edge">
+<title>program~test~11&#45;&gt;proc~esmf_cfiofilecreate</title>
 <path fill="none" stroke="#255000" d="M137.58,-302.72C160.03,-299.49 193.11,-293.75 221,-285 259.96,-272.77 302.48,-252.89 330.63,-238.73"/>
 <polygon fill="#255000" stroke="#255000" points="332.28,-241.82 339.6,-234.17 329.1,-235.58 332.28,-241.82"/>
 </g>
@@ -421,83 +405,83 @@ maxLen/count can been used to allocate array.</p>
 </g>
 </g>
 <!-- program~test~13&#45;&gt;proc~esmf_cfiofilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge10" class="edge">
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge11" class="edge">
 <title>program~test~13&#45;&gt;proc~esmf_cfiofilecreate</title>
 <path fill="none" stroke="#255000" d="M137.89,-259.58C171.51,-253.96 231.18,-243.97 280.57,-235.71"/>
 <polygon fill="#255000" stroke="#255000" points="281.33,-239.13 290.62,-234.03 280.18,-232.23 281.33,-239.13"/>
 </g>
-<!-- program~test~14 -->
+<!-- program~test~4 -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_node11" class="node">
-<title>program~test~14</title>
-<g id="a_proc~~getmaxlencnt~~CalledByGraph_node11"><a xlink:href=".././program/test~14.html" xlink:title="test">
+<title>program~test~4</title>
+<g id="a_proc~~getmaxlencnt~~CalledByGraph_node11"><a xlink:href=".././program/test~4.html" xlink:title="test">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-234 83.5,-234 83.5,-210 137.5,-210 137.5,-234"/>
 <text text-anchor="middle" x="110.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
 </a>
 </g>
 </g>
-<!-- program~test~14&#45;&gt;proc~esmf_cfiofilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge11" class="edge">
-<title>program~test~14&#45;&gt;proc~esmf_cfiofilecreate</title>
+<!-- program~test~4&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge12" class="edge">
+<title>program~test~4&#45;&gt;proc~esmf_cfiofilecreate</title>
 <path fill="none" stroke="#255000" d="M137.89,-222C164.11,-222 206.18,-222 246.86,-222"/>
 <polygon fill="#255000" stroke="#255000" points="246.88,-225.5 256.88,-222 246.88,-218.5 246.88,-225.5"/>
 </g>
-<!-- program~test~2 -->
+<!-- program~test~5 -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_node12" class="node">
-<title>program~test~2</title>
-<g id="a_proc~~getmaxlencnt~~CalledByGraph_node12"><a xlink:href=".././program/test~2.html" xlink:title="test">
+<title>program~test~5</title>
+<g id="a_proc~~getmaxlencnt~~CalledByGraph_node12"><a xlink:href=".././program/test~5.html" xlink:title="test">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-192 83.5,-192 83.5,-168 137.5,-168 137.5,-192"/>
 <text text-anchor="middle" x="110.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
-</a>
-</g>
-</g>
-<!-- program~test~2&#45;&gt;proc~esmf_cfiofilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge12" class="edge">
-<title>program~test~2&#45;&gt;proc~esmf_cfiofilecreate</title>
-<path fill="none" stroke="#255000" d="M137.89,-184.42C171.51,-190.04 231.18,-200.03 280.57,-208.29"/>
-<polygon fill="#255000" stroke="#255000" points="280.18,-211.77 290.62,-209.97 281.33,-204.87 280.18,-211.77"/>
-</g>
-<!-- program~test~5 -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_node13" class="node">
-<title>program~test~5</title>
-<g id="a_proc~~getmaxlencnt~~CalledByGraph_node13"><a xlink:href=".././program/test~5.html" xlink:title="test">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-150 83.5,-150 83.5,-126 137.5,-126 137.5,-150"/>
-<text text-anchor="middle" x="110.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
 </a>
 </g>
 </g>
 <!-- program~test~5&#45;&gt;proc~esmf_cfiofilecreate -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_edge13" class="edge">
 <title>program~test~5&#45;&gt;proc~esmf_cfiofilecreate</title>
-<path fill="none" stroke="#255000" d="M137.58,-141.28C160.03,-144.51 193.11,-150.25 221,-159 259.96,-171.23 302.48,-191.11 330.63,-205.27"/>
-<polygon fill="#255000" stroke="#255000" points="329.1,-208.42 339.6,-209.83 332.28,-202.18 329.1,-208.42"/>
+<path fill="none" stroke="#255000" d="M137.89,-184.42C171.51,-190.04 231.18,-200.03 280.57,-208.29"/>
+<polygon fill="#255000" stroke="#255000" points="280.18,-211.77 290.62,-209.97 281.33,-204.87 280.18,-211.77"/>
 </g>
 <!-- program~test~6 -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_node14" class="node">
+<g id="proc~~getmaxlencnt~~CalledByGraph_node13" class="node">
 <title>program~test~6</title>
-<g id="a_proc~~getmaxlencnt~~CalledByGraph_node14"><a xlink:href=".././program/test~6.html" xlink:title="test">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-108 83.5,-108 83.5,-84 137.5,-84 137.5,-108"/>
-<text text-anchor="middle" x="110.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+<g id="a_proc~~getmaxlencnt~~CalledByGraph_node13"><a xlink:href=".././program/test~6.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-150 83.5,-150 83.5,-126 137.5,-126 137.5,-150"/>
+<text text-anchor="middle" x="110.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
 </a>
 </g>
 </g>
 <!-- program~test~6&#45;&gt;proc~esmf_cfiofilecreate -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_edge14" class="edge">
 <title>program~test~6&#45;&gt;proc~esmf_cfiofilecreate</title>
-<path fill="none" stroke="#255000" d="M137.69,-97.72C160.51,-99.98 194.06,-105.17 221,-117 269.48,-138.3 317.09,-178.8 342.84,-202.8"/>
-<polygon fill="#255000" stroke="#255000" points="340.44,-205.34 350.11,-209.68 345.25,-200.26 340.44,-205.34"/>
+<path fill="none" stroke="#255000" d="M137.58,-141.28C160.03,-144.51 193.11,-150.25 221,-159 259.96,-171.23 302.48,-191.11 330.63,-205.27"/>
+<polygon fill="#255000" stroke="#255000" points="329.1,-208.42 339.6,-209.83 332.28,-202.18 329.1,-208.42"/>
 </g>
 <!-- program~test~7 -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_node15" class="node">
+<g id="proc~~getmaxlencnt~~CalledByGraph_node14" class="node">
 <title>program~test~7</title>
-<g id="a_proc~~getmaxlencnt~~CalledByGraph_node15"><a xlink:href=".././program/test~7.html" xlink:title="test">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-66 83.5,-66 83.5,-42 137.5,-42 137.5,-66"/>
-<text text-anchor="middle" x="110.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+<g id="a_proc~~getmaxlencnt~~CalledByGraph_node14"><a xlink:href=".././program/test~7.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-108 83.5,-108 83.5,-84 137.5,-84 137.5,-108"/>
+<text text-anchor="middle" x="110.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
 </a>
 </g>
 </g>
 <!-- program~test~7&#45;&gt;proc~esmf_cfiofilecreate -->
 <g id="proc~~getmaxlencnt~~CalledByGraph_edge15" class="edge">
 <title>program~test~7&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#255000" d="M137.69,-97.72C160.51,-99.98 194.06,-105.17 221,-117 269.48,-138.3 317.09,-178.8 342.84,-202.8"/>
+<polygon fill="#255000" stroke="#255000" points="340.44,-205.34 350.11,-209.68 345.25,-200.26 340.44,-205.34"/>
+</g>
+<!-- program~test~8 -->
+<g id="proc~~getmaxlencnt~~CalledByGraph_node15" class="node">
+<title>program~test~8</title>
+<g id="a_proc~~getmaxlencnt~~CalledByGraph_node15"><a xlink:href=".././program/test~8.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="137.5,-66 83.5,-66 83.5,-42 137.5,-42 137.5,-66"/>
+<text text-anchor="middle" x="110.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~8&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge16" class="edge">
+<title>program~test~8&#45;&gt;proc~esmf_cfiofilecreate</title>
 <path fill="none" stroke="#255000" d="M137.77,-54.61C160.94,-56.14 194.97,-60.88 221,-75 278.49,-106.18 326.66,-168.85 349.05,-201.37"/>
 <polygon fill="#255000" stroke="#255000" points="346.17,-203.36 354.66,-209.69 351.97,-199.44 346.17,-203.36"/>
 </g>
@@ -511,7 +495,7 @@ maxLen/count can been used to allocate array.</p>
 </g>
 </g>
 <!-- program~test~9&#45;&gt;proc~esmf_cfiofilecreate -->
-<g id="proc~~getmaxlencnt~~CalledByGraph_edge16" class="edge">
+<g id="proc~~getmaxlencnt~~CalledByGraph_edge17" class="edge">
 <title>program~test~9&#45;&gt;proc~esmf_cfiofilecreate</title>
 <path fill="none" stroke="#255000" d="M137.76,-11.82C161.23,-12.81 195.72,-17.2 221,-33 287.96,-74.87 334.28,-160.77 353.1,-200.71"/>
 <polygon fill="#255000" stroke="#255000" points="349.93,-202.2 357.29,-209.82 356.29,-199.27 349.93,-202.2"/>
@@ -522,8 +506,8 @@ maxLen/count can been used to allocate array.</p>
                   var panprocgetmaxlencntCalledByGraph = svgPanZoom('#procgetmaxlencntCalledByGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -540,11 +524,11 @@ maxLen/count can been used to allocate array.</p>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -563,23 +547,29 @@ maxLen/count can been used to allocate array.</p>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -599,104 +589,73 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/getmaxlencnt.html#src">getMaxLenCnt</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">        </span><span class="k">subroutine </span><span class="n">getMaxLenCnt</span><span class="p">(</span><span class="n">maxLen</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">iList</span><span class="p">,</span><span class="w"> </span><span class="n">rList</span><span class="p">,</span><span class="w"> </span><span class="n">cList</span><span class="p">)</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">        </span><span class="k">subroutine </span><span class="n">getMaxLenCnt</span><span class="p">(</span><span class="n">maxLen</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">iList</span><span class="p">,</span><span class="w"> </span><span class="n">rList</span><span class="p">,</span><span class="w"> </span><span class="n">cList</span><span class="p">)</span>
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">iNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iList</span><span class="w"></span>
-<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">cNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cList</span><span class="w"></span>
-<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">rNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rList</span><span class="w"></span>
+<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">iNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iList</span>
+<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">cNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cList</span>
+<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">rNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rList</span>
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">           </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">maxLen</span><span class="w"></span>
-<span class="w">           </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">count</span><span class="w"></span>
+<span class="w">           </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">maxLen</span>
+<span class="w">           </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">count</span>
 <span class="c">!</span>
 <span class="c">!------------------------------------------------------------------------------</span>
 <span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">iNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p</span><span class="w">     </span><span class="c">! int pointer for int list</span>
 <span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">rNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rp</span><span class="w">    </span><span class="c">! real pointer for real list</span>
 <span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">cNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cp</span><span class="w">    </span><span class="c">! char pointer for char list</span>
 
-<span class="w">           </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">           </span><span class="n">maxLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">           </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">           </span><span class="n">maxLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 
 <span class="c">!          get maxLen/count from  a integer list</span>
 <span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">iList</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              allocate</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"></span>
-<span class="w">              </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iList</span><span class="w"></span>
-<span class="w">              </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="k">              allocate</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="w">              </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iList</span>
+<span class="w">              </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
 <span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">%</span><span class="nb">count</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">maxLen</span><span class="p">)</span><span class="w"> </span><span class="n">maxLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">%</span><span class="nb">count</span>
-<span class="nb">                  count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">                  </span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">%</span><span class="n">next</span><span class="w"></span>
-<span class="w">              </span><span class="k">end do</span>
-<span class="k">           end if</span><span class="w"></span>
-
-<span class="c">!          get maxLen/count from  a real list</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rList</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              allocate</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span><span class="w"></span>
-<span class="w">              </span><span class="n">rp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rList</span><span class="w"></span>
-<span class="w">              </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rp</span><span class="p">%</span><span class="nb">count</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">maxLen</span><span class="p">)</span><span class="w"> </span><span class="n">maxLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rp</span><span class="p">%</span><span class="nb">count</span>
-<span class="nb">                  count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">                  </span><span class="n">rp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">rp</span><span class="p">%</span><span class="n">next</span><span class="w"></span>
-<span class="w">              </span><span class="k">end do</span>
-<span class="k">           end if</span><span class="w"></span>
-
-<span class="c">!          get maxLen/count from  a character list</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">cList</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              allocate</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span><span class="w"></span>
-<span class="w">              </span><span class="n">cp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cList</span><span class="w"></span>
-<span class="w">              </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">%</span><span class="nb">count</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">maxLen</span><span class="p">)</span><span class="w"> </span><span class="n">maxLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cp</span><span class="p">%</span><span class="nb">count</span>
-<span class="nb">                  count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">                  </span><span class="n">cp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">cp</span><span class="p">%</span><span class="n">next</span><span class="w"></span>
+<span class="nb">                  count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                  </span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">%</span><span class="n">next</span>
 <span class="w">              </span><span class="k">end do</span>
 <span class="k">           end if</span>
 
-<span class="k">        end subroutine </span><span class="n">getMaxLenCnt</span><span class="w"></span>
+<span class="c">!          get maxLen/count from  a real list</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rList</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              allocate</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span>
+<span class="w">              </span><span class="n">rp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rList</span>
+<span class="w">              </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rp</span><span class="p">%</span><span class="nb">count</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">maxLen</span><span class="p">)</span><span class="w"> </span><span class="n">maxLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rp</span><span class="p">%</span><span class="nb">count</span>
+<span class="nb">                  count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                  </span><span class="n">rp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">rp</span><span class="p">%</span><span class="n">next</span>
+<span class="w">              </span><span class="k">end do</span>
+<span class="k">           end if</span>
+
+<span class="c">!          get maxLen/count from  a character list</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">cList</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              allocate</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
+<span class="w">              </span><span class="n">cp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cList</span>
+<span class="w">              </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">%</span><span class="nb">count</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">maxLen</span><span class="p">)</span><span class="w"> </span><span class="n">maxLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cp</span><span class="p">%</span><span class="nb">count</span>
+<span class="nb">                  count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                  </span><span class="n">cp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">cp</span><span class="p">%</span><span class="n">next</span>
+<span class="w">              </span><span class="k">end do</span>
+<span class="k">           end if</span>
+
+<span class="k">        end subroutine </span><span class="n">getMaxLenCnt</span>
 </pre></div>
 
     </section>
@@ -709,32 +668,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

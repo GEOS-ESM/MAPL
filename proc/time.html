@@ -10,85 +10,58 @@
 
     <title>time &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Function</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">18 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">19 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/driver.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/driver.f90.html'>driver.F90</a></li>
-              <li><a href='../program/main~4.html'>main</a></li>
-          <li class="active">time</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/driver.f90.html'>driver.F90</a></li>
+                <li class="breadcrumb-item"><a href='../program/main~8.html'>main</a></li>
+            <li class="breadcrumb-item active" aria-current="page">time</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/time.html#src">time</a>
       </div>
@@ -164,7 +142,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2> function time(kernel, comm, rc)  
+    <h2> function time(benchmark, comm, rc)  
 </h2>
     
 
@@ -174,31 +152,31 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-kernel"></span>
-              type(<a href='../type/gathervkernel~2.html'>GathervKernel</a>),
+              <span class="anchor" id="variable-benchmark~2"></span>
+              type(<a href='../type/bw_benchmark.html'>BW_Benchmark</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>kernel</strong></td>
+            <td><strong>benchmark</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~38"></span>
+              <span class="anchor" id="variable-comm~44"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -213,7 +191,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1138"></span>
+              <span class="anchor" id="variable-rc~1264"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -231,288 +209,147 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-time~19"></span>
+          <span class="anchor" id="variable-time~32"></span>
           real
         </small>
       </h3>
       
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~time~~CallsGraph Pages: 1 -->
-<svg id="proctimeCallsGraph" width="641pt" height="288pt"
- viewBox="0.00 0.00 641.00 288.16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~time~~CallsGraph" class="graph" transform="scale(1.53 1.53) rotate(0) translate(4 436.55)">
+<svg id="proctimeCallsGraph" width="641pt" height="103pt"
+ viewBox="0.00 0.00 641.00 102.63" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~time~~CallsGraph" class="graph" transform="scale(1.38 1.38) rotate(0) translate(4 137.53)">
 <title>proc~~time~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-436.55 976,-436.55 976,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-137.53 880,-137.53 880,4 -4,4"/>
 <!-- proc~time -->
 <g id="proc~~time~~CallsGraph_node1" class="node">
 <title>proc~time</title>
-<polygon fill="none" stroke="black" points="71,-350.55 0,-350.55 0,-326.55 71,-326.55 71,-350.55"/>
-<text text-anchor="middle" x="35.5" y="-336.15" font-family="Helvetica,sans-Serif" font-size="10.50">main::time</text>
+<polygon fill="none" stroke="black" points="71,-73.53 0,-73.53 0,-49.53 71,-49.53 71,-73.53"/>
+<text text-anchor="middle" x="35.5" y="-59.13" font-family="Helvetica,sans-Serif" font-size="10.50">main::time</text>
 </g>
 <!-- mpi_barrier -->
 <g id="proc~~time~~CallsGraph_node2" class="node">
 <title>mpi_barrier</title>
-<polygon fill="#777777" stroke="#777777" points="182,-432.55 107,-432.55 107,-408.55 182,-408.55 182,-432.55"/>
-<text text-anchor="middle" x="144.5" y="-418.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
+<polygon fill="#777777" stroke="#777777" points="268.5,-133.53 193.5,-133.53 193.5,-109.53 268.5,-109.53 268.5,-133.53"/>
+<text text-anchor="middle" x="231" y="-119.13" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
 </g>
 <!-- proc~time&#45;&gt;mpi_barrier -->
 <g id="proc~~time~~CallsGraph_edge1" class="edge">
 <title>proc~time&#45;&gt;mpi_barrier</title>
-<path fill="none" stroke="#255000" d="M48.89,-350.57C62.51,-363.47 85.36,-384.18 107,-399.55 108.61,-400.7 110.28,-401.83 112,-402.95"/>
-<polygon fill="#255000" stroke="#255000" points="110.34,-406.04 120.69,-408.33 114.03,-400.09 110.34,-406.04"/>
+<path fill="none" stroke="#255000" d="M58.15,-73.66C71.81,-80.88 90.02,-89.74 107,-95.53 131.65,-103.95 160.05,-110.17 183.34,-114.41"/>
+<polygon fill="#255000" stroke="#255000" points="182.87,-117.88 193.32,-116.16 184.08,-110.98 182.87,-117.88"/>
 </g>
-<!-- mpi_wtime -->
+<!-- none~run~2 -->
 <g id="proc~~time~~CallsGraph_node3" class="node">
-<title>mpi_wtime</title>
-<polygon fill="#777777" stroke="#777777" points="179.5,-390.55 109.5,-390.55 109.5,-366.55 179.5,-366.55 179.5,-390.55"/>
-<text text-anchor="middle" x="144.5" y="-376.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_wtime</text>
+<title>none~run~2</title>
+<g id="a_proc~~time~~CallsGraph_node3"><a xlink:href=".././type/bw_benchmark.html#boundprocedure-run~2" xlink:title="mapl_BW_Benchmark::BW_Benchmark%run">
+<polygon fill="#a7506f" stroke="#a7506f" points="355,-53.53 107,-53.53 107,-29.53 355,-29.53 355,-53.53"/>
+<text text-anchor="middle" x="231" y="-39.13" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BW_Benchmark::BW_Benchmark%run</text>
+</a>
 </g>
-<!-- proc~time&#45;&gt;mpi_wtime -->
+</g>
+<!-- proc~time&#45;&gt;none~run~2 -->
 <g id="proc~~time~~CallsGraph_edge2" class="edge">
-<title>proc~time&#45;&gt;mpi_wtime</title>
-<path fill="none" stroke="#255000" d="M68.6,-350.55C78.98,-354.43 90.65,-358.8 101.63,-362.9"/>
-<polygon fill="#255000" stroke="#255000" points="100.46,-366.2 111.05,-366.42 102.91,-359.64 100.46,-366.2"/>
+<title>proc~time&#45;&gt;none~run~2</title>
+<path fill="none" stroke="#255000" d="M71.09,-57.96C80.78,-56.96 91.9,-55.81 103.66,-54.59"/>
+<polygon fill="#255000" stroke="#255000" points="104.1,-58.07 113.68,-53.56 103.38,-51.1 104.1,-58.07"/>
 </g>
 <!-- proc~mapl_return -->
 <g id="proc~~time~~CallsGraph_node4" class="node">
 <title>proc~mapl_return</title>
 <g id="a_proc~~time~~CallsGraph_node4"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="707,-170.55 487,-170.55 487,-146.55 707,-146.55 707,-170.55"/>
-<text text-anchor="middle" x="597" y="-156.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="611,-74.53 391,-74.53 391,-50.53 611,-50.53 611,-74.53"/>
+<text text-anchor="middle" x="501" y="-60.13" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~time&#45;&gt;proc~mapl_return -->
 <g id="proc~~time~~CallsGraph_edge3" class="edge">
 <title>proc~time&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M38.83,-326.27C49.01,-276.79 94.66,-92.09 218,-37.55 312.71,4.32 364.55,19.45 451,-37.55 484.91,-59.91 457.19,-93.97 487,-121.55 497.03,-130.84 509.49,-137.8 522.35,-143.02"/>
-<polygon fill="#255000" stroke="#255000" points="521.17,-146.32 531.76,-146.52 523.61,-139.76 521.17,-146.32"/>
+<path fill="none" stroke="#255000" d="M71.28,-62.13C82.66,-62.29 95.37,-62.45 107,-62.53 198.74,-63.18 302.53,-63.15 380.4,-62.97"/>
+<polygon fill="#255000" stroke="#255000" points="380.74,-66.47 390.73,-62.95 380.72,-59.47 380.74,-66.47"/>
 </g>
 <!-- proc~mapl_verify -->
 <g id="proc~~time~~CallsGraph_node5" class="node">
 <title>proc~mapl_verify</title>
 <g id="a_proc~~time~~CallsGraph_node5"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="704,-220.55 490,-220.55 490,-196.55 704,-196.55 704,-220.55"/>
-<text text-anchor="middle" x="597" y="-206.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="608,-32.53 394,-32.53 394,-8.53 608,-8.53 608,-32.53"/>
+<text text-anchor="middle" x="501" y="-18.13" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~time&#45;&gt;proc~mapl_verify -->
 <g id="proc~~time~~CallsGraph_edge4" class="edge">
 <title>proc~time&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M71.03,-342.29C145.97,-348.68 326.74,-354.69 451,-281.55 473.98,-268.03 464.64,-248.09 487,-233.55 492.45,-230.01 498.33,-226.97 504.45,-224.36"/>
-<polygon fill="#255000" stroke="#255000" points="506.15,-227.45 514.23,-220.59 503.64,-220.92 506.15,-227.45"/>
+<path fill="none" stroke="#255000" d="M51.66,-49.51C65.26,-39.54 86.22,-26.14 107,-20.53 207.92,6.68 328.79,1.32 409.6,-7.37"/>
+<polygon fill="#255000" stroke="#255000" points="409.41,-10.87 419.74,-8.5 410.19,-3.91 409.41,-10.87"/>
 </g>
-<!-- proc~run~2 -->
-<g id="proc~~time~~CallsGraph_node6" class="node">
-<title>proc~run~2</title>
-<g id="a_proc~~time~~CallsGraph_node6"><a xlink:href=".././proc/run~2.html" xlink:title="main::run">
-<polygon fill="#d9534f" stroke="#d9534f" points="177,-192.55 112,-192.55 112,-168.55 177,-168.55 177,-192.55"/>
-<text text-anchor="middle" x="144.5" y="-178.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::run</text>
-</a>
-</g>
-</g>
-<!-- proc~time&#45;&gt;proc~run~2 -->
+<!-- none~run~2&#45;&gt;proc~mapl_return -->
 <g id="proc~~time~~CallsGraph_edge5" class="edge">
-<title>proc~time&#45;&gt;proc~run~2</title>
-<path fill="none" stroke="#255000" d="M44.72,-326.42C62.88,-299.6 106.61,-235.03 129.3,-201.52"/>
-<polygon fill="#255000" stroke="#255000" points="132.4,-203.19 135.11,-192.95 126.6,-199.27 132.4,-203.19"/>
+<title>none~run~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M355.02,-51.17C363.62,-51.85 372.29,-52.53 380.87,-53.2"/>
+<polygon fill="transparent" stroke="transparent" points="380.66,-56.69 390.9,-53.99 381.2,-49.71 380.66,-56.69"/>
+</g>
+<!-- none~run~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~time~~CallsGraph_edge6" class="edge">
+<title>none~run~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M355.02,-31.89C364.52,-31.15 374.09,-30.4 383.55,-29.66"/>
+<polygon fill="transparent" stroke="transparent" points="384.05,-33.13 393.75,-28.86 383.51,-26.15 384.05,-33.13"/>
+</g>
+<!-- at -->
+<g id="proc~~time~~CallsGraph_node6" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="788.5,-116.53 734.5,-116.53 734.5,-92.53 788.5,-92.53 788.5,-116.53"/>
+<text text-anchor="middle" x="761.5" y="-102.13" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~time~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M576.08,-74.57C624.62,-82.46 685.96,-92.42 724.21,-98.64"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="723.93,-102.14 734.36,-100.29 725.05,-95.23 723.93,-102.14"/>
+</g>
+<!-- insert -->
+<g id="proc~~time~~CallsGraph_node7" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="788.5,-74.53 734.5,-74.53 734.5,-50.53 788.5,-50.53 788.5,-74.53"/>
+<text text-anchor="middle" x="761.5" y="-60.13" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~time~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M611.25,-62.53C651.63,-62.53 694.67,-62.53 724.11,-62.53"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="724.3,-66.03 734.3,-62.53 724.3,-59.03 724.3,-66.03"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~time~~CallsGraph_node11" class="node">
+<g id="proc~~time~~CallsGraph_node8" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~time~~CallsGraph_node11"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="972,-195.55 743,-195.55 743,-171.55 972,-171.55 972,-195.55"/>
-<text text-anchor="middle" x="857.5" y="-181.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~time~~CallsGraph_node8"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="876,-32.53 647,-32.53 647,-8.53 876,-8.53 876,-32.53"/>
+<text text-anchor="middle" x="761.5" y="-18.13" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~time~~CallsGraph_edge6" class="edge">
+<g id="proc~~time~~CallsGraph_edge9" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M707.25,-169.12C715.67,-169.93 724.21,-170.76 732.71,-171.58"/>
-<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="732.38,-175.07 742.67,-172.54 733.05,-168.1 732.38,-175.07"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M576.08,-50.5C607.44,-45.4 644.15,-39.44 676.52,-34.18"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="677.1,-37.63 686.41,-32.57 675.98,-30.72 677.1,-37.63"/>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~time~~CallsGraph_edge7" class="edge">
-<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M704.26,-198.28C713.57,-197.38 723.04,-196.46 732.47,-195.55"/>
-<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="733.07,-199.01 742.68,-194.56 732.39,-192.04 733.07,-199.01"/>
-</g>
-<!-- proc~run~2&#45;&gt;proc~mapl_return -->
-<g id="proc~~time~~CallsGraph_edge12" class="edge">
-<title>proc~run~2&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M177.2,-169.29C189.74,-165.39 204.38,-161.5 218,-159.55 303.78,-147.26 401.63,-147.39 476.28,-150.39"/>
-<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="476.52,-153.9 486.66,-150.83 476.81,-146.91 476.52,-153.9"/>
-</g>
-<!-- proc~run~2&#45;&gt;proc~mapl_verify -->
-<g id="proc~~time~~CallsGraph_edge13" class="edge">
-<title>proc~run~2&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M177.22,-191.7C189.75,-195.59 204.4,-199.49 218,-201.55 304.93,-214.71 404.38,-216.02 479.45,-214.27"/>
-<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="479.96,-217.76 489.87,-214 479.79,-210.76 479.96,-217.76"/>
-</g>
-<!-- mpi_comm_rank -->
-<g id="proc~~time~~CallsGraph_node7" class="node">
-<title>mpi_comm_rank</title>
-<polygon fill="#777777" stroke="#777777" points="647.5,-112.55 546.5,-112.55 546.5,-88.55 647.5,-88.55 647.5,-112.55"/>
-<text text-anchor="middle" x="597" y="-98.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
-</g>
-<!-- proc~run~2&#45;&gt;mpi_comm_rank -->
-<g id="proc~~time~~CallsGraph_edge8" class="edge">
-<title>proc~run~2&#45;&gt;mpi_comm_rank</title>
-<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M147.34,-168.51C152.48,-139.72 169.85,-67.13 218,-37.55 331.97,32.45 500.06,-46.35 566.98,-83.41"/>
-<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="565.3,-86.48 575.73,-88.34 568.74,-80.39 565.3,-86.48"/>
-</g>
-<!-- mpi_comm_size -->
-<g id="proc~~time~~CallsGraph_node8" class="node">
-<title>mpi_comm_size</title>
-<polygon fill="#777777" stroke="#777777" points="645.5,-308.55 548.5,-308.55 548.5,-284.55 645.5,-284.55 645.5,-308.55"/>
-<text text-anchor="middle" x="597" y="-294.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
-</g>
-<!-- proc~run~2&#45;&gt;mpi_comm_size -->
-<g id="proc~~time~~CallsGraph_edge9" class="edge">
-<title>proc~run~2&#45;&gt;mpi_comm_size</title>
-<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M149.99,-192.65C158.97,-214.92 181.51,-261.91 218,-281.55 319.83,-336.38 460.42,-322.88 538.27,-309.11"/>
-<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="539.16,-312.5 548.37,-307.26 537.9,-305.62 539.16,-312.5"/>
-</g>
-<!-- mpi_comm_split -->
-<g id="proc~~time~~CallsGraph_node9" class="node">
-<title>mpi_comm_split</title>
-<polygon fill="#777777" stroke="#777777" points="384,-70.55 285,-70.55 285,-46.55 384,-46.55 384,-70.55"/>
-<text text-anchor="middle" x="334.5" y="-56.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_split</text>
-</g>
-<!-- proc~run~2&#45;&gt;mpi_comm_split -->
 <g id="proc~~time~~CallsGraph_edge10" class="edge">
-<title>proc~run~2&#45;&gt;mpi_comm_split</title>
-<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M150.56,-168.25C160.19,-146.49 183.34,-101.48 218,-79.55 234.72,-68.98 255.36,-63.4 274.55,-60.56"/>
-<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="275.24,-64 284.72,-59.27 274.36,-57.05 275.24,-64"/>
-</g>
-<!-- proc~make_gathervkernel -->
-<g id="proc~~time~~CallsGraph_node10" class="node">
-<title>proc~make_gathervkernel</title>
-<g id="a_proc~~time~~CallsGraph_node10"><a xlink:href=".././proc/make_gathervkernel.html" xlink:title="mapl_GathervSpec::make_GathervKernel">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="451,-272.55 218,-272.55 218,-248.55 451,-248.55 451,-272.55"/>
-<text text-anchor="middle" x="334.5" y="-258.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_GathervSpec::make_GathervKernel</text>
-</a>
-</g>
-</g>
-<!-- proc~run~2&#45;&gt;proc~make_gathervkernel -->
-<g id="proc~~time~~CallsGraph_edge11" class="edge">
-<title>proc~run~2&#45;&gt;proc~make_gathervkernel</title>
-<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M158.3,-192.75C172,-205.13 194.9,-223.94 218,-234.55 227.72,-239.02 238.27,-242.75 248.9,-245.85"/>
-<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="248.1,-249.26 258.67,-248.53 249.95,-242.51 248.1,-249.26"/>
-</g>
-<!-- proc~report -->
-<g id="proc~~time~~CallsGraph_node12" class="node">
-<title>proc~report</title>
-<g id="a_proc~~time~~CallsGraph_node12"><a xlink:href=".././proc/report.html" xlink:title="main::report">
-<polygon fill="#d9534f" stroke="#d9534f" points="374,-192.55 295,-192.55 295,-168.55 374,-168.55 374,-192.55"/>
-<text text-anchor="middle" x="334.5" y="-178.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::report</text>
-</a>
-</g>
-</g>
-<!-- proc~run~2&#45;&gt;proc~report -->
-<g id="proc~~time~~CallsGraph_edge14" class="edge">
-<title>proc~run~2&#45;&gt;proc~report</title>
-<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M177.39,-180.55C206.82,-180.55 250.96,-180.55 284.8,-180.55"/>
-<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="284.94,-184.05 294.94,-180.55 284.94,-177.05 284.94,-184.05"/>
-</g>
-<!-- proc~write_header -->
-<g id="proc~~time~~CallsGraph_node13" class="node">
-<title>proc~write_header</title>
-<g id="a_proc~~time~~CallsGraph_node13"><a xlink:href=".././proc/write_header.html" xlink:title="main::write_header">
-<polygon fill="#d9534f" stroke="#d9534f" points="393,-112.55 276,-112.55 276,-88.55 393,-88.55 393,-112.55"/>
-<text text-anchor="middle" x="334.5" y="-98.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::write_header</text>
-</a>
-</g>
-</g>
-<!-- proc~run~2&#45;&gt;proc~write_header -->
-<g id="proc~~time~~CallsGraph_edge15" class="edge">
-<title>proc~run~2&#45;&gt;proc~write_header</title>
-<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M158.3,-168.35C172,-155.97 194.9,-137.17 218,-126.55 232.92,-119.69 249.79,-114.58 265.92,-110.8"/>
-<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="266.84,-114.18 275.85,-108.61 265.33,-107.34 266.84,-114.18"/>
-</g>
-<!-- proc~make_gathervkernel&#45;&gt;proc~mapl_return -->
-<g id="proc~~time~~CallsGraph_edge18" class="edge">
-<title>proc~make_gathervkernel&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M357.51,-248.31C386.49,-232.58 439.36,-205.19 487,-187.55 501.61,-182.14 517.67,-177.3 532.87,-173.18"/>
-<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="533.93,-176.52 542.7,-170.59 532.14,-169.75 533.93,-176.52"/>
-</g>
-<!-- proc~make_gathervkernel&#45;&gt;proc~mapl_verify -->
-<g id="proc~~time~~CallsGraph_edge19" class="edge">
-<title>proc~make_gathervkernel&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M395.92,-248.49C434.66,-240.76 485.1,-230.69 525.64,-222.6"/>
-<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="526.34,-226.03 535.46,-220.64 524.97,-219.16 526.34,-226.03"/>
-</g>
-<!-- proc~make_gathervkernel&#45;&gt;mpi_comm_size -->
-<g id="proc~~time~~CallsGraph_edge17" class="edge">
-<title>proc~make_gathervkernel&#45;&gt;mpi_comm_size</title>
-<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M422.6,-272.59C460.67,-277.85 504.28,-283.88 538.25,-288.57"/>
-<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="538.07,-292.08 548.46,-289.98 539.03,-285.15 538.07,-292.08"/>
-</g>
-<!-- init -->
-<g id="proc~~time~~CallsGraph_node14" class="node">
-<title>init</title>
-<polygon fill="#777777" stroke="#777777" points="624,-266.55 570,-266.55 570,-242.55 624,-242.55 624,-266.55"/>
-<text text-anchor="middle" x="597" y="-252.15" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">init</text>
-</g>
-<!-- proc~make_gathervkernel&#45;&gt;init -->
-<g id="proc~~time~~CallsGraph_edge16" class="edge">
-<title>proc~make_gathervkernel&#45;&gt;init</title>
-<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M451.28,-257.89C490.44,-256.98 531.36,-256.04 559.66,-255.39"/>
-<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="559.94,-258.88 569.86,-255.16 559.78,-251.89 559.94,-258.88"/>
-</g>
-<!-- proc~report&#45;&gt;proc~mapl_return -->
-<g id="proc~~time~~CallsGraph_edge22" class="edge">
-<title>proc~report&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#720255" d="M374.22,-177.28C401.49,-174.98 439.58,-171.76 476.52,-168.64"/>
-<polygon fill="#720255" stroke="#720255" points="477.22,-172.1 486.89,-167.77 476.63,-165.12 477.22,-172.1"/>
-</g>
-<!-- proc~report&#45;&gt;proc~mapl_verify -->
-<g id="proc~~time~~CallsGraph_edge23" class="edge">
-<title>proc~report&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#720255" d="M374.22,-184.71C402.26,-187.73 441.74,-191.97 479.63,-196.05"/>
-<polygon fill="#720255" stroke="#720255" points="479.43,-199.54 489.74,-197.13 480.17,-192.58 479.43,-199.54"/>
-</g>
-<!-- proc~report&#45;&gt;mpi_comm_rank -->
-<g id="proc~~time~~CallsGraph_edge20" class="edge">
-<title>proc~report&#45;&gt;mpi_comm_rank</title>
-<path fill="none" stroke="#720255" d="M374.22,-168.66C420.19,-154.54 496.93,-130.98 547,-115.6"/>
-<polygon fill="#720255" stroke="#720255" points="548.11,-118.92 556.64,-112.64 546.06,-112.23 548.11,-118.92"/>
-</g>
-<!-- proc~report&#45;&gt;mpi_comm_size -->
-<g id="proc~~time~~CallsGraph_edge21" class="edge">
-<title>proc~report&#45;&gt;mpi_comm_size</title>
-<path fill="none" stroke="#720255" d="M365.44,-192.73C389.66,-203.29 424.05,-219.95 451,-239.55 469.3,-252.86 467.01,-264.95 487,-275.55 502.65,-283.86 521.12,-288.91 538.37,-291.97"/>
-<polygon fill="#720255" stroke="#720255" points="537.93,-295.44 548.35,-293.55 539.02,-288.53 537.93,-295.44"/>
-</g>
-<!-- proc~write_header&#45;&gt;proc~mapl_return -->
-<g id="proc~~time~~CallsGraph_edge25" class="edge">
-<title>proc~write_header&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M389.48,-112.57C430.95,-121.81 488.36,-134.59 532.13,-144.33"/>
-<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="531.57,-147.79 542.09,-146.55 533.09,-140.96 531.57,-147.79"/>
-</g>
-<!-- proc~write_header&#45;&gt;proc~mapl_verify -->
-<g id="proc~~time~~CallsGraph_edge26" class="edge">
-<title>proc~write_header&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M359.96,-112.74C383.43,-124.5 419.8,-142.93 451,-159.55 467.15,-168.16 470.03,-172.7 487,-179.55 500.72,-185.09 515.84,-189.89 530.33,-193.89"/>
-<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="529.68,-197.34 540.24,-196.54 531.49,-190.58 529.68,-197.34"/>
-</g>
-<!-- proc~write_header&#45;&gt;mpi_comm_rank -->
-<g id="proc~~time~~CallsGraph_edge24" class="edge">
-<title>proc~write_header&#45;&gt;mpi_comm_rank</title>
-<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M393.31,-100.55C435.78,-100.55 493.3,-100.55 536.22,-100.55"/>
-<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="536.24,-104.05 546.24,-100.55 536.24,-97.05 536.24,-104.05"/>
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M608.26,-20.53C617.57,-20.53 627.04,-20.53 636.47,-20.53"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="636.68,-24.03 646.68,-20.53 636.68,-17.03 636.68,-24.03"/>
 </g>
 </g>
 </svg>
@@ -520,8 +357,8 @@
                   var panproctimeCallsGraph = svgPanZoom('#proctimeCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -538,11 +375,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -561,23 +398,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -597,67 +440,38 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/time.html#src">time</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="kt">real </span><span class="k">function </span><span class="nb">time</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GathervKernel</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kernel</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="kt">real </span><span class="k">function </span><span class="nb">time</span><span class="p">(</span><span class="n">benchmark</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">BW_Benchmark</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">benchmark</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
-<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">t1</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c0</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">count_rate</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">t0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_Wtime</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">kernel</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">t1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_Wtime</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
 
-<span class="w">      </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">c0</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">benchmark</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">count_rate</span><span class="o">=</span><span class="n">count_rate</span><span class="p">)</span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="k">end function </span><span class="nb">time</span><span class="w"></span>
+<span class="w">      </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">c1</span><span class="o">-</span><span class="n">c0</span><span class="p">)</span><span class="o">/</span><span class="n">count_rate</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="nb">time</span>
 </pre></div>
 
     </section>
@@ -670,32 +484,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

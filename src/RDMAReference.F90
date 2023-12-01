@@ -16,8 +16,8 @@ module pFIO_RDMAReferenceMod
    public :: RDMAReference
 
    type,extends(AbstractDataReference) :: RDMAReference
-      integer :: win         
-      integer :: comm 
+      integer :: win
+      integer :: comm
       integer :: mem_rank
       integer(kind=INT64) :: msize_word
       logical :: RDMA_allocated = .false.
@@ -106,7 +106,7 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end subroutine deserialize
-      
+
    subroutine allocate(this, rc)
       class (RDMAReference), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -114,22 +114,32 @@ contains
       integer :: disp_unit,status, Rank
       integer(kind=MPI_ADDRESS_KIND) :: n_bytes
       integer :: int_size
-      
+#if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+      integer(kind=MPI_ADDRESS_KIND) :: baseaddr
+#endif
+
       int_size   = c_sizeof(int_size)
       disp_unit  = int_size
       n_bytes    = this%msize_word * int_size
 
       call MPI_Comm_rank(this%comm,Rank,status)
 
-      windowsize = 0_MPI_ADDRESS_KIND  
+      windowsize = 0_MPI_ADDRESS_KIND
       if (Rank == this%mem_rank) windowsize = n_bytes
-   
+
+#if defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       call MPI_Win_allocate(windowsize, disp_unit, MPI_INFO_NULL, this%comm, &
                this%base_address, this%win, status)
       _VERIFY(status)
+#else
+      call MPI_Win_allocate(windowsize, disp_unit, MPI_INFO_NULL, this%comm, &
+               baseaddr, this%win, status)
+      _VERIFY(status)
+      this%base_address = transfer(baseaddr, this%base_address)
+#endif
       call MPI_Win_fence(0, this%win, status)
       _VERIFY(status)
-     
+
       this%RDMA_allocated = .true.
       _RETURN(_SUCCESS)
    end subroutine allocate

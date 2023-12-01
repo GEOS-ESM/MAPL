@@ -39,6 +39,9 @@ contains
 
       integer :: ierror
       integer(kind=MPI_ADDRESS_KIND) :: sz
+#if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+      integer(kind=MPI_ADDRESS_KIND) :: baseaddr
+#endif
 
       call MPI_Comm_dup(comm, lock%comm, ierror)
       call MPI_Comm_rank(lock%comm, lock%rank, ierror)
@@ -61,10 +64,15 @@ contains
          block
            logical, pointer :: scratchpad(:)
            integer :: sizeof_logical
-          
+
            call MPI_Type_extent(MPI_LOGICAL, sizeof_logical, ierror)
            sz = lock%npes * sizeof_logical
+#if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
            call MPI_Alloc_mem(sz, MPI_INFO_NULL, lock%locks_ptr, ierror)
+#else
+           call MPI_Alloc_mem(sz, MPI_INFO_NULL, baseaddr, ierror)
+           lock%locks_ptr = transfer(baseaddr, lock%locks_ptr)
+#endif
 
            call c_f_pointer(lock%locks_ptr, scratchpad, [lock%npes])
            scratchpad = .false.
@@ -144,7 +152,7 @@ contains
               end if
            end do
         end if
-        
+
         if (next_rank /= -1) then
            call MPI_Send(buffer, 0, MPI_LOGICAL, next_rank, &
                 & LOCK_TAG, this%comm, ierror)

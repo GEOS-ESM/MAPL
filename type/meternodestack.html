@@ -10,85 +10,58 @@
 
     <title>MeterNodeStack &ndash; MAPL </title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Derived Type</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title="<p> 0.8% of total for derived types.</p>Including implementation: 796 statements,  0.7% of total for derived types.">68 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title="<p> 0.8% of total for derived types.</p>Including implementation: 516 statements,  0.6% of total for derived types.">76 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/MeterNodeStack.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/meternodestack.f90.html'>MeterNodeStack.F90</a></li>
-              <li><a href='../module/mapl_meternodestack.html'>mapl_MeterNodeStack</a></li>
-          <li class="active">MeterNodeStack</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/meternodestack.f90.html'>MeterNodeStack.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_meternodestack.html'>mapl_MeterNodeStack</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MeterNodeStack</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -135,14 +112,13 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#cons-0">Constructor</a>
-        </h3>
-      </div>
-      <div id="cons-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#cons-0"
+         aria-expanded="false" aria-controls="cons-0">
+         <h4 class="card-header bg-primary text-white">Constructor</h4>
+      </a>
+      <div id="cons-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../type/meternodestack.html#interface-meternodestack">MeterNodeStack</a>
         </div>
       </div>
@@ -161,77 +137,77 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#boundprocs-0">Type-Bound Procedures</a>
-        </h3>
-      </div>
-      <div id="boundprocs-0" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-assignment%28%3D%29~16">assignment(=)</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~188">at</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~189">at</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~190">at</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~191">at</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at_default">at_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at_size_kind~22">at_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-back~22">back</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-begin~41">begin</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-capacity~64">capacity</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-clear~42">clear</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-copy_from_array">copy_from_array</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-data">data</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-empty~41">empty</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-end~41">end</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase~41">erase</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase~42">erase</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase_one~20">erase_one</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase_range">erase_range</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-front~22">front</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-ftn_begin">ftn_begin</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-ftn_end">ftn_end</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~82">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~83">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~84">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~85">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~86">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-max_size~20">max_size</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of~41">of</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of~42">of</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of_default">of_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of_size_kind">of_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-pop_back~22">pop_back</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-push_back~22">push_back</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-rbegin~22">rbegin</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-rend~22">rend</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve~43">reserve</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve~44">reserve</a>
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-assignment%28%3D%29~8">assignment(=)</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~106">at</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~108">at</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~109">at</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~110">at</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at_default~2">at_default</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at_size_kind~11">at_size_kind</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-back~3">back</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-begin~19">begin</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-capacity~21">capacity</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-clear~31">clear</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-copy_from_array~4">copy_from_array</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-data~3">data</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-empty">empty</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-end~33">end</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase~23">erase</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase~24">erase</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase_one~10">erase_one</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase_range~2">erase_range</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-front~18">front</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-ftn_begin~3">ftn_begin</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-ftn_end~3">ftn_end</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~41">insert</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~42">insert</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~43">insert</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~44">insert</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~45">insert</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-max_size~3">max_size</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of~13">of</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of~14">of</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of_default~2">of_default</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of_size_kind~3">of_size_kind</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-pop_back">pop_back</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-push_back~21">push_back</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-rbegin~16">rbegin</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-rend~16">rend</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve~17">reserve</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve~18">reserve</a>
             <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve_default">reserve_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve_size_kind~22">reserve_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reset~24">reset</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize~43">resize</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize~44">resize</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize_default">resize_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize_size_kind">resize_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set~65">set</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set~66">set</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve_size_kind~3">reserve_size_kind</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reset~22">reset</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize~33">resize</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize~34">resize</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize_default~3">resize_default</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize_size_kind~3">resize_size_kind</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set~17">set</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set~18">set</a>
             <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set_default">set_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set_size_kind~22">set_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-shrink_to_fit~22">shrink_to_fit</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-size~43">size</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-swap~23">swap</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_count_default">vector_insert_count_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_count_size_kind">vector_insert_count_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_list">vector_insert_list</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_one">vector_insert_one</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_range">vector_insert_range</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set_size_kind~4">set_size_kind</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-shrink_to_fit~16">shrink_to_fit</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-size~31">size</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-swap~17">swap</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_count_default~3">vector_insert_count_default</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_count_size_kind~3">vector_insert_count_size_kind</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_list~4">vector_insert_list</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_one~3">vector_insert_one</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_range~4">vector_insert_range</a>
             <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-write%28formatted%29~3">write(formatted)</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-write_formatted~2">write_formatted</a>
+            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-write_formatted~3">write_formatted</a>
         </div>
       </div>
     </div>
 
+  
   
 
 
@@ -242,11 +218,11 @@
     <div class="col-md-9" id='text'>
       <h2>type, public :: MeterNodeStack</h2>
     
-<br>    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Inherits</h3>
+<br>    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Inherits</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
     <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -311,8 +287,8 @@
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#InheritsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -362,11 +338,11 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Inherited by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Inherited by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
      <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -462,8 +438,8 @@ large graphs.</div>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#InheritedByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -515,119 +491,11 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#cons-1">Constructor</a>
-        </h3>
-      </div>
-      <div id="cons-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/meternodestack.html#interface-meternodestack">MeterNodeStack</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#boundprocs-1">Type-Bound Procedures</a>
-        </h3>
-      </div>
-      <div id="boundprocs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-assignment%28%3D%29~16">assignment(=)</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~188">at</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~189">at</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~190">at</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at~191">at</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at_default">at_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-at_size_kind~22">at_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-back~22">back</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-begin~41">begin</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-capacity~64">capacity</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-clear~42">clear</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-copy_from_array">copy_from_array</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-data">data</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-empty~41">empty</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-end~41">end</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase~41">erase</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase~42">erase</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase_one~20">erase_one</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-erase_range">erase_range</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-front~22">front</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-ftn_begin">ftn_begin</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-ftn_end">ftn_end</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~82">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~83">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~84">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~85">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-insert~86">insert</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-max_size~20">max_size</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of~41">of</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of~42">of</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of_default">of_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-of_size_kind">of_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-pop_back~22">pop_back</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-push_back~22">push_back</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-rbegin~22">rbegin</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-rend~22">rend</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve~43">reserve</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve~44">reserve</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve_default">reserve_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reserve_size_kind~22">reserve_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-reset~24">reset</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize~43">resize</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize~44">resize</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize_default">resize_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-resize_size_kind">resize_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set~65">set</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set~66">set</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set_default">set_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-set_size_kind~22">set_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-shrink_to_fit~22">shrink_to_fit</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-size~43">size</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-swap~23">swap</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_count_default">vector_insert_count_default</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_count_size_kind">vector_insert_count_size_kind</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_list">vector_insert_list</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_one">vector_insert_one</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-vector_insert_range">vector_insert_range</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-write%28formatted%29~3">write(formatted)</a>
-            <a class="list-group-item" href="../type/meternodestack.html#boundprocedure-write_formatted~2">write_formatted</a>
-        </div>
-      </div>
-    </div>
-
-  
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
     
       <section>
         <h2>Constructor</h2>
-            <div class="panel panel-default">
-    <div class="panel-heading codesum">
+            <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-meternodestack"></span>
       <h3>public        interface <a href='../interface/meternodestack.html'>MeterNodeStack</a> 
       </h3>
@@ -660,16 +528,16 @@ large graphs.</div>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-n~126"></span>
               integer(kind=GFTL_SIZE_KIND),
             </td>
 <td>intent(in)</td>
@@ -684,7 +552,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-value~200"></span>
               type(<a href='../type/meternodeptr.html'>MeterNodePtr</a>),
             </td>
 <td>intent(in),</td>
@@ -718,16 +586,16 @@ large graphs.</div>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-n~127"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -742,7 +610,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-value~201"></span>
               type(<a href='../type/meternodeptr.html'>MeterNodePtr</a>),
             </td>
 <td>intent(in),</td>
@@ -776,16 +644,16 @@ large graphs.</div>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-first~20"></span>
               type(<a href='../type/meternodestackiterator.html'>MeterNodeStackIterator</a>),
             </td>
 <td>intent(in)</td>
@@ -800,7 +668,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-last~20"></span>
               type(<a href='../type/meternodestackiterator.html'>MeterNodeStackIterator</a>),
             </td>
 <td>intent(in)</td>
@@ -834,16 +702,16 @@ large graphs.</div>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-x~9"></span>
               type(<a href='../type/meternodestack.html'>MeterNodeStack</a>)
             </td>
 <td></td>
@@ -877,16 +745,16 @@ large graphs.</div>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-il~4"></span>
               type(<a href='../type/meternodeptr.html'>MeterNodePtr</a>),
             </td>
 <td>intent(in),</td>
@@ -918,25 +786,33 @@ large graphs.</div>
 
       <section>
         <h2>Type-Bound Procedures</h2>
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-assignment%28%3D%29~16"></span><h3>generic, public,  :: <strong>assignment(=)</strong>  => <a href='../type/meternodestack.html#boundprocedure-copy_from_array'>copy_from_array</a>         
-    </h3></div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-assignment%28%3D%29~8"></span>
+      <h3>
+          generic, public ::
+  <strong>assignment(=)</strong> => <a href='../type/meternodestack.html#boundprocedure-copy_from_array~4'>copy_from_array</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_copy_from_array(this, array)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -977,25 +853,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at~188"></span><h3>generic, public,  :: <strong>at</strong>  => <a href='../type/meternodestack.html#boundprocedure-at_default'>at_default</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-at~106"></span>
+      <h3>
+          generic, public ::
+  <strong>at</strong> => <a href='../type/meternodestack.html#boundprocedure-at_default~2'>at_default</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_at_default(this, i, rc) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1056,25 +941,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at~189"></span><h3>generic, public,  :: <strong>at</strong>  => <a href='../type/meternodestack.html#boundprocedure-of_default'>of_default</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-at~108"></span>
+      <h3>
+          generic, public ::
+  <strong>at</strong> => <a href='../type/meternodestack.html#boundprocedure-of_default~2'>of_default</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_of_default(this, i) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1120,25 +1014,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at~190"></span><h3>generic, public,  :: <strong>at</strong>  => <a href='../type/meternodestack.html#boundprocedure-at_size_kind~22'>at_size_kind</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-at~109"></span>
+      <h3>
+          generic, public ::
+  <strong>at</strong> => <a href='../type/meternodestack.html#boundprocedure-at_size_kind~11'>at_size_kind</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_at_size_kind(this, i, rc) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1199,25 +1102,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at~191"></span><h3>generic, public,  :: <strong>at</strong>  => <a href='../type/meternodestack.html#boundprocedure-of_size_kind'>of_size_kind</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-at~110"></span>
+      <h3>
+          generic, public ::
+  <strong>at</strong> => <a href='../type/meternodestack.html#boundprocedure-of_size_kind~3'>of_size_kind</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_of_size_kind(this, i) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1263,25 +1175,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at_default"></span><h3>procedure, public,  :: <strong>at_default</strong>  => vector_at_default         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-at_default~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>at_default</strong> => vector_at_default
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_at_default(this, i, rc) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1342,25 +1263,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at_size_kind~22"></span><h3>procedure, public,  :: <strong>at_size_kind</strong>  => vector_at_size_kind         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-at_size_kind~11"></span>
+      <h3>
+          procedure, public ::
+  <strong>at_size_kind</strong> => vector_at_size_kind
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_at_size_kind(this, i, rc) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1421,25 +1351,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-back~22"></span><h3>procedure, public,  :: <strong>back</strong>  => vector_back         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-back~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>back</strong> => vector_back
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_back(this) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1470,25 +1409,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-begin~41"></span><h3>procedure, public,  :: <strong>begin</strong>  => vector_begin         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-begin~19"></span>
+      <h3>
+          procedure, public ::
+  <strong>begin</strong> => vector_begin
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_begin(this) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1519,25 +1467,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-capacity~64"></span><h3>procedure, public,  :: <strong>capacity</strong>  => vector_capacity         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-capacity~21"></span>
+      <h3>
+          procedure, public ::
+  <strong>capacity</strong> => vector_capacity
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private pure function vector_capacity(this) result(capacity)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1568,25 +1525,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-clear~42"></span><h3>procedure, public,  :: <strong>clear</strong>  => vector_clear         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-clear~31"></span>
+      <h3>
+          procedure, public ::
+  <strong>clear</strong> => vector_clear
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private recursive subroutine vector_clear(this)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1612,25 +1578,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-copy_from_array"></span><h3>procedure, public,  :: <strong>copy_from_array</strong>  => vector_copy_from_array         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-copy_from_array~4"></span>
+      <h3>
+          procedure, public ::
+  <strong>copy_from_array</strong> => vector_copy_from_array
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_copy_from_array(this, array)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1671,25 +1646,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-data"></span><h3>procedure, public,  :: <strong>data</strong>  => vector_data         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-data~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>data</strong> => vector_data
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_data(this) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1720,25 +1704,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-empty~41"></span><h3>procedure, public,  :: <strong>empty</strong>  => vector_empty         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-empty"></span>
+      <h3>
+          procedure, public ::
+  <strong>empty</strong> => vector_empty
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private pure function vector_empty(this) result(empty)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1769,25 +1762,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-end~41"></span><h3>procedure, public,  :: <strong>end</strong>  => vector_end         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-end~33"></span>
+      <h3>
+          procedure, public ::
+  <strong>end</strong> => vector_end
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_end(this) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1818,25 +1820,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erase~41"></span><h3>generic, public,  :: <strong>erase</strong>  => <a href='../type/meternodestack.html#boundprocedure-erase_one~20'>erase_one</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-erase~23"></span>
+      <h3>
+          generic, public ::
+  <strong>erase</strong> => <a href='../type/meternodestack.html#boundprocedure-erase_one~10'>erase_one</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_erase_one(this, position) result(new_iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1882,25 +1893,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erase~42"></span><h3>generic, public,  :: <strong>erase</strong>  => <a href='../type/meternodestack.html#boundprocedure-erase_range'>erase_range</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-erase~24"></span>
+      <h3>
+          generic, public ::
+  <strong>erase</strong> => <a href='../type/meternodestack.html#boundprocedure-erase_range~2'>erase_range</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_erase_range(this, first, last) result(new_iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1961,25 +1981,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erase_one~20"></span><h3>procedure, public,  :: <strong>erase_one</strong>  => vector_erase_one         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-erase_one~10"></span>
+      <h3>
+          procedure, public ::
+  <strong>erase_one</strong> => vector_erase_one
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_erase_one(this, position) result(new_iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2025,25 +2054,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erase_range"></span><h3>procedure, public,  :: <strong>erase_range</strong>  => vector_erase_range         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-erase_range~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>erase_range</strong> => vector_erase_range
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_erase_range(this, first, last) result(new_iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2104,25 +2142,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-front~22"></span><h3>procedure, public,  :: <strong>front</strong>  => vector_front         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-front~18"></span>
+      <h3>
+          procedure, public ::
+  <strong>front</strong> => vector_front
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_front(this) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2153,25 +2200,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-ftn_begin"></span><h3>procedure, public,  :: <strong>ftn_begin</strong>  => vector_ftn_begin         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-ftn_begin~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>ftn_begin</strong> => vector_ftn_begin
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_ftn_begin(this) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2202,25 +2258,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-ftn_end"></span><h3>procedure, public,  :: <strong>ftn_end</strong>  => vector_ftn_end         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-ftn_end~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>ftn_end</strong> => vector_ftn_end
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_ftn_end(this) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2251,25 +2316,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert~82"></span><h3>generic, public,  :: <strong>insert</strong>  => <a href='../type/meternodestack.html#boundprocedure-vector_insert_one'>vector_insert_one</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-insert~41"></span>
+      <h3>
+          generic, public ::
+  <strong>insert</strong> => <a href='../type/meternodestack.html#boundprocedure-vector_insert_one~3'>vector_insert_one</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private recursive function vector_insert_one(this, pos, value) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2330,25 +2404,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert~83"></span><h3>generic, public,  :: <strong>insert</strong>  => <a href='../type/meternodestack.html#boundprocedure-vector_insert_count_size_kind'>vector_insert_count_size_kind</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-insert~42"></span>
+      <h3>
+          generic, public ::
+  <strong>insert</strong> => <a href='../type/meternodestack.html#boundprocedure-vector_insert_count_size_kind~3'>vector_insert_count_size_kind</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private recursive function vector_insert_count_size_kind(this, pos, count, value) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2424,25 +2507,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert~84"></span><h3>generic, public,  :: <strong>insert</strong>  => <a href='../type/meternodestack.html#boundprocedure-vector_insert_count_default'>vector_insert_count_default</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-insert~43"></span>
+      <h3>
+          generic, public ::
+  <strong>insert</strong> => <a href='../type/meternodestack.html#boundprocedure-vector_insert_count_default~3'>vector_insert_count_default</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_insert_count_default(this, pos, count, value) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2518,25 +2610,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert~85"></span><h3>generic, public,  :: <strong>insert</strong>  => <a href='../type/meternodestack.html#boundprocedure-vector_insert_range'>vector_insert_range</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-insert~44"></span>
+      <h3>
+          generic, public ::
+  <strong>insert</strong> => <a href='../type/meternodestack.html#boundprocedure-vector_insert_range~4'>vector_insert_range</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_insert_range(this, pos, first, last, value) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2627,25 +2728,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert~86"></span><h3>generic, public,  :: <strong>insert</strong>  => <a href='../type/meternodestack.html#boundprocedure-vector_insert_list'>vector_insert_list</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-insert~45"></span>
+      <h3>
+          generic, public ::
+  <strong>insert</strong> => <a href='../type/meternodestack.html#boundprocedure-vector_insert_list~4'>vector_insert_list</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_insert_list(this, pos, values) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2706,14 +2816,23 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-max_size~20"></span><h3>procedure, public, nopass :: <strong>max_size</strong>  => vector_max_size         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-max_size~3"></span>
+      <h3>
+          procedure, public, nopass ::
+  <strong>max_size</strong> => vector_max_size
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private pure function vector_max_size() result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
@@ -2728,25 +2847,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-of~41"></span><h3>generic, public,  :: <strong>of</strong>  => <a href='../type/meternodestack.html#boundprocedure-of_default'>of_default</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-of~13"></span>
+      <h3>
+          generic, public ::
+  <strong>of</strong> => <a href='../type/meternodestack.html#boundprocedure-of_default~2'>of_default</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_of_default(this, i) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2792,25 +2920,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-of~42"></span><h3>generic, public,  :: <strong>of</strong>  => <a href='../type/meternodestack.html#boundprocedure-of_size_kind'>of_size_kind</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-of~14"></span>
+      <h3>
+          generic, public ::
+  <strong>of</strong> => <a href='../type/meternodestack.html#boundprocedure-of_size_kind~3'>of_size_kind</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_of_size_kind(this, i) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2856,25 +2993,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-of_default"></span><h3>procedure, public,  :: <strong>of_default</strong>  => vector_of_default         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-of_default~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>of_default</strong> => vector_of_default
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_of_default(this, i) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2920,25 +3066,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-of_size_kind"></span><h3>procedure, public,  :: <strong>of_size_kind</strong>  => vector_of_size_kind         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-of_size_kind~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>of_size_kind</strong> => vector_of_size_kind
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_of_size_kind(this, i) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2984,25 +3139,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-pop_back~22"></span><h3>procedure, public,  :: <strong>pop_back</strong>  => vector_pop_back         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-pop_back"></span>
+      <h3>
+          procedure, public ::
+  <strong>pop_back</strong> => vector_pop_back
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_pop_back(this)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3028,25 +3192,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-push_back~22"></span><h3>procedure, public,  :: <strong>push_back</strong>  => vector_push_back         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-push_back~21"></span>
+      <h3>
+          procedure, public ::
+  <strong>push_back</strong> => vector_push_back
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private recursive subroutine vector_push_back(this, value, unused, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3117,25 +3290,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rbegin~22"></span><h3>procedure, public,  :: <strong>rbegin</strong>  => vector_rbegin         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-rbegin~16"></span>
+      <h3>
+          procedure, public ::
+  <strong>rbegin</strong> => vector_rbegin
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_rbegin(this) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3158,7 +3340,7 @@ large graphs.</div>
 
     <h4>
     Return Value
-    <small>type(<a href='../type/vectorriterator.html'>VectorRIterator</a>)</small>
+    <small>type(<a href='../type/vectorriterator~2.html'>VectorRIterator</a>)</small>
     </h4>
     
 
@@ -3166,25 +3348,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rend~22"></span><h3>procedure, public,  :: <strong>rend</strong>  => vector_rend         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-rend~16"></span>
+      <h3>
+          procedure, public ::
+  <strong>rend</strong> => vector_rend
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_rend(this) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3207,7 +3398,7 @@ large graphs.</div>
 
     <h4>
     Return Value
-    <small>type(<a href='../type/vectorriterator.html'>VectorRIterator</a>)</small>
+    <small>type(<a href='../type/vectorriterator~2.html'>VectorRIterator</a>)</small>
     </h4>
     
 
@@ -3215,25 +3406,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reserve~43"></span><h3>generic, public,  :: <strong>reserve</strong>  => <a href='../type/meternodestack.html#boundprocedure-reserve_default'>reserve_default</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-reserve~17"></span>
+      <h3>
+          generic, public ::
+  <strong>reserve</strong> => <a href='../type/meternodestack.html#boundprocedure-reserve_default'>reserve_default</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_reserve_default(this, capacity, unused, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3304,25 +3504,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reserve~44"></span><h3>generic, public,  :: <strong>reserve</strong>  => <a href='../type/meternodestack.html#boundprocedure-reserve_size_kind~22'>reserve_size_kind</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-reserve~18"></span>
+      <h3>
+          generic, public ::
+  <strong>reserve</strong> => <a href='../type/meternodestack.html#boundprocedure-reserve_size_kind~3'>reserve_size_kind</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_reserve_size_kind(this, capacity, unused, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3393,25 +3602,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reserve_default"></span><h3>procedure, public,  :: <strong>reserve_default</strong>  => vector_reserve_default         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-reserve_default"></span>
+      <h3>
+          procedure, public ::
+  <strong>reserve_default</strong> => vector_reserve_default
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_reserve_default(this, capacity, unused, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3482,25 +3700,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reserve_size_kind~22"></span><h3>procedure, public,  :: <strong>reserve_size_kind</strong>  => vector_reserve_size_kind         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-reserve_size_kind~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>reserve_size_kind</strong> => vector_reserve_size_kind
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_reserve_size_kind(this, capacity, unused, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3571,25 +3798,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reset~24"></span><h3>procedure, public,  :: <strong>reset</strong>  => vector_reset         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-reset~22"></span>
+      <h3>
+          procedure, public ::
+  <strong>reset</strong> => vector_reset
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_reset(this)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3615,25 +3851,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-resize~43"></span><h3>generic, public,  :: <strong>resize</strong>  => <a href='../type/meternodestack.html#boundprocedure-resize_default'>resize_default</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-resize~33"></span>
+      <h3>
+          generic, public ::
+  <strong>resize</strong> => <a href='../type/meternodestack.html#boundprocedure-resize_default~3'>resize_default</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_resize_default(this, count, unused, value, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3719,25 +3964,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-resize~44"></span><h3>generic, public,  :: <strong>resize</strong>  => <a href='../type/meternodestack.html#boundprocedure-resize_size_kind'>resize_size_kind</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-resize~34"></span>
+      <h3>
+          generic, public ::
+  <strong>resize</strong> => <a href='../type/meternodestack.html#boundprocedure-resize_size_kind~3'>resize_size_kind</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_resize_size_kind(this, count, unused, value, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3823,25 +4077,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-resize_default"></span><h3>procedure, public,  :: <strong>resize_default</strong>  => vector_resize_default         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-resize_default~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>resize_default</strong> => vector_resize_default
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_resize_default(this, count, unused, value, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3927,25 +4190,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-resize_size_kind"></span><h3>procedure, public,  :: <strong>resize_size_kind</strong>  => vector_resize_size_kind         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-resize_size_kind~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>resize_size_kind</strong> => vector_resize_size_kind
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_resize_size_kind(this, count, unused, value, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4031,25 +4303,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set~65"></span><h3>generic, public,  :: <strong>set</strong>  => <a href='../type/meternodestack.html#boundprocedure-set_default'>set_default</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set~17"></span>
+      <h3>
+          generic, public ::
+  <strong>set</strong> => <a href='../type/meternodestack.html#boundprocedure-set_default'>set_default</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_set_default(this, i, value)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4105,25 +4386,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set~66"></span><h3>generic, public,  :: <strong>set</strong>  => <a href='../type/meternodestack.html#boundprocedure-set_size_kind~22'>set_size_kind</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set~18"></span>
+      <h3>
+          generic, public ::
+  <strong>set</strong> => <a href='../type/meternodestack.html#boundprocedure-set_size_kind~4'>set_size_kind</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_set_size_kind(this, i, value)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4179,25 +4469,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set_default"></span><h3>procedure, public,  :: <strong>set_default</strong>  => vector_set_default         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_default"></span>
+      <h3>
+          procedure, public ::
+  <strong>set_default</strong> => vector_set_default
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_set_default(this, i, value)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4253,25 +4552,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set_size_kind~22"></span><h3>procedure, public,  :: <strong>set_size_kind</strong>  => vector_set_size_kind         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_size_kind~4"></span>
+      <h3>
+          procedure, public ::
+  <strong>set_size_kind</strong> => vector_set_size_kind
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_set_size_kind(this, i, value)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4327,25 +4635,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-shrink_to_fit~22"></span><h3>procedure, public,  :: <strong>shrink_to_fit</strong>  => vector_shrink_to_fit         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-shrink_to_fit~16"></span>
+      <h3>
+          procedure, public ::
+  <strong>shrink_to_fit</strong> => vector_shrink_to_fit
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_shrink_to_fit(this)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4371,25 +4688,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-size~43"></span><h3>procedure, public,  :: <strong>size</strong>  => vector_size         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-size~31"></span>
+      <h3>
+          procedure, public ::
+  <strong>size</strong> => vector_size
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private pure function vector_size(this) result(res)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4420,25 +4746,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-swap~23"></span><h3>procedure, public,  :: <strong>swap</strong>  => vector_swap         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-swap~17"></span>
+      <h3>
+          procedure, public ::
+  <strong>swap</strong> => vector_swap
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_swap(this, x)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4479,25 +4814,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vector_insert_count_default"></span><h3>procedure, public,  :: <strong>vector_insert_count_default</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-vector_insert_count_default~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>vector_insert_count_default</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_insert_count_default(this, pos, count, value) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4573,25 +4917,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vector_insert_count_size_kind"></span><h3>procedure, public,  :: <strong>vector_insert_count_size_kind</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-vector_insert_count_size_kind~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>vector_insert_count_size_kind</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private recursive function vector_insert_count_size_kind(this, pos, count, value) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4667,25 +5020,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vector_insert_list"></span><h3>procedure, public,  :: <strong>vector_insert_list</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-vector_insert_list~4"></span>
+      <h3>
+          procedure, public ::
+  <strong>vector_insert_list</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_insert_list(this, pos, values) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4746,25 +5108,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vector_insert_one"></span><h3>procedure, public,  :: <strong>vector_insert_one</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-vector_insert_one~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>vector_insert_one</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private recursive function vector_insert_one(this, pos, value) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4825,25 +5196,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vector_insert_range"></span><h3>procedure, public,  :: <strong>vector_insert_range</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-vector_insert_range~4"></span>
+      <h3>
+          procedure, public ::
+  <strong>vector_insert_range</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function vector_insert_range(this, pos, first, last, value) result(iter)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4934,25 +5314,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-write%28formatted%29~3"></span><h3>generic, public,  :: <strong>write(formatted)</strong>  => <a href='../type/meternodestack.html#boundprocedure-write_formatted~2'>write_formatted</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-write%28formatted%29~3"></span>
+      <h3>
+          generic, public ::
+  <strong>write(formatted)</strong> => <a href='../type/meternodestack.html#boundprocedure-write_formatted~3'>write_formatted</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_write_formatted(this, unit, iotype, v_list, iostat, iomsg)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -5053,25 +5442,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-write_formatted~2"></span><h3>procedure, public,  :: <strong>write_formatted</strong>  => vector_write_formatted         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-write_formatted~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>write_formatted</strong> => vector_write_formatted
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine vector_write_formatted(this, unit, iotype, v_list, iostat, iomsg)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -5172,6 +5570,7 @@ large graphs.</div>
     </ul>
   </div>
 
+          </div>
       </section>
 
     
@@ -5182,32 +5581,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

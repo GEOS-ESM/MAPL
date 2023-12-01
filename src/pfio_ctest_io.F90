@@ -451,6 +451,7 @@ program main
    use ctest_io_CLI
    use MAPL_ExceptionHandling
    use FakeHistData0Mod
+   use pFlogger, only: pflogger_init => initialize
    implicit none
 
    integer :: rank, npes, ierror, provided,required
@@ -533,6 +534,7 @@ program main
    my_icomm = MPI_COMM_NULL
    my_appcomm = MPI_COMM_NULL
 
+   call pflogger_init()
    do i = 1, N_iclient_group
       low_rank = client_start + (i-1) * options%npes_iserver
       up_rank  = client_start + i*options%npes_iserver

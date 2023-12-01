@@ -10,85 +10,58 @@
 
     <title>StringIntegerMap_deserialize &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">26 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">26 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/StringIntegerMapUtil.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/stringintegermaputil.f90.html'>StringIntegerMapUtil.F90</a></li>
-              <li><a href='../module/pfio_stringintegermaputilmod.html'>pFIO_StringIntegerMapUtilMod</a></li>
-          <li class="active">StringIntegerMap_deserialize</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/stringintegermaputil.f90.html'>StringIntegerMapUtil.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_stringintegermaputilmod.html'>pFIO_StringIntegerMapUtilMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">StringIntegerMap_deserialize</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/stringintegermap_deserialize.html#src">StringIntegerMap_deserialize</a>
       </div>
@@ -174,16 +152,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-buffer~63"></span>
+              <span class="anchor" id="variable-buffer~73"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -198,7 +176,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-map"></span>
+              <span class="anchor" id="variable-map~3"></span>
               type(StringIntegerMap),
             </td>
 <td>intent(inout)</td>
@@ -213,7 +191,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1162"></span>
+              <span class="anchor" id="variable-rc~1218"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -230,22 +208,22 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~stringintegermap_deserialize~~CallsGraph Pages: 1 -->
-<svg id="procstringintegermap_deserializeCallsGraph" width="641pt" height="146pt"
- viewBox="0.00 0.00 641.00 146.01" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~stringintegermap_deserialize~~CallsGraph" class="graph" transform="scale(1.37 1.37) rotate(0) translate(4 196)">
+<svg id="procstringintegermap_deserializeCallsGraph" width="641pt" height="128pt"
+ viewBox="0.00 0.00 641.00 127.86" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~stringintegermap_deserialize~~CallsGraph" class="graph" transform="scale(1.37 1.37) rotate(0) translate(4 171.13)">
 <title>proc~~stringintegermap_deserialize~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 874,-196 874,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-171.13 874,-171.13 874,4 -4,4"/>
 <!-- proc~stringintegermap_deserialize -->
 <g id="proc~~stringintegermap_deserialize~~CallsGraph_node1" class="node">
 <title>proc~stringintegermap_deserialize</title>
@@ -255,14 +233,14 @@
 <!-- insert -->
 <g id="proc~~stringintegermap_deserialize~~CallsGraph_node2" class="node">
 <title>insert</title>
-<polygon fill="#777777" stroke="#777777" points="516,-192 462,-192 462,-168 516,-168 516,-192"/>
-<text text-anchor="middle" x="489" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+<polygon fill="#777777" stroke="#777777" points="782.5,-159 728.5,-159 728.5,-135 782.5,-135 782.5,-159"/>
+<text text-anchor="middle" x="755.5" y="-144.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
 </g>
 <!-- proc~stringintegermap_deserialize&#45;&gt;insert -->
 <g id="proc~~stringintegermap_deserialize~~CallsGraph_edge1" class="edge">
 <title>proc~stringintegermap_deserialize&#45;&gt;insert</title>
-<path fill="none" stroke="#255000" d="M204.07,-108.09C244.28,-121.83 312.83,-144.25 373,-159 399.15,-165.41 429.09,-170.82 451.86,-174.54"/>
-<polygon fill="#255000" stroke="#255000" points="451.35,-178 461.78,-176.13 452.46,-171.09 451.35,-178"/>
+<path fill="none" stroke="#255000" d="M198.51,-108.02C237.41,-123.43 309.01,-149.32 373,-159 474.95,-174.42 501.97,-163.13 605,-159 643.75,-157.45 688.01,-153.64 718.26,-150.73"/>
+<polygon fill="#255000" stroke="#255000" points="718.73,-154.2 728.34,-149.74 718.05,-147.23 718.73,-154.2"/>
 </g>
 <!-- interface~deserialize_intrinsic -->
 <g id="proc~~stringintegermap_deserialize~~CallsGraph_node3" class="node">
@@ -321,20 +299,38 @@
 <path fill="none" stroke="#255000" d="M204.07,-83.91C244.28,-70.17 312.83,-47.75 373,-33 390.22,-28.78 409.08,-24.99 426.45,-21.84"/>
 <polygon fill="#255000" stroke="#255000" points="427.25,-25.25 436.49,-20.05 426.03,-18.36 427.25,-25.25"/>
 </g>
-<!-- proc~mapl_throw_exception -->
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~stringintegermap_deserialize~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M575.07,-66.07C585.3,-68.53 595.48,-71.48 605,-75 622.37,-81.43 624.53,-87.53 641,-96 666.72,-109.23 696.58,-122.57 719.21,-132.29"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="717.87,-135.52 728.44,-136.22 720.61,-129.08 717.87,-135.52"/>
+</g>
+<!-- at -->
 <g id="proc~~stringintegermap_deserialize~~CallsGraph_node7" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="782.5,-87 728.5,-87 728.5,-63 782.5,-63 782.5,-87"/>
+<text text-anchor="middle" x="755.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~stringintegermap_deserialize~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M599.11,-62.66C641.63,-66.04 687.44,-69.68 718.22,-72.12"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="718.2,-75.63 728.45,-72.93 718.76,-68.65 718.2,-75.63"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~stringintegermap_deserialize~~CallsGraph_node8" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~stringintegermap_deserialize~~CallsGraph_node7"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="870,-66 641,-66 641,-42 870,-42 870,-66"/>
-<text text-anchor="middle" x="755.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~stringintegermap_deserialize~~CallsGraph_node8"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="870,-45 641,-45 641,-21 870,-21 870,-45"/>
+<text text-anchor="middle" x="755.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~stringintegermap_deserialize~~CallsGraph_edge6" class="edge">
+<g id="proc~~stringintegermap_deserialize~~CallsGraph_edge8" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M599.11,-54C609.57,-54 620.23,-54 630.82,-54"/>
-<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="630.93,-57.5 640.93,-54 630.93,-50.5 630.93,-57.5"/>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M599.11,-45.34C609.57,-44.51 620.23,-43.66 630.82,-42.82"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="631.24,-46.3 640.93,-42.02 630.69,-39.32 631.24,-46.3"/>
 </g>
 </g>
 </svg>
@@ -342,8 +338,8 @@
                   var panprocstringintegermap_deserializeCallsGraph = svgPanZoom('#procstringintegermap_deserializeCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -360,11 +356,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -383,23 +379,183 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~stringintegermap_deserialize~~CalledByGraph Pages: 1 -->
+<svg id="procstringintegermap_deserializeCalledByGraph" width="641pt" height="44pt"
+ viewBox="0.00 0.00 641.00 43.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~stringintegermap_deserialize~~CalledByGraph" class="graph" transform="scale(1.7 1.7) rotate(0) translate(4 70)">
+<title>proc~~stringintegermap_deserialize~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 1085,-70 1085,4 -4,4"/>
+<!-- proc~stringintegermap_deserialize -->
+<g id="proc~~stringintegermap_deserialize~~CalledByGraph_node1" class="node">
+<title>proc~stringintegermap_deserialize</title>
+<polygon fill="none" stroke="black" points="1081,-45 744,-45 744,-21 1081,-21 1081,-45"/>
+<text text-anchor="middle" x="912.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_StringIntegerMapUtilMod::StringIntegerMap_deserialize</text>
+</g>
+<!-- proc~filemetadata_deserialize -->
+<g id="proc~~stringintegermap_deserialize~~CalledByGraph_node2" class="node">
+<title>proc~filemetadata_deserialize</title>
+<g id="a_proc~~stringintegermap_deserialize~~CalledByGraph_node2"><a xlink:href=".././proc/filemetadata_deserialize.html" xlink:title="pFIO_FileMetadataMod::FileMetadata_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="708,-45 437,-45 437,-21 708,-21 708,-45"/>
+<text text-anchor="middle" x="572.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~filemetadata_deserialize&#45;&gt;proc~stringintegermap_deserialize -->
+<g id="proc~~stringintegermap_deserialize~~CalledByGraph_edge1" class="edge">
+<title>proc~filemetadata_deserialize&#45;&gt;proc~stringintegermap_deserialize</title>
+<path fill="none" stroke="#255000" d="M708.06,-33C716.53,-33 725.12,-33 733.73,-33"/>
+<polygon fill="#255000" stroke="#255000" points="733.86,-36.5 743.86,-33 733.86,-29.5 733.86,-36.5"/>
+</g>
+<!-- proc~historycollectionvector_deserialize -->
+<g id="proc~~stringintegermap_deserialize~~CalledByGraph_node3" class="node">
+<title>proc~historycollectionvector_deserialize</title>
+<g id="a_proc~~stringintegermap_deserialize~~CalledByGraph_node3"><a xlink:href=".././proc/historycollectionvector_deserialize.html" xlink:title="pFIO_HistoryCollectionVectorUtilMod::HistoryCollectionVector_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="401,-66 0,-66 0,-42 401,-42 401,-66"/>
+<text text-anchor="middle" x="200.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_HistoryCollectionVectorUtilMod::HistoryCollectionVector_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~historycollectionvector_deserialize&#45;&gt;proc~filemetadata_deserialize -->
+<g id="proc~~stringintegermap_deserialize~~CalledByGraph_edge2" class="edge">
+<title>proc~historycollectionvector_deserialize&#45;&gt;proc~filemetadata_deserialize</title>
+<path fill="none" stroke="#255000" d="M401.12,-42.67C409.61,-42.19 418.06,-41.71 426.4,-41.24"/>
+<polygon fill="#255000" stroke="#255000" points="426.73,-44.72 436.51,-40.66 426.33,-37.73 426.73,-44.72"/>
+</g>
+<!-- proc~test_serialize~3 -->
+<g id="proc~~stringintegermap_deserialize~~CalledByGraph_node4" class="node">
+<title>proc~test_serialize~3</title>
+<g id="a_proc~~stringintegermap_deserialize~~CalledByGraph_node4"><a xlink:href=".././proc/test_serialize~3.html" xlink:title="Test_FileMetadata::test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="292,-24 109,-24 109,0 292,0 292,-24"/>
+<text text-anchor="middle" x="200.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FileMetadata::test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~3&#45;&gt;proc~filemetadata_deserialize -->
+<g id="proc~~stringintegermap_deserialize~~CalledByGraph_edge3" class="edge">
+<title>proc~test_serialize~3&#45;&gt;proc~filemetadata_deserialize</title>
+<path fill="none" stroke="#255000" d="M292.01,-17.14C332.49,-19.43 381.21,-22.2 426.56,-24.77"/>
+<polygon fill="#255000" stroke="#255000" points="426.61,-28.28 436.79,-25.35 427,-21.29 426.61,-28.28"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocstringintegermap_deserializeCalledByGraph = svgPanZoom('#procstringintegermap_deserializeCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -419,76 +575,45 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/stringintegermap_deserialize.html#src">StringIntegerMap_deserialize</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">StringIntegerMap_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringIntegerMap</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">map</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">StringIntegerMap_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringIntegerMap</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">map</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="n">length</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">n0</span><span class="p">,</span><span class="n">n1</span><span class="p">,</span><span class="n">n2</span><span class="w"></span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="n">length</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">n0</span><span class="p">,</span><span class="n">n1</span><span class="p">,</span><span class="n">n2</span>
 
-<span class="w">       </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">       </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">length</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="n">n0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">length</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n0</span><span class="w"></span>
-<span class="w">       </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n0</span><span class="w"></span>
-<span class="w">       </span><span class="n">map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringIntegerMap</span><span class="p">()</span><span class="w"></span>
-<span class="w">       </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">key</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="n">n1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n1</span><span class="w"></span>
-<span class="w">          </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="k">value</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="n">n2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="k">value</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n2</span><span class="w"></span>
-<span class="w">          </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n2</span><span class="w"></span>
-<span class="w">          </span><span class="k">call </span><span class="n">map</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="k">value</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">       </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">length</span><span class="p">)</span>
+<span class="w">       </span><span class="n">n0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+<span class="w">       </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n0</span>
+<span class="w">       </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n0</span>
+<span class="w">       </span><span class="n">map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringIntegerMap</span><span class="p">()</span>
+<span class="w">       </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">key</span><span class="p">)</span>
+<span class="w">          </span><span class="n">n1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="w">          </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n1</span>
+<span class="w">          </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="k">value</span><span class="p">)</span>
+<span class="w">          </span><span class="n">n2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="k">value</span><span class="p">)</span>
+<span class="w">          </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n2</span>
+<span class="w">          </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n2</span>
+<span class="w">          </span><span class="k">call </span><span class="n">map</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="k">value</span><span class="p">)</span>
+<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 <span class="w">       </span><span class="k">enddo</span>
-<span class="k">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">end subroutine </span><span class="n">StringIntegerMap_deserialize</span><span class="w"></span>
+<span class="k">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">StringIntegerMap_deserialize</span>
 </pre></div>
 
     </section>
@@ -501,32 +626,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

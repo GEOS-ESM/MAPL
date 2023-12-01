@@ -10,85 +10,58 @@
 
     <title>test_get_child &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">24 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">24 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/Test_ConcreteComposite.pf"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_concretecomposite.pf.html'>Test_ConcreteComposite.pf</a></li>
-              <li><a href='../module/test_concretecomposite.html'>Test_ConcreteComposite</a></li>
-          <li class="active">test_get_child</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_concretecomposite.pf.html'>Test_ConcreteComposite.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_concretecomposite.html'>Test_ConcreteComposite</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_get_child</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/test_get_child.html#src">test_get_child</a>
       </div>
@@ -174,104 +152,240 @@
     <em>None</em>
     <br>
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~test_get_child~~CallsGraph Pages: 1 -->
-<svg id="proctest_get_childCallsGraph" width="363pt" height="242pt"
- viewBox="0.00 0.00 363.00 242.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~test_get_child~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 238)">
+<svg id="proctest_get_childCallsGraph" width="641pt" height="90pt"
+ viewBox="0.00 0.00 641.00 90.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_get_child~~CallsGraph" class="graph" transform="scale(2.68 2.68) rotate(0) translate(4 238)">
 <title>proc~~test_get_child~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 359,-238 359,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 1712,-238 1712,4 -4,4"/>
 <!-- proc~test_get_child -->
 <g id="proc~~test_get_child~~CallsGraph_node1" class="node">
 <title>proc~test_get_child</title>
 <polygon fill="none" stroke="black" points="223,-129 0,-129 0,-105 223,-105 223,-129"/>
 <text text-anchor="middle" x="111.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">Test_ConcreteComposite::test_get_child</text>
 </g>
-<!-- add_child -->
-<g id="proc~~test_get_child~~CallsGraph_node2" class="node">
-<title>add_child</title>
-<polygon fill="#777777" stroke="#777777" points="339,-234 275,-234 275,-210 339,-210 339,-234"/>
-<text text-anchor="middle" x="307" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_child</text>
-</g>
-<!-- proc~test_get_child&#45;&gt;add_child -->
-<g id="proc~~test_get_child~~CallsGraph_edge1" class="edge">
-<title>proc~test_get_child&#45;&gt;add_child</title>
-<path fill="none" stroke="#255000" d="M132.06,-129.05C159.83,-145.98 212.48,-177.35 259,-201 261.95,-202.5 265.02,-204 268.13,-205.48"/>
-<polygon fill="#255000" stroke="#255000" points="266.91,-208.77 277.45,-209.79 269.85,-202.42 266.91,-208.77"/>
-</g>
 <!-- assert_that -->
-<g id="proc~~test_get_child~~CallsGraph_node3" class="node">
+<g id="proc~~test_get_child~~CallsGraph_node2" class="node">
 <title>assert_that</title>
-<polygon fill="#777777" stroke="#777777" points="342.5,-192 271.5,-192 271.5,-168 342.5,-168 342.5,-192"/>
-<text text-anchor="middle" x="307" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+<polygon fill="#777777" stroke="#777777" points="456,-234 385,-234 385,-210 456,-210 456,-234"/>
+<text text-anchor="middle" x="420.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
 </g>
 <!-- proc~test_get_child&#45;&gt;assert_that -->
-<g id="proc~~test_get_child~~CallsGraph_edge2" class="edge">
+<g id="proc~~test_get_child~~CallsGraph_edge1" class="edge">
 <title>proc~test_get_child&#45;&gt;assert_that</title>
-<path fill="none" stroke="#255000" d="M149.81,-129.15C181.79,-139.56 227.93,-154.58 261.77,-165.6"/>
-<polygon fill="#255000" stroke="#255000" points="260.81,-168.97 271.41,-168.74 262.98,-162.31 260.81,-168.97"/>
+<path fill="none" stroke="#255000" d="M128.62,-129.1C154.57,-147.91 207.88,-183.76 259,-201 296.72,-213.73 341.85,-218.8 374.63,-220.79"/>
+<polygon fill="#255000" stroke="#255000" points="374.64,-224.3 384.81,-221.33 375.01,-217.31 374.64,-224.3"/>
 </g>
 <!-- false -->
-<g id="proc~~test_get_child~~CallsGraph_node4" class="node">
+<g id="proc~~test_get_child~~CallsGraph_node3" class="node">
 <title>false</title>
-<polygon fill="#777777" stroke="#777777" points="334,-150 280,-150 280,-126 334,-126 334,-150"/>
-<text text-anchor="middle" x="307" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">false</text>
+<polygon fill="#777777" stroke="#777777" points="447.5,-192 393.5,-192 393.5,-168 447.5,-168 447.5,-192"/>
+<text text-anchor="middle" x="420.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">false</text>
 </g>
 <!-- proc~test_get_child&#45;&gt;false -->
-<g id="proc~~test_get_child~~CallsGraph_edge3" class="edge">
+<g id="proc~~test_get_child~~CallsGraph_edge2" class="edge">
 <title>proc~test_get_child&#45;&gt;false</title>
-<path fill="none" stroke="#255000" d="M223.1,-129C239.8,-130.82 255.93,-132.57 269.46,-134.03"/>
-<polygon fill="#255000" stroke="#255000" points="269.4,-137.55 279.72,-135.15 270.15,-130.59 269.4,-137.55"/>
-</g>
-<!-- get_child -->
-<g id="proc~~test_get_child~~CallsGraph_node5" class="node">
-<title>get_child</title>
-<polygon fill="#777777" stroke="#777777" points="337.5,-108 276.5,-108 276.5,-84 337.5,-84 337.5,-108"/>
-<text text-anchor="middle" x="307" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_child</text>
-</g>
-<!-- proc~test_get_child&#45;&gt;get_child -->
-<g id="proc~~test_get_child~~CallsGraph_edge4" class="edge">
-<title>proc~test_get_child&#45;&gt;get_child</title>
-<path fill="none" stroke="#255000" d="M223.1,-105C238.44,-103.33 253.31,-101.72 266.12,-100.33"/>
-<polygon fill="#255000" stroke="#255000" points="266.79,-103.78 276.36,-99.22 266.04,-96.82 266.79,-103.78"/>
+<path fill="none" stroke="#255000" d="M148.85,-129.06C178.27,-138.42 220.92,-151.1 259,-159 301.33,-167.79 350.75,-173.6 383.45,-176.83"/>
+<polygon fill="#255000" stroke="#255000" points="383.16,-180.32 393.45,-177.8 383.83,-173.35 383.16,-180.32"/>
 </g>
 <!-- get_component -->
-<g id="proc~~test_get_child~~CallsGraph_node6" class="node">
+<g id="proc~~test_get_child~~CallsGraph_node4" class="node">
 <title>get_component</title>
-<polygon fill="#777777" stroke="#777777" points="355,-66 259,-66 259,-42 355,-42 355,-66"/>
-<text text-anchor="middle" x="307" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_component</text>
+<polygon fill="#777777" stroke="#777777" points="468.5,-150 372.5,-150 372.5,-126 468.5,-126 468.5,-150"/>
+<text text-anchor="middle" x="420.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_component</text>
 </g>
 <!-- proc~test_get_child&#45;&gt;get_component -->
-<g id="proc~~test_get_child~~CallsGraph_edge5" class="edge">
+<g id="proc~~test_get_child~~CallsGraph_edge3" class="edge">
 <title>proc~test_get_child&#45;&gt;get_component</title>
-<path fill="none" stroke="#255000" d="M149.81,-104.85C181.09,-94.67 225.92,-80.07 259.53,-69.13"/>
-<polygon fill="#255000" stroke="#255000" points="260.71,-72.43 269.13,-66 258.54,-65.77 260.71,-72.43"/>
+<path fill="none" stroke="#255000" d="M223.33,-124.58C270.32,-127.8 323.09,-131.41 362.06,-134.07"/>
+<polygon fill="#255000" stroke="#255000" points="361.95,-137.57 372.16,-134.76 362.42,-130.59 361.95,-137.57"/>
+</g>
+<!-- none~add_child~2 -->
+<g id="proc~~test_get_child~~CallsGraph_node5" class="node">
+<title>none~add_child~2</title>
+<g id="a_proc~~test_get_child~~CallsGraph_node5"><a xlink:href=".././type/concretecomposite.html#boundprocedure-add_child~2" xlink:title="mapl_ConcreteComposite::ConcreteComposite%add_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="582,-108 259,-108 259,-84 582,-84 582,-108"/>
+<text text-anchor="middle" x="420.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ConcreteComposite::ConcreteComposite%add_child</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_child&#45;&gt;none~add_child~2 -->
+<g id="proc~~test_get_child~~CallsGraph_edge4" class="edge">
+<title>proc~test_get_child&#45;&gt;none~add_child~2</title>
+<path fill="none" stroke="#255000" d="M223.33,-109.42C231.67,-108.85 240.18,-108.27 248.77,-107.68"/>
+<polygon fill="#255000" stroke="#255000" points="249.14,-111.16 258.88,-106.99 248.66,-104.18 249.14,-111.16"/>
+</g>
+<!-- none~get_child~3 -->
+<g id="proc~~test_get_child~~CallsGraph_node6" class="node">
+<title>none~get_child~3</title>
+<g id="a_proc~~test_get_child~~CallsGraph_node6"><a xlink:href=".././type/concretecomposite.html#boundprocedure-get_child~3" xlink:title="mapl_ConcreteComposite::ConcreteComposite%get_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="580.5,-66 260.5,-66 260.5,-42 580.5,-42 580.5,-66"/>
+<text text-anchor="middle" x="420.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ConcreteComposite::ConcreteComposite%get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_child&#45;&gt;none~get_child~3 -->
+<g id="proc~~test_get_child~~CallsGraph_edge5" class="edge">
+<title>proc~test_get_child&#45;&gt;none~get_child~3</title>
+<path fill="none" stroke="#255000" d="M148.85,-104.94C178.27,-95.58 220.92,-82.9 259,-75 272.28,-72.24 286.27,-69.78 300.21,-67.59"/>
+<polygon fill="#255000" stroke="#255000" points="300.99,-71.02 310.35,-66.05 299.94,-64.1 300.99,-71.02"/>
 </g>
 <!-- true -->
 <g id="proc~~test_get_child~~CallsGraph_node7" class="node">
 <title>true</title>
-<polygon fill="#777777" stroke="#777777" points="334,-24 280,-24 280,0 334,0 334,-24"/>
-<text text-anchor="middle" x="307" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+<polygon fill="#777777" stroke="#777777" points="447.5,-24 393.5,-24 393.5,0 447.5,0 447.5,-24"/>
+<text text-anchor="middle" x="420.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
 </g>
 <!-- proc~test_get_child&#45;&gt;true -->
 <g id="proc~~test_get_child~~CallsGraph_edge6" class="edge">
 <title>proc~test_get_child&#45;&gt;true</title>
-<path fill="none" stroke="#255000" d="M132.06,-104.95C159.83,-88.02 212.48,-56.65 259,-33 262.76,-31.09 266.74,-29.16 270.72,-27.3"/>
-<polygon fill="#255000" stroke="#255000" points="272.28,-30.43 279.92,-23.09 269.37,-24.07 272.28,-30.43"/>
+<path fill="none" stroke="#255000" d="M128.62,-104.9C154.57,-86.09 207.88,-50.24 259,-33 300.09,-19.14 349.95,-14.36 383.09,-12.75"/>
+<polygon fill="#255000" stroke="#255000" points="383.38,-16.24 393.23,-12.33 383.09,-9.24 383.38,-16.24"/>
+</g>
+<!-- none~at~11 -->
+<g id="proc~~test_get_child~~CallsGraph_node8" class="node">
+<title>none~at~11</title>
+<g id="a_proc~~test_get_child~~CallsGraph_node8"><a xlink:href=".././type/stringcompositemap.html#boundprocedure-at~11" xlink:title="mapl_StringCompositeMap::StringCompositeMap%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1345.5,-87 1050.5,-87 1050.5,-63 1345.5,-63 1345.5,-87"/>
+<text text-anchor="middle" x="1198" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_StringCompositeMap::StringCompositeMap%at</text>
+</a>
+</g>
+</g>
+<!-- none~add_child~2&#45;&gt;none~at~11 -->
+<g id="proc~~test_get_child~~CallsGraph_edge7" class="edge">
+<title>none~add_child~2&#45;&gt;none~at~11</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M582.18,-91.65C716.44,-88.01 906.77,-82.86 1039.99,-79.25"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1040.38,-82.74 1050.28,-78.97 1040.19,-75.75 1040.38,-82.74"/>
+</g>
+<!-- none~insert~9 -->
+<g id="proc~~test_get_child~~CallsGraph_node11" class="node">
+<title>none~insert~9</title>
+<g id="a_proc~~test_get_child~~CallsGraph_node11"><a xlink:href=".././type/stringcompositemap.html#boundprocedure-insert~9" xlink:title="mapl_StringCompositeMap::StringCompositeMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="962,-189 648,-189 648,-165 962,-165 962,-189"/>
+<text text-anchor="middle" x="805" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_StringCompositeMap::StringCompositeMap%insert</text>
+</a>
+</g>
+</g>
+<!-- none~add_child~2&#45;&gt;none~insert~9 -->
+<g id="proc~~test_get_child~~CallsGraph_edge8" class="edge">
+<title>none~add_child~2&#45;&gt;none~insert~9</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M561.25,-108.12C568.42,-110.64 575.39,-113.58 582,-117 602.95,-127.85 596.96,-145.34 618,-156 624.48,-159.28 631.24,-162.15 638.19,-164.65"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="637.18,-168.01 647.78,-167.84 639.39,-161.36 637.18,-168.01"/>
+</g>
+<!-- push_back -->
+<g id="proc~~test_get_child~~CallsGraph_node12" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="839.5,-147 770.5,-147 770.5,-123 839.5,-123 839.5,-147"/>
+<text text-anchor="middle" x="805" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- none~add_child~2&#45;&gt;push_back -->
+<g id="proc~~test_get_child~~CallsGraph_edge9" class="edge">
+<title>none~add_child~2&#45;&gt;push_back</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M539.38,-108.02C614.29,-115.66 706.9,-125.1 760.33,-130.55"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="760.18,-134.05 770.48,-131.58 760.89,-127.09 760.18,-134.05"/>
+</g>
+<!-- none~get_child_by_index~2 -->
+<g id="proc~~test_get_child~~CallsGraph_node9" class="node">
+<title>none~get_child_by_index~2</title>
+<g id="a_proc~~test_get_child~~CallsGraph_node9"><a xlink:href=".././type/concretecomposite.html#boundprocedure-get_child_by_index~2" xlink:title="mapl_ConcreteComposite::ConcreteComposite%get_child_by_index">
+<polygon fill="#a7506f" stroke="#a7506f" points="991,-25 619,-25 619,-1 991,-1 991,-25"/>
+<text text-anchor="middle" x="805" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ConcreteComposite::ConcreteComposite%get_child_by_index</text>
+</a>
+</g>
+</g>
+<!-- none~get_child~3&#45;&gt;none~get_child_by_index~2 -->
+<g id="proc~~test_get_child~~CallsGraph_edge10" class="edge">
+<title>none~get_child~3&#45;&gt;none~get_child_by_index~2</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M485.52,-41.95C522.45,-36.9 570.97,-31.18 618.96,-26.09"/>
+<polygon fill="#002505" stroke="#002505" points="619.61,-29.54 629.19,-25.01 618.87,-22.58 619.61,-29.54"/>
+</g>
+<!-- none~get_child_by_name -->
+<g id="proc~~test_get_child~~CallsGraph_node10" class="node">
+<title>none~get_child_by_name</title>
+<g id="a_proc~~test_get_child~~CallsGraph_node10"><a xlink:href=".././type/concretecomposite.html#boundprocedure-get_child_by_name" xlink:title="mapl_ConcreteComposite::ConcreteComposite%get_child_by_name">
+<polygon fill="#a7506f" stroke="#a7506f" points="992,-67 618,-67 618,-43 992,-43 992,-67"/>
+<text text-anchor="middle" x="805" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ConcreteComposite::ConcreteComposite%get_child_by_name</text>
+</a>
+</g>
+</g>
+<!-- none~get_child~3&#45;&gt;none~get_child_by_name -->
+<g id="proc~~test_get_child~~CallsGraph_edge11" class="edge">
+<title>none~get_child~3&#45;&gt;none~get_child_by_name</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M580.67,-54.42C589.61,-54.44 598.65,-54.46 607.7,-54.49"/>
+<polygon fill="#002505" stroke="#002505" points="607.92,-57.99 617.93,-54.51 607.93,-50.99 607.92,-57.99"/>
+</g>
+<!-- none~find~6 -->
+<g id="proc~~test_get_child~~CallsGraph_node13" class="node">
+<title>none~find~6</title>
+<g id="a_proc~~test_get_child~~CallsGraph_node13"><a xlink:href=".././type/stringcompositemap.html#boundprocedure-find~6" xlink:title="mapl_StringCompositeMap::StringCompositeMap%find">
+<polygon fill="#a7506f" stroke="#a7506f" points="1708,-87 1404,-87 1404,-63 1708,-63 1708,-87"/>
+<text text-anchor="middle" x="1556" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_StringCompositeMap::StringCompositeMap%find</text>
+</a>
+</g>
+</g>
+<!-- none~at~11&#45;&gt;none~find~6 -->
+<g id="proc~~test_get_child~~CallsGraph_edge12" class="edge">
+<title>none~at~11&#45;&gt;none~find~6</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1345.6,-75C1361.55,-75 1377.85,-75 1393.96,-75"/>
+<polygon fill="#255000" stroke="#255000" points="1393.96,-78.5 1403.96,-75 1393.96,-71.5 1393.96,-78.5"/>
+</g>
+<!-- none~get_child_by_index~2&#45;&gt;none~get_child~3 -->
+<g id="proc~~test_get_child~~CallsGraph_edge13" class="edge">
+<title>none~get_child_by_index~2&#45;&gt;none~get_child~3</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M740.05,-25.04C699.08,-30.64 643.85,-37.07 590.88,-42.56"/>
+<polygon fill="transparent" stroke="transparent" points="590.26,-39.1 580.67,-43.6 590.97,-46.06 590.26,-39.1"/>
+</g>
+<!-- of -->
+<g id="proc~~test_get_child~~CallsGraph_node15" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="1225,-25 1171,-25 1171,-1 1225,-1 1225,-25"/>
+<text text-anchor="middle" x="1198" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- none~get_child_by_index~2&#45;&gt;of -->
+<g id="proc~~test_get_child~~CallsGraph_edge14" class="edge">
+<title>none~get_child_by_index~2&#45;&gt;of</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M991.19,-13C1055.56,-13 1121.42,-13 1160.76,-13"/>
+<polygon fill="transparent" stroke="transparent" points="1160.9,-16.5 1170.9,-13 1160.9,-9.5 1160.9,-16.5"/>
+</g>
+<!-- none~get_child_by_name&#45;&gt;none~at~11 -->
+<g id="proc~~test_get_child~~CallsGraph_edge15" class="edge">
+<title>none~get_child_by_name&#45;&gt;none~at~11</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M992.05,-64.52C1008.12,-65.34 1024.27,-66.16 1040.08,-66.97"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1040.24,-70.49 1050.41,-67.5 1040.6,-63.5 1040.24,-70.49"/>
+</g>
+<!-- none~insert_pair~8 -->
+<g id="proc~~test_get_child~~CallsGraph_node14" class="node">
+<title>none~insert_pair~8</title>
+<g id="a_proc~~test_get_child~~CallsGraph_node14"><a xlink:href=".././type/stringcompositemap.html#boundprocedure-insert_pair~8" xlink:title="mapl_StringCompositeMap::StringCompositeMap%insert_pair">
+<polygon fill="#a7506f" stroke="#a7506f" points="1368,-189 1028,-189 1028,-165 1368,-165 1368,-189"/>
+<text text-anchor="middle" x="1198" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_StringCompositeMap::StringCompositeMap%insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~9&#45;&gt;none~insert_pair~8 -->
+<g id="proc~~test_get_child~~CallsGraph_edge16" class="edge">
+<title>none~insert~9&#45;&gt;none~insert_pair~8</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M962.22,-177C980.44,-177 999.13,-177 1017.63,-177"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1017.88,-180.5 1027.88,-177 1017.88,-173.5 1017.88,-180.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>                <script>
+                  var panproctest_get_childCallsGraph = svgPanZoom('#proctest_get_childCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -288,11 +402,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -311,23 +425,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -347,77 +467,46 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/test_get_child.html#src">test_get_child</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_get_child</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">parent</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">NamedComponent</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">P</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_get_child</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">parent</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">NamedComponent</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">P</span><span class="p">,</span><span class="w"> </span><span class="n">A</span>
 
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComposite</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComposite</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr</span>
 
-<span class="w">      </span><span class="n">P</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;p&#39;</span><span class="w"></span>
-<span class="w">      </span><span class="n">A</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;A&#39;</span><span class="w"></span>
-<span class="w">      </span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConcreteComposite</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConcreteComposite</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">parent</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">child</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">parent</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">P</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;p&#39;</span>
+<span class="w">      </span><span class="n">A</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;A&#39;</span>
+<span class="w">      </span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConcreteComposite</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+<span class="w">      </span><span class="n">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConcreteComposite</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="w">      </span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">parent</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">child</span><span class="p">)</span>
+<span class="w">      </span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">parent</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
 
-<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ptr</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ptr</span><span class="p">%</span><span class="n">get_component</span><span class="p">())</span><span class="w"></span>
-<span class="w">         </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">NamedComponent</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="k">class </span><span class="n">default</span><span class="w"></span>
-<span class="w">            </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;incorrect type&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ptr</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">ConcreteComposite</span><span class="p">)</span>
+<span class="w">         </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ptr</span><span class="p">%</span><span class="n">get_component</span><span class="p">())</span>
+<span class="w">         </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">NamedComponent</span><span class="p">)</span>
+<span class="w">            </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">))</span>
+<span class="w">         </span><span class="k">class </span><span class="n">default</span>
+<span class="w">            </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;incorrect type&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
 <span class="w">         </span><span class="k">end select</span>
-<span class="k">      class </span><span class="n">default</span><span class="w"></span>
-<span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;incorrect type&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span><span class="w"></span>
+<span class="k">      class </span><span class="n">default</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;incorrect type&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
 <span class="w">      </span><span class="k">end select</span>
 
-<span class="k">   end subroutine </span><span class="n">test_get_child</span><span class="w"></span>
+<span class="k">   end subroutine </span><span class="n">test_get_child</span>
 </pre></div>
 
     </section>
@@ -430,32 +519,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

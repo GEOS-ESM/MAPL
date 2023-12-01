@@ -10,85 +10,58 @@
 
     <title>MAPL_SunOrbitCreateFromConfig &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Function</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">52 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">52 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/MAPL_sun_uc.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/mapl_sun_uc.f90.html'>MAPL_sun_uc.F90</a></li>
-              <li><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
-          <li class="active">MAPL_SunOrbitCreateFromConfig</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sun_uc.f90.html'>MAPL_sun_uc.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_SunOrbitCreateFromConfig</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/mapl_sunorbitcreatefromconfig.html#src">MAPL_SunOrbitCreateFromConfig</a>
       </div>
@@ -176,11 +154,11 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -200,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~14"></span>
+              <span class="anchor" id="variable-clock~21"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(in)</td>
@@ -230,7 +208,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~91"></span>
+              <span class="anchor" id="variable-rc~288"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -254,213 +232,114 @@
       </h3>
       
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~mapl_sunorbitcreatefromconfig~~CallsGraph Pages: 1 -->
-<svg id="procmapl_sunorbitcreatefromconfigCallsGraph" width="641pt" height="272pt"
- viewBox="0.00 0.00 641.00 272.27" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph" class="graph" transform="scale(1.64 1.64) rotate(0) translate(4 442)">
+<svg id="procmapl_sunorbitcreatefromconfigCallsGraph" width="641pt" height="93pt"
+ viewBox="0.00 0.00 641.00 92.71" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph" class="graph" transform="scale(1.25 1.25) rotate(0) translate(4 112)">
 <title>proc~~mapl_sunorbitcreatefromconfig~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-442 1046,-442 1046,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 798,-112 798,4 -4,4"/>
 <!-- proc~mapl_sunorbitcreatefromconfig -->
 <g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node1" class="node">
 <title>proc~mapl_sunorbitcreatefromconfig</title>
-<polygon fill="none" stroke="black" points="273,-379 0,-379 0,-355 273,-355 273,-379"/>
-<text text-anchor="middle" x="136.5" y="-364.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SunMod::MAPL_SunOrbitCreateFromConfig</text>
+<polygon fill="none" stroke="black" points="273,-66 0,-66 0,-42 273,-42 273,-66"/>
+<text text-anchor="middle" x="136.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SunMod::MAPL_SunOrbitCreateFromConfig</text>
 </g>
 <!-- ESMF_ConfigGetAttribute -->
 <g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node2" class="node">
 <title>ESMF_ConfigGetAttribute</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="505.5,-438 324.5,-438 324.5,-414 505.5,-414 505.5,-438"/>
-<text text-anchor="middle" x="415" y="-423.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ConfigGetAttribute</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="509.5,-108 328.5,-108 328.5,-84 509.5,-84 509.5,-108"/>
+<text text-anchor="middle" x="419" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ConfigGetAttribute</text>
 </g>
 <!-- proc~mapl_sunorbitcreatefromconfig&#45;&gt;ESMF_ConfigGetAttribute -->
 <g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge1" class="edge">
 <title>proc~mapl_sunorbitcreatefromconfig&#45;&gt;ESMF_ConfigGetAttribute</title>
-<path fill="none" stroke="#255000" d="M193.79,-379.01C238.21,-388.49 300.31,-401.74 347.24,-411.76"/>
-<polygon fill="#255000" stroke="#255000" points="346.81,-415.24 357.32,-413.91 348.27,-408.4 346.81,-415.24"/>
+<path fill="none" stroke="#255000" d="M217.88,-66.04C252.06,-71.15 292.09,-77.15 327.32,-82.42"/>
+<polygon fill="#255000" stroke="#255000" points="327.2,-85.94 337.61,-83.96 328.24,-79.02 327.2,-85.94"/>
 </g>
 <!-- proc~mapl_return -->
 <g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node3" class="node">
 <title>proc~mapl_return</title>
 <g id="a_proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="777,-402 557,-402 557,-378 777,-378 777,-402"/>
-<text text-anchor="middle" x="667" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="529,-66 309,-66 309,-42 529,-42 529,-66"/>
+<text text-anchor="middle" x="419" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_sunorbitcreatefromconfig&#45;&gt;proc~mapl_return -->
 <g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge2" class="edge">
 <title>proc~mapl_sunorbitcreatefromconfig&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M273.26,-372.91C357.73,-376.58 465.35,-381.27 546.56,-384.8"/>
-<polygon fill="#255000" stroke="#255000" points="546.69,-388.31 556.84,-385.25 547,-381.32 546.69,-388.31"/>
-</g>
-<!-- proc~mapl_sunorbitcreate -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node4" class="node">
-<title>proc~mapl_sunorbitcreate</title>
-<g id="a_proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node4"><a xlink:href=".././proc/mapl_sunorbitcreate.html" xlink:title="MAPL_SunMod::MAPL_SunOrbitCreate">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="521,-234 309,-234 309,-210 521,-210 521,-234"/>
-<text text-anchor="middle" x="415" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::MAPL_SunOrbitCreate</text>
-</a>
-</g>
-</g>
-<!-- proc~mapl_sunorbitcreatefromconfig&#45;&gt;proc~mapl_sunorbitcreate -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge3" class="edge">
-<title>proc~mapl_sunorbitcreatefromconfig&#45;&gt;proc~mapl_sunorbitcreate</title>
-<path fill="none" stroke="#255000" d="M160.6,-354.89C209.8,-329.09 325.05,-268.65 381.58,-239"/>
-<polygon fill="#255000" stroke="#255000" points="383.54,-241.92 390.77,-234.18 380.29,-235.73 383.54,-241.92"/>
+<path fill="none" stroke="#255000" d="M273.23,-54C281.68,-54 290.15,-54 298.53,-54"/>
+<polygon fill="#255000" stroke="#255000" points="298.68,-57.5 308.68,-54 298.68,-50.5 298.68,-57.5"/>
 </g>
 <!-- proc~mapl_verify -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node5" class="node">
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node4" class="node">
 <title>proc~mapl_verify</title>
-<g id="a_proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node5"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="774,-360 560,-360 560,-336 774,-336 774,-360"/>
-<text text-anchor="middle" x="667" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+<g id="a_proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="526,-24 312,-24 312,0 526,0 526,-24"/>
+<text text-anchor="middle" x="419" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_sunorbitcreatefromconfig&#45;&gt;proc~mapl_verify -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge4" class="edge">
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge3" class="edge">
 <title>proc~mapl_sunorbitcreatefromconfig&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M273.26,-362.12C358.75,-359.05 467.97,-355.12 549.51,-352.19"/>
-<polygon fill="#255000" stroke="#255000" points="549.95,-355.67 559.82,-351.82 549.7,-348.68 549.95,-355.67"/>
+<path fill="none" stroke="#255000" d="M217.88,-41.96C252.06,-36.85 292.09,-30.85 327.32,-25.58"/>
+<polygon fill="#255000" stroke="#255000" points="328.24,-28.98 337.61,-24.04 327.2,-22.06 328.24,-28.98"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node5" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="706.5,-108 652.5,-108 652.5,-84 706.5,-84 706.5,-108"/>
+<text text-anchor="middle" x="679.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#025500" d="M494.08,-66.04C542.62,-73.92 603.96,-83.89 642.21,-90.1"/>
+<polygon fill="#025500" stroke="#025500" points="641.93,-93.6 652.36,-91.75 643.05,-86.69 641.93,-93.6"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node6" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="706.5,-66 652.5,-66 652.5,-42 706.5,-42 706.5,-66"/>
+<text text-anchor="middle" x="679.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#025500" d="M529.25,-54C569.63,-54 612.67,-54 642.11,-54"/>
+<polygon fill="#025500" stroke="#025500" points="642.3,-57.5 652.3,-54 642.3,-50.5 642.3,-57.5"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node11" class="node">
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node7" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node11"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="1042,-381 813,-381 813,-357 1042,-357 1042,-381"/>
-<text text-anchor="middle" x="927.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node7"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="794,-24 565,-24 565,0 794,0 794,-24"/>
+<text text-anchor="middle" x="679.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge5" class="edge">
-<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="transparent" d="M777.25,-381.12C785.58,-380.45 794.02,-379.76 802.43,-379.08"/>
-<polygon fill="transparent" stroke="transparent" points="802.98,-382.55 812.67,-378.25 802.42,-375.57 802.98,-382.55"/>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;proc~mapl_return -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge11" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M423.8,-234.31C442.74,-263.07 494.25,-334.86 557,-369 560.56,-370.94 564.28,-372.7 568.1,-374.3"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="567.18,-377.7 577.77,-377.96 569.65,-371.15 567.18,-377.7"/>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;proc~mapl_verify -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge12" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M428.34,-234.32C451.42,-256.61 503.66,-303.48 557,-327 562.01,-329.21 567.26,-331.19 572.62,-332.96"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="571.79,-336.37 582.38,-335.93 573.83,-329.67 571.79,-336.37"/>
-</g>
-<!-- ESMF_TimeIntervalGet -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node6" class="node">
-<title>ESMF_TimeIntervalGet</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="750.5,-66 583.5,-66 583.5,-42 750.5,-42 750.5,-66"/>
-<text text-anchor="middle" x="667" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeIntervalGet</text>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeIntervalGet -->
 <g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge6" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeIntervalGet</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M423.8,-209.69C442.74,-180.93 494.25,-109.14 557,-75 562.26,-72.14 567.85,-69.66 573.61,-67.52"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="575.07,-70.72 583.44,-64.22 572.84,-64.08 575.07,-70.72"/>
-</g>
-<!-- ESMF_TimeIntervalSet -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node7" class="node">
-<title>ESMF_TimeIntervalSet</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="750,-24 584,-24 584,0 750,0 750,-24"/>
-<text text-anchor="middle" x="667" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeIntervalSet</text>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeIntervalSet -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge7" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeIntervalSet</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M421.18,-209.82C436.4,-175.66 484.51,-78.45 557,-33 562.41,-29.61 568.25,-26.74 574.31,-24.32"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="575.74,-27.53 583.99,-20.88 573.4,-20.93 575.74,-27.53"/>
-</g>
-<!-- ESMF_TimeSet -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node8" class="node">
-<title>ESMF_TimeSet</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="729.5,-318 604.5,-318 604.5,-294 729.5,-294 729.5,-318"/>
-<text text-anchor="middle" x="667" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeSet</text>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeSet -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge8" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeSet</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M438.81,-234.16C466.18,-248.29 513.78,-271.38 557,-285 568.89,-288.75 581.74,-291.94 594.29,-294.62"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="593.78,-298.09 604.27,-296.67 595.18,-291.23 593.78,-298.09"/>
-</g>
-<!-- et -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node9" class="node">
-<title>et</title>
-<polygon fill="#777777" stroke="#777777" points="694,-276 640,-276 640,-252 694,-252 694,-276"/>
-<text text-anchor="middle" x="667" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">et</text>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;et -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge9" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;et</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M487.64,-234.04C534,-241.82 592.41,-251.64 629.49,-257.87"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="629.37,-261.4 639.82,-259.6 630.53,-254.49 629.37,-261.4"/>
-</g>
-<!-- pp -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node10" class="node">
-<title>pp</title>
-<polygon fill="#777777" stroke="#777777" points="694,-234 640,-234 640,-210 694,-210 694,-234"/>
-<text text-anchor="middle" x="667" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pp</text>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;pp -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge10" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;pp</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M521.3,-222C559.87,-222 601.02,-222 629.53,-222"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="629.81,-225.5 639.81,-222 629.81,-218.5 629.81,-225.5"/>
-</g>
-<!-- th -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node12" class="node">
-<title>th</title>
-<polygon fill="#777777" stroke="#777777" points="694,-192 640,-192 640,-168 694,-168 694,-192"/>
-<text text-anchor="middle" x="667" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">th</text>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;th -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge13" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;th</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M487.64,-209.96C534,-202.18 592.41,-192.36 629.49,-186.13"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="630.53,-189.51 639.82,-184.4 629.37,-182.6 630.53,-189.51"/>
-</g>
-<!-- zc -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node13" class="node">
-<title>zc</title>
-<polygon fill="#777777" stroke="#777777" points="694,-150 640,-150 640,-126 694,-126 694,-150"/>
-<text text-anchor="middle" x="667" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">zc</text>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;zc -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge14" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;zc</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M438.81,-209.84C466.18,-195.71 513.78,-172.62 557,-159 580.69,-151.53 608.16,-146.26 629.6,-142.87"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="630.23,-146.31 639.59,-141.35 629.18,-139.39 630.23,-146.31"/>
-</g>
-<!-- zs -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_node14" class="node">
-<title>zs</title>
-<polygon fill="#777777" stroke="#777777" points="694,-108 640,-108 640,-84 694,-84 694,-108"/>
-<text text-anchor="middle" x="667" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">zs</text>
-</g>
-<!-- proc~mapl_sunorbitcreate&#45;&gt;zs -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge15" class="edge">
-<title>proc~mapl_sunorbitcreate&#45;&gt;zs</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M428.34,-209.68C451.42,-187.39 503.66,-140.52 557,-117 580.03,-106.85 607.94,-101.59 629.75,-98.87"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="630.37,-102.32 639.92,-97.73 629.59,-95.37 630.37,-102.32"/>
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M494.08,-41.96C525.44,-36.87 562.15,-30.9 594.52,-25.65"/>
+<polygon fill="#025500" stroke="#025500" points="595.1,-29.1 604.41,-24.04 593.98,-22.19 595.1,-29.1"/>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge16" class="edge">
+<g id="proc~~mapl_sunorbitcreatefromconfig~~CallsGraph_edge7" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M774.26,-356.63C783.57,-357.39 793.04,-358.16 802.47,-358.92"/>
-<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="802.43,-362.43 812.68,-359.75 803,-355.46 802.43,-362.43"/>
+<path fill="none" stroke="#002505" d="M526.26,-12C535.57,-12 545.04,-12 554.47,-12"/>
+<polygon fill="#002505" stroke="#002505" points="554.68,-15.5 564.68,-12 554.68,-8.5 554.68,-15.5"/>
 </g>
 </g>
 </svg>
@@ -468,8 +347,8 @@
                   var panprocmapl_sunorbitcreatefromconfigCallsGraph = svgPanZoom('#procmapl_sunorbitcreatefromconfigCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -486,11 +365,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -509,23 +388,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -545,74 +430,43 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/mapl_sunorbitcreatefromconfig.html#src">MAPL_SunOrbitCreateFromConfig</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">MAPL_SunOrbitCreateFromConfig</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">      </span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">FIX_SUN</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">)</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">MAPL_SunOrbitCreateFromConfig</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">      </span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">FIX_SUN</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">)</span>
 
 <span class="c">! !ARGUMENTS:</span>
 
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CF</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span><span class="w"></span>
-<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FIX_SUN</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CF</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FIX_SUN</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
 
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_SunOrbit</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">ORBIT</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_SunOrbit</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">ORBIT</span>
 
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SunOrbitCreateFromConfig&quot;</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SunOrbitCreateFromConfig&quot;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
 
-<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="n">OB</span><span class="p">,</span><span class="w"> </span><span class="n">PER</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EQNX</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="n">OB</span><span class="p">,</span><span class="w"> </span><span class="n">PER</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EQNX</span>
 
-<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EOT</span><span class="p">,</span><span class="w"> </span><span class="n">ORBIT_ANAL2B</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="w"></span>
-<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_YEARLEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="n">ORB2B_ECC_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_ECC_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="n">ORB2B_OBQ_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="n">ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_LAMBDAP_RATE</span><span class="w"></span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EOT</span><span class="p">,</span><span class="w"> </span><span class="n">ORBIT_ANAL2B</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_EQUINOX_HHMMSS</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_YEARLEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">ORB2B_ECC_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_ECC_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">ORB2B_OBQ_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_LAMBDAP_RATE</span>
 
 <span class="w">      </span><span class="c">! pmn: There is one orbit is per STATE, so, for example, the MAPL states of the</span>
 <span class="w">      </span><span class="c">! solar and land gridded components can potentially have independent solar orbits.</span>
@@ -630,103 +484,103 @@ large graphs.</div>
 
 <span class="w">      </span><span class="c">! Parameters of standard orbital system (tabularized intercalation cycle)</span>
 <span class="w">      </span><span class="c">! -----------------------------------------------------------------------</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ECCENTRICITY:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORBIT_ECCENTRICITY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ECCENTRICITY:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORBIT_ECCENTRICITY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">OB</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;OBLIQUITY:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORBIT_OBLIQUITY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">OB</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;OBLIQUITY:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORBIT_OBLIQUITY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">PER</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;PERIHELION:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORBIT_PERIHELION</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">PER</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;PERIHELION:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORBIT_PERIHELION</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">EQNX</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;EQUINOX:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORBIT_EQUINOX</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">EQNX</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;EQUINOX:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORBIT_EQUINOX</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Apply Equation of Time correction?</span>
 <span class="w">      </span><span class="c">! ----------------------------------</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">EOT</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;EOT:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">EOT</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;EOT:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! New orbital system (analytic two-body) allows some time-varying</span>
 <span class="w">      </span><span class="c">! behavior, namely, linear variation in LAMBDAP, ECC, and OBQ.</span>
 <span class="w">      </span><span class="c">! ---------------------------------------------------------------</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORBIT_ANAL2B</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORBIT_ANAL2B:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORBIT_ANAL2B</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORBIT_ANAL2B:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Fixed anomalistic year length in mean solar days</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_YEARLEN</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_YEARLEN:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_YEARLEN</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_YEARLEN</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_YEARLEN:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_YEARLEN</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Reference date and time for orbital parameters</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_REF_YYYYMMDD:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_REF_HHMMSS:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_REF_YYYYMMDD:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_REF_HHMMSS:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Orbital eccentricity at reference date</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_ECC_REF</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_ECC_REF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_ECC_REF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_ECC_REF</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_ECC_REF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_ECC_REF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Rate of change of orbital eccentricity per Julian century</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_ECC_RATE</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_ECC_RATE:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_ECC_RATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_ECC_RATE</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_ECC_RATE:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_ECC_RATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Earth&#39;s obliquity (axial tilt) at reference date [degrees]</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_OBQ_REF</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_OBQ_REF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_OBQ_REF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_OBQ_REF</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_OBQ_REF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_OBQ_REF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Rate of change of obliquity [degrees per Julian century]</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_OBQ_RATE:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_OBQ_RATE:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Longitude of perihelion at reference date [degrees]</span>
 <span class="w">      </span><span class="c">!   (from March equinox to perihelion in direction of earth&#39;s motion)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_LAMBDAP_REF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_LAMBDAP_REF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Rate of change of LAMBDAP [degrees per Julian century]</span>
 <span class="w">      </span><span class="c">!   (Combines both equatorial and ecliptic precession)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_LAMBDAP_RATE</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_LAMBDAP_RATE:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_LAMBDAP_RATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_LAMBDAP_RATE</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_LAMBDAP_RATE:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_LAMBDAP_RATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! March Equinox date and time</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_EQUINOX_YYYYMMDD:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_EQUINOX_HHMMSS:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_EQUINOX_YYYYMMDD:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ORB2B_EQUINOX_HHMMSS:&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! create the orbit object</span>
-<span class="w">      </span><span class="n">ORBIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_SunOrbitCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="n">OB</span><span class="p">,</span><span class="w"> </span><span class="n">PER</span><span class="p">,</span><span class="w"> </span><span class="n">EQNX</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">EOT</span><span class="p">,</span><span class="w"> </span><span class="n">ORBIT_ANAL2B</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_YEARLEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_ECC_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_ECC_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_OBQ_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_LAMBDAP_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">FIX_SUN</span><span class="o">=</span><span class="n">FIX_SUN</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">ORBIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_SunOrbitCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="n">OB</span><span class="p">,</span><span class="w"> </span><span class="n">PER</span><span class="p">,</span><span class="w"> </span><span class="n">EQNX</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">EOT</span><span class="p">,</span><span class="w"> </span><span class="n">ORBIT_ANAL2B</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_YEARLEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_ECC_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_ECC_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_OBQ_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_LAMBDAP_RATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">FIX_SUN</span><span class="o">=</span><span class="n">FIX_SUN</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">end function </span><span class="n">MAPL_SunOrbitCreateFromConfig</span><span class="w"></span>
+<span class="w">   </span><span class="k">end function </span><span class="n">MAPL_SunOrbitCreateFromConfig</span>
 </pre></div>
 
     </section>
@@ -739,32 +593,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

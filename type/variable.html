@@ -10,85 +10,58 @@
 
     <title>Variable &ndash; MAPL </title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Derived Type</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title="<p> 0.4% of total for derived types.</p>Including implementation: 271 statements,  0.3% of total for derived types.">33 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title="<p> 0.4% of total for derived types.</p>Including implementation: 216 statements,  0.3% of total for derived types.">36 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/Variable.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/variable.f90.html'>Variable.F90</a></li>
-              <li><a href='../module/pfio_variablemod.html'>pFIO_VariableMod</a></li>
-          <li class="active">Variable</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/variable.f90.html'>Variable.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_variablemod.html'>pFIO_VariableMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Variable</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -135,14 +112,13 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#cons-0">Constructor</a>
-        </h3>
-      </div>
-      <div id="cons-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#cons-0"
+         aria-expanded="false" aria-controls="cons-0">
+         <h4 class="card-header bg-primary text-white">Constructor</h4>
+      </a>
+      <div id="cons-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../type/variable.html#interface-variable">Variable</a>
         </div>
       </div>
@@ -161,21 +137,20 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#boundprocs-0">Type-Bound Procedures</a>
-        </h3>
-      </div>
-      <div id="boundprocs-0" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute~4">add_attribute</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute~5">add_attribute</a>
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute~6">add_attribute</a>
+            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute">add_attribute</a>
             <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute_0d~2">add_attribute_0d</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute_1d~2">add_attribute_1d</a>
+            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute_1d">add_attribute_1d</a>
             <a class="list-group-item" href="../type/variable.html#boundprocedure-add_const_value">add_const_value</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-equal~12">equal</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_attribute~2">get_attribute</a>
+            <a class="list-group-item" href="../type/variable.html#boundprocedure-equal~17">equal</a>
+            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_attribute">get_attribute</a>
             <a class="list-group-item" href="../type/variable.html#boundprocedure-get_attributes~2">get_attributes</a>
             <a class="list-group-item" href="../type/variable.html#boundprocedure-get_chunksizes">get_chunksizes</a>
             <a class="list-group-item" href="../type/variable.html#boundprocedure-get_const_value">get_const_value</a>
@@ -187,16 +162,17 @@
             <a class="list-group-item" href="../type/variable.html#boundprocedure-get_type">get_type</a>
             <a class="list-group-item" href="../type/variable.html#boundprocedure-is_attribute_present">is_attribute_present</a>
             <a class="list-group-item" href="../type/variable.html#boundprocedure-not_equal~3">not_equal</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-operator%28SLASH%3D%29~43">operator(/=)</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-operator%28%3D%3D%29~61">operator(==)</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-serialize~26">serialize</a>
+            <a class="list-group-item" href="../type/variable.html#boundprocedure-operator%28SLASH%3D%29~77">operator(/=)</a>
+            <a class="list-group-item" href="../type/variable.html#boundprocedure-operator%28%3D%3D%29~99">operator(==)</a>
+            <a class="list-group-item" href="../type/variable.html#boundprocedure-serialize~2">serialize</a>
         </div>
       </div>
     </div>
 
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../type/variable.html#src">Variable</a>
       </div>
@@ -210,11 +186,11 @@
     <div class="col-md-9" id='text'>
       <h2>type, public :: Variable</h2>
     
-<br>    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Inherits</h3>
+<br>    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Inherits</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
     <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -338,8 +314,8 @@
                   var pantypevariableInheritsGraph = svgPanZoom('#typevariableInheritsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#InheritsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -389,11 +365,11 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Inherited by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Inherited by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
      <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -468,7 +444,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~addhistcollectionmessage&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge9" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge10" class="edge">
 <title>type~addhistcollectionmessage&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M465.51,-702.75C408.76,-711.16 323.03,-713.24 275,-662.73 230.96,-616.43 295.1,-427.04 257,-375.73 254.71,-372.65 251.92,-370.03 248.82,-367.78"/>
 <polygon fill="#025500" stroke="#025500" points="250.42,-364.66 240.01,-362.7 246.92,-370.73 250.42,-364.66"/>
@@ -484,7 +460,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~cfiocollection&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge15" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge16" class="edge">
 <title>type~cfiocollection&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M477.25,-650C413.69,-650.75 301.95,-647.88 275,-619.73 237.39,-580.47 289.66,-419.2 257,-375.73 254.73,-372.71 251.97,-370.12 248.92,-367.91"/>
 <polygon fill="#025500" stroke="#025500" points="250.65,-364.87 240.24,-362.87 247.13,-370.92 250.65,-364.87"/>
@@ -500,7 +476,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~extdatafilestream&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge8" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge12" class="edge">
 <title>type~extdatafilestream&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M467.43,-607.31C402.82,-606.73 300.71,-601.45 275,-574.73 244.21,-542.74 283.96,-411.01 257,-375.73 254.7,-372.73 251.93,-370.16 248.86,-367.95"/>
 <polygon fill="#025500" stroke="#025500" points="250.58,-364.9 240.17,-362.93 247.08,-370.96 250.58,-364.9"/>
@@ -531,7 +507,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~filemetadatavector&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge10" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge5" class="edge">
 <title>type~filemetadatavector&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M465.35,-534.01C409.31,-541.6 324.88,-542.79 275,-494.73 236.48,-457.62 290.74,-417.24 257,-375.73 254.72,-372.93 252.03,-370.5 249.07,-368.39"/>
 <polygon fill="#025500" stroke="#025500" points="250.6,-365.23 240.18,-363.27 247.1,-371.3 250.6,-365.23"/>
@@ -547,7 +523,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~filemetadatavectoriterator&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge11" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge6" class="edge">
 <title>type~filemetadatavectoriterator&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M445.89,-482.12C382.81,-481.62 299.63,-476.59 275,-454.73 248.07,-430.83 280.73,-402.82 257,-375.73 254.65,-373.06 251.93,-370.72 248.98,-368.68"/>
 <polygon fill="#025500" stroke="#025500" points="250.58,-365.56 240.15,-363.68 247.13,-371.65 250.58,-365.56"/>
@@ -563,7 +539,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~filemetadatavectorriterator&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge12" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge7" class="edge">
 <title>type~filemetadatavectorriterator&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M441.81,-441.79C390.66,-440.19 324.85,-431.28 275,-400.73 263.33,-393.58 267.89,-384.03 257,-375.73 254.54,-373.86 251.9,-372.14 249.14,-370.56"/>
 <polygon fill="#025500" stroke="#025500" points="250.57,-367.36 240.07,-365.99 247.43,-373.61 250.57,-367.36"/>
@@ -579,7 +555,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~historycollection&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge7" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge4" class="edge">
 <title>type~historycollection&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M471.24,-392.07C421.21,-387.22 342.64,-378.91 275,-368.73 266.95,-367.52 258.44,-366.08 250.17,-364.59"/>
 <polygon fill="#025500" stroke="#025500" points="250.7,-361.13 240.23,-362.76 249.43,-368.01 250.7,-361.13"/>
@@ -595,7 +571,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~mapl_griddedio&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge5" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge8" class="edge">
 <title>type~mapl_griddedio&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M472.82,-354.73C412.46,-354.73 310.69,-354.73 250.12,-354.73"/>
 <polygon fill="#025500" stroke="#025500" points="250.04,-351.23 240.04,-354.73 250.04,-358.23 250.04,-351.23"/>
@@ -611,7 +587,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~obs_unit&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge6" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge11" class="edge">
 <title>type~obs_unit&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M494.13,-315.23C448.29,-319.47 354.16,-328.82 275,-340.73 266.95,-341.94 258.44,-343.39 250.17,-344.88"/>
 <polygon fill="#025500" stroke="#025500" points="249.43,-341.46 240.23,-346.71 250.7,-348.34 249.43,-341.46"/>
@@ -627,7 +603,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~pfio_vector&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge14" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge15" class="edge">
 <title>type~pfio_vector&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M485.25,-271.55C435.95,-273.68 346.33,-281.23 275,-307.73 256.48,-314.61 237.68,-326.52 223.6,-336.63"/>
 <polygon fill="#025500" stroke="#025500" points="221.45,-333.87 215.49,-342.63 225.61,-339.49 221.45,-333.87"/>
@@ -643,7 +619,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~pfio_vectoriterator&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge16" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge17" class="edge">
 <title>type~pfio_vectoriterator&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M465.28,-224.71C412.63,-223.55 333.77,-228.54 275,-261.73 245.5,-278.39 223.26,-311.8 211.06,-333.7"/>
 <polygon fill="#025500" stroke="#025500" points="207.94,-332.11 206.31,-342.58 214.11,-335.41 207.94,-332.11"/>
@@ -659,7 +635,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~pfio_vectorriterator&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge17" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge18" class="edge">
 <title>type~pfio_vectorriterator&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M461.78,-177.41C408.17,-172.41 329.94,-173.54 275,-210.73 232.7,-239.37 212.93,-299.78 205.01,-332.51"/>
 <polygon fill="#025500" stroke="#025500" points="201.55,-331.94 202.76,-342.47 208.38,-333.49 201.55,-331.94"/>
@@ -675,7 +651,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~regridsupport&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge18" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge9" class="edge">
 <title>type~regridsupport&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M478.43,-134.54C425.04,-124.72 334.36,-117.05 275,-160.73 260.41,-171.47 222.89,-284.68 207.37,-333.04"/>
 <polygon fill="#025500" stroke="#025500" points="204.03,-331.98 204.33,-342.57 210.7,-334.11 204.03,-331.98"/>
@@ -691,7 +667,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~replacemetadatamessage&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge13" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge14" class="edge">
 <title>type~replacemetadatamessage&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M480.45,-90.7C426.65,-77.87 332.93,-65.28 275,-112.73 248.82,-134.18 266.4,-154.22 257,-186.73 241.64,-239.85 220.01,-301.17 208.47,-333.01"/>
 <polygon fill="#025500" stroke="#025500" points="205.11,-332.03 204.97,-342.62 211.68,-334.42 205.11,-332.03"/>
@@ -707,7 +683,7 @@ large graphs.</div>
 </g>
 </g>
 <!-- type~stationsampler&#45;&gt;type~filemetadata -->
-<g id="type~~variable~~InheritedByGraph_edge4" class="edge">
+<g id="type~~variable~~InheritedByGraph_edge13" class="edge">
 <title>type~stationsampler&#45;&gt;type~filemetadata</title>
 <path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M475.44,-54.64C412.2,-47.48 303.73,-39.52 275,-64.73 254.4,-82.81 263.39,-160.09 257,-186.73 244.1,-240.5 221.47,-301.56 209.13,-333.18"/>
 <polygon fill="#025500" stroke="#025500" points="205.78,-332.14 205.37,-342.72 212.29,-334.71 205.78,-332.14"/>
@@ -728,8 +704,8 @@ large graphs.</div>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#InheritedByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -781,87 +757,11 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#cons-1">Constructor</a>
-        </h3>
-      </div>
-      <div id="cons-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/variable.html#interface-variable">Variable</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#boundprocs-1">Type-Bound Procedures</a>
-        </h3>
-      </div>
-      <div id="boundprocs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute~4">add_attribute</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute~5">add_attribute</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute_0d~2">add_attribute_0d</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_attribute_1d~2">add_attribute_1d</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-add_const_value">add_const_value</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-equal~12">equal</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_attribute~2">get_attribute</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_attributes~2">get_attributes</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_chunksizes">get_chunksizes</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_const_value">get_const_value</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_deflation">get_deflation</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_dimensions~2">get_dimensions</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_ith_dimension">get_ith_dimension</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_quantize_algorithm">get_quantize_algorithm</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_quantize_level">get_quantize_level</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-get_type">get_type</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-is_attribute_present">is_attribute_present</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-not_equal~3">not_equal</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-operator%28SLASH%3D%29~43">operator(/=)</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-operator%28%3D%3D%29~61">operator(==)</a>
-            <a class="list-group-item" href="../type/variable.html#boundprocedure-serialize~26">serialize</a>
-        </div>
-      </div>
-    </div>
-
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../type/variable.html#src">Variable</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
     
       <section>
         <h2>Constructor</h2>
-            <div class="panel panel-default">
-    <div class="panel-heading codesum">
+            <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-variable"></span>
       <h3>public        interface <a href='../interface/variable.html'>Variable</a> 
       </h3>
@@ -878,16 +778,16 @@ large graphs.</div>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-unusable~99"></span>
               class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
             </td>
 <td>intent(in),</td>
@@ -902,7 +802,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-type~2"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -917,7 +817,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-dimensions~2"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -932,7 +832,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-chunksizes"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -947,7 +847,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-const_value"></span>
               type(<a href='../type/unlimitedentity.html'>UnlimitedEntity</a>),
             </td>
 <td>intent(in),</td>
@@ -962,7 +862,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-deflation~2"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -977,7 +877,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-quantize_algorithm~3"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -992,7 +892,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-quantize_level~3"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1007,7 +907,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~414"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1039,25 +939,33 @@ large graphs.</div>
 
       <section>
         <h2>Type-Bound Procedures</h2>
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-add_attribute~4"></span><h3>generic, public,  :: <strong>add_attribute</strong>  => <a href='../type/variable.html#boundprocedure-add_attribute_0d~2'>add_attribute_0d</a>         
-    </h3></div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-add_attribute~6"></span>
+      <h3>
+          generic, public ::
+  <strong>add_attribute</strong> => <a href='../type/variable.html#boundprocedure-add_attribute_0d~2'>add_attribute_0d</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine add_attribute_0d(this, attr_name, attr_value, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1128,25 +1036,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-add_attribute~5"></span><h3>generic, public,  :: <strong>add_attribute</strong>  => <a href='../type/variable.html#boundprocedure-add_attribute_1d~2'>add_attribute_1d</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-add_attribute"></span>
+      <h3>
+          generic, public ::
+  <strong>add_attribute</strong> => <a href='../type/variable.html#boundprocedure-add_attribute_1d'>add_attribute_1d</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine add_attribute_1d(this, attr_name, attr_values, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1217,25 +1134,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-add_attribute_0d~2"></span><h3>procedure, public,  :: <strong>add_attribute_0d</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-add_attribute_0d~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>add_attribute_0d</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine add_attribute_0d(this, attr_name, attr_value, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1306,25 +1232,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-add_attribute_1d~2"></span><h3>procedure, public,  :: <strong>add_attribute_1d</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-add_attribute_1d"></span>
+      <h3>
+          procedure, public ::
+  <strong>add_attribute_1d</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine add_attribute_1d(this, attr_name, attr_values, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1395,25 +1330,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-add_const_value"></span><h3>procedure, public,  :: <strong>add_const_value</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-add_const_value"></span>
+      <h3>
+          procedure, public ::
+  <strong>add_const_value</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine add_const_value(this, const_value, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1469,25 +1413,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-equal~12"></span><h3>procedure, public,  :: <strong>equal</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-equal~17"></span>
+      <h3>
+          procedure, public ::
+  <strong>equal</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function equal(a, b)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1533,25 +1486,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_attribute~2"></span><h3>procedure, public,  :: <strong>get_attribute</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_attribute"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_attribute</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_attribute(this, attr_name, rc) result(attr)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1612,25 +1574,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_attributes~2"></span><h3>procedure, public,  :: <strong>get_attributes</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_attributes~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_attributes</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_attributes(this) result(attributes)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1661,25 +1632,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_chunksizes"></span><h3>procedure, public,  :: <strong>get_chunksizes</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_chunksizes"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_chunksizes</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_chunksizes(this) result(chunksizes)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1710,25 +1690,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_const_value"></span><h3>procedure, public,  :: <strong>get_const_value</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_const_value"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_const_value</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_const_value(this) result(const_value)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1759,25 +1748,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_deflation"></span><h3>procedure, public,  :: <strong>get_deflation</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_deflation"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_deflation</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_deflation(this) result(deflateLevel)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1808,25 +1806,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_dimensions~2"></span><h3>procedure, public,  :: <strong>get_dimensions</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_dimensions~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_dimensions</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_dimensions(this) result(dimensions)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1857,25 +1864,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_ith_dimension"></span><h3>procedure, public,  :: <strong>get_ith_dimension</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_ith_dimension"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_ith_dimension</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_ith_dimension(this, i, unusable, rc) result(dimension_name)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1951,25 +1967,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_quantize_algorithm"></span><h3>procedure, public,  :: <strong>get_quantize_algorithm</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_quantize_algorithm"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_quantize_algorithm</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_quantize_algorithm(this) result(quantizeAlgorithm)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2000,25 +2025,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_quantize_level"></span><h3>procedure, public,  :: <strong>get_quantize_level</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_quantize_level"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_quantize_level</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_quantize_level(this) result(quantizeLevel)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2049,25 +2083,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_type"></span><h3>procedure, public,  :: <strong>get_type</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_type"></span>
+      <h3>
+          procedure, public ::
+  <strong>get_type</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function get_type(this) result(type)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2098,25 +2141,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-is_attribute_present"></span><h3>procedure, public,  :: <strong>is_attribute_present</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-is_attribute_present"></span>
+      <h3>
+          procedure, public ::
+  <strong>is_attribute_present</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function is_attribute_present(this, attr_name, rc) result(isPresent)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2177,25 +2229,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-not_equal~3"></span><h3>procedure, public,  :: <strong>not_equal</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-not_equal~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>not_equal</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function not_equal(a, b)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2241,25 +2302,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-operator%28SLASH%3D%29~43"></span><h3>generic, public,  :: <strong>operator(/=)</strong>  => <a href='../type/variable.html#boundprocedure-not_equal~3'>not_equal</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-operator%28SLASH%3D%29~77"></span>
+      <h3>
+          generic, public ::
+  <strong>operator(/=)</strong> => <a href='../type/variable.html#boundprocedure-not_equal~3'>not_equal</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function not_equal(a, b)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2305,25 +2375,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-operator%28%3D%3D%29~61"></span><h3>generic, public,  :: <strong>operator(==)</strong>  => <a href='../type/variable.html#boundprocedure-equal~12'>equal</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-operator%28%3D%3D%29~99"></span>
+      <h3>
+          generic, public ::
+  <strong>operator(==)</strong> => <a href='../type/variable.html#boundprocedure-equal~17'>equal</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  function equal(a, b)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2369,25 +2448,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-serialize~26"></span><h3>procedure, public,  :: <strong>serialize</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-serialize~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>serialize</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     private  subroutine serialize(this, buffer, rc)  
 </h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2443,47 +2531,48 @@ large graphs.</div>
     </ul>
   </div>
 
+          </div>
       </section>
 
     <section>
     <h3><span class="anchor" id="src"></span>Source Code</h3>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Variable</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Variable</span>
 <span class="w">      </span><span class="k">private</span>
-<span class="k">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dimensions</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringAttributeMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attributes</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">const_value</span><span class="w"></span>
+<span class="k">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dimensions</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringAttributeMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attributes</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">const_value</span>
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deflation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! default no compression</span>
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">quantize_algorithm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c">! default bitgroom</span>
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">quantize_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! default no quantize_level</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">chunksizes</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">chunksizes</span><span class="p">(:)</span>
 <span class="w">   </span><span class="k">contains</span>
-<span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_type</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_ith_dimension</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_dimensions</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_attributes</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_const_value</span><span class="w"></span>
+<span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_type</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_ith_dimension</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_dimensions</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_attributes</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_const_value</span>
 
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_attribute</span><span class="w"></span>
-<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_attribute</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">add_attribute_0d</span><span class="w"></span>
-<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_attribute</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">add_attribute_1d</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_attribute_0d</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_attribute_1d</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_const_value</span><span class="w"></span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_attribute</span>
+<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_attribute</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">add_attribute_0d</span>
+<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_attribute</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">add_attribute_1d</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_attribute_0d</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_attribute_1d</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_const_value</span>
 
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_chunksizes</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_deflation</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_quantize_algorithm</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_quantize_level</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_attribute_present</span><span class="w"></span>
-<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">equal</span><span class="w"></span>
-<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">not_equal</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">equal</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">not_equal</span><span class="w"></span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_chunksizes</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_deflation</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_quantize_algorithm</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_quantize_level</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_attribute_present</span>
+<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">equal</span>
+<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">not_equal</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">equal</span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">not_equal</span>
 
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">serialize</span><span class="w"></span>
+<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">serialize</span>
 
-<span class="w">   </span><span class="k">end type </span><span class="n">Variable</span><span class="w"></span>
+<span class="w">   </span><span class="k">end type </span><span class="n">Variable</span>
 </pre></div>
 
     </section>
@@ -2495,32 +2584,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

@@ -10,85 +10,58 @@
 
     <title>write_metadata &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">16 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">16 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/cub2latlon_regridder.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/cub2latlon_regridder.f90.html'>cub2latlon_regridder.F90</a></li>
-              <li><a href='../module/supportmod.html'>SupportMod</a></li>
-          <li class="active">write_metadata</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/cub2latlon_regridder.f90.html'>cub2latlon_regridder.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/supportmod.html'>SupportMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">write_metadata</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/write_metadata.html#src">write_metadata</a>
       </div>
@@ -176,16 +154,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~2634"></span>
+              <span class="anchor" id="variable-this~755"></span>
               class(<a href='../type/regridsupport.html'>RegridSupport</a>),
             </td>
 <td>intent(inout)</td>
@@ -200,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~971"></span>
+              <span class="anchor" id="variable-rc~403"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -217,81 +195,159 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~write_metadata~~CallsGraph Pages: 1 -->
-<svg id="procwrite_metadataCallsGraph" width="641pt" height="96pt"
- viewBox="0.00 0.00 641.00 95.70" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~write_metadata~~CallsGraph" class="graph" transform="scale(1.21 1.21) rotate(0) translate(4 112)">
+<svg id="procwrite_metadataCallsGraph" width="641pt" height="121pt"
+ viewBox="0.00 0.00 641.00 121.39" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_metadata~~CallsGraph" class="graph" transform="scale(1.88 1.88) rotate(0) translate(4 224)">
 <title>proc~~write_metadata~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 773,-112 773,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-224 1200,-224 1200,4 -4,4"/>
 <!-- proc~write_metadata -->
 <g id="proc~~write_metadata~~CallsGraph_node1" class="node">
 <title>proc~write_metadata</title>
-<polygon fill="none" stroke="black" points="254,-66 0,-66 0,-42 254,-42 254,-66"/>
-<text text-anchor="middle" x="127" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">SupportMod::RegridSupport%write_metadata</text>
+<polygon fill="none" stroke="black" points="254,-158 0,-158 0,-134 254,-134 254,-158"/>
+<text text-anchor="middle" x="127" y="-143.6" font-family="Helvetica,sans-Serif" font-size="10.50">SupportMod::RegridSupport%write_metadata</text>
 </g>
 <!-- ESMF_VMBarrier -->
 <g id="proc~~write_metadata~~CallsGraph_node2" class="node">
 <title>ESMF_VMBarrier</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="465,-108 329,-108 329,-84 465,-84 465,-108"/>
-<text text-anchor="middle" x="397" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMBarrier</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="550.5,-220 414.5,-220 414.5,-196 550.5,-196 550.5,-220"/>
+<text text-anchor="middle" x="482.5" y="-205.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMBarrier</text>
 </g>
 <!-- proc~write_metadata&#45;&gt;ESMF_VMBarrier -->
 <g id="proc~~write_metadata~~CallsGraph_edge1" class="edge">
 <title>proc~write_metadata&#45;&gt;ESMF_VMBarrier</title>
-<path fill="none" stroke="#255000" d="M204.8,-66.04C240.57,-71.64 283.03,-78.3 318.85,-83.91"/>
-<polygon fill="#255000" stroke="#255000" points="318.34,-87.37 328.76,-85.46 319.42,-80.46 318.34,-87.37"/>
+<path fill="none" stroke="#255000" d="M168.94,-158.04C201.49,-167.2 248.32,-179.48 290,-187 327.3,-193.73 369.1,-198.62 404.1,-201.97"/>
+<polygon fill="#255000" stroke="#255000" points="403.98,-205.48 414.26,-202.92 404.63,-198.51 403.98,-205.48"/>
 </g>
 <!-- ESMF_VMGetGlobal -->
 <g id="proc~~write_metadata~~CallsGraph_node3" class="node">
 <title>ESMF_VMGetGlobal</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="472.5,-66 321.5,-66 321.5,-42 472.5,-42 472.5,-66"/>
-<text text-anchor="middle" x="397" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGetGlobal</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="558,-178 407,-178 407,-154 558,-154 558,-178"/>
+<text text-anchor="middle" x="482.5" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGetGlobal</text>
 </g>
 <!-- proc~write_metadata&#45;&gt;ESMF_VMGetGlobal -->
 <g id="proc~~write_metadata~~CallsGraph_edge2" class="edge">
 <title>proc~write_metadata&#45;&gt;ESMF_VMGetGlobal</title>
-<path fill="none" stroke="#255000" d="M254.15,-54C273.42,-54 292.91,-54 311.01,-54"/>
-<polygon fill="#255000" stroke="#255000" points="311.21,-57.5 321.21,-54 311.21,-50.5 311.21,-57.5"/>
+<path fill="none" stroke="#255000" d="M254.12,-153.14C301.48,-155.82 354.14,-158.79 396.84,-161.21"/>
+<polygon fill="#255000" stroke="#255000" points="396.73,-164.71 406.91,-161.78 397.13,-157.72 396.73,-164.71"/>
+</g>
+<!-- none~create_par -->
+<g id="proc~~write_metadata~~CallsGraph_node4" class="node">
+<title>none~create_par</title>
+<g id="a_proc~~write_metadata~~CallsGraph_node4"><a xlink:href=".././type/netcdf4_fileformatter.html#boundprocedure-create_par" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%create_par">
+<polygon fill="#a7506f" stroke="#a7506f" points="675,-97 290,-97 290,-73 675,-73 675,-97"/>
+<text text-anchor="middle" x="482.5" y="-82.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%create_par</text>
+</a>
+</g>
+</g>
+<!-- proc~write_metadata&#45;&gt;none~create_par -->
+<g id="proc~~write_metadata~~CallsGraph_edge3" class="edge">
+<title>proc~write_metadata&#45;&gt;none~create_par</title>
+<path fill="none" stroke="#255000" d="M181.09,-133.92C212.63,-126.98 253.48,-118.4 290,-112 318.25,-107.05 348.97,-102.4 377.37,-98.39"/>
+<polygon fill="#255000" stroke="#255000" points="377.89,-101.85 387.31,-97 376.92,-94.92 377.89,-101.85"/>
 </g>
 <!-- proc~mapl_verify -->
-<g id="proc~~write_metadata~~CallsGraph_node4" class="node">
+<g id="proc~~write_metadata~~CallsGraph_node5" class="node">
 <title>proc~mapl_verify</title>
-<g id="a_proc~~write_metadata~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="504,-24 290,-24 290,0 504,0 504,-24"/>
-<text text-anchor="middle" x="397" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+<g id="a_proc~~write_metadata~~CallsGraph_node5"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="928,-139 714,-139 714,-115 928,-115 928,-139"/>
+<text text-anchor="middle" x="821" y="-124.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~write_metadata&#45;&gt;proc~mapl_verify -->
-<g id="proc~~write_metadata~~CallsGraph_edge3" class="edge">
+<g id="proc~~write_metadata~~CallsGraph_edge4" class="edge">
 <title>proc~write_metadata&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M204.8,-41.96C237.32,-36.87 275.37,-30.9 308.93,-25.65"/>
-<polygon fill="#255000" stroke="#255000" points="309.85,-29.04 319.19,-24.04 308.77,-22.13 309.85,-29.04"/>
+<path fill="none" stroke="#255000" d="M254.12,-142.54C382.19,-139.02 578.88,-133.62 703.41,-130.2"/>
+<polygon fill="#255000" stroke="#255000" points="703.83,-133.69 713.73,-129.92 703.64,-126.69 703.83,-133.69"/>
+</g>
+<!-- none~create_par&#45;&gt;proc~mapl_verify -->
+<g id="proc~~write_metadata~~CallsGraph_edge7" class="edge">
+<title>none~create_par&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M579.93,-97.04C621.73,-102.25 670.81,-108.38 713.67,-113.73"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="713.49,-117.23 723.85,-115 714.36,-110.29 713.49,-117.23"/>
+</g>
+<!-- nf90_create -->
+<g id="proc~~write_metadata~~CallsGraph_node6" class="node">
+<title>nf90_create</title>
+<polygon fill="#777777" stroke="#777777" points="859,-97 783,-97 783,-73 859,-73 859,-97"/>
+<text text-anchor="middle" x="821" y="-82.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_create</text>
+</g>
+<!-- none~create_par&#45;&gt;nf90_create -->
+<g id="proc~~write_metadata~~CallsGraph_edge5" class="edge">
+<title>none~create_par&#45;&gt;nf90_create</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M675.34,-85C711.69,-85 746.55,-85 772.93,-85"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="772.98,-88.5 782.98,-85 772.98,-81.5 772.98,-88.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~write_metadata~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~write_metadata~~CallsGraph_node7"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="931,-55 711,-55 711,-31 931,-31 931,-55"/>
+<text text-anchor="middle" x="821" y="-40.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- none~create_par&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_metadata~~CallsGraph_edge6" class="edge">
+<title>none~create_par&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M579.93,-72.96C621.73,-67.75 670.81,-61.62 713.67,-56.27"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="714.36,-59.71 723.85,-55 713.49,-52.77 714.36,-59.71"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~write_metadata~~CallsGraph_node5" class="node">
+<g id="proc~~write_metadata~~CallsGraph_node8" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~write_metadata~~CallsGraph_node5"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="769,-24 540,-24 540,0 769,0 769,-24"/>
-<text text-anchor="middle" x="654.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~write_metadata~~CallsGraph_node8"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1196,-129 967,-129 967,-105 1196,-105 1196,-129"/>
+<text text-anchor="middle" x="1081.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~write_metadata~~CallsGraph_edge4" class="edge">
+<g id="proc~~write_metadata~~CallsGraph_edge8" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#002505" d="M504.14,-12C512.61,-12 521.22,-12 529.8,-12"/>
-<polygon fill="#002505" stroke="#002505" points="529.85,-15.5 539.85,-12 529.85,-8.5 529.85,-15.5"/>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M928.26,-122.89C937.57,-122.53 947.04,-122.16 956.47,-121.8"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="956.83,-125.29 966.68,-121.4 956.55,-118.29 956.83,-125.29"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~write_metadata~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M892.72,-55.02C905.54,-57.65 918.73,-60.66 931,-64 951.61,-69.61 1002.14,-87.88 1038.76,-101.41"/>
+<polygon fill="#025500" stroke="#025500" points="1037.62,-104.72 1048.22,-104.91 1040.05,-98.16 1037.62,-104.72"/>
+</g>
+<!-- at -->
+<g id="proc~~write_metadata~~CallsGraph_node9" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1108.5,-66 1054.5,-66 1054.5,-42 1108.5,-42 1108.5,-66"/>
+<text text-anchor="middle" x="1081.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~write_metadata~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#025500" d="M931.25,-47.65C971.63,-49.37 1014.67,-51.2 1044.11,-52.45"/>
+<polygon fill="#025500" stroke="#025500" points="1044.16,-55.96 1054.3,-52.89 1044.46,-48.96 1044.16,-55.96"/>
+</g>
+<!-- insert -->
+<g id="proc~~write_metadata~~CallsGraph_node10" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1108.5,-24 1054.5,-24 1054.5,0 1108.5,0 1108.5,-24"/>
+<text text-anchor="middle" x="1081.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~write_metadata~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#025500" d="M922.31,-30.97C965.28,-25.82 1012.75,-20.12 1044.37,-16.33"/>
+<polygon fill="#025500" stroke="#025500" points="1044.94,-19.79 1054.45,-15.12 1044.11,-12.84 1044.94,-19.79"/>
 </g>
 </g>
 </svg>
@@ -299,8 +355,8 @@
                   var panprocwrite_metadataCallsGraph = svgPanZoom('#procwrite_metadataCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -317,11 +373,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -340,23 +396,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -374,11 +436,11 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -396,25 +458,25 @@ large graphs.</div>
 <polygon fill="none" stroke="black" points="344,-24 90,-24 90,0 344,0 344,-24"/>
 <text text-anchor="middle" x="217" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">SupportMod::RegridSupport%write_metadata</text>
 </g>
-<!-- program~main~13 -->
+<!-- program~main~5 -->
 <g id="proc~~write_metadata~~CalledByGraph_node2" class="node">
-<title>program~main~13</title>
-<g id="a_proc~~write_metadata~~CalledByGraph_node2"><a xlink:href=".././program/main~13.html" xlink:title="main">
+<title>program~main~5</title>
+<g id="a_proc~~write_metadata~~CalledByGraph_node2"><a xlink:href=".././program/main~5.html" xlink:title="main">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
 <text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
 </a>
 </g>
 </g>
-<!-- program~main~13&#45;&gt;proc~write_metadata -->
+<!-- program~main~5&#45;&gt;proc~write_metadata -->
 <g id="proc~~write_metadata~~CalledByGraph_edge1" class="edge">
-<title>program~main~13&#45;&gt;proc~write_metadata</title>
+<title>program~main~5&#45;&gt;proc~write_metadata</title>
 <path fill="none" stroke="#255000" d="M54.14,-12C61.63,-12 70.35,-12 79.78,-12"/>
 <polygon fill="#255000" stroke="#255000" points="79.85,-15.5 89.85,-12 79.85,-8.5 79.85,-15.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -431,11 +493,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -454,23 +516,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -490,70 +558,39 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/write_metadata.html#src">write_metadata</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">write_metadata</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">RegridSupport</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm_global</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">write_metadata</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">RegridSupport</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm_global</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 
 <span class="c">!$$      if (local_pet == 0) then</span>
-<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter_lat_lon</span><span class="p">%</span><span class="n">create_par</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">out_file</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="o">=</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter_lat_lon</span><span class="p">%</span><span class="k">write</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">cfio_lat_lon</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter_lat_lon</span><span class="p">%</span><span class="k">close</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter_lat_lon</span><span class="p">%</span><span class="n">create_par</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">out_file</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="o">=</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter_lat_lon</span><span class="p">%</span><span class="k">write</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">cfio_lat_lon</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter_lat_lon</span><span class="p">%</span><span class="k">close</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="c">!$$       end if</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGetGlobal</span><span class="p">(</span><span class="n">vm_global</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMBarrier</span><span class="p">(</span><span class="n">vm_global</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGetGlobal</span><span class="p">(</span><span class="n">vm_global</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMBarrier</span><span class="p">(</span><span class="n">vm_global</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">write_metadata</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">write_metadata</span>
 </pre></div>
 
     </section>
@@ -566,32 +603,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

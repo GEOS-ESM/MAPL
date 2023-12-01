@@ -10,85 +10,58 @@
 
     <title>test_MAPL_NetCDF &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,50 +69,54 @@
       <small>Module</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.1% of total for modules and submodules.">230 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for modules and submodules.">116 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/test_MAPL_NetCDF.pf"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_mapl_netcdf.pf.html'>test_MAPL_NetCDF.pf</a></li>
-          <li class="active">test_MAPL_NetCDF</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_mapl_netcdf.pf.html'>test_MAPL_NetCDF.pf</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_MAPL_NetCDF</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
   </div>
 
   <div class="row">
-    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div class="col-md-3">
         <div id="sidebar">
       <h3>Contents</h3>
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-0">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_mapl_netcdf.html#variable-seconds_per_minute">SECONDS_PER_MINUTE</a>
             <a class="list-group-item" href="../module/test_mapl_netcdf.html#variable-calkind_flag_def">CALKIND_FLAG_DEF</a>
         </div>
       </div>
@@ -154,34 +131,34 @@
   
   
   
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#subs-0">Subroutines</a>
-        </h3>
-      </div>
-      <div id="subs-0" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-set_up">set_up</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_esmf_time_to_netcdf_datetimestring">test_convert_ESMF_Time_to_NetCDF_DateTimeString</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_esmf_to_netcdf_datetime">test_convert_ESMF_to_NetCDF_DateTime</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_netcdf_datetimestring_to_esmf_time">test_convert_NetCDF_DateTimeString_to_ESMF_Time</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_netcdf_datetime_to_esmf">test_convert_NetCDF_DateTime_to_ESMF</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_to_integer">test_convert_to_integer</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_get_shift_sign">test_get_shift_sign</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_is_time_unit">test_is_time_unit</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_is_valid_netcdf_datetime_string">test_is_valid_netcdf_datetime_string</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_lr_trim">test_lr_trim</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_make_esmf_timeinterval">test_make_ESMF_TimeInterval</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_make_netcdf_datetime_int_time">test_make_NetCDF_DateTime_int_time</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_make_netcdf_datetime_units_string">test_make_NetCDF_DateTime_units_string</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_split">test_split</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_split_all">test_split_all</a>
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-esmf_times_equal">ESMF_Times_Equal</a>
+            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-rational_equals">rational_equals</a>
         </div>
       </div>
     </div>
 
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-set_up">set_up</a>
+            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_netcdf_datetime_to_esmf_integer">test_convert_NetCDF_DateTime_to_ESMF_integer</a>
+            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_netcdf_datetime_to_esmf_real">test_convert_NetCDF_DateTime_to_ESMF_real</a>
+        </div>
+      </div>
+    </div>
+
+  
   
   
   
@@ -196,193 +173,255 @@
 
     <div class="col-md-9" id='text'>
       
-<br>          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <ul class="list-inline">
-                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
-                <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
-                <li>pfunit</li>
-                <li><a href='../module/mapl_netcdf.html'>MAPL_NetCDF</a></li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_netcdf.html'>MAPL_NetCDF</a></li>
+                  <li class="list-inline-item">pfunit</li>
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: module~~test_mapl_netcdf~~UsesGraph Pages: 1 -->
-<svg id="moduletest_mapl_netcdfUsesGraph" width="641pt" height="124pt"
- viewBox="0.00 0.00 641.00 124.43" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="module~~test_mapl_netcdf~~UsesGraph" class="graph" transform="scale(1.45 1.45) rotate(0) translate(4 176.53)">
+<svg id="moduletest_mapl_netcdfUsesGraph" width="641pt" height="154pt"
+ viewBox="0.00 0.00 641.00 154.27" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~test_mapl_netcdf~~UsesGraph" class="graph" transform="scale(1.5 1.5) rotate(0) translate(4 228)">
 <title>module~~test_mapl_netcdf~~UsesGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-176.53 926,-176.53 926,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-228 960,-228 960,4 -4,4"/>
 <!-- module~test_mapl_netcdf -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_node1" class="node">
 <title>module~test_mapl_netcdf</title>
-<polygon fill="none" stroke="black" points="922,-93.95 811,-93.95 811,-69.95 922,-69.95 922,-93.95"/>
-<text text-anchor="middle" x="866.5" y="-79.55" font-family="Helvetica,sans-Serif" font-size="10.50">test_MAPL_NetCDF</text>
+<polygon fill="none" stroke="black" points="956,-126 845,-126 845,-102 956,-102 956,-126"/>
+<text text-anchor="middle" x="900.5" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_MAPL_NetCDF</text>
 </g>
 <!-- ESMF -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_node2" class="node">
 <title>ESMF</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="609,-133.95 555,-133.95 555,-109.95 609,-109.95 609,-133.95"/>
-<text text-anchor="middle" x="582" y="-119.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="422.5,-224 368.5,-224 368.5,-200 422.5,-200 422.5,-224"/>
+<text text-anchor="middle" x="395.5" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
 </g>
 <!-- module~test_mapl_netcdf&#45;&gt;ESMF -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge1" class="edge">
 <title>module~test_mapl_netcdf&#45;&gt;ESMF</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M852.54,-94.06C830.24,-113.83 782.23,-151.87 733,-161.95"/>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M731,-161.95C709.73,-166.31 655.45,-148.87 618.88,-135.64"/>
-<polygon fill="#255000" stroke="#255000" points="619.67,-132.2 609.08,-132.04 617.26,-138.77 619.67,-132.2"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M598,-212C540.22,-213.55 473.08,-213.1 432.74,-212.58"/>
+<polygon fill="#255000" stroke="#255000" points="432.64,-209.08 422.59,-212.45 432.54,-216.08 432.64,-209.08"/>
 </g>
 <!-- module~mapl_exceptionhandling -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_node3" class="node">
 <title>module~mapl_exceptionhandling</title>
 <g id="a_module~~test_mapl_netcdf~~UsesGraph_node3"><a xlink:href=".././module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
-<polygon fill="#337ab7" stroke="#337ab7" points="469,-93.95 322,-93.95 322,-69.95 469,-69.95 469,-93.95"/>
-<text text-anchor="middle" x="395.5" y="-79.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="469,-166 322,-166 322,-142 469,-142 469,-166"/>
+<text text-anchor="middle" x="395.5" y="-151.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
 </a>
 </g>
 </g>
 <!-- module~test_mapl_netcdf&#45;&gt;module~mapl_exceptionhandling -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge2" class="edge">
 <title>module~test_mapl_netcdf&#45;&gt;module~mapl_exceptionhandling</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M731,-161.95C634.85,-181.65 605.1,-170.81 511,-142.95 478.54,-133.35 444.73,-113.99 422.34,-99.65"/>
-<polygon fill="#255000" stroke="#255000" points="424.06,-96.59 413.77,-94.05 420.23,-102.45 424.06,-96.59"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M880.21,-126.08C833.59,-153.96 710.51,-219.83 600,-212"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M598,-212C536.78,-213.64 469,-188.07 429.72,-170.35"/>
+<polygon fill="#255000" stroke="#255000" points="430.92,-167.05 420.37,-166.04 427.98,-173.41 430.92,-167.05"/>
 </g>
 <!-- module~mapl_netcdf -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_node4" class="node">
 <title>module~mapl_netcdf</title>
 <g id="a_module~~test_mapl_netcdf~~UsesGraph_node4"><a xlink:href=".././module/mapl_netcdf.html" xlink:title="MAPL_NetCDF">
-<polygon fill="#337ab7" stroke="#337ab7" points="775,-93.95 689,-93.95 689,-69.95 775,-69.95 775,-93.95"/>
-<text text-anchor="middle" x="732" y="-79.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NetCDF</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="809,-126 723,-126 723,-102 809,-102 809,-126"/>
+<text text-anchor="middle" x="766" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NetCDF</text>
 </a>
 </g>
 </g>
 <!-- module~test_mapl_netcdf&#45;&gt;module~mapl_netcdf -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge3" class="edge">
 <title>module~test_mapl_netcdf&#45;&gt;module~mapl_netcdf</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M810.84,-81.95C802.43,-81.95 793.76,-81.95 785.4,-81.95"/>
-<polygon fill="#255000" stroke="#255000" points="785.39,-78.45 775.39,-81.95 785.39,-85.45 785.39,-78.45"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M844.84,-114C836.43,-114 827.76,-114 819.4,-114"/>
+<polygon fill="#255000" stroke="#255000" points="819.39,-110.5 809.39,-114 819.39,-117.5 819.39,-110.5"/>
 </g>
 <!-- pfunit -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_node5" class="node">
 <title>pfunit</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="759,-51.95 705,-51.95 705,-27.95 759,-27.95 759,-51.95"/>
-<text text-anchor="middle" x="732" y="-37.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfunit</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="793,-84 739,-84 739,-60 793,-60 793,-84"/>
+<text text-anchor="middle" x="766" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfunit</text>
 </g>
 <!-- module~test_mapl_netcdf&#45;&gt;pfunit -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge4" class="edge">
 <title>module~test_mapl_netcdf&#45;&gt;pfunit</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M827.53,-69.92C809.08,-64.07 787.02,-57.08 768.85,-51.32"/>
-<polygon fill="#255000" stroke="#255000" points="769.8,-47.95 759.21,-48.26 767.69,-54.62 769.8,-47.95"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M861.53,-101.96C843.08,-96.12 821.02,-89.12 802.85,-83.37"/>
+<polygon fill="#255000" stroke="#255000" points="803.8,-79.99 793.21,-80.31 801.69,-86.67 803.8,-79.99"/>
 </g>
 <!-- module~mapl_errorhandlingmod -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_node7" class="node">
+<g id="module~~test_mapl_netcdf~~UsesGraph_node9" class="node">
 <title>module~mapl_errorhandlingmod</title>
-<g id="a_module~~test_mapl_netcdf~~UsesGraph_node7"><a xlink:href=".././module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="280,-73.95 137,-73.95 137,-49.95 280,-49.95 280,-73.95"/>
-<text text-anchor="middle" x="208.5" y="-59.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+<g id="a_module~~test_mapl_netcdf~~UsesGraph_node9"><a xlink:href=".././module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="280,-146 137,-146 137,-122 280,-122 280,-146"/>
+<text text-anchor="middle" x="208.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
 </a>
 </g>
 </g>
 <!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge5" class="edge">
 <title>module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod</title>
-<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M321.91,-74.11C311.48,-72.98 300.69,-71.81 290.12,-70.67"/>
-<polygon fill="transparent" stroke="transparent" points="290.38,-67.18 280.06,-69.58 289.62,-74.14 290.38,-67.18"/>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M321.91,-146.15C311.48,-145.03 300.69,-143.86 290.12,-142.72"/>
+<polygon fill="transparent" stroke="transparent" points="290.38,-139.22 280.06,-141.63 289.62,-146.18 290.38,-139.22"/>
 </g>
 <!-- module~mapl_throwmod -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_node9" class="node">
+<g id="module~~test_mapl_netcdf~~UsesGraph_node11" class="node">
 <title>module~mapl_throwmod</title>
-<g id="a_module~~test_mapl_netcdf~~UsesGraph_node9"><a xlink:href=".././module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="101,-113.95 0,-113.95 0,-89.95 101,-89.95 101,-113.95"/>
-<text text-anchor="middle" x="50.5" y="-99.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+<g id="a_module~~test_mapl_netcdf~~UsesGraph_node11"><a xlink:href=".././module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-186 0,-186 0,-162 101,-162 101,-186"/>
+<text text-anchor="middle" x="50.5" y="-171.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
 </a>
 </g>
 </g>
 <!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge6" class="edge">
 <title>module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod</title>
-<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M321.76,-86.2C259.15,-89.85 169.9,-95.05 111.35,-98.46"/>
-<polygon fill="transparent" stroke="transparent" points="110.93,-94.98 101.15,-99.06 111.34,-101.97 110.93,-94.98"/>
-</g>
-<!-- module~mapl_netcdf&#45;&gt;ESMF -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_edge7" class="edge">
-<title>module~mapl_netcdf&#45;&gt;ESMF</title>
-<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M688.99,-93.31C666.95,-99.26 640.24,-106.49 619.14,-112.19"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="618.02,-108.86 609.28,-114.85 619.85,-115.62 618.02,-108.86"/>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M321.76,-158.24C259.15,-161.89 169.9,-167.1 111.35,-170.51"/>
+<polygon fill="transparent" stroke="transparent" points="110.93,-167.03 101.15,-171.1 111.34,-174.02 110.93,-167.03"/>
 </g>
 <!-- module~mapl_netcdf&#45;&gt;module~mapl_exceptionhandling -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_edge9" class="edge">
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge10" class="edge">
 <title>module~mapl_netcdf&#45;&gt;module~mapl_exceptionhandling</title>
-<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M688.97,-81.95C636.57,-81.95 545.78,-81.95 479.22,-81.95"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="479.17,-78.45 469.17,-81.95 479.17,-85.45 479.17,-78.45"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M748.02,-126.04C732.84,-136.02 709.58,-149.43 687,-155 618.49,-171.91 538.1,-170.04 479.28,-164.86"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="479.57,-161.37 469.29,-163.93 478.92,-168.34 479.57,-161.37"/>
 </g>
-<!-- module~mapl_datetime_parsing -->
+<!-- MAPL_DateTime_Parsing -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_node6" class="node">
-<title>module~mapl_datetime_parsing</title>
-<g id="a_module~~test_mapl_netcdf~~UsesGraph_node6"><a xlink:href=".././module/mapl_datetime_parsing.html" xlink:title="MAPL_DateTime_Parsing">
-<polygon fill="#337ab7" stroke="#337ab7" points="653,-53.95 511,-53.95 511,-29.95 653,-29.95 653,-53.95"/>
-<text text-anchor="middle" x="582" y="-39.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DateTime_Parsing</text>
+<title>MAPL_DateTime_Parsing</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="466.5,-66 324.5,-66 324.5,-42 466.5,-42 466.5,-66"/>
+<text text-anchor="middle" x="395.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DateTime_Parsing</text>
+</g>
+<!-- module~mapl_netcdf&#45;&gt;MAPL_DateTime_Parsing -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge7" class="edge">
+<title>module~mapl_netcdf&#45;&gt;MAPL_DateTime_Parsing</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M735.15,-101.76C730.8,-99.24 726.59,-96.32 723,-93 700.18,-71.87 714.06,-48.32 687,-33 650.7,-12.45 540.53,-27.11 466.78,-40.13"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="465.85,-36.74 456.62,-41.95 467.09,-43.63 465.85,-36.74"/>
+</g>
+<!-- module~mapl_cf_time -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_node7" class="node">
+<title>module~mapl_cf_time</title>
+<g id="a_module~~test_mapl_netcdf~~UsesGraph_node7"><a xlink:href=".././module/mapl_cf_time.html" xlink:title="MAPL_CF_Time">
+<polygon fill="#337ab7" stroke="#337ab7" points="644.5,-66 553.5,-66 553.5,-42 644.5,-42 644.5,-66"/>
+<text text-anchor="middle" x="599" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time</text>
 </a>
 </g>
 </g>
-<!-- module~mapl_netcdf&#45;&gt;module~mapl_datetime_parsing -->
+<!-- module~mapl_netcdf&#45;&gt;module~mapl_cf_time -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge8" class="edge">
-<title>module~mapl_netcdf&#45;&gt;module~mapl_datetime_parsing</title>
-<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M688.99,-70.6C672.91,-66.25 654.34,-61.24 637.29,-56.63"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="638.01,-53.2 627.45,-53.97 636.19,-59.95 638.01,-53.2"/>
+<title>module~mapl_netcdf&#45;&gt;module~mapl_cf_time</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M739.32,-101.87C724.26,-95 704.76,-86.5 687,-80 676.35,-76.1 664.82,-72.34 653.74,-68.95"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="654.74,-65.6 644.15,-66.07 652.72,-72.3 654.74,-65.6"/>
+</g>
+<!-- module~mapl_datetime_parsing_esmf -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_node8" class="node">
+<title>module~mapl_datetime_parsing_esmf</title>
+<g id="a_module~~test_mapl_netcdf~~UsesGraph_node8"><a xlink:href=".././module/mapl_datetime_parsing_esmf.html" xlink:title="MAPL_DateTime_Parsing_ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="687,-146 511,-146 511,-122 687,-122 687,-146"/>
+<text text-anchor="middle" x="599" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DateTime_Parsing_ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_netcdf&#45;&gt;module~mapl_datetime_parsing_esmf -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge9" class="edge">
+<title>module~mapl_netcdf&#45;&gt;module~mapl_datetime_parsing_esmf</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M722.94,-119.1C714.96,-120.07 706.31,-121.11 697.42,-122.19"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="696.82,-118.74 687.31,-123.42 697.66,-125.69 696.82,-118.74"/>
 </g>
 <!-- module~mapl_keywordenforcermod -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_node8" class="node">
+<g id="module~~test_mapl_netcdf~~UsesGraph_node10" class="node">
 <title>module~mapl_keywordenforcermod</title>
-<g id="a_module~~test_mapl_netcdf~~UsesGraph_node8"><a xlink:href=".././module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="475,-32.95 316,-32.95 316,-8.95 475,-8.95 475,-32.95"/>
-<text text-anchor="middle" x="395.5" y="-18.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
+<g id="a_module~~test_mapl_netcdf~~UsesGraph_node10"><a xlink:href=".././module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="475,-108 316,-108 316,-84 475,-84 475,-108"/>
+<text text-anchor="middle" x="395.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
 </a>
 </g>
 </g>
 <!-- module~mapl_netcdf&#45;&gt;module~mapl_keywordenforcermod -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_edge10" class="edge">
-<title>module~mapl_netcdf&#45;&gt;module~mapl_keywordenforcermod</title>
-<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M703.01,-69.81C698.15,-67.19 693.28,-64.21 689,-60.95 669.97,-46.46 674.85,-30.69 653,-20.95 591.47,6.45 513.11,1.47 459.28,-7.19"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="458.47,-3.78 449.19,-8.9 459.64,-10.68 458.47,-3.78"/>
-</g>
-<!-- module~mapl_datetime_parsing&#45;&gt;module~mapl_exceptionhandling -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge11" class="edge">
-<title>module~mapl_datetime_parsing&#45;&gt;module~mapl_exceptionhandling</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M525.64,-53.96C505.67,-58.29 482.93,-63.22 462.15,-67.72"/>
-<polygon fill="#255000" stroke="#255000" points="461.17,-64.35 452.14,-69.89 462.65,-71.19 461.17,-64.35"/>
+<title>module~mapl_netcdf&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M722.73,-111.94C665.22,-109.13 560.89,-104.03 485.68,-100.36"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="485.43,-96.84 475.27,-99.85 485.08,-103.83 485.43,-96.84"/>
 </g>
-<!-- module~mapl_datetime_parsing&#45;&gt;module~mapl_keywordenforcermod -->
+<!-- module~mapl_cf_time&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge14" class="edge">
+<title>module~mapl_cf_time&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M574.99,-66.07C550.36,-78.92 510.1,-99.75 475,-117 461.07,-123.85 445.65,-131.17 432.18,-137.49"/>
+<polygon fill="transparent" stroke="transparent" points="430.35,-134.48 422.77,-141.88 433.31,-140.82 430.35,-134.48"/>
+</g>
+<!-- module~mapl_cf_time&#45;&gt;MAPL_DateTime_Parsing -->
 <g id="module~~test_mapl_netcdf~~UsesGraph_edge12" class="edge">
-<title>module~mapl_datetime_parsing&#45;&gt;module~mapl_keywordenforcermod</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M510.99,-33.99C502.56,-33.03 493.87,-32.04 485.22,-31.05"/>
-<polygon fill="#255000" stroke="#255000" points="485.44,-27.56 475.11,-29.9 484.65,-34.51 485.44,-27.56"/>
+<title>module~mapl_cf_time&#45;&gt;MAPL_DateTime_Parsing</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M553.28,-54C530.86,-54 503.02,-54 477.05,-54"/>
+<polygon fill="transparent" stroke="transparent" points="476.82,-50.5 466.82,-54 476.82,-57.5 476.82,-50.5"/>
+</g>
+<!-- module~mapl_cf_time&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge15" class="edge">
+<title>module~mapl_cf_time&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M553.28,-63.32C527.03,-68.79 493.34,-75.82 463.92,-81.95"/>
+<polygon fill="transparent" stroke="transparent" points="463.2,-78.52 454.12,-83.99 464.63,-85.37 463.2,-78.52"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_node12" class="node">
+<title>iso_fortran_env</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="442.5,-24 348.5,-24 348.5,0 442.5,0 442.5,-24"/>
+<text text-anchor="middle" x="395.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</g>
+<!-- module~mapl_cf_time&#45;&gt;iso_fortran_env -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge13" class="edge">
+<title>module~mapl_cf_time&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M553.28,-44.68C523.67,-38.51 484.6,-30.36 452.87,-23.75"/>
+<polygon fill="transparent" stroke="transparent" points="453.35,-20.27 442.84,-21.66 451.92,-27.13 453.35,-20.27"/>
+</g>
+<!-- module~mapl_datetime_parsing_esmf&#45;&gt;ESMF -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge16" class="edge">
+<title>module~mapl_datetime_parsing_esmf&#45;&gt;ESMF</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M566.96,-146.02C530.68,-160.06 470.75,-183.26 432.47,-198.08"/>
+<polygon fill="#025500" stroke="#025500" points="430.82,-194.96 422.76,-201.83 433.35,-201.49 430.82,-194.96"/>
+</g>
+<!-- module~mapl_datetime_parsing_esmf&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge18" class="edge">
+<title>module~mapl_datetime_parsing_esmf&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M510.79,-142.66C500.23,-143.7 489.47,-144.77 478.98,-145.81"/>
+<polygon fill="#025500" stroke="#025500" points="478.63,-142.33 469.03,-146.8 479.32,-149.3 478.63,-142.33"/>
+</g>
+<!-- module~mapl_datetime_parsing_esmf&#45;&gt;MAPL_DateTime_Parsing -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge17" class="edge">
+<title>module~mapl_datetime_parsing_esmf&#45;&gt;MAPL_DateTime_Parsing</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M575.88,-121.84C551.66,-108.9 511.43,-88.48 475,-75 469.18,-72.85 463.05,-70.82 456.88,-68.93"/>
+<polygon fill="#025500" stroke="#025500" points="457.77,-65.54 447.19,-66.08 455.79,-72.26 457.77,-65.54"/>
+</g>
+<!-- module~mapl_datetime_parsing_esmf&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge19" class="edge">
+<title>module~mapl_datetime_parsing_esmf&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M534.24,-121.98C513.84,-118.13 491.08,-113.84 470.04,-109.87"/>
+<polygon fill="#025500" stroke="#025500" points="470.66,-106.42 460.19,-108.01 469.36,-113.3 470.66,-106.42"/>
 </g>
 <!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_edge13" class="edge">
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge20" class="edge">
 <title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
-<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M160.69,-73.96C144.26,-78.17 125.62,-82.95 108.45,-87.35"/>
-<polygon fill="transparent" stroke="transparent" points="107.36,-84.02 98.54,-89.89 109.1,-90.8 107.36,-84.02"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M160.69,-146C144.26,-150.21 125.62,-154.99 108.45,-159.4"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="107.36,-156.06 98.54,-161.94 109.1,-162.84 107.36,-156.06"/>
 </g>
 <!-- mpi -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_node10" class="node">
+<g id="module~~test_mapl_netcdf~~UsesGraph_node13" class="node">
 <title>mpi</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-71.95 23.5,-71.95 23.5,-47.95 77.5,-47.95 77.5,-71.95"/>
-<text text-anchor="middle" x="50.5" y="-57.55" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-144 23.5,-144 23.5,-120 77.5,-120 77.5,-144"/>
+<text text-anchor="middle" x="50.5" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
 </g>
 <!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
-<g id="module~~test_mapl_netcdf~~UsesGraph_edge14" class="edge">
+<g id="module~~test_mapl_netcdf~~UsesGraph_edge21" class="edge">
 <title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
-<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M136.8,-61.05C119.81,-60.83 102.34,-60.61 87.68,-60.42"/>
-<polygon fill="transparent" stroke="transparent" points="87.59,-56.92 77.55,-60.29 87.5,-63.92 87.59,-56.92"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M136.8,-133.09C119.81,-132.88 102.34,-132.65 87.68,-132.46"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="87.59,-128.96 77.55,-132.33 87.5,-135.96 87.59,-128.96"/>
 </g>
 </g>
 </svg>
@@ -390,8 +429,8 @@
                   var panmoduletest_mapl_netcdfUsesGraph = svgPanZoom('#moduletest_mapl_netcdfUsesGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsesGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -462,76 +501,13 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
       
       <br>
-
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-1">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#variable-calkind_flag_def">CALKIND_FLAG_DEF</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#subs-1">Subroutines</a>
-        </h3>
-      </div>
-      <div id="subs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-set_up">set_up</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_esmf_time_to_netcdf_datetimestring">test_convert_ESMF_Time_to_NetCDF_DateTimeString</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_esmf_to_netcdf_datetime">test_convert_ESMF_to_NetCDF_DateTime</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_netcdf_datetimestring_to_esmf_time">test_convert_NetCDF_DateTimeString_to_ESMF_Time</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_netcdf_datetime_to_esmf">test_convert_NetCDF_DateTime_to_ESMF</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_convert_to_integer">test_convert_to_integer</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_get_shift_sign">test_get_shift_sign</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_is_time_unit">test_is_time_unit</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_is_valid_netcdf_datetime_string">test_is_valid_netcdf_datetime_string</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_lr_trim">test_lr_trim</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_make_esmf_timeinterval">test_make_ESMF_TimeInterval</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_make_netcdf_datetime_int_time">test_make_NetCDF_DateTime_int_time</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_make_netcdf_datetime_units_string">test_make_NetCDF_DateTime_units_string</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_split">test_split</a>
-            <a class="list-group-item" href="../module/test_mapl_netcdf.html#proc-test_split_all">test_split_all</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-
-
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
 
 
         <section>
@@ -539,13 +515,30 @@ large graphs.</div>
             <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seconds_per_minute"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>SECONDS_PER_MINUTE</strong></td>
+<td> =</td>
+                <td>60</td>
+            <td>
+                
+            </td>
+        </tr>
         <tr>
             <td>
               <span class="anchor" id="variable-calkind_flag_def"></span>
@@ -573,13 +566,137 @@ parameter
 
 
 
+        <section>
+          <h2>Functions</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-esmf_times_equal"></span><h3>public  function <a href='../proc/esmf_times_equal.html'>ESMF_Times_Equal</a>(timeu, timev) result(tval)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeu"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeu</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timev"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timev</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-rational_equals"></span><h3>public  function <a href='../proc/rational_equals.html'>rational_equals</a>(na, nb)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-na"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>na</strong>(2)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nb"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nb</strong>(2)</td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+        </section>
+        <br>
 
         <section>
           <h2>Subroutines</h2>
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-set_up"></span><h3>public  subroutine <a href='../proc/set_up.html'>set_up</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-set_up"></span><h3>public  subroutine <a href='../proc/set_up.html'>set_up</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -589,10 +706,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_convert_esmf_time_to_netcdf_datetimestring"></span><h3>public  subroutine <a href='../proc/test_convert_esmf_time_to_netcdf_datetimestring.html'>test_convert_ESMF_Time_to_NetCDF_DateTimeString</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_convert_netcdf_datetime_to_esmf_integer"></span><h3>public  subroutine <a href='../proc/test_convert_netcdf_datetime_to_esmf_integer.html'>test_convert_NetCDF_DateTime_to_ESMF_integer</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -602,166 +719,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_convert_esmf_to_netcdf_datetime"></span><h3>public  subroutine <a href='../proc/test_convert_esmf_to_netcdf_datetime.html'>test_convert_ESMF_to_NetCDF_DateTime</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_convert_netcdf_datetime_to_esmf_real"></span><h3>public  subroutine <a href='../proc/test_convert_netcdf_datetime_to_esmf_real.html'>test_convert_NetCDF_DateTime_to_ESMF_real</a>()  
 </h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_convert_netcdf_datetimestring_to_esmf_time"></span><h3>public  subroutine <a href='../proc/test_convert_netcdf_datetimestring_to_esmf_time.html'>test_convert_NetCDF_DateTimeString_to_ESMF_Time</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_convert_netcdf_datetime_to_esmf"></span><h3>public  subroutine <a href='../proc/test_convert_netcdf_datetime_to_esmf.html'>test_convert_NetCDF_DateTime_to_ESMF</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_convert_to_integer"></span><h3>public  subroutine <a href='../proc/test_convert_to_integer.html'>test_convert_to_integer</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_get_shift_sign"></span><h3>public  subroutine <a href='../proc/test_get_shift_sign.html'>test_get_shift_sign</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_is_time_unit"></span><h3>public  subroutine <a href='../proc/test_is_time_unit.html'>test_is_time_unit</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_is_valid_netcdf_datetime_string"></span><h3>public  subroutine <a href='../proc/test_is_valid_netcdf_datetime_string.html'>test_is_valid_netcdf_datetime_string</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_lr_trim"></span><h3>public  subroutine <a href='../proc/test_lr_trim.html'>test_lr_trim</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_make_esmf_timeinterval"></span><h3>public  subroutine <a href='../proc/test_make_esmf_timeinterval.html'>test_make_ESMF_TimeInterval</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_make_netcdf_datetime_int_time"></span><h3>public  subroutine <a href='../proc/test_make_netcdf_datetime_int_time.html'>test_make_NetCDF_DateTime_int_time</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_make_netcdf_datetime_units_string"></span><h3>public  subroutine <a href='../proc/test_make_netcdf_datetime_units_string.html'>test_make_NetCDF_DateTime_units_string</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_split"></span><h3>public  subroutine <a href='../proc/test_split.html'>test_split</a>()  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-    <em>None</em>
-
-    </div>
-  </div>
-
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_split_all"></span><h3>public  subroutine <a href='../proc/test_split_all.html'>test_split_all</a>()  
-</h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -783,32 +744,27 @@ parameter
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

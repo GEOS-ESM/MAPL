@@ -10,85 +10,58 @@
 
     <title>StringUnlimitedEntityMap_serialize &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">23 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">23 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/UnlimitedEntity.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/unlimitedentity.f90.html'>UnlimitedEntity.F90</a></li>
-              <li><a href='../module/pfio_stringunlimitedentitymaputilmod.html'>pFIO_StringUnlimitedEntityMapUtilMod</a></li>
-          <li class="active">StringUnlimitedEntityMap_serialize</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/unlimitedentity.f90.html'>UnlimitedEntity.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_stringunlimitedentitymaputilmod.html'>pFIO_StringUnlimitedEntityMapUtilMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">StringUnlimitedEntityMap_serialize</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/stringunlimitedentitymap_serialize.html#src">StringUnlimitedEntityMap_serialize</a>
       </div>
@@ -174,16 +152,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-map~4"></span>
+              <span class="anchor" id="variable-map~8"></span>
               type(<a href='../type/stringunlimitedentitymap.html'>StringUnlimitedEntityMap</a>),
             </td>
 <td>intent(in)</td>
@@ -198,7 +176,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-buffer~78"></span>
+              <span class="anchor" id="variable-buffer~81"></span>
               integer,
             </td>
 <td>intent(inout),</td>
@@ -215,93 +193,240 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~stringunlimitedentitymap_serialize~~CallsGraph Pages: 1 -->
-<svg id="procstringunlimitedentitymap_serializeCallsGraph" width="641pt" height="187pt"
- viewBox="0.00 0.00 641.00 187.15" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph" class="graph" transform="scale(1.07 1.07) rotate(0) translate(4 196)">
+<svg id="procstringunlimitedentitymap_serializeCallsGraph" width="641pt" height="75pt"
+ viewBox="0.00 0.00 641.00 75.12" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph" class="graph" transform="scale(3.2 3.2) rotate(0) translate(4 236)">
 <title>proc~~stringunlimitedentitymap_serialize~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 681,-196 681,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-236 2044,-236 2044,4 -4,4"/>
 <!-- proc~stringunlimitedentitymap_serialize -->
 <g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node1" class="node">
 <title>proc~stringunlimitedentitymap_serialize</title>
-<polygon fill="none" stroke="black" points="409,-108 0,-108 0,-84 409,-84 409,-108"/>
-<text text-anchor="middle" x="204.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_StringUnlimitedEntityMapUtilMod::StringUnlimitedEntityMap_serialize</text>
-</g>
-<!-- begin -->
-<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node2" class="node">
-<title>begin</title>
-<polygon fill="#777777" stroke="#777777" points="588,-192 534,-192 534,-168 588,-168 588,-192"/>
-<text text-anchor="middle" x="561" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
-</g>
-<!-- proc~stringunlimitedentitymap_serialize&#45;&gt;begin -->
-<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge1" class="edge">
-<title>proc~stringunlimitedentitymap_serialize&#45;&gt;begin</title>
-<path fill="none" stroke="#255000" d="M247.23,-108.02C294.83,-121.48 375.12,-143.45 445,-159 471.29,-164.85 501.21,-170.28 523.95,-174.15"/>
-<polygon fill="#255000" stroke="#255000" points="523.41,-177.6 533.85,-175.81 524.57,-170.7 523.41,-177.6"/>
+<polygon fill="none" stroke="black" points="409,-129 0,-129 0,-105 409,-105 409,-129"/>
+<text text-anchor="middle" x="204.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_StringUnlimitedEntityMapUtilMod::StringUnlimitedEntityMap_serialize</text>
 </g>
 <!-- interface~serialize_buffer_length -->
-<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node3" class="node">
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node2" class="node">
 <title>interface~serialize_buffer_length</title>
-<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node3"><a xlink:href=".././interface/serialize_buffer_length.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length">
-<polygon fill="#a7506f" stroke="#a7506f" points="677,-150 445,-150 445,-126 677,-126 677,-150"/>
-<text text-anchor="middle" x="561" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length</text>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node2"><a xlink:href=".././interface/serialize_buffer_length.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length">
+<polygon fill="#a7506f" stroke="#a7506f" points="1156,-232 924,-232 924,-208 1156,-208 1156,-232"/>
+<text text-anchor="middle" x="1040" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length</text>
 </a>
 </g>
 </g>
 <!-- proc~stringunlimitedentitymap_serialize&#45;&gt;interface~serialize_buffer_length -->
-<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge2" class="edge">
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge1" class="edge">
 <title>proc~stringunlimitedentitymap_serialize&#45;&gt;interface~serialize_buffer_length</title>
-<path fill="none" stroke="#255000" d="M307.09,-108.04C351.31,-113.28 403.27,-119.43 448.55,-124.8"/>
-<polygon fill="#255000" stroke="#255000" points="448.36,-128.3 458.71,-126 449.19,-121.35 448.36,-128.3"/>
+<path fill="none" stroke="#255000" d="M241.11,-129.09C287.46,-144.26 371.26,-169.76 445,-182 605.38,-208.62 792.98,-216.87 913.77,-219.28"/>
+<polygon fill="#255000" stroke="#255000" points="913.73,-222.78 923.79,-219.47 913.86,-215.78 913.73,-222.78"/>
 </g>
 <!-- interface~serialize_intrinsic -->
-<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node4" class="node">
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node3" class="node">
 <title>interface~serialize_intrinsic</title>
-<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node4"><a xlink:href=".././interface/serialize_intrinsic.html" xlink:title="pFIO_UtilitiesMod::serialize_intrinsic">
-<polygon fill="#a7506f" stroke="#a7506f" points="662,-108 460,-108 460,-84 662,-84 662,-108"/>
-<text text-anchor="middle" x="561" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_intrinsic</text>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node3"><a xlink:href=".././interface/serialize_intrinsic.html" xlink:title="pFIO_UtilitiesMod::serialize_intrinsic">
+<polygon fill="#a7506f" stroke="#a7506f" points="1141,-190 939,-190 939,-166 1141,-166 1141,-190"/>
+<text text-anchor="middle" x="1040" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_intrinsic</text>
 </a>
 </g>
 </g>
 <!-- proc~stringunlimitedentitymap_serialize&#45;&gt;interface~serialize_intrinsic -->
-<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge3" class="edge">
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge2" class="edge">
 <title>proc~stringunlimitedentitymap_serialize&#45;&gt;interface~serialize_intrinsic</title>
-<path fill="none" stroke="#255000" d="M409.15,-96C422.9,-96 436.45,-96 449.43,-96"/>
-<polygon fill="#255000" stroke="#255000" points="449.71,-99.5 459.71,-96 449.71,-92.5 449.71,-99.5"/>
+<path fill="none" stroke="#255000" d="M260.84,-129C309.18,-138.93 381.38,-152.44 445,-159 613.04,-176.33 809.11,-179.27 928.61,-179.13"/>
+<polygon fill="#255000" stroke="#255000" points="928.87,-182.63 938.87,-179.11 928.86,-175.63 928.87,-182.63"/>
 </g>
-<!-- next -->
+<!-- none~begin~12 -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node4" class="node">
+<title>none~begin~12</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node4"><a xlink:href=".././type/stringunlimitedentitymap.html#boundprocedure-begin~12" xlink:title="pFIO_StringUnlimitedEntityMapMod::StringUnlimitedEntityMap%begin">
+<polygon fill="#a7506f" stroke="#a7506f" points="843,-108 461,-108 461,-84 843,-84 843,-108"/>
+<text text-anchor="middle" x="652" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringUnlimitedEntityMapMod::StringUnlimitedEntityMap%begin</text>
+</a>
+</g>
+</g>
+<!-- proc~stringunlimitedentitymap_serialize&#45;&gt;none~begin~12 -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge3" class="edge">
+<title>proc~stringunlimitedentitymap_serialize&#45;&gt;none~begin~12</title>
+<path fill="none" stroke="#255000" d="M409.02,-107.41C422.86,-106.75 436.8,-106.1 450.62,-105.45"/>
+<polygon fill="#255000" stroke="#255000" points="450.84,-108.94 460.66,-104.97 450.51,-101.95 450.84,-108.94"/>
+</g>
+<!-- none~key~3 -->
 <g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node5" class="node">
-<title>next</title>
-<polygon fill="#777777" stroke="#777777" points="588,-66 534,-66 534,-42 588,-42 588,-66"/>
-<text text-anchor="middle" x="561" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+<title>none~key~3</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node5"><a xlink:href=".././type/stringunlimitedentitymapiterator.html#boundprocedure-key~3" xlink:title="pFIO_StringUnlimitedEntityMapMod::StringUnlimitedEntityMapIterator%key">
+<polygon fill="#a7506f" stroke="#a7506f" points="857,-66 447,-66 447,-42 857,-42 857,-66"/>
+<text text-anchor="middle" x="652" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringUnlimitedEntityMapMod::StringUnlimitedEntityMapIterator%key</text>
+</a>
 </g>
-<!-- proc~stringunlimitedentitymap_serialize&#45;&gt;next -->
+</g>
+<!-- proc~stringunlimitedentitymap_serialize&#45;&gt;none~key~3 -->
 <g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge4" class="edge">
-<title>proc~stringunlimitedentitymap_serialize&#45;&gt;next</title>
-<path fill="none" stroke="#255000" d="M307.09,-83.96C379.67,-75.36 473.09,-64.3 523.63,-58.31"/>
-<polygon fill="#255000" stroke="#255000" points="524.22,-61.76 533.74,-57.11 523.4,-54.81 524.22,-61.76"/>
+<title>proc~stringunlimitedentitymap_serialize&#45;&gt;none~key~3</title>
+<path fill="none" stroke="#255000" d="M266.84,-104.99C315.11,-95.84 384.16,-83.42 445,-75 465.67,-72.14 487.56,-69.49 509.06,-67.12"/>
+<polygon fill="#255000" stroke="#255000" points="509.67,-70.57 519.23,-66.01 508.91,-63.61 509.67,-70.57"/>
 </g>
-<!-- serialize -->
+<!-- none~next~10 -->
 <g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node6" class="node">
-<title>serialize</title>
-<polygon fill="#777777" stroke="#777777" points="589.5,-24 532.5,-24 532.5,0 589.5,0 589.5,-24"/>
-<text text-anchor="middle" x="561" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize</text>
+<title>none~next~10</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node6"><a xlink:href=".././type/stringunlimitedentitymapiterator.html#boundprocedure-next~10" xlink:title="pFIO_StringUnlimitedEntityMapMod::StringUnlimitedEntityMapIterator%next">
+<polygon fill="#a7506f" stroke="#a7506f" points="859,-24 445,-24 445,0 859,0 859,-24"/>
+<text text-anchor="middle" x="652" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringUnlimitedEntityMapMod::StringUnlimitedEntityMapIterator%next</text>
+</a>
 </g>
-<!-- proc~stringunlimitedentitymap_serialize&#45;&gt;serialize -->
+</g>
+<!-- proc~stringunlimitedentitymap_serialize&#45;&gt;none~next~10 -->
 <g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge5" class="edge">
-<title>proc~stringunlimitedentitymap_serialize&#45;&gt;serialize</title>
-<path fill="none" stroke="#255000" d="M247.23,-83.98C294.83,-70.52 375.12,-48.55 445,-33 470.65,-27.29 499.78,-21.99 522.3,-18.13"/>
-<polygon fill="#255000" stroke="#255000" points="523.19,-21.54 532.46,-16.42 522.02,-14.63 523.19,-21.54"/>
+<title>proc~stringunlimitedentitymap_serialize&#45;&gt;none~next~10</title>
+<path fill="none" stroke="#255000" d="M232.9,-104.99C276.76,-86.32 365.87,-50.65 445,-33 457.72,-30.16 470.97,-27.71 484.35,-25.58"/>
+<polygon fill="#255000" stroke="#255000" points="485.23,-28.99 494.59,-24.02 484.18,-22.07 485.23,-28.99"/>
+</g>
+<!-- none~serialize -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node7" class="node">
+<title>none~serialize</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node7"><a xlink:href=".././type/unlimitedentity.html#boundprocedure-serialize" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%serialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="796,-150 508,-150 508,-126 796,-126 796,-150"/>
+<text text-anchor="middle" x="652" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringunlimitedentitymap_serialize&#45;&gt;none~serialize -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge6" class="edge">
+<title>proc~stringunlimitedentitymap_serialize&#45;&gt;none~serialize</title>
+<path fill="none" stroke="#255000" d="M409.02,-126.59C438.86,-128 469.17,-129.43 497.78,-130.78"/>
+<polygon fill="#255000" stroke="#255000" points="497.67,-134.28 507.82,-131.25 498,-127.28 497.67,-134.28"/>
+</g>
+<!-- none~serialize&#45;&gt;interface~serialize_buffer_length -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge8" class="edge">
+<title>none~serialize&#45;&gt;interface~serialize_buffer_length</title>
+<path fill="none" stroke="#255025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M695.11,-150.01C743.15,-163.38 824.24,-184.96 895,-199 908.36,-201.65 922.48,-204.12 936.45,-206.36"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="936.16,-209.85 946.58,-207.95 937.24,-202.94 936.16,-209.85"/>
+</g>
+<!-- none~serialize&#45;&gt;interface~serialize_intrinsic -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge9" class="edge">
+<title>none~serialize&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M768.81,-150C819.5,-155.25 878.7,-161.39 928.75,-166.57"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="928.64,-170.08 938.95,-167.63 929.37,-163.12 928.64,-170.08"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node8"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1148.5,-148 931.5,-148 931.5,-124 1148.5,-124 1148.5,-148"/>
+<text text-anchor="middle" x="1040" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- none~serialize&#45;&gt;interface~mapl_assert -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge7" class="edge">
+<title>none~serialize&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M796.18,-137.26C837.34,-137.04 881.73,-136.81 921.17,-136.61"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="921.36,-140.11 931.35,-136.56 921.33,-133.11 921.36,-140.11"/>
+</g>
+<!-- none~get_rank -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node9" class="node">
+<title>none~get_rank</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node9"><a xlink:href=".././type/unlimitedentity.html#boundprocedure-get_rank" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%get_rank">
+<polygon fill="#a7506f" stroke="#a7506f" points="1185,-68 895,-68 895,-44 1185,-44 1185,-68"/>
+<text text-anchor="middle" x="1040" y="-53.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%get_rank</text>
+</a>
+</g>
+</g>
+<!-- none~serialize&#45;&gt;none~get_rank -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge10" class="edge">
+<title>none~serialize&#45;&gt;none~get_rank</title>
+<path fill="none" stroke="#255025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M796.25,-135.91C817.93,-132.07 839.53,-126.08 859,-117 879.22,-107.57 875.15,-92.21 895,-82 903.47,-77.65 912.54,-74.01 921.87,-70.97"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="923.09,-74.26 931.66,-68.02 921.07,-67.56 923.09,-74.26"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node10" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node10"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1775,-70 1555,-70 1555,-46 1775,-46 1775,-70"/>
+<text text-anchor="middle" x="1665" y="-55.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- none~serialize&#45;&gt;proc~mapl_return -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge11" class="edge">
+<title>none~serialize&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M773.27,-125.99C812.1,-122.26 855.36,-118.28 895,-115 1172.07,-92.07 1241.87,-93.19 1519,-71 1527.33,-70.33 1535.93,-69.62 1544.58,-68.89"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1545.09,-72.36 1554.76,-68.02 1544.5,-65.38 1545.09,-72.36"/>
+</g>
+<!-- none~get_rank&#45;&gt;proc~mapl_return -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge13" class="edge">
+<title>none~get_rank&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1185.1,-56.46C1294.14,-56.81 1442.12,-57.29 1544.59,-57.62"/>
+<polygon fill="#025500" stroke="#025500" points="1544.66,-61.12 1554.68,-57.65 1544.69,-54.12 1544.66,-61.12"/>
+</g>
+<!-- none~get_shape -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node13" class="node">
+<title>none~get_shape</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node13"><a xlink:href=".././type/unlimitedentity.html#boundprocedure-get_shape" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%get_shape">
+<polygon fill="#a7506f" stroke="#a7506f" points="1519,-30 1221,-30 1221,-6 1519,-6 1519,-30"/>
+<text text-anchor="middle" x="1370" y="-15.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%get_shape</text>
+</a>
+</g>
+</g>
+<!-- none~get_rank&#45;&gt;none~get_shape -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge12" class="edge">
+<title>none~get_rank&#45;&gt;none~get_shape</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1144.78,-43.98C1179.95,-39.9 1219.41,-35.33 1255.31,-31.17"/>
+<polygon fill="#025500" stroke="#025500" points="1255.8,-34.64 1265.33,-30.01 1254.99,-27.68 1255.8,-34.64"/>
+</g>
+<!-- at -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node11" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1952.5,-112 1898.5,-112 1898.5,-88 1952.5,-88 1952.5,-112"/>
+<text text-anchor="middle" x="1925.5" y="-97.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#002505" d="M1740.08,-70.04C1788.62,-77.92 1849.96,-87.89 1888.21,-94.1"/>
+<polygon fill="#002505" stroke="#002505" points="1887.93,-97.6 1898.36,-95.75 1889.05,-90.69 1887.93,-97.6"/>
+</g>
+<!-- insert -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1952.5,-70 1898.5,-70 1898.5,-46 1952.5,-46 1952.5,-70"/>
+<text text-anchor="middle" x="1925.5" y="-55.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#002505" d="M1775.25,-58C1815.63,-58 1858.67,-58 1888.11,-58"/>
+<polygon fill="#002505" stroke="#002505" points="1888.3,-61.5 1898.3,-58 1888.3,-54.5 1888.3,-61.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~stringunlimitedentitymap_serialize~~CallsGraph_node14"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="2040,-28 1811,-28 1811,-4 2040,-4 2040,-28"/>
+<text text-anchor="middle" x="1925.5" y="-13.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M1740.08,-45.96C1771.44,-40.87 1808.15,-34.9 1840.52,-29.65"/>
+<polygon fill="#002505" stroke="#002505" points="1841.1,-33.1 1850.41,-28.04 1839.98,-26.19 1841.1,-33.1"/>
+</g>
+<!-- none~get_shape&#45;&gt;proc~mapl_return -->
+<g id="proc~~stringunlimitedentitymap_serialize~~CallsGraph_edge17" class="edge">
+<title>none~get_shape&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1458.91,-30C1492.59,-34.6 1531.21,-39.87 1565.79,-44.59"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1565.52,-48.09 1575.9,-45.97 1566.46,-41.15 1565.52,-48.09"/>
 </g>
 </g>
 </svg>
@@ -309,8 +434,8 @@
                   var panprocstringunlimitedentitymap_serializeCallsGraph = svgPanZoom('#procstringunlimitedentitymap_serializeCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -327,11 +452,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -350,23 +475,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -386,73 +517,42 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/stringunlimitedentitymap_serialize.html#src">StringUnlimitedEntityMap_serialize</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">StringUnlimitedEntityMap_serialize</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringUnlimitedEntityMap</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">map</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringUnlimitedEntityMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span><span class="w"></span>
-<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key</span><span class="w"></span>
-<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attr_ptr</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">length</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp_buffer</span><span class="p">(:)</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">StringUnlimitedEntityMap_serialize</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="n">buffer</span><span class="p">)</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringUnlimitedEntityMap</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">map</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringUnlimitedEntityMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attr_ptr</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">length</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp_buffer</span><span class="p">(:)</span>
 
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"></span>
-<span class="w">       </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span><span class="w"></span>
-<span class="w">       </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">map</span><span class="p">%</span><span class="k">end</span><span class="p">())</span><span class="w"></span>
-<span class="w">          </span><span class="n">key</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">key</span><span class="p">()</span><span class="w"></span>
-<span class="w">          </span><span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="n">buffer</span><span class="p">,</span><span class="n">serialize_intrinsic</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span><span class="w"></span>
-<span class="w">          </span><span class="n">attr_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="k">value</span><span class="p">()</span><span class="w"></span>
-<span class="w">          </span><span class="k">call </span><span class="n">attr_ptr</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">tmp_buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_buffer</span><span class="p">]</span><span class="w"></span>
-<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">tmp_buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="w">       </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">       </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">map</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">          </span><span class="n">key</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">key</span><span class="p">()</span>
+<span class="w">          </span><span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="n">buffer</span><span class="p">,</span><span class="n">serialize_intrinsic</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+<span class="w">          </span><span class="n">attr_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="k">value</span><span class="p">()</span>
+<span class="w">          </span><span class="k">call </span><span class="n">attr_ptr</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">tmp_buffer</span><span class="p">)</span>
+<span class="w">          </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_buffer</span><span class="p">]</span>
+<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">tmp_buffer</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
 <span class="w">       </span><span class="k">enddo</span>
-<span class="k">       </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">length</span><span class="p">)</span><span class="o">+</span><span class="n">size</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">serialize_intrinsic</span><span class="p">(</span><span class="n">length</span><span class="p">),</span><span class="n">buffer</span><span class="p">]</span><span class="w"></span>
-<span class="w">    </span><span class="k">end subroutine </span><span class="n">StringUnlimitedEntityMap_serialize</span><span class="w"></span>
+<span class="k">       </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">length</span><span class="p">)</span><span class="o">+</span><span class="n">size</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<span class="w">       </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">serialize_intrinsic</span><span class="p">(</span><span class="n">length</span><span class="p">),</span><span class="n">buffer</span><span class="p">]</span>
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">StringUnlimitedEntityMap_serialize</span>
 </pre></div>
 
     </section>
@@ -465,32 +565,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

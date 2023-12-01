@@ -10,85 +10,58 @@
 
     <title>serialize_intrinsic &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Interface</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title="<p> 0.0% of total for procedures.</p>Including implementation: 120 statements,  0.2% of total for procedures.">13 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 120 statements,  0.2% of total for procedures.">13 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/pFIO_Utilities.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/pfio_utilities.f90.html'>pFIO_Utilities.F90</a></li>
-              <li><a href='../module/pfio_utilitiesmod.html'>pFIO_UtilitiesMod</a></li>
-          <li class="active">serialize_intrinsic</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/pfio_utilities.f90.html'>pFIO_Utilities.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_utilitiesmod.html'>pFIO_UtilitiesMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">serialize_intrinsic</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -150,14 +127,13 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#modprocs-0">Module Procedures</a>
-        </h3>
-      </div>
-      <div id="modprocs-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_string">serialize_string</a>
             <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_int32_0d">serialize_int32_0d</a>
             <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_int32_1d">serialize_int32_1d</a>
@@ -173,6 +149,7 @@
       </div>
     </div>
 
+  
 
 
   </div>
@@ -182,117 +159,498 @@
     <div class="col-md-9" id='text'>
       <h2>public interface serialize_intrinsic</h2>
       
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Called by</h3>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Called by</h3>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: interface~~serialize_intrinsic~~CalledByGraph Pages: 1 -->
-<svg id="interfaceserialize_intrinsicCalledByGraph" width="641pt" height="124pt"
- viewBox="0.00 0.00 641.00 123.63" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="interface~~serialize_intrinsic~~CalledByGraph" class="graph" transform="scale(1.62 1.62) rotate(0) translate(4 196)">
+<svg id="interfaceserialize_intrinsicCalledByGraph" width="641pt" height="205pt"
+ viewBox="0.00 0.00 641.00 205.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~serialize_intrinsic~~CalledByGraph" class="graph" transform="scale(4.03 4.03) rotate(0) translate(4 823.19)">
 <title>interface~~serialize_intrinsic~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1033,-196 1033,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-823.19 2580,-823.19 2580,4 -4,4"/>
 <!-- interface~serialize_intrinsic -->
 <g id="interface~~serialize_intrinsic~~CalledByGraph_node1" class="node">
 <title>interface~serialize_intrinsic</title>
-<polygon fill="none" stroke="black" points="1029,-108 827,-108 827,-84 1029,-84 1029,-108"/>
-<text text-anchor="middle" x="928" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_UtilitiesMod::serialize_intrinsic</text>
+<polygon fill="none" stroke="black" points="2576,-400 2374,-400 2374,-376 2576,-376 2576,-400"/>
+<text text-anchor="middle" x="2475" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_UtilitiesMod::serialize_intrinsic</text>
+</g>
+<!-- none~serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node2" class="node">
+<title>none~serialize</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node2"><a xlink:href=".././type/unlimitedentity.html#boundprocedure-serialize" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%serialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="2303,-677 2015,-677 2015,-653 2303,-653 2303,-677"/>
+<text text-anchor="middle" x="2159" y="-662.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%serialize</text>
+</a>
+</g>
+</g>
+<!-- none~serialize&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge1" class="edge">
+<title>none~serialize&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2303.13,-654.71C2315.53,-650.26 2327.38,-644.47 2338,-637 2418.69,-580.19 2456.38,-459.79 2468.95,-410.13"/>
+<polygon fill="#255000" stroke="#255000" points="2472.42,-410.68 2471.38,-400.14 2465.62,-409.03 2472.42,-410.68"/>
+</g>
+<!-- none~serialize~2 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node3" class="node">
+<title>none~serialize~2</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node3"><a xlink:href=".././type/variable.html#boundprocedure-serialize~2" xlink:title="pFIO_VariableMod::Variable%serialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="1444,-576 1231,-576 1231,-552 1444,-552 1444,-576"/>
+<text text-anchor="middle" x="1337.5" y="-561.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%serialize</text>
+</a>
+</g>
+</g>
+<!-- none~serialize~2&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge2" class="edge">
+<title>none~serialize~2&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M1383.4,-552C1422.99,-541.94 1482.4,-528.12 1535,-521 1712.09,-497.04 2168.32,-534.05 2338,-478 2383.41,-463 2428.1,-428.61 2453.25,-406.95"/>
+<polygon fill="#255000" stroke="#255000" points="2455.81,-409.37 2461.01,-400.14 2451.19,-404.11 2455.81,-409.37"/>
+</g>
+<!-- none~serialize~2&#45;&gt;none~serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge20" class="edge">
+<title>none~serialize~2&#45;&gt;none~serialize</title>
+<path fill="none" stroke="#255000" d="M1359.73,-576.09C1394.85,-595.37 1467.87,-632.39 1535,-647 1692.37,-681.25 1877.35,-681.75 2004.64,-676.18"/>
+<polygon fill="#255000" stroke="#255000" points="2005.02,-679.67 2014.85,-675.71 2004.7,-672.67 2005.02,-679.67"/>
 </g>
 <!-- proc~stringattributemap_serialize -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_node2" class="node">
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node7" class="node">
 <title>proc~stringattributemap_serialize</title>
-<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node2"><a xlink:href=".././proc/stringattributemap_serialize.html" xlink:title="pFIO_StringAttributeMapUtilMod::StringAttributeMap_serialize">
-<polygon fill="#d9534f" stroke="#d9534f" points="755.5,-192 417.5,-192 417.5,-168 755.5,-168 755.5,-192"/>
-<text text-anchor="middle" x="586.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringAttributeMapUtilMod::StringAttributeMap_serialize</text>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node7"><a xlink:href=".././proc/stringattributemap_serialize.html" xlink:title="pFIO_StringAttributeMapUtilMod::StringAttributeMap_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1908.5,-596 1570.5,-596 1570.5,-572 1908.5,-572 1908.5,-596"/>
+<text text-anchor="middle" x="1739.5" y="-581.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringAttributeMapUtilMod::StringAttributeMap_serialize</text>
 </a>
 </g>
 </g>
-<!-- proc~stringattributemap_serialize&#45;&gt;interface~serialize_intrinsic -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_edge1" class="edge">
-<title>proc~stringattributemap_serialize&#45;&gt;interface~serialize_intrinsic</title>
-<path fill="none" stroke="#255000" d="M750.84,-167.99C764.53,-165.52 778.07,-162.55 791,-159 829.6,-148.39 870.93,-127.77 897.76,-113.02"/>
-<polygon fill="#255000" stroke="#255000" points="899.6,-116 906.62,-108.07 896.18,-109.89 899.6,-116"/>
+<!-- none~serialize~2&#45;&gt;proc~stringattributemap_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge33" class="edge">
+<title>none~serialize~2&#45;&gt;proc~stringattributemap_serialize</title>
+<path fill="none" stroke="transparent" d="M1444.12,-569.28C1479.75,-571.06 1520.57,-573.1 1560.24,-575.09"/>
+<polygon fill="transparent" stroke="transparent" points="1560.13,-578.59 1570.3,-575.59 1560.48,-571.59 1560.13,-578.59"/>
+</g>
+<!-- proc~stringvector_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node11" class="node">
+<title>proc~stringvector_serialize</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node11"><a xlink:href=".././proc/stringvector_serialize.html" xlink:title="pFIO_StringVectorUtilMod::StringVector_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1874,-436 1605,-436 1605,-412 1874,-412 1874,-436"/>
+<text text-anchor="middle" x="1739.5" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVectorUtilMod::StringVector_serialize</text>
+</a>
+</g>
+</g>
+<!-- none~serialize~2&#45;&gt;proc~stringvector_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge37" class="edge">
+<title>none~serialize~2&#45;&gt;proc~stringvector_serialize</title>
+<path fill="none" stroke="#025521" stroke-opacity="0.015686" d="M1367.91,-551.94C1406.14,-536.43 1475.11,-508.98 1535,-488 1586.51,-469.96 1646.14,-451.49 1687.48,-439.05"/>
+<polygon fill="#025521" fill-opacity="0.015686" stroke="#025521" stroke-opacity="0.015686" points="1688.74,-442.33 1697.32,-436.1 1686.73,-435.62 1688.74,-442.33"/>
+</g>
+<!-- none~serialize~3 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node4" class="node">
+<title>none~serialize~3</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node4"><a xlink:href=".././type/abstractdatamessage.html#boundprocedure-serialize~3" xlink:title="pFIO_AbstractDataMessageMod::AbstractDataMessage%serialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="2338,-554 1980,-554 1980,-530 2338,-530 2338,-554"/>
+<text text-anchor="middle" x="2159" y="-539.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractDataMessageMod::AbstractDataMessage%serialize</text>
+</a>
+</g>
+</g>
+<!-- none~serialize~3&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge3" class="edge">
+<title>none~serialize~3&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2299.97,-529.96C2313.16,-526.35 2326.05,-521.77 2338,-516 2390.65,-490.56 2436.61,-437.44 2459.18,-408.27"/>
+<polygon fill="#255000" stroke="#255000" points="2462.17,-410.12 2465.42,-400.04 2456.59,-405.89 2462.17,-410.12"/>
+</g>
+<!-- none~serialize~5 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node5" class="node">
+<title>none~serialize~5</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node5"><a xlink:href=".././type/filemetadata.html#boundprocedure-serialize~5" xlink:title="pFIO_FileMetadataMod::FileMetadata%serialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="728,-476 466,-476 466,-452 728,-452 728,-476"/>
+<text text-anchor="middle" x="597" y="-461.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%serialize</text>
+</a>
+</g>
+</g>
+<!-- none~serialize~5&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge4" class="edge">
+<title>none~serialize~5&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M728.07,-464C875.59,-464 1123.35,-464 1336.5,-464 1336.5,-464 1336.5,-464 1740.5,-464 2006.65,-464 2075.37,-467.14 2338,-424 2367.79,-419.11 2400.51,-410.55 2426.4,-403"/>
+<polygon fill="#255000" stroke="#255000" points="2427.72,-406.26 2436.32,-400.06 2425.74,-399.55 2427.72,-406.26"/>
+</g>
+<!-- none~serialize~5&#45;&gt;none~serialize~2 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge25" class="edge">
+<title>none~serialize~5&#45;&gt;none~serialize~2</title>
+<path fill="none" stroke="#255800" d="M630.98,-476.04C671.56,-490.3 742.87,-513.56 806,-525 947.29,-550.61 1112.64,-559.5 1220.71,-562.53"/>
+<polygon fill="#255800" stroke="#255800" points="1220.9,-566.04 1230.99,-562.8 1221.09,-559.04 1220.9,-566.04"/>
 </g>
 <!-- proc~stringintegermap_serialize -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_node3" class="node">
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node8" class="node">
 <title>proc~stringintegermap_serialize</title>
-<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node3"><a xlink:href=".././proc/stringintegermap_serialize.html" xlink:title="pFIO_StringIntegerMapUtilMod::StringIntegerMap_serialize">
-<polygon fill="#d9534f" stroke="#d9534f" points="748,-150 425,-150 425,-126 748,-126 748,-150"/>
-<text text-anchor="middle" x="586.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringIntegerMapUtilMod::StringIntegerMap_serialize</text>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node8"><a xlink:href=".././proc/stringintegermap_serialize.html" xlink:title="pFIO_StringIntegerMapUtilMod::StringIntegerMap_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1499,-397 1176,-397 1176,-373 1499,-373 1499,-397"/>
+<text text-anchor="middle" x="1337.5" y="-382.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringIntegerMapUtilMod::StringIntegerMap_serialize</text>
 </a>
 </g>
 </g>
+<!-- none~serialize~5&#45;&gt;proc~stringintegermap_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge34" class="edge">
+<title>none~serialize~5&#45;&gt;proc~stringintegermap_serialize</title>
+<path fill="none" stroke="#262550" d="M636.65,-451.94C678.07,-439.58 745.99,-420.94 806,-412 925.4,-394.21 1061.4,-387.55 1165.81,-385.3"/>
+<polygon fill="#262550" stroke="#262550" points="1165.88,-388.8 1175.81,-385.09 1165.74,-381.8 1165.88,-388.8"/>
+</g>
+<!-- proc~stringvariablemap_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node10" class="node">
+<title>proc~stringvariablemap_serialize</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node10"><a xlink:href=".././proc/stringvariablemap_serialize.html" xlink:title="pFIO_StringVariableMapUtilMod::StringVariableMap_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1140,-596 806,-596 806,-572 1140,-572 1140,-596"/>
+<text text-anchor="middle" x="973" y="-581.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapUtilMod::StringVariableMap_serialize</text>
+</a>
+</g>
+</g>
+<!-- none~serialize~5&#45;&gt;proc~stringvariablemap_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge35" class="edge">
+<title>none~serialize~5&#45;&gt;proc~stringvariablemap_serialize</title>
+<path fill="none" stroke="#025513" stroke-opacity="0.015686" d="M619.41,-476.03C656.32,-496.21 734.8,-536.76 806,-558 822.24,-562.84 839.66,-566.83 856.88,-570.1"/>
+<polygon fill="#025513" fill-opacity="0.015686" stroke="#025513" stroke-opacity="0.015686" points="856.53,-573.59 866.99,-571.94 857.78,-566.7 856.53,-573.59"/>
+</g>
+<!-- none~serialize~5&#45;&gt;proc~stringvector_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge38" class="edge">
+<title>none~serialize~5&#45;&gt;proc~stringvector_serialize</title>
+<path fill="none" stroke="#025521" stroke-opacity="0.015686" d="M728.05,-454.46C753.87,-452.78 780.78,-451.2 806,-450 1085.04,-436.72 1411.4,-429.53 1594.63,-426.26"/>
+<polygon fill="#025521" fill-opacity="0.015686" stroke="#025521" stroke-opacity="0.015686" points="1594.93,-429.75 1604.86,-426.08 1594.8,-422.75 1594.93,-429.75"/>
+</g>
+<!-- none~serialize~6 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node6" class="node">
+<title>none~serialize~6</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node6"><a xlink:href=".././type/coordinatevariable.html#boundprocedure-serialize~6" xlink:title="pFIO_CoordinateVariableMod::CoordinateVariable%serialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="1138.5,-738 807.5,-738 807.5,-714 1138.5,-714 1138.5,-738"/>
+<text text-anchor="middle" x="973" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CoordinateVariableMod::CoordinateVariable%serialize</text>
+</a>
+</g>
+</g>
+<!-- none~serialize~6&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge5" class="edge">
+<title>none~serialize~6&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M1046.14,-738.03C1298.38,-778.39 2136.42,-897.86 2338,-739 2445.49,-654.29 2468.13,-473.27 2472.81,-410.21"/>
+<polygon fill="#255000" stroke="#255000" points="2476.3,-410.39 2473.47,-400.18 2469.32,-409.92 2476.3,-410.39"/>
+</g>
+<!-- none~serialize~6&#45;&gt;none~serialize~2 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge26" class="edge">
+<title>none~serialize~6&#45;&gt;none~serialize~2</title>
+<path fill="none" stroke="#255800" d="M1000.95,-713.96C1065.18,-685.25 1227.32,-612.79 1300.12,-580.26"/>
+<polygon fill="#255800" stroke="#255800" points="1301.67,-583.4 1309.37,-576.12 1298.81,-577.01 1301.67,-583.4"/>
+</g>
+<!-- proc~stringattributemap_serialize&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge6" class="edge">
+<title>proc~stringattributemap_serialize&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M1908.71,-593.72C2058.82,-599.59 2265.74,-599.95 2338,-563 2403.41,-529.55 2446.91,-448.65 2464.79,-409.68"/>
+<polygon fill="#255000" stroke="#255000" points="2468.09,-410.87 2468.96,-400.31 2461.7,-408.02 2468.09,-410.87"/>
+</g>
+<!-- proc~stringattributemap_serialize&#45;&gt;none~serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge21" class="edge">
+<title>proc~stringattributemap_serialize&#45;&gt;none~serialize</title>
+<path fill="none" stroke="#255000" d="M1886.56,-596.03C1905.95,-598.52 1925.51,-601.48 1944,-605 2003.08,-616.25 2069.54,-636.04 2112.5,-649.8"/>
+<polygon fill="#255000" stroke="#255000" points="2111.51,-653.16 2122.1,-652.9 2113.66,-646.5 2111.51,-653.16"/>
+</g>
 <!-- proc~stringintegermap_serialize&#45;&gt;interface~serialize_intrinsic -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_edge2" class="edge">
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge7" class="edge">
 <title>proc~stringintegermap_serialize&#45;&gt;interface~serialize_intrinsic</title>
-<path fill="none" stroke="#255000" d="M713.54,-125.99C739.2,-123.27 765.99,-120.22 791,-117 808.03,-114.81 826.23,-112.19 843.58,-109.56"/>
-<polygon fill="#255000" stroke="#255000" points="844.34,-112.99 853.69,-108.01 843.28,-106.07 844.34,-112.99"/>
+<path fill="none" stroke="#255000" d="M1499.08,-385.42C1733.18,-386.04 2162.18,-387.18 2363.79,-387.71"/>
+<polygon fill="#255000" stroke="#255000" points="2363.8,-391.21 2373.81,-387.74 2363.82,-384.21 2363.8,-391.21"/>
 </g>
 <!-- proc~stringunlimitedentitymap_serialize -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_node4" class="node">
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node9" class="node">
 <title>proc~stringunlimitedentitymap_serialize</title>
-<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node4"><a xlink:href=".././proc/stringunlimitedentitymap_serialize.html" xlink:title="pFIO_StringUnlimitedEntityMapUtilMod::StringUnlimitedEntityMap_serialize">
-<polygon fill="#d9534f" stroke="#d9534f" points="791,-108 382,-108 382,-84 791,-84 791,-108"/>
-<text text-anchor="middle" x="586.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringUnlimitedEntityMapUtilMod::StringUnlimitedEntityMap_serialize</text>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node9"><a xlink:href=".././proc/stringunlimitedentitymap_serialize.html" xlink:title="pFIO_StringUnlimitedEntityMapUtilMod::StringUnlimitedEntityMap_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1944,-638 1535,-638 1535,-614 1944,-614 1944,-638"/>
+<text text-anchor="middle" x="1739.5" y="-623.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringUnlimitedEntityMapUtilMod::StringUnlimitedEntityMap_serialize</text>
 </a>
 </g>
 </g>
 <!-- proc~stringunlimitedentitymap_serialize&#45;&gt;interface~serialize_intrinsic -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_edge3" class="edge">
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge8" class="edge">
 <title>proc~stringunlimitedentitymap_serialize&#45;&gt;interface~serialize_intrinsic</title>
-<path fill="none" stroke="#255000" d="M791.36,-96C799.87,-96 808.27,-96 816.45,-96"/>
-<polygon fill="#255000" stroke="#255000" points="816.7,-99.5 826.7,-96 816.7,-92.5 816.7,-99.5"/>
+<path fill="none" stroke="#255000" d="M1944.36,-633.9C2090.58,-636.02 2272.81,-630.34 2338,-593 2410.59,-551.43 2451.71,-453.48 2467.03,-409.75"/>
+<polygon fill="#255000" stroke="#255000" points="2470.4,-410.69 2470.29,-400.1 2463.77,-408.45 2470.4,-410.69"/>
 </g>
-<!-- proc~stringvariablemap_serialize -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_node5" class="node">
-<title>proc~stringvariablemap_serialize</title>
-<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node5"><a xlink:href=".././proc/stringvariablemap_serialize.html" xlink:title="pFIO_StringVariableMapUtilMod::StringVariableMap_serialize">
-<polygon fill="#d9534f" stroke="#d9534f" points="753.5,-66 419.5,-66 419.5,-42 753.5,-42 753.5,-66"/>
-<text text-anchor="middle" x="586.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapUtilMod::StringVariableMap_serialize</text>
-</a>
-</g>
+<!-- proc~stringunlimitedentitymap_serialize&#45;&gt;none~serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge22" class="edge">
+<title>proc~stringunlimitedentitymap_serialize&#45;&gt;none~serialize</title>
+<path fill="none" stroke="#255000" d="M1869.17,-638.02C1916.7,-642.46 1970.76,-647.51 2019.16,-652.03"/>
+<polygon fill="#255000" stroke="#255000" points="2019.11,-655.54 2029.4,-652.99 2019.76,-648.57 2019.11,-655.54"/>
 </g>
 <!-- proc~stringvariablemap_serialize&#45;&gt;interface~serialize_intrinsic -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_edge4" class="edge">
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge9" class="edge">
 <title>proc~stringvariablemap_serialize&#45;&gt;interface~serialize_intrinsic</title>
-<path fill="none" stroke="#255000" d="M713.54,-66.01C739.2,-68.73 765.99,-71.78 791,-75 808.03,-77.19 826.23,-79.81 843.58,-82.44"/>
-<polygon fill="#255000" stroke="#255000" points="843.28,-85.93 853.69,-83.99 844.34,-79.01 843.28,-85.93"/>
+<path fill="none" stroke="#255000" d="M1000.38,-596.08C1079.35,-631.5 1321.6,-734.72 1535,-769 1714.48,-797.83 1763.2,-787.84 1944,-769 2121.99,-750.46 2198.3,-797.85 2338,-686 2428.94,-613.19 2461.42,-466.1 2470.77,-410.22"/>
+<polygon fill="#255000" stroke="#255000" points="2474.23,-410.74 2472.34,-400.31 2467.32,-409.64 2474.23,-410.74"/>
 </g>
-<!-- proc~stringvector_serialize -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_node6" class="node">
-<title>proc~stringvector_serialize</title>
-<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node6"><a xlink:href=".././proc/stringvector_serialize.html" xlink:title="pFIO_StringVectorUtilMod::StringVector_serialize">
-<polygon fill="#d9534f" stroke="#d9534f" points="721,-24 452,-24 452,0 721,0 721,-24"/>
-<text text-anchor="middle" x="586.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVectorUtilMod::StringVector_serialize</text>
+<!-- proc~stringvariablemap_serialize&#45;&gt;none~serialize~2 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge27" class="edge">
+<title>proc~stringvariablemap_serialize&#45;&gt;none~serialize~2</title>
+<path fill="none" stroke="#255800" d="M1140.13,-574.83C1167.35,-573.33 1195.02,-571.81 1220.68,-570.39"/>
+<polygon fill="#255800" stroke="#255800" points="1220.99,-573.88 1230.78,-569.83 1220.6,-566.89 1220.99,-573.88"/>
+</g>
+<!-- proc~stringvector_serialize&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge10" class="edge">
+<title>proc~stringvector_serialize&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M1874.12,-421.59C1995.3,-418.81 2178.79,-413.11 2338,-402 2346.34,-401.42 2354.96,-400.73 2363.62,-399.98"/>
+<polygon fill="#255000" stroke="#255000" points="2364.15,-403.45 2373.8,-399.07 2363.53,-396.47 2364.15,-403.45"/>
+</g>
+<!-- proc~test_serialize_int64_array -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node12" class="node">
+<title>proc~test_serialize_int64_array</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node12"><a xlink:href=".././proc/test_serialize_int64_array.html" xlink:title="test_pFIO_Utilities::test_serialize_int64_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="2283,-360 2035,-360 2035,-336 2283,-336 2283,-360"/>
+<text text-anchor="middle" x="2159" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_int64_array</text>
 </a>
 </g>
 </g>
-<!-- proc~stringvector_serialize&#45;&gt;interface~serialize_intrinsic -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_edge5" class="edge">
-<title>proc~stringvector_serialize&#45;&gt;interface~serialize_intrinsic</title>
-<path fill="none" stroke="#255000" d="M721.13,-19.41C744.66,-22.51 768.74,-26.88 791,-33 829.6,-43.61 870.93,-64.23 897.76,-78.98"/>
-<polygon fill="#255000" stroke="#255000" points="896.18,-82.11 906.62,-83.93 899.6,-76 896.18,-82.11"/>
+<!-- proc~test_serialize_int64_array&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge11" class="edge">
+<title>proc~test_serialize_int64_array&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2254.21,-360C2290.45,-364.62 2332.04,-369.92 2369.22,-374.65"/>
+<polygon fill="#255000" stroke="#255000" points="2369.22,-378.18 2379.59,-375.97 2370.11,-371.24 2369.22,-378.18"/>
+</g>
+<!-- proc~test_serialize_int64_scalar -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node13" class="node">
+<title>proc~test_serialize_int64_scalar</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node13"><a xlink:href=".././proc/test_serialize_int64_scalar.html" xlink:title="test_pFIO_Utilities::test_serialize_int64_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="2285,-318 2033,-318 2033,-294 2285,-294 2285,-318"/>
+<text text-anchor="middle" x="2159" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_int64_scalar</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_int64_scalar&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge12" class="edge">
+<title>proc~test_serialize_int64_scalar&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2285.42,-315.93C2303.24,-318.74 2321.2,-322.36 2338,-327 2375.93,-337.48 2416.79,-357.03 2443.71,-371.18"/>
+<polygon fill="#255000" stroke="#255000" points="2442.15,-374.32 2452.62,-375.94 2445.45,-368.14 2442.15,-374.32"/>
+</g>
+<!-- proc~test_serialize_int_array -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node14" class="node">
+<title>proc~test_serialize_int_array</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node14"><a xlink:href=".././proc/test_serialize_int_array.html" xlink:title="test_pFIO_Utilities::test_serialize_int_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="2276.5,-276 2041.5,-276 2041.5,-252 2276.5,-252 2276.5,-276"/>
+<text text-anchor="middle" x="2159" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_int_array</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_int_array&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge13" class="edge">
+<title>proc~test_serialize_int_array&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2276.65,-268.78C2297.57,-272.14 2318.8,-277.27 2338,-285 2385.6,-304.17 2431.06,-344.57 2455.48,-368.68"/>
+<polygon fill="#255000" stroke="#255000" points="2453.11,-371.26 2462.64,-375.89 2458.07,-366.33 2453.11,-371.26"/>
+</g>
+<!-- proc~test_serialize_int_scalar -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node15" class="node">
+<title>proc~test_serialize_int_scalar</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node15"><a xlink:href=".././proc/test_serialize_int_scalar.html" xlink:title="test_pFIO_Utilities::test_serialize_int_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="2278,-234 2040,-234 2040,-210 2278,-210 2278,-234"/>
+<text text-anchor="middle" x="2159" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_int_scalar</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_int_scalar&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge14" class="edge">
+<title>proc~test_serialize_int_scalar&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2278.31,-224.24C2298.95,-227.87 2319.67,-233.75 2338,-243 2394.93,-271.73 2440.52,-334.52 2461.49,-367.24"/>
+<polygon fill="#255000" stroke="#255000" points="2458.7,-369.37 2466.97,-375.99 2464.63,-365.65 2458.7,-369.37"/>
+</g>
+<!-- proc~test_serialize_logical_array -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node16" class="node">
+<title>proc~test_serialize_logical_array</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node16"><a xlink:href=".././proc/test_serialize_logical_array.html" xlink:title="test_pFIO_Utilities::test_serialize_logical_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="2287,-192 2031,-192 2031,-168 2287,-168 2287,-192"/>
+<text text-anchor="middle" x="2159" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_logical_array</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_logical_array&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge15" class="edge">
+<title>proc~test_serialize_logical_array&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2287.24,-181.99C2305.08,-185.92 2322.56,-191.96 2338,-201 2404.6,-240 2447.87,-325.9 2465.29,-366.25"/>
+<polygon fill="#255000" stroke="#255000" points="2462.16,-367.82 2469.25,-375.69 2468.61,-365.12 2462.16,-367.82"/>
+</g>
+<!-- proc~test_serialize_logical_scalar -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node17" class="node">
+<title>proc~test_serialize_logical_scalar</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node17"><a xlink:href=".././proc/test_serialize_logical_scalar.html" xlink:title="test_pFIO_Utilities::test_serialize_logical_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="2289,-150 2029,-150 2029,-126 2289,-126 2289,-150"/>
+<text text-anchor="middle" x="2159" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_logical_scalar</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_logical_scalar&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge16" class="edge">
+<title>proc~test_serialize_logical_scalar&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2289.42,-139.04C2306.65,-143.16 2323.39,-149.51 2338,-159 2414.98,-209.01 2454.36,-319.18 2468.16,-366.12"/>
+<polygon fill="#255000" stroke="#255000" points="2464.83,-367.22 2470.92,-375.88 2471.56,-365.31 2464.83,-367.22"/>
+</g>
+<!-- proc~test_serialize_real_array -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node18" class="node">
+<title>proc~test_serialize_real_array</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node18"><a xlink:href=".././proc/test_serialize_real_array.html" xlink:title="test_pFIO_Utilities::test_serialize_real_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="2279.5,-108 2038.5,-108 2038.5,-84 2279.5,-84 2279.5,-108"/>
+<text text-anchor="middle" x="2159" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_real_array</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_real_array&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge17" class="edge">
+<title>proc~test_serialize_real_array&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2279.89,-93.86C2300.6,-97.89 2320.93,-105.03 2338,-117 2425.52,-178.37 2459.76,-312.88 2470.19,-365.9"/>
+<polygon fill="#255000" stroke="#255000" points="2466.78,-366.73 2472.06,-375.92 2473.66,-365.44 2466.78,-366.73"/>
+</g>
+<!-- proc~test_serialize_real_scalar -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node19" class="node">
+<title>proc~test_serialize_real_scalar</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node19"><a xlink:href=".././proc/test_serialize_real_scalar.html" xlink:title="test_pFIO_Utilities::test_serialize_real_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="2281.5,-66 2036.5,-66 2036.5,-42 2281.5,-42 2281.5,-66"/>
+<text text-anchor="middle" x="2159" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_real_scalar</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_real_scalar&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge18" class="edge">
+<title>proc~test_serialize_real_scalar&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2281.83,-51.38C2302,-55.53 2321.64,-62.84 2338,-75 2436.28,-148.05 2464.51,-307.16 2471.74,-365.76"/>
+<polygon fill="#255000" stroke="#255000" points="2468.28,-366.25 2472.89,-375.78 2475.23,-365.45 2468.28,-366.25"/>
+</g>
+<!-- proc~test_serialize_string -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node20" class="node">
+<title>proc~test_serialize_string</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node20"><a xlink:href=".././proc/test_serialize_string.html" xlink:title="test_pFIO_Utilities::test_serialize_string">
+<polygon fill="#d9534f" stroke="#d9534f" points="2267.5,-24 2050.5,-24 2050.5,0 2267.5,0 2267.5,-24"/>
+<text text-anchor="middle" x="2159" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_pFIO_Utilities::test_serialize_string</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_string&#45;&gt;interface~serialize_intrinsic -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge19" class="edge">
+<title>proc~test_serialize_string&#45;&gt;interface~serialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M2267.93,-6.33C2292.98,-9.74 2318.11,-17.52 2338,-33 2447.34,-118.07 2468.81,-302.29 2472.99,-365.88"/>
+<polygon fill="#255000" stroke="#255000" points="2469.51,-366.2 2473.58,-375.99 2476.5,-365.8 2469.51,-366.2"/>
+</g>
+<!-- proc~historycollectionvector_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node21" class="node">
+<title>proc~historycollectionvector_serialize</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node21"><a xlink:href=".././proc/historycollectionvector_serialize.html" xlink:title="pFIO_HistoryCollectionVectorUtilMod::HistoryCollectionVector_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="388,-497 0,-497 0,-473 388,-473 388,-497"/>
+<text text-anchor="middle" x="194" y="-482.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_HistoryCollectionVectorUtilMod::HistoryCollectionVector_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~historycollectionvector_serialize&#45;&gt;none~serialize~5 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge30" class="edge">
+<title>proc~historycollectionvector_serialize&#45;&gt;none~serialize~5</title>
+<path fill="none" stroke="transparent" d="M388.16,-474.88C411.02,-473.69 434.01,-472.48 455.93,-471.34"/>
+<polygon fill="transparent" stroke="transparent" points="456.12,-474.83 465.92,-470.81 455.75,-467.84 456.12,-474.83"/>
 </g>
 <!-- proc~stringvariablemap_get_length -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_node7" class="node">
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node22" class="node">
 <title>proc~stringvariablemap_get_length</title>
-<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node7"><a xlink:href=".././proc/stringvariablemap_get_length.html" xlink:title="pFIO_StringVariableMapUtilMod::StringVariableMap_get_length">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="346,-66 0,-66 0,-42 346,-42 346,-66"/>
-<text text-anchor="middle" x="173" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapUtilMod::StringVariableMap_get_length</text>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node22"><a xlink:href=".././proc/stringvariablemap_get_length.html" xlink:title="pFIO_StringVariableMapUtilMod::StringVariableMap_get_length">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="770,-596 424,-596 424,-572 770,-572 770,-596"/>
+<text text-anchor="middle" x="597" y="-581.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapUtilMod::StringVariableMap_get_length</text>
 </a>
 </g>
 </g>
 <!-- proc~stringvariablemap_get_length&#45;&gt;proc~stringvariablemap_serialize -->
-<g id="interface~~serialize_intrinsic~~CalledByGraph_edge6" class="edge">
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge36" class="edge">
 <title>proc~stringvariablemap_get_length&#45;&gt;proc~stringvariablemap_serialize</title>
-<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M346.13,-54C366.95,-54 388.24,-54 409.12,-54"/>
-<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="409.33,-57.5 419.33,-54 409.33,-50.5 409.33,-57.5"/>
+<path fill="none" stroke="#025513" stroke-opacity="0.015686" d="M770.22,-584C778.76,-584 787.35,-584 795.9,-584"/>
+<polygon fill="#025513" fill-opacity="0.015686" stroke="#025513" stroke-opacity="0.015686" points="795.93,-587.5 805.93,-584 795.93,-580.5 795.93,-587.5"/>
+</g>
+<!-- proc~test_serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node23" class="node">
+<title>proc~test_serialize</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node23"><a xlink:href=".././proc/test_serialize.html" xlink:title="Test_Variable::test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1052,-516 894,-516 894,-492 1052,-492 1052,-516"/>
+<text text-anchor="middle" x="973" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Variable::test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize&#45;&gt;none~serialize~2 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge28" class="edge">
+<title>proc~test_serialize&#45;&gt;none~serialize~2</title>
+<path fill="none" stroke="#255800" d="M1052.15,-515.98C1079.91,-520.3 1111.36,-525.28 1140,-530 1179.03,-536.43 1222.36,-543.9 1258.38,-550.19"/>
+<polygon fill="#255800" stroke="#255800" points="1257.89,-553.66 1268.34,-551.93 1259.09,-546.76 1257.89,-553.66"/>
+</g>
+<!-- proc~test_serialize_1d -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node24" class="node">
+<title>proc~test_serialize_1d</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node24"><a xlink:href=".././proc/test_serialize_1d.html" xlink:title="test_PrefetchDataMessage::test_serialize_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="1863.5,-554 1615.5,-554 1615.5,-530 1863.5,-530 1863.5,-554"/>
+<text text-anchor="middle" x="1739.5" y="-539.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_PrefetchDataMessage::test_serialize_1d</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_1d&#45;&gt;none~serialize~3 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge29" class="edge">
+<title>proc~test_serialize_1d&#45;&gt;none~serialize~3</title>
+<path fill="none" stroke="transparent" d="M1863.51,-542C1896.81,-542 1933.65,-542 1969.66,-542"/>
+<polygon fill="transparent" stroke="transparent" points="1969.8,-545.5 1979.8,-542 1969.8,-538.5 1969.8,-545.5"/>
+</g>
+<!-- proc~test_serialize~3 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node25" class="node">
+<title>proc~test_serialize~3</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node25"><a xlink:href=".././proc/test_serialize~3.html" xlink:title="Test_FileMetadata::test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="285.5,-455 102.5,-455 102.5,-431 285.5,-431 285.5,-455"/>
+<text text-anchor="middle" x="194" y="-440.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FileMetadata::test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~3&#45;&gt;none~serialize~5 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge31" class="edge">
+<title>proc~test_serialize~3&#45;&gt;none~serialize~5</title>
+<path fill="none" stroke="transparent" d="M285.99,-447.77C336.13,-450.39 399.45,-453.71 455.77,-456.66"/>
+<polygon fill="transparent" stroke="transparent" points="455.66,-460.16 465.83,-457.18 456.03,-453.16 455.66,-460.16"/>
+</g>
+<!-- proc~test_serialize~4 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node26" class="node">
+<title>proc~test_serialize~4</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node26"><a xlink:href=".././proc/test_serialize~4.html" xlink:title="Test_Attribute::test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1819.5,-760 1659.5,-760 1659.5,-736 1819.5,-736 1819.5,-760"/>
+<text text-anchor="middle" x="1739.5" y="-745.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Attribute::test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~4&#45;&gt;none~serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge23" class="edge">
+<title>proc~test_serialize~4&#45;&gt;none~serialize</title>
+<path fill="none" stroke="#255000" d="M1819.75,-743.14C1857.59,-739.97 1903.39,-734.91 1944,-727 2003.88,-715.33 2071.2,-694.51 2114.07,-680.24"/>
+<polygon fill="#255000" stroke="#255000" points="2115.26,-683.53 2123.63,-677.03 2113.03,-676.9 2115.26,-683.53"/>
+</g>
+<!-- proc~test_serialize~5 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node27" class="node">
+<title>proc~test_serialize~5</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node27"><a xlink:href=".././proc/test_serialize~5.html" xlink:title="Test_UnlimitedEntity::test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1837,-718 1642,-718 1642,-694 1837,-694 1837,-718"/>
+<text text-anchor="middle" x="1739.5" y="-703.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_UnlimitedEntity::test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~5&#45;&gt;none~serialize -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge24" class="edge">
+<title>proc~test_serialize~5&#45;&gt;none~serialize</title>
+<path fill="none" stroke="#255000" d="M1837.07,-696.52C1893.08,-691.02 1964.42,-684.01 2025.61,-678"/>
+<polygon fill="#255000" stroke="#255000" points="2026.12,-681.47 2035.73,-677.01 2025.43,-674.5 2026.12,-681.47"/>
+</g>
+<!-- proc~test_serialize~6 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_node28" class="node">
+<title>proc~test_serialize~6</title>
+<g id="a_interface~~serialize_intrinsic~~CalledByGraph_node28"><a xlink:href=".././proc/test_serialize~6.html" xlink:title="Test_CoordinateVariable::test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="705.5,-738 488.5,-738 488.5,-714 705.5,-714 705.5,-738"/>
+<text text-anchor="middle" x="597" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CoordinateVariable::test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~6&#45;&gt;none~serialize~6 -->
+<g id="interface~~serialize_intrinsic~~CalledByGraph_edge32" class="edge">
+<title>proc~test_serialize~6&#45;&gt;none~serialize~6</title>
+<path fill="none" stroke="transparent" d="M705.67,-726C734.3,-726 765.97,-726 797.18,-726"/>
+<polygon fill="transparent" stroke="transparent" points="797.29,-729.5 807.29,-726 797.29,-722.5 797.29,-729.5"/>
 </g>
 </g>
 </svg>
@@ -300,8 +658,8 @@
                   var paninterfaceserialize_intrinsicCalledByGraph = svgPanZoom('#interfaceserialize_intrinsicCalledByGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -318,11 +676,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -341,23 +699,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -376,77 +740,29 @@ large graphs.</div>
           </div>
         </div>
 <br>
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#modprocs-1">Module Procedures</a>
-        </h3>
-      </div>
-      <div id="modprocs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_string">serialize_string</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_int32_0d">serialize_int32_0d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_int32_1d">serialize_int32_1d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_int64_0d">serialize_int64_0d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_int64_1d">serialize_int64_1d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_real32_0d">serialize_real32_0d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_real32_1d">serialize_real32_1d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_real64_0d">serialize_real64_0d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_real64_1d">serialize_real64_1d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_logical_0d">serialize_logical_0d</a>
-            <a class="list-group-item" href="../interface/serialize_intrinsic.html#moduleprocedure-serialize_logical_1d">serialize_logical_1d</a>
-        </div>
-      </div>
-    </div>
-
-
-
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
-
 
 
         <h2>Module Procedures</h2>
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_string"></span><h3>private  function serialize_string(str, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_string"></span><h3>private  function serialize_string(str, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-str~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -461,7 +777,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1136"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -486,26 +802,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_int32_0d"></span><h3>private  function serialize_int32_0d(scalar, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_int32_0d"></span><h3>private  function serialize_int32_0d(scalar, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-scalar~13"></span>
               integer(kind=INT32),
             </td>
 <td>intent(in)</td>
@@ -520,7 +836,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1137"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -545,26 +861,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_int32_1d"></span><h3>private  function serialize_int32_1d(array, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_int32_1d"></span><h3>private  function serialize_int32_1d(array, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-array~46"></span>
               integer(kind=INT32),
             </td>
 <td>intent(in)</td>
@@ -579,7 +895,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1138"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -604,26 +920,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_int64_0d"></span><h3>private  function serialize_int64_0d(scalar, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_int64_0d"></span><h3>private  function serialize_int64_0d(scalar, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-scalar~14"></span>
               integer(kind=INT64),
             </td>
 <td>intent(in)</td>
@@ -638,7 +954,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1139"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -663,26 +979,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_int64_1d"></span><h3>private  function serialize_int64_1d(array, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_int64_1d"></span><h3>private  function serialize_int64_1d(array, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-array~47"></span>
               integer(kind=INT64),
             </td>
 <td>intent(in)</td>
@@ -697,7 +1013,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1140"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -722,26 +1038,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_real32_0d"></span><h3>private  function serialize_real32_0d(scalar, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_real32_0d"></span><h3>private  function serialize_real32_0d(scalar, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-scalar~15"></span>
               real(kind=REAL32),
             </td>
 <td>intent(in)</td>
@@ -756,7 +1072,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1141"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -781,26 +1097,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_real32_1d"></span><h3>private  function serialize_real32_1d(array, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_real32_1d"></span><h3>private  function serialize_real32_1d(array, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-array~48"></span>
               real(kind=REAL32),
             </td>
 <td>intent(in)</td>
@@ -815,7 +1131,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1142"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -840,26 +1156,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_real64_0d"></span><h3>private  function serialize_real64_0d(scalar, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_real64_0d"></span><h3>private  function serialize_real64_0d(scalar, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-scalar~16"></span>
               real(kind=REAL64),
             </td>
 <td>intent(in)</td>
@@ -874,7 +1190,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1143"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -899,26 +1215,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_real64_1d"></span><h3>private  function serialize_real64_1d(array, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_real64_1d"></span><h3>private  function serialize_real64_1d(array, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-array~49"></span>
               real(kind=REAL64),
             </td>
 <td>intent(in)</td>
@@ -933,7 +1249,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1144"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -958,26 +1274,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_logical_0d"></span><h3>private  function serialize_logical_0d(scalar, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_logical_0d"></span><h3>private  function serialize_logical_0d(scalar, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-scalar~17"></span>
               logical,
             </td>
 <td>intent(in)</td>
@@ -992,7 +1308,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1145"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1017,26 +1333,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize_logical_1d"></span><h3>private  function serialize_logical_1d(array, rc) result(buffer)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-serialize_logical_1d"></span><h3>private  function serialize_logical_1d(array, rc) result(buffer)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-array~50"></span>
               logical,
             </td>
 <td>intent(in)</td>
@@ -1051,7 +1367,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1146"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1082,32 +1398,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

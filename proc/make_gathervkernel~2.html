@@ -10,85 +10,58 @@
 
     <title>make_GathervKernel &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Function</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">17 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">17 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/ComboSpec.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/combospec.f90.html'>ComboSpec.F90</a></li>
-              <li><a href='../module/mapl_combospec.html'>mapl_ComboSpec</a></li>
-          <li class="active">make_GathervKernel</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/combospec.f90.html'>ComboSpec.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_combospec.html'>mapl_ComboSpec</a></li>
+            <li class="breadcrumb-item active" aria-current="page">make_GathervKernel</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/make_gathervkernel~2.html#src">make_GathervKernel</a>
       </div>
@@ -174,16 +152,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-spec~14"></span>
+              <span class="anchor" id="variable-spec~17"></span>
               type(<a href='../type/combospec.html'>ComboSpec</a>),
             </td>
 <td>intent(in)</td>
@@ -198,7 +176,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~43"></span>
+              <span class="anchor" id="variable-comm~52"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -213,7 +191,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1146"></span>
+              <span class="anchor" id="variable-rc~1371"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -231,108 +209,180 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-kernel~3"></span>
-          type(<a href='../type/gathervkernel~2.html'>GathervKernel</a>)
+          <span class="anchor" id="variable-kernel~2"></span>
+          type(<a href='../type/gathervkernel.html'>GathervKernel</a>)
         </small>
       </h3>
       
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~make_gathervkernel~2~~CallsGraph Pages: 1 -->
-<svg id="procmake_gathervkernel2CallsGraph" width="641pt" height="134pt"
- viewBox="0.00 0.00 641.00 133.61" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~make_gathervkernel~2~~CallsGraph" class="graph" transform="scale(1.18 1.18) rotate(0) translate(4 154)">
+<svg id="procmake_gathervkernel2CallsGraph" width="641pt" height="125pt"
+ viewBox="0.00 0.00 641.00 124.95" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_gathervkernel~2~~CallsGraph" class="graph" transform="scale(1.6 1.6) rotate(0) translate(4 196)">
 <title>proc~~make_gathervkernel~2~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 754,-154 754,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1022,-196 1022,4 -4,4"/>
 <!-- proc~make_gathervkernel~2 -->
 <g id="proc~~make_gathervkernel~2~~CallsGraph_node1" class="node">
 <title>proc~make_gathervkernel~2</title>
-<polygon fill="none" stroke="black" points="229,-87 0,-87 0,-63 229,-63 229,-87"/>
-<text text-anchor="middle" x="114.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_ComboSpec::make_GathervKernel</text>
-</g>
-<!-- init -->
-<g id="proc~~make_gathervkernel~2~~CallsGraph_node2" class="node">
-<title>init</title>
-<polygon fill="#777777" stroke="#777777" points="402,-150 348,-150 348,-126 402,-126 402,-150"/>
-<text text-anchor="middle" x="375" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">init</text>
-</g>
-<!-- proc~make_gathervkernel~2&#45;&gt;init -->
-<g id="proc~~make_gathervkernel~2~~CallsGraph_edge1" class="edge">
-<title>proc~make_gathervkernel~2&#45;&gt;init</title>
-<path fill="none" stroke="#255000" d="M154.93,-87.05C184.93,-95.98 227.35,-108.1 265,-117 289.18,-122.71 316.64,-128 337.96,-131.84"/>
-<polygon fill="#255000" stroke="#255000" points="337.42,-135.3 347.88,-133.6 338.65,-128.41 337.42,-135.3"/>
+<polygon fill="none" stroke="black" points="229,-128 0,-128 0,-104 229,-104 229,-128"/>
+<text text-anchor="middle" x="114.5" y="-113.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_ComboSpec::make_GathervKernel</text>
 </g>
 <!-- mpi_comm_size -->
-<g id="proc~~make_gathervkernel~2~~CallsGraph_node3" class="node">
+<g id="proc~~make_gathervkernel~2~~CallsGraph_node2" class="node">
 <title>mpi_comm_size</title>
-<polygon fill="#777777" stroke="#777777" points="423.5,-108 326.5,-108 326.5,-84 423.5,-84 423.5,-108"/>
-<text text-anchor="middle" x="375" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+<polygon fill="#777777" stroke="#777777" points="691.5,-192 594.5,-192 594.5,-168 691.5,-168 691.5,-192"/>
+<text text-anchor="middle" x="643" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
 </g>
 <!-- proc~make_gathervkernel~2&#45;&gt;mpi_comm_size -->
-<g id="proc~~make_gathervkernel~2~~CallsGraph_edge2" class="edge">
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge1" class="edge">
 <title>proc~make_gathervkernel~2&#45;&gt;mpi_comm_size</title>
-<path fill="none" stroke="#255000" d="M229.26,-84.24C259.26,-86.68 290.39,-89.21 316.06,-91.29"/>
-<polygon fill="#255000" stroke="#255000" points="316.09,-94.81 326.34,-92.13 316.66,-87.83 316.09,-94.81"/>
+<path fill="none" stroke="#255000" d="M181.97,-128.03C207.83,-132.47 237.75,-137.32 265,-141 377.72,-156.24 510.12,-168.68 584.22,-175.15"/>
+<polygon fill="#255000" stroke="#255000" points="584.01,-178.65 594.28,-176.03 584.62,-171.68 584.01,-178.65"/>
+</g>
+<!-- none~init~2 -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_node3" class="node">
+<title>none~init~2</title>
+<g id="a_proc~~make_gathervkernel~2~~CallsGraph_node3"><a xlink:href=".././type/gathervkernel.html#boundprocedure-init~2" xlink:title="mapl_GathervKernel::GathervKernel%init">
+<polygon fill="#a7506f" stroke="#a7506f" points="497,-108 265,-108 265,-84 497,-84 497,-108"/>
+<text text-anchor="middle" x="381" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_GathervKernel::GathervKernel%init</text>
+</a>
+</g>
+</g>
+<!-- proc~make_gathervkernel~2&#45;&gt;none~init~2 -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge2" class="edge">
+<title>proc~make_gathervkernel~2&#45;&gt;none~init~2</title>
+<path fill="none" stroke="#255000" d="M229.21,-107.4C237.66,-106.76 246.22,-106.12 254.73,-105.47"/>
+<polygon fill="#255000" stroke="#255000" points="255,-108.96 264.71,-104.72 254.47,-101.98 255,-108.96"/>
 </g>
 <!-- proc~mapl_return -->
 <g id="proc~~make_gathervkernel~2~~CallsGraph_node4" class="node">
 <title>proc~mapl_return</title>
 <g id="a_proc~~make_gathervkernel~2~~CallsGraph_node4"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="485,-66 265,-66 265,-42 485,-42 485,-66"/>
-<text text-anchor="middle" x="375" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="753,-150 533,-150 533,-126 753,-126 753,-150"/>
+<text text-anchor="middle" x="643" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~make_gathervkernel~2&#45;&gt;proc~mapl_return -->
 <g id="proc~~make_gathervkernel~2~~CallsGraph_edge3" class="edge">
 <title>proc~make_gathervkernel~2&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M229.26,-65.76C237.64,-65.08 246.1,-64.39 254.51,-63.71"/>
-<polygon fill="#255000" stroke="#255000" points="255.05,-67.17 264.73,-62.88 254.48,-60.2 255.05,-67.17"/>
+<path fill="none" stroke="#255000" d="M229.09,-120.75C315.69,-124.37 434.64,-129.34 522.63,-133.01"/>
+<polygon fill="#255000" stroke="#255000" points="522.53,-136.51 532.66,-133.43 522.82,-129.52 522.53,-136.51"/>
 </g>
 <!-- proc~mapl_verify -->
 <g id="proc~~make_gathervkernel~2~~CallsGraph_node5" class="node">
 <title>proc~mapl_verify</title>
 <g id="a_proc~~make_gathervkernel~2~~CallsGraph_node5"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="482,-24 268,-24 268,0 482,0 482,-24"/>
-<text text-anchor="middle" x="375" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="750,-24 536,-24 536,0 750,0 750,-24"/>
+<text text-anchor="middle" x="643" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~make_gathervkernel~2&#45;&gt;proc~mapl_verify -->
 <g id="proc~~make_gathervkernel~2~~CallsGraph_edge4" class="edge">
 <title>proc~make_gathervkernel~2&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M154.93,-62.95C184.93,-54.02 227.35,-41.9 265,-33 275.34,-30.56 286.28,-28.19 297.08,-25.98"/>
-<polygon fill="#255000" stroke="#255000" points="297.83,-29.4 306.94,-24 296.45,-22.54 297.83,-29.4"/>
+<path fill="none" stroke="#255000" d="M155.2,-103.92C185.17,-95.1 227.41,-83.27 265,-75 359.28,-54.25 468.14,-36.74 544.57,-25.49"/>
+<polygon fill="#255000" stroke="#255000" points="545.28,-28.92 554.67,-24.01 544.27,-22 545.28,-28.92"/>
+</g>
+<!-- none~init~2&#45;&gt;mpi_comm_size -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge7" class="edge">
+<title>none~init~2&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M406.54,-108.08C435.95,-122.13 487.04,-145.14 533,-159 549.35,-163.93 567.44,-167.96 584.11,-171.13"/>
+<polygon fill="transparent" stroke="transparent" points="583.81,-174.63 594.27,-172.99 585.07,-167.75 583.81,-174.63"/>
+</g>
+<!-- none~init~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge8" class="edge">
+<title>none~init~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M456.51,-108.04C488.06,-113.13 524.97,-119.1 557.53,-124.35"/>
+<polygon fill="transparent" stroke="transparent" points="557.05,-127.82 567.48,-125.96 558.17,-120.91 557.05,-127.82"/>
+</g>
+<!-- none~init~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge9" class="edge">
+<title>none~init~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M411.02,-83.88C454.77,-65.61 532.61,-33.12 533,-33 541.24,-30.51 549.93,-28.26 558.66,-26.22"/>
+<polygon fill="transparent" stroke="transparent" points="559.51,-29.62 568.5,-24.02 557.98,-22.79 559.51,-29.62"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~make_gathervkernel~2~~CallsGraph_node8"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="751.5,-66 534.5,-66 534.5,-42 751.5,-42 751.5,-66"/>
+<text text-anchor="middle" x="643" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- none~init~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge5" class="edge">
+<title>none~init~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M456.51,-83.96C488.06,-78.87 524.97,-72.9 557.53,-67.65"/>
+<polygon fill="transparent" stroke="transparent" points="558.17,-71.09 567.48,-66.04 557.05,-64.18 558.17,-71.09"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_node9" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="693.5,-108 592.5,-108 592.5,-84 693.5,-84 693.5,-108"/>
+<text text-anchor="middle" x="643" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- none~init~2&#45;&gt;mpi_comm_rank -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge6" class="edge">
+<title>none~init~2&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M497.18,-96C526.54,-96 556.93,-96 582.25,-96"/>
+<polygon fill="transparent" stroke="transparent" points="582.4,-99.5 592.4,-96 582.4,-92.5 582.4,-99.5"/>
+</g>
+<!-- at -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_node6" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="930.5,-129 876.5,-129 876.5,-105 930.5,-105 930.5,-129"/>
+<text text-anchor="middle" x="903.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M753.25,-129.12C793.63,-125.84 836.67,-122.35 866.11,-119.96"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="866.62,-123.43 876.3,-119.13 866.05,-116.45 866.62,-123.43"/>
+</g>
+<!-- insert -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_node7" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="930.5,-171 876.5,-171 876.5,-147 930.5,-147 930.5,-171"/>
+<text text-anchor="middle" x="903.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M753.25,-146.88C793.63,-150.16 836.67,-153.65 866.11,-156.04"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="866.05,-159.55 876.3,-156.87 866.62,-152.57 866.05,-159.55"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~make_gathervkernel~2~~CallsGraph_node6" class="node">
+<g id="proc~~make_gathervkernel~2~~CallsGraph_node10" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~make_gathervkernel~2~~CallsGraph_node6"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="750,-45 521,-45 521,-21 750,-21 750,-45"/>
-<text text-anchor="middle" x="635.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~make_gathervkernel~2~~CallsGraph_node10"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1018,-66 789,-66 789,-42 1018,-42 1018,-66"/>
+<text text-anchor="middle" x="903.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~make_gathervkernel~2~~CallsGraph_edge5" class="edge">
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge12" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M485.25,-45.12C493.58,-44.45 502.02,-43.76 510.43,-43.08"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="510.98,-46.55 520.67,-42.25 510.42,-39.57 510.98,-46.55"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M723.46,-125.96C733.55,-123.48 743.62,-120.52 753,-117 770.34,-110.49 772.25,-103.91 789,-96 810.32,-85.93 834.76,-76.62 855.49,-69.33"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="856.72,-72.61 865.03,-66.03 854.43,-65.99 856.72,-72.61"/>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~make_gathervkernel~2~~CallsGraph_edge6" class="edge">
+<g id="proc~~make_gathervkernel~2~~CallsGraph_edge13" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M482.26,-20.63C491.57,-21.39 501.04,-22.16 510.47,-22.92"/>
-<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="510.43,-26.43 520.68,-23.75 511,-19.46 510.43,-26.43"/>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M718.08,-24.04C749.44,-29.13 786.15,-35.1 818.52,-40.35"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="817.98,-43.81 828.41,-41.96 819.1,-36.9 817.98,-43.81"/>
 </g>
 </g>
 </svg>
@@ -340,8 +390,8 @@
                   var panprocmake_gathervkernel2CallsGraph = svgPanZoom('#procmake_gathervkernel2CallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -358,11 +408,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -381,23 +431,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -415,77 +471,62 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~make_gathervkernel~2~~CalledByGraph Pages: 1 -->
-<svg id="procmake_gathervkernel2CalledByGraph" width="445pt" height="74pt"
- viewBox="0.00 0.00 445.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~make_gathervkernel~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<svg id="procmake_gathervkernel2CalledByGraph" width="428pt" height="32pt"
+ viewBox="0.00 0.00 428.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_gathervkernel~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
 <title>proc~~make_gathervkernel~2~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 441,-70 441,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 424,-28 424,4 -4,4"/>
 <!-- proc~make_gathervkernel~2 -->
 <g id="proc~~make_gathervkernel~2~~CalledByGraph_node1" class="node">
 <title>proc~make_gathervkernel~2</title>
-<polygon fill="none" stroke="black" points="437,-45 208,-45 208,-21 437,-21 437,-45"/>
-<text text-anchor="middle" x="322.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_ComboSpec::make_GathervKernel</text>
+<polygon fill="none" stroke="black" points="420,-24 191,-24 191,0 420,0 420,-24"/>
+<text text-anchor="middle" x="305.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_ComboSpec::make_GathervKernel</text>
 </g>
-<!-- proc~run~3 -->
+<!-- proc~run~8 -->
 <g id="proc~~make_gathervkernel~2~~CalledByGraph_node2" class="node">
-<title>proc~run~3</title>
-<g id="a_proc~~make_gathervkernel~2~~CalledByGraph_node2"><a xlink:href=".././proc/run~3.html" xlink:title="main::run">
-<polygon fill="#d9534f" stroke="#d9534f" points="172,-45 107,-45 107,-21 172,-21 172,-45"/>
-<text text-anchor="middle" x="139.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::run</text>
+<title>proc~run~8</title>
+<g id="a_proc~~make_gathervkernel~2~~CalledByGraph_node2"><a xlink:href=".././proc/run~8.html" xlink:title="main::run">
+<polygon fill="#d9534f" stroke="#d9534f" points="155,-24 90,-24 90,0 155,0 155,-24"/>
+<text text-anchor="middle" x="122.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::run</text>
 </a>
 </g>
 </g>
-<!-- proc~run~3&#45;&gt;proc~make_gathervkernel~2 -->
+<!-- proc~run~8&#45;&gt;proc~make_gathervkernel~2 -->
 <g id="proc~~make_gathervkernel~2~~CalledByGraph_edge1" class="edge">
-<title>proc~run~3&#45;&gt;proc~make_gathervkernel~2</title>
-<path fill="none" stroke="#255000" d="M172.03,-33C179.69,-33 188.35,-33 197.55,-33"/>
-<polygon fill="#255000" stroke="#255000" points="197.71,-36.5 207.71,-33 197.71,-29.5 197.71,-36.5"/>
+<title>proc~run~8&#45;&gt;proc~make_gathervkernel~2</title>
+<path fill="none" stroke="#255000" d="M155.03,-12C162.69,-12 171.35,-12 180.55,-12"/>
+<polygon fill="#255000" stroke="#255000" points="180.71,-15.5 190.71,-12 180.71,-8.5 180.71,-15.5"/>
 </g>
-<!-- proc~time~2 -->
+<!-- program~main~18 -->
 <g id="proc~~make_gathervkernel~2~~CalledByGraph_node3" class="node">
-<title>proc~time~2</title>
-<g id="a_proc~~make_gathervkernel~2~~CalledByGraph_node3"><a xlink:href=".././proc/time~2.html" xlink:title="main::time">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="71,-66 0,-66 0,-42 71,-42 71,-66"/>
-<text text-anchor="middle" x="35.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::time</text>
+<title>program~main~18</title>
+<g id="a_proc~~make_gathervkernel~2~~CalledByGraph_node3"><a xlink:href=".././program/main~18.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
 </a>
 </g>
 </g>
-<!-- proc~time~2&#45;&gt;proc~run~3 -->
+<!-- program~main~18&#45;&gt;proc~run~8 -->
 <g id="proc~~make_gathervkernel~2~~CalledByGraph_edge2" class="edge">
-<title>proc~time~2&#45;&gt;proc~run~3</title>
-<path fill="none" stroke="#255000" d="M71.03,-46.89C79.34,-45.18 88.3,-43.33 96.89,-41.57"/>
-<polygon fill="#255000" stroke="#255000" points="97.66,-44.98 106.75,-39.54 96.25,-38.13 97.66,-44.98"/>
-</g>
-<!-- program~main~5 -->
-<g id="proc~~make_gathervkernel~2~~CalledByGraph_node4" class="node">
-<title>program~main~5</title>
-<g id="a_proc~~make_gathervkernel~2~~CalledByGraph_node4"><a xlink:href=".././program/main~5.html" xlink:title="main">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="62.5,-24 8.5,-24 8.5,0 62.5,0 62.5,-24"/>
-<text text-anchor="middle" x="35.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
-</a>
-</g>
-</g>
-<!-- program~main~5&#45;&gt;proc~run~3 -->
-<g id="proc~~make_gathervkernel~2~~CalledByGraph_edge3" class="edge">
-<title>program~main~5&#45;&gt;proc~run~3</title>
-<path fill="none" stroke="#255000" d="M62.5,-17.35C72.91,-19.5 85.17,-22.02 96.76,-24.41"/>
-<polygon fill="#255000" stroke="#255000" points="96.21,-27.87 106.71,-26.46 97.62,-21.01 96.21,-27.87"/>
+<title>program~main~18&#45;&gt;proc~run~8</title>
+<path fill="none" stroke="#255000" d="M54.04,-12C62.05,-12 71.06,-12 79.83,-12"/>
+<polygon fill="#255000" stroke="#255000" points="79.95,-15.5 89.94,-12 79.94,-8.5 79.95,-15.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -502,11 +543,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -525,23 +566,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -561,67 +608,36 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/make_gathervkernel~2.html#src">make_GathervKernel</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">make_GathervKernel</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GathervKernel</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kernel</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComboSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">make_GathervKernel</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GathervKernel</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kernel</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComboSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">nx</span><span class="p">,</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">n_levs</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">npes</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">nx</span><span class="p">,</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">n_levs</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">npes</span>
 
-<span class="w">      </span><span class="n">kernel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GathervKernel</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">kernel</span><span class="p">%</span><span class="n">init</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">kernel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GathervKernel</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">kernel</span><span class="p">%</span><span class="n">init</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="k">end function </span><span class="n">make_GathervKernel</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">make_GathervKernel</span>
 </pre></div>
 
     </section>
@@ -634,32 +650,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

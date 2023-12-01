@@ -10,85 +10,58 @@
 
     <title>MAPL_VarSpecGet &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Interface</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title="<p> 0.0% of total for procedures.</p>Including implementation: 341 statements,  0.7% of total for procedures.">7 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 341 statements,  0.7% of total for procedures.">7 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/VarSpec.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/varspec.f90.html'>VarSpec.F90</a></li>
-              <li><a href='../module/mapl_varspecmod.html'>MAPL_VarSpecMod</a></li>
-          <li class="active">MAPL_VarSpecGet</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/varspec.f90.html'>VarSpec.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_varspecmod.html'>MAPL_VarSpecMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_VarSpecGet</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -150,14 +127,13 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#modprocs-0">Module Procedures</a>
-        </h3>
-      </div>
-      <div id="modprocs-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../interface/mapl_varspecget.html#moduleprocedure-mapl_varspecgetregular">MAPL_VarSpecGetRegular</a>
             <a class="list-group-item" href="../interface/mapl_varspecget.html#moduleprocedure-mapl_varspecgetnew">MAPL_VarSpecGetNew</a>
             <a class="list-group-item" href="../interface/mapl_varspecget.html#moduleprocedure-mapl_varspecgetfieldptr">MAPL_VarSpecGetFieldPtr</a>
@@ -167,6 +143,7 @@
       </div>
     </div>
 
+  
 
 
   </div>
@@ -176,138 +153,255 @@
     <div class="col-md-9" id='text'>
       <h2>public interface MAPL_VarSpecGet</h2>
       
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Called by</h3>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Called by</h3>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: interface~~mapl_varspecget~~CalledByGraph Pages: 1 -->
-<svg id="interfacemapl_varspecgetCalledByGraph" width="641pt" height="170pt"
- viewBox="0.00 0.00 641.00 170.43" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="interface~~mapl_varspecget~~CalledByGraph" class="graph" transform="scale(1.37 1.37) rotate(0) translate(4 229.97)">
+<svg id="interfacemapl_varspecgetCalledByGraph" width="641pt" height="216pt"
+ viewBox="0.00 0.00 641.00 216.07" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~mapl_varspecget~~CalledByGraph" class="graph" transform="scale(1.8 1.8) rotate(0) translate(4 386)">
 <title>interface~~mapl_varspecget~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-229.97 876,-229.97 876,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-386 1153,-386 1153,4 -4,4"/>
 <!-- interface~mapl_varspecget -->
 <g id="interface~~mapl_varspecget~~CalledByGraph_node1" class="node">
 <title>interface~mapl_varspecget</title>
-<polygon fill="none" stroke="black" points="872,-129 656,-129 656,-105 872,-105 872,-129"/>
-<text text-anchor="middle" x="764" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_VarSpecMod::MAPL_VarSpecGet</text>
+<polygon fill="none" stroke="black" points="1149,-168 933,-168 933,-144 1149,-144 1149,-168"/>
+<text text-anchor="middle" x="1041" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_VarSpecMod::MAPL_VarSpecGet</text>
 </g>
 <!-- proc~mapl_cplcompsetvarspecs -->
 <g id="interface~~mapl_varspecget~~CalledByGraph_node2" class="node">
 <title>proc~mapl_cplcompsetvarspecs</title>
 <g id="a_interface~~mapl_varspecget~~CalledByGraph_node2"><a xlink:href=".././proc/mapl_cplcompsetvarspecs.html" xlink:title="MAPL_GenericCplCompMod::MAPL_CplCompSetVarSpecs">
-<polygon fill="#d9534f" stroke="#d9534f" points="620,-192 304,-192 304,-168 620,-168 620,-192"/>
-<text text-anchor="middle" x="462" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericCplCompMod::MAPL_CplCompSetVarSpecs</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="897,-268 581,-268 581,-244 897,-244 897,-268"/>
+<text text-anchor="middle" x="739" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericCplCompMod::MAPL_CplCompSetVarSpecs</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_cplcompsetvarspecs&#45;&gt;interface~mapl_varspecget -->
 <g id="interface~~mapl_varspecget~~CalledByGraph_edge1" class="edge">
 <title>proc~mapl_cplcompsetvarspecs&#45;&gt;interface~mapl_varspecget</title>
-<path fill="none" stroke="#255000" d="M569.79,-167.95C586.66,-165.4 603.86,-162.43 620,-159 653.14,-151.96 689.78,-141.14 717.68,-132.24"/>
-<polygon fill="#255000" stroke="#255000" points="719.1,-135.46 727.54,-129.06 716.95,-128.8 719.1,-135.46"/>
+<path fill="none" stroke="#255000" d="M841.64,-243.96C860.31,-240.4 879.43,-235.84 897,-230 939.42,-215.9 984.65,-190.54 1012.62,-173.49"/>
+<polygon fill="#255000" stroke="#255000" points="1014.75,-176.29 1021.41,-168.05 1011.07,-170.33 1014.75,-176.29"/>
 </g>
 <!-- proc~mapl_friendlyget -->
 <g id="interface~~mapl_varspecget~~CalledByGraph_node3" class="node">
 <title>proc~mapl_friendlyget</title>
 <g id="a_interface~~mapl_varspecget~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_friendlyget.html" xlink:title="MAPL_GenericMod::MAPL_FriendlyGet">
-<polygon fill="#d9534f" stroke="#d9534f" points="568.5,-150 355.5,-150 355.5,-126 568.5,-126 568.5,-150"/>
-<text text-anchor="middle" x="462" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_FriendlyGet</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="845.5,-188 632.5,-188 632.5,-164 845.5,-164 845.5,-188"/>
+<text text-anchor="middle" x="739" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_FriendlyGet</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_friendlyget&#45;&gt;interface~mapl_varspecget -->
 <g id="interface~~mapl_varspecget~~CalledByGraph_edge2" class="edge">
 <title>proc~mapl_friendlyget&#45;&gt;interface~mapl_varspecget</title>
-<path fill="none" stroke="#255000" d="M568.77,-130.6C593.71,-128.85 620.45,-126.98 645.87,-125.2"/>
-<polygon fill="#255000" stroke="#255000" points="646.18,-128.69 655.91,-124.5 645.69,-121.7 646.18,-128.69"/>
+<path fill="none" stroke="#255000" d="M845.77,-168.95C870.71,-167.29 897.45,-165.5 922.87,-163.81"/>
+<polygon fill="#255000" stroke="#255000" points="923.16,-167.3 932.91,-163.14 922.7,-160.31 923.16,-167.3"/>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_node4" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericMod::MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="530,-148 292,-148 292,-124 530,-124 530,-148"/>
+<text text-anchor="middle" x="411" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;interface~mapl_varspecget -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;interface~mapl_varspecget</title>
+<path fill="none" stroke="#255000" d="M530.12,-139.76C642.44,-143.34 810.45,-148.69 922.55,-152.26"/>
+<polygon fill="#255000" stroke="#255000" points="922.77,-155.77 932.88,-152.59 923,-148.77 922.77,-155.77"/>
+</g>
+<!-- proc~mapl_statecreatefromspecnew -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_node7" class="node">
+<title>proc~mapl_statecreatefromspecnew</title>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node7"><a xlink:href=".././proc/mapl_statecreatefromspecnew.html" xlink:title="MAPL_GenericMod::MAPL_StateCreateFromSpecNew">
+<polygon fill="#d9534f" stroke="#d9534f" points="884,-108 594,-108 594,-84 884,-84 884,-108"/>
+<text text-anchor="middle" x="739" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_StateCreateFromSpecNew</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;proc~mapl_statecreatefromspecnew -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge16" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;proc~mapl_statecreatefromspecnew</title>
+<path fill="none" stroke="#063255" d="M509.81,-124C547.6,-119.36 590.99,-114.04 629.71,-109.29"/>
+<polygon fill="#063255" stroke="#063255" points="630.48,-112.72 639.98,-108.03 629.63,-105.77 630.48,-112.72"/>
+</g>
+<!-- proc~mapl_genericsetservices -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_node5" class="node">
+<title>proc~mapl_genericsetservices</title>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node5"><a xlink:href=".././proc/mapl_genericsetservices.html" xlink:title="MAPL_GenericMod::MAPL_GenericSetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="539,-298 283,-298 283,-274 539,-274 539,-298"/>
+<text text-anchor="middle" x="411" y="-283.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericSetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericsetservices&#45;&gt;interface~mapl_varspecget -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_genericsetservices&#45;&gt;interface~mapl_varspecget</title>
+<path fill="none" stroke="#255000" d="M476.16,-298.04C571.48,-313.05 754.56,-330.68 897,-277 951.84,-256.33 1000.33,-204.8 1024.24,-176.1"/>
+<polygon fill="#255000" stroke="#255000" points="1026.98,-178.28 1030.58,-168.32 1021.55,-173.86 1026.98,-178.28"/>
+</g>
+<!-- proc~mapl_genericsetservices&#45;&gt;proc~mapl_cplcompsetvarspecs -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge9" class="edge">
+<title>proc~mapl_genericsetservices&#45;&gt;proc~mapl_cplcompsetvarspecs</title>
+<path fill="none" stroke="#255000" d="M539.44,-274.27C558.45,-272.52 578.14,-270.71 597.4,-268.94"/>
+<polygon fill="#255000" stroke="#255000" points="597.79,-272.42 607.43,-268.02 597.15,-265.45 597.79,-272.42"/>
 </g>
 <!-- proc~mapl_setvarspecforcc -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_node4" class="node">
+<g id="interface~~mapl_varspecget~~CalledByGraph_node6" class="node">
 <title>proc~mapl_setvarspecforcc</title>
-<g id="a_interface~~mapl_varspecget~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_setvarspecforcc.html" xlink:title="MAPL_GenericMod::MAPL_SetVarSpecForCC">
-<polygon fill="#d9534f" stroke="#d9534f" points="256.5,-212 11.5,-212 11.5,-188 256.5,-188 256.5,-212"/>
-<text text-anchor="middle" x="134" y="-197.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_SetVarSpecForCC</text>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node6"><a xlink:href=".././proc/mapl_setvarspecforcc.html" xlink:title="MAPL_GenericMod::MAPL_SetVarSpecForCC">
+<polygon fill="#d9534f" stroke="#d9534f" points="533.5,-247 288.5,-247 288.5,-223 533.5,-223 533.5,-247"/>
+<text text-anchor="middle" x="411" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_SetVarSpecForCC</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_setvarspecforcc&#45;&gt;interface~mapl_varspecget -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_edge3" class="edge">
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge5" class="edge">
 <title>proc~mapl_setvarspecforcc&#45;&gt;interface~mapl_varspecget</title>
-<path fill="none" stroke="#255000" d="M208.47,-212.02C304.88,-225.13 478.42,-239.51 620,-201 666.63,-188.32 713.58,-156.16 740.39,-135.51"/>
-<polygon fill="#255000" stroke="#255000" points="742.66,-138.18 748.36,-129.25 738.34,-132.68 742.66,-138.18"/>
+<path fill="none" stroke="#255000" d="M533.7,-232.23C632.32,-228.37 774.51,-219.13 897,-197 930.61,-190.93 967.66,-180.19 995.63,-171.22"/>
+<polygon fill="#255000" stroke="#255000" points="997.07,-174.43 1005.5,-168.01 994.9,-167.78 997.07,-174.43"/>
 </g>
 <!-- proc~mapl_setvarspecforcc&#45;&gt;proc~mapl_cplcompsetvarspecs -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_edge7" class="edge">
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge10" class="edge">
 <title>proc~mapl_setvarspecforcc&#45;&gt;proc~mapl_cplcompsetvarspecs</title>
-<path fill="none" stroke="#255000" d="M256.85,-192.52C268.98,-191.78 281.44,-191.02 293.93,-190.25"/>
-<polygon fill="#255000" stroke="#255000" points="294.17,-193.74 303.94,-189.64 293.75,-186.75 294.17,-193.74"/>
-</g>
-<!-- proc~mapl_statecreatefromspecnew -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_node5" class="node">
-<title>proc~mapl_statecreatefromspecnew</title>
-<g id="a_interface~~mapl_varspecget~~CalledByGraph_node5"><a xlink:href=".././proc/mapl_statecreatefromspecnew.html" xlink:title="MAPL_GenericMod::MAPL_StateCreateFromSpecNew">
-<polygon fill="#d9534f" stroke="#d9534f" points="607,-108 317,-108 317,-84 607,-84 607,-108"/>
-<text text-anchor="middle" x="462" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_StateCreateFromSpecNew</text>
-</a>
-</g>
+<path fill="none" stroke="#255000" d="M533.85,-242.85C545.98,-243.63 558.44,-244.43 570.93,-245.24"/>
+<polygon fill="#255000" stroke="#255000" points="570.74,-248.73 580.94,-245.88 571.19,-241.75 570.74,-248.73"/>
 </g>
 <!-- proc~mapl_statecreatefromspecnew&#45;&gt;interface~mapl_varspecget -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_edge4" class="edge">
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge6" class="edge">
 <title>proc~mapl_statecreatefromspecnew&#45;&gt;interface~mapl_varspecget</title>
-<path fill="none" stroke="#255000" d="M607.29,-106.1C620.2,-107 633.17,-107.91 645.81,-108.8"/>
-<polygon fill="#255000" stroke="#255000" points="645.65,-112.29 655.87,-109.5 646.13,-105.31 645.65,-112.29"/>
+<path fill="none" stroke="#255000" d="M819.26,-108.03C844.2,-112.11 871.81,-116.93 897,-122 925.61,-127.76 957.21,-135.17 983.41,-141.59"/>
+<polygon fill="#255000" stroke="#255000" points="982.62,-145 993.16,-144 984.29,-138.2 982.62,-145"/>
 </g>
 <!-- proc~mapl_varspecreconnect -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_node6" class="node">
+<g id="interface~~mapl_varspecget~~CalledByGraph_node8" class="node">
 <title>proc~mapl_varspecreconnect</title>
-<g id="a_interface~~mapl_varspecget~~CalledByGraph_node6"><a xlink:href=".././proc/mapl_varspecreconnect.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecReconnect">
-<polygon fill="#d9534f" stroke="#d9534f" points="588.5,-66 335.5,-66 335.5,-42 588.5,-42 588.5,-66"/>
-<text text-anchor="middle" x="462" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecReconnect</text>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node8"><a xlink:href=".././proc/mapl_varspecreconnect.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecReconnect">
+<polygon fill="#d9534f" stroke="#d9534f" points="865.5,-66 612.5,-66 612.5,-42 865.5,-42 865.5,-66"/>
+<text text-anchor="middle" x="739" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecReconnect</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_varspecreconnect&#45;&gt;interface~mapl_varspecget -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_edge5" class="edge">
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge7" class="edge">
 <title>proc~mapl_varspecreconnect&#45;&gt;interface~mapl_varspecget</title>
-<path fill="none" stroke="#255000" d="M569.79,-66.05C586.66,-68.6 603.86,-71.57 620,-75 653.14,-82.04 689.78,-92.86 717.68,-101.76"/>
-<polygon fill="#255000" stroke="#255000" points="716.95,-105.2 727.54,-104.94 719.1,-98.54 716.95,-105.2"/>
+<path fill="none" stroke="#255000" d="M864.01,-66.05C875.3,-68.5 886.44,-71.45 897,-75 941.42,-89.93 987.7,-119.04 1015.17,-137.99"/>
+<polygon fill="#255000" stroke="#255000" points="1013.2,-140.88 1023.4,-143.75 1017.22,-135.15 1013.2,-140.88"/>
 </g>
 <!-- proc~test_simple_constructor -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_node7" class="node">
+<g id="interface~~mapl_varspecget~~CalledByGraph_node9" class="node">
 <title>proc~test_simple_constructor</title>
-<g id="a_interface~~mapl_varspecget~~CalledByGraph_node7"><a xlink:href=".././proc/test_simple_constructor.html" xlink:title="Test_VarSpec::test_simple_constructor">
-<polygon fill="#d9534f" stroke="#d9534f" points="569.5,-24 354.5,-24 354.5,0 569.5,0 569.5,-24"/>
-<text text-anchor="middle" x="462" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_VarSpec::test_simple_constructor</text>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node9"><a xlink:href=".././proc/test_simple_constructor.html" xlink:title="Test_VarSpec::test_simple_constructor">
+<polygon fill="#d9534f" stroke="#d9534f" points="846.5,-24 631.5,-24 631.5,0 846.5,0 846.5,-24"/>
+<text text-anchor="middle" x="739" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_VarSpec::test_simple_constructor</text>
 </a>
 </g>
 </g>
 <!-- proc~test_simple_constructor&#45;&gt;interface~mapl_varspecget -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_edge6" class="edge">
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge8" class="edge">
 <title>proc~test_simple_constructor&#45;&gt;interface~mapl_varspecget</title>
-<path fill="none" stroke="#255000" d="M569.9,-20.47C586.93,-23.48 604.14,-27.53 620,-33 665.19,-48.58 711.92,-79.29 739.17,-98.94"/>
-<polygon fill="#255000" stroke="#255000" points="737.18,-101.82 747.31,-104.9 741.31,-96.17 737.18,-101.82"/>
+<path fill="none" stroke="#255000" d="M846.62,-17.8C863.94,-21.11 881.32,-25.97 897,-33 950.57,-57.03 999.25,-107.74 1023.61,-135.96"/>
+<polygon fill="#255000" stroke="#255000" points="1020.96,-138.25 1030.09,-143.62 1026.3,-133.73 1020.96,-138.25"/>
 </g>
 <!-- proc~mapl_statecreatefromspec -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_node8" class="node">
+<g id="interface~~mapl_varspecget~~CalledByGraph_node10" class="node">
 <title>proc~mapl_statecreatefromspec</title>
-<g id="a_interface~~mapl_varspecget~~CalledByGraph_node8"><a xlink:href=".././proc/mapl_statecreatefromspec.html" xlink:title="MAPL_GenericMod::MAPL_StateCreateFromSpec">
-<polygon fill="#d9534f" stroke="#d9534f" points="268,-108 0,-108 0,-84 268,-84 268,-108"/>
-<text text-anchor="middle" x="134" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_StateCreateFromSpec</text>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node10"><a xlink:href=".././proc/mapl_statecreatefromspec.html" xlink:title="MAPL_GenericMod::MAPL_StateCreateFromSpec">
+<polygon fill="#d9534f" stroke="#d9534f" points="545,-106 277,-106 277,-82 545,-82 545,-106"/>
+<text text-anchor="middle" x="411" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_StateCreateFromSpec</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_statecreatefromspec&#45;&gt;proc~mapl_statecreatefromspecnew -->
-<g id="interface~~mapl_varspecget~~CalledByGraph_edge8" class="edge">
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge17" class="edge">
 <title>proc~mapl_statecreatefromspec&#45;&gt;proc~mapl_statecreatefromspecnew</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M268.07,-96C280.78,-96 293.74,-96 306.63,-96"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="306.95,-99.5 316.95,-96 306.95,-92.5 306.95,-99.5"/>
+<path fill="none" stroke="#063255" d="M545.07,-94.82C557.78,-94.89 570.74,-94.97 583.63,-95.05"/>
+<polygon fill="#063255" stroke="#063255" points="583.93,-98.55 593.95,-95.12 583.97,-91.55 583.93,-98.55"/>
+</g>
+<!-- proc~setservices -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_node11" class="node">
+<title>proc~setservices</title>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node11"><a xlink:href=".././proc/setservices.html" xlink:title="MAPL_HistoryGridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="235.5,-382 5.5,-382 5.5,-358 235.5,-358 235.5,-382"/>
+<text text-anchor="middle" x="120.5" y="-367.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices&#45;&gt;proc~mapl_genericsetservices -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge11" class="edge">
+<title>proc~setservices&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#025563" d="M201.98,-357.94C215.11,-355.38 228.5,-352.4 241,-349 287.48,-336.37 339.12,-316.17 372.93,-302.06"/>
+<polygon fill="#025563" stroke="#025563" points="374.55,-305.18 382.4,-298.07 371.83,-298.73 374.55,-305.18"/>
+</g>
+<!-- proc~setservices~2 -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_node12" class="node">
+<title>proc~setservices~2</title>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node12"><a xlink:href=".././proc/setservices~2.html" xlink:title="MAPL_ExtDataGridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="238,-340 3,-340 3,-316 238,-316 238,-340"/>
+<text text-anchor="middle" x="120.5" y="-325.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~2&#45;&gt;proc~mapl_genericsetservices -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge12" class="edge">
+<title>proc~setservices~2&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#025563" d="M204.17,-315.96C239.48,-310.82 280.85,-304.8 317.2,-299.51"/>
+<polygon fill="#025563" stroke="#025563" points="317.92,-302.94 327.32,-298.04 316.92,-296.01 317.92,-302.94"/>
+</g>
+<!-- proc~setservices~3 -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_node13" class="node">
+<title>proc~setservices~3</title>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node13"><a xlink:href=".././proc/setservices~3.html" xlink:title="MAPL_OrbGridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="226.5,-298 14.5,-298 14.5,-274 226.5,-274 226.5,-298"/>
+<text text-anchor="middle" x="120.5" y="-283.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~3&#45;&gt;proc~mapl_genericsetservices -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge13" class="edge">
+<title>proc~setservices~3&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#025563" d="M226.88,-286C241.8,-286 257.32,-286 272.73,-286"/>
+<polygon fill="#025563" stroke="#025563" points="272.84,-289.5 282.84,-286 272.84,-282.5 272.84,-289.5"/>
+</g>
+<!-- proc~setservices~4 -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_node14" class="node">
+<title>proc~setservices~4</title>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node14"><a xlink:href=".././proc/setservices~4.html" xlink:title="MAPL_ExtDataGridComp2G::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-256 7,-256 7,-232 234,-232 234,-256"/>
+<text text-anchor="middle" x="120.5" y="-241.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~4&#45;&gt;proc~mapl_genericsetservices -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge14" class="edge">
+<title>proc~setservices~4&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#025563" d="M204.17,-256.04C239.48,-261.18 280.85,-267.2 317.2,-272.49"/>
+<polygon fill="#025563" stroke="#025563" points="316.92,-275.99 327.32,-273.96 317.92,-269.06 316.92,-275.99"/>
+</g>
+<!-- proc~setservices~7 -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_node15" class="node">
+<title>proc~setservices~7</title>
+<g id="a_interface~~mapl_varspecget~~CalledByGraph_node15"><a xlink:href=".././proc/setservices~7.html" xlink:title="ExtDataUtRoot_GridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="241,-214 0,-214 0,-190 241,-190 241,-214"/>
+<text text-anchor="middle" x="120.5" y="-199.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataUtRoot_GridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~7&#45;&gt;proc~mapl_genericsetservices -->
+<g id="interface~~mapl_varspecget~~CalledByGraph_edge15" class="edge">
+<title>proc~setservices~7&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#025563" d="M218.26,-214.05C226.14,-216.51 233.82,-219.46 241,-223 260.47,-232.6 257.77,-245.94 277,-256 289.07,-262.31 302.43,-267.3 315.89,-271.25"/>
+<polygon fill="#025563" stroke="#025563" points="315.13,-274.66 325.7,-273.94 316.98,-267.91 315.13,-274.66"/>
 </g>
 </g>
 </svg>
@@ -315,8 +409,8 @@
                   var paninterfacemapl_varspecgetCalledByGraph = svgPanZoom('#interfacemapl_varspecgetCalledByGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -333,11 +427,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -356,23 +450,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -391,71 +491,29 @@ large graphs.</div>
           </div>
         </div>
 <br>
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#modprocs-1">Module Procedures</a>
-        </h3>
-      </div>
-      <div id="modprocs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../interface/mapl_varspecget.html#moduleprocedure-mapl_varspecgetregular">MAPL_VarSpecGetRegular</a>
-            <a class="list-group-item" href="../interface/mapl_varspecget.html#moduleprocedure-mapl_varspecgetnew">MAPL_VarSpecGetNew</a>
-            <a class="list-group-item" href="../interface/mapl_varspecget.html#moduleprocedure-mapl_varspecgetfieldptr">MAPL_VarSpecGetFieldPtr</a>
-            <a class="list-group-item" href="../interface/mapl_varspecget.html#moduleprocedure-mapl_varspecgetbundleptr">MAPL_VarSpecGetBundlePtr</a>
-            <a class="list-group-item" href="../interface/mapl_varspecget.html#moduleprocedure-mapl_varspecgetstateptr">MAPL_VarSpecGetStatePtr</a>
-        </div>
-      </div>
-    </div>
-
-
-
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
-
 
 
         <h2>Module Procedures</h2>
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_varspecgetregular"></span><h3>private  subroutine MAPL_VarSpecGetRegular(SPEC, SHORT_NAME, LONG_NAME, UNITS, DIMS, VLOCATION, FIELD, BUNDLE, STATE, NUM_SUBTILES, STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL, OFFSET, LABEL, DEFAULT, defaultProvided, FRIENDLYTO, RESTART, HALOWIDTH, PRECISION, ATTR_RNAMES, ATTR_INAMES, ATTR_RVALUES, ATTR_IVALUES, UNGRIDDED_DIMS, UNGRIDDED_UNIT, UNGRIDDED_NAME, UNGRIDDED_COORDS, FIELD_TYPE, STAGGERING, ROTATION, GRID, doNotAllocate, alwaysAllocate, depends_on_children, depends_on, RC)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecgetregular"></span><h3>private  subroutine MAPL_VarSpecGetRegular(SPEC, SHORT_NAME, LONG_NAME, UNITS, DIMS, VLOCATION, FIELD, BUNDLE, STATE, NUM_SUBTILES, STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL, OFFSET, LABEL, DEFAULT, defaultProvided, FRIENDLYTO, RESTART, HALOWIDTH, PRECISION, ATTR_RNAMES, ATTR_INAMES, ATTR_RVALUES, ATTR_IVALUES, UNGRIDDED_DIMS, UNGRIDDED_UNIT, UNGRIDDED_NAME, UNGRIDDED_COORDS, FIELD_TYPE, STAGGERING, ROTATION, GRID, doNotAllocate, alwaysAllocate, depends_on_children, depends_on, RC)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-spec~12"></span>
               type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
             </td>
 <td>intent(in)</td>
@@ -470,7 +528,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-short_name~6"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -485,7 +543,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-long_name~4"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -500,7 +558,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-units~4"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -515,7 +573,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-dims~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -530,7 +588,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-vlocation~3"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -545,7 +603,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-field~6"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
             </td>
 <td>intent(out),</td>
@@ -560,7 +618,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-bundle~19"></span>
               type(ESMF_FieldBundle),
             </td>
 <td>intent(out),</td>
@@ -575,7 +633,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-state~24"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(out),</td>
@@ -590,7 +648,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-num_subtiles~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -605,7 +663,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-stat~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -620,7 +678,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-accmlt_interval~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -635,7 +693,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-couple_interval~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -650,7 +708,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-offset~6"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -665,7 +723,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-label~2"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -680,7 +738,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-default~4"></span>
               real,
             </td>
 <td>intent(out),</td>
@@ -695,7 +753,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-defaultprovided~2"></span>
               logical,
             </td>
 <td>intent(out),</td>
@@ -710,7 +768,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-friendlyto~4"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -725,7 +783,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-restart~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -740,7 +798,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-halowidth~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -755,7 +813,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-precision~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -770,7 +828,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-attr_rnames~4"></span>
               character(len=ESMF_MAXSTR),
             </td>
 <td></td>
@@ -785,7 +843,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-attr_inames~4"></span>
               character(len=ESMF_MAXSTR),
             </td>
 <td></td>
@@ -800,7 +858,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-attr_rvalues~4"></span>
               real,
             </td>
 <td></td>
@@ -815,7 +873,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-attr_ivalues~4"></span>
               integer,
             </td>
 <td></td>
@@ -830,7 +888,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-ungridded_dims~4"></span>
               integer,
             </td>
 <td></td>
@@ -845,7 +903,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-ungridded_unit~4"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -860,7 +918,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-ungridded_name~4"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -875,7 +933,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-ungridded_coords~4"></span>
               real,
             </td>
 <td></td>
@@ -890,7 +948,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-field_type~4"></span>
               integer,
             </td>
 <td></td>
@@ -905,7 +963,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-staggering~4"></span>
               integer,
             </td>
 <td></td>
@@ -920,7 +978,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rotation~4"></span>
               integer,
             </td>
 <td></td>
@@ -935,7 +993,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-grid~32"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
             </td>
 <td>intent(out),</td>
@@ -950,7 +1008,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-donotallocate~2"></span>
               logical,
             </td>
 <td>intent(out),</td>
@@ -965,7 +1023,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-alwaysallocate~2"></span>
               logical,
             </td>
 <td>intent(out),</td>
@@ -980,7 +1038,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-depends_on_children~2"></span>
               logical,
             </td>
 <td>intent(out),</td>
@@ -995,7 +1053,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-depends_on~2"></span>
               character(len=:),
             </td>
 <td>intent(out),</td>
@@ -1010,7 +1068,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~256"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1030,26 +1088,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_varspecgetnew"></span><h3>private  subroutine MAPL_VarSpecGetNew(SPEC, SHORT_NAME, LONG_NAME, UNITS, DIMS, VLOCATION, FIELD, BUNDLE, STATE, NUM_SUBTILES, STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL, OFFSET, LABEL, DEFAULT, defaultProvided, FRIENDLYTO, RESTART, HALOWIDTH, PRECISION, ATTR_RNAMES, ATTR_INAMES, ATTR_RVALUES, ATTR_IVALUES, UNGRIDDED_DIMS, UNGRIDDED_UNIT, UNGRIDDED_NAME, UNGRIDDED_COORDS, FIELD_TYPE, STAGGERING, ROTATION, GRID, doNotAllocate, alwaysAllocate, RC)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecgetnew"></span><h3>private  subroutine MAPL_VarSpecGetNew(SPEC, SHORT_NAME, LONG_NAME, UNITS, DIMS, VLOCATION, FIELD, BUNDLE, STATE, NUM_SUBTILES, STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL, OFFSET, LABEL, DEFAULT, defaultProvided, FRIENDLYTO, RESTART, HALOWIDTH, PRECISION, ATTR_RNAMES, ATTR_INAMES, ATTR_RVALUES, ATTR_IVALUES, UNGRIDDED_DIMS, UNGRIDDED_UNIT, UNGRIDDED_NAME, UNGRIDDED_COORDS, FIELD_TYPE, STAGGERING, ROTATION, GRID, doNotAllocate, alwaysAllocate, RC)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-spec~13"></span>
               type(<a href='../type/mapl_varspectype.html'>MAPL_VarSpecType</a>),
             </td>
 <td>intent(in)</td>
@@ -1064,7 +1122,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-short_name~7"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -1079,7 +1137,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-long_name~5"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -1094,7 +1152,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-units~5"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -1109,7 +1167,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-dims~5"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1124,7 +1182,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-vlocation~4"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1139,7 +1197,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-field~7"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
             </td>
 <td>intent(out),</td>
@@ -1154,7 +1212,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-bundle~20"></span>
               type(ESMF_FieldBundle),
             </td>
 <td>intent(out),</td>
@@ -1169,7 +1227,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-state~25"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(out),</td>
@@ -1184,7 +1242,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-num_subtiles~5"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1199,7 +1257,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-stat~5"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1214,7 +1272,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-accmlt_interval~5"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1229,7 +1287,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-couple_interval~5"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1244,7 +1302,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-offset~7"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1259,7 +1317,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-label~3"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1274,7 +1332,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-default~5"></span>
               real,
             </td>
 <td>intent(out),</td>
@@ -1289,7 +1347,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-defaultprovided~3"></span>
               logical,
             </td>
 <td>intent(out),</td>
@@ -1304,7 +1362,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-friendlyto~5"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -1319,7 +1377,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-restart~5"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1334,7 +1392,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-halowidth~5"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1349,7 +1407,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-precision~5"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1364,7 +1422,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-attr_rnames~5"></span>
               character(len=ESMF_MAXSTR),
             </td>
 <td></td>
@@ -1379,7 +1437,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-attr_inames~5"></span>
               character(len=ESMF_MAXSTR),
             </td>
 <td></td>
@@ -1394,7 +1452,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-attr_rvalues~5"></span>
               real,
             </td>
 <td></td>
@@ -1409,7 +1467,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-attr_ivalues~5"></span>
               integer,
             </td>
 <td></td>
@@ -1424,7 +1482,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-ungridded_dims~5"></span>
               integer,
             </td>
 <td></td>
@@ -1439,7 +1497,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-ungridded_unit~5"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -1454,7 +1512,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-ungridded_name~5"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -1469,7 +1527,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-ungridded_coords~5"></span>
               real,
             </td>
 <td></td>
@@ -1484,7 +1542,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-field_type~5"></span>
               integer,
             </td>
 <td></td>
@@ -1499,7 +1557,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-staggering~5"></span>
               integer,
             </td>
 <td></td>
@@ -1514,7 +1572,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rotation~5"></span>
               integer,
             </td>
 <td></td>
@@ -1529,7 +1587,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-grid~33"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
             </td>
 <td>intent(out),</td>
@@ -1544,7 +1602,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-donotallocate~3"></span>
               logical,
             </td>
 <td>intent(out),</td>
@@ -1559,7 +1617,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-alwaysallocate~3"></span>
               logical,
             </td>
 <td>intent(out),</td>
@@ -1574,7 +1632,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~257"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1594,26 +1652,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_varspecgetfieldptr"></span><h3>private  subroutine MAPL_VarSpecGetFieldPtr(SPEC, FIELDPTR, RC)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecgetfieldptr"></span><h3>private  subroutine MAPL_VarSpecGetFieldPtr(SPEC, FIELDPTR, RC)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-spec~14"></span>
               type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
             </td>
 <td>intent(in)</td>
@@ -1628,7 +1686,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-fieldptr"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
             </td>
 <td></td>
@@ -1643,7 +1701,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~258"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1663,26 +1721,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_varspecgetbundleptr"></span><h3>private  subroutine MAPL_VarSpecGetBundlePtr(SPEC, BUNDLEPTR, RC)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecgetbundleptr"></span><h3>private  subroutine MAPL_VarSpecGetBundlePtr(SPEC, BUNDLEPTR, RC)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-spec~15"></span>
               type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
             </td>
 <td>intent(in)</td>
@@ -1697,7 +1755,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-bundleptr"></span>
               type(ESMF_FieldBundle),
             </td>
 <td></td>
@@ -1712,7 +1770,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~259"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1732,26 +1790,26 @@ large graphs.</div>
     </div>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_varspecgetstateptr"></span><h3>private  subroutine MAPL_VarSpecGetStatePtr(SPEC, STATEPTR, RC)  
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecgetstateptr"></span><h3>private  subroutine MAPL_VarSpecGetStatePtr(SPEC, STATEPTR, RC)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
         
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-spec~16"></span>
               type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
             </td>
 <td>intent(in)</td>
@@ -1766,7 +1824,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-stateptr"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td></td>
@@ -1781,7 +1839,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~260"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1807,32 +1865,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

@@ -10,85 +10,58 @@
 
     <title>fill_grads_template &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.2% of total for procedures.">107 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.2% of total for procedures.">110 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/StringTemplate.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/stringtemplate.f90.html'>StringTemplate.F90</a></li>
-              <li><a href='../module/mapl_stringtemplate.html'>MAPL_StringTemplate</a></li>
-          <li class="active">fill_grads_template</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/stringtemplate.f90.html'>StringTemplate.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_stringtemplate.html'>MAPL_StringTemplate</a></li>
+            <li class="breadcrumb-item active" aria-current="page">fill_grads_template</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/fill_grads_template.html#src">fill_grads_template</a>
       </div>
@@ -174,11 +152,11 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -198,7 +176,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-template~17"></span>
+              <span class="anchor" id="variable-template~18"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -213,7 +191,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-unusable~332"></span>
+              <span class="anchor" id="variable-unusable~360"></span>
               class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
             </td>
 <td>intent(in),</td>
@@ -243,7 +221,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nymd~8"></span>
+              <span class="anchor" id="variable-nymd~13"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -258,7 +236,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nhms~8"></span>
+              <span class="anchor" id="variable-nhms~13"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -273,7 +251,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-time~23"></span>
+              <span class="anchor" id="variable-time~41"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
             </td>
 <td>intent(in),</td>
@@ -303,7 +281,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1219"></span>
+              <span class="anchor" id="variable-rc~1441"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -320,11 +298,11 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -399,26 +377,50 @@
 <path fill="none" stroke="#255000" d="M158.74,-62.99C189.36,-54.08 232.63,-41.97 271,-33 281.42,-30.57 292.44,-28.2 303.32,-25.99"/>
 <polygon fill="#255000" stroke="#255000" points="304.13,-29.4 313.25,-24 302.75,-22.53 304.13,-29.4"/>
 </g>
-<!-- proc~mapl_throw_exception -->
+<!-- at -->
 <g id="proc~~fill_grads_template~~CallsGraph_node6" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="668.5,-108 614.5,-108 614.5,-84 668.5,-84 668.5,-108"/>
+<text text-anchor="middle" x="641.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~fill_grads_template~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M456.08,-66.04C504.62,-73.92 565.96,-83.89 604.21,-90.1"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="603.93,-93.6 614.36,-91.75 605.05,-86.69 603.93,-93.6"/>
+</g>
+<!-- insert -->
+<g id="proc~~fill_grads_template~~CallsGraph_node7" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="668.5,-66 614.5,-66 614.5,-42 668.5,-42 668.5,-66"/>
+<text text-anchor="middle" x="641.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~fill_grads_template~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M491.25,-54C531.63,-54 574.67,-54 604.11,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="604.3,-57.5 614.3,-54 604.3,-50.5 604.3,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~fill_grads_template~~CallsGraph_node8" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~fill_grads_template~~CallsGraph_node6"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="756,-45 527,-45 527,-21 756,-21 756,-45"/>
-<text text-anchor="middle" x="641.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~fill_grads_template~~CallsGraph_node8"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="756,-24 527,-24 527,0 756,0 756,-24"/>
+<text text-anchor="middle" x="641.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~fill_grads_template~~CallsGraph_edge5" class="edge">
+<g id="proc~~fill_grads_template~~CallsGraph_edge7" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M491.25,-45.12C499.58,-44.45 508.02,-43.76 516.43,-43.08"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="516.98,-46.55 526.67,-42.25 516.42,-39.57 516.98,-46.55"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M456.08,-41.96C487.44,-36.87 524.15,-30.9 556.52,-25.65"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="557.1,-29.1 566.41,-24.04 555.98,-22.19 557.1,-29.1"/>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~fill_grads_template~~CallsGraph_edge6" class="edge">
+<g id="proc~~fill_grads_template~~CallsGraph_edge8" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M488.26,-20.63C497.57,-21.39 507.04,-22.16 516.47,-22.92"/>
-<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="516.43,-26.43 526.68,-23.75 517,-19.46 516.43,-26.43"/>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M488.26,-12C497.57,-12 507.04,-12 516.47,-12"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="516.68,-15.5 526.68,-12 516.68,-8.5 516.68,-15.5"/>
 </g>
 </g>
 </svg>
@@ -426,8 +428,8 @@
                   var panprocfill_grads_templateCallsGraph = svgPanZoom('#procfill_grads_templateCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -444,11 +446,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -467,23 +469,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -501,144 +509,159 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~fill_grads_template~~CalledByGraph Pages: 1 -->
-<svg id="procfill_grads_templateCalledByGraph" width="641pt" height="127pt"
- viewBox="0.00 0.00 641.00 127.23" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~fill_grads_template~~CalledByGraph" class="graph" transform="scale(1.24 1.24) rotate(0) translate(4 154)">
+<svg id="procfill_grads_templateCalledByGraph" width="641pt" height="161pt"
+ viewBox="0.00 0.00 641.00 161.06" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~fill_grads_template~~CalledByGraph" class="graph" transform="scale(1.24 1.24) rotate(0) translate(4 196)">
 <title>proc~~fill_grads_template~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 792,-154 792,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 792,-196 792,4 -4,4"/>
 <!-- proc~fill_grads_template -->
 <g id="proc~~fill_grads_template~~CalledByGraph_node1" class="node">
 <title>proc~fill_grads_template</title>
-<polygon fill="none" stroke="black" points="788,-87 553,-87 553,-63 788,-63 788,-87"/>
-<text text-anchor="middle" x="670.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_StringTemplate::fill_grads_template</text>
+<polygon fill="none" stroke="black" points="788,-108 553,-108 553,-84 788,-84 788,-108"/>
+<text text-anchor="middle" x="670.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_StringTemplate::fill_grads_template</text>
 </g>
 <!-- proc~mapl_genericfinalize -->
 <g id="proc~~fill_grads_template~~CalledByGraph_node2" class="node">
 <title>proc~mapl_genericfinalize</title>
 <g id="a_proc~~fill_grads_template~~CalledByGraph_node2"><a xlink:href=".././proc/mapl_genericfinalize.html" xlink:title="MAPL_GenericMod::MAPL_GenericFinalize">
-<polygon fill="#d9534f" stroke="#d9534f" points="498.5,-150 264.5,-150 264.5,-126 498.5,-126 498.5,-150"/>
-<text text-anchor="middle" x="381.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericFinalize</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="498.5,-192 264.5,-192 264.5,-168 498.5,-168 498.5,-192"/>
+<text text-anchor="middle" x="381.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericFinalize</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_genericfinalize&#45;&gt;proc~fill_grads_template -->
 <g id="proc~~fill_grads_template~~CalledByGraph_edge1" class="edge">
 <title>proc~mapl_genericfinalize&#45;&gt;proc~fill_grads_template</title>
-<path fill="none" stroke="#255000" d="M469.23,-125.95C485.18,-123.31 501.63,-120.3 517,-117 552.1,-109.45 591.11,-98.66 620.9,-89.91"/>
-<polygon fill="#255000" stroke="#255000" points="622.03,-93.22 630.62,-87.02 620.04,-86.51 622.03,-93.22"/>
+<path fill="none" stroke="#255000" d="M477.9,-167.98C491.14,-165.48 504.48,-162.51 517,-159 559.31,-147.14 605.67,-126.87 636.04,-112.53"/>
+<polygon fill="#255000" stroke="#255000" points="637.79,-115.57 645.31,-108.1 634.78,-109.25 637.79,-115.57"/>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~fill_grads_template~~CalledByGraph_node3" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~fill_grads_template~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericMod::MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="500.5,-150 262.5,-150 262.5,-126 500.5,-126 500.5,-150"/>
+<text text-anchor="middle" x="381.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;proc~fill_grads_template -->
+<g id="proc~~fill_grads_template~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;proc~fill_grads_template</title>
+<path fill="none" stroke="#255000" d="M464.74,-125.96C499.87,-120.82 541.02,-114.8 577.19,-109.51"/>
+<polygon fill="#255000" stroke="#255000" points="577.86,-112.95 587.25,-108.04 576.84,-106.02 577.86,-112.95"/>
 </g>
 <!-- proc~mapl_getcurrentfile -->
-<g id="proc~~fill_grads_template~~CalledByGraph_node3" class="node">
+<g id="proc~~fill_grads_template~~CalledByGraph_node4" class="node">
 <title>proc~mapl_getcurrentfile</title>
-<g id="a_proc~~fill_grads_template~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_getcurrentfile.html" xlink:title="MAPL_CFIOMod::MAPL_GetCurrentFile">
+<g id="a_proc~~fill_grads_template~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_getcurrentfile.html" xlink:title="MAPL_CFIOMod::MAPL_GetCurrentFile">
 <polygon fill="#d9534f" stroke="#d9534f" points="487,-108 276,-108 276,-84 487,-84 487,-108"/>
 <text text-anchor="middle" x="381.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_GetCurrentFile</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_getcurrentfile&#45;&gt;proc~fill_grads_template -->
-<g id="proc~~fill_grads_template~~CalledByGraph_edge2" class="edge">
+<g id="proc~~fill_grads_template~~CalledByGraph_edge3" class="edge">
 <title>proc~mapl_getcurrentfile&#45;&gt;proc~fill_grads_template</title>
-<path fill="none" stroke="#255000" d="M487.33,-88.33C505.3,-87.01 524.14,-85.64 542.62,-84.28"/>
-<polygon fill="#255000" stroke="#255000" points="543.11,-87.76 552.83,-83.54 542.6,-80.78 543.11,-87.76"/>
+<path fill="none" stroke="#255000" d="M487.33,-96C505.3,-96 524.14,-96 542.62,-96"/>
+<polygon fill="#255000" stroke="#255000" points="542.83,-99.5 552.83,-96 542.83,-92.5 542.83,-99.5"/>
 </g>
 <!-- proc~mapl_read_bundle -->
-<g id="proc~~fill_grads_template~~CalledByGraph_node4" class="node">
+<g id="proc~~fill_grads_template~~CalledByGraph_node5" class="node">
 <title>proc~mapl_read_bundle</title>
-<g id="a_proc~~fill_grads_template~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_read_bundle.html" xlink:title="MAPL_ESMFFieldBundleRead::MAPL_read_bundle">
+<g id="a_proc~~fill_grads_template~~CalledByGraph_node5"><a xlink:href=".././proc/mapl_read_bundle.html" xlink:title="MAPL_ESMFFieldBundleRead::MAPL_read_bundle">
 <polygon fill="#d9534f" stroke="#d9534f" points="517,-66 246,-66 246,-42 517,-42 517,-66"/>
 <text text-anchor="middle" x="381.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleRead::MAPL_read_bundle</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_read_bundle&#45;&gt;proc~fill_grads_template -->
-<g id="proc~~fill_grads_template~~CalledByGraph_edge3" class="edge">
+<g id="proc~~fill_grads_template~~CalledByGraph_edge4" class="edge">
 <title>proc~mapl_read_bundle&#45;&gt;proc~fill_grads_template</title>
-<path fill="none" stroke="#255000" d="M517.18,-63.85C525.76,-64.48 534.39,-65.11 542.93,-65.74"/>
-<polygon fill="#255000" stroke="#255000" points="542.69,-69.23 552.92,-66.47 543.2,-62.25 542.69,-69.23"/>
+<path fill="none" stroke="#255000" d="M464.74,-66.04C499.87,-71.18 541.02,-77.2 577.19,-82.49"/>
+<polygon fill="#255000" stroke="#255000" points="576.84,-85.98 587.25,-83.96 577.86,-79.05 576.84,-85.98"/>
 </g>
 <!-- proc~strtemplate -->
-<g id="proc~~fill_grads_template~~CalledByGraph_node5" class="node">
+<g id="proc~~fill_grads_template~~CalledByGraph_node6" class="node">
 <title>proc~strtemplate</title>
-<g id="a_proc~~fill_grads_template~~CalledByGraph_node5"><a xlink:href=".././proc/strtemplate.html" xlink:title="MAPL_StringTemplate::StrTemplate">
+<g id="a_proc~~fill_grads_template~~CalledByGraph_node6"><a xlink:href=".././proc/strtemplate.html" xlink:title="MAPL_StringTemplate::StrTemplate">
 <polygon fill="#d9534f" stroke="#d9534f" points="480.5,-24 282.5,-24 282.5,0 480.5,0 480.5,-24"/>
 <text text-anchor="middle" x="381.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringTemplate::StrTemplate</text>
 </a>
 </g>
 </g>
 <!-- proc~strtemplate&#45;&gt;proc~fill_grads_template -->
-<g id="proc~~fill_grads_template~~CalledByGraph_edge4" class="edge">
+<g id="proc~~fill_grads_template~~CalledByGraph_edge5" class="edge">
 <title>proc~strtemplate&#45;&gt;proc~fill_grads_template</title>
-<path fill="none" stroke="#255000" d="M469.23,-24.05C485.18,-26.69 501.63,-29.7 517,-33 552.1,-40.55 591.11,-51.34 620.9,-60.09"/>
-<polygon fill="#255000" stroke="#255000" points="620.04,-63.49 630.62,-62.98 622.03,-56.78 620.04,-63.49"/>
+<path fill="none" stroke="#255000" d="M477.9,-24.02C491.14,-26.52 504.48,-29.49 517,-33 559.31,-44.86 605.67,-65.13 636.04,-79.47"/>
+<polygon fill="#255000" stroke="#255000" points="634.78,-82.75 645.31,-83.9 637.79,-76.43 634.78,-82.75"/>
 </g>
 <!-- proc~main -->
-<g id="proc~~fill_grads_template~~CalledByGraph_node6" class="node">
+<g id="proc~~fill_grads_template~~CalledByGraph_node7" class="node">
 <title>proc~main</title>
-<g id="a_proc~~fill_grads_template~~CalledByGraph_node6"><a xlink:href=".././proc/main.html" xlink:title="Regrid_Util::main">
+<g id="a_proc~~fill_grads_template~~CalledByGraph_node7"><a xlink:href=".././proc/main.html" xlink:title="Regrid_Util::main">
 <polygon fill="#d9534f" stroke="#d9534f" points="210,-108 106,-108 106,-84 210,-84 210,-108"/>
 <text text-anchor="middle" x="158" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util::main</text>
 </a>
 </g>
 </g>
 <!-- proc~main&#45;&gt;proc~mapl_read_bundle -->
-<g id="proc~~fill_grads_template~~CalledByGraph_edge5" class="edge">
+<g id="proc~~fill_grads_template~~CalledByGraph_edge6" class="edge">
 <title>proc~main&#45;&gt;proc~mapl_read_bundle</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M205.8,-83.96C218.77,-80.82 232.89,-77.6 246,-75 258.93,-72.43 272.61,-69.99 286.1,-67.74"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="287.07,-71.12 296.37,-66.05 285.93,-64.22 287.07,-71.12"/>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M205.8,-83.96C218.77,-80.82 232.89,-77.6 246,-75 258.93,-72.43 272.61,-69.99 286.1,-67.74"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="287.07,-71.12 296.37,-66.05 285.93,-64.22 287.07,-71.12"/>
 </g>
 <!-- program~time_ave -->
-<g id="proc~~fill_grads_template~~CalledByGraph_node7" class="node">
+<g id="proc~~fill_grads_template~~CalledByGraph_node8" class="node">
 <title>program~time_ave</title>
-<g id="a_proc~~fill_grads_template~~CalledByGraph_node7"><a xlink:href=".././program/time_ave.html" xlink:title="time_ave">
+<g id="a_proc~~fill_grads_template~~CalledByGraph_node8"><a xlink:href=".././program/time_ave.html" xlink:title="time_ave">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="188.5,-66 127.5,-66 127.5,-42 188.5,-42 188.5,-66"/>
 <text text-anchor="middle" x="158" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
 </a>
 </g>
 </g>
 <!-- program~time_ave&#45;&gt;proc~mapl_read_bundle -->
-<g id="proc~~fill_grads_template~~CalledByGraph_edge6" class="edge">
+<g id="proc~~fill_grads_template~~CalledByGraph_edge7" class="edge">
 <title>program~time_ave&#45;&gt;proc~mapl_read_bundle</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M188.87,-54C201.8,-54 217.97,-54 235.39,-54"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="235.79,-57.5 245.79,-54 235.79,-50.5 235.79,-57.5"/>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M188.87,-54C201.8,-54 217.97,-54 235.39,-54"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="235.79,-57.5 245.79,-54 235.79,-50.5 235.79,-57.5"/>
 </g>
 <!-- program~ut_regridding -->
-<g id="proc~~fill_grads_template~~CalledByGraph_node8" class="node">
+<g id="proc~~fill_grads_template~~CalledByGraph_node9" class="node">
 <title>program~ut_regridding</title>
-<g id="a_proc~~fill_grads_template~~CalledByGraph_node8"><a xlink:href=".././program/ut_regridding.html" xlink:title="ut_ReGridding">
+<g id="a_proc~~fill_grads_template~~CalledByGraph_node9"><a xlink:href=".././program/ut_regridding.html" xlink:title="ut_ReGridding">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="202,-24 114,-24 114,0 202,0 202,-24"/>
 <text text-anchor="middle" x="158" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
 </a>
 </g>
 </g>
 <!-- program~ut_regridding&#45;&gt;proc~mapl_read_bundle -->
-<g id="proc~~fill_grads_template~~CalledByGraph_edge7" class="edge">
+<g id="proc~~fill_grads_template~~CalledByGraph_edge8" class="edge">
 <title>program~ut_regridding&#45;&gt;proc~mapl_read_bundle</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M202.21,-23.17C216.14,-26.57 231.67,-30.16 246,-33 258.93,-35.57 272.61,-38.01 286.1,-40.26"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="285.93,-43.78 296.37,-41.95 287.07,-36.88 285.93,-43.78"/>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M202.21,-23.17C216.14,-26.57 231.67,-30.16 246,-33 258.93,-35.57 272.61,-38.01 286.1,-40.26"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="285.93,-43.78 296.37,-41.95 287.07,-36.88 285.93,-43.78"/>
 </g>
 <!-- program~regrid_util -->
-<g id="proc~~fill_grads_template~~CalledByGraph_node9" class="node">
+<g id="proc~~fill_grads_template~~CalledByGraph_node10" class="node">
 <title>program~regrid_util</title>
-<g id="a_proc~~fill_grads_template~~CalledByGraph_node9"><a xlink:href=".././program/regrid_util.html" xlink:title="Regrid_Util">
+<g id="a_proc~~fill_grads_template~~CalledByGraph_node10"><a xlink:href=".././program/regrid_util.html" xlink:title="Regrid_Util">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-108 0,-108 0,-84 70,-84 70,-108"/>
 <text text-anchor="middle" x="35" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
 </a>
 </g>
 </g>
 <!-- program~regrid_util&#45;&gt;proc~main -->
-<g id="proc~~fill_grads_template~~CalledByGraph_edge8" class="edge">
+<g id="proc~~fill_grads_template~~CalledByGraph_edge9" class="edge">
 <title>program~regrid_util&#45;&gt;proc~main</title>
 <path fill="none" stroke="#255000" d="M70.03,-96C77.97,-96 86.66,-96 95.39,-96"/>
 <polygon fill="#255000" stroke="#255000" points="95.6,-99.5 105.6,-96 95.6,-92.5 95.6,-99.5"/>
@@ -649,8 +672,8 @@ large graphs.</div>
                   var panprocfill_grads_templateCalledByGraph = svgPanZoom('#procfill_grads_templateCalledByGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -667,11 +690,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -690,23 +713,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -726,159 +755,128 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/fill_grads_template.html#src">fill_grads_template</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">fill_grads_template</span><span class="p">(</span><span class="n">output_string</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">experiment_id</span><span class="p">,</span><span class="n">nymd</span><span class="p">,</span><span class="n">nhms</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">preserve</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">output_string</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">template</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">keywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">experiment_id</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nhms</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">fill_grads_template</span><span class="p">(</span><span class="n">output_string</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">experiment_id</span><span class="p">,</span><span class="n">nymd</span><span class="p">,</span><span class="n">nhms</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">preserve</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">output_string</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">template</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">keywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">experiment_id</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nhms</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
-<span class="nb">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">preserve</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="nb">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">preserve</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="nb">second</span><span class="p">,</span><span class="n">tmpl_length</span><span class="p">,</span><span class="n">output_length</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">istp</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">kstp</span><span class="p">,</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">i2</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c0</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sbuf</span><span class="w"></span>
-<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">valid_token</span><span class="p">,</span><span class="n">preserve_</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="nb">second</span><span class="p">,</span><span class="n">tmpl_length</span><span class="p">,</span><span class="n">output_length</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">istp</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">kstp</span><span class="p">,</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">i2</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c0</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sbuf</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">valid_token</span><span class="p">,</span><span class="n">preserve_</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 <span class="w">     </span>
-<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">preserve</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">preserve_</span><span class="o">=</span><span class="n">preserve</span><span class="w"></span>
+<span class="k">         </span><span class="n">preserve_</span><span class="o">=</span><span class="n">preserve</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">preserve_</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="k">         </span><span class="n">preserve_</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">      </span><span class="n">year</span><span class="o">=</span><span class="n">uninit_time</span><span class="w"></span>
-<span class="w">      </span><span class="n">month</span><span class="o">=</span><span class="n">uninit_time</span><span class="w"></span>
-<span class="w">      </span><span class="n">day</span><span class="o">=</span><span class="n">uninit_time</span><span class="w"></span>
-<span class="w">      </span><span class="n">hour</span><span class="o">=</span><span class="n">uninit_time</span><span class="w"></span>
-<span class="w">      </span><span class="n">minute</span><span class="o">=</span><span class="n">uninit_time</span><span class="w"></span>
-<span class="w">      </span><span class="nb">second</span><span class="o">=</span><span class="n">uninit_time</span><span class="w"></span>
+<span class="k">      </span><span class="n">year</span><span class="o">=</span><span class="n">uninit_time</span>
+<span class="w">      </span><span class="n">month</span><span class="o">=</span><span class="n">uninit_time</span>
+<span class="w">      </span><span class="n">day</span><span class="o">=</span><span class="n">uninit_time</span>
+<span class="w">      </span><span class="n">hour</span><span class="o">=</span><span class="n">uninit_time</span>
+<span class="w">      </span><span class="n">minute</span><span class="o">=</span><span class="n">uninit_time</span>
+<span class="w">      </span><span class="nb">second</span><span class="o">=</span><span class="n">uninit_time</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">nymd</span><span class="p">),</span><span class="s1">&#39;can not specify an ESMF_Time and an integer time&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">nhms</span><span class="p">),</span><span class="s1">&#39;can not specify an ESMF_Time and an integer time&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">nymd</span><span class="p">),</span><span class="s1">&#39;can not specify an ESMF_Time and an integer time&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">nhms</span><span class="p">),</span><span class="s1">&#39;can not specify an ESMF_Time and an integer time&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end if</span>
 <span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">nymd</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">),</span><span class="s1">&#39;can not specify an ESMF_Time and an integer time&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nymd</span><span class="o">/</span><span class="mi">10000</span><span class="w"></span>
-<span class="w">         </span><span class="n">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nymd</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nymd</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span><span class="w"></span>
+<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">),</span><span class="s1">&#39;can not specify an ESMF_Time and an integer time&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nymd</span><span class="o">/</span><span class="mi">10000</span>
+<span class="w">         </span><span class="n">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nymd</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="w">         </span><span class="n">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nymd</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end if</span>
 <span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">nhms</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">),</span><span class="s1">&#39;can not specify an ESMF_Time and an integer time&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">hour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nhms</span><span class="o">/</span><span class="mi">10000</span><span class="w"></span>
-<span class="w">         </span><span class="n">minute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nhms</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span><span class="w"></span>
+<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">),</span><span class="s1">&#39;can not specify an ESMF_Time and an integer time&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">hour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nhms</span><span class="o">/</span><span class="mi">10000</span>
+<span class="w">         </span><span class="n">minute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nhms</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
 <span class="w">         </span><span class="nb">second</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nhms</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span><span class="w">  </span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">      </span><span class="n">output_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"></span>
+<span class="k">      </span><span class="n">output_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
 
-<span class="w">      </span><span class="n">output_length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">output_string</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">tmpl_length</span><span class="o">=</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">template</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="w"></span>
-<span class="w">      </span><span class="n">istp</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="n">kstp</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="k">do while</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="n">istp</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">tmpl_length</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="n">istp</span><span class="w"></span>
-<span class="w">         </span><span class="n">c0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">template</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">output_length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">output_string</span><span class="p">)</span>
+<span class="w">      </span><span class="n">tmpl_length</span><span class="o">=</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+<span class="w">      </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">      </span><span class="n">istp</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">      </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">      </span><span class="n">kstp</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">      </span><span class="k">do while</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="n">istp</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">tmpl_length</span><span class="p">)</span>
+<span class="w">         </span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="n">istp</span>
+<span class="w">         </span><span class="n">c0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">template</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="p">)</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;%&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            </span><span class="n">i1</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
-<span class="w">            </span><span class="n">c1</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="w"></span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i1</span><span class="o">&lt;=</span><span class="n">tmpl_length</span><span class="p">)</span><span class="w"> </span><span class="n">c1</span><span class="o">=</span><span class="n">template</span><span class="p">(</span><span class="n">i1</span><span class="p">:</span><span class="n">i1</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="k">select case</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="k">            </span><span class="n">i1</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">            </span><span class="n">c1</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i1</span><span class="o">&lt;=</span><span class="n">tmpl_length</span><span class="p">)</span><span class="w"> </span><span class="n">c1</span><span class="o">=</span><span class="n">template</span><span class="p">(</span><span class="n">i1</span><span class="p">:</span><span class="n">i1</span><span class="p">)</span>
+<span class="w">            </span><span class="k">select case</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span>
+<span class="w">            </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
 <span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">                  </span><span class="n">istp</span><span class="o">=</span><span class="mi">2</span><span class="w"></span>
-<span class="w">                  </span><span class="n">m</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">output_length</span><span class="p">)</span><span class="w"></span>
-<span class="w">                  </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="n">experiment_id</span><span class="w"></span>
-<span class="w">                  </span><span class="n">k</span><span class="o">=</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="k">                  </span><span class="n">istp</span><span class="o">=</span><span class="mi">2</span>
+<span class="w">                  </span><span class="n">m</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">output_length</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="n">experiment_id</span>
+<span class="w">                  </span><span class="n">k</span><span class="o">=</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">                  </span><span class="k">cycle</span>
 <span class="k">               else if</span><span class="w"> </span><span class="p">(</span><span class="n">preserve_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">                  </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="s2">&quot;%s&quot;</span><span class="w"></span>
-<span class="w">                  </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="k">                  </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="s2">&quot;%s&quot;</span>
+<span class="w">                  </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">               </span><span class="k">else</span>
-<span class="k">                  </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Using %s token with no experiment id&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="k">                  </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Using %s token with no experiment id&quot;</span><span class="p">)</span>
 <span class="w">               </span><span class="k">end if</span>
-<span class="k">            case</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">               </span><span class="n">istp</span><span class="o">=</span><span class="mi">2</span><span class="w"></span>
-<span class="w">               </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="p">)</span><span class="o">=</span><span class="n">c1</span><span class="w"></span>
-<span class="w">               </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="k">            case</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+<span class="w">               </span><span class="n">istp</span><span class="o">=</span><span class="mi">2</span>
+<span class="w">               </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="p">)</span><span class="o">=</span><span class="n">c1</span>
+<span class="w">               </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">               </span><span class="k">cycle</span>
-<span class="k">            case </span><span class="n">default</span><span class="w"></span>
-<span class="w">               </span><span class="n">c2</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="w"></span>
-<span class="w">               </span><span class="n">i2</span><span class="o">=</span><span class="n">i1</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
-<span class="w">               </span><span class="k">if</span><span class="p">(</span><span class="n">i2</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">tmpl_length</span><span class="p">)</span><span class="w"> </span><span class="n">c2</span><span class="o">=</span><span class="n">template</span><span class="p">(</span><span class="n">i2</span><span class="p">:</span><span class="n">i2</span><span class="p">)</span><span class="w"></span>
+<span class="k">            case </span><span class="n">default</span>
+<span class="w">               </span><span class="n">c2</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="w">               </span><span class="n">i2</span><span class="o">=</span><span class="n">i1</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">               </span><span class="k">if</span><span class="p">(</span><span class="n">i2</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">tmpl_length</span><span class="p">)</span><span class="w"> </span><span class="n">c2</span><span class="o">=</span><span class="n">template</span><span class="p">(</span><span class="n">i2</span><span class="p">:</span><span class="n">i2</span><span class="p">)</span>
 <span class="w">               </span><span class="n">valid_token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check_token</span><span class="p">(</span><span class="n">c1</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span><span class="w"> </span>
 <span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">valid_token</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">                  </span><span class="n">istp</span><span class="o">=</span><span class="mi">3</span><span class="w"></span>
+<span class="k">                  </span><span class="n">istp</span><span class="o">=</span><span class="mi">3</span>
 <span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">preserve_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">                     </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">nymd</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nhms</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">),</span><span class="s1">&#39;Using token with no time&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="k">                     </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">nymd</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nhms</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">),</span><span class="s1">&#39;Using token with no time&#39;</span><span class="p">)</span>
 <span class="w">                  </span><span class="k">end if</span>
-<span class="k">                  </span><span class="n">sbuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">evaluate_token</span><span class="p">(</span><span class="n">c1</span><span class="o">//</span><span class="n">c2</span><span class="p">,</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="nb">second</span><span class="p">,</span><span class="n">preserve_</span><span class="p">)</span><span class="w"></span>
-<span class="w">                  </span><span class="n">kstp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len_trim</span><span class="p">(</span><span class="n">sbuf</span><span class="p">)</span><span class="w"></span>
-<span class="w">                  </span><span class="n">m</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="n">kstp</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">                  </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="n">sbuf</span><span class="w"></span>
-<span class="w">                  </span><span class="n">k</span><span class="o">=</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="k">                  </span><span class="n">sbuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">evaluate_token</span><span class="p">(</span><span class="n">c1</span><span class="o">//</span><span class="n">c2</span><span class="p">,</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="nb">second</span><span class="p">,</span><span class="n">preserve_</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">kstp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len_trim</span><span class="p">(</span><span class="n">sbuf</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">m</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="n">kstp</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">                  </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="n">sbuf</span>
+<span class="w">                  </span><span class="n">k</span><span class="o">=</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">               </span><span class="k">else</span>
-<span class="k">                  </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Invalid token in file template: &quot;</span><span class="o">//</span><span class="n">c1</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span><span class="w"></span>
+<span class="k">                  </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Invalid token in file template: &quot;</span><span class="o">//</span><span class="n">c1</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span>
 <span class="w">               </span><span class="k">end if</span>
 <span class="k">            end select</span>
 <span class="k">         else</span>
-<span class="k">            </span><span class="n">istp</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
-<span class="w">            </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="p">)</span><span class="o">=</span><span class="n">template</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="k">            </span><span class="n">istp</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">            </span><span class="n">output_string</span><span class="p">(</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="p">)</span><span class="o">=</span><span class="n">template</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="p">)</span>
+<span class="w">            </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">         </span><span class="k">end if</span>
 <span class="k">      enddo</span>
-<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">fill_grads_template</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">fill_grads_template</span>
 </pre></div>
 
     </section>
@@ -891,32 +889,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

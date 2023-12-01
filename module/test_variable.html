@@ -10,85 +10,58 @@
 
     <title>Test_Variable &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,50 +69,53 @@
       <small>Module</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.1% of total for modules and submodules.">164 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for modules and submodules.">164 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/Test_Variable.pf"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_variable.pf.html'>Test_Variable.pf</a></li>
-          <li class="active">Test_Variable</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_variable.pf.html'>Test_Variable.pf</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Test_Variable</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
   </div>
 
   <div class="row">
-    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div class="col-md-3">
         <div id="sidebar">
       <h3>Contents</h3>
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-0">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/test_variable.html#variable-empty~54">empty</a>
         </div>
       </div>
@@ -155,14 +131,13 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#subs-0">Subroutines</a>
-        </h3>
-      </div>
-      <div id="subs-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/test_variable.html#proc-test_equal_diff_attributes">test_equal_diff_attributes</a>
             <a class="list-group-item" href="../module/test_variable.html#proc-test_equal_diff_dims">test_equal_diff_dims</a>
             <a class="list-group-item" href="../module/test_variable.html#proc-test_get_attribute_real_double">test_get_attribute_real_double</a>
@@ -181,6 +156,7 @@
   
   
   
+  
 
 
   </div>
@@ -189,24 +165,23 @@
 
     <div class="col-md-9" id='text'>
       
-<br>          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <ul class="list-inline">
-                <li><a href='../module/pfio_attributemod.html'>pFIO_AttributeMod</a></li>
-                <li>gFTL_StringVector</li>
-                <li><a href='../module/pfio_unlimitedentitymod.html'>pFIO_UnlimitedEntityMod</a></li>
-                <li><a href='../module/pfio_constantsmod.html'>pFIO_ConstantsMod</a></li>
-                <li>pfunit</li>
-                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
-                <li><a href='../module/pfio_variablemod.html'>pFIO_VariableMod</a></li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item">gFTL_StringVector</li>
+                  <li class="list-inline-item"><a href='../module/pfio_variablemod.html'>pFIO_VariableMod</a></li>
+                  <li class="list-inline-item">pfunit</li>
+                  <li class="list-inline-item"><a href='../module/pfio_constantsmod.html'>pFIO_ConstantsMod</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+                  <li class="list-inline-item"><a href='../module/pfio_attributemod.html'>pFIO_AttributeMod</a></li>
+                  <li class="list-inline-item"><a href='../module/pfio_unlimitedentitymod.html'>pFIO_UnlimitedEntityMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
@@ -614,8 +589,8 @@
                   var panmoduletest_variableUsesGraph = svgPanZoom('#moduletest_variableUsesGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsesGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -686,69 +661,13 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
       
       <br>
-
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-1">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/test_variable.html#variable-empty~54">empty</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#subs-1">Subroutines</a>
-        </h3>
-      </div>
-      <div id="subs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/test_variable.html#proc-test_equal_diff_attributes">test_equal_diff_attributes</a>
-            <a class="list-group-item" href="../module/test_variable.html#proc-test_equal_diff_dims">test_equal_diff_dims</a>
-            <a class="list-group-item" href="../module/test_variable.html#proc-test_get_attribute_real_double">test_get_attribute_real_double</a>
-            <a class="list-group-item" href="../module/test_variable.html#proc-test_get_attribute_scalar_int">test_get_attribute_scalar_int</a>
-            <a class="list-group-item" href="../module/test_variable.html#proc-test_get_attribute_string">test_get_attribute_string</a>
-            <a class="list-group-item" href="../module/test_variable.html#proc-test_get_ith_dimension">test_get_ith_dimension</a>
-            <a class="list-group-item" href="../module/test_variable.html#proc-test_get_type">test_get_type</a>
-            <a class="list-group-item" href="../module/test_variable.html#proc-test_serialize">test_serialize</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-
-
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
 
 
         <section>
@@ -756,11 +675,11 @@ large graphs.</div>
             <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -793,10 +712,10 @@ large graphs.</div>
 
         <section>
           <h2>Subroutines</h2>
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_equal_diff_attributes"></span><h3>public  subroutine <a href='../proc/test_equal_diff_attributes.html'>test_equal_diff_attributes</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_equal_diff_attributes"></span><h3>public  subroutine <a href='../proc/test_equal_diff_attributes.html'>test_equal_diff_attributes</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -806,10 +725,10 @@ large graphs.</div>
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_equal_diff_dims"></span><h3>public  subroutine <a href='../proc/test_equal_diff_dims.html'>test_equal_diff_dims</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_equal_diff_dims"></span><h3>public  subroutine <a href='../proc/test_equal_diff_dims.html'>test_equal_diff_dims</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -819,10 +738,10 @@ large graphs.</div>
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_get_attribute_real_double"></span><h3>public  subroutine <a href='../proc/test_get_attribute_real_double.html'>test_get_attribute_real_double</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_get_attribute_real_double"></span><h3>public  subroutine <a href='../proc/test_get_attribute_real_double.html'>test_get_attribute_real_double</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -832,10 +751,10 @@ large graphs.</div>
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_get_attribute_scalar_int"></span><h3>public  subroutine <a href='../proc/test_get_attribute_scalar_int.html'>test_get_attribute_scalar_int</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_get_attribute_scalar_int"></span><h3>public  subroutine <a href='../proc/test_get_attribute_scalar_int.html'>test_get_attribute_scalar_int</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -845,10 +764,10 @@ large graphs.</div>
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_get_attribute_string"></span><h3>public  subroutine <a href='../proc/test_get_attribute_string.html'>test_get_attribute_string</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_get_attribute_string"></span><h3>public  subroutine <a href='../proc/test_get_attribute_string.html'>test_get_attribute_string</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -858,10 +777,10 @@ large graphs.</div>
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_get_ith_dimension"></span><h3>public  subroutine <a href='../proc/test_get_ith_dimension.html'>test_get_ith_dimension</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_get_ith_dimension"></span><h3>public  subroutine <a href='../proc/test_get_ith_dimension.html'>test_get_ith_dimension</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -871,10 +790,10 @@ large graphs.</div>
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_get_type"></span><h3>public  subroutine <a href='../proc/test_get_type.html'>test_get_type</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_get_type"></span><h3>public  subroutine <a href='../proc/test_get_type.html'>test_get_type</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -884,10 +803,10 @@ large graphs.</div>
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-test_serialize"></span><h3>public  subroutine <a href='../proc/test_serialize.html'>test_serialize</a>()  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_serialize"></span><h3>public  subroutine <a href='../proc/test_serialize.html'>test_serialize</a>()  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -909,32 +828,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

@@ -10,85 +10,58 @@
 
     <title>MAPL_ISO8601_DateTime &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,50 +69,53 @@
       <small>Module</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.4% of total for modules and submodules.">706 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.4% of total for modules and submodules.">710 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/MAPL_ISO8601_DateTime.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/mapl_iso8601_datetime.f90.html'>MAPL_ISO8601_DateTime.F90</a></li>
-          <li class="active">MAPL_ISO8601_DateTime</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_iso8601_datetime.f90.html'>MAPL_ISO8601_DateTime.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_ISO8601_DateTime</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
   </div>
 
   <div class="row">
-    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div class="col-md-3">
         <div id="sidebar">
       <h3>Contents</h3>
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-0">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-time_prefix">TIME_PREFIX</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-digit_characters">DIGIT_CHARACTERS</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-id_day">ID_DAY</a>
@@ -165,14 +141,13 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#inters-0">Interfaces</a>
-        </h3>
-      </div>
-      <div id="inters-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-iso8601date">ISO8601Date</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-iso8601datetime">ISO8601DateTime</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-iso8601duration">ISO8601Duration</a>
@@ -185,33 +160,31 @@
     </div>
 
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#types-0">Derived Types</a>
-        </h3>
-      </div>
-      <div id="types-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601date">ISO8601Date</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601datetime">ISO8601DateTime</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601duration">ISO8601Duration</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601interval">ISO8601Interval</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601time">ISO8601Time</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-date_fields~2">date_fields</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-time_fields~2">time_fields</a>
+            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-date_fields">date_fields</a>
+            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-time_fields">time_fields</a>
         </div>
       </div>
     </div>
 
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#funcs-0">Functions</a>
-        </h3>
-      </div>
-      <div id="funcs-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-undelimit">undelimit</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-convert_iso8601_to_integer_date">convert_ISO8601_to_integer_date</a>
             <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-convert_iso8601_to_integer_time">convert_ISO8601_to_integer_time</a>
@@ -282,6 +255,7 @@
   
   
   
+  
 
 
   </div>
@@ -290,19 +264,18 @@
 
     <div class="col-md-9" id='text'>
       
-<br>          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <ul class="list-inline">
-                <li><a href='../module/mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
-                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
@@ -403,8 +376,8 @@
                   var panmodulemapl_iso8601_datetimeUsesGraph = svgPanZoom('#modulemapl_iso8601_datetimeUsesGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsesGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -475,17 +448,17 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
-          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Used by</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
@@ -549,8 +522,8 @@ large graphs.</div>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsedByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -621,169 +594,12 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
       <br>
-
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-1">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-time_prefix">TIME_PREFIX</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-digit_characters">DIGIT_CHARACTERS</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-id_day">ID_DAY</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-id_month">ID_MONTH</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-id_width">ID_WIDTH</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-id_year">ID_YEAR</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-invalid">INVALID</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-it_hour">IT_HOUR</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-it_minute">IT_MINUTE</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-it_second">IT_SECOND</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-it_width">IT_WIDTH</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-minutes_per_hour">MINUTES_PER_HOUR</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-num_date_fields">NUM_DATE_FIELDS</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-num_time_fields">NUM_TIME_FIELDS</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#variable-z">Z</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#inters-1">Interfaces</a>
-        </h3>
-      </div>
-      <div id="inters-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-iso8601date">ISO8601Date</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-iso8601datetime">ISO8601DateTime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-iso8601duration">ISO8601Duration</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-iso8601time">ISO8601Time</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-date_fields">date_fields</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-operator%28.divides.%29">operator(.divides.)</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#interface-time_fields">time_fields</a>
-        </div>
-      </div>
-    </div>
-
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#types-1">Derived Types</a>
-        </h3>
-      </div>
-      <div id="types-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601date">ISO8601Date</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601datetime">ISO8601DateTime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601duration">ISO8601Duration</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601interval">ISO8601Interval</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-iso8601time">ISO8601Time</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-date_fields~2">date_fields</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#type-time_fields~2">time_fields</a>
-        </div>
-      </div>
-    </div>
-
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#funcs-1">Functions</a>
-        </h3>
-      </div>
-      <div id="funcs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-undelimit">undelimit</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-convert_iso8601_to_integer_date">convert_ISO8601_to_integer_date</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-convert_iso8601_to_integer_time">convert_ISO8601_to_integer_time</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_day">get_day</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_day_datetime">get_day_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_days">get_days</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_hour">get_hour</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_hour_datetime">get_hour_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_hours">get_hours</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_integer_digit">get_integer_digit</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_integer_digit_from_string">get_integer_digit_from_string</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_millisecond">get_millisecond</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_millisecond_datetime">get_millisecond_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_minute">get_minute</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_minute_datetime">get_minute_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_minutes">get_minutes</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_month">get_month</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_month_datetime">get_month_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_month_end">get_month_end</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_month_ends">get_month_ends</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_months">get_months</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_repetitions">get_repetitions</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_second">get_second</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_second_datetime">get_second_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_seconds">get_seconds</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_timezone_offset">get_timezone_offset</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_timezone_offset_datetime">get_timezone_offset_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_year">get_year</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_year_datetime">get_year_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_years">get_years</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-parse_timezone_offset">parse_timezone_offset</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-read_whole_number">read_whole_number</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-read_whole_number_indexed">read_whole_number_indexed</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-divides">divides</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_between">is_between</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_digit">is_digit</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_leap_year~2">is_leap_year</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_date">is_valid_date</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_hour">is_valid_hour</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_millisecond">is_valid_millisecond</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_minute">is_valid_minute</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_month">is_valid_month</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_second">is_valid_second</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_time">is_valid_time</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_timezone_offset">is_valid_timezone_offset</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_valid_year">is_valid_year</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-is_whole_number">is_whole_number</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-construct_iso8601date">construct_ISO8601Date</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_date">get_date</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-construct_iso8601datetime">construct_ISO8601DateTime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_end_datetime">get_end_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_start_datetime">get_start_datetime</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-construct_iso8601duration">construct_ISO8601Duration</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-construct_iso8601time">construct_ISO8601Time</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-get_time">get_time</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-construct_date_fields">construct_date_fields</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-parse_date">parse_date</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-construct_time_fields">construct_time_fields</a>
-            <a class="list-group-item" href="../module/mapl_iso8601_datetime.html#proc-parse_time">parse_time</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-
-
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
 
 
         <section>
@@ -791,11 +607,11 @@ large graphs.</div>
             <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -810,7 +626,7 @@ parameter
             <td>::</td>
             <td><strong>TIME_PREFIX</strong></td>
 <td> =</td>
-                <td>'T'</td>
+                <td>&#39;T&#39;</td>
             <td>
                 
             </td>
@@ -827,7 +643,7 @@ parameter
             <td>::</td>
             <td><strong>DIGIT_CHARACTERS</strong></td>
 <td> =</td>
-                <td>'0123456789'</td>
+                <td>&#39;0123456789&#39;</td>
             <td>
                 
             </td>
@@ -1062,8 +878,8 @@ parameter
 
         <section>
           <h2>Interfaces</h2>
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-iso8601date"></span>
       <h3>public        interface <a href='../interface/iso8601date.html'>ISO8601Date</a> 
       </h3>
@@ -1081,16 +897,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1105,7 +921,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~240"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -1131,8 +947,8 @@ parameter
     </ul>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-iso8601datetime"></span>
       <h3>public        interface <a href='../interface/iso8601datetime.html'>ISO8601DateTime</a> 
       </h3>
@@ -1150,16 +966,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring~2"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1174,7 +990,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~241"></span>
               integer,
             </td>
 <td>intent(inout),</td>
@@ -1200,8 +1016,8 @@ parameter
     </ul>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-iso8601duration"></span>
       <h3>public        interface <a href='../interface/iso8601duration.html'>ISO8601Duration</a> 
       </h3>
@@ -1219,16 +1035,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring~3"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1243,7 +1059,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-imin"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1258,7 +1074,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-imax"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1273,7 +1089,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~242"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1299,8 +1115,8 @@ parameter
     </ul>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-iso8601time"></span>
       <h3>public        interface <a href='../interface/iso8601time.html'>ISO8601Time</a> 
       </h3>
@@ -1318,16 +1134,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -1342,7 +1158,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~243"></span>
               integer,
             </td>
 <td>intent(inout)</td>
@@ -1368,8 +1184,8 @@ parameter
     </ul>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-date_fields"></span>
       <h3>public        interface <a href='../interface/date_fields.html'>date_fields</a> 
       </h3>
@@ -1387,16 +1203,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-year~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1411,7 +1227,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-month~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1426,7 +1242,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-day~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1444,7 +1260,7 @@ parameter
 
     <h4>
     Return Value
-    <small>type(<a href='../type/date_fields~2.html'>date_fields</a>)</small>
+    <small>type(<a href='../type/date_fields.html'>date_fields</a>)</small>
     </h4>
     
 
@@ -1452,10 +1268,10 @@ parameter
     </ul>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-operator%28.divides.%29"></span>
-      <h3>public        interface <a href='../interface/operator%28.divides.%29.html'>operator(.divides.)</a> 
+      <h3>public        interface <a href='../interface/operator(.divides.).html'>operator(.divides.)</a> 
       </h3>
     </div>
     <ul class="list-group">
@@ -1471,16 +1287,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-factor"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1495,7 +1311,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-dividend"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1521,8 +1337,8 @@ parameter
     </ul>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header bg-light codesum">
       <span class="anchor" id="interface-time_fields"></span>
       <h3>public        interface <a href='../interface/time_fields.html'>time_fields</a> 
       </h3>
@@ -1540,16 +1356,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-hour~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1564,7 +1380,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-minute"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1579,7 +1395,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-second"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1594,7 +1410,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-millisecond"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1609,7 +1425,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-timezone_offset"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1627,7 +1443,7 @@ parameter
 
     <h4>
     Return Value
-    <small>type(<a href='../type/time_fields~2.html'>time_fields</a>)</small>
+    <small>type(<a href='../type/time_fields.html'>time_fields</a>)</small>
     </h4>
     
 
@@ -1641,8 +1457,8 @@ parameter
 
         <section>
           <h2>Derived Types</h2>
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header codesum">
       <span class="anchor" id="type-iso8601date"></span>
       <h3>
         type, public&nbsp;::&nbsp;
@@ -1650,7 +1466,7 @@ parameter
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
 
@@ -1677,27 +1493,18 @@ parameter
         <table class="table table-striped varlist">
           <tbody>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601date.html#boundprocedure-get_day'>get_day</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601date.html#boundprocedure-get_day'>get_day</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601date.html#boundprocedure-get_month'>get_month</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601date.html#boundprocedure-get_month'>get_month</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601date.html#boundprocedure-get_year'>get_year</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601date.html#boundprocedure-get_year'>get_year</a></strong></td>
                 <td></td>
               </tr>
           </tbody>
@@ -1705,8 +1512,8 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header codesum">
       <span class="anchor" id="type-iso8601datetime"></span>
       <h3>
         type, public&nbsp;::&nbsp;
@@ -1714,7 +1521,7 @@ parameter
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
 
@@ -1741,99 +1548,53 @@ parameter
         <table class="table table-striped varlist">
           <tbody>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_date'>get_date</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_date'>get_date</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_day~2'>get_day</a></strong>
- =>
-                    <a href='../proc/get_day_datetime.html'>get_day_datetime</a>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_day~2'>get_day</a></strong> => <a href='../proc/get_day_datetime.html'>get_day_datetime</a></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_hour'>get_hour</a></strong>
- =>
-                    <a href='../proc/get_hour_datetime.html'>get_hour_datetime</a>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_hour'>get_hour</a></strong> => <a href='../proc/get_hour_datetime.html'>get_hour_datetime</a></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_millisecond'>get_millisecond</a></strong>
- =>
-                    <a href='../proc/get_millisecond_datetime.html'>get_millisecond_datetime</a>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_millisecond'>get_millisecond</a></strong> => <a href='../proc/get_millisecond_datetime.html'>get_millisecond_datetime</a></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_minute'>get_minute</a></strong>
- =>
-                    <a href='../proc/get_minute_datetime.html'>get_minute_datetime</a>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_minute'>get_minute</a></strong> => <a href='../proc/get_minute_datetime.html'>get_minute_datetime</a></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_month~2'>get_month</a></strong>
- =>
-                    <a href='../proc/get_month_datetime.html'>get_month_datetime</a>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_month~2'>get_month</a></strong> => <a href='../proc/get_month_datetime.html'>get_month_datetime</a></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_second'>get_second</a></strong>
- =>
-                    <a href='../proc/get_second_datetime.html'>get_second_datetime</a>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_second'>get_second</a></strong> => <a href='../proc/get_second_datetime.html'>get_second_datetime</a></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_time'>get_time</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_time'>get_time</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_timezone_offset'>get_timezone_offset</a></strong>
- =>
-                    <a href='../proc/get_timezone_offset_datetime.html'>get_timezone_offset_datetime</a>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_timezone_offset'>get_timezone_offset</a></strong> => <a href='../proc/get_timezone_offset_datetime.html'>get_timezone_offset_datetime</a></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601datetime.html#boundprocedure-get_year~2'>get_year</a></strong>
- =>
-                    <a href='../proc/get_year_datetime.html'>get_year_datetime</a>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601datetime.html#boundprocedure-get_year~2'>get_year</a></strong> => <a href='../proc/get_year_datetime.html'>get_year_datetime</a></td>
                 <td></td>
               </tr>
           </tbody>
@@ -1841,8 +1602,8 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header codesum">
       <span class="anchor" id="type-iso8601duration"></span>
       <h3>
         type, public&nbsp;::&nbsp;
@@ -1850,7 +1611,7 @@ parameter
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
 
@@ -1877,51 +1638,33 @@ parameter
         <table class="table table-striped varlist">
           <tbody>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601duration.html#boundprocedure-get_days'>get_days</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601duration.html#boundprocedure-get_days'>get_days</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601duration.html#boundprocedure-get_hours'>get_hours</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601duration.html#boundprocedure-get_hours'>get_hours</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601duration.html#boundprocedure-get_minutes'>get_minutes</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601duration.html#boundprocedure-get_minutes'>get_minutes</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601duration.html#boundprocedure-get_months'>get_months</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601duration.html#boundprocedure-get_months'>get_months</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601duration.html#boundprocedure-get_seconds'>get_seconds</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601duration.html#boundprocedure-get_seconds'>get_seconds</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601duration.html#boundprocedure-get_years'>get_years</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601duration.html#boundprocedure-get_years'>get_years</a></strong></td>
                 <td></td>
               </tr>
           </tbody>
@@ -1929,8 +1672,8 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header codesum">
       <span class="anchor" id="type-iso8601interval"></span>
       <h3>
         type, public&nbsp;::&nbsp;
@@ -1938,7 +1681,7 @@ parameter
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
 
@@ -1948,27 +1691,18 @@ parameter
         <table class="table table-striped varlist">
           <tbody>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601interval.html#boundprocedure-get_end_datetime'>get_end_datetime</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601interval.html#boundprocedure-get_end_datetime'>get_end_datetime</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601interval.html#boundprocedure-get_repetitions'>get_repetitions</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601interval.html#boundprocedure-get_repetitions'>get_repetitions</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601interval.html#boundprocedure-get_start_datetime'>get_start_datetime</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601interval.html#boundprocedure-get_start_datetime'>get_start_datetime</a></strong></td>
                 <td></td>
               </tr>
           </tbody>
@@ -1976,8 +1710,8 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header codesum">
       <span class="anchor" id="type-iso8601time"></span>
       <h3>
         type, public&nbsp;::&nbsp;
@@ -1985,7 +1719,7 @@ parameter
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
 
@@ -2012,43 +1746,28 @@ parameter
         <table class="table table-striped varlist">
           <tbody>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601time.html#boundprocedure-get_hour~2'>get_hour</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601time.html#boundprocedure-get_hour~2'>get_hour</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601time.html#boundprocedure-get_millisecond~2'>get_millisecond</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601time.html#boundprocedure-get_millisecond~2'>get_millisecond</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601time.html#boundprocedure-get_minute~2'>get_minute</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601time.html#boundprocedure-get_minute~2'>get_minute</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601time.html#boundprocedure-get_second~2'>get_second</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601time.html#boundprocedure-get_second~2'>get_second</a></strong></td>
                 <td></td>
               </tr>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-                  :: <strong><a href='../type/iso8601time.html#boundprocedure-get_timezone_offset~2'>get_timezone_offset</a></strong>
-<small>Function</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/iso8601time.html#boundprocedure-get_timezone_offset~2'>get_timezone_offset</a></strong></td>
                 <td></td>
               </tr>
           </tbody>
@@ -2056,27 +1775,27 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
-      <span class="anchor" id="type-date_fields~2"></span>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-date_fields"></span>
       <h3>
         type, public&nbsp;::&nbsp;
-        <a href='../type/date_fields~2.html'>date_fields</a>
+        <a href='../type/date_fields.html'>date_fields</a>
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
         <h4>Components</h4>
           <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2173,27 +1892,27 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
-      <span class="anchor" id="type-time_fields~2"></span>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-time_fields"></span>
       <h3>
         type, public&nbsp;::&nbsp;
-        <a href='../type/time_fields~2.html'>time_fields</a>
+        <a href='../type/time_fields.html'>time_fields</a>
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
         <h4>Components</h4>
           <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2329,10 +2048,10 @@ parameter
 
         <section>
           <h2>Functions</h2>
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-undelimit"></span><h3>public pure function <a href='../proc/undelimit.html'>undelimit</a>(string, delimiter) result(undelimited)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-undelimit"></span><h3>public pure function <a href='../proc/undelimit.html'>undelimit</a>(string, delimiter) result(undelimited)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2340,16 +2059,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-string~5"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2364,7 +2083,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-delimiter~3"></span>
               character(len=1),
             </td>
 <td>intent(in)</td>
@@ -2389,10 +2108,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-convert_iso8601_to_integer_date"></span><h3>public  function <a href='../proc/convert_iso8601_to_integer_date.html'>convert_ISO8601_to_integer_date</a>(isostring, rc) result(integer_date)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-convert_iso8601_to_integer_date"></span><h3>public  function <a href='../proc/convert_iso8601_to_integer_date.html'>convert_ISO8601_to_integer_date</a>(isostring, rc) result(integer_date)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2400,16 +2119,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring~5"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2424,7 +2143,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1177"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2449,10 +2168,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-convert_iso8601_to_integer_time"></span><h3>public  function <a href='../proc/convert_iso8601_to_integer_time.html'>convert_ISO8601_to_integer_time</a>(isostring, rc) result(integer_time)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-convert_iso8601_to_integer_time"></span><h3>public  function <a href='../proc/convert_iso8601_to_integer_time.html'>convert_ISO8601_to_integer_time</a>(isostring, rc) result(integer_time)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2460,16 +2179,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring~6"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2484,7 +2203,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1178"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2509,10 +2228,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_day"></span><h3>public  function <a href='../proc/get_day.html'>get_day</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_day"></span><h3>public  function <a href='../proc/get_day.html'>get_day</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2520,16 +2239,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~5"></span>
               class(<a href='../type/iso8601date.html'>ISO8601Date</a>),
             </td>
 <td>intent(in)</td>
@@ -2554,10 +2273,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_day_datetime"></span><h3>public  function <a href='../proc/get_day_datetime.html'>get_day_datetime</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_day_datetime"></span><h3>public  function <a href='../proc/get_day_datetime.html'>get_day_datetime</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2565,16 +2284,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~9"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -2599,10 +2318,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_days"></span><h3>public  function <a href='../proc/get_days.html'>get_days</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_days"></span><h3>public  function <a href='../proc/get_days.html'>get_days</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2610,16 +2329,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~18"></span>
               class(<a href='../type/iso8601duration.html'>ISO8601Duration</a>),
             </td>
 <td>intent(in)</td>
@@ -2644,10 +2363,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_hour"></span><h3>public  function <a href='../proc/get_hour.html'>get_hour</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_hour"></span><h3>public  function <a href='../proc/get_hour.html'>get_hour</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2655,16 +2374,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~27"></span>
               class(<a href='../type/iso8601time.html'>ISO8601Time</a>),
             </td>
 <td>intent(in)</td>
@@ -2689,10 +2408,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_hour_datetime"></span><h3>public  function <a href='../proc/get_hour_datetime.html'>get_hour_datetime</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_hour_datetime"></span><h3>public  function <a href='../proc/get_hour_datetime.html'>get_hour_datetime</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2700,16 +2419,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~10"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -2734,10 +2453,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_hours"></span><h3>public  function <a href='../proc/get_hours.html'>get_hours</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_hours"></span><h3>public  function <a href='../proc/get_hours.html'>get_hours</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2745,16 +2464,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~19"></span>
               class(<a href='../type/iso8601duration.html'>ISO8601Duration</a>),
             </td>
 <td>intent(in)</td>
@@ -2779,10 +2498,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_integer_digit"></span><h3>public pure function <a href='../proc/get_integer_digit.html'>get_integer_digit</a>(c)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_integer_digit"></span><h3>public pure function <a href='../proc/get_integer_digit.html'>get_integer_digit</a>(c)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2790,16 +2509,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-c~4"></span>
               character(len=1),
             </td>
 <td>intent(in)</td>
@@ -2824,10 +2543,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_integer_digit_from_string"></span><h3>public pure function <a href='../proc/get_integer_digit_from_string.html'>get_integer_digit_from_string</a>(s, i)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_integer_digit_from_string"></span><h3>public pure function <a href='../proc/get_integer_digit_from_string.html'>get_integer_digit_from_string</a>(s, i)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2835,16 +2554,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-s~3"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -2859,7 +2578,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-i~360"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -2884,10 +2603,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_millisecond"></span><h3>public  function <a href='../proc/get_millisecond.html'>get_millisecond</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_millisecond"></span><h3>public  function <a href='../proc/get_millisecond.html'>get_millisecond</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2895,16 +2614,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~28"></span>
               class(<a href='../type/iso8601time.html'>ISO8601Time</a>),
             </td>
 <td>intent(in)</td>
@@ -2929,10 +2648,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_millisecond_datetime"></span><h3>public  function <a href='../proc/get_millisecond_datetime.html'>get_millisecond_datetime</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_millisecond_datetime"></span><h3>public  function <a href='../proc/get_millisecond_datetime.html'>get_millisecond_datetime</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2940,16 +2659,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~11"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -2974,10 +2693,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_minute"></span><h3>public  function <a href='../proc/get_minute.html'>get_minute</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_minute"></span><h3>public  function <a href='../proc/get_minute.html'>get_minute</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -2985,16 +2704,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~29"></span>
               class(<a href='../type/iso8601time.html'>ISO8601Time</a>),
             </td>
 <td>intent(in)</td>
@@ -3019,10 +2738,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_minute_datetime"></span><h3>public  function <a href='../proc/get_minute_datetime.html'>get_minute_datetime</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_minute_datetime"></span><h3>public  function <a href='../proc/get_minute_datetime.html'>get_minute_datetime</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3030,16 +2749,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~12"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -3064,10 +2783,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_minutes"></span><h3>public  function <a href='../proc/get_minutes.html'>get_minutes</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_minutes"></span><h3>public  function <a href='../proc/get_minutes.html'>get_minutes</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3075,16 +2794,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~20"></span>
               class(<a href='../type/iso8601duration.html'>ISO8601Duration</a>),
             </td>
 <td>intent(in)</td>
@@ -3109,10 +2828,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_month"></span><h3>public  function <a href='../proc/get_month.html'>get_month</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_month"></span><h3>public  function <a href='../proc/get_month.html'>get_month</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3120,16 +2839,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~6"></span>
               class(<a href='../type/iso8601date.html'>ISO8601Date</a>),
             </td>
 <td>intent(in)</td>
@@ -3154,10 +2873,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_month_datetime"></span><h3>public  function <a href='../proc/get_month_datetime.html'>get_month_datetime</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_month_datetime"></span><h3>public  function <a href='../proc/get_month_datetime.html'>get_month_datetime</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3165,16 +2884,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~13"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -3199,10 +2918,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_month_end"></span><h3>public pure function <a href='../proc/get_month_end.html'>get_month_end</a>(y, m)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_month_end"></span><h3>public pure function <a href='../proc/get_month_end.html'>get_month_end</a>(y, m)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3210,16 +2929,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-y"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3234,7 +2953,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-m~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3259,10 +2978,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_month_ends"></span><h3>public pure function <a href='../proc/get_month_ends.html'>get_month_ends</a>(y) result(month_ends)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_month_ends"></span><h3>public pure function <a href='../proc/get_month_ends.html'>get_month_ends</a>(y) result(month_ends)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3270,16 +2989,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-y~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3304,10 +3023,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_months"></span><h3>public  function <a href='../proc/get_months.html'>get_months</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_months"></span><h3>public  function <a href='../proc/get_months.html'>get_months</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3315,16 +3034,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~21"></span>
               class(<a href='../type/iso8601duration.html'>ISO8601Duration</a>),
             </td>
 <td>intent(in)</td>
@@ -3349,10 +3068,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_repetitions"></span><h3>public  function <a href='../proc/get_repetitions.html'>get_repetitions</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_repetitions"></span><h3>public  function <a href='../proc/get_repetitions.html'>get_repetitions</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3360,16 +3079,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~25"></span>
               class(<a href='../type/iso8601interval.html'>ISO8601Interval</a>),
             </td>
 <td>intent(in)</td>
@@ -3394,10 +3113,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_second"></span><h3>public  function <a href='../proc/get_second.html'>get_second</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_second"></span><h3>public  function <a href='../proc/get_second.html'>get_second</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3405,16 +3124,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~30"></span>
               class(<a href='../type/iso8601time.html'>ISO8601Time</a>),
             </td>
 <td>intent(in)</td>
@@ -3439,10 +3158,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_second_datetime"></span><h3>public  function <a href='../proc/get_second_datetime.html'>get_second_datetime</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_second_datetime"></span><h3>public  function <a href='../proc/get_second_datetime.html'>get_second_datetime</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3450,16 +3169,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~14"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -3484,10 +3203,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_seconds"></span><h3>public  function <a href='../proc/get_seconds.html'>get_seconds</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_seconds"></span><h3>public  function <a href='../proc/get_seconds.html'>get_seconds</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3495,16 +3214,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~22"></span>
               class(<a href='../type/iso8601duration.html'>ISO8601Duration</a>),
             </td>
 <td>intent(in)</td>
@@ -3529,10 +3248,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_timezone_offset"></span><h3>public  function <a href='../proc/get_timezone_offset.html'>get_timezone_offset</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_timezone_offset"></span><h3>public  function <a href='../proc/get_timezone_offset.html'>get_timezone_offset</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3540,16 +3259,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~31"></span>
               class(<a href='../type/iso8601time.html'>ISO8601Time</a>),
             </td>
 <td>intent(in)</td>
@@ -3574,10 +3293,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_timezone_offset_datetime"></span><h3>public  function <a href='../proc/get_timezone_offset_datetime.html'>get_timezone_offset_datetime</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_timezone_offset_datetime"></span><h3>public  function <a href='../proc/get_timezone_offset_datetime.html'>get_timezone_offset_datetime</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3585,16 +3304,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~16"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -3619,10 +3338,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_year"></span><h3>public  function <a href='../proc/get_year.html'>get_year</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_year"></span><h3>public  function <a href='../proc/get_year.html'>get_year</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3630,16 +3349,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~7"></span>
               class(<a href='../type/iso8601date.html'>ISO8601Date</a>),
             </td>
 <td>intent(in)</td>
@@ -3664,10 +3383,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_year_datetime"></span><h3>public  function <a href='../proc/get_year_datetime.html'>get_year_datetime</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_year_datetime"></span><h3>public  function <a href='../proc/get_year_datetime.html'>get_year_datetime</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3675,16 +3394,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~17"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -3709,10 +3428,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_years"></span><h3>public  function <a href='../proc/get_years.html'>get_years</a>(self)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_years"></span><h3>public  function <a href='../proc/get_years.html'>get_years</a>(self)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3720,16 +3439,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~23"></span>
               class(<a href='../type/iso8601duration.html'>ISO8601Duration</a>),
             </td>
 <td>intent(in)</td>
@@ -3754,10 +3473,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-parse_timezone_offset"></span><h3>public pure function <a href='../proc/parse_timezone_offset.html'>parse_timezone_offset</a>(offset, field_width) result(tzo)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-parse_timezone_offset"></span><h3>public pure function <a href='../proc/parse_timezone_offset.html'>parse_timezone_offset</a>(offset, field_width) result(tzo)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3765,16 +3484,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-offset~10"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3789,7 +3508,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-field_width"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3814,10 +3533,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-read_whole_number"></span><h3>public pure function <a href='../proc/read_whole_number.html'>read_whole_number</a>(string)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-read_whole_number"></span><h3>public pure function <a href='../proc/read_whole_number.html'>read_whole_number</a>(string)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3825,16 +3544,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-string~6"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3859,10 +3578,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-read_whole_number_indexed"></span><h3>public pure function <a href='../proc/read_whole_number_indexed.html'>read_whole_number_indexed</a>(string, istart, istop)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-read_whole_number_indexed"></span><h3>public pure function <a href='../proc/read_whole_number_indexed.html'>read_whole_number_indexed</a>(string, istart, istop)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3870,16 +3589,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-string~7"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -3894,7 +3613,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-istart"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3909,7 +3628,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-istop"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3934,10 +3653,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-divides"></span><h3>public pure function <a href='../proc/divides.html'>divides</a>(factor, dividend)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-divides"></span><h3>public pure function <a href='../proc/divides.html'>divides</a>(factor, dividend)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -3945,16 +3664,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-factor"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3969,7 +3688,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-dividend"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -3994,10 +3713,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_between"></span><h3>public pure function <a href='../proc/is_between.html'>is_between</a>(lower, upper, n)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_between"></span><h3>public pure function <a href='../proc/is_between.html'>is_between</a>(lower, upper, n)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4005,16 +3724,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-lower~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4029,7 +3748,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-upper~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4044,7 +3763,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-n~288"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4069,10 +3788,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_digit"></span><h3>public pure elemental function <a href='../proc/is_digit.html'>is_digit</a>(c)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_digit"></span><h3>public pure elemental function <a href='../proc/is_digit.html'>is_digit</a>(c)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4080,16 +3799,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-c~5"></span>
               character(len=1),
             </td>
 <td>intent(in)</td>
@@ -4114,10 +3833,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_leap_year~2"></span><h3>public pure function <a href='../proc/is_leap_year~2.html'>is_leap_year</a>(y)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_leap_year~2"></span><h3>public pure function <a href='../proc/is_leap_year~2.html'>is_leap_year</a>(y)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4125,16 +3844,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-y~3"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4159,10 +3878,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_date"></span><h3>public pure function <a href='../proc/is_valid_date.html'>is_valid_date</a>(date)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_date"></span><h3>public pure function <a href='../proc/is_valid_date.html'>is_valid_date</a>(date)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4170,17 +3889,17 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/date_fields~2.html'>date_fields</a>),
+              <span class="anchor" id="variable-date~25"></span>
+              type(<a href='../type/date_fields.html'>date_fields</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -4204,10 +3923,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_hour"></span><h3>public pure function <a href='../proc/is_valid_hour.html'>is_valid_hour</a>(hour)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_hour"></span><h3>public pure function <a href='../proc/is_valid_hour.html'>is_valid_hour</a>(hour)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4215,16 +3934,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-hour~3"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4249,10 +3968,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_millisecond"></span><h3>public pure function <a href='../proc/is_valid_millisecond.html'>is_valid_millisecond</a>(millisecond)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_millisecond"></span><h3>public pure function <a href='../proc/is_valid_millisecond.html'>is_valid_millisecond</a>(millisecond)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4260,16 +3979,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-millisecond~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4294,10 +4013,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_minute"></span><h3>public pure function <a href='../proc/is_valid_minute.html'>is_valid_minute</a>(minute)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_minute"></span><h3>public pure function <a href='../proc/is_valid_minute.html'>is_valid_minute</a>(minute)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4305,16 +4024,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-minute~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4339,10 +4058,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_month"></span><h3>public pure function <a href='../proc/is_valid_month.html'>is_valid_month</a>(m)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_month"></span><h3>public pure function <a href='../proc/is_valid_month.html'>is_valid_month</a>(m)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4350,16 +4069,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-m~3"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4384,10 +4103,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_second"></span><h3>public pure function <a href='../proc/is_valid_second.html'>is_valid_second</a>(second)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_second"></span><h3>public pure function <a href='../proc/is_valid_second.html'>is_valid_second</a>(second)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4395,16 +4114,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-second~5"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4429,10 +4148,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_time"></span><h3>public pure function <a href='../proc/is_valid_time.html'>is_valid_time</a>(time)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_time"></span><h3>public pure function <a href='../proc/is_valid_time.html'>is_valid_time</a>(time)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4440,17 +4159,17 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/time_fields~2.html'>time_fields</a>),
+              <span class="anchor" id="variable-time~23"></span>
+              type(<a href='../type/time_fields.html'>time_fields</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -4474,10 +4193,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_timezone_offset"></span><h3>public pure function <a href='../proc/is_valid_timezone_offset.html'>is_valid_timezone_offset</a>(timezone_offset)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_timezone_offset"></span><h3>public pure function <a href='../proc/is_valid_timezone_offset.html'>is_valid_timezone_offset</a>(timezone_offset)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4485,16 +4204,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-timezone_offset~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4519,10 +4238,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_valid_year"></span><h3>public pure function <a href='../proc/is_valid_year.html'>is_valid_year</a>(y)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_valid_year"></span><h3>public pure function <a href='../proc/is_valid_year.html'>is_valid_year</a>(y)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4530,16 +4249,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-y~4"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4564,10 +4283,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-is_whole_number"></span><h3>public pure function <a href='../proc/is_whole_number.html'>is_whole_number</a>(n)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-is_whole_number"></span><h3>public pure function <a href='../proc/is_whole_number.html'>is_whole_number</a>(n)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4575,16 +4294,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-n~289"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4609,10 +4328,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-construct_iso8601date"></span><h3>public  function <a href='../proc/construct_iso8601date.html'>construct_ISO8601Date</a>(isostring, rc) result(date)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-construct_iso8601date"></span><h3>public  function <a href='../proc/construct_iso8601date.html'>construct_ISO8601Date</a>(isostring, rc) result(date)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4620,16 +4339,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -4644,7 +4363,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~240"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -4669,10 +4388,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_date"></span><h3>public  function <a href='../proc/get_date.html'>get_date</a>(self) result(date)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_date"></span><h3>public  function <a href='../proc/get_date.html'>get_date</a>(self) result(date)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4680,16 +4399,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~8"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -4714,10 +4433,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-construct_iso8601datetime"></span><h3>public  function <a href='../proc/construct_iso8601datetime.html'>construct_ISO8601DateTime</a>(isostring, rc) result(datetime)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-construct_iso8601datetime"></span><h3>public  function <a href='../proc/construct_iso8601datetime.html'>construct_ISO8601DateTime</a>(isostring, rc) result(datetime)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4725,16 +4444,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring~2"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -4749,7 +4468,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~241"></span>
               integer,
             </td>
 <td>intent(inout),</td>
@@ -4774,10 +4493,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_end_datetime"></span><h3>public  function <a href='../proc/get_end_datetime.html'>get_end_datetime</a>(self) result(datetime)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_end_datetime"></span><h3>public  function <a href='../proc/get_end_datetime.html'>get_end_datetime</a>(self) result(datetime)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4785,16 +4504,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~24"></span>
               class(<a href='../type/iso8601interval.html'>ISO8601Interval</a>),
             </td>
 <td>intent(in)</td>
@@ -4819,10 +4538,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_start_datetime"></span><h3>public  function <a href='../proc/get_start_datetime.html'>get_start_datetime</a>(self) result(datetime)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_start_datetime"></span><h3>public  function <a href='../proc/get_start_datetime.html'>get_start_datetime</a>(self) result(datetime)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4830,16 +4549,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~26"></span>
               class(<a href='../type/iso8601interval.html'>ISO8601Interval</a>),
             </td>
 <td>intent(in)</td>
@@ -4864,10 +4583,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-construct_iso8601duration"></span><h3>public  function <a href='../proc/construct_iso8601duration.html'>construct_ISO8601Duration</a>(isostring, imin, imax, rc) result(duration)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-construct_iso8601duration"></span><h3>public  function <a href='../proc/construct_iso8601duration.html'>construct_ISO8601Duration</a>(isostring, imin, imax, rc) result(duration)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4875,16 +4594,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring~3"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -4899,7 +4618,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-imin"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4914,7 +4633,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-imax"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -4929,7 +4648,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~242"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -4954,10 +4673,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-construct_iso8601time"></span><h3>public  function <a href='../proc/construct_iso8601time.html'>construct_ISO8601Time</a>(isostring, rc) result(time)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-construct_iso8601time"></span><h3>public  function <a href='../proc/construct_iso8601time.html'>construct_ISO8601Time</a>(isostring, rc) result(time)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -4965,16 +4684,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-isostring~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -4989,7 +4708,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~243"></span>
               integer,
             </td>
 <td>intent(inout)</td>
@@ -5014,10 +4733,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_time"></span><h3>public  function <a href='../proc/get_time.html'>get_time</a>(self) result(time)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_time"></span><h3>public  function <a href='../proc/get_time.html'>get_time</a>(self) result(time)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -5025,16 +4744,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-self~15"></span>
               class(<a href='../type/iso8601datetime.html'>ISO8601DateTime</a>),
             </td>
 <td>intent(in)</td>
@@ -5059,10 +4778,10 @@ parameter
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-construct_date_fields"></span><h3>public  function <a href='../proc/construct_date_fields.html'>construct_date_fields</a>(year, month, day) result(fields)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-construct_date_fields"></span><h3>public  function <a href='../proc/construct_date_fields.html'>construct_date_fields</a>(year, month, day) result(fields)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -5070,16 +4789,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-year~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -5094,7 +4813,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-month~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -5109,7 +4828,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-day~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -5127,17 +4846,17 @@ parameter
 
     <h4>
     Return Value
-    <small>type(<a href='../type/date_fields~2.html'>date_fields</a>)</small>
+    <small>type(<a href='../type/date_fields.html'>date_fields</a>)</small>
     </h4>
     
 
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-parse_date"></span><h3>public pure function <a href='../proc/parse_date.html'>parse_date</a>(datestring) result(fields)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-parse_date"></span><h3>public pure function <a href='../proc/parse_date.html'>parse_date</a>(datestring) result(fields)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -5145,16 +4864,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-datestring"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -5172,17 +4891,17 @@ parameter
 
     <h4>
     Return Value
-    <small>type(<a href='../type/date_fields~2.html'>date_fields</a>)</small>
+    <small>type(<a href='../type/date_fields.html'>date_fields</a>)</small>
     </h4>
     
 
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-construct_time_fields"></span><h3>public pure function <a href='../proc/construct_time_fields.html'>construct_time_fields</a>(hour, minute, second, millisecond, timezone_offset) result(fields)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-construct_time_fields"></span><h3>public pure function <a href='../proc/construct_time_fields.html'>construct_time_fields</a>(hour, minute, second, millisecond, timezone_offset) result(fields)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -5190,16 +4909,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-hour~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -5214,7 +4933,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-minute"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -5229,7 +4948,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-second"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -5244,7 +4963,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-millisecond"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -5259,7 +4978,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-timezone_offset"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -5277,17 +4996,17 @@ parameter
 
     <h4>
     Return Value
-    <small>type(<a href='../type/time_fields~2.html'>time_fields</a>)</small>
+    <small>type(<a href='../type/time_fields.html'>time_fields</a>)</small>
     </h4>
     
 
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-parse_time"></span><h3>public pure function <a href='../proc/parse_time.html'>parse_time</a>(timestring) result(fields)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-parse_time"></span><h3>public pure function <a href='../proc/parse_time.html'>parse_time</a>(timestring) result(fields)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -5295,16 +5014,16 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-timestring"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -5322,7 +5041,7 @@ parameter
 
     <h4>
     Return Value
-    <small>type(<a href='../type/time_fields~2.html'>time_fields</a>)</small>
+    <small>type(<a href='../type/time_fields.html'>time_fields</a>)</small>
     </h4>
     
 
@@ -5342,32 +5061,27 @@ parameter
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

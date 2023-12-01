@@ -10,117 +10,94 @@
 
     <title>main &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
     <h1>main      <small>Program</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 1.4% of total for programs.">82 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.7% of total for programs.">42 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pfio_collective_demo.F90"> Source File</a>
+              <a href="../src/MAPL_demo_fargparse.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/pfio_collective_demo.f90.html'>pfio_collective_demo.F90</a></li>
-          <li class="active">main</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_demo_fargparse.f90.html'>MAPL_demo_fargparse.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">main</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -131,31 +108,16 @@
       <div id="sidebar">
       <h3>Contents</h3>
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-0">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-0" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../program/main.html#variable-both_color">BOTH_COLOR</a>
-            <a class="list-group-item" href="../program/main.html#variable-client_color~2">CLIENT_COLOR</a>
-            <a class="list-group-item" href="../program/main.html#variable-no_color">NO_COLOR</a>
-            <a class="list-group-item" href="../program/main.html#variable-server_color~2">SERVER_COLOR</a>
-            <a class="list-group-item" href="../program/main.html#variable-color~4">color</a>
-            <a class="list-group-item" href="../program/main.html#variable-comm~66">comm</a>
-            <a class="list-group-item" href="../program/main.html#variable-ierror~7">ierror</a>
-            <a class="list-group-item" href="../program/main.html#variable-key~210">key</a>
-            <a class="list-group-item" href="../program/main.html#variable-npes~11">npes</a>
-            <a class="list-group-item" href="../program/main.html#variable-provided~2">provided</a>
-            <a class="list-group-item" href="../program/main.html#variable-rank~19">rank</a>
-            <a class="list-group-item" href="../program/main.html#variable-required">required</a>
-            <a class="list-group-item" href="../program/main.html#variable-status~134">status</a>
-            <a class="list-group-item" href="../program/main.html#variable-d_s~6">d_s</a>
-            <a class="list-group-item" href="../program/main.html#variable-server~8">server</a>
-            <a class="list-group-item" href="../program/main.html#variable-options~13">options</a>
-            <a class="list-group-item" href="../program/main.html#variable-extdata~2">extData</a>
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../program/main.html#variable-status~130">status</a>
+            <a class="list-group-item" href="../program/main.html#variable-cap_options~6">cap_options</a>
+            <a class="list-group-item" href="../program/main.html#variable-cli~3">cli</a>
         </div>
       </div>
     </div>
@@ -169,17 +131,16 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#funcs-0">Functions</a>
-        </h3>
-      </div>
-      <div id="funcs-0" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../program/main.html#proc-split_color">split_color</a>
-            <a class="list-group-item" href="../program/main.html#proc-get_directory_service">get_directory_service</a>
-            <a class="list-group-item" href="../program/main.html#proc-get_server">get_server</a>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../program/main.html#proc-extra_options">extra_options</a>
+            <a class="list-group-item" href="../program/main.html#proc-run~3">run</a>
         </div>
       </div>
     </div>
@@ -191,8 +152,8 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../program/main.html#src">main</a>
       </div>
@@ -204,114 +165,258 @@
     </div>
     
     <div class="col-md-9" id='text'>
-        <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <ul class="list-inline">
-                <li><a href='<a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a>'>mpi</a></li>
-                <li><a href='../module/fakeextdatamod_collective.html'>FakeExtDataMod_collective</a></li>
-                <li><a href='../module/collective_demo_cli.html'>collective_demo_CLI</a></li>
-                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
-                <li><a href='../module/pfio.html'>pFIO</a></li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item">fargparse</li>
+                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl.html'>MAPL</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: program~~main~~UsesGraph Pages: 1 -->
-<svg id="programmainUsesGraph" width="256pt" height="200pt"
- viewBox="0.00 0.00 256.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="program~~main~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<svg id="programmainUsesGraph" width="363pt" height="494pt"
+ viewBox="0.00 0.00 363.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="program~~main~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
 <title>program~~main~~UsesGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 252,-196 252,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 359,-490 359,4 -4,4"/>
 <!-- program~main -->
 <g id="program~~main~~UsesGraph_node1" class="node">
 <title>program~main</title>
-<polygon fill="none" stroke="black" points="248,-108 194,-108 194,-84 248,-84 248,-108"/>
-<text text-anchor="middle" x="221" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
+<polygon fill="none" stroke="black" points="355,-255 301,-255 301,-231 355,-231 355,-255"/>
+<text text-anchor="middle" x="328" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
 </g>
-<!-- module~collective_demo_cli -->
+<!-- fargparse -->
 <g id="program~~main~~UsesGraph_node2" class="node">
-<title>module~collective_demo_cli</title>
-<g id="a_program~~main~~UsesGraph_node2"><a xlink:href=".././module/collective_demo_cli.html" xlink:title="collective_demo_CLI">
-<polygon fill="#337ab7" stroke="#337ab7" points="139.5,-192 18.5,-192 18.5,-168 139.5,-168 139.5,-192"/>
-<text text-anchor="middle" x="79" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">collective_demo_CLI</text>
-</a>
+<title>fargparse</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="265,-297 201,-297 201,-273 265,-273 265,-297"/>
+<text text-anchor="middle" x="233" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fargparse</text>
 </g>
-</g>
-<!-- program~main&#45;&gt;module~collective_demo_cli -->
+<!-- program~main&#45;&gt;fargparse -->
 <g id="program~~main~~UsesGraph_edge1" class="edge">
-<title>program~main&#45;&gt;module~collective_demo_cli</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M211.34,-108.1C200.48,-122.38 180.53,-145.85 158,-159 154.78,-160.88 151.39,-162.59 147.9,-164.16"/>
-<polygon fill="#255000" stroke="#255000" points="146.44,-160.97 138.47,-167.96 149.05,-167.46 146.44,-160.97"/>
+<title>program~main&#45;&gt;fargparse</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M300.6,-254.92C291.06,-259.23 280.12,-264.17 269.91,-268.78"/>
+<polygon fill="#255000" stroke="#255000" points="268.46,-265.6 260.79,-272.9 271.34,-271.98 268.46,-265.6"/>
 </g>
-<!-- module~fakeextdatamod_collective -->
+<!-- module~mapl -->
 <g id="program~~main~~UsesGraph_node3" class="node">
-<title>module~fakeextdatamod_collective</title>
-<g id="a_program~~main~~UsesGraph_node3"><a xlink:href=".././module/fakeextdatamod_collective.html" xlink:title="FakeExtDataMod_collective">
-<polygon fill="#337ab7" stroke="#337ab7" points="158,-150 0,-150 0,-126 158,-126 158,-150"/>
-<text text-anchor="middle" x="79" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FakeExtDataMod_collective</text>
+<title>module~mapl</title>
+<g id="a_program~~main~~UsesGraph_node3"><a xlink:href=".././module/mapl.html" xlink:title="MAPL">
+<polygon fill="#337ab7" stroke="#337ab7" points="260,-255 206,-255 206,-231 260,-231 260,-255"/>
+<text text-anchor="middle" x="233" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL</text>
 </a>
 </g>
 </g>
-<!-- program~main&#45;&gt;module~fakeextdatamod_collective -->
+<!-- program~main&#45;&gt;module~mapl -->
 <g id="program~~main~~UsesGraph_edge2" class="edge">
-<title>program~main&#45;&gt;module~fakeextdatamod_collective</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M193.87,-105.26C182.85,-109.06 169.85,-113.4 158,-117 151.08,-119.1 143.78,-121.21 136.54,-123.23"/>
-<polygon fill="#255000" stroke="#255000" points="135.46,-119.9 126.75,-125.93 137.32,-126.65 135.46,-119.9"/>
-</g>
-<!-- module~mapl_exceptionhandling -->
-<g id="program~~main~~UsesGraph_node4" class="node">
-<title>module~mapl_exceptionhandling</title>
-<g id="a_program~~main~~UsesGraph_node4"><a xlink:href=".././module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
-<polygon fill="#337ab7" stroke="#337ab7" points="152.5,-108 5.5,-108 5.5,-84 152.5,-84 152.5,-108"/>
-<text text-anchor="middle" x="79" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
-</a>
-</g>
-</g>
-<!-- program~main&#45;&gt;module~mapl_exceptionhandling -->
-<g id="program~~main~~UsesGraph_edge3" class="edge">
-<title>program~main&#45;&gt;module~mapl_exceptionhandling</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M194,-96C184.82,-96 173.95,-96 162.63,-96"/>
-<polygon fill="#255000" stroke="#255000" points="162.59,-92.5 152.59,-96 162.59,-99.5 162.59,-92.5"/>
-</g>
-<!-- module~pfio -->
-<g id="program~~main~~UsesGraph_node5" class="node">
-<title>module~pfio</title>
-<g id="a_program~~main~~UsesGraph_node5"><a xlink:href=".././module/pfio.html" xlink:title="pFIO">
-<polygon fill="#337ab7" stroke="#337ab7" points="106,-66 52,-66 52,-42 106,-42 106,-66"/>
-<text text-anchor="middle" x="79" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
-</a>
-</g>
-</g>
-<!-- program~main&#45;&gt;module~pfio -->
-<g id="program~~main~~UsesGraph_edge4" class="edge">
-<title>program~main&#45;&gt;module~pfio</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M193.87,-86.74C182.85,-82.94 169.85,-78.6 158,-75 144.31,-70.84 129.15,-66.67 115.86,-63.14"/>
-<polygon fill="#255000" stroke="#255000" points="116.68,-59.74 106.12,-60.59 114.9,-66.51 116.68,-59.74"/>
+<title>program~main&#45;&gt;module~mapl</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M300.6,-243C291.19,-243 280.43,-243 270.34,-243"/>
+<polygon fill="#255000" stroke="#255000" points="270.15,-239.5 260.15,-243 270.15,-246.5 270.15,-239.5"/>
 </g>
 <!-- mpi -->
-<g id="program~~main~~UsesGraph_node6" class="node">
+<g id="program~~main~~UsesGraph_node4" class="node">
 <title>mpi</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="106,-24 52,-24 52,0 106,0 106,-24"/>
-<text text-anchor="middle" x="79" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="260,-213 206,-213 206,-189 260,-189 260,-213"/>
+<text text-anchor="middle" x="233" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
 </g>
 <!-- program~main&#45;&gt;mpi -->
-<g id="program~~main~~UsesGraph_edge5" class="edge">
+<g id="program~~main~~UsesGraph_edge3" class="edge">
 <title>program~main&#45;&gt;mpi</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M211.34,-83.9C200.48,-69.62 180.53,-46.15 158,-33 145.36,-25.62 130.05,-20.77 116.36,-17.61"/>
-<polygon fill="#255000" stroke="#255000" points="116.78,-14.12 106.28,-15.51 115.36,-20.97 116.78,-14.12"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M300.6,-231.08C290.9,-226.69 279.75,-221.66 269.38,-216.98"/>
+<polygon fill="#255000" stroke="#255000" points="270.7,-213.73 260.15,-212.81 267.82,-220.11 270.7,-213.73"/>
+</g>
+<!-- module~esmf_cfiomod -->
+<g id="program~~main~~UsesGraph_node5" class="node">
+<title>module~esmf_cfiomod</title>
+<g id="a_program~~main~~UsesGraph_node5"><a xlink:href=".././module/esmf_cfiomod.html" xlink:title="ESMF_CFIOMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="129.5,-486 35.5,-486 35.5,-462 129.5,-462 129.5,-486"/>
+<text text-anchor="middle" x="82.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~esmf_cfiomod -->
+<g id="program~~main~~UsesGraph_edge4" class="edge">
+<title>module~mapl&#45;&gt;module~esmf_cfiomod</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M209.39,-255.1C206.18,-257.66 203.21,-260.63 201,-264 154.01,-335.44 223.5,-390.63 165,-453 158.1,-460.35 149,-465.27 139.39,-468.53"/>
+<polygon fill="#025500" stroke="#025500" points="138.35,-465.18 129.67,-471.26 140.24,-471.92 138.35,-465.18"/>
+</g>
+<!-- module~mapl_esmffieldbundleread -->
+<g id="program~~main~~UsesGraph_node6" class="node">
+<title>module~mapl_esmffieldbundleread</title>
+<g id="a_program~~main~~UsesGraph_node6"><a xlink:href=".././module/mapl_esmffieldbundleread.html" xlink:title="MAPL_ESMFFieldBundleRead">
+<polygon fill="#337ab7" stroke="#337ab7" points="164.5,-444 0.5,-444 0.5,-420 164.5,-420 164.5,-444"/>
+<text text-anchor="middle" x="82.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleRead</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_esmffieldbundleread -->
+<g id="program~~main~~UsesGraph_edge5" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_esmffieldbundleread</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M209.54,-255.2C206.31,-257.75 203.3,-260.69 201,-264 162.59,-319.22 212.28,-363.15 165,-411 163.91,-412.1 162.77,-413.15 161.58,-414.15"/>
+<polygon fill="#025500" stroke="#025500" points="159.4,-411.4 153.19,-419.99 163.4,-417.15 159.4,-411.4"/>
+</g>
+<!-- module~mapl_esmffieldbundlewrite -->
+<g id="program~~main~~UsesGraph_node7" class="node">
+<title>module~mapl_esmffieldbundlewrite</title>
+<g id="a_program~~main~~UsesGraph_node7"><a xlink:href=".././module/mapl_esmffieldbundlewrite.html" xlink:title="MAPL_ESMFFieldBundleWrite">
+<polygon fill="#337ab7" stroke="#337ab7" points="165,-402 0,-402 0,-378 165,-378 165,-402"/>
+<text text-anchor="middle" x="82.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_esmffieldbundlewrite -->
+<g id="program~~main~~UsesGraph_edge6" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_esmffieldbundlewrite</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M210.11,-255.14C206.73,-257.73 203.53,-260.7 201,-264 171.03,-303.19 201.22,-335.5 165,-369 163.71,-370.19 162.36,-371.32 160.96,-372.39"/>
+<polygon fill="#025500" stroke="#025500" points="158.99,-369.49 152.45,-377.83 162.76,-375.39 158.99,-369.49"/>
+</g>
+<!-- module~mapl_fieldutils -->
+<g id="program~~main~~UsesGraph_node8" class="node">
+<title>module~mapl_fieldutils</title>
+<g id="a_program~~main~~UsesGraph_node8"><a xlink:href=".././module/mapl_fieldutils.html" xlink:title="MAPL_FieldUtils">
+<polygon fill="#337ab7" stroke="#337ab7" points="129.5,-360 35.5,-360 35.5,-336 129.5,-336 129.5,-360"/>
+<text text-anchor="middle" x="82.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldUtils</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_fieldutils -->
+<g id="program~~main~~UsesGraph_edge7" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_fieldutils</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M211.26,-255.1C207.6,-257.76 204,-260.76 201,-264 179.08,-287.66 190.64,-307.43 165,-327 157.41,-332.79 148.39,-336.99 139.17,-340.04"/>
+<polygon fill="#025500" stroke="#025500" points="138.16,-336.69 129.52,-342.82 140.1,-343.41 138.16,-336.69"/>
+</g>
+<!-- module~mapl_genericmod -->
+<g id="program~~main~~UsesGraph_node9" class="node">
+<title>module~mapl_genericmod</title>
+<g id="a_program~~main~~UsesGraph_node9"><a xlink:href=".././module/mapl_genericmod.html" xlink:title="MAPL_GenericMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="138,-318 27,-318 27,-294 138,-294 138,-318"/>
+<text text-anchor="middle" x="82.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_genericmod -->
+<g id="program~~main~~UsesGraph_edge8" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_genericmod</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M214.13,-255.08C197.86,-265.91 174.9,-280.74 165,-285 159.58,-287.33 153.85,-289.45 148.03,-291.36"/>
+<polygon fill="#025500" stroke="#025500" points="146.73,-288.1 138.2,-294.39 148.79,-294.79 146.73,-288.1"/>
+</g>
+<!-- module~mapl_gridcompsmod -->
+<g id="program~~main~~UsesGraph_node10" class="node">
+<title>module~mapl_gridcompsmod</title>
+<g id="a_program~~main~~UsesGraph_node10"><a xlink:href=".././module/mapl_gridcompsmod.html" xlink:title="MAPL_GridCompsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="146.5,-276 18.5,-276 18.5,-252 146.5,-252 146.5,-276"/>
+<text text-anchor="middle" x="82.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_gridcompsmod -->
+<g id="program~~main~~UsesGraph_edge9" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_gridcompsmod</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M205.79,-246.71C192.08,-248.65 174.54,-251.13 157.05,-253.6"/>
+<polygon fill="#025500" stroke="#025500" points="156.2,-250.18 146.78,-255.05 157.18,-257.12 156.2,-250.18"/>
+</g>
+<!-- module~mapl_openmp_support -->
+<g id="program~~main~~UsesGraph_node11" class="node">
+<title>module~mapl_openmp_support</title>
+<g id="a_program~~main~~UsesGraph_node11"><a xlink:href=".././module/mapl_openmp_support.html" xlink:title="MAPL_OpenMP_Support">
+<polygon fill="#337ab7" stroke="#337ab7" points="151,-234 14,-234 14,-210 151,-210 151,-234"/>
+<text text-anchor="middle" x="82.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OpenMP_Support</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_openmp_support -->
+<g id="program~~main~~UsesGraph_edge10" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_openmp_support</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M205.79,-239.29C193.17,-237.51 177.31,-235.27 161.23,-232.99"/>
+<polygon fill="#025500" stroke="#025500" points="161.61,-229.51 151.22,-231.58 160.63,-236.44 161.61,-229.51"/>
+</g>
+<!-- module~mapl_profiler -->
+<g id="program~~main~~UsesGraph_node12" class="node">
+<title>module~mapl_profiler</title>
+<g id="a_program~~main~~UsesGraph_node12"><a xlink:href=".././module/mapl_profiler.html" xlink:title="mapl_Profiler">
+<polygon fill="#337ab7" stroke="#337ab7" points="123.5,-192 41.5,-192 41.5,-168 123.5,-168 123.5,-192"/>
+<text text-anchor="middle" x="82.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_Profiler</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_profiler -->
+<g id="program~~main~~UsesGraph_edge11" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_profiler</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M214.13,-230.92C197.86,-220.09 174.9,-205.26 165,-201 155.13,-196.76 144.21,-193.22 133.66,-190.33"/>
+<polygon fill="#025500" stroke="#025500" points="134.25,-186.87 123.7,-187.76 132.5,-193.65 134.25,-186.87"/>
+</g>
+<!-- module~mapl_stubcomponent -->
+<g id="program~~main~~UsesGraph_node13" class="node">
+<title>module~mapl_stubcomponent</title>
+<g id="a_program~~main~~UsesGraph_node13"><a xlink:href=".././module/mapl_stubcomponent.html" xlink:title="MAPL_StubComponent">
+<polygon fill="#337ab7" stroke="#337ab7" points="149,-150 16,-150 16,-126 149,-126 149,-150"/>
+<text text-anchor="middle" x="82.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StubComponent</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_stubcomponent -->
+<g id="program~~main~~UsesGraph_edge12" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_stubcomponent</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M211.26,-230.9C207.6,-228.24 204,-225.24 201,-222 179.08,-198.34 190.64,-178.57 165,-159 162.92,-157.41 160.72,-155.94 158.45,-154.58"/>
+<polygon fill="#025500" stroke="#025500" points="159.81,-151.34 149.32,-149.87 156.6,-157.56 159.81,-151.34"/>
+</g>
+<!-- module~mapl_varspecmiscmod -->
+<g id="program~~main~~UsesGraph_node14" class="node">
+<title>module~mapl_varspecmiscmod</title>
+<g id="a_program~~main~~UsesGraph_node14"><a xlink:href=".././module/mapl_varspecmiscmod.html" xlink:title="MAPL_VarSpecMiscMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="150.5,-108 14.5,-108 14.5,-84 150.5,-84 150.5,-108"/>
+<text text-anchor="middle" x="82.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMiscMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~mapl_varspecmiscmod -->
+<g id="program~~main~~UsesGraph_edge13" class="edge">
+<title>module~mapl&#45;&gt;module~mapl_varspecmiscmod</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M210.11,-230.86C206.73,-228.27 203.53,-225.3 201,-222 171.03,-182.81 201.22,-150.5 165,-117 163.3,-115.43 161.5,-113.97 159.61,-112.62"/>
+<polygon fill="#025500" stroke="#025500" points="161.25,-109.52 150.88,-107.35 157.63,-115.51 161.25,-109.52"/>
+</g>
+<!-- module~maplbase_mod -->
+<g id="program~~main~~UsesGraph_node15" class="node">
+<title>module~maplbase_mod</title>
+<g id="a_program~~main~~UsesGraph_node15"><a xlink:href=".././module/maplbase_mod.html" xlink:title="MAPLBase_Mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="130,-66 35,-66 35,-42 130,-42 130,-66"/>
+<text text-anchor="middle" x="82.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPLBase_Mod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~maplbase_mod -->
+<g id="program~~main~~UsesGraph_edge14" class="edge">
+<title>module~mapl&#45;&gt;module~maplbase_mod</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M209.54,-230.8C206.31,-228.25 203.3,-225.31 201,-222 162.59,-166.78 212.28,-122.85 165,-75 158.14,-68.06 149.31,-63.31 140.01,-60.08"/>
+<polygon fill="#025500" stroke="#025500" points="140.78,-56.66 130.2,-57.24 138.84,-63.38 140.78,-56.66"/>
+</g>
+<!-- module~pfio -->
+<g id="program~~main~~UsesGraph_node16" class="node">
+<title>module~pfio</title>
+<g id="a_program~~main~~UsesGraph_node16"><a xlink:href=".././module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="109.5,-24 55.5,-24 55.5,0 109.5,0 109.5,-24"/>
+<text text-anchor="middle" x="82.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- module~mapl&#45;&gt;module~pfio -->
+<g id="program~~main~~UsesGraph_edge15" class="edge">
+<title>module~mapl&#45;&gt;module~pfio</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M209.39,-230.9C206.18,-228.34 203.21,-225.37 201,-222 154.01,-150.56 223.5,-95.37 165,-33 153.44,-20.67 135.69,-15.2 119.7,-12.9"/>
+<polygon fill="#025500" stroke="#025500" points="119.85,-9.4 109.53,-11.81 119.1,-16.36 119.85,-9.4"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsesGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -382,161 +487,224 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
-    <p>sanity check</p>
+    <h1 id="standalone-program-for-testing-fargparse">Standalone Program for Testing fargparse</h1>
+<hr>
+<p>The error logging may eventually evolve into a module based
+ on the ESMF logger.  For now these macros provide simple
+ traceback capability.
+ new
+ Old
+ New
+ Assumes status is passed back in dummy called &ldquo;rc&rdquo;
+ Assumes &ldquo;/home/runner/work/MAPL/MAPL/include/MAPL_ErrLog.h&rdquo; and 125 are appropriate
+ The following macro causes a variable to appear to be &ldquo;used&rdquo;
+ according to the compiler.  This is a kludge to avoid excessive
+ warnings.  In most cases, a better fix would be to modify the the
+ procedure interface, but it is impractical in the short term.</p>
+<p>Note that the conditional is never satisfied and a reasonable
+ compiler will optimize the line away.  (Hopefully without
+ reintroducing the warning!)</p>
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: program~~main~~CallsGraph Pages: 1 -->
-<svg id="programmainCallsGraph" width="604pt" height="200pt"
- viewBox="0.00 0.00 604.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="program~~main~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<svg id="programmainCallsGraph" width="641pt" height="216pt"
+ viewBox="0.00 0.00 641.00 215.72" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="program~~main~~CallsGraph" class="graph" transform="scale(1.3 1.3) rotate(0) translate(4 276)">
 <title>program~~main~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 600,-196 600,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-276 828,-276 828,4 -4,4"/>
 <!-- program~main -->
 <g id="program~~main~~CallsGraph_node1" class="node">
 <title>program~main</title>
-<polygon fill="none" stroke="black" points="54,-129 0,-129 0,-105 54,-105 54,-129"/>
-<text text-anchor="middle" x="27" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
+<polygon fill="none" stroke="black" points="54,-230 0,-230 0,-206 54,-206 54,-230"/>
+<text text-anchor="middle" x="27" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
 </g>
-<!-- proc~get_directory_service -->
+<!-- proc~mapl_abort -->
 <g id="program~~main~~CallsGraph_node2" class="node">
-<title>proc~get_directory_service</title>
-<g id="a_program~~main~~CallsGraph_node2"><a xlink:href=".././proc/get_directory_service.html" xlink:title="main::get_directory_service">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="296.5,-192 136.5,-192 136.5,-168 296.5,-168 296.5,-192"/>
-<text text-anchor="middle" x="216.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::get_directory_service</text>
+<title>proc~mapl_abort</title>
+<g id="a_program~~main~~CallsGraph_node2"><a xlink:href=".././proc/mapl_abort.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="303,-271 90,-271 90,-247 303,-247 303,-271"/>
+<text text-anchor="middle" x="196.5" y="-256.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_abort</text>
 </a>
 </g>
 </g>
-<!-- program~main&#45;&gt;proc~get_directory_service -->
+<!-- program~main&#45;&gt;proc~mapl_abort -->
 <g id="program~~main~~CallsGraph_edge1" class="edge">
-<title>program~main&#45;&gt;proc~get_directory_service</title>
-<path fill="none" stroke="#255000" d="M42.25,-129.3C54.2,-138.93 72.14,-151.85 90,-159 101.49,-163.6 113.96,-167.19 126.44,-169.99"/>
-<polygon fill="#255000" stroke="#255000" points="125.92,-173.46 136.42,-172.08 127.35,-166.61 125.92,-173.46"/>
+<title>program~main&#45;&gt;proc~mapl_abort</title>
+<path fill="none" stroke="#255000" d="M54.17,-224.41C76.15,-229.79 108.37,-237.67 136.51,-244.56"/>
+<polygon fill="#255000" stroke="#255000" points="135.72,-247.97 146.26,-246.95 137.38,-241.17 135.72,-247.97"/>
 </g>
-<!-- proc~get_server -->
+<!-- proc~mapl_verify -->
 <g id="program~~main~~CallsGraph_node3" class="node">
-<title>proc~get_server</title>
-<g id="a_program~~main~~CallsGraph_node3"><a xlink:href=".././proc/get_server.html" xlink:title="main::get_server">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="268,-150 165,-150 165,-126 268,-126 268,-150"/>
-<text text-anchor="middle" x="216.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::get_server</text>
+<title>proc~mapl_verify</title>
+<g id="a_program~~main~~CallsGraph_node3"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="556,-230 342,-230 342,-206 556,-206 556,-230"/>
+<text text-anchor="middle" x="449" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
-<!-- program~main&#45;&gt;proc~get_server -->
+<!-- program~main&#45;&gt;proc~mapl_verify -->
 <g id="program~~main~~CallsGraph_edge2" class="edge">
-<title>program~main&#45;&gt;proc~get_server</title>
-<path fill="none" stroke="#255000" d="M54.07,-119.92C79.97,-122.82 120.62,-127.37 154.65,-131.18"/>
-<polygon fill="#255000" stroke="#255000" points="154.65,-134.71 164.98,-132.34 155.43,-127.75 154.65,-134.71"/>
+<title>program~main&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M54.27,-218C108.59,-218 236.15,-218 331.45,-218"/>
+<polygon fill="#255000" stroke="#255000" points="331.73,-221.5 341.73,-218 331.73,-214.5 331.73,-221.5"/>
 </g>
-<!-- proc~process_command_line~3 -->
+<!-- proc~run~3 -->
 <g id="program~~main~~CallsGraph_node4" class="node">
-<title>proc~process_command_line~3</title>
-<g id="a_program~~main~~CallsGraph_node4"><a xlink:href=".././proc/process_command_line~3.html" xlink:title="collective_demo_CLI::process_command_line">
-<polygon fill="#d9534f" stroke="#d9534f" points="343,-108 90,-108 90,-84 343,-84 343,-108"/>
-<text text-anchor="middle" x="216.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">collective_demo_CLI::process_command_line</text>
+<title>proc~run~3</title>
+<g id="a_program~~main~~CallsGraph_node4"><a xlink:href=".././proc/run~3.html" xlink:title="main::run">
+<polygon fill="#d9534f" stroke="#d9534f" points="229,-146 164,-146 164,-122 229,-122 229,-146"/>
+<text text-anchor="middle" x="196.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::run</text>
 </a>
 </g>
 </g>
-<!-- program~main&#45;&gt;proc~process_command_line~3 -->
+<!-- program~main&#45;&gt;proc~run~3 -->
 <g id="program~~main~~CallsGraph_edge3" class="edge">
-<title>program~main&#45;&gt;proc~process_command_line~3</title>
-<path fill="none" stroke="#255000" d="M54.07,-114.08C66.15,-112.73 81.45,-111.01 97.78,-109.18"/>
-<polygon fill="#255000" stroke="#255000" points="98.52,-112.62 108.07,-108.03 97.74,-105.67 98.52,-112.62"/>
+<title>program~main&#45;&gt;proc~run~3</title>
+<path fill="none" stroke="#255000" d="M52,-205.96C80.98,-191.43 129.88,-166.91 162.42,-150.59"/>
+<polygon fill="#255000" stroke="#255000" points="164.18,-153.62 171.55,-146.01 161.04,-147.37 164.18,-153.62"/>
 </g>
-<!-- proc~split_color -->
-<g id="program~~main~~CallsGraph_node5" class="node">
-<title>proc~split_color</title>
-<g id="a_program~~main~~CallsGraph_node5"><a xlink:href=".././proc/split_color.html" xlink:title="main::split_color">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="267,-66 166,-66 166,-42 267,-42 267,-66"/>
-<text text-anchor="middle" x="216.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::split_color</text>
-</a>
-</g>
-</g>
-<!-- program~main&#45;&gt;proc~split_color -->
-<g id="program~~main~~CallsGraph_edge4" class="edge">
-<title>program~main&#45;&gt;proc~split_color</title>
-<path fill="none" stroke="#255000" d="M42.25,-104.7C54.2,-95.07 72.14,-82.15 90,-75 110.72,-66.71 134.62,-61.69 155.97,-58.66"/>
-<polygon fill="#255000" stroke="#255000" points="156.44,-62.13 165.91,-57.36 155.54,-55.18 156.44,-62.13"/>
-</g>
-<!-- connect_to_client -->
-<g id="program~~main~~CallsGraph_node6" class="node">
-<title>connect_to_client</title>
-<polygon fill="#777777" stroke="#777777" points="540.5,-192 434.5,-192 434.5,-168 540.5,-168 540.5,-192"/>
-<text text-anchor="middle" x="487.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">connect_to_client</text>
-</g>
-<!-- proc~get_server&#45;&gt;connect_to_client -->
-<g id="program~~main~~CallsGraph_edge5" class="edge">
-<title>proc~get_server&#45;&gt;connect_to_client</title>
-<path fill="none" stroke="transparent" d="M268.1,-145.9C312.34,-152.81 376.74,-162.86 424.15,-170.26"/>
-<polygon fill="transparent" stroke="transparent" points="423.87,-173.76 434.3,-171.85 424.95,-166.85 423.87,-173.76"/>
-</g>
-<!-- publish -->
-<g id="program~~main~~CallsGraph_node10" class="node">
-<title>publish</title>
-<polygon fill="#777777" stroke="#777777" points="514.5,-150 460.5,-150 460.5,-126 514.5,-126 514.5,-150"/>
-<text text-anchor="middle" x="487.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">publish</text>
-</g>
-<!-- proc~get_server&#45;&gt;publish -->
-<g id="program~~main~~CallsGraph_edge6" class="edge">
-<title>proc~get_server&#45;&gt;publish</title>
-<path fill="none" stroke="transparent" d="M268.1,-138C321.16,-138 403.22,-138 450.19,-138"/>
-<polygon fill="transparent" stroke="transparent" points="450.22,-141.5 460.22,-138 450.22,-134.5 450.22,-141.5"/>
-</g>
-<!-- file_1 -->
-<g id="program~~main~~CallsGraph_node7" class="node">
-<title>file_1</title>
-<polygon fill="#777777" stroke="#777777" points="514.5,-108 460.5,-108 460.5,-84 514.5,-84 514.5,-108"/>
-<text text-anchor="middle" x="487.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">file_1</text>
-</g>
-<!-- proc~process_command_line~3&#45;&gt;file_1 -->
-<g id="program~~main~~CallsGraph_edge7" class="edge">
-<title>proc~process_command_line~3&#45;&gt;file_1</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M343.34,-96C382.5,-96 422.65,-96 450.42,-96"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="450.43,-99.5 460.43,-96 450.43,-92.5 450.43,-99.5"/>
-</g>
-<!-- file_2 -->
+<!-- mpi_abort -->
 <g id="program~~main~~CallsGraph_node8" class="node">
-<title>file_2</title>
-<polygon fill="#777777" stroke="#777777" points="514.5,-66 460.5,-66 460.5,-42 514.5,-42 514.5,-66"/>
-<text text-anchor="middle" x="487.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">file_2</text>
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="482.5,-272 415.5,-272 415.5,-248 482.5,-248 482.5,-272"/>
+<text text-anchor="middle" x="449" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
 </g>
-<!-- proc~process_command_line~3&#45;&gt;file_2 -->
-<g id="program~~main~~CallsGraph_edge8" class="edge">
-<title>proc~process_command_line~3&#45;&gt;file_2</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M294.58,-83.96C345.75,-75.98 410.56,-65.86 450.25,-59.66"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="450.92,-63.1 460.26,-58.1 449.84,-56.18 450.92,-63.1"/>
+<!-- proc~mapl_abort&#45;&gt;mpi_abort -->
+<g id="program~~main~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_abort&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#255000" d="M303.01,-259.42C338.93,-259.56 377.08,-259.72 405.23,-259.83"/>
+<polygon fill="#255000" stroke="#255000" points="405.48,-263.33 415.5,-259.87 405.51,-256.33 405.48,-263.33"/>
 </g>
-<!-- interface~mapl_assert -->
-<g id="program~~main~~CallsGraph_node9" class="node">
-<title>interface~mapl_assert</title>
-<g id="a_program~~main~~CallsGraph_node9"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
-<polygon fill="#a7506f" stroke="#a7506f" points="596,-24 379,-24 379,0 596,0 596,-24"/>
-<text text-anchor="middle" x="487.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+<!-- proc~mapl_throw_exception -->
+<g id="program~~main~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_program~~main~~CallsGraph_node11"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="824,-210 595,-210 595,-186 824,-186 824,-210"/>
+<text text-anchor="middle" x="709.5" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
-<!-- proc~process_command_line~3&#45;&gt;interface~mapl_assert -->
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="program~~main~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M556.26,-209.78C565.57,-209.06 575.04,-208.33 584.47,-207.6"/>
+<polygon fill="#025500" stroke="#025500" points="584.98,-211.07 594.68,-206.81 584.44,-204.09 584.98,-211.07"/>
+</g>
+<!-- proc~run~3&#45;&gt;proc~mapl_verify -->
+<g id="program~~main~~CallsGraph_edge11" class="edge">
+<title>proc~run~3&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#002505" d="M220.4,-146.16C247.87,-160.28 295.65,-183.37 339,-197 346.86,-199.47 355.14,-201.7 363.47,-203.71"/>
+<polygon fill="#002505" stroke="#002505" points="362.73,-207.13 373.26,-205.95 364.3,-200.31 362.73,-207.13"/>
+</g>
+<!-- at -->
+<g id="program~~main~~CallsGraph_node5" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="736.5,-106 682.5,-106 682.5,-82 736.5,-82 736.5,-106"/>
+<text text-anchor="middle" x="709.5" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~run~3&#45;&gt;at -->
+<g id="program~~main~~CallsGraph_edge6" class="edge">
+<title>proc~run~3&#45;&gt;at</title>
+<path fill="none" stroke="#002505" d="M229.14,-128.41C257.75,-123.58 301.07,-116.78 339,-113 460.7,-100.87 605.77,-96.27 672.12,-94.71"/>
+<polygon fill="#002505" stroke="#002505" points="672.53,-98.21 682.45,-94.48 672.38,-91.21 672.53,-98.21"/>
+</g>
+<!-- cast -->
+<g id="program~~main~~CallsGraph_node6" class="node">
+<title>cast</title>
+<polygon fill="#777777" stroke="#777777" points="476,-66 422,-66 422,-42 476,-42 476,-66"/>
+<text text-anchor="middle" x="449" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cast</text>
+</g>
+<!-- proc~run~3&#45;&gt;cast -->
+<g id="program~~main~~CallsGraph_edge7" class="edge">
+<title>proc~run~3&#45;&gt;cast</title>
+<path fill="none" stroke="#002505" d="M225.84,-121.93C254.14,-110.17 299.05,-92.33 339,-80 362.96,-72.6 390.43,-66.06 411.8,-61.39"/>
+<polygon fill="#002505" stroke="#002505" points="412.71,-64.78 421.75,-59.25 411.24,-57.93 412.71,-64.78"/>
+</g>
+<!-- mapl_fargparsecli -->
+<g id="program~~main~~CallsGraph_node7" class="node">
+<title>mapl_fargparsecli</title>
+<polygon fill="#777777" stroke="#777777" points="503.5,-24 394.5,-24 394.5,0 503.5,0 503.5,-24"/>
+<text text-anchor="middle" x="449" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_fargparsecli</text>
+</g>
+<!-- proc~run~3&#45;&gt;mapl_fargparsecli -->
+<g id="program~~main~~CallsGraph_edge8" class="edge">
+<title>proc~run~3&#45;&gt;mapl_fargparsecli</title>
+<path fill="none" stroke="#002505" d="M210.36,-121.83C233.88,-100.29 286.3,-55.6 339,-33 353.17,-26.93 369.12,-22.6 384.36,-19.52"/>
+<polygon fill="#002505" stroke="#002505" points="385.06,-22.95 394.25,-17.67 383.78,-16.06 385.06,-22.95"/>
+</g>
+<!-- mpi_init -->
+<g id="program~~main~~CallsGraph_node9" class="node">
+<title>mpi_init</title>
+<polygon fill="#777777" stroke="#777777" points="476.5,-188 421.5,-188 421.5,-164 476.5,-164 476.5,-188"/>
+<text text-anchor="middle" x="449" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_init</text>
+</g>
+<!-- proc~run~3&#45;&gt;mpi_init -->
 <g id="program~~main~~CallsGraph_edge9" class="edge">
-<title>proc~process_command_line~3&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M323.47,-83.89C330.27,-81.41 336.84,-78.48 343,-75 364.41,-62.91 357.76,-45.38 379,-33 382.23,-31.12 385.6,-29.4 389.06,-27.84"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="390.48,-31.04 398.43,-24.03 387.85,-24.55 390.48,-31.04"/>
+<title>proc~run~3&#45;&gt;mpi_init</title>
+<path fill="none" stroke="#002505" d="M229.23,-139.32C275.81,-147.13 362.49,-161.66 411.6,-169.9"/>
+<polygon fill="#002505" stroke="#002505" points="411.04,-173.35 421.48,-171.55 412.2,-166.45 411.04,-173.35"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="program~~main~~CallsGraph_node10" class="node">
+<title>proc~mapl_return</title>
+<g id="a_program~~main~~CallsGraph_node10"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="559,-146 339,-146 339,-122 559,-122 559,-146"/>
+<text text-anchor="middle" x="449" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~run~3&#45;&gt;proc~mapl_return -->
+<g id="program~~main~~CallsGraph_edge10" class="edge">
+<title>proc~run~3&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002505" d="M229.23,-134C254.62,-134 291.92,-134 328.56,-134"/>
+<polygon fill="#002505" stroke="#002505" points="328.87,-137.5 338.87,-134 328.87,-130.5 328.87,-137.5"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="program~~main~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#720255" d="M527.56,-122C575.68,-114.55 635.25,-105.34 672.57,-99.56"/>
+<polygon fill="#720255" stroke="#720255" points="673.13,-103.01 682.48,-98.03 672.06,-96.1 673.13,-103.01"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="program~~main~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#720255" d="M517.65,-146.05C531.38,-148.78 545.69,-151.81 559,-155 593.07,-163.16 630.99,-174.09 660.12,-182.89"/>
+<polygon fill="#720255" stroke="#720255" points="659.45,-186.34 670.03,-185.91 661.48,-179.65 659.45,-186.34"/>
+</g>
+<!-- insert -->
+<g id="program~~main~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="736.5,-148 682.5,-148 682.5,-124 736.5,-124 736.5,-148"/>
+<text text-anchor="middle" x="709.5" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="program~~main~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#720255" d="M559.25,-134.85C599.63,-135.16 642.67,-135.49 672.11,-135.72"/>
+<polygon fill="#720255" stroke="#720255" points="672.28,-139.22 682.3,-135.8 672.33,-132.22 672.28,-139.22"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>                <script>
+                  var panprogrammainCallsGraph = svgPanZoom('#programmainCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -553,11 +721,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -576,23 +744,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -611,288 +785,22 @@ large graphs.</div>
       </div>
     </div>
 <br>
-     <section class="visible-xs visible-sm hidden-md">
-         <h3>Contents</h3>
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-1">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../program/main.html#variable-both_color">BOTH_COLOR</a>
-            <a class="list-group-item" href="../program/main.html#variable-client_color~2">CLIENT_COLOR</a>
-            <a class="list-group-item" href="../program/main.html#variable-no_color">NO_COLOR</a>
-            <a class="list-group-item" href="../program/main.html#variable-server_color~2">SERVER_COLOR</a>
-            <a class="list-group-item" href="../program/main.html#variable-color~4">color</a>
-            <a class="list-group-item" href="../program/main.html#variable-comm~66">comm</a>
-            <a class="list-group-item" href="../program/main.html#variable-ierror~7">ierror</a>
-            <a class="list-group-item" href="../program/main.html#variable-key~210">key</a>
-            <a class="list-group-item" href="../program/main.html#variable-npes~11">npes</a>
-            <a class="list-group-item" href="../program/main.html#variable-provided~2">provided</a>
-            <a class="list-group-item" href="../program/main.html#variable-rank~19">rank</a>
-            <a class="list-group-item" href="../program/main.html#variable-required">required</a>
-            <a class="list-group-item" href="../program/main.html#variable-status~134">status</a>
-            <a class="list-group-item" href="../program/main.html#variable-d_s~6">d_s</a>
-            <a class="list-group-item" href="../program/main.html#variable-server~8">server</a>
-            <a class="list-group-item" href="../program/main.html#variable-options~13">options</a>
-            <a class="list-group-item" href="../program/main.html#variable-extdata~2">extData</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#funcs-1">Functions</a>
-        </h3>
-      </div>
-      <div id="funcs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../program/main.html#proc-split_color">split_color</a>
-            <a class="list-group-item" href="../program/main.html#proc-get_directory_service">get_directory_service</a>
-            <a class="list-group-item" href="../program/main.html#proc-get_server">get_server</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../program/main.html#src">main</a>
-      </div>
-    </div>
-
-
-     </section>
-     <br class="visible-xs visible-sm hidden-md">
-
 
     <section>
     <h2>Variables</h2>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-both_color"></span>
-              integer,
-            </td>
-            <td>
-parameter               
-            </td>
-            <td>::</td>
-            <td><strong>BOTH_COLOR</strong></td>
-<td> =</td>
-                <td>3</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-client_color~2"></span>
-              integer,
-            </td>
-            <td>
-parameter               
-            </td>
-            <td>::</td>
-            <td><strong>CLIENT_COLOR</strong></td>
-<td> =</td>
-                <td>2</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-no_color"></span>
-              integer,
-            </td>
-            <td>
-parameter               
-            </td>
-            <td>::</td>
-            <td><strong>NO_COLOR</strong></td>
-<td> =</td>
-                <td>0</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-server_color~2"></span>
-              integer,
-            </td>
-            <td>
-parameter               
-            </td>
-            <td>::</td>
-            <td><strong>SERVER_COLOR</strong></td>
-<td> =</td>
-                <td>1</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-color~4"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>color</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-comm~66"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>comm</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-ierror~7"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>ierror</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-key~210"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>key</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-npes~11"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>npes</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-provided~2"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>provided</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-rank~19"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>rank</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-required"></span>
-              integer
-            </td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>required</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-status~134"></span>
+              <span class="anchor" id="variable-status~130"></span>
               integer
             </td>
             <td>
@@ -908,46 +816,14 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-d_s~6"></span>
-              class(<a href='../type/abstractdirectoryservice.html'>AbstractDirectoryService</a>),
-            </td>
-            <td>
-              pointer
-            </td>
-            <td>::</td>
-            <td><strong>d_s</strong></td>
-<td>=&gt; </td>
-                <td>null()</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-server~8"></span>
-              class(<a href='../type/abstractserver.html'>AbstractServer</a>),
-            </td>
-            <td>
-              pointer
-            </td>
-            <td>::</td>
-            <td><strong>server</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-options~13"></span>
-              type(<a href='../type/commandlineoptions~3.html'>CommandLineOptions</a>)
+              <span class="anchor" id="variable-cap_options~6"></span>
+              type(<a href='../type/mapl_capoptions.html'>MAPL_CapOptions</a>)
             </td>
             <td>
               
             </td>
             <td>::</td>
-            <td><strong>options</strong></td>
+            <td><strong>cap_options</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -956,14 +832,14 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-extdata~2"></span>
-              type(<a href='../type/fakeextdata.html'>FakeExtData</a>),
+              <span class="anchor" id="variable-cli~3"></span>
+              type(MAPL_FargparseCLI)
             </td>
             <td>
-              target
+              
             </td>
             <td>::</td>
-            <td><strong>extData</strong></td>
+            <td><strong>cli</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -980,13 +856,14 @@ parameter
     
 
     
- 
+
+
     <section>
-    <h2>Functions</h2>
-      <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-split_color"></span><h3> function <a href='../proc/split_color.html'>split_color</a>(stype, split_rank) result(color)  
+    <h2>Subroutines</h2>
+      <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-extra_options"></span><h3> subroutine <a href='../proc/extra_options.html'>extra_options</a>(parser, rc)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -994,39 +871,39 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
-              character(len=*),
+              <span class="anchor" id="variable-parser~4"></span>
+              type(ArgParser),
             </td>
-<td>intent(in)</td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>stype</strong></td>
+            <td><strong>parser</strong></td>
             <td>
 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1199"></span>
               integer,
             </td>
-<td>intent(in)</td>
-              <td></td>            <td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>split_rank</strong></td>
+            <td><strong>rc</strong></td>
             <td>
 
             </td>
@@ -1034,19 +911,14 @@ parameter
     </tbody>
   </table>
 
-    <h4>
-    Return Value
-    <small>integer</small>
-    </h4>
-    
 
     </div>
   </div>
 
-      <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_directory_service"></span><h3> function <a href='../proc/get_directory_service.html'>get_directory_service</a>(stype) result(d_s)  
+      <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-run~3"></span><h3> subroutine <a href='../proc/run~3.html'>run</a>(rc)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -1054,114 +926,24 @@ parameter
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
-              character(len=*),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>stype</strong></td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-    <h4>
-    Return Value
-    <small>class(<a href='../type/abstractdirectoryservice.html'>AbstractDirectoryService</a>), pointer</small>
-    </h4>
-    
-
-    </div>
-  </div>
-
-      <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_server"></span><h3> function <a href='../proc/get_server.html'>get_server</a>(stype, comm, d_s, port_name) result(server)  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              character(len=*),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>stype</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1200"></span>
               integer,
             </td>
-<td>intent(in)</td>
-              <td></td>            <td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>comm</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              class(<a href='../type/abstractdirectoryservice.html'>AbstractDirectoryService</a>),
-            </td>
-<td>intent(inout),</td>
-              <td></td>            <td>
-              target
-            </td>
-            <td>::</td>
-            <td><strong>d_s</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              character(len=*),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>port_name</strong></td>
+            <td><strong>rc</strong></td>
             <td>
 
             </td>
@@ -1169,146 +951,87 @@ parameter
     </tbody>
   </table>
 
-    <h4>
-    Return Value
-    <small>class(<a href='../type/baseserver.html'>BaseServer</a>), pointer</small>
-    </h4>
-    
 
     </div>
   </div>
 
-    </section>
-    <br>
-
-
+    </section>    
     
+
     <section>
     <h2 id="src">Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">program </span><span class="n">main</span><span class="w"></span>
-<span class="w">   </span><span class="k">use </span><span class="n">mpi</span><span class="w"></span>
-<span class="w">   </span><span class="k">use </span><span class="n">pFIO</span><span class="w"></span>
-<span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span><span class="w"></span>
-<span class="w">   </span><span class="k">use </span><span class="n">collective_demo_CLI</span><span class="w"></span>
-<span class="w">   </span><span class="k">use </span><span class="n">FakeExtDataMod_collective</span><span class="w"></span>
-<span class="w">   </span><span class="k">implicit none</span>
+    <div class="hl codehilite"><pre><span></span><span class="k">program </span><span class="n">main</span>
+<span class="w">      </span><span class="k">use </span><span class="n">MAPL</span>
+<span class="w">      </span><span class="k">use </span><span class="n">mpi</span>
+<span class="w">      </span><span class="k">use </span><span class="n">fargparse</span>
 
-<span class="k">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">,</span><span class="w"> </span><span class="n">provided</span><span class="p">,</span><span class="n">required</span><span class="w"></span>
-<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="w"></span>
-<span class="w">   </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractServer</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server</span><span class="w"></span>
-<span class="w">   </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractDirectoryService</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">d_s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">implicit none</span>
 
-<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CommandLineOptions</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">options</span>
-<span class="k">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NO_COLOR</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SERVER_COLOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLIENT_COLOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
-<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BOTH_COLOR</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
+<span class="k">      type</span><span class="p">(</span><span class="n">MAPL_FargparseCLI</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cli</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_CapOptions</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_options</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 
-<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span><span class="w"></span>
-<span class="c">!$   integer :: num_threads</span>
-<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FakeExtData</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extData</span><span class="w"></span>
+<span class="c">!------------------------------------------------------------------------------</span>
 
-<span class="w">   </span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_THREAD_MULTIPLE</span><span class="w"></span>
-<span class="w">   </span><span class="k">call </span><span class="n">MPI_init_thread</span><span class="p">(</span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">provided</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="k">call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="k">call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">run</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">call </span><span class="n">process_command_line</span><span class="p">(</span><span class="k">options</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">contains</span>
 
-<span class="c">!! sanity check</span>
+<span class="cp">#undef I_AM_MAIN</span>
+<span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<span class="w">      </span><span class="k">subroutine </span><span class="n">run</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
 
-<span class="c">!$   if(options%server_type == &#39;openmp&#39;) then</span>
-<span class="c">!$     if (required &gt; provided) stop &quot;provided thread is not enough for openmp&quot;</span>
-<span class="c">!$     num_threads = 10</span>
-<span class="c">!$     call omp_set_num_threads(num_threads) </span>
-<span class="c">!$   endif</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">   </span><span class="n">d_s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_directory_service</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">server_type</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_file</span>
 
-<span class="w">   </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">split_color</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">server_type</span><span class="p">,</span><span class="k">options</span><span class="p">%</span><span class="n">npes_server</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Init</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">call </span><span class="n">MPI_Comm_split</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="c">! Read and parse the command line, and set parameters</span>
+<span class="w">         </span><span class="c">! If you have extra options you make a procedure as seen below and add arguments</span>
+<span class="w">         </span><span class="c">! there and pass in here</span>
+<span class="w">         </span><span class="n">cli</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FargparseCLI</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="n">extra_options</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SERVER_COLOR</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">BOTH_COLOR</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! server</span>
-<span class="w">      </span>
-<span class="w">      </span><span class="n">server</span><span class="o">=&gt;</span><span class="n">get_server</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">server_type</span><span class="p">,</span><span class="n">comm</span><span class="p">,</span><span class="n">d_s</span><span class="p">,</span><span class="s1">&#39;i_server&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SERVER_COLOR</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">server</span><span class="p">%</span><span class="n">start</span><span class="p">()</span><span class="w"></span>
+<span class="w">         </span><span class="c">! This does the casting of arguments into cap_options for CAP</span>
+<span class="w">         </span><span class="n">cap_options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_CapOptions</span><span class="p">(</span><span class="n">cli</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">endif</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;done with MAPL_FargparseCLI&quot;</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%with_esmf_moab = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">with_esmf_moab</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%npes_input_server = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_input_server</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%nodes_input_server = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_input_server</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%npes_output_server = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_output_server</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%nodes_output_server = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_output_server</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%egress_file = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">egress_file</span>
 
-<span class="k">   if</span><span class="w"> </span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CLIENT_COLOR</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">BOTH_COLOR</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! client</span>
+<span class="w">         </span><span class="c">! For our extra options we have to explicitly cast them</span>
+<span class="w">         </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">cli</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">input_file</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">extData</span><span class="p">%</span><span class="n">init</span><span class="p">(</span><span class="k">options</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">d_s</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i_server&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">extData</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">extData</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">extData</span><span class="p">%</span><span class="n">finalize</span><span class="p">()</span><span class="w"></span>
-<span class="w"> </span>
-<span class="w">   </span><span class="k">end if</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Extra arguments&quot;</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  input file = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">input_file</span>
 
-<span class="k">   call </span><span class="n">MPI_finalize</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 
-<span class="k">contains</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">run</span>
 
-<span class="k">   function </span><span class="n">get_directory_service</span><span class="p">(</span><span class="n">stype</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">d_s</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stype</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractDirectoryService</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">d_s</span><span class="w"></span>
+<span class="w">      </span><span class="k">subroutine </span><span class="n">extra_options</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ArgParser</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">parser</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">d_s</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">))</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--file&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;A file to read&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="k">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;default.config&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">)</span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">stype</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="c">!_RETURN(_SUCCESS)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 
-<span class="w">   </span><span class="k">end function</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">extra_options</span>
 
-<span class="k">   function </span><span class="n">split_color</span><span class="p">(</span><span class="n">stype</span><span class="p">,</span><span class="n">split_rank</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">color</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stype</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">split_rank</span><span class="w">  </span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">stype</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;openmp&#39;</span><span class="p">,</span><span class="s1">&#39;mpi&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">split_rank</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SERVER_COLOR</span><span class="w"></span>
-<span class="w">         </span><span class="k">else</span>
-<span class="k">            </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CLIENT_COLOR</span><span class="w"></span>
-<span class="w">         </span><span class="k">end if</span>
-<span class="k">      case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;simple&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BOTH_COLOR</span><span class="w"></span>
-<span class="w">      </span><span class="k">case </span><span class="n">default</span><span class="w"></span>
-<span class="w">         </span><span class="k">stop</span><span class="w"> </span><span class="s2">&quot;not known server type&quot;</span><span class="w"></span>
-<span class="w">      </span><span class="k">end select </span>
-
-<span class="k">   end function</span>
-
-<span class="k">   function </span><span class="n">get_server</span><span class="p">(</span><span class="n">stype</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">d_s</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">server</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stype</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDirectoryService</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">d_s</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BaseServer</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">stype</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;mpi&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">server</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">MpiServer</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">d_s</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">server</span><span class="p">),</span><span class="n">server</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">d_s</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">server</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s2">&quot;using MpiServer&quot;</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;openmp&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="c">!C$        allocate(server,source=OpenmpServer(comm,d_s))</span>
-<span class="c">!C$        print*,&quot;using OpenMpServer&quot;</span>
-<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;simple&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">server</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">MpiServer</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">d_s</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">server</span><span class="p">),</span><span class="w"> </span><span class="n">server</span><span class="p">)</span><span class="w"></span>
-<span class="c">!C         call d_s%connect_to_client(port_name, server)</span>
-<span class="w">         </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s2">&quot;using simple server&quot;</span><span class="w"></span>
-<span class="w">      </span><span class="k">end select</span>
-
-<span class="k">     </span>
-
-<span class="k">    end function</span>
-
-<span class="k">end program </span><span class="n">main</span><span class="w"></span>
+<span class="k">end program </span><span class="n">main</span>
 </pre></div>
 
     </section>
@@ -1320,32 +1043,27 @@ parameter
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

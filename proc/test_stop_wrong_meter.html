@@ -10,85 +10,58 @@
 
     <title>test_stop_wrong_meter &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">12 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">12 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/test_TimeProfiler.pf"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_timeprofiler.pf.html'>test_TimeProfiler.pf</a></li>
-              <li><a href='../module/test_timeprofiler.html'>test_TimeProfiler</a></li>
-          <li class="active">test_stop_wrong_meter</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_timeprofiler.pf.html'>test_TimeProfiler.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_timeprofiler.html'>test_TimeProfiler</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_stop_wrong_meter</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/test_stop_wrong_meter.html#src">test_stop_wrong_meter</a>
       </div>
@@ -174,132 +152,285 @@
     <em>None</em>
     <br>
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~test_stop_wrong_meter~~CallsGraph Pages: 1 -->
-<svg id="proctest_stop_wrong_meterCallsGraph" width="641pt" height="109pt"
- viewBox="0.00 0.00 641.00 109.48" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~test_stop_wrong_meter~~CallsGraph" class="graph" transform="scale(1.83 1.83) rotate(0) translate(4 196)">
+<svg id="proctest_stop_wrong_meterCallsGraph" width="641pt" height="131pt"
+ viewBox="0.00 0.00 641.00 130.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_stop_wrong_meter~~CallsGraph" class="graph" transform="scale(2.17 2.17) rotate(0) translate(4 280)">
 <title>proc~~test_stop_wrong_meter~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1167,-196 1167,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 1387,-280 1387,4 -4,4"/>
 <!-- proc~test_stop_wrong_meter -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_node1" class="node">
 <title>proc~test_stop_wrong_meter</title>
-<polygon fill="none" stroke="black" points="231,-108 0,-108 0,-84 231,-84 231,-108"/>
-<text text-anchor="middle" x="115.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_TimeProfiler::test_stop_wrong_meter</text>
+<polygon fill="none" stroke="black" points="231,-192 0,-192 0,-168 231,-168 231,-192"/>
+<text text-anchor="middle" x="115.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_TimeProfiler::test_stop_wrong_meter</text>
 </g>
 <!-- assertequal -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_node2" class="node">
 <title>assertequal</title>
-<polygon fill="#777777" stroke="#777777" points="440.5,-192 365.5,-192 365.5,-168 440.5,-168 440.5,-192"/>
-<text text-anchor="middle" x="403" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+<polygon fill="#777777" stroke="#777777" points="432.5,-276 357.5,-276 357.5,-252 432.5,-252 432.5,-276"/>
+<text text-anchor="middle" x="395" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
 </g>
 <!-- proc~test_stop_wrong_meter&#45;&gt;assertequal -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_edge1" class="edge">
 <title>proc~test_stop_wrong_meter&#45;&gt;assertequal</title>
-<path fill="none" stroke="#255000" d="M140.35,-108.12C169.5,-122.42 220.66,-145.91 267,-159 295.82,-167.14 329.04,-172.36 355.32,-175.56"/>
-<polygon fill="#255000" stroke="#255000" points="355.05,-179.05 365.39,-176.73 355.86,-172.1 355.05,-179.05"/>
+<path fill="none" stroke="#255000" d="M140.37,-192.04C169.54,-206.27 220.72,-229.69 267,-243 293.12,-250.52 323.09,-255.63 347.35,-258.93"/>
+<polygon fill="#255000" stroke="#255000" points="347,-262.41 357.37,-260.23 347.91,-255.47 347,-262.41"/>
 </g>
 <!-- assertexceptionraised -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_node3" class="node">
 <title>assertexceptionraised</title>
-<polygon fill="#777777" stroke="#777777" points="468,-150 338,-150 338,-126 468,-126 468,-150"/>
-<text text-anchor="middle" x="403" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertexceptionraised</text>
+<polygon fill="#777777" stroke="#777777" points="460,-234 330,-234 330,-210 460,-210 460,-234"/>
+<text text-anchor="middle" x="395" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertexceptionraised</text>
 </g>
 <!-- proc~test_stop_wrong_meter&#45;&gt;assertexceptionraised -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_edge2" class="edge">
 <title>proc~test_stop_wrong_meter&#45;&gt;assertexceptionraised</title>
-<path fill="none" stroke="#255000" d="M198.31,-108.04C239.09,-114.03 288.03,-121.23 327.72,-127.07"/>
-<polygon fill="#255000" stroke="#255000" points="327.46,-130.57 337.86,-128.56 328.48,-123.65 327.46,-130.57"/>
+<path fill="none" stroke="#255000" d="M196.02,-192.04C234.98,-197.93 281.61,-204.99 319.83,-210.77"/>
+<polygon fill="#255000" stroke="#255000" points="319.45,-214.26 329.86,-212.29 320.5,-207.34 319.45,-214.26"/>
 </g>
-<!-- get_status -->
+<!-- none~finalize~2 -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_node4" class="node">
-<title>get_status</title>
-<polygon fill="#777777" stroke="#777777" points="436.5,-108 369.5,-108 369.5,-84 436.5,-84 436.5,-108"/>
-<text text-anchor="middle" x="403" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_status</text>
+<title>none~finalize~2</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node4"><a xlink:href=".././type/baseprofiler.html#boundprocedure-finalize~2" xlink:title="mapl_BaseProfiler::BaseProfiler%finalize">
+<polygon fill="#a7506f" stroke="#a7506f" points="509,-192 281,-192 281,-168 509,-168 509,-192"/>
+<text text-anchor="middle" x="395" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%finalize</text>
+</a>
 </g>
-<!-- proc~test_stop_wrong_meter&#45;&gt;get_status -->
+</g>
+<!-- proc~test_stop_wrong_meter&#45;&gt;none~finalize~2 -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_edge3" class="edge">
-<title>proc~test_stop_wrong_meter&#45;&gt;get_status</title>
-<path fill="none" stroke="#255000" d="M231.39,-96C276.46,-96 325.4,-96 359.25,-96"/>
-<polygon fill="#255000" stroke="#255000" points="359.25,-99.5 369.25,-96 359.25,-92.5 359.25,-99.5"/>
+<title>proc~test_stop_wrong_meter&#45;&gt;none~finalize~2</title>
+<path fill="none" stroke="#255000" d="M231.37,-180C244.2,-180 257.3,-180 270.23,-180"/>
+<polygon fill="#255000" stroke="#255000" points="270.55,-183.5 280.55,-180 270.55,-176.5 270.55,-183.5"/>
 </g>
-<!-- proc~finalize -->
+<!-- none~get_status -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_node5" class="node">
-<title>proc~finalize</title>
-<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node5"><a xlink:href=".././proc/finalize.html" xlink:title="mapl_Profiler::ExtData_DriverGridComp%finalize">
-<polygon fill="#d9534f" stroke="#d9534f" points="539,-66 267,-66 267,-42 539,-42 539,-66"/>
-<text text-anchor="middle" x="403" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_Profiler::ExtData_DriverGridComp%finalize</text>
+<title>none~get_status</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node5"><a xlink:href=".././type/baseprofiler.html#boundprocedure-get_status" xlink:title="mapl_BaseProfiler::BaseProfiler%get_status">
+<polygon fill="#a7506f" stroke="#a7506f" points="517,-150 273,-150 273,-126 517,-126 517,-150"/>
+<text text-anchor="middle" x="395" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%get_status</text>
 </a>
 </g>
 </g>
-<!-- proc~test_stop_wrong_meter&#45;&gt;proc~finalize -->
+<!-- proc~test_stop_wrong_meter&#45;&gt;none~get_status -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_edge4" class="edge">
-<title>proc~test_stop_wrong_meter&#45;&gt;proc~finalize</title>
-<path fill="none" stroke="#255000" d="M198.31,-83.96C233.26,-78.82 274.19,-72.8 310.17,-67.51"/>
-<polygon fill="#255000" stroke="#255000" points="310.79,-70.96 320.18,-66.04 309.77,-64.03 310.79,-70.96"/>
+<title>proc~test_stop_wrong_meter&#45;&gt;none~get_status</title>
+<path fill="none" stroke="#255000" d="M196.02,-167.96C229.84,-162.85 269.44,-156.85 304.29,-151.58"/>
+<polygon fill="#255000" stroke="#255000" points="305.1,-154.99 314.47,-150.04 304.06,-148.07 305.1,-154.99"/>
 </g>
-<!-- start -->
+<!-- none~start~3 -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_node6" class="node">
-<title>start</title>
-<polygon fill="#777777" stroke="#777777" points="430,-24 376,-24 376,0 430,0 430,-24"/>
-<text text-anchor="middle" x="403" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">start</text>
+<title>none~start~3</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node6"><a xlink:href=".././type/timeprofiler.html#boundprocedure-start~3" xlink:title="mapl_TimeProfiler_private::TimeProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="523,-108 267,-108 267,-84 523,-84 523,-108"/>
+<text text-anchor="middle" x="395" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_TimeProfiler_private::TimeProfiler%start</text>
+</a>
 </g>
-<!-- proc~test_stop_wrong_meter&#45;&gt;start -->
+</g>
+<!-- proc~test_stop_wrong_meter&#45;&gt;none~start~3 -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_edge5" class="edge">
-<title>proc~test_stop_wrong_meter&#45;&gt;start</title>
-<path fill="none" stroke="#255000" d="M140.35,-83.88C169.5,-69.58 220.66,-46.09 267,-33 299.89,-23.71 338.52,-18.22 366.02,-15.2"/>
-<polygon fill="#255000" stroke="#255000" points="366.39,-18.68 375.97,-14.16 365.66,-11.72 366.39,-18.68"/>
+<title>proc~test_stop_wrong_meter&#45;&gt;none~start~3</title>
+<path fill="none" stroke="#255000" d="M140.37,-167.96C169.54,-153.73 220.72,-130.31 267,-117 276.01,-114.41 285.47,-112.1 295,-110.06"/>
+<polygon fill="#255000" stroke="#255000" points="295.84,-113.46 304.94,-108.02 294.44,-106.6 295.84,-113.46"/>
 </g>
-<!-- proc~finalize_global_time_profiler -->
+<!-- none~finalize~3 -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_node7" class="node">
-<title>proc~finalize_global_time_profiler</title>
-<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node7"><a xlink:href=".././proc/finalize_global_time_profiler.html" xlink:title="mapl_TimeProfiler::finalize_global_time_profiler">
-<polygon fill="#d9534f" stroke="#d9534f" points="840,-66 575,-66 575,-42 840,-42 840,-66"/>
-<text text-anchor="middle" x="707.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_TimeProfiler::finalize_global_time_profiler</text>
+<title>none~finalize~3</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node7"><a xlink:href=".././type/abstractmeter.html#boundprocedure-finalize~3" xlink:title="MAPL_AbstractMeter::AbstractMeter%finalize">
+<polygon fill="#a7506f" stroke="#a7506f" points="829.5,-234 577.5,-234 577.5,-210 829.5,-210 829.5,-234"/>
+<text text-anchor="middle" x="703.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractMeter::AbstractMeter%finalize</text>
 </a>
 </g>
 </g>
-<!-- proc~finalize&#45;&gt;proc~finalize_global_time_profiler -->
+<!-- none~finalize~2&#45;&gt;none~finalize~3 -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_edge6" class="edge">
-<title>proc~finalize&#45;&gt;proc~finalize_global_time_profiler</title>
-<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M539.32,-54C547.71,-54 556.17,-54 564.58,-54"/>
-<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="564.82,-57.5 574.82,-54 564.82,-50.5 564.82,-57.5"/>
+<title>none~finalize~2&#45;&gt;none~finalize~3</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M483.83,-192.04C521.58,-197.21 565.86,-203.28 604.66,-208.59"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="604.54,-212.11 614.92,-210 605.49,-205.17 604.54,-212.11"/>
 </g>
-<!-- finalize -->
+<!-- none~get_meter -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_node8" class="node">
-<title>finalize</title>
-<polygon fill="#777777" stroke="#777777" points="1046.5,-87 992.5,-87 992.5,-63 1046.5,-63 1046.5,-87"/>
-<text text-anchor="middle" x="1019.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize</text>
-</g>
-<!-- proc~finalize_global_time_profiler&#45;&gt;finalize -->
-<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge7" class="edge">
-<title>proc~finalize_global_time_profiler&#45;&gt;finalize</title>
-<path fill="none" stroke="#255000" d="M840.42,-62.94C892.09,-66.44 947.26,-70.17 982.27,-72.55"/>
-<polygon fill="#255000" stroke="#255000" points="982.25,-76.05 992.46,-73.24 982.72,-69.07 982.25,-76.05"/>
-</g>
-<!-- proc~get_global_time_profiler -->
-<g id="proc~~test_stop_wrong_meter~~CallsGraph_node9" class="node">
-<title>proc~get_global_time_profiler</title>
-<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node9"><a xlink:href=".././proc/get_global_time_profiler.html" xlink:title="mapl_TimeProfiler_private::get_global_time_profiler">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="1163,-45 876,-45 876,-21 1163,-21 1163,-45"/>
-<text text-anchor="middle" x="1019.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_TimeProfiler_private::get_global_time_profiler</text>
+<title>none~get_meter</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node8"><a xlink:href=".././type/meternode.html#boundprocedure-get_meter" xlink:title="MAPL_MeterNode::MeterNode%get_meter">
+<polygon fill="#a7506f" stroke="#a7506f" points="821,-192 586,-192 586,-168 821,-168 821,-192"/>
+<text text-anchor="middle" x="703.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%get_meter</text>
 </a>
 </g>
 </g>
-<!-- proc~finalize_global_time_profiler&#45;&gt;proc~get_global_time_profiler -->
+<!-- none~finalize~2&#45;&gt;none~get_meter -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge7" class="edge">
+<title>none~finalize~2&#45;&gt;none~get_meter</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M509.26,-180C530.92,-180 553.73,-180 575.79,-180"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="575.86,-183.5 585.86,-180 575.86,-176.5 575.86,-183.5"/>
+</g>
+<!-- none~pop_back -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node9" class="node">
+<title>none~pop_back</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node9"><a xlink:href=".././type/meternodestack.html#boundprocedure-pop_back" xlink:title="mapl_MeterNodeStack::MeterNodeStack%pop_back">
+<polygon fill="#a7506f" stroke="#a7506f" points="848,-150 559,-150 559,-126 848,-126 848,-150"/>
+<text text-anchor="middle" x="703.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MeterNodeStack::MeterNodeStack%pop_back</text>
+</a>
+</g>
+</g>
+<!-- none~finalize~2&#45;&gt;none~pop_back -->
 <g id="proc~~test_stop_wrong_meter~~CallsGraph_edge8" class="edge">
-<title>proc~finalize_global_time_profiler&#45;&gt;proc~get_global_time_profiler</title>
-<path fill="none" stroke="#255000" d="M840.42,-45.06C848.74,-44.5 857.14,-43.93 865.55,-43.36"/>
-<polygon fill="#255000" stroke="#255000" points="866.04,-46.84 875.78,-42.67 865.57,-39.85 866.04,-46.84"/>
+<title>none~finalize~2&#45;&gt;none~pop_back</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M483.83,-167.96C521.58,-162.79 565.86,-156.72 604.66,-151.41"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="605.49,-154.83 614.92,-150 604.54,-147.89 605.49,-154.83"/>
+</g>
+<!-- none~start_self -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node10" class="node">
+<title>none~start_self</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node10"><a xlink:href=".././type/baseprofiler.html#boundprocedure-start_self" xlink:title="mapl_BaseProfiler::BaseProfiler%start_self">
+<polygon fill="#a7506f" stroke="#a7506f" points="822.5,-108 584.5,-108 584.5,-84 822.5,-84 822.5,-108"/>
+<text text-anchor="middle" x="703.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%start_self</text>
+</a>
+</g>
+</g>
+<!-- none~start~3&#45;&gt;none~start_self -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge9" class="edge">
+<title>none~start~3&#45;&gt;none~start_self</title>
+<path fill="none" stroke="#204025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M523.32,-96C540.07,-96 557.25,-96 574.03,-96"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="574.41,-99.5 584.41,-96 574.41,-92.5 574.41,-99.5"/>
+</g>
+<!-- mpi_op_free -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node12" class="node">
+<title>mpi_op_free</title>
+<polygon fill="#777777" stroke="#777777" points="1040,-276 962,-276 962,-252 1040,-252 1040,-276"/>
+<text text-anchor="middle" x="1001" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_op_free</text>
+</g>
+<!-- none~finalize~3&#45;&gt;mpi_op_free -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge10" class="edge">
+<title>none~finalize~3&#45;&gt;mpi_op_free</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M789.18,-234.04C841.91,-241.53 907.84,-250.9 951.8,-257.15"/>
+<polygon fill="#255000" stroke="#255000" points="951.54,-260.65 961.93,-258.59 952.52,-253.72 951.54,-260.65"/>
+</g>
+<!-- mpi_type_free -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node13" class="node">
+<title>mpi_type_free</title>
+<polygon fill="#777777" stroke="#777777" points="1045,-234 957,-234 957,-210 1045,-210 1045,-234"/>
+<text text-anchor="middle" x="1001" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_type_free</text>
+</g>
+<!-- none~finalize~3&#45;&gt;mpi_type_free -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge11" class="edge">
+<title>none~finalize~3&#45;&gt;mpi_type_free</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M829.82,-222C870.7,-222 913.92,-222 946.58,-222"/>
+<polygon fill="#255000" stroke="#255000" points="946.79,-225.5 956.79,-222 946.79,-218.5 946.79,-225.5"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node11" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node11"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1109.5,-192 892.5,-192 892.5,-168 1109.5,-168 1109.5,-192"/>
+<text text-anchor="middle" x="1001" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- none~start_self&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge12" class="edge">
+<title>none~start_self&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M822.7,-106.18C831.52,-109.06 840.06,-112.62 848,-117 869.53,-128.87 862.67,-146.77 884,-159 887.25,-160.87 890.64,-162.57 894.11,-164.13"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="892.93,-167.43 903.51,-167.93 895.55,-160.94 892.93,-167.43"/>
+</g>
+<!-- none~get_name~2 -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node14" class="node">
+<title>none~get_name~2</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node14"><a xlink:href=".././type/meternode.html#boundprocedure-get_name~2" xlink:title="MAPL_MeterNode::MeterNode%get_name">
+<polygon fill="#a7506f" stroke="#a7506f" points="1118,-150 884,-150 884,-126 1118,-126 1118,-150"/>
+<text text-anchor="middle" x="1001" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%get_name</text>
+</a>
+</g>
+</g>
+<!-- none~start_self&#45;&gt;none~get_name~2 -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge13" class="edge">
+<title>none~start_self&#45;&gt;none~get_name~2</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M789.18,-108.04C825.42,-113.19 867.9,-119.22 905.19,-124.52"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="905.17,-128.06 915.56,-126 906.16,-121.13 905.17,-128.06"/>
+</g>
+<!-- none~start~2 -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node15" class="node">
+<title>none~start~2</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node15"><a xlink:href=".././type/baseprofiler.html#boundprocedure-start~2" xlink:title="mapl_BaseProfiler::BaseProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="1108,-108 894,-108 894,-84 1108,-84 1108,-108"/>
+<text text-anchor="middle" x="1001" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- none~start_self&#45;&gt;none~start~2 -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge14" class="edge">
+<title>none~start_self&#45;&gt;none~start~2</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M822.56,-89.37C842.64,-89.2 863.48,-89.21 883.52,-89.39"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="883.56,-92.89 893.6,-89.49 883.64,-85.89 883.56,-92.89"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node16" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node16"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1111,-66 891,-66 891,-42 1111,-42 1111,-66"/>
+<text text-anchor="middle" x="1001" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- none~start_self&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge15" class="edge">
+<title>none~start_self&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M789.18,-83.96C825.42,-78.81 867.9,-72.78 905.19,-67.48"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="906.16,-70.87 915.56,-66 905.17,-63.94 906.16,-70.87"/>
+</g>
+<!-- none~start~2&#45;&gt;none~start_self -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge16" class="edge">
+<title>none~start~2&#45;&gt;none~start_self</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M893.6,-102.51C873.88,-102.74 853.09,-102.81 832.8,-102.7"/>
+<polygon fill="#002505" stroke="#002505" points="832.59,-99.2 822.56,-102.63 832.54,-106.2 832.59,-99.2"/>
+</g>
+<!-- at -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node17" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1295.5,-108 1241.5,-108 1241.5,-84 1295.5,-84 1295.5,-108"/>
+<text text-anchor="middle" x="1268.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1078.08,-66.04C1128.44,-74 1192.19,-84.09 1231.39,-90.29"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1230.86,-93.75 1241.29,-91.85 1231.96,-86.83 1230.86,-93.75"/>
+</g>
+<!-- insert -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node18" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1295.5,-66 1241.5,-66 1241.5,-42 1295.5,-42 1295.5,-66"/>
+<text text-anchor="middle" x="1268.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1111.14,-54C1153.87,-54 1199.97,-54 1230.96,-54"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1231.27,-57.5 1241.27,-54 1231.27,-50.5 1231.27,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_node19" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~test_stop_wrong_meter~~CallsGraph_node19"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1383,-24 1154,-24 1154,0 1383,0 1383,-24"/>
+<text text-anchor="middle" x="1268.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_stop_wrong_meter~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1078.08,-41.96C1110.3,-36.87 1148,-30.9 1181.24,-25.65"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1182.08,-29.06 1191.41,-24.04 1180.98,-22.14 1182.08,-29.06"/>
 </g>
 </g>
 </svg>
@@ -307,8 +438,8 @@
                   var panproctest_stop_wrong_meterCallsGraph = svgPanZoom('#proctest_stop_wrong_meterCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -325,11 +456,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -348,23 +479,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -384,66 +521,35 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/test_stop_wrong_meter.html#src">test_stop_wrong_meter</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_stop_wrong_meter</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TimeProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prof</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_stop_wrong_meter</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TimeProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prof</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 <span class="w">      </span>
-<span class="w">      </span><span class="n">prof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeProfiler</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="n">prof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeProfiler</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">()</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">prof</span><span class="p">%</span><span class="n">get_status</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">prof</span><span class="p">%</span><span class="n">get_status</span><span class="p">())</span>
 <span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="c">! not the current timer</span>
 
 <span class="c">!C$      @assertEqual(INCORRECTLY_NESTED_METERS, prof%get_status())</span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertExceptionRaised</span><span class="p">(</span><span class="s1">&#39;Timer &lt;timer_1&gt; does not match start timer &lt;timer_2&gt;&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">finalize</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertExceptionRaised</span><span class="p">(</span><span class="s1">&#39;Timer &lt;timer_1&gt; does not match start timer &lt;timer_2&gt;&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">finalize</span><span class="p">()</span>
 <span class="w">      </span>
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_stop_wrong_meter</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_stop_wrong_meter</span>
 </pre></div>
 
     </section>
@@ -456,32 +562,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

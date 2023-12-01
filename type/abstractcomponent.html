@@ -10,85 +10,58 @@
 
     <title>AbstractComponent &ndash; MAPL </title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Derived Type</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title="<p> 0.1% of total for derived types.</p>Including implementation: 13 statements,  0.0% of total for derived types.">13 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title="<p> 0.1% of total for derived types.</p>Including implementation: 13 statements,  0.0% of total for derived types.">13 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/AbstractComponent.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/abstractcomponent.f90.html'>AbstractComponent.F90</a></li>
-              <li><a href='../module/mapl_abstractcomponent.html'>mapl_AbstractComponent</a></li>
-          <li class="active">AbstractComponent</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/abstractcomponent.f90.html'>AbstractComponent.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_abstractcomponent.html'>mapl_AbstractComponent</a></li>
+            <li class="breadcrumb-item active" aria-current="page">AbstractComponent</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -149,31 +126,31 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#boundprocs-0">Type-Bound Procedures</a>
-        </h3>
-      </div>
-      <div id="boundprocs-0" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-finalize~13">finalize</a>
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-finalize~10">finalize</a>
             <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-get_framework~2">get_framework</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-get_logger~3">get_logger</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-get_name~9">get_name</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-initialize~50">initialize</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-run~18">run</a>
+            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-get_logger~2">get_logger</a>
+            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-get_name~4">get_name</a>
+            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-initialize~45">initialize</a>
+            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-run~11">run</a>
             <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-run_child~4">run_child</a>
             <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-set_framework~2">set_framework</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-set_logger~3">set_logger</a>
+            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-set_logger~2">set_logger</a>
             <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-set_name~2">set_name</a>
         </div>
       </div>
     </div>
 
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../type/abstractcomponent.html#src">AbstractComponent</a>
       </div>
@@ -187,11 +164,11 @@
     <div class="col-md-9" id='text'>
       <h2>type, public, abstract :: AbstractComponent</h2>
     
-<br>    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Inherited by</h3>
+<br>    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Inherited by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
      <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -219,7 +196,7 @@
 </g>
 </g>
 <!-- type~basecomponent&#45;&gt;type~abstractcomponent -->
-<g id="type~~abstractcomponent~~InheritedByGraph_edge3" class="edge">
+<g id="type~~abstractcomponent~~InheritedByGraph_edge2" class="edge">
 <title>type~basecomponent&#45;&gt;type~abstractcomponent</title>
 <path fill="none" stroke="#255000" d="M252.4,-164.05C216.4,-175.87 166.64,-192.12 165.5,-192"/>
 <path fill="none" stroke="#255000" d="M163.5,-192C137.56,-189.21 110.22,-177.88 90.23,-167.84"/>
@@ -251,7 +228,7 @@
 </g>
 </g>
 <!-- type~decoratorcomponent&#45;&gt;type~abstractcomponent -->
-<g id="type~~abstractcomponent~~InheritedByGraph_edge2" class="edge">
+<g id="type~~abstractcomponent~~InheritedByGraph_edge3" class="edge">
 <title>type~decoratorcomponent&#45;&gt;type~abstractcomponent</title>
 <path fill="none" stroke="#255000" d="M633.8,-193.17C533.74,-200.24 333.79,-210.1 165.5,-192"/>
 </g>
@@ -302,7 +279,7 @@
 </g>
 </g>
 <!-- type~mapl_metacomp&#45;&gt;type~maplgenericcomponent -->
-<g id="type~~abstractcomponent~~InheritedByGraph_edge9" class="edge">
+<g id="type~~abstractcomponent~~InheritedByGraph_edge10" class="edge">
 <title>type~mapl_metacomp&#45;&gt;type~maplgenericcomponent</title>
 <path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M646.24,-49.41C628.98,-49.08 609.73,-50.04 592.5,-54"/>
 </g>
@@ -316,7 +293,7 @@
 </g>
 </g>
 <!-- type~namedcomponent&#45;&gt;type~maplgenericcomponent -->
-<g id="type~~abstractcomponent~~InheritedByGraph_edge10" class="edge">
+<g id="type~~abstractcomponent~~InheritedByGraph_edge9" class="edge">
 <title>type~namedcomponent&#45;&gt;type~maplgenericcomponent</title>
 <path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M657.87,-24.09C649.89,-26.81 641.61,-29.84 634,-33 614.91,-40.93 612.65,-49.37 592.5,-54"/>
 <path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M590.5,-54C570.88,-58.51 549.49,-64.1 530.74,-69.23"/>
@@ -332,7 +309,7 @@
 </g>
 </g>
 <!-- type~stubcomponent&#45;&gt;type~maplcomponent -->
-<g id="type~~abstractcomponent~~InheritedByGraph_edge7" class="edge">
+<g id="type~~abstractcomponent~~InheritedByGraph_edge8" class="edge">
 <title>type~stubcomponent&#45;&gt;type~maplcomponent</title>
 <path fill="none" stroke="#255000" d="M648.91,-132.22C631.08,-131.13 610.79,-131.1 592.5,-134"/>
 </g>
@@ -346,7 +323,7 @@
 </g>
 </g>
 <!-- type~usercomponent&#45;&gt;type~maplcomponent -->
-<g id="type~~abstractcomponent~~InheritedByGraph_edge8" class="edge">
+<g id="type~~abstractcomponent~~InheritedByGraph_edge7" class="edge">
 <title>type~usercomponent&#45;&gt;type~maplcomponent</title>
 <path fill="none" stroke="#255000" d="M659.74,-108.01C651.24,-110.85 642.28,-113.94 634,-117 615.3,-123.91 612.19,-130.88 592.5,-134"/>
 <path fill="none" stroke="#255000" d="M590.5,-134C573.58,-136.69 555.22,-139.63 538.38,-142.35"/>
@@ -358,8 +335,8 @@
                   var pantypeabstractcomponentInheritedByGraph = svgPanZoom('#typeabstractcomponentInheritedByGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#InheritedByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="InheritedByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -411,83 +388,38 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#boundprocs-1">Type-Bound Procedures</a>
-        </h3>
-      </div>
-      <div id="boundprocs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-finalize~13">finalize</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-get_framework~2">get_framework</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-get_logger~3">get_logger</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-get_name~9">get_name</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-initialize~50">initialize</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-run~18">run</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-run_child~4">run_child</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-set_framework~2">set_framework</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-set_logger~3">set_logger</a>
-            <a class="list-group-item" href="../type/abstractcomponent.html#boundprocedure-set_name~2">set_name</a>
-        </div>
-      </div>
-    </div>
-
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../type/abstractcomponent.html#src">AbstractComponent</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
     
 
 
       <section>
         <h2>Type-Bound Procedures</h2>
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-finalize~13"></span><h3>procedure(i_Run), public, deferred :: <strong>finalize</strong>          
-    </h3></div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-finalize~10"></span>
+      <h3>
+          procedure(i_Run), public, deferred ::
+  <strong>finalize</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      subroutine i_Run(this, import_state, export_state, clock, phase, unusable, rc)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -603,25 +535,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_framework~2"></span><h3>procedure(i_GetFramework), public, deferred :: <strong>get_framework</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_framework~2"></span>
+      <h3>
+          procedure(i_GetFramework), public, deferred ::
+  <strong>get_framework</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      function i_GetFramework(this) result(framework)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -652,25 +593,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_logger~3"></span><h3>procedure(i_GetLogger), public, deferred :: <strong>get_logger</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_logger~2"></span>
+      <h3>
+          procedure(i_GetLogger), public, deferred ::
+  <strong>get_logger</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      function i_GetLogger(this) result(logger)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -701,25 +651,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_name~9"></span><h3>procedure(i_GetName), public, deferred :: <strong>get_name</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-get_name~4"></span>
+      <h3>
+          procedure(i_GetName), public, deferred ::
+  <strong>get_name</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      function i_GetName(this) result(name)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -750,25 +709,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-initialize~50"></span><h3>procedure(i_Run), public, deferred :: <strong>initialize</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-initialize~45"></span>
+      <h3>
+          procedure(i_Run), public, deferred ::
+  <strong>initialize</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      subroutine i_Run(this, import_state, export_state, clock, phase, unusable, rc)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -884,25 +852,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-run~18"></span><h3>procedure(i_Run), public, deferred :: <strong>run</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-run~11"></span>
+      <h3>
+          procedure(i_Run), public, deferred ::
+  <strong>run</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      subroutine i_Run(this, import_state, export_state, clock, phase, unusable, rc)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1018,25 +995,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-run_child~4"></span><h3>procedure(i_RunChild), public, deferred :: <strong>run_child</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-run_child~4"></span>
+      <h3>
+          procedure(i_RunChild), public, deferred ::
+  <strong>run_child</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      subroutine i_RunChild(this, name, clock, phase, unusable, rc)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1137,25 +1123,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set_framework~2"></span><h3>procedure(i_SetFramework), public, deferred :: <strong>set_framework</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_framework~2"></span>
+      <h3>
+          procedure(i_SetFramework), public, deferred ::
+  <strong>set_framework</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      subroutine i_SetFramework(this, framework)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1196,25 +1191,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set_logger~3"></span><h3>procedure(i_SetLogger), public, deferred :: <strong>set_logger</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_logger~2"></span>
+      <h3>
+          procedure(i_SetLogger), public, deferred ::
+  <strong>set_logger</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      subroutine i_SetLogger(this, logger)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1255,25 +1259,34 @@ large graphs.</div>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set_name~2"></span><h3>procedure(i_SetName), public, deferred :: <strong>set_name</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-set_name~2"></span>
+      <h3>
+          procedure(i_SetName), public, deferred ::
+  <strong>set_name</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
      subroutine i_SetName(this, name)  
 <small>Prototype</small></h3>
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -1314,31 +1327,32 @@ large graphs.</div>
     </ul>
   </div>
 
+          </div>
       </section>
 
     <section>
     <h3><span class="anchor" id="src"></span>Source Code</h3>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">AbstractComponent</span><span class="w"></span>
-<span class="w">   </span><span class="k">contains</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">AbstractComponent</span>
+<span class="w">   </span><span class="k">contains</span>
 <span class="w">      </span><span class="c">! Primary methods</span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_Run</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_Run</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_Run</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalize</span><span class="w"></span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_Run</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_Run</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_Run</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalize</span>
 
 <span class="w">      </span><span class="c">! Framework methods</span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_RunChild</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run_child</span><span class="w"></span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_RunChild</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run_child</span>
 
 <span class="w">      </span><span class="c">! Accessors</span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_SetName</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_name</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_GetName</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_name</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_SetFramework</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_framework</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_GetFramework</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_framework</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_SetLogger</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_logger</span><span class="w"></span>
-<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_GetLogger</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_logger</span><span class="w"></span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_SetName</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_name</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_GetName</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_name</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_SetFramework</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_framework</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_GetFramework</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_framework</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_SetLogger</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_logger</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_GetLogger</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_logger</span>
 
 <span class="w">      </span><span class="c">!procedure(i_GetState), deferred :: get_internal_state</span>
 
-<span class="w">   </span><span class="k">end type </span><span class="n">AbstractComponent</span><span class="w"></span>
+<span class="w">   </span><span class="k">end type </span><span class="n">AbstractComponent</span>
 </pre></div>
 
     </section>
@@ -1350,32 +1364,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

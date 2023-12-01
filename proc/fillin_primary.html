@@ -10,85 +10,58 @@
 
     <title>fillin_primary &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.2% of total for procedures.">97 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.2% of total for procedures.">97 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/ExtDataOldTypesCreator.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/extdataoldtypescreator.f90.html'>ExtDataOldTypesCreator.F90</a></li>
-              <li><a href='../module/mapl_extdataoldtypescreator.html'>MAPL_ExtDataOldTypesCreator</a></li>
-          <li class="active">fillin_primary</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdataoldtypescreator.f90.html'>ExtDataOldTypesCreator.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdataoldtypescreator.html'>MAPL_ExtDataOldTypesCreator</a></li>
+            <li class="breadcrumb-item active" aria-current="page">fillin_primary</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/fillin_primary.html#src">fillin_primary</a>
       </div>
@@ -176,16 +154,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~208"></span>
+              <span class="anchor" id="variable-this~1223"></span>
               class(<a href='../type/extdataoldtypescreator.html'>ExtDataOldTypesCreator</a>),
             </td>
 <td>intent(inout)</td>
@@ -200,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-item_name~3"></span>
+              <span class="anchor" id="variable-item_name~5"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -215,7 +193,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-base_name"></span>
+              <span class="anchor" id="variable-base_name~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -245,7 +223,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-time~4"></span>
+              <span class="anchor" id="variable-time~6"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
             </td>
 <td>intent(inout)</td>
@@ -260,7 +238,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~5"></span>
+              <span class="anchor" id="variable-clock~21"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(inout)</td>
@@ -275,7 +253,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-unusable~32"></span>
+              <span class="anchor" id="variable-unusable~164"></span>
               class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
             </td>
 <td>intent(in),</td>
@@ -290,7 +268,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~177"></span>
+              <span class="anchor" id="variable-rc~589"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -307,180 +285,396 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~fillin_primary~~CallsGraph Pages: 1 -->
-<svg id="procfillin_primaryCallsGraph" width="641pt" height="241pt"
- viewBox="0.00 0.00 641.00 240.70" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~fillin_primary~~CallsGraph" class="graph" transform="scale(1.53 1.53) rotate(0) translate(4 364)">
+<svg id="procfillin_primaryCallsGraph" width="641pt" height="210pt"
+ viewBox="0.00 0.00 641.00 210.26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~fillin_primary~~CallsGraph" class="graph" transform="scale(2.35 2.35) rotate(0) translate(4 490)">
 <title>proc~~fillin_primary~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 976,-364 976,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 1502,-490 1502,4 -4,4"/>
 <!-- proc~fillin_primary -->
 <g id="proc~~fillin_primary~~CallsGraph_node1" class="node">
 <title>proc~fillin_primary</title>
-<polygon fill="none" stroke="black" points="391,-192 0,-192 0,-168 391,-168 391,-192"/>
-<text text-anchor="middle" x="195.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataOldTypesCreator::ExtDataOldTypesCreator%fillin_primary</text>
-</g>
-<!-- detect_metadata -->
-<g id="proc~~fillin_primary~~CallsGraph_node2" class="node">
-<title>detect_metadata</title>
-<polygon fill="#777777" stroke="#777777" points="618.5,-360 515.5,-360 515.5,-336 618.5,-336 618.5,-360"/>
-<text text-anchor="middle" x="567" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">detect_metadata</text>
-</g>
-<!-- proc~fillin_primary&#45;&gt;detect_metadata -->
-<g id="proc~~fillin_primary~~CallsGraph_edge1" class="edge">
-<title>proc~fillin_primary&#45;&gt;detect_metadata</title>
-<path fill="none" stroke="#255000" d="M210.7,-192.15C245.16,-220.91 337.01,-293.25 427,-327 451.7,-336.27 480.33,-341.45 505.16,-344.35"/>
-<polygon fill="#255000" stroke="#255000" points="504.87,-347.84 515.19,-345.42 505.62,-340.88 504.87,-347.84"/>
-</g>
-<!-- initialize -->
-<g id="proc~~fillin_primary~~CallsGraph_node3" class="node">
-<title>initialize</title>
-<polygon fill="#777777" stroke="#777777" points="595.5,-318 538.5,-318 538.5,-294 595.5,-294 595.5,-318"/>
-<text text-anchor="middle" x="567" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
-</g>
-<!-- proc~fillin_primary&#45;&gt;initialize -->
-<g id="proc~~fillin_primary~~CallsGraph_edge2" class="edge">
-<title>proc~fillin_primary&#45;&gt;initialize</title>
-<path fill="none" stroke="#255000" d="M217.65,-192.07C257.34,-214.16 346.28,-261.03 427,-285 460.4,-294.92 499.78,-300.31 528.07,-303.13"/>
-<polygon fill="#255000" stroke="#255000" points="528.06,-306.64 538.34,-304.09 528.71,-299.68 528.06,-306.64"/>
+<polygon fill="none" stroke="black" points="391,-256 0,-256 0,-232 391,-232 391,-256"/>
+<text text-anchor="middle" x="195.5" y="-241.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataOldTypesCreator::ExtDataOldTypesCreator%fillin_primary</text>
 </g>
 <!-- interface~mapl_assert -->
-<g id="proc~~fillin_primary~~CallsGraph_node4" class="node">
+<g id="proc~~fillin_primary~~CallsGraph_node2" class="node">
 <title>interface~mapl_assert</title>
-<g id="a_proc~~fillin_primary~~CallsGraph_node4"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
-<polygon fill="#a7506f" stroke="#a7506f" points="675.5,-276 458.5,-276 458.5,-252 675.5,-252 675.5,-276"/>
-<text text-anchor="middle" x="567" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+<g id="a_proc~~fillin_primary~~CallsGraph_node2"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1171.5,-486 954.5,-486 954.5,-462 1171.5,-462 1171.5,-486"/>
+<text text-anchor="middle" x="1063" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
 </a>
 </g>
 </g>
 <!-- proc~fillin_primary&#45;&gt;interface~mapl_assert -->
-<g id="proc~~fillin_primary~~CallsGraph_edge3" class="edge">
+<g id="proc~~fillin_primary~~CallsGraph_edge1" class="edge">
 <title>proc~fillin_primary&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#255000" d="M235.31,-192.1C280.85,-205.96 358.81,-228.58 427,-243 439.56,-245.66 452.82,-248.11 465.97,-250.32"/>
-<polygon fill="#255000" stroke="#255000" points="465.56,-253.8 476,-251.97 466.7,-246.9 465.56,-253.8"/>
+<path fill="none" stroke="#255000" d="M208.63,-256.15C240.84,-287.55 332.52,-371.4 427,-407 598.62,-471.66 813.62,-480.73 944.26,-479.05"/>
+<polygon fill="#255000" stroke="#255000" points="944.35,-482.55 954.3,-478.9 944.24,-475.55 944.35,-482.55"/>
 </g>
-<!-- linear_trans -->
+<!-- none~at~16 -->
+<g id="proc~~fillin_primary~~CallsGraph_node3" class="node">
+<title>none~at~16</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node3"><a xlink:href=".././type/extdatarulemap.html#boundprocedure-at~16" xlink:title="MAPL_ExtDataRuleMap::ExtDataRuleMap%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="767,-154 517,-154 517,-130 767,-130 767,-154"/>
+<text text-anchor="middle" x="642" y="-139.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataRuleMap::ExtDataRuleMap%at</text>
+</a>
+</g>
+</g>
+<!-- proc~fillin_primary&#45;&gt;none~at~16 -->
+<g id="proc~~fillin_primary~~CallsGraph_edge2" class="edge">
+<title>proc~fillin_primary&#45;&gt;none~at~16</title>
+<path fill="none" stroke="#255000" d="M223.9,-231.94C266.46,-213.77 351.42,-179.73 427,-163 452.53,-157.35 480.12,-153.22 506.71,-150.2"/>
+<polygon fill="#255000" stroke="#255000" points="507.29,-153.65 516.85,-149.09 506.53,-146.7 507.29,-153.65"/>
+</g>
+<!-- none~create_from_parameters -->
+<g id="proc~~fillin_primary~~CallsGraph_node4" class="node">
+<title>none~create_from_parameters</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node4"><a xlink:href=".././type/extdatapointerupdate.html#boundprocedure-create_from_parameters" xlink:title="MAPL_ExtDataPointerUpdate::ExtDataPointerUpdate%create_from_parameters">
+<polygon fill="#a7506f" stroke="#a7506f" points="857,-196 427,-196 427,-172 857,-172 857,-196"/>
+<text text-anchor="middle" x="642" y="-181.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataPointerUpdate::ExtDataPointerUpdate%create_from_parameters</text>
+</a>
+</g>
+</g>
+<!-- proc~fillin_primary&#45;&gt;none~create_from_parameters -->
+<g id="proc~~fillin_primary~~CallsGraph_edge3" class="edge">
+<title>proc~fillin_primary&#45;&gt;none~create_from_parameters</title>
+<path fill="none" stroke="#255000" d="M274.58,-231.98C319.19,-225.23 376.19,-216.83 427,-210 459.61,-205.62 495.05,-201.18 527.54,-197.24"/>
+<polygon fill="#255000" stroke="#255000" points="528.02,-200.71 537.53,-196.03 527.18,-193.76 528.02,-200.71"/>
+</g>
+<!-- none~detect_metadata -->
 <g id="proc~~fillin_primary~~CallsGraph_node5" class="node">
-<title>linear_trans</title>
-<polygon fill="#777777" stroke="#777777" points="605,-234 529,-234 529,-210 605,-210 605,-234"/>
-<text text-anchor="middle" x="567" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">linear_trans</text>
+<title>none~detect_metadata</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node5"><a xlink:href=".././type/extdatafilestream.html#boundprocedure-detect_metadata" xlink:title="MAPL_ExtDataFileStream::ExtDataFileStream%detect_metadata">
+<polygon fill="#a7506f" stroke="#a7506f" points="817.5,-398 466.5,-398 466.5,-374 817.5,-374 817.5,-398"/>
+<text text-anchor="middle" x="642" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataFileStream::ExtDataFileStream%detect_metadata</text>
+</a>
 </g>
-<!-- proc~fillin_primary&#45;&gt;linear_trans -->
+</g>
+<!-- proc~fillin_primary&#45;&gt;none~detect_metadata -->
 <g id="proc~~fillin_primary~~CallsGraph_edge4" class="edge">
-<title>proc~fillin_primary&#45;&gt;linear_trans</title>
-<path fill="none" stroke="#255000" d="M302.38,-192.04C373.71,-200.14 464.33,-210.44 518.61,-216.61"/>
-<polygon fill="#255000" stroke="#255000" points="518.31,-220.1 528.64,-217.75 519.1,-213.15 518.31,-220.1"/>
+<title>proc~fillin_primary&#45;&gt;none~detect_metadata</title>
+<path fill="none" stroke="#255000" d="M214.99,-256.13C252.95,-280.37 343.16,-334.66 427,-360 443.25,-364.91 460.45,-368.9 477.77,-372.14"/>
+<polygon fill="#255000" stroke="#255000" points="477.51,-375.64 487.97,-373.96 478.74,-368.75 477.51,-375.64"/>
+</g>
+<!-- none~initialize~7 -->
+<g id="proc~~fillin_primary~~CallsGraph_node6" class="node">
+<title>none~initialize~7</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node6"><a xlink:href=".././type/extdataabstractfilehandler.html#boundprocedure-initialize~7" xlink:title="MAPL_ExtdataAbstractFileHandler::ExtDataAbstractFileHandler%initialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="842,-112 442,-112 442,-88 842,-88 842,-112"/>
+<text text-anchor="middle" x="642" y="-97.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtdataAbstractFileHandler::ExtDataAbstractFileHandler%initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~fillin_primary&#45;&gt;none~initialize~7 -->
+<g id="proc~~fillin_primary~~CallsGraph_edge5" class="edge">
+<title>proc~fillin_primary&#45;&gt;none~initialize~7</title>
+<path fill="none" stroke="#255000" d="M213.4,-231.93C250.16,-206.37 341.04,-147.03 427,-121 435.44,-118.45 444.14,-116.18 452.98,-114.18"/>
+<polygon fill="#255000" stroke="#255000" points="453.98,-117.55 463.02,-112.03 452.51,-110.7 453.98,-117.55"/>
+</g>
+<!-- none~set_defaults~2 -->
+<g id="proc~~fillin_primary~~CallsGraph_node7" class="node">
+<title>none~set_defaults~2</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node7"><a xlink:href=".././type/extdatatimesample.html#boundprocedure-set_defaults~2" xlink:title="MAPL_ExtDataTimeSample::ExtDataTimeSample%set_defaults">
+<polygon fill="#a7506f" stroke="#a7506f" points="814.5,-276 469.5,-276 469.5,-252 814.5,-252 814.5,-276"/>
+<text text-anchor="middle" x="642" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataTimeSample::ExtDataTimeSample%set_defaults</text>
+</a>
+</g>
+</g>
+<!-- proc~fillin_primary&#45;&gt;none~set_defaults~2 -->
+<g id="proc~~fillin_primary~~CallsGraph_edge6" class="edge">
+<title>proc~fillin_primary&#45;&gt;none~set_defaults~2</title>
+<path fill="none" stroke="#255000" d="M391.14,-252.76C413.71,-253.77 436.67,-254.81 459.06,-255.81"/>
+<polygon fill="#255000" stroke="#255000" points="459.16,-259.32 469.31,-256.27 459.47,-252.33 459.16,-259.32"/>
+</g>
+<!-- none~set_parameters -->
+<g id="proc~~fillin_primary~~CallsGraph_node8" class="node">
+<title>none~set_parameters</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node8"><a xlink:href=".././type/extdatabracket.html#boundprocedure-set_parameters" xlink:title="MAPL_ExtDataBracket::ExtDataBracket%set_parameters">
+<polygon fill="#a7506f" stroke="#a7506f" points="798.5,-318 485.5,-318 485.5,-294 798.5,-294 798.5,-318"/>
+<text text-anchor="middle" x="642" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataBracket::ExtDataBracket%set_parameters</text>
+</a>
+</g>
+</g>
+<!-- proc~fillin_primary&#45;&gt;none~set_parameters -->
+<g id="proc~~fillin_primary~~CallsGraph_edge7" class="edge">
+<title>proc~fillin_primary&#45;&gt;none~set_parameters</title>
+<path fill="none" stroke="#255000" d="M256.96,-256.09C303.33,-265.04 369.02,-277.01 427,-285 448.09,-287.91 470.4,-290.56 492.34,-292.93"/>
+<polygon fill="#255000" stroke="#255000" points="492.07,-296.42 502.39,-294 492.81,-289.46 492.07,-296.42"/>
 </g>
 <!-- proc~mapl_return -->
-<g id="proc~~fillin_primary~~CallsGraph_node6" class="node">
+<g id="proc~~fillin_primary~~CallsGraph_node9" class="node">
 <title>proc~mapl_return</title>
-<g id="a_proc~~fillin_primary~~CallsGraph_node6"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="677,-192 457,-192 457,-168 677,-168 677,-192"/>
-<text text-anchor="middle" x="567" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+<g id="a_proc~~fillin_primary~~CallsGraph_node9"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1173,-318 953,-318 953,-294 1173,-294 1173,-318"/>
+<text text-anchor="middle" x="1063" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~fillin_primary&#45;&gt;proc~mapl_return -->
-<g id="proc~~fillin_primary~~CallsGraph_edge5" class="edge">
+<g id="proc~~fillin_primary~~CallsGraph_edge8" class="edge">
 <title>proc~fillin_primary&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M391.26,-180C409.99,-180 428.58,-180 446.26,-180"/>
-<polygon fill="#255000" stroke="#255000" points="446.56,-183.5 456.56,-180 446.56,-176.5 446.56,-183.5"/>
+<path fill="none" stroke="#255000" d="M220.96,-256.01C262.24,-275.54 348.86,-313.36 427,-327 615.26,-359.86 666.14,-336.75 857,-327 888.76,-325.38 923.17,-322.35 954.57,-319.09"/>
+<polygon fill="#255000" stroke="#255000" points="955.08,-322.56 964.66,-318.02 954.34,-315.59 955.08,-322.56"/>
 </g>
 <!-- proc~mapl_verify -->
-<g id="proc~~fillin_primary~~CallsGraph_node7" class="node">
+<g id="proc~~fillin_primary~~CallsGraph_node10" class="node">
 <title>proc~mapl_verify</title>
-<g id="a_proc~~fillin_primary~~CallsGraph_node7"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="674,-150 460,-150 460,-126 674,-126 674,-150"/>
-<text text-anchor="middle" x="567" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+<g id="a_proc~~fillin_primary~~CallsGraph_node10"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1170,-276 956,-276 956,-252 1170,-252 1170,-276"/>
+<text text-anchor="middle" x="1063" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~fillin_primary&#45;&gt;proc~mapl_verify -->
-<g id="proc~~fillin_primary~~CallsGraph_edge6" class="edge">
+<g id="proc~~fillin_primary~~CallsGraph_edge9" class="edge">
 <title>proc~fillin_primary&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M302.38,-167.96C348.67,-162.7 403.09,-156.52 450.43,-151.14"/>
-<polygon fill="#255000" stroke="#255000" points="450.88,-154.61 460.42,-150 450.09,-147.65 450.88,-154.61"/>
+<path fill="none" stroke="#255000" d="M391.35,-238.34C522.95,-235.83 700.54,-235.01 857,-243 888.76,-244.62 923.17,-247.65 954.57,-250.91"/>
+<polygon fill="#255000" stroke="#255000" points="954.34,-254.41 964.66,-251.98 955.08,-247.44 954.34,-254.41"/>
 </g>
 <!-- proc~regrid_method_string_to_int -->
-<g id="proc~~fillin_primary~~CallsGraph_node8" class="node">
+<g id="proc~~fillin_primary~~CallsGraph_node11" class="node">
 <title>proc~regrid_method_string_to_int</title>
-<g id="a_proc~~fillin_primary~~CallsGraph_node8"><a xlink:href=".././proc/regrid_method_string_to_int.html" xlink:title="mapl_RegridMethods::regrid_method_string_to_int">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="707,-108 427,-108 427,-84 707,-84 707,-108"/>
-<text text-anchor="middle" x="567" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_RegridMethods::regrid_method_string_to_int</text>
+<g id="a_proc~~fillin_primary~~CallsGraph_node11"><a xlink:href=".././proc/regrid_method_string_to_int.html" xlink:title="mapl_RegridMethods::regrid_method_string_to_int">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="782,-47 502,-47 502,-23 782,-23 782,-47"/>
+<text text-anchor="middle" x="642" y="-32.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_RegridMethods::regrid_method_string_to_int</text>
 </a>
 </g>
 </g>
 <!-- proc~fillin_primary&#45;&gt;proc~regrid_method_string_to_int -->
-<g id="proc~~fillin_primary~~CallsGraph_edge7" class="edge">
+<g id="proc~~fillin_primary~~CallsGraph_edge10" class="edge">
 <title>proc~fillin_primary&#45;&gt;proc~regrid_method_string_to_int</title>
-<path fill="none" stroke="#255000" d="M235.31,-167.9C280.85,-154.04 358.81,-131.42 427,-117 439.56,-114.34 452.82,-111.89 465.97,-109.68"/>
-<polygon fill="#255000" stroke="#255000" points="466.7,-113.1 476,-108.03 465.56,-106.2 466.7,-113.1"/>
+<path fill="none" stroke="#255000" d="M209.29,-231.77C242.36,-200.9 334.56,-119.4 427,-79 458.87,-65.07 495.37,-55.48 529.08,-48.9"/>
+<polygon fill="#255000" stroke="#255000" points="529.8,-52.32 538.98,-47.03 528.51,-45.44 529.8,-52.32"/>
 </g>
-<!-- regrid_method -->
-<g id="proc~~fillin_primary~~CallsGraph_node9" class="node">
-<title>regrid_method</title>
-<polygon fill="#777777" stroke="#777777" points="612.5,-66 521.5,-66 521.5,-42 612.5,-42 612.5,-66"/>
-<text text-anchor="middle" x="567" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">regrid_method</text>
+<!-- none~find~12 -->
+<g id="proc~~fillin_primary~~CallsGraph_node18" class="node">
+<title>none~find~12</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node18"><a xlink:href=".././type/extdatarulemap.html#boundprocedure-find~12" xlink:title="MAPL_ExtDataRuleMap::ExtDataRuleMap%find">
+<polygon fill="#a7506f" stroke="#a7506f" points="1192.5,-66 933.5,-66 933.5,-42 1192.5,-42 1192.5,-66"/>
+<text text-anchor="middle" x="1063" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataRuleMap::ExtDataRuleMap%find</text>
+</a>
 </g>
-<!-- proc~fillin_primary&#45;&gt;regrid_method -->
-<g id="proc~~fillin_primary~~CallsGraph_edge8" class="edge">
-<title>proc~fillin_primary&#45;&gt;regrid_method</title>
-<path fill="none" stroke="#255000" d="M217.65,-167.93C257.34,-145.84 346.28,-98.97 427,-75 454.26,-66.9 485.51,-61.83 511.46,-58.7"/>
-<polygon fill="#255000" stroke="#255000" points="511.96,-62.16 521.49,-57.55 511.16,-55.21 511.96,-62.16"/>
 </g>
-<!-- set_defaults -->
-<g id="proc~~fillin_primary~~CallsGraph_node10" class="node">
-<title>set_defaults</title>
-<polygon fill="#777777" stroke="#777777" points="605,-24 529,-24 529,0 605,0 605,-24"/>
-<text text-anchor="middle" x="567" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_defaults</text>
+<!-- none~at~16&#45;&gt;none~find~12 -->
+<g id="proc~~fillin_primary~~CallsGraph_edge11" class="edge">
+<title>none~at~16&#45;&gt;none~find~12</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M767.17,-146.6C797.99,-143.32 829.92,-135.87 857,-121 879.75,-108.5 870.41,-87.79 893,-75 902.55,-69.59 912.89,-65.31 923.58,-61.94"/>
+<polygon fill="transparent" stroke="transparent" points="924.85,-65.22 933.49,-59.1 922.92,-58.49 924.85,-65.22"/>
 </g>
-<!-- proc~fillin_primary&#45;&gt;set_defaults -->
-<g id="proc~~fillin_primary~~CallsGraph_edge9" class="edge">
-<title>proc~fillin_primary&#45;&gt;set_defaults</title>
-<path fill="none" stroke="#255000" d="M210.7,-167.85C245.16,-139.09 337.01,-66.75 427,-33 456.38,-21.98 491.31,-16.73 518.81,-14.24"/>
-<polygon fill="#255000" stroke="#255000" points="519.27,-17.71 528.95,-13.41 518.7,-10.74 519.27,-17.71"/>
+<!-- none~create_from_parameters&#45;&gt;proc~mapl_return -->
+<g id="proc~~fillin_primary~~CallsGraph_edge14" class="edge">
+<title>none~create_from_parameters&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M730.61,-196.03C771.37,-204.56 819.09,-218.94 857,-243 877.76,-256.18 871.34,-273.37 893,-285 908.24,-293.19 925.34,-298.73 942.66,-302.4"/>
+<polygon fill="transparent" stroke="transparent" points="942.39,-305.92 952.87,-304.36 943.71,-299.04 942.39,-305.92"/>
+</g>
+<!-- none~create_from_parameters&#45;&gt;proc~mapl_verify -->
+<g id="proc~~fillin_primary~~CallsGraph_edge15" class="edge">
+<title>none~create_from_parameters&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M818.1,-196.04C831.55,-199.74 844.68,-204.33 857,-210 876.72,-219.08 873.3,-233.9 893,-243 909.49,-250.62 927.81,-255.79 946.12,-259.25"/>
+<polygon fill="transparent" stroke="transparent" points="945.53,-262.7 955.98,-260.96 946.72,-255.8 945.53,-262.7"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~fillin_primary~~CallsGraph_node12" class="node">
+<title>ESMF_TimeGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="1126.5,-234 999.5,-234 999.5,-210 1126.5,-210 1126.5,-234"/>
+<text text-anchor="middle" x="1063" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeGet</text>
+</g>
+<!-- none~create_from_parameters&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~fillin_primary~~CallsGraph_edge12" class="edge">
+<title>none~create_from_parameters&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M775.57,-196.02C846.14,-202.42 930.23,-210.05 988.97,-215.38"/>
+<polygon fill="transparent" stroke="transparent" points="989,-218.89 999.27,-216.31 989.63,-211.92 989,-218.89"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~fillin_primary~~CallsGraph_node13" class="node">
+<title>ESMF_TimeSet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1125.5,-192 1000.5,-192 1000.5,-168 1125.5,-168 1125.5,-192"/>
+<text text-anchor="middle" x="1063" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeSet</text>
+</g>
+<!-- none~create_from_parameters&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~fillin_primary~~CallsGraph_edge13" class="edge">
+<title>none~create_from_parameters&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M857.1,-181.96C905.19,-181.5 952.95,-181.04 990.25,-180.69"/>
+<polygon fill="transparent" stroke="transparent" points="990.51,-184.18 1000.48,-180.59 990.45,-177.18 990.51,-184.18"/>
+</g>
+<!-- proc~string_to_esmf_timeinterval -->
+<g id="proc~~fillin_primary~~CallsGraph_node22" class="node">
+<title>proc~string_to_esmf_timeinterval</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node22"><a xlink:href=".././proc/string_to_esmf_timeinterval.html" xlink:title="MAPL_TimeStringConversion::string_to_esmf_timeinterval">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1222.5,-150 903.5,-150 903.5,-126 1222.5,-126 1222.5,-150"/>
+<text text-anchor="middle" x="1063" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimeStringConversion::string_to_esmf_timeinterval</text>
+</a>
+</g>
+</g>
+<!-- none~create_from_parameters&#45;&gt;proc~string_to_esmf_timeinterval -->
+<g id="proc~~fillin_primary~~CallsGraph_edge16" class="edge">
+<title>none~create_from_parameters&#45;&gt;proc~string_to_esmf_timeinterval</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M770.36,-172C798.88,-169.17 828.98,-166.08 857,-163 889.56,-159.42 924.99,-155.21 957.09,-151.28"/>
+<polygon fill="transparent" stroke="transparent" points="957.9,-154.7 967.39,-150.01 957.04,-147.76 957.9,-154.7"/>
+</g>
+<!-- proc~string_to_integer_time -->
+<g id="proc~~fillin_primary~~CallsGraph_node23" class="node">
+<title>proc~string_to_integer_time</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node23"><a xlink:href=".././proc/string_to_integer_time.html" xlink:title="MAPL_TimeStringConversion::string_to_integer_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1208,-108 918,-108 918,-84 1208,-84 1208,-108"/>
+<text text-anchor="middle" x="1063" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimeStringConversion::string_to_integer_time</text>
+</a>
+</g>
+</g>
+<!-- none~create_from_parameters&#45;&gt;proc~string_to_integer_time -->
+<g id="proc~~fillin_primary~~CallsGraph_edge17" class="edge">
+<title>none~create_from_parameters&#45;&gt;proc~string_to_integer_time</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M838.18,-171.9C844.65,-169.28 850.95,-166.32 857,-163 879.75,-150.5 870.41,-129.79 893,-117 897.9,-114.22 903.02,-111.74 908.28,-109.53"/>
+<polygon fill="transparent" stroke="transparent" points="909.81,-112.69 917.89,-105.83 907.3,-106.16 909.81,-112.69"/>
+</g>
+<!-- none~detect_metadata&#45;&gt;interface~mapl_assert -->
+<g id="proc~~fillin_primary~~CallsGraph_edge18" class="edge">
+<title>none~detect_metadata&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#512550" stroke-dasharray="5,2" d="M711.03,-398.07C753.61,-406.55 809.26,-419.36 857,-436 873.71,-441.82 876.01,-448.07 893,-453 909.26,-457.72 926.7,-461.38 943.98,-464.21"/>
+<polygon fill="#512550" stroke="#512550" points="943.71,-467.71 954.13,-465.79 944.78,-460.79 943.71,-467.71"/>
+</g>
+<!-- none~detect_metadata&#45;&gt;proc~mapl_return -->
+<g id="proc~~fillin_primary~~CallsGraph_edge22" class="edge">
+<title>none~detect_metadata&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#512550" stroke-dasharray="5,2" d="M817.54,-374.11C831.19,-370.39 844.51,-365.75 857,-360 876.72,-350.92 873.3,-336.1 893,-327 908.48,-319.85 925.57,-314.85 942.74,-311.41"/>
+<polygon fill="#512550" stroke="#512550" points="943.65,-314.8 952.86,-309.55 942.39,-307.91 943.65,-314.8"/>
+</g>
+<!-- none~detect_metadata&#45;&gt;proc~mapl_verify -->
+<g id="proc~~fillin_primary~~CallsGraph_edge23" class="edge">
+<title>none~detect_metadata&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#512550" stroke-dasharray="5,2" d="M730.61,-373.97C771.37,-365.44 819.09,-351.06 857,-327 877.76,-313.82 871.34,-296.63 893,-285 909.23,-276.28 927.57,-270.57 946.03,-266.9"/>
+<polygon fill="#512550" stroke="#512550" points="946.75,-270.33 955.98,-265.12 945.52,-263.44 946.75,-270.33"/>
+</g>
+<!-- none~at~9 -->
+<g id="proc~~fillin_primary~~CallsGraph_node17" class="node">
+<title>none~at~9</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node17"><a xlink:href=".././type/maplcollectionvector.html#boundprocedure-at~9" xlink:title="MAPL_CollectionVectorMod::MAPLCollectionVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1212.5,-444 913.5,-444 913.5,-420 1212.5,-420 1212.5,-444"/>
+<text text-anchor="middle" x="1063" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CollectionVectorMod::MAPLCollectionVector%at</text>
+</a>
+</g>
+</g>
+<!-- none~detect_metadata&#45;&gt;none~at~9 -->
+<g id="proc~~fillin_primary~~CallsGraph_edge19" class="edge">
+<title>none~detect_metadata&#45;&gt;none~at~9</title>
+<path fill="none" stroke="#512550" stroke-dasharray="5,2" d="M752.54,-398.03C810.76,-404.42 882.43,-412.29 942.14,-418.84"/>
+<polygon fill="#512550" stroke="#512550" points="942.05,-422.35 952.37,-419.96 942.81,-415.39 942.05,-422.35"/>
+</g>
+<!-- none~find~5 -->
+<g id="proc~~fillin_primary~~CallsGraph_node19" class="node">
+<title>none~find~5</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node19"><a xlink:href=".././type/mapldatacollection.html#boundprocedure-find~5" xlink:title="MAPL_DataCollectionMod::MAPLDataCollection%find">
+<polygon fill="#a7506f" stroke="#a7506f" points="1209,-402 917,-402 917,-378 1209,-378 1209,-402"/>
+<text text-anchor="middle" x="1063" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DataCollectionMod::MAPLDataCollection%find</text>
+</a>
+</g>
+</g>
+<!-- none~detect_metadata&#45;&gt;none~find~5 -->
+<g id="proc~~fillin_primary~~CallsGraph_edge20" class="edge">
+<title>none~detect_metadata&#45;&gt;none~find~5</title>
+<path fill="none" stroke="#512550" stroke-dasharray="5,2" d="M817.66,-387.67C847.19,-387.95 877.66,-388.24 906.66,-388.52"/>
+<polygon fill="#512550" stroke="#512550" points="906.81,-392.02 916.84,-388.61 906.88,-385.02 906.81,-392.02"/>
+</g>
+<!-- proc~get_time_info -->
+<g id="proc~~fillin_primary~~CallsGraph_node20" class="node">
+<title>proc~get_time_info</title>
+<g id="a_proc~~fillin_primary~~CallsGraph_node20"><a xlink:href=".././proc/get_time_info.html" xlink:title="MAPL_FileMetadataUtilsMod::FileMetadataUtils%get_time_info">
+<polygon fill="#d9534f" stroke="#d9534f" points="1233,-360 893,-360 893,-336 1233,-336 1233,-360"/>
+<text text-anchor="middle" x="1063" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FileMetadataUtilsMod::FileMetadataUtils%get_time_info</text>
+</a>
+</g>
+</g>
+<!-- none~detect_metadata&#45;&gt;proc~get_time_info -->
+<g id="proc~~fillin_primary~~CallsGraph_edge21" class="edge">
+<title>none~detect_metadata&#45;&gt;proc~get_time_info</title>
+<path fill="none" stroke="#512550" stroke-dasharray="5,2" d="M775.57,-373.98C821.36,-369.82 872.85,-365.15 919.4,-360.93"/>
+<polygon fill="#512550" stroke="#512550" points="919.93,-364.4 929.57,-360.01 919.29,-357.43 919.93,-364.4"/>
+</g>
+<!-- none~set_defaults~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~fillin_primary~~CallsGraph_edge24" class="edge">
+<title>none~set_defaults~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M766.36,-276.01C796.04,-278.93 827.66,-282.06 857,-285 884.74,-287.78 914.59,-290.82 942.69,-293.69"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="942.65,-297.21 952.96,-294.74 943.37,-290.24 942.65,-297.21"/>
+</g>
+<!-- none~set_defaults~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~fillin_primary~~CallsGraph_edge25" class="edge">
+<title>none~set_defaults~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M814.63,-264C858.7,-264 905.07,-264 945.61,-264"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="945.79,-267.5 955.79,-264 945.79,-260.5 945.79,-267.5"/>
+</g>
+<!-- none~set_parameters&#45;&gt;proc~mapl_return -->
+<g id="proc~~fillin_primary~~CallsGraph_edge26" class="edge">
+<title>none~set_parameters&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M798.72,-306C846.33,-306 897.92,-306 942.71,-306"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="942.75,-309.5 952.75,-306 942.75,-302.5 942.75,-309.5"/>
+</g>
+<!-- at -->
+<g id="proc~~fillin_primary~~CallsGraph_node15" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1410.5,-318 1356.5,-318 1356.5,-294 1410.5,-294 1410.5,-318"/>
+<text text-anchor="middle" x="1383.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~fillin_primary~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#500255" d="M1173.16,-306C1233.43,-306 1304.34,-306 1346.24,-306"/>
+<polygon fill="#500255" stroke="#500255" points="1346.24,-309.5 1356.24,-306 1346.24,-302.5 1346.24,-309.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~fillin_primary~~CallsGraph_node16" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1410.5,-360 1356.5,-360 1356.5,-336 1410.5,-336 1410.5,-360"/>
+<text text-anchor="middle" x="1383.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~fillin_primary~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#500255" d="M1162.78,-318.01C1185.83,-320.88 1210.28,-323.99 1233,-327 1271.7,-332.12 1315.97,-338.39 1346.23,-342.74"/>
+<polygon fill="#500255" stroke="#500255" points="1345.92,-346.23 1356.32,-344.19 1346.92,-339.3 1345.92,-346.23"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~fillin_primary~~CallsGraph_node12" class="node">
+<g id="proc~~fillin_primary~~CallsGraph_node21" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~fillin_primary~~CallsGraph_node12"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="972,-171 743,-171 743,-147 972,-147 972,-171"/>
-<text text-anchor="middle" x="857.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~fillin_primary~~CallsGraph_node21"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1498,-276 1269,-276 1269,-252 1498,-252 1498,-276"/>
+<text text-anchor="middle" x="1383.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~fillin_primary~~CallsGraph_edge10" class="edge">
+<g id="proc~~fillin_primary~~CallsGraph_edge29" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M677.07,-172.06C695.25,-170.74 714.21,-169.36 732.72,-168.01"/>
-<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="733.23,-171.48 742.95,-167.27 732.73,-164.5 733.23,-171.48"/>
+<path fill="none" stroke="#500255" d="M1162.78,-293.99C1185.83,-291.12 1210.28,-288.01 1233,-285 1250.98,-282.62 1270.16,-279.99 1288.58,-277.43"/>
+<polygon fill="#500255" stroke="#500255" points="1289.3,-280.86 1298.72,-276.01 1288.33,-273.93 1289.3,-280.86"/>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~fillin_primary~~CallsGraph_edge11" class="edge">
+<g id="proc~~fillin_primary~~CallsGraph_edge30" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M674.2,-145.73C693.22,-147.11 713.18,-148.57 732.65,-149.98"/>
-<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="732.54,-153.49 742.77,-150.72 733.05,-146.5 732.54,-153.49"/>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M1170.06,-264C1198.46,-264 1229.43,-264 1258.7,-264"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1258.98,-267.5 1268.98,-264 1258.98,-260.5 1258.98,-267.5"/>
 </g>
 <!-- ESMF_UtilStringUpperCase -->
-<g id="proc~~fillin_primary~~CallsGraph_node11" class="node">
+<g id="proc~~fillin_primary~~CallsGraph_node14" class="node">
 <title>ESMF_UtilStringUpperCase</title>
-<polygon fill="#d94e8f" stroke="#d94e8f" points="952,-108 763,-108 763,-84 952,-84 952,-108"/>
-<text text-anchor="middle" x="857.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_UtilStringUpperCase</text>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1157.5,-24 968.5,-24 968.5,0 1157.5,0 1157.5,-24"/>
+<text text-anchor="middle" x="1063" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_UtilStringUpperCase</text>
 </g>
 <!-- proc~regrid_method_string_to_int&#45;&gt;ESMF_UtilStringUpperCase -->
-<g id="proc~~fillin_primary~~CallsGraph_edge12" class="edge">
+<g id="proc~~fillin_primary~~CallsGraph_edge31" class="edge">
 <title>proc~regrid_method_string_to_int&#45;&gt;ESMF_UtilStringUpperCase</title>
-<path fill="none" stroke="#002505" d="M707.18,-96C722.52,-96 737.93,-96 752.72,-96"/>
-<polygon fill="#002505" stroke="#002505" points="752.86,-99.5 762.86,-96 752.86,-92.5 752.86,-99.5"/>
+<path fill="none" stroke="#255015" stroke-opacity="0.007843" d="M782.23,-27.36C839.73,-24.2 905.21,-20.61 958.36,-17.69"/>
+<polygon fill="#255015" fill-opacity="0.007843" stroke="#255015" stroke-opacity="0.007843" points="958.68,-21.18 968.48,-17.13 958.3,-14.19 958.68,-21.18"/>
 </g>
 </g>
 </svg>
@@ -488,8 +682,8 @@
                   var panprocfillin_primaryCallsGraph = svgPanZoom('#procfillin_primaryCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -506,11 +700,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -529,23 +723,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -565,162 +765,131 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/fillin_primary.html#src">fillin_primary</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">fillin_primary</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">item_name</span><span class="p">,</span><span class="n">base_name</span><span class="p">,</span><span class="n">primary_item</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtDataOldTypesCreator</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item_name</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">base_name</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">PrimaryExport</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">primary_item</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">fillin_primary</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">item_name</span><span class="p">,</span><span class="n">base_name</span><span class="p">,</span><span class="n">primary_item</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtDataOldTypesCreator</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item_name</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">base_name</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">PrimaryExport</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">primary_item</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
-<span class="nb">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="nb">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataRule</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rule</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataFileStream</span><span class="p">),</span><span class="w">  </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dataset</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataTimeSample</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_sample</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataTimeSample</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default_time_sample</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataSimpleFileHandler</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">simple_handler</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataClimFileHandler</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clim_handler</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">semi_pos</span><span class="w"></span>
-<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">disable_interpolation</span><span class="p">,</span><span class="w"> </span><span class="n">get_range</span><span class="p">,</span><span class="w"> </span><span class="n">exact</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataRule</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rule</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataFileStream</span><span class="p">),</span><span class="w">  </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dataset</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataTimeSample</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_sample</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataTimeSample</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default_time_sample</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataSimpleFileHandler</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">simple_handler</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataClimFileHandler</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clim_handler</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">semi_pos</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">disable_interpolation</span><span class="p">,</span><span class="w"> </span><span class="n">get_range</span><span class="p">,</span><span class="w"> </span><span class="n">exact</span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">rule</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">rule_map</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">item_name</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="n">time_sample</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">sample_map</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">sample_key</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="n">rule</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">rule_map</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">item_name</span><span class="p">))</span>
+<span class="w">      </span><span class="n">time_sample</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">sample_map</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">sample_key</span><span class="p">)</span>
 
 <span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">associated</span><span class="p">(</span><span class="n">time_sample</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        call </span><span class="n">default_time_sample</span><span class="p">%</span><span class="n">set_defaults</span><span class="p">()</span><span class="w"></span>
-<span class="w">        </span><span class="n">time_sample</span><span class="o">=&gt;</span><span class="n">default_time_sample</span><span class="w"></span>
+<span class="k">        call </span><span class="n">default_time_sample</span><span class="p">%</span><span class="n">set_defaults</span><span class="p">()</span>
+<span class="w">        </span><span class="n">time_sample</span><span class="o">=&gt;</span><span class="n">default_time_sample</span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">      </span><span class="n">primary_item</span><span class="p">%</span><span class="n">isVector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">vector_partner</span><span class="p">)</span><span class="w"></span>
+<span class="k">      </span><span class="n">primary_item</span><span class="p">%</span><span class="n">isVector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">vector_partner</span><span class="p">)</span>
 <span class="w">      </span><span class="c">! name and file var</span>
 <span class="w">      </span><span class="c">!primary_item%name = trim(item_name)</span>
-<span class="w">      </span><span class="n">primary_item</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">base_name</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">primary_item</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">base_name</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">isVector</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VectorField</span><span class="w"></span>
+<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VectorField</span>
 <span class="w">         </span><span class="c">!primary_item%vcomp1 = trim(item_name)</span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vcomp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">base_name</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vcomp2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">vector_partner</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fcomp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fcomp2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">vector_file_partner</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ItemTypeVector</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">xname</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">yname</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">vector_file_partner</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vcomp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">base_name</span><span class="p">)</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vcomp2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">vector_partner</span><span class="p">)</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fcomp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fcomp2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">vector_file_partner</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ItemTypeVector</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">xname</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span><span class="p">)</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">yname</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">vector_file_partner</span><span class="p">)</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldItem</span><span class="w"></span>
+<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldItem</span>
 <span class="w">         </span><span class="c">!primary_item%vcomp1 = trim(item_name)</span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vcomp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">base_name</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fcomp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ItemTypeScalar</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">xname</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end if</span><span class="w"></span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">vcomp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">base_name</span><span class="p">)</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fcomp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ItemTypeScalar</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fileVars</span><span class="p">%</span><span class="n">xname</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">file_var</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
 
 <span class="w">      </span><span class="c">! regrid method</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">,</span><span class="s2">&quot;FRACTION;&quot;</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">semi_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">,</span><span class="s2">&quot;;&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">read</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">(</span><span class="n">semi_pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fracVal</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">trans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">REGRID_METHOD_FRACTION</span><span class="w"></span>
+<span class="k">         </span><span class="n">semi_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">,</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">read</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">(</span><span class="n">semi_pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fracVal</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">trans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">REGRID_METHOD_FRACTION</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">trans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regrid_method_string_to_int</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">)</span><span class="w"></span>
+<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">trans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regrid_method_string_to_int</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">trans</span><span class="o">/=</span><span class="n">UNSPECIFIED_REGRID_METHOD</span><span class="p">,</span><span class="s2">&quot;improper regrid method chosen&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">trans</span><span class="o">/=</span><span class="n">UNSPECIFIED_REGRID_METHOD</span><span class="p">,</span><span class="s2">&quot;improper regrid method chosen&quot;</span><span class="p">)</span>
 
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">time_sample</span><span class="p">%</span><span class="n">extrap_outside</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="s2">&quot;clim&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">cycling</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">cycling</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
 <span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">time_sample</span><span class="p">%</span><span class="n">extrap_outside</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;persist_closest&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">persist_closest</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">persist_closest</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
 <span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">time_sample</span><span class="p">%</span><span class="n">extrap_outside</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;none&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">cycling</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">persist_closest</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">cycling</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">persist_closest</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
 <span class="w">      </span><span class="k">end if</span>
 
-<span class="k">      allocate</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">source_time</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">time_sample</span><span class="p">%</span><span class="n">source_time</span><span class="p">)</span><span class="w"></span>
+<span class="k">      allocate</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">source_time</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">time_sample</span><span class="p">%</span><span class="n">source_time</span><span class="p">)</span>
 <span class="w">      </span><span class="c">! new refresh</span>
-<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">update_freq</span><span class="p">%</span><span class="n">create_from_parameters</span><span class="p">(</span><span class="n">time_sample</span><span class="p">%</span><span class="n">refresh_time</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="n">time_sample</span><span class="p">%</span><span class="n">refresh_frequency</span><span class="p">,</span><span class="w"> </span><span class="n">time_sample</span><span class="p">%</span><span class="n">refresh_offset</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">update_freq</span><span class="p">%</span><span class="n">create_from_parameters</span><span class="p">(</span><span class="n">time_sample</span><span class="p">%</span><span class="n">refresh_time</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">time_sample</span><span class="p">%</span><span class="n">refresh_frequency</span><span class="p">,</span><span class="w"> </span><span class="n">time_sample</span><span class="p">%</span><span class="n">refresh_offset</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="w">      </span><span class="n">disable_interpolation</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="n">time_sample</span><span class="p">%</span><span class="n">time_interpolation</span><span class="w"></span>
-<span class="w">      </span><span class="n">exact</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_sample</span><span class="p">%</span><span class="n">exact</span><span class="w"></span>
+<span class="w">      </span><span class="n">disable_interpolation</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="n">time_sample</span><span class="p">%</span><span class="n">time_interpolation</span>
+<span class="w">      </span><span class="n">exact</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_sample</span><span class="p">%</span><span class="n">exact</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp1</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">linear_trans</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">,</span><span class="n">disable_interpolation</span><span class="o">=</span><span class="n">disable_interpolation</span><span class="p">,</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp2</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">linear_trans</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">,</span><span class="n">disable_interpolation</span><span class="o">=</span><span class="n">disable_interpolation</span><span class="p">,</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary1</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">linear_trans</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">,</span><span class="w"> </span><span class="n">disable_interpolation</span><span class="o">=</span><span class="n">disable_interpolation</span><span class="p">,</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary2</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">linear_trans</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">,</span><span class="w"> </span><span class="n">disable_interpolation</span><span class="o">=</span><span class="n">disable_interpolation</span><span class="p">,</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp1</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">linear_trans</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">,</span><span class="n">disable_interpolation</span><span class="o">=</span><span class="n">disable_interpolation</span><span class="p">,</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp2</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">linear_trans</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">,</span><span class="n">disable_interpolation</span><span class="o">=</span><span class="n">disable_interpolation</span><span class="p">,</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary1</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">linear_trans</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">,</span><span class="w"> </span><span class="n">disable_interpolation</span><span class="o">=</span><span class="n">disable_interpolation</span><span class="p">,</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">primary_item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary2</span><span class="p">%</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">linear_trans</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">,</span><span class="w"> </span><span class="n">disable_interpolation</span><span class="o">=</span><span class="n">disable_interpolation</span><span class="p">,</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! file_template</span>
-<span class="w">      </span><span class="n">primary_item</span><span class="p">%</span><span class="n">isConst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="n">primary_item</span><span class="p">%</span><span class="n">isConst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">collection</span><span class="p">,</span><span class="s2">&quot;/dev/null&quot;</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">dataset</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_stream_map</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">collection</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">file_template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dataset</span><span class="p">%</span><span class="n">file_template</span><span class="w"></span>
-<span class="w">         </span><span class="n">get_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">time_sample</span><span class="p">%</span><span class="n">extrap_outside</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s2">&quot;none&quot;</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">dataset</span><span class="p">%</span><span class="n">detect_metadata</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">file_metadata</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">rule</span><span class="p">%</span><span class="n">multi_rule</span><span class="p">,</span><span class="n">get_range</span><span class="o">=</span><span class="n">get_range</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="k">         </span><span class="n">dataset</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_stream_map</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">collection</span><span class="p">))</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">file_template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dataset</span><span class="p">%</span><span class="n">file_template</span>
+<span class="w">         </span><span class="n">get_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">time_sample</span><span class="p">%</span><span class="n">extrap_outside</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s2">&quot;none&quot;</span>
+<span class="w">         </span><span class="k">call </span><span class="n">dataset</span><span class="p">%</span><span class="n">detect_metadata</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">file_metadata</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">rule</span><span class="p">%</span><span class="n">multi_rule</span><span class="p">,</span><span class="n">get_range</span><span class="o">=</span><span class="n">get_range</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">file_template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">collection</span><span class="w"></span>
+<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">file_template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">collection</span>
 <span class="w">      </span><span class="k">end if</span>
 
 <span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">rule</span><span class="p">%</span><span class="n">collection</span><span class="p">,</span><span class="s1">&#39;/dev/null&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">isConst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
-<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">const</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="k">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">isConst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">         </span><span class="n">primary_item</span><span class="p">%</span><span class="n">const</span><span class="o">=</span><span class="n">rule</span><span class="p">%</span><span class="n">linear_trans</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="w">      </span><span class="k">else</span>
 <span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">cycling</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            call </span><span class="n">clim_handler</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">filestream</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">clim_handler</span><span class="p">)</span><span class="w"></span>
+<span class="k">            call </span><span class="n">clim_handler</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">filestream</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">clim_handler</span><span class="p">)</span>
 <span class="w">         </span><span class="k">else</span>
-<span class="k">            call </span><span class="n">simple_handler</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span><span class="n">persist_closest</span><span class="o">=</span><span class="n">primary_item</span><span class="p">%</span><span class="n">persist_closest</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">filestream</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">simple_handler</span><span class="p">)</span><span class="w"></span>
+<span class="k">            call </span><span class="n">simple_handler</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span><span class="n">persist_closest</span><span class="o">=</span><span class="n">primary_item</span><span class="p">%</span><span class="n">persist_closest</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">primary_item</span><span class="p">%</span><span class="n">filestream</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">simple_handler</span><span class="p">)</span>
 <span class="w">         </span><span class="k">end if</span>
 <span class="k">      end if</span>
 
-<span class="k">      </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fail_on_missing_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">fail_on_missing_file</span><span class="w"></span>
+<span class="k">      </span><span class="n">primary_item</span><span class="p">%</span><span class="n">fail_on_missing_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">%</span><span class="n">fail_on_missing_file</span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">fillin_primary</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">fillin_primary</span>
 </pre></div>
 
     </section>
@@ -733,32 +902,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

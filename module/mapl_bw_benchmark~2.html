@@ -10,85 +10,58 @@
 
     <title>mapl_BW_Benchmark &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,39 +69,43 @@
       <small>Module</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for modules and submodules.">65 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for modules and submodules.">63 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/BW_Benchmark.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/bw_benchmark.f90.html'>BW_Benchmark.F90</a></li>
-          <li class="active">mapl_BW_Benchmark</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/bw_benchmark.f90.html'>BW_Benchmark.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl_BW_Benchmark</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
   </div>
 
   <div class="row">
-    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div class="col-md-3">
         <div id="sidebar">
       <h3>Contents</h3>
   
@@ -141,19 +118,19 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#types-0">Derived Types</a>
-        </h3>
-      </div>
-      <div id="types-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/mapl_bw_benchmark~2.html#type-bw_benchmark">BW_Benchmark</a>
         </div>
       </div>
     </div>
 
+  
   
   
   
@@ -170,109 +147,92 @@
 
     <div class="col-md-9" id='text'>
       
-<br>          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <ul class="list-inline">
-                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
-                <li><a href='../module/mapl_errorhandlingmod.html'>MAPL_ErrorHandlingMod</a></li>
-                <li><a href='../module/kernel_mod.html'>Kernel_mod</a></li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_errorhandlingmod.html'>MAPL_ErrorHandlingMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: module~~mapl_bw_benchmark~2~~UsesGraph Pages: 1 -->
-<svg id="modulemapl_bw_benchmark2UsesGraph" width="453pt" height="137pt"
- viewBox="0.00 0.00 453.00 137.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 133)">
+<svg id="modulemapl_bw_benchmark2UsesGraph" width="453pt" height="95pt"
+ viewBox="0.00 0.00 453.00 95.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl_bw_benchmark~2~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 91)">
 <title>module~~mapl_bw_benchmark~2~~UsesGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-133 449,-133 449,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-91 449,-91 449,4 -4,4"/>
 <!-- module~mapl_bw_benchmark~2 -->
 <g id="module~~mapl_bw_benchmark~2~~UsesGraph_node1" class="node">
 <title>module~mapl_bw_benchmark~2</title>
-<polygon fill="none" stroke="black" points="445,-87 316,-87 316,-63 445,-63 445,-87"/>
-<text text-anchor="middle" x="380.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_BW_Benchmark</text>
+<polygon fill="none" stroke="black" points="445,-66 316,-66 316,-42 445,-42 445,-66"/>
+<text text-anchor="middle" x="380.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_BW_Benchmark</text>
 </g>
 <!-- iso_fortran_env -->
 <g id="module~~mapl_bw_benchmark~2~~UsesGraph_node2" class="node">
 <title>iso_fortran_env</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="255.5,-129 161.5,-129 161.5,-105 255.5,-105 255.5,-129"/>
-<text text-anchor="middle" x="208.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="255.5,-87 161.5,-87 161.5,-63 255.5,-63 255.5,-87"/>
+<text text-anchor="middle" x="208.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
 </g>
 <!-- module~mapl_bw_benchmark~2&#45;&gt;iso_fortran_env -->
 <g id="module~~mapl_bw_benchmark~2~~UsesGraph_edge1" class="edge">
 <title>module~mapl_bw_benchmark~2&#45;&gt;iso_fortran_env</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M330.78,-87.04C310.37,-92.08 286.52,-97.97 265.4,-103.19"/>
-<polygon fill="#255000" stroke="#255000" points="264.46,-99.82 255.59,-105.61 266.14,-106.61 264.46,-99.82"/>
-</g>
-<!-- module~kernel_mod -->
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph_node3" class="node">
-<title>module~kernel_mod</title>
-<g id="a_module~~mapl_bw_benchmark~2~~UsesGraph_node3"><a xlink:href=".././module/kernel_mod.html" xlink:title="Kernel_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="246.5,-87 170.5,-87 170.5,-63 246.5,-63 246.5,-87"/>
-<text text-anchor="middle" x="208.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Kernel_mod</text>
-</a>
-</g>
-</g>
-<!-- module~mapl_bw_benchmark~2&#45;&gt;module~kernel_mod -->
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph_edge2" class="edge">
-<title>module~mapl_bw_benchmark~2&#45;&gt;module~kernel_mod</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M315.71,-75C296.25,-75 275.2,-75 257.01,-75"/>
-<polygon fill="#255000" stroke="#255000" points="256.95,-71.5 246.95,-75 256.95,-78.5 256.95,-71.5"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M315.71,-61.88C299.33,-63.9 281.82,-66.07 265.84,-68.04"/>
+<polygon fill="#255000" stroke="#255000" points="265.09,-64.61 255.59,-69.31 265.95,-71.55 265.09,-64.61"/>
 </g>
 <!-- module~mapl_errorhandlingmod -->
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph_node4" class="node">
+<g id="module~~mapl_bw_benchmark~2~~UsesGraph_node3" class="node">
 <title>module~mapl_errorhandlingmod</title>
-<g id="a_module~~mapl_bw_benchmark~2~~UsesGraph_node4"><a xlink:href=".././module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<g id="a_module~~mapl_bw_benchmark~2~~UsesGraph_node3"><a xlink:href=".././module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
 <polygon fill="#337ab7" stroke="#337ab7" points="280,-45 137,-45 137,-21 280,-21 280,-45"/>
 <text text-anchor="middle" x="208.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
 </a>
 </g>
 </g>
 <!-- module~mapl_bw_benchmark~2&#45;&gt;module~mapl_errorhandlingmod -->
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph_edge3" class="edge">
+<g id="module~~mapl_bw_benchmark~2~~UsesGraph_edge2" class="edge">
 <title>module~mapl_bw_benchmark~2&#45;&gt;module~mapl_errorhandlingmod</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M330.78,-62.96C311.22,-58.13 288.51,-52.52 268.06,-47.47"/>
-<polygon fill="#255000" stroke="#255000" points="268.77,-44.04 258.22,-45.04 267.09,-50.83 268.77,-44.04"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M315.71,-46.12C307.39,-45.09 298.77,-44.03 290.2,-42.97"/>
+<polygon fill="#255000" stroke="#255000" points="290.56,-39.49 280.2,-41.73 289.7,-46.43 290.56,-39.49"/>
 </g>
 <!-- module~mapl_throwmod -->
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph_node5" class="node">
+<g id="module~~mapl_bw_benchmark~2~~UsesGraph_node4" class="node">
 <title>module~mapl_throwmod</title>
-<g id="a_module~~mapl_bw_benchmark~2~~UsesGraph_node5"><a xlink:href=".././module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<g id="a_module~~mapl_bw_benchmark~2~~UsesGraph_node4"><a xlink:href=".././module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
 <polygon fill="#337ab7" stroke="#337ab7" points="101,-66 0,-66 0,-42 101,-42 101,-66"/>
 <text text-anchor="middle" x="50.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
 </a>
 </g>
 </g>
 <!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph_edge4" class="edge">
+<g id="module~~mapl_bw_benchmark~2~~UsesGraph_edge3" class="edge">
 <title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
-<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M136.8,-42.52C128.32,-43.66 119.72,-44.82 111.41,-45.93"/>
-<polygon fill="#002505" stroke="#002505" points="110.89,-42.47 101.45,-47.28 111.83,-49.41 110.89,-42.47"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M136.8,-42.52C128.32,-43.66 119.72,-44.82 111.41,-45.93"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="110.89,-42.47 101.45,-47.28 111.83,-49.41 110.89,-42.47"/>
 </g>
 <!-- mpi -->
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph_node6" class="node">
+<g id="module~~mapl_bw_benchmark~2~~UsesGraph_node5" class="node">
 <title>mpi</title>
 <polygon fill="#337ab7" stroke="#337ab7" points="77.5,-24 23.5,-24 23.5,0 77.5,0 77.5,-24"/>
 <text text-anchor="middle" x="50.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
 </g>
 <!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
-<g id="module~~mapl_bw_benchmark~2~~UsesGraph_edge5" class="edge">
+<g id="module~~mapl_bw_benchmark~2~~UsesGraph_edge4" class="edge">
 <title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
-<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M136.8,-23.48C119.81,-21.2 102.34,-18.84 87.68,-16.87"/>
-<polygon fill="#002505" stroke="#002505" points="87.92,-13.37 77.55,-15.51 86.99,-20.31 87.92,-13.37"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M136.8,-23.48C119.81,-21.2 102.34,-18.84 87.68,-16.87"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="87.92,-13.37 77.55,-15.51 86.99,-20.31 87.92,-13.37"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsesGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -343,17 +303,17 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
-          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Used by</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
@@ -400,52 +360,52 @@ large graphs.</div>
 <path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M206.08,-24.03C193.15,-28.42 178.41,-33.43 165,-38 147.23,-44.05 127.69,-50.73 110.66,-56.55"/>
 <polygon fill="#255000" stroke="#255000" points="109.28,-53.32 100.95,-59.87 111.55,-59.95 109.28,-53.32"/>
 </g>
-<!-- program~main~5 -->
+<!-- program~main~18 -->
 <g id="module~~mapl_bw_benchmark~2~~UsedByGraph_node4" class="node">
-<title>program~main~5</title>
-<g id="a_module~~mapl_bw_benchmark~2~~UsedByGraph_node4"><a xlink:href=".././program/main~5.html" xlink:title="main">
+<title>program~main~18</title>
+<g id="a_module~~mapl_bw_benchmark~2~~UsedByGraph_node4"><a xlink:href=".././program/main~18.html" xlink:title="main">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="410,-53 356,-53 356,-29 410,-29 410,-53"/>
 <text text-anchor="middle" x="383" y="-38.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
 </a>
 </g>
 </g>
-<!-- program~main~5&#45;&gt;module~mapl_bw_benchmark~2 -->
+<!-- program~main~18&#45;&gt;module~mapl_bw_benchmark~2 -->
 <g id="module~~mapl_bw_benchmark~2~~UsedByGraph_edge3" class="edge">
-<title>program~main~5&#45;&gt;module~mapl_bw_benchmark~2</title>
+<title>program~main~18&#45;&gt;module~mapl_bw_benchmark~2</title>
 <path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M355.83,-43.56C308.82,-48.17 208.53,-57.99 139.07,-64.79"/>
 <polygon fill="#255000" stroke="#255000" points="138.67,-61.32 129.06,-65.77 139.36,-68.28 138.67,-61.32"/>
 </g>
-<!-- program~main~5&#45;&gt;module~mapl_combospec -->
+<!-- program~main~18&#45;&gt;module~mapl_combospec -->
 <g id="module~~mapl_bw_benchmark~2~~UsedByGraph_edge6" class="edge">
-<title>program~main~5&#45;&gt;module~mapl_combospec</title>
+<title>program~main~18&#45;&gt;module~mapl_combospec</title>
 <path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M355.95,-35.55C342.13,-32.65 324.48,-28.96 307.29,-25.36"/>
 <polygon fill="transparent" stroke="transparent" points="307.76,-21.88 297.25,-23.26 306.32,-28.73 307.76,-21.88"/>
 </g>
-<!-- program~main~6 -->
+<!-- program~main~8 -->
 <g id="module~~mapl_bw_benchmark~2~~UsedByGraph_node5" class="node">
-<title>program~main~6</title>
-<g id="a_module~~mapl_bw_benchmark~2~~UsedByGraph_node5"><a xlink:href=".././program/main~6.html" xlink:title="main">
+<title>program~main~8</title>
+<g id="a_module~~mapl_bw_benchmark~2~~UsedByGraph_node5"><a xlink:href=".././program/main~8.html" xlink:title="main">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="410,-114 356,-114 356,-90 410,-90 410,-114"/>
 <text text-anchor="middle" x="383" y="-99.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
 </a>
 </g>
 </g>
-<!-- program~main~6&#45;&gt;module~mapl_bw_benchmark~2 -->
+<!-- program~main~8&#45;&gt;module~mapl_bw_benchmark~2 -->
 <g id="module~~mapl_bw_benchmark~2~~UsedByGraph_edge4" class="edge">
-<title>program~main~6&#45;&gt;module~mapl_bw_benchmark~2</title>
+<title>program~main~8&#45;&gt;module~mapl_bw_benchmark~2</title>
 <path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M355.98,-107.38C314.95,-114.96 232.9,-126.44 165,-113 141.17,-108.28 115.88,-97.78 96.75,-88.59"/>
 <polygon fill="#255000" stroke="#255000" points="98.14,-85.37 87.63,-84.07 95.04,-91.64 98.14,-85.37"/>
 </g>
-<!-- program~main~6&#45;&gt;module~mapl_bw_benchmarkspec -->
+<!-- program~main~8&#45;&gt;module~mapl_bw_benchmarkspec -->
 <g id="module~~mapl_bw_benchmark~2~~UsedByGraph_edge5" class="edge">
-<title>program~main~6&#45;&gt;module~mapl_bw_benchmarkspec</title>
+<title>program~main~8&#45;&gt;module~mapl_bw_benchmarkspec</title>
 <path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M355.95,-100.12C348.35,-99.57 339.6,-98.94 330.41,-98.27"/>
 <polygon fill="#255000" stroke="#255000" points="330.51,-94.77 320.29,-97.54 330.01,-101.76 330.51,-94.77"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsedByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -516,49 +476,12 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
       <br>
-
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#types-1">Derived Types</a>
-        </h3>
-      </div>
-      <div id="types-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/mapl_bw_benchmark~2.html#type-bw_benchmark">BW_Benchmark</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
 
 
 
@@ -567,32 +490,32 @@ large graphs.</div>
 
         <section>
           <h2>Derived Types</h2>
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header codesum">
       <span class="anchor" id="type-bw_benchmark"></span>
       <h3>
-        type, public, extends(<a href='../type/kernel_t.html'>Kernel_T</a>)&nbsp;::&nbsp;
+        type, public&nbsp;::&nbsp;
         <a href='../type/bw_benchmark.html'>BW_Benchmark</a>
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
         <h4>Components</h4>
           <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~8"></span>
+              <span class="anchor" id="variable-filename~4"></span>
               character(len=:),
             </td>
               <td>public,</td>
@@ -609,7 +532,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-buffer~3"></span>
+              <span class="anchor" id="variable-buffer~27"></span>
               real,
             </td>
               <td>public,</td>
@@ -634,11 +557,8 @@ large graphs.</div>
         <table class="table table-striped varlist">
           <tbody>
               <tr>
-                <td>
-                    procedure
-                    ,                  public
-,                   :: <strong><a href='../type/bw_benchmark.html#boundprocedure-run~6'>run</a></strong>
-<small>Subroutine</small>                </td>
+                <td>  procedure, public ::
+  <strong><a href='../type/bw_benchmark.html#boundprocedure-run~2'>run</a></strong></td>
                 <td></td>
               </tr>
           </tbody>
@@ -660,32 +580,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

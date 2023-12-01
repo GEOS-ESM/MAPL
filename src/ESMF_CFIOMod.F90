@@ -515,12 +515,16 @@
       integer :: rtcode
       integer :: myDate, myCurTime
       character(len=16) :: format
+#if defined(HDFEOS)
       logical :: do_comp, do_chunk
-
+#endif
+#if defined(HDFEOS)
       do_chunk = .false.
       do_comp = .false.
       if ( present(doComp) ) do_comp = doComp
       if ( present(doChunk) ) do_chunk = doChunk
+#endif
+      
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
       if ( present(timeString) ) call strToInt(timeString,myDate,myCurTime)
@@ -562,7 +566,11 @@
          print *, "CFIO%FORMAT is not known"
          if (present(rc)) rc = -54
          return
-      end subroutine ESMF_CFIOVarWrite3D_
+#if !defined(HDFEOS)
+         associate(q => dochunk); end associate
+         associate(q => docomp); end associate
+#endif
+     end subroutine ESMF_CFIOVarWrite3D_
 
 !------------------------------------------------------------------------------
 !>
@@ -618,13 +626,15 @@
       integer :: rtcode
       integer :: myDate, myCurTime
       character(len=16) :: format
+#if defined(HDFEOS)
       logical :: do_comp, do_chunk
-
+#endif
+#if defined(HDFEOS)
       do_chunk = .false.
       do_comp = .false.
       if ( present(doComp) ) do_comp = doComp
       if ( present(doChunk) ) do_chunk = doChunk
-
+#endif
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
       if ( present(timeString) ) call strToInt(timeString,myDate,myCurTime)
@@ -666,7 +676,11 @@
          print *, "CFIO%FORMAT is not known"
          if (present(rc)) rc = -54
          return
-      end subroutine ESMF_CFIOVarWrite2D_
+#if !defined(HDFEOS)
+         associate(q => dochunk); end associate
+         associate(q => docomp); end associate
+#endif
+     end subroutine ESMF_CFIOVarWrite2D_
 !------------------------------------------------------------------------------
 !>
 ! `ESMF_CFIOVarWrite1D_` -- Write a variable to a output file

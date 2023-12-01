@@ -44,7 +44,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
          call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
          _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
-         call hms_2_s (time_integer, second, _RC)
+         second = hms_2_s(time_integer)
          call ESMF_TimeIntervalSet(epoch_frequency, s=second, _RC)
          traj%Epoch = time_integer
          traj%RingTime = currTime
@@ -545,7 +545,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                timeset(1) = current_time
                timeset(2) = current_time + this%epoch_frequency
                call time_esmf_2_nc_int (timeset(1), this%datetime_units, j0, _RC)
-               call hms_2_s (this%Epoch, sec, _RC)
+               sec = hms_2_s(this%Epoch)
                j1 = j0 + int(sec, kind=ESMF_KIND_I8)
                jx0 = real ( j0, kind=ESMF_KIND_R8)
                jx1 = real ( j1, kind=ESMF_KIND_R8)
@@ -1152,7 +1152,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          len = size (this%times_R8)
          do i=1, len
             int_time = this%times_R8(i)
-            call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
+            call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, time0, time=time1, time_unit=tunit, _RC)
             this%times(i) = time1
          enddo
 

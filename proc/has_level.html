@@ -10,85 +10,58 @@
 
     <title>has_level &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Function</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">11 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">12 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Regrid_Util.F90"> Source File</a>
+              <a href="../src/time_ave_util.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/regrid_util.f90.html'>Regrid_Util.F90</a></li>
-              <li><a href='../module/regrid_util_support_mod.html'>regrid_util_support_mod</a></li>
-          <li class="active">has_level</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/time_ave_util.f90.html'>time_ave_util.F90</a></li>
+                <li class="breadcrumb-item"><a href='../program/time_ave.html'>time_ave</a></li>
+            <li class="breadcrumb-item active" aria-current="page">has_level</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,6 +128,13 @@
   
   
   
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/has_level.html#src">has_level</a>
+      </div>
+    </div>
 
 
   </div>
@@ -158,43 +142,41 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  function has_level(this, rc) result(file_has_level)  
+    <h2> function has_level(grid, rc) result(grid_has_level)  
 </h2>
     
 
 
-    <h3>Type Bound</h3>
-    <p><a href='../type/regrid_support.html'>regrid_support</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~3"></span>
-              class(<a href='../type/regrid_support.html'>regrid_support</a>),
+              <span class="anchor" id="variable-grid~42"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>this</strong></td>
+            <td><strong>grid</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~92"></span>
+              <span class="anchor" id="variable-rc~1153"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -212,192 +194,237 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-file_has_level"></span>
+          <span class="anchor" id="variable-grid_has_level"></span>
           logical
         </small>
       </h3>
       
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~has_level~~CallsGraph Pages: 1 -->
-<svg id="prochas_levelCallsGraph" width="641pt" height="102pt"
- viewBox="0.00 0.00 641.00 102.31" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~has_level~~CallsGraph" class="graph" transform="scale(1.95 1.95) rotate(0) translate(4 196)">
+<svg id="prochas_levelCallsGraph" width="641pt" height="171pt"
+ viewBox="0.00 0.00 641.00 170.52" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~has_level~~CallsGraph" class="graph" transform="scale(1.75 1.75) rotate(0) translate(4 295)">
 <title>proc~~has_level~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1249,-196 1249,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-295 1120,-295 1120,4 -4,4"/>
 <!-- proc~has_level -->
 <g id="proc~~has_level~~CallsGraph_node1" class="node">
 <title>proc~has_level</title>
-<polygon fill="none" stroke="black" points="285,-104 0,-104 0,-80 285,-80 285,-104"/>
-<text text-anchor="middle" x="142.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50">regrid_util_support_mod::regrid_support%has_level</text>
+<polygon fill="none" stroke="black" points="118,-251 0,-251 0,-227 118,-227 118,-251"/>
+<text text-anchor="middle" x="59" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50">time_ave::has_level</text>
+</g>
+<!-- proc~mapl_abort -->
+<g id="proc~~has_level~~CallsGraph_node2" class="node">
+<title>proc~mapl_abort</title>
+<g id="a_proc~~has_level~~CallsGraph_node2"><a xlink:href=".././proc/mapl_abort.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="367,-291 154,-291 154,-267 367,-267 367,-291"/>
+<text text-anchor="middle" x="260.5" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_abort</text>
+</a>
+</g>
+</g>
+<!-- proc~has_level&#45;&gt;proc~mapl_abort -->
+<g id="proc~~has_level~~CallsGraph_edge1" class="edge">
+<title>proc~has_level&#45;&gt;proc~mapl_abort</title>
+<path fill="none" stroke="#255000" d="M118.24,-250.68C140.58,-255.16 166.3,-260.31 189.62,-264.99"/>
+<polygon fill="#255000" stroke="#255000" points="188.96,-268.43 199.46,-266.96 190.34,-261.56 188.96,-268.43"/>
 </g>
 <!-- proc~mapl_gridget -->
-<g id="proc~~has_level~~CallsGraph_node2" class="node">
+<g id="proc~~has_level~~CallsGraph_node3" class="node">
 <title>proc~mapl_gridget</title>
-<g id="a_proc~~has_level~~CallsGraph_node2"><a xlink:href=".././proc/mapl_gridget.html" xlink:title="mapl_MaplGrid::MAPL_GridGet">
-<polygon fill="#d9534f" stroke="#d9534f" points="496,-104 321,-104 321,-80 496,-80 496,-104"/>
-<text text-anchor="middle" x="408.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridGet</text>
+<g id="a_proc~~has_level~~CallsGraph_node3"><a xlink:href=".././proc/mapl_gridget.html" xlink:title="mapl_MaplGrid::MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="348,-153 173,-153 173,-129 348,-129 348,-153"/>
+<text text-anchor="middle" x="260.5" y="-138.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridGet</text>
 </a>
 </g>
 </g>
 <!-- proc~has_level&#45;&gt;proc~mapl_gridget -->
-<g id="proc~~has_level~~CallsGraph_edge1" class="edge">
-<title>proc~has_level&#45;&gt;proc~mapl_gridget</title>
-<path fill="none" stroke="#255000" d="M285.16,-92C293.77,-92 302.32,-92 310.68,-92"/>
-<polygon fill="#255000" stroke="#255000" points="310.75,-95.5 320.75,-92 310.75,-88.5 310.75,-95.5"/>
-</g>
-<!-- proc~mapl_return -->
-<g id="proc~~has_level~~CallsGraph_node3" class="node">
-<title>proc~mapl_return</title>
-<g id="a_proc~~has_level~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="980,-24 760,-24 760,0 980,0 980,-24"/>
-<text text-anchor="middle" x="870" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
-</a>
-</g>
-</g>
-<!-- proc~has_level&#45;&gt;proc~mapl_return -->
 <g id="proc~~has_level~~CallsGraph_edge2" class="edge">
-<title>proc~has_level&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M193.1,-79.96C266.58,-62.74 408.96,-31.75 532,-19 603.97,-11.54 685.02,-9.66 749.6,-9.7"/>
-<polygon fill="#255000" stroke="#255000" points="749.81,-13.2 759.82,-9.72 749.83,-6.2 749.81,-13.2"/>
+<title>proc~has_level&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#255000" d="M84.46,-226.98C119.91,-209.57 185.68,-177.26 225.73,-157.59"/>
+<polygon fill="#255000" stroke="#255000" points="227.4,-160.67 234.84,-153.12 224.32,-154.38 227.4,-160.67"/>
 </g>
 <!-- proc~mapl_verify -->
 <g id="proc~~has_level~~CallsGraph_node4" class="node">
 <title>proc~mapl_verify</title>
 <g id="a_proc~~has_level~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="977,-192 763,-192 763,-168 977,-168 977,-192"/>
-<text text-anchor="middle" x="870" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="848,-213 634,-213 634,-189 848,-189 848,-213"/>
+<text text-anchor="middle" x="741" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~has_level&#45;&gt;proc~mapl_verify -->
 <g id="proc~~has_level~~CallsGraph_edge3" class="edge">
 <title>proc~has_level&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M182.14,-104.05C251.4,-124.94 401.65,-167.1 532,-182 616.78,-191.69 638.67,-182.59 724,-182 733.34,-181.94 743.02,-181.85 752.75,-181.74"/>
-<polygon fill="#255000" stroke="#255000" points="752.93,-185.24 762.89,-181.63 752.85,-178.24 752.93,-185.24"/>
+<path fill="none" stroke="#255000" d="M118.27,-235.74C230.1,-229.49 476.72,-215.71 623.52,-207.51"/>
+<polygon fill="#255000" stroke="#255000" points="624.12,-210.98 633.91,-206.93 623.73,-203.99 624.12,-210.98"/>
 </g>
-<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
-<g id="proc~~has_level~~CallsGraph_edge7" class="edge">
-<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M441.55,-79.98C466.01,-71.25 500.71,-59.82 532,-53 603.47,-37.42 684.85,-27.31 749.73,-21.03"/>
-<polygon fill="#255000" stroke="#255000" points="750.38,-24.48 760,-20.05 749.71,-17.51 750.38,-24.48"/>
+<!-- mpi_abort -->
+<g id="proc~~has_level~~CallsGraph_node7" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="532.5,-291 465.5,-291 465.5,-267 532.5,-267 532.5,-291"/>
+<text text-anchor="middle" x="499" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~mapl_abort&#45;&gt;mpi_abort -->
+<g id="proc~~has_level~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_abort&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#255000" d="M367.3,-279C398.4,-279 430.66,-279 455.35,-279"/>
+<polygon fill="#255000" stroke="#255000" points="455.44,-282.5 465.44,-279 455.44,-275.5 455.44,-282.5"/>
 </g>
 <!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
-<g id="proc~~has_level~~CallsGraph_edge8" class="edge">
+<g id="proc~~has_level~~CallsGraph_edge9" class="edge">
 <title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M427.22,-104.04C450.23,-118.96 492.18,-143.78 532,-155 603.57,-175.16 686.88,-181.48 752.76,-182.73"/>
-<polygon fill="#255000" stroke="#255000" points="752.71,-186.23 762.76,-182.89 752.82,-179.23 752.71,-186.23"/>
+<path fill="none" stroke="#025500" d="M295.02,-153.04C323.38,-162.66 365.31,-175.56 403,-182 475.65,-194.41 558.26,-199.21 623.5,-200.89"/>
+<polygon fill="#025500" stroke="#025500" points="623.74,-204.39 633.82,-201.13 623.9,-197.39 623.74,-204.39"/>
 </g>
 <!-- ESMF_AttributeGet -->
 <g id="proc~~has_level~~CallsGraph_node5" class="node">
 <title>ESMF_AttributeGet</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="701,-104 555,-104 555,-80 701,-80 701,-104"/>
-<text text-anchor="middle" x="628" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeGet</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="572,-173 426,-173 426,-149 572,-149 572,-173"/>
+<text text-anchor="middle" x="499" y="-158.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeGet</text>
 </g>
 <!-- proc~mapl_gridget&#45;&gt;ESMF_AttributeGet -->
-<g id="proc~~has_level~~CallsGraph_edge4" class="edge">
+<g id="proc~~has_level~~CallsGraph_edge5" class="edge">
 <title>proc~mapl_gridget&#45;&gt;ESMF_AttributeGet</title>
-<path fill="none" stroke="#255000" d="M496.09,-92C512.02,-92 528.62,-92 544.44,-92"/>
-<polygon fill="#255000" stroke="#255000" points="544.7,-95.5 554.7,-92 544.7,-88.5 544.7,-95.5"/>
+<path fill="none" stroke="#025500" d="M348.22,-148.33C370.19,-150.19 393.72,-152.18 415.47,-154.02"/>
+<polygon fill="#025500" stroke="#025500" points="415.39,-157.53 425.65,-154.88 415.98,-150.55 415.39,-157.53"/>
 </g>
 <!-- ESMF_GridGet -->
 <g id="proc~~has_level~~CallsGraph_node6" class="node">
 <title>ESMF_GridGet</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="931.5,-66 808.5,-66 808.5,-42 931.5,-42 931.5,-66"/>
-<text text-anchor="middle" x="870" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGet</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="802.5,-171 679.5,-171 679.5,-147 802.5,-147 802.5,-171"/>
+<text text-anchor="middle" x="741" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGet</text>
 </g>
 <!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
-<g id="proc~~has_level~~CallsGraph_edge5" class="edge">
+<g id="proc~~has_level~~CallsGraph_edge6" class="edge">
 <title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
-<path fill="none" stroke="#255000" d="M470.99,-79.98C490.43,-76.58 512.05,-73.2 532,-71 623.52,-60.88 729.7,-56.78 798.03,-55.12"/>
-<polygon fill="#255000" stroke="#255000" points="798.34,-58.62 808.25,-54.88 798.17,-51.62 798.34,-58.62"/>
+<path fill="none" stroke="#025500" d="M348.32,-137.51C415.69,-135.58 511.37,-134.54 595,-140 619.27,-141.58 645.69,-144.64 669.24,-147.85"/>
+<polygon fill="#025500" stroke="#025500" points="668.76,-151.32 679.15,-149.23 669.73,-144.39 668.76,-151.32"/>
 </g>
 <!-- proc~mapl_gridhasde -->
-<g id="proc~~has_level~~CallsGraph_node7" class="node">
+<g id="proc~~has_level~~CallsGraph_node8" class="node">
 <title>proc~mapl_gridhasde</title>
-<g id="a_proc~~has_level~~CallsGraph_node7"><a xlink:href=".././proc/mapl_gridhasde.html" xlink:title="mapl_MaplGrid::MAPL_GridHasDE">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="724,-146 532,-146 532,-122 724,-122 724,-146"/>
-<text text-anchor="middle" x="628" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridHasDE</text>
+<g id="a_proc~~has_level~~CallsGraph_node8"><a xlink:href=".././proc/mapl_gridhasde.html" xlink:title="mapl_MaplGrid::MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="595,-93 403,-93 403,-69 595,-69 595,-93"/>
+<text text-anchor="middle" x="499" y="-78.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridHasDE</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
-<g id="proc~~has_level~~CallsGraph_edge6" class="edge">
+<g id="proc~~has_level~~CallsGraph_edge7" class="edge">
 <title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
-<path fill="none" stroke="#255000" d="M471.83,-104.04C497.65,-109.02 527.77,-114.84 554.57,-120.01"/>
-<polygon fill="#255000" stroke="#255000" points="554.18,-123.5 564.66,-121.96 555.51,-116.63 554.18,-123.5"/>
+<path fill="none" stroke="#025500" d="M309.07,-128.93C347.08,-119.29 400.47,-105.74 440.81,-95.51"/>
+<polygon fill="#025500" stroke="#025500" points="441.67,-98.9 450.5,-93.05 439.95,-92.12 441.67,-98.9"/>
 </g>
-<!-- proc~mapl_throw_exception -->
-<g id="proc~~has_level~~CallsGraph_node8" class="node">
-<title>proc~mapl_throw_exception</title>
-<g id="a_proc~~has_level~~CallsGraph_node8"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="1245,-108 1016,-108 1016,-84 1245,-84 1245,-108"/>
-<text text-anchor="middle" x="1130.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<!-- proc~mapl_return -->
+<g id="proc~~has_level~~CallsGraph_node9" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~has_level~~CallsGraph_node9"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="851,-45 631,-45 631,-21 851,-21 851,-45"/>
+<text text-anchor="middle" x="741" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
-<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~has_level~~CallsGraph_edge9" class="edge">
-<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#025500" d="M944.8,-24.05C956.67,-26.61 968.75,-29.59 980,-33 1021.1,-45.47 1066.28,-65.44 1096.1,-79.55"/>
-<polygon fill="#025500" stroke="#025500" points="1094.69,-82.75 1105.22,-83.91 1097.71,-76.43 1094.69,-82.75"/>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~has_level~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025500" d="M277.38,-128.73C302.47,-110.12 353.51,-75.3 403,-60 472.99,-38.35 554.85,-31.4 620.36,-29.95"/>
+<polygon fill="#025500" stroke="#025500" points="620.79,-33.45 630.73,-29.77 620.67,-26.45 620.79,-33.45"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~has_level~~CallsGraph_node10" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~has_level~~CallsGraph_node10"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1116,-160 887,-160 887,-136 1116,-136 1116,-160"/>
+<text text-anchor="middle" x="1001.5" y="-145.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
 <g id="proc~~has_level~~CallsGraph_edge10" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#002505" d="M944.8,-167.95C956.67,-165.39 968.75,-162.41 980,-159 1021.1,-146.53 1066.28,-126.56 1096.1,-112.45"/>
-<polygon fill="#002505" stroke="#002505" points="1097.71,-115.57 1105.22,-108.09 1094.69,-109.25 1097.71,-115.57"/>
-</g>
-<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
-<g id="proc~~has_level~~CallsGraph_edge14" class="edge">
-<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M709.83,-121.96C714.89,-119.48 719.68,-116.52 724,-113 754.25,-88.4 729.42,-57.19 760,-33 761.64,-31.7 763.34,-30.47 765.09,-29.31"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="767.29,-32.09 774.22,-24.08 763.8,-26.02 767.29,-32.09"/>
+<path fill="none" stroke="#002505" d="M805.73,-188.95C820.6,-186.07 836.36,-182.98 851,-180 878.79,-174.35 909.43,-167.84 935.69,-162.17"/>
+<polygon fill="#002505" stroke="#002505" points="936.5,-165.58 945.53,-160.05 935.02,-158.74 936.5,-165.58"/>
 </g>
 <!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
 <g id="proc~~has_level~~CallsGraph_edge15" class="edge">
 <title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M691.74,-146.03C723.71,-152.15 762.77,-159.64 796.07,-166.02"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="795.73,-169.52 806.21,-167.96 797.04,-162.64 795.73,-169.52"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M523.49,-93.14C543.51,-104.04 572.52,-121.18 595,-140 613.34,-155.35 610.17,-168.24 631,-180 634.44,-181.94 638.03,-183.71 641.72,-185.32"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="640.5,-188.6 651.08,-188.99 643.05,-182.08 640.5,-188.6"/>
 </g>
 <!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
 <g id="proc~~has_level~~CallsGraph_edge13" class="edge">
 <title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M704.22,-121.84C711.12,-119.41 717.83,-116.49 724,-113 744.25,-101.54 739.6,-86.18 760,-75 771.72,-68.58 785.08,-64.09 798.34,-60.97"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="799.37,-64.33 808.43,-58.84 797.92,-57.48 799.37,-64.33"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M559.84,-93.02C571.86,-96.63 584.13,-101.22 595,-107 613.64,-116.92 611.99,-128.8 631,-138 642.89,-143.75 656.22,-147.93 669.38,-150.96"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="668.87,-154.43 679.38,-153.07 670.31,-147.58 668.87,-154.43"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~has_level~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M557.68,-68.94C580.5,-64.22 606.97,-58.79 631,-54 642.59,-51.69 654.88,-49.28 666.88,-46.95"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="667.71,-50.36 676.86,-45.02 666.38,-43.48 667.71,-50.36"/>
 </g>
 <!-- ESMF_DELayoutGet -->
-<g id="proc~~has_level~~CallsGraph_node9" class="node">
+<g id="proc~~has_level~~CallsGraph_node11" class="node">
 <title>ESMF_DELayoutGet</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="945.5,-150 794.5,-150 794.5,-126 945.5,-126 945.5,-150"/>
-<text text-anchor="middle" x="870" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DELayoutGet</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="816.5,-129 665.5,-129 665.5,-105 816.5,-105 816.5,-129"/>
+<text text-anchor="middle" x="741" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DELayoutGet</text>
 </g>
 <!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
 <g id="proc~~has_level~~CallsGraph_edge11" class="edge">
 <title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M724.2,-135.59C744.04,-135.92 764.82,-136.26 784.25,-136.59"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="784.22,-140.09 794.27,-136.75 784.33,-133.09 784.22,-140.09"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M580.25,-93.04C604.44,-96.67 631.07,-100.66 655.53,-104.33"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="655.09,-107.8 665.5,-105.82 656.13,-100.88 655.09,-107.8"/>
 </g>
 <!-- ESMF_DistGridGet -->
-<g id="proc~~has_level~~CallsGraph_node10" class="node">
+<g id="proc~~has_level~~CallsGraph_node12" class="node">
 <title>ESMF_DistGridGet</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="941.5,-108 798.5,-108 798.5,-84 941.5,-84 941.5,-108"/>
-<text text-anchor="middle" x="870" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DistGridGet</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="812.5,-87 669.5,-87 669.5,-63 812.5,-63 812.5,-87"/>
+<text text-anchor="middle" x="741" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DistGridGet</text>
 </g>
 <!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
 <g id="proc~~has_level~~CallsGraph_edge12" class="edge">
 <title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M704.94,-121.98C731.48,-117.77 761.37,-113.04 788.29,-108.78"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="789.12,-112.19 798.45,-107.17 788.03,-105.28 789.12,-112.19"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M595.2,-78.62C616.36,-78.09 638.59,-77.54 659.12,-77.02"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="659.45,-80.51 669.36,-76.77 659.27,-73.52 659.45,-80.51"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~has_level~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M822.74,-45.04C832.42,-47.51 842.04,-50.46 851,-54 857.56,-56.59 931.92,-104.02 973.23,-130.49"/>
+<polygon fill="#002505" stroke="#002505" points="971.44,-133.5 981.75,-135.95 975.22,-127.61 971.44,-133.5"/>
+</g>
+<!-- at -->
+<g id="proc~~has_level~~CallsGraph_node13" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1028.5,-24 974.5,-24 974.5,0 1028.5,0 1028.5,-24"/>
+<text text-anchor="middle" x="1001.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~has_level~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#002505" d="M851.25,-24.12C891.63,-20.84 934.67,-17.35 964.11,-14.96"/>
+<polygon fill="#002505" stroke="#002505" points="964.62,-18.43 974.3,-14.13 964.05,-11.45 964.62,-18.43"/>
+</g>
+<!-- insert -->
+<g id="proc~~has_level~~CallsGraph_node14" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1028.5,-66 974.5,-66 974.5,-42 1028.5,-42 1028.5,-66"/>
+<text text-anchor="middle" x="1001.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~has_level~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#002505" d="M851.25,-41.88C891.63,-45.16 934.67,-48.65 964.11,-51.04"/>
+<polygon fill="#002505" stroke="#002505" points="964.05,-54.55 974.3,-51.87 964.62,-47.57 964.05,-54.55"/>
 </g>
 </g>
 </svg>
@@ -405,8 +432,8 @@
                   var panprochas_levelCallsGraph = svgPanZoom('#prochas_levelCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -423,11 +450,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -446,23 +473,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -480,62 +513,47 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~has_level~~CalledByGraph Pages: 1 -->
-<svg id="prochas_levelCalledByGraph" width="539pt" height="32pt"
- viewBox="0.00 0.00 539.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg id="prochas_levelCalledByGraph" width="223pt" height="32pt"
+ viewBox="0.00 0.00 223.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="proc~~has_level~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
 <title>proc~~has_level~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 535,-28 535,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 219,-28 219,4 -4,4"/>
 <!-- proc~has_level -->
 <g id="proc~~has_level~~CalledByGraph_node1" class="node">
 <title>proc~has_level</title>
-<polygon fill="none" stroke="black" points="531,-24 246,-24 246,0 531,0 531,-24"/>
-<text text-anchor="middle" x="388.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">regrid_util_support_mod::regrid_support%has_level</text>
+<polygon fill="none" stroke="black" points="215,-24 97,-24 97,0 215,0 215,-24"/>
+<text text-anchor="middle" x="156" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">time_ave::has_level</text>
 </g>
-<!-- proc~main -->
+<!-- program~time_ave -->
 <g id="proc~~has_level~~CalledByGraph_node2" class="node">
-<title>proc~main</title>
-<g id="a_proc~~has_level~~CalledByGraph_node2"><a xlink:href=".././proc/main.html" xlink:title="Regrid_Util::main">
-<polygon fill="#d9534f" stroke="#d9534f" points="210,-24 106,-24 106,0 210,0 210,-24"/>
-<text text-anchor="middle" x="158" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util::main</text>
+<title>program~time_ave</title>
+<g id="a_proc~~has_level~~CalledByGraph_node2"><a xlink:href=".././program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="61,-24 0,-24 0,0 61,0 61,-24"/>
+<text text-anchor="middle" x="30.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
 </a>
 </g>
 </g>
-<!-- proc~main&#45;&gt;proc~has_level -->
+<!-- program~time_ave&#45;&gt;proc~has_level -->
 <g id="proc~~has_level~~CalledByGraph_edge1" class="edge">
-<title>proc~main&#45;&gt;proc~has_level</title>
-<path fill="none" stroke="#255000" d="M210.28,-12C218.21,-12 226.74,-12 235.6,-12"/>
-<polygon fill="#255000" stroke="#255000" points="235.74,-15.5 245.74,-12 235.74,-8.5 235.74,-15.5"/>
-</g>
-<!-- program~regrid_util -->
-<g id="proc~~has_level~~CalledByGraph_node3" class="node">
-<title>program~regrid_util</title>
-<g id="a_proc~~has_level~~CalledByGraph_node3"><a xlink:href=".././program/regrid_util.html" xlink:title="Regrid_Util">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
-<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
-</a>
-</g>
-</g>
-<!-- program~regrid_util&#45;&gt;proc~main -->
-<g id="proc~~has_level~~CalledByGraph_edge2" class="edge">
-<title>program~regrid_util&#45;&gt;proc~main</title>
-<path fill="none" stroke="#255000" d="M70.03,-12C77.97,-12 86.66,-12 95.39,-12"/>
-<polygon fill="#255000" stroke="#255000" points="95.6,-15.5 105.6,-12 95.6,-8.5 95.6,-15.5"/>
+<title>program~time_ave&#45;&gt;proc~has_level</title>
+<path fill="none" stroke="#255000" d="M61.08,-12C68.86,-12 77.58,-12 86.49,-12"/>
+<polygon fill="#255000" stroke="#255000" points="86.59,-15.5 96.59,-12 86.59,-8.5 86.59,-15.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -552,11 +570,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -575,23 +593,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -611,41 +635,33 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">has_level</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">grid_has_level</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_has_level</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">global_dims</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">global_dims</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">grid_has_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">global_dims</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">RC</span><span class="o">=</span><span class="err">_</span><span class="n">SUCCESS</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">   end function </span><span class="n">has_level</span>
+</pre></div>
 
     </section>
-    <br class="visible-xs visible-sm hidden-md">
-
-
-    
-    
-
-    
-    
-
-
-    
+    <br>
     
     </div>
   </div>
@@ -654,32 +670,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

@@ -10,85 +10,58 @@
 
     <title>test_get_min &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">23 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">23 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/test_DistributedMeter.pf"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_distributedmeter.pf.html'>test_DistributedMeter.pf</a></li>
-              <li><a href='../module/test_distributedmeter.html'>test_DistributedMeter</a></li>
-          <li class="active">test_get_min</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_distributedmeter.pf.html'>test_DistributedMeter.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_distributedmeter.html'>test_DistributedMeter</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_get_min</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/test_get_min.html#src">test_get_min</a>
       </div>
@@ -174,16 +152,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~3741"></span>
+              <span class="anchor" id="variable-this~3733"></span>
               class(MpiTestMethod),
             </td>
 <td>intent(inout)</td>
@@ -200,104 +178,252 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~test_get_min~~CallsGraph Pages: 1 -->
-<svg id="proctest_get_minCallsGraph" width="374pt" height="242pt"
- viewBox="0.00 0.00 374.00 242.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~test_get_min~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 238)">
+<svg id="proctest_get_minCallsGraph" width="641pt" height="191pt"
+ viewBox="0.00 0.00 641.00 191.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_get_min~~CallsGraph" class="graph" transform="scale(2.11 2.11) rotate(0) translate(4 400)">
 <title>proc~~test_get_min~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 370,-238 370,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-400 1349,-400 1349,4 -4,4"/>
 <!-- proc~test_get_min -->
 <g id="proc~~test_get_min~~CallsGraph_node1" class="node">
 <title>proc~test_get_min</title>
-<polygon fill="none" stroke="black" points="202,-129 0,-129 0,-105 202,-105 202,-129"/>
-<text text-anchor="middle" x="101" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_DistributedMeter::test_get_min</text>
-</g>
-<!-- add_cycle -->
-<g id="proc~~test_get_min~~CallsGraph_node2" class="node">
-<title>add_cycle</title>
-<polygon fill="#777777" stroke="#777777" points="335,-234 269,-234 269,-210 335,-210 335,-234"/>
-<text text-anchor="middle" x="302" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_cycle</text>
-</g>
-<!-- proc~test_get_min&#45;&gt;add_cycle -->
-<g id="proc~~test_get_min~~CallsGraph_edge1" class="edge">
-<title>proc~test_get_min&#45;&gt;add_cycle</title>
-<path fill="none" stroke="#255000" d="M118.88,-129.22C143.9,-146.9 192.75,-179.84 238,-201 244.68,-204.12 251.95,-207 259.1,-209.55"/>
-<polygon fill="#255000" stroke="#255000" points="258.12,-212.91 268.71,-212.83 260.38,-206.29 258.12,-212.91"/>
+<polygon fill="none" stroke="black" points="202,-291 0,-291 0,-267 202,-267 202,-291"/>
+<text text-anchor="middle" x="101" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_DistributedMeter::test_get_min</text>
 </g>
 <!-- assertequal -->
-<g id="proc~~test_get_min~~CallsGraph_node3" class="node">
+<g id="proc~~test_get_min~~CallsGraph_node2" class="node">
 <title>assertequal</title>
-<polygon fill="#777777" stroke="#777777" points="339.5,-192 264.5,-192 264.5,-168 339.5,-168 339.5,-192"/>
-<text text-anchor="middle" x="302" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+<polygon fill="#777777" stroke="#777777" points="449.5,-396 374.5,-396 374.5,-372 449.5,-372 449.5,-396"/>
+<text text-anchor="middle" x="412" y="-381.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
 </g>
 <!-- proc~test_get_min&#45;&gt;assertequal -->
-<g id="proc~~test_get_min~~CallsGraph_edge2" class="edge">
+<g id="proc~~test_get_min~~CallsGraph_edge1" class="edge">
 <title>proc~test_get_min&#45;&gt;assertequal</title>
-<path fill="none" stroke="#255000" d="M140.37,-129.15C172.96,-139.46 219.82,-154.3 254.53,-165.29"/>
-<polygon fill="#255000" stroke="#255000" points="253.84,-168.74 264.43,-168.42 255.95,-162.07 253.84,-168.74"/>
-</g>
-<!-- get_stats_min_cycle -->
-<g id="proc~~test_get_min~~CallsGraph_node4" class="node">
-<title>get_stats_min_cycle</title>
-<polygon fill="#777777" stroke="#777777" points="361,-150 243,-150 243,-126 361,-126 361,-150"/>
-<text text-anchor="middle" x="302" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_stats_min_cycle</text>
-</g>
-<!-- proc~test_get_min&#45;&gt;get_stats_min_cycle -->
-<g id="proc~~test_get_min~~CallsGraph_edge3" class="edge">
-<title>proc~test_get_min&#45;&gt;get_stats_min_cycle</title>
-<path fill="none" stroke="#255000" d="M202.08,-127.56C212.43,-128.65 222.76,-129.74 232.64,-130.79"/>
-<polygon fill="#255000" stroke="#255000" points="232.44,-134.28 242.76,-131.85 233.18,-127.32 232.44,-134.28"/>
+<path fill="none" stroke="#255000" d="M116.79,-291.19C140.64,-310.11 189.81,-346.11 238,-363 279.06,-377.39 328.58,-382.24 364.1,-383.73"/>
+<polygon fill="#255000" stroke="#255000" points="364.07,-387.23 374.19,-384.07 364.31,-380.23 364.07,-387.23"/>
 </g>
 <!-- getmpicommunicator -->
-<g id="proc~~test_get_min~~CallsGraph_node5" class="node">
+<g id="proc~~test_get_min~~CallsGraph_node3" class="node">
 <title>getmpicommunicator</title>
-<polygon fill="#777777" stroke="#777777" points="366,-108 238,-108 238,-84 366,-84 366,-108"/>
-<text text-anchor="middle" x="302" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getmpicommunicator</text>
+<polygon fill="#777777" stroke="#777777" points="476,-354 348,-354 348,-330 476,-330 476,-354"/>
+<text text-anchor="middle" x="412" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getmpicommunicator</text>
 </g>
 <!-- proc~test_get_min&#45;&gt;getmpicommunicator -->
-<g id="proc~~test_get_min~~CallsGraph_edge4" class="edge">
+<g id="proc~~test_get_min~~CallsGraph_edge2" class="edge">
 <title>proc~test_get_min&#45;&gt;getmpicommunicator</title>
-<path fill="none" stroke="#255000" d="M202.08,-106.44C210.75,-105.52 219.42,-104.61 227.81,-103.72"/>
-<polygon fill="#255000" stroke="#255000" points="228.32,-107.19 237.9,-102.66 227.59,-100.23 228.32,-107.19"/>
+<path fill="none" stroke="#255000" d="M135.09,-291.04C162.37,-300.52 202.23,-313.37 238,-321 270.3,-327.89 306.51,-332.72 337.42,-336"/>
+<polygon fill="#255000" stroke="#255000" points="337.38,-339.51 347.69,-337.05 338.1,-332.55 337.38,-339.51"/>
 </g>
 <!-- getprocessrank -->
-<g id="proc~~test_get_min~~CallsGraph_node6" class="node">
+<g id="proc~~test_get_min~~CallsGraph_node4" class="node">
 <title>getprocessrank</title>
-<polygon fill="#777777" stroke="#777777" points="349,-66 255,-66 255,-42 349,-42 349,-66"/>
-<text text-anchor="middle" x="302" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getprocessrank</text>
+<polygon fill="#777777" stroke="#777777" points="459,-312 365,-312 365,-288 459,-288 459,-312"/>
+<text text-anchor="middle" x="412" y="-297.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getprocessrank</text>
 </g>
 <!-- proc~test_get_min&#45;&gt;getprocessrank -->
-<g id="proc~~test_get_min~~CallsGraph_edge5" class="edge">
+<g id="proc~~test_get_min~~CallsGraph_edge3" class="edge">
 <title>proc~test_get_min&#45;&gt;getprocessrank</title>
-<path fill="none" stroke="#255000" d="M140.37,-104.85C172.54,-94.67 218.64,-80.07 253.21,-69.13"/>
-<polygon fill="#255000" stroke="#255000" points="254.61,-72.36 263.09,-66 252.5,-65.68 254.61,-72.36"/>
+<path fill="none" stroke="#255000" d="M202.32,-285.82C252.79,-289.25 312.09,-293.28 354.55,-296.16"/>
+<polygon fill="#255000" stroke="#255000" points="354.48,-299.67 364.7,-296.85 354.96,-292.68 354.48,-299.67"/>
 </g>
-<!-- reduce -->
+<!-- none~add_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_node5" class="node">
+<title>none~add_cycle</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node5"><a xlink:href=".././type/advancedmeter.html#boundprocedure-add_cycle" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%add_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="553.5,-270 270.5,-270 270.5,-246 553.5,-246 553.5,-270"/>
+<text text-anchor="middle" x="412" y="-255.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%add_cycle</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_min&#45;&gt;none~add_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_edge4" class="edge">
+<title>proc~test_get_min&#45;&gt;none~add_cycle</title>
+<path fill="none" stroke="#255000" d="M202.32,-272.18C220.94,-270.92 240.76,-269.57 260.49,-268.23"/>
+<polygon fill="#255000" stroke="#255000" points="260.74,-271.72 270.48,-267.55 260.27,-264.74 260.74,-271.72"/>
+</g>
+<!-- none~get_stats_min_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_node6" class="node">
+<title>none~get_stats_min_cycle</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node6"><a xlink:href=".././type/distributedmeter.html#boundprocedure-get_stats_min_cycle" xlink:title="MAPL_DistributedMeter::DistributedMeter%get_stats_min_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="586,-228 238,-228 238,-204 586,-204 586,-228"/>
+<text text-anchor="middle" x="412" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistributedMeter::DistributedMeter%get_stats_min_cycle</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_min&#45;&gt;none~get_stats_min_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_edge5" class="edge">
+<title>proc~test_get_min&#45;&gt;none~get_stats_min_cycle</title>
+<path fill="none" stroke="#255000" d="M135.09,-266.96C162.37,-257.48 202.23,-244.63 238,-237 251.21,-234.18 265.08,-231.71 278.98,-229.54"/>
+<polygon fill="#255000" stroke="#255000" points="279.72,-232.97 289.09,-228.02 278.68,-226.05 279.72,-232.97"/>
+</g>
+<!-- none~reduce~2 -->
 <g id="proc~~test_get_min~~CallsGraph_node7" class="node">
-<title>reduce</title>
-<polygon fill="#777777" stroke="#777777" points="329,-24 275,-24 275,0 329,0 329,-24"/>
-<text text-anchor="middle" x="302" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">reduce</text>
+<title>none~reduce~2</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node7"><a xlink:href=".././type/distributedmeter.html#boundprocedure-reduce~2" xlink:title="MAPL_DistributedMeter::DistributedMeter%reduce">
+<polygon fill="#a7506f" stroke="#a7506f" points="551.5,-176 272.5,-176 272.5,-152 551.5,-152 551.5,-176"/>
+<text text-anchor="middle" x="412" y="-161.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistributedMeter::DistributedMeter%reduce</text>
+</a>
 </g>
-<!-- proc~test_get_min&#45;&gt;reduce -->
+</g>
+<!-- proc~test_get_min&#45;&gt;none~reduce~2 -->
 <g id="proc~~test_get_min~~CallsGraph_edge6" class="edge">
-<title>proc~test_get_min&#45;&gt;reduce</title>
-<path fill="none" stroke="#255000" d="M118.88,-104.78C143.9,-87.1 192.75,-54.16 238,-33 246.59,-28.98 256.16,-25.38 265.2,-22.34"/>
-<polygon fill="#255000" stroke="#255000" points="266.28,-25.67 274.73,-19.27 264.14,-19 266.28,-25.67"/>
+<title>proc~test_get_min&#45;&gt;none~reduce~2</title>
+<path fill="none" stroke="#255000" d="M117.3,-266.83C141.45,-248.27 190.57,-213.14 238,-195 256.74,-187.83 277.26,-182.3 297.41,-178.04"/>
+<polygon fill="#255000" stroke="#255000" points="298.16,-181.46 307.27,-176.05 296.77,-174.6 298.16,-181.46"/>
+</g>
+<!-- none~get_mean_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_node8" class="node">
+<title>none~get_mean_cycle</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node8"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_mean_cycle" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_mean_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="938,-273 622,-273 622,-249 938,-249 938,-273"/>
+<text text-anchor="middle" x="780" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_mean_cycle</text>
+</a>
+</g>
+</g>
+<!-- none~add_cycle&#45;&gt;none~get_mean_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_edge7" class="edge">
+<title>none~add_cycle&#45;&gt;none~get_mean_cycle</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M553.72,-259.15C572.68,-259.31 592.28,-259.47 611.64,-259.63"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="611.71,-263.13 621.74,-259.71 611.77,-256.13 611.71,-263.13"/>
+</g>
+<!-- none~reduce_mpi -->
+<g id="proc~~test_get_min~~CallsGraph_node9" class="node">
+<title>none~reduce_mpi</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node9"><a xlink:href=".././type/distributedmeter.html#boundprocedure-reduce_mpi" xlink:title="MAPL_DistributedMeter::DistributedMeter%reduce_mpi">
+<polygon fill="#a7506f" stroke="#a7506f" points="932,-155 628,-155 628,-131 932,-131 932,-155"/>
+<text text-anchor="middle" x="780" y="-140.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistributedMeter::DistributedMeter%reduce_mpi</text>
+</a>
+</g>
+</g>
+<!-- none~reduce~2&#45;&gt;none~reduce_mpi -->
+<g id="proc~~test_get_min~~CallsGraph_edge8" class="edge">
+<title>none~reduce~2&#45;&gt;none~reduce_mpi</title>
+<path fill="none" stroke="#255025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M551.63,-156.05C573.21,-154.81 595.67,-153.52 617.7,-152.25"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="618,-155.74 627.79,-151.68 617.6,-148.75 618,-155.74"/>
+</g>
+<!-- none~get_num_cycles -->
+<g id="proc~~test_get_min~~CallsGraph_node14" class="node">
+<title>none~get_num_cycles</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node14"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_num_cycles" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_num_cycles">
+<polygon fill="#a7506f" stroke="#a7506f" points="1317,-276 1002,-276 1002,-252 1317,-252 1317,-276"/>
+<text text-anchor="middle" x="1159.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_num_cycles</text>
+</a>
+</g>
+</g>
+<!-- none~get_mean_cycle&#45;&gt;none~get_num_cycles -->
+<g id="proc~~test_get_min~~CallsGraph_edge9" class="edge">
+<title>none~get_mean_cycle&#45;&gt;none~get_num_cycles</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M938.09,-262.25C955.69,-262.39 973.66,-262.53 991.38,-262.67"/>
+<polygon fill="#255000" stroke="#255000" points="991.76,-266.17 1001.78,-262.75 991.81,-259.18 991.76,-266.17"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~test_get_min~~CallsGraph_node10" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="1210,-234 1109,-234 1109,-210 1210,-210 1210,-234"/>
+<text text-anchor="middle" x="1159.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- none~reduce_mpi&#45;&gt;mpi_comm_rank -->
+<g id="proc~~test_get_min~~CallsGraph_edge10" class="edge">
+<title>none~reduce_mpi&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M814.35,-155.01C852.46,-168.27 916.94,-189.28 974,-201 1015.1,-209.44 1062.1,-214.73 1098.37,-217.89"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1098.53,-221.41 1108.79,-218.76 1099.11,-214.44 1098.53,-221.41"/>
+</g>
+<!-- mpi_reduce -->
+<g id="proc~~test_get_min~~CallsGraph_node11" class="node">
+<title>mpi_reduce</title>
+<polygon fill="#777777" stroke="#777777" points="1197,-192 1122,-192 1122,-168 1197,-168 1197,-192"/>
+<text text-anchor="middle" x="1159.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_reduce</text>
+</g>
+<!-- none~reduce_mpi&#45;&gt;mpi_reduce -->
+<g id="proc~~test_get_min~~CallsGraph_edge11" class="edge">
+<title>none~reduce_mpi&#45;&gt;mpi_reduce</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M903.56,-155.01C974.66,-161.98 1060.11,-170.36 1111.81,-175.42"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1111.71,-178.93 1122,-176.42 1112.39,-171.96 1111.71,-178.93"/>
+</g>
+<!-- none~get_max_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_node12" class="node">
+<title>none~get_max_cycle</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node12"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_max_cycle" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_max_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="1314,-150 1005,-150 1005,-126 1314,-126 1314,-150"/>
+<text text-anchor="middle" x="1159.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_max_cycle</text>
+</a>
+</g>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_max_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_edge12" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_max_cycle</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M932.1,-141C952.65,-140.73 973.81,-140.45 994.58,-140.17"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="994.78,-143.67 1004.73,-140.04 994.69,-136.67 994.78,-143.67"/>
+</g>
+<!-- none~get_min_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_node13" class="node">
+<title>none~get_min_cycle</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node13"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_min_cycle" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_min_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="1312.5,-108 1006.5,-108 1006.5,-84 1312.5,-84 1312.5,-108"/>
+<text text-anchor="middle" x="1159.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_min_cycle</text>
+</a>
+</g>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_min_cycle -->
+<g id="proc~~test_get_min~~CallsGraph_edge13" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_min_cycle</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M867.42,-130.97C900.71,-126.44 939.11,-121.34 974,-117 995.22,-114.36 1017.84,-111.68 1039.7,-109.16"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1040.14,-112.63 1049.68,-108.01 1039.34,-105.68 1040.14,-112.63"/>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_num_cycles -->
+<g id="proc~~test_get_min~~CallsGraph_edge14" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_num_cycles</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M798.67,-155C831.55,-176.67 905.05,-222 974,-243 982.4,-245.56 991.11,-247.81 999.95,-249.79"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="999.48,-253.27 1009.99,-251.92 1000.93,-246.42 999.48,-253.27"/>
+</g>
+<!-- none~get_sum_square_deviation -->
+<g id="proc~~test_get_min~~CallsGraph_node15" class="node">
+<title>none~get_sum_square_deviation</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node15"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_sum_square_deviation" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_sum_square_deviation">
+<polygon fill="#a7506f" stroke="#a7506f" points="1345,-66 974,-66 974,-42 1345,-42 1345,-66"/>
+<text text-anchor="middle" x="1159.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_sum_square_deviation</text>
+</a>
+</g>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_sum_square_deviation -->
+<g id="proc~~test_get_min~~CallsGraph_edge15" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_sum_square_deviation</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M808.86,-130.94C845.86,-115.44 913.58,-88.89 974,-75 986.27,-72.18 999.09,-69.73 1012,-67.6"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1012.56,-71.06 1021.89,-66.04 1011.46,-64.15 1012.56,-71.06"/>
+</g>
+<!-- none~get_total -->
+<g id="proc~~test_get_min~~CallsGraph_node16" class="node">
+<title>none~get_total</title>
+<g id="a_proc~~test_get_min~~CallsGraph_node16"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_total" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_total">
+<polygon fill="#a7506f" stroke="#a7506f" points="1298,-24 1021,-24 1021,0 1298,0 1298,-24"/>
+<text text-anchor="middle" x="1159.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_total</text>
+</a>
+</g>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_total -->
+<g id="proc~~test_get_min~~CallsGraph_edge16" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_total</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M796.96,-130.86C828.71,-107.42 902.88,-56.23 974,-33 985.73,-29.17 998.07,-26.02 1010.59,-23.42"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1011.51,-26.81 1020.65,-21.46 1010.17,-19.94 1011.51,-26.81"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>                <script>
+                  var panproctest_get_minCallsGraph = svgPanZoom('#proctest_get_minCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -314,11 +440,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -337,23 +463,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -373,79 +505,48 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/test_get_min.html#src">test_get_min</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_get_min</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_get_min</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <span class="w"> </span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedMeter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distributed</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedReal64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedMeter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distributed</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedReal64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distributed_min_cycle</span>
 
-<span class="w">      </span><span class="n">distributed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DistributedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">())</span><span class="w"></span>
-<span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">())</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">1.0_REAL64</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">3.0_REAL64</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">2.0_REAL64</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">distributed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DistributedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">())</span>
+<span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">())</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">1.0_REAL64</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">3.0_REAL64</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">2.0_REAL64</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end select</span>
-<span class="k">      call </span><span class="n">distributed</span><span class="p">%</span><span class="n">reduce</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="mf">0._REAL64</span><span class="p">)</span><span class="w"></span>
+<span class="k">      call </span><span class="n">distributed</span><span class="p">%</span><span class="n">reduce</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="mf">0._REAL64</span><span class="p">)</span>
 
-<span class="w">      </span><span class="n">distributed_min_cycle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">distributed</span><span class="p">%</span><span class="n">get_stats_min_cycle</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="n">distributed_min_cycle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">distributed</span><span class="p">%</span><span class="n">get_stats_min_cycle</span><span class="p">()</span>
 
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="w">         </span><span class="c">! Some of these are meaningless/pointless</span>
-<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="n">total</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="nb">min</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="nb">max</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="n">total</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="nb">min</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="nb">max</span><span class="p">)</span>
 
-<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="n">min_pe</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="n">max_pe</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="n">num_pes</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="n">min_pe</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="n">max_pe</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_min_cycle</span><span class="p">%</span><span class="n">num_pes</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end if</span>
 
-<span class="k">   end subroutine </span><span class="n">test_get_min</span><span class="w"></span>
+<span class="k">   end subroutine </span><span class="n">test_get_min</span>
 </pre></div>
 
     </section>
@@ -458,32 +559,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

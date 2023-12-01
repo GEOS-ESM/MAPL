@@ -10,85 +10,58 @@
 
     <title>readTileFileNC_file &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.3% of total for procedures.">127 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.3% of total for procedures.">127 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/Regrid_Functions_Mod.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/regrid_functions_mod.f90.html'>Regrid_Functions_Mod.F90</a></li>
-              <li><a href='../module/regrid_functions_mod.html'>Regrid_Functions_Mod</a></li>
-          <li class="active">readTileFileNC_file</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/regrid_functions_mod.f90.html'>Regrid_Functions_Mod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/regrid_functions_mod.html'>Regrid_Functions_Mod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">readTileFileNC_file</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/readtilefilenc_file.html#src">readTileFileNC_file</a>
       </div>
@@ -174,16 +152,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-fname~7"></span>
+              <span class="anchor" id="variable-fname~6"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -198,7 +176,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1339"></span>
+              <span class="anchor" id="variable-rc~1207"></span>
               integer,
             </td>
 <td></td>
@@ -215,11 +193,11 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -357,8 +335,8 @@
                   var panprocreadtilefilenc_fileCallsGraph = svgPanZoom('#procreadtilefilenc_fileCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -375,11 +353,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -398,23 +376,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -432,47 +416,132 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~readtilefilenc_file~~CalledByGraph Pages: 1 -->
-<svg id="procreadtilefilenc_fileCalledByGraph" width="493pt" height="32pt"
- viewBox="0.00 0.00 493.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~readtilefilenc_file~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg id="procreadtilefilenc_fileCalledByGraph" width="641pt" height="39pt"
+ viewBox="0.00 0.00 641.00 38.95" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~readtilefilenc_file~~CalledByGraph" class="graph" transform="scale(2.98 2.98) rotate(0) translate(4 112)">
 <title>proc~~readtilefilenc_file~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 489,-28 489,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 1905,-112 1905,4 -4,4"/>
 <!-- proc~readtilefilenc_file -->
 <g id="proc~~readtilefilenc_file~~CalledByGraph_node1" class="node">
 <title>proc~readtilefilenc_file</title>
-<polygon fill="none" stroke="black" points="485,-24 250,-24 250,0 485,0 485,-24"/>
-<text text-anchor="middle" x="367.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">Regrid_Functions_Mod::readTileFileNC_file</text>
+<polygon fill="none" stroke="black" points="1901,-66 1666,-66 1666,-42 1901,-42 1901,-66"/>
+<text text-anchor="middle" x="1783.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">Regrid_Functions_Mod::readTileFileNC_file</text>
+</g>
+<!-- none~initialize_subclass -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_node2" class="node">
+<title>none~initialize_subclass</title>
+<g id="a_proc~~readtilefilenc_file~~CalledByGraph_node2"><a xlink:href=".././type/tilingregridder.html#boundprocedure-initialize_subclass" xlink:title="MAPL_TilingRegridderMod::TilingRegridder%initialize_subclass">
+<polygon fill="#a7506f" stroke="#a7506f" points="1624,-108 1281,-108 1281,-84 1624,-84 1624,-108"/>
+<text text-anchor="middle" x="1452.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TilingRegridderMod::TilingRegridder%initialize_subclass</text>
+</a>
+</g>
+</g>
+<!-- none~initialize_subclass&#45;&gt;proc~readtilefilenc_file -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_edge1" class="edge">
+<title>none~initialize_subclass&#45;&gt;proc~readtilefilenc_file</title>
+<path fill="none" stroke="#255000" d="M1557.13,-83.99C1581.07,-81.13 1606.43,-78.02 1630,-75 1648.43,-72.64 1668.09,-70.01 1686.96,-67.43"/>
+<polygon fill="#255000" stroke="#255000" points="1687.61,-70.88 1697.04,-66.05 1686.66,-63.94 1687.61,-70.88"/>
 </g>
 <!-- proc~readtilefilenc -->
-<g id="proc~~readtilefilenc_file~~CalledByGraph_node2" class="node">
+<g id="proc~~readtilefilenc_file~~CalledByGraph_node3" class="node">
 <title>proc~readtilefilenc</title>
-<g id="a_proc~~readtilefilenc_file~~CalledByGraph_node2"><a xlink:href=".././proc/readtilefilenc.html" xlink:title="Regrid_Functions_Mod::readTileFileNC">
-<polygon fill="#d9534f" stroke="#d9534f" points="214,-24 0,-24 0,0 214,0 214,-24"/>
-<text text-anchor="middle" x="107" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Functions_Mod::readTileFileNC</text>
+<g id="a_proc~~readtilefilenc_file~~CalledByGraph_node3"><a xlink:href=".././proc/readtilefilenc.html" xlink:title="Regrid_Functions_Mod::readTileFileNC">
+<polygon fill="#d9534f" stroke="#d9534f" points="1559.5,-24 1345.5,-24 1345.5,0 1559.5,0 1559.5,-24"/>
+<text text-anchor="middle" x="1452.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Functions_Mod::readTileFileNC</text>
 </a>
 </g>
 </g>
 <!-- proc~readtilefilenc&#45;&gt;proc~readtilefilenc_file -->
-<g id="proc~~readtilefilenc_file~~CalledByGraph_edge1" class="edge">
+<g id="proc~~readtilefilenc_file~~CalledByGraph_edge2" class="edge">
 <title>proc~readtilefilenc&#45;&gt;proc~readtilefilenc_file</title>
-<path fill="none" stroke="#255000" d="M214.26,-12C222.58,-12 231.02,-12 239.46,-12"/>
-<polygon fill="#255000" stroke="#255000" points="239.73,-15.5 249.73,-12 239.73,-8.5 239.73,-15.5"/>
+<path fill="none" stroke="#255000" d="M1557.13,-24.01C1581.07,-26.87 1606.43,-29.98 1630,-33 1648.43,-35.36 1668.09,-37.99 1686.96,-40.57"/>
+<polygon fill="#255000" stroke="#255000" points="1686.66,-44.06 1697.04,-41.95 1687.61,-37.12 1686.66,-44.06"/>
+</g>
+<!-- none~initialize~6 -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_node4" class="node">
+<title>none~initialize~6</title>
+<g id="a_proc~~readtilefilenc_file~~CalledByGraph_node4"><a xlink:href=".././type/abstractregridder.html#boundprocedure-initialize~6" xlink:title="MAPL_AbstractRegridderMod::AbstractRegridder%initialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="1239,-66 915,-66 915,-42 1239,-42 1239,-66"/>
+<text text-anchor="middle" x="1077" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridderMod::AbstractRegridder%initialize</text>
+</a>
+</g>
+</g>
+<!-- none~initialize~6&#45;&gt;none~initialize_subclass -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_edge3" class="edge">
+<title>none~initialize~6&#45;&gt;none~initialize_subclass</title>
+<path fill="none" stroke="#255000" d="M1185.03,-66.04C1231.82,-71.3 1286.83,-77.48 1334.68,-82.86"/>
+<polygon fill="#255000" stroke="#255000" points="1334.45,-86.36 1344.78,-84 1335.23,-79.4 1334.45,-86.36"/>
+</g>
+<!-- none~initialize_base -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_node5" class="node">
+<title>none~initialize_base</title>
+<g id="a_proc~~readtilefilenc_file~~CalledByGraph_node5"><a xlink:href=".././type/abstractregridder.html#boundprocedure-initialize_base" xlink:title="MAPL_AbstractRegridderMod::AbstractRegridder%initialize_base">
+<polygon fill="#a7506f" stroke="#a7506f" points="1630,-66 1275,-66 1275,-42 1630,-42 1630,-66"/>
+<text text-anchor="middle" x="1452.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridderMod::AbstractRegridder%initialize_base</text>
+</a>
+</g>
+</g>
+<!-- none~initialize~6&#45;&gt;none~initialize_base -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_edge6" class="edge">
+<title>none~initialize~6&#45;&gt;none~initialize_base</title>
+<path fill="none" stroke="#255000" d="M1239.11,-47.31C1247.62,-47.27 1256.21,-47.25 1264.8,-47.25"/>
+<polygon fill="#255000" stroke="#255000" points="1264.87,-50.75 1274.87,-47.26 1264.87,-43.75 1264.87,-50.75"/>
+</g>
+<!-- none~initialize_base&#45;&gt;none~initialize~6 -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_edge4" class="edge">
+<title>none~initialize_base&#45;&gt;none~initialize~6</title>
+<path fill="none" stroke="#255000" d="M1274.87,-60.74C1266.3,-60.76 1257.69,-60.75 1249.13,-60.73"/>
+<polygon fill="#255000" stroke="#255000" points="1249.12,-57.23 1239.11,-60.69 1249.1,-64.23 1249.12,-57.23"/>
+</g>
+<!-- none~make_regridder_from_grids -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_node6" class="node">
+<title>none~make_regridder_from_grids</title>
+<g id="a_proc~~readtilefilenc_file~~CalledByGraph_node6"><a xlink:href=".././type/regriddermanager.html#boundprocedure-make_regridder_from_grids" xlink:title="MAPL_RegridderManager_private::RegridderManager%make_regridder_from_grids">
+<polygon fill="#a7506f" stroke="#a7506f" points="879,-66 427,-66 427,-42 879,-42 879,-66"/>
+<text text-anchor="middle" x="653" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RegridderManager_private::RegridderManager%make_regridder_from_grids</text>
+</a>
+</g>
+</g>
+<!-- none~make_regridder_from_grids&#45;&gt;none~initialize~6 -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_edge5" class="edge">
+<title>none~make_regridder_from_grids&#45;&gt;none~initialize~6</title>
+<path fill="none" stroke="#255000" d="M879.21,-54C887.73,-54 896.21,-54 904.61,-54"/>
+<polygon fill="#255000" stroke="#255000" points="904.81,-57.5 914.81,-54 904.81,-50.5 904.81,-57.5"/>
+</g>
+<!-- none~make_regridder -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_node7" class="node">
+<title>none~make_regridder</title>
+<g id="a_proc~~readtilefilenc_file~~CalledByGraph_node7"><a xlink:href=".././type/regriddermanager.html#boundprocedure-make_regridder" xlink:title="MAPL_RegridderManager_private::RegridderManager%make_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="391,-66 0,-66 0,-42 391,-42 391,-66"/>
+<text text-anchor="middle" x="195.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RegridderManager_private::RegridderManager%make_regridder</text>
+</a>
+</g>
+</g>
+<!-- none~make_regridder&#45;&gt;none~make_regridder_from_grids -->
+<g id="proc~~readtilefilenc_file~~CalledByGraph_edge7" class="edge">
+<title>none~make_regridder&#45;&gt;none~make_regridder_from_grids</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M391.32,-54C399.66,-54 408.05,-54 416.45,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="416.71,-57.5 426.71,-54 416.71,-50.5 416.71,-57.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>                <script>
+                  var panprocreadtilefilenc_fileCalledByGraph = svgPanZoom('#procreadtilefilenc_fileCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -489,11 +558,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -512,23 +581,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -548,132 +623,101 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/readtilefilenc_file.html#src">readTileFileNC_file</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">      </span><span class="k">subroutine  </span><span class="n">readTileFileNC_file</span><span class="p">(</span><span class="n">fName</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fName</span><span class="w"></span>
-<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine  </span><span class="n">readTileFileNC_file</span><span class="p">(</span><span class="n">fName</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fName</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fID</span><span class="w"></span>
-<span class="w">      </span><span class="kt">Real</span><span class="p">(</span><span class="nb">Kind</span><span class="o">=</span><span class="n">sp</span><span class="p">),</span><span class="k">Allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RTemp</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">Integer</span><span class="p">,</span><span class="k">Allocatable</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">Integer</span><span class="p">,</span><span class="k">Allocatable</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">IITemp</span><span class="p">(:),</span><span class="w"> </span><span class="n">JJTemp</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">nGrids</span><span class="p">,</span><span class="w"> </span><span class="n">gridInIdx</span><span class="p">,</span><span class="w"> </span><span class="n">iX</span><span class="p">,</span><span class="w"> </span><span class="n">iY</span><span class="p">,</span><span class="w"> </span><span class="n">iG</span><span class="w"></span>
-<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">iGrid</span><span class="p">,</span><span class="w"> </span><span class="n">iFace</span><span class="w"></span>
-<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">nDimIn</span><span class="p">,</span><span class="w"> </span><span class="n">nDimOut</span><span class="w"></span>
-<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fID</span>
+<span class="w">      </span><span class="kt">Real</span><span class="p">(</span><span class="nb">Kind</span><span class="o">=</span><span class="n">sp</span><span class="p">),</span><span class="k">Allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RTemp</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="p">,</span><span class="k">Allocatable</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="p">,</span><span class="k">Allocatable</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">IITemp</span><span class="p">(:),</span><span class="w"> </span><span class="n">JJTemp</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">nGrids</span><span class="p">,</span><span class="w"> </span><span class="n">gridInIdx</span><span class="p">,</span><span class="w"> </span><span class="n">iX</span><span class="p">,</span><span class="w"> </span><span class="n">iY</span><span class="p">,</span><span class="w"> </span><span class="n">iG</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">iGrid</span><span class="p">,</span><span class="w"> </span><span class="n">iFace</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">nDimIn</span><span class="p">,</span><span class="w"> </span><span class="n">nDimOut</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 
 <span class="w">      </span><span class="c">! Expected grid sizes</span>
 <span class="w">      </span><span class="c">!Integer                   :: resIn(2), resOut(2)</span>
 
 <span class="w">      </span><span class="c">! Grid sizes on file</span>
-<span class="w">      </span><span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Open NetCDF file</span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_Open</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">fName</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="n">NF90_NOWRITE</span><span class="p">,</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="n">RC</span><span class="p">,</span><span class="s1">&#39;readTileFileNC&#39;</span><span class="p">,</span><span class="s1">&#39;Open tile file&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_Open</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">fName</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="n">NF90_NOWRITE</span><span class="p">,</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="n">RC</span><span class="p">,</span><span class="s1">&#39;readTileFileNC&#39;</span><span class="p">,</span><span class="s1">&#39;Open tile file&#39;</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! How many weights are there?</span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_DIMID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n_s&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_DIMID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n_s&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
 <span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">RC</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
-<span class="k">         </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="o">=</span><span class="n">nWeight</span><span class="p">)</span><span class="w"></span>
+<span class="k">         </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="o">=</span><span class="n">nWeight</span><span class="p">)</span>
 <span class="w">      </span><span class="k">End If</span>
-<span class="k">      Call </span><span class="n">Assert</span><span class="p">(</span><span class="n">RC</span><span class="p">,</span><span class="s1">&#39;readTileFileNC&#39;</span><span class="p">,</span><span class="s1">&#39;Get weight count&#39;</span><span class="p">,</span><span class="n">fID</span><span class="p">)</span><span class="w"></span>
+<span class="k">      Call </span><span class="n">Assert</span><span class="p">(</span><span class="n">RC</span><span class="p">,</span><span class="s1">&#39;readTileFileNC&#39;</span><span class="p">,</span><span class="s1">&#39;Get weight count&#39;</span><span class="p">,</span><span class="n">fID</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Allocate the arrays</span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">II_In</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">JJ_In</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">II_Out</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">JJ_Out</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">W</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">II_In</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">JJ_In</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">II_Out</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">JJ_Out</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">W</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
 
 <span class="w">      </span><span class="c">! Each Tempest tile file connects two grids</span>
-<span class="w">      </span><span class="n">nGrids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="w">      </span><span class="n">nGrids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
 
 <span class="w">      </span><span class="c">! Determine the input and output dimensions</span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_DIMID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;src_grid_rank&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="o">=</span><span class="n">nDimIn</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">(</span><span class="n">nDimIn</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;src_grid_dims&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">ITemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nDimIn</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nDimIn</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">nDimIn</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span><span class="w"></span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_DIMID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;src_grid_rank&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="o">=</span><span class="n">nDimIn</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">(</span><span class="n">nDimIn</span><span class="p">))</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;src_grid_dims&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">ITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nDimIn</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nDimIn</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">nDimIn</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
 <span class="w">         </span><span class="c">! Cubed-sphere grid</span>
-<span class="w">         </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Int</span><span class="p">(</span><span class="nb">sqrt</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">I</span><span class="o">/</span><span class="mi">6</span><span class="p">)))</span><span class="w"></span>
-<span class="w">         </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">6</span><span class="w"></span>
+<span class="w">         </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Int</span><span class="p">(</span><span class="nb">sqrt</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">I</span><span class="o">/</span><span class="mi">6</span><span class="p">)))</span>
+<span class="w">         </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">6</span>
 <span class="w">      </span><span class="k">End If</span>
 
-<span class="k">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_DIMID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;dst_grid_rank&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="o">=</span><span class="n">nDimOut</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">(</span><span class="n">nDimOut</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;dst_grid_dims&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">ITemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nDimOut</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nDimOut</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">nDimOut</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span><span class="w"></span>
+<span class="k">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_DIMID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;dst_grid_rank&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">dimid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="o">=</span><span class="n">nDimOut</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">(</span><span class="n">nDimOut</span><span class="p">))</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;dst_grid_dims&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">ITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nDimOut</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nDimOut</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">nDimOut</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
 <span class="w">         </span><span class="c">! Cubed-sphere grid</span>
-<span class="w">         </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Int</span><span class="p">(</span><span class="nb">sqrt</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">I</span><span class="o">/</span><span class="mi">6</span><span class="p">)))</span><span class="w"></span>
-<span class="w">         </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">6</span><span class="w"></span>
-<span class="w">      </span><span class="k">End If</span><span class="w"></span>
+<span class="w">         </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Int</span><span class="p">(</span><span class="nb">sqrt</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">I</span><span class="o">/</span><span class="mi">6</span><span class="p">)))</span>
+<span class="w">         </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">6</span>
+<span class="w">      </span><span class="k">End If</span>
 
 <span class="c">!$$      ! Get the expected grid sizes</span>
 <span class="c">!$$      Call parseGridName(gridIn,  resIn(1),  resIn(2))</span>
 <span class="c">!$$      Call parseGridName(gridOut, resOut(1), resOut(2))</span>
 <span class="c">!$$</span>
 <span class="w">      </span><span class="c">! Assign nX and nY to match the format used for binary tile file</span>
-<span class="w">      </span><span class="n">nX</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">nY</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">nX</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">nY</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resInFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resOutFile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="c">!$$      If (all(resIn.eq.resInFile).and.all(resOut.eq.resOutFile)) Then</span>
 <span class="c">!$$         ! Matched, and the direction matches</span>
-<span class="w">         </span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
 <span class="c">!$$      Else If (all(resIn.eq.resOutFile).and.all(resOut.eq.resInFile)) Then</span>
 <span class="c">!$$         ! Matched, but for reverse transform</span>
 <span class="c">!$$         gridInIdx = 2</span>
@@ -691,121 +735,121 @@ large graphs.</div>
 <span class="c">!$$      End If</span>
 
 <span class="w">      </span><span class="c">! Allocate temporary arrays</span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">IITemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">JJTemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">RTemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">IITemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">JJTemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">RTemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
 
 <span class="w">      </span><span class="c">! Read data for grid 1</span>
 <span class="w">      </span><span class="c">! X-dim and Y-dim indices</span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;col&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">ITemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">iG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridInIdx</span><span class="w"></span>
-<span class="w">      </span><span class="k">Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nWeight</span><span class="w"></span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;col&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">ITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="n">iG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridInIdx</span>
+<span class="w">      </span><span class="k">Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nWeight</span>
 <span class="w">         </span><span class="c">! Exploit integer division</span>
-<span class="w">         </span><span class="n">iY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">((</span><span class="n">ITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">nX</span><span class="p">(</span><span class="n">iG</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="n">iX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">((</span><span class="n">iY</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nX</span><span class="p">(</span><span class="n">iG</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="n">IITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iX</span><span class="w"></span>
-<span class="w">         </span><span class="n">JJTemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iY</span><span class="w"></span>
+<span class="w">         </span><span class="n">iY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">((</span><span class="n">ITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">nX</span><span class="p">(</span><span class="n">iG</span><span class="p">))</span>
+<span class="w">         </span><span class="n">iX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">((</span><span class="n">iY</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nX</span><span class="p">(</span><span class="n">iG</span><span class="p">))</span>
+<span class="w">         </span><span class="n">IITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iX</span>
+<span class="w">         </span><span class="n">JJTemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iY</span>
 <span class="w">      </span><span class="k">End Do</span>
 <span class="k">      If</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
-<span class="k">         </span><span class="n">II_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span><span class="w"></span>
-<span class="w">         </span><span class="n">JJ_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span><span class="w"></span>
+<span class="k">         </span><span class="n">II_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span>
+<span class="w">         </span><span class="n">JJ_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span>
 <span class="w">      </span><span class="k">Else</span>
-<span class="k">         </span><span class="n">II_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span><span class="w"></span>
-<span class="w">         </span><span class="n">JJ_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span><span class="w"></span>
-<span class="w">      </span><span class="k">End If</span><span class="w"></span>
+<span class="k">         </span><span class="n">II_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span>
+<span class="w">         </span><span class="n">JJ_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span>
+<span class="w">      </span><span class="k">End If</span>
 
 <span class="w">      </span><span class="c">! Read data for grid 2</span>
 <span class="w">      </span><span class="c">! X-dim and Y-dim indices</span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">ITemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">iG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nWeight</span><span class="w"></span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">ITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="n">iG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nWeight</span>
 <span class="w">         </span><span class="c">! Exploit integer division</span>
-<span class="w">         </span><span class="n">iY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">((</span><span class="n">ITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">nX</span><span class="p">(</span><span class="n">iG</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="n">iX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">((</span><span class="n">iY</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nX</span><span class="p">(</span><span class="n">iG</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="n">IITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iX</span><span class="w"></span>
-<span class="w">         </span><span class="n">JJTemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iY</span><span class="w"></span>
+<span class="w">         </span><span class="n">iY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">((</span><span class="n">ITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">nX</span><span class="p">(</span><span class="n">iG</span><span class="p">))</span>
+<span class="w">         </span><span class="n">iX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">((</span><span class="n">iY</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nX</span><span class="p">(</span><span class="n">iG</span><span class="p">))</span>
+<span class="w">         </span><span class="n">IITemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iX</span>
+<span class="w">         </span><span class="n">JJTemp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iY</span>
 <span class="w">      </span><span class="k">End Do</span>
 <span class="k">      If</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
-<span class="k">         </span><span class="n">II_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span><span class="w"></span>
-<span class="w">         </span><span class="n">JJ_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span><span class="w"></span>
+<span class="k">         </span><span class="n">II_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span>
+<span class="w">         </span><span class="n">JJ_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span>
 <span class="w">      </span><span class="k">Else</span>
-<span class="k">         </span><span class="n">II_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span><span class="w"></span>
-<span class="w">         </span><span class="n">JJ_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span><span class="w"></span>
-<span class="w">      </span><span class="k">End If</span><span class="w"></span>
+<span class="k">         </span><span class="n">II_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span>
+<span class="w">         </span><span class="n">JJ_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span>
+<span class="w">      </span><span class="k">End If</span>
 
 <span class="w">      </span><span class="c">! Weights</span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;S&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">RTemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">W</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RTemp</span><span class="w"></span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;S&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">RTemp</span><span class="p">)</span>
+<span class="w">      </span><span class="n">W</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RTemp</span>
 
 <span class="w">      </span><span class="c">! Close the tile file</span>
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_CLOSE</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_CLOSE</span><span class="p">(</span><span class="n">ncid</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span>
 
 <span class="w">      </span><span class="c">! Remap the cube faces</span>
-<span class="w">      </span><span class="k">Do </span><span class="n">iGrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nGrids</span><span class="w"></span>
-<span class="w">         </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">)</span><span class="o">==</span><span class="p">(</span><span class="mi">6</span><span class="o">*</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">)))</span><span class="w"> </span><span class="k">Then</span><span class="w"></span>
+<span class="w">      </span><span class="k">Do </span><span class="n">iGrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nGrids</span>
+<span class="w">         </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">)</span><span class="o">==</span><span class="p">(</span><span class="mi">6</span><span class="o">*</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">)))</span><span class="w"> </span><span class="k">Then</span>
 <span class="w">            </span><span class="c">! Assume this is a CS resolution</span>
 <span class="w">            </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">iGrid</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
-<span class="k">               </span><span class="n">IITemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">II_In</span><span class="w"></span>
-<span class="w">               </span><span class="n">JJTemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJ_In</span><span class="w"></span>
+<span class="k">               </span><span class="n">IITemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">II_In</span>
+<span class="w">               </span><span class="n">JJTemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJ_In</span>
 <span class="w">            </span><span class="k">Else</span>
-<span class="k">               </span><span class="n">IITemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">II_Out</span><span class="w"></span>
-<span class="w">               </span><span class="n">JJTemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJ_Out</span><span class="w"></span>
-<span class="w">            </span><span class="k">End If</span><span class="w"></span>
+<span class="k">               </span><span class="n">IITemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">II_Out</span>
+<span class="w">               </span><span class="n">JJTemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJ_Out</span>
+<span class="w">            </span><span class="k">End If</span>
 <span class="w">            </span><span class="c">! Re-order faces to match GMAO conventions</span>
-<span class="w">            </span><span class="k">Call </span><span class="n">swapCS</span><span class="p">(</span><span class="n">IITemp</span><span class="p">,</span><span class="n">JJTemp</span><span class="p">,</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nWeight</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">Call </span><span class="n">swapCS</span><span class="p">(</span><span class="n">IITemp</span><span class="p">,</span><span class="n">JJTemp</span><span class="p">,</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nWeight</span><span class="p">)</span>
 <span class="w">            </span><span class="c">! Flip face 6 in both II and JJ</span>
-<span class="w">            </span><span class="k">Call </span><span class="n">flipCS</span><span class="p">(</span><span class="n">IITemp</span><span class="p">,</span><span class="n">JJTemp</span><span class="p">,</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nWeight</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">Call </span><span class="n">flipCS</span><span class="p">(</span><span class="n">IITemp</span><span class="p">,</span><span class="n">JJTemp</span><span class="p">,</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nWeight</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
 <span class="w">            </span><span class="c">! Transpose faces 3-5 and flip their II indices</span>
-<span class="w">            </span><span class="k">Do </span><span class="n">iFace</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="w"></span>
-<span class="w">               </span><span class="k">Call </span><span class="n">transposeCS</span><span class="p">(</span><span class="n">IITemp</span><span class="p">,</span><span class="n">JJTemp</span><span class="p">,</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nWeight</span><span class="p">,</span><span class="n">iFace</span><span class="p">)</span><span class="w"></span>
-<span class="w">               </span><span class="k">Call </span><span class="n">flipCS</span><span class="p">(</span><span class="n">IITemp</span><span class="p">,</span><span class="n">JJTemp</span><span class="p">,</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nWeight</span><span class="p">,</span><span class="n">iFace</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="k">End Do</span><span class="w"></span>
+<span class="w">            </span><span class="k">Do </span><span class="n">iFace</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span>
+<span class="w">               </span><span class="k">Call </span><span class="n">transposeCS</span><span class="p">(</span><span class="n">IITemp</span><span class="p">,</span><span class="n">JJTemp</span><span class="p">,</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nWeight</span><span class="p">,</span><span class="n">iFace</span><span class="p">)</span>
+<span class="w">               </span><span class="k">Call </span><span class="n">flipCS</span><span class="p">(</span><span class="n">IITemp</span><span class="p">,</span><span class="n">JJTemp</span><span class="p">,</span><span class="n">nX</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="n">iGrid</span><span class="p">),</span><span class="n">nWeight</span><span class="p">,</span><span class="n">iFace</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="k">End Do</span>
 <span class="w">            </span><span class="c">! Reassign</span>
 <span class="w">            </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">iGrid</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
-<span class="k">               </span><span class="n">II_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span><span class="w"></span>
-<span class="w">               </span><span class="n">JJ_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span><span class="w"></span>
+<span class="k">               </span><span class="n">II_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span>
+<span class="w">               </span><span class="n">JJ_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span>
 <span class="w">            </span><span class="k">Else</span>
-<span class="k">               </span><span class="n">II_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span><span class="w"></span>
-<span class="w">               </span><span class="n">JJ_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span><span class="w"></span>
+<span class="k">               </span><span class="n">II_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IITemp</span>
+<span class="w">               </span><span class="n">JJ_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJTemp</span>
 <span class="w">            </span><span class="k">End If</span>
 <span class="k">         EndIf</span>
-<span class="k">      EndDo</span><span class="w"></span>
+<span class="k">      EndDo</span>
 
 <span class="cp">#undef CSREGRID_DEBUG</span>
 <span class="cp">#if defined ( CSREGRID_DEBUG )</span>
-<span class="w">      </span><span class="k">Write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(a,I12)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;Writing out data. Count: &#39;</span><span class="p">,</span><span class="n">nWeight</span><span class="w"></span>
-<span class="w">      </span><span class="k">Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nWeight</span><span class="w"></span>
-<span class="w">         </span><span class="k">Write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(I12,4(x,I12),x,E16.5E4)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="n">II_In</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="n">JJ_In</span><span class="p">(</span><span class="n">I</span><span class="p">),&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="n">II_Out</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">JJ_Out</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">W</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">End Do</span><span class="w"></span>
+<span class="w">      </span><span class="k">Write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(a,I12)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;Writing out data. Count: &#39;</span><span class="p">,</span><span class="n">nWeight</span>
+<span class="w">      </span><span class="k">Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nWeight</span>
+<span class="w">         </span><span class="k">Write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(I12,4(x,I12),x,E16.5E4)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="n">II_In</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="n">JJ_In</span><span class="p">(</span><span class="n">I</span><span class="p">),&amp;</span>
+<span class="w">           </span><span class="n">II_Out</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">JJ_Out</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">W</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="k">End Do</span>
 <span class="cp">#endif</span>
 
 <span class="w">      </span><span class="c">! Allocate the counting variable</span>
 <span class="w">      </span><span class="c">! nX and nY already swapped</span>
-<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">outSum</span><span class="p">(</span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span><span class="w"></span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">outSum</span><span class="p">(</span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
 
 <span class="w">      </span><span class="c">! Deallocate temporary arrays</span>
-<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">IITemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">JJTemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">RTemp</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">IITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">JJTemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">RTemp</span><span class="p">)</span>
 
-<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 
 <span class="w">      </span><span class="c">! Error check</span>
-<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">((</span><span class="nb">MinVal</span><span class="p">(</span><span class="n">II_In</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">).</span><span class="nb">or</span><span class="p">.(</span><span class="nb">MinVal</span><span class="p">(</span><span class="n">II_Out</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">).</span><span class="nb">or</span><span class="p">.&amp;</span><span class="w"></span>
-<span class="w">          </span><span class="p">(</span><span class="nb">MinVal</span><span class="p">(</span><span class="n">JJ_In</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">).</span><span class="nb">or</span><span class="p">.(</span><span class="nb">MinVal</span><span class="p">(</span><span class="n">JJ_Out</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">5</span><span class="w"></span>
-<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">((</span><span class="nb">MaxVal</span><span class="p">(</span><span class="n">II_In</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="n">nX</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="nb">or</span><span class="p">.&amp;</span><span class="w"></span>
-<span class="w">          </span><span class="p">(</span><span class="nb">MaxVal</span><span class="p">(</span><span class="n">II_Out</span><span class="p">)</span><span class="o">&gt;</span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">)).</span><span class="nb">or</span><span class="p">.&amp;</span><span class="w"></span>
-<span class="w">          </span><span class="p">(</span><span class="nb">MaxVal</span><span class="p">(</span><span class="n">JJ_In</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="n">nY</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="nb">or</span><span class="p">.&amp;</span><span class="w"></span>
-<span class="w">          </span><span class="p">(</span><span class="nb">MaxVal</span><span class="p">(</span><span class="n">JJ_Out</span><span class="p">)</span><span class="o">&gt;</span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">15</span><span class="w"></span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">((</span><span class="nb">MinVal</span><span class="p">(</span><span class="n">II_In</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">).</span><span class="nb">or</span><span class="p">.(</span><span class="nb">MinVal</span><span class="p">(</span><span class="n">II_Out</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">).</span><span class="nb">or</span><span class="p">.&amp;</span>
+<span class="w">          </span><span class="p">(</span><span class="nb">MinVal</span><span class="p">(</span><span class="n">JJ_In</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">).</span><span class="nb">or</span><span class="p">.(</span><span class="nb">MinVal</span><span class="p">(</span><span class="n">JJ_Out</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">5</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">((</span><span class="nb">MaxVal</span><span class="p">(</span><span class="n">II_In</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="n">nX</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="nb">or</span><span class="p">.&amp;</span>
+<span class="w">          </span><span class="p">(</span><span class="nb">MaxVal</span><span class="p">(</span><span class="n">II_Out</span><span class="p">)</span><span class="o">&gt;</span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">)).</span><span class="nb">or</span><span class="p">.&amp;</span>
+<span class="w">          </span><span class="p">(</span><span class="nb">MaxVal</span><span class="p">(</span><span class="n">JJ_In</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="n">nY</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="nb">or</span><span class="p">.&amp;</span>
+<span class="w">          </span><span class="p">(</span><span class="nb">MaxVal</span><span class="p">(</span><span class="n">JJ_Out</span><span class="p">)</span><span class="o">&gt;</span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">15</span>
 
 
-<span class="w">      </span><span class="k">end subroutine </span><span class="n">readTileFileNC_file</span><span class="w"></span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">readTileFileNC_file</span>
 </pre></div>
 
     </section>
@@ -818,32 +862,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

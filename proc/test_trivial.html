@@ -10,85 +10,58 @@
 
     <title>test_trivial &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">15 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">15 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/test_DistributedMeter.pf"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_distributedmeter.pf.html'>test_DistributedMeter.pf</a></li>
-              <li><a href='../module/test_distributedmeter.html'>test_DistributedMeter</a></li>
-          <li class="active">test_trivial</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_distributedmeter.pf.html'>test_DistributedMeter.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_distributedmeter.html'>test_DistributedMeter</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_trivial</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/test_trivial.html#src">test_trivial</a>
       </div>
@@ -174,16 +152,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~3744"></span>
+              <span class="anchor" id="variable-this~3736"></span>
               class(MpiTestMethod),
             </td>
 <td>intent(inout)</td>
@@ -200,92 +178,240 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~test_trivial~~CallsGraph Pages: 1 -->
-<svg id="proctest_trivialCallsGraph" width="361pt" height="200pt"
- viewBox="0.00 0.00 361.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~test_trivial~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<svg id="proctest_trivialCallsGraph" width="641pt" height="177pt"
+ viewBox="0.00 0.00 641.00 177.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_trivial~~CallsGraph" class="graph" transform="scale(2.05 2.05) rotate(0) translate(4 358)">
 <title>proc~~test_trivial~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 357,-196 357,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-358 1307,-358 1307,4 -4,4"/>
 <!-- proc~test_trivial -->
 <g id="proc~~test_trivial~~CallsGraph_node1" class="node">
 <title>proc~test_trivial</title>
-<polygon fill="none" stroke="black" points="189,-108 0,-108 0,-84 189,-84 189,-108"/>
-<text text-anchor="middle" x="94.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_DistributedMeter::test_trivial</text>
-</g>
-<!-- add_cycle -->
-<g id="proc~~test_trivial~~CallsGraph_node2" class="node">
-<title>add_cycle</title>
-<polygon fill="#777777" stroke="#777777" points="322,-192 256,-192 256,-168 322,-168 322,-192"/>
-<text text-anchor="middle" x="289" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_cycle</text>
-</g>
-<!-- proc~test_trivial&#45;&gt;add_cycle -->
-<g id="proc~~test_trivial~~CallsGraph_edge1" class="edge">
-<title>proc~test_trivial&#45;&gt;add_cycle</title>
-<path fill="none" stroke="#255000" d="M118.01,-108.07C143.53,-121.49 186.57,-143.33 225,-159 231.83,-161.78 239.17,-164.49 246.35,-166.98"/>
-<polygon fill="#255000" stroke="#255000" points="245.38,-170.34 255.98,-170.23 247.62,-163.71 245.38,-170.34"/>
+<polygon fill="none" stroke="black" points="189,-270 0,-270 0,-246 189,-246 189,-270"/>
+<text text-anchor="middle" x="94.5" y="-255.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_DistributedMeter::test_trivial</text>
 </g>
 <!-- assertequal -->
-<g id="proc~~test_trivial~~CallsGraph_node3" class="node">
+<g id="proc~~test_trivial~~CallsGraph_node2" class="node">
 <title>assertequal</title>
-<polygon fill="#777777" stroke="#777777" points="326.5,-150 251.5,-150 251.5,-126 326.5,-126 326.5,-150"/>
-<text text-anchor="middle" x="289" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+<polygon fill="#777777" stroke="#777777" points="422,-354 347,-354 347,-330 422,-330 422,-354"/>
+<text text-anchor="middle" x="384.5" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
 </g>
 <!-- proc~test_trivial&#45;&gt;assertequal -->
-<g id="proc~~test_trivial~~CallsGraph_edge2" class="edge">
+<g id="proc~~test_trivial~~CallsGraph_edge1" class="edge">
 <title>proc~test_trivial&#45;&gt;assertequal</title>
-<path fill="none" stroke="#255000" d="M150.66,-108.04C179.33,-114.29 213.99,-121.85 241.31,-127.81"/>
-<polygon fill="#255000" stroke="#255000" points="240.88,-131.3 251.4,-130.01 242.37,-124.46 240.88,-131.3"/>
-</g>
-<!-- get_stats_total -->
-<g id="proc~~test_trivial~~CallsGraph_node4" class="node">
-<title>get_stats_total</title>
-<polygon fill="#777777" stroke="#777777" points="333.5,-108 244.5,-108 244.5,-84 333.5,-84 333.5,-108"/>
-<text text-anchor="middle" x="289" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_stats_total</text>
-</g>
-<!-- proc~test_trivial&#45;&gt;get_stats_total -->
-<g id="proc~~test_trivial~~CallsGraph_edge3" class="edge">
-<title>proc~test_trivial&#45;&gt;get_stats_total</title>
-<path fill="none" stroke="#255000" d="M189.21,-96C204.6,-96 220.08,-96 234.07,-96"/>
-<polygon fill="#255000" stroke="#255000" points="234.45,-99.5 244.45,-96 234.45,-92.5 234.45,-99.5"/>
+<path fill="none" stroke="#255000" d="M115.31,-270.15C140.03,-284.71 184.06,-308.68 225,-321 261.7,-332.04 304.91,-337.28 336.94,-339.77"/>
+<polygon fill="#255000" stroke="#255000" points="336.7,-343.26 346.92,-340.48 337.2,-336.27 336.7,-343.26"/>
 </g>
 <!-- getmpicommunicator -->
-<g id="proc~~test_trivial~~CallsGraph_node5" class="node">
+<g id="proc~~test_trivial~~CallsGraph_node3" class="node">
 <title>getmpicommunicator</title>
-<polygon fill="#777777" stroke="#777777" points="353,-66 225,-66 225,-42 353,-42 353,-66"/>
-<text text-anchor="middle" x="289" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getmpicommunicator</text>
+<polygon fill="#777777" stroke="#777777" points="448.5,-312 320.5,-312 320.5,-288 448.5,-288 448.5,-312"/>
+<text text-anchor="middle" x="384.5" y="-297.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getmpicommunicator</text>
 </g>
 <!-- proc~test_trivial&#45;&gt;getmpicommunicator -->
-<g id="proc~~test_trivial~~CallsGraph_edge4" class="edge">
+<g id="proc~~test_trivial~~CallsGraph_edge2" class="edge">
 <title>proc~test_trivial&#45;&gt;getmpicommunicator</title>
-<path fill="none" stroke="#255000" d="M150.66,-83.96C173.22,-79.04 199.47,-73.31 222.96,-68.19"/>
-<polygon fill="#255000" stroke="#255000" points="223.81,-71.59 232.83,-66.04 222.31,-64.75 223.81,-71.59"/>
+<path fill="none" stroke="#255000" d="M167.37,-270.03C186.11,-273.07 206.3,-276.25 225,-279 252.76,-283.09 283.31,-287.22 310.12,-290.73"/>
+<polygon fill="#255000" stroke="#255000" points="309.83,-294.22 320.2,-292.04 310.73,-287.28 309.83,-294.22"/>
 </g>
-<!-- reduce -->
+<!-- none~add_cycle -->
+<g id="proc~~test_trivial~~CallsGraph_node4" class="node">
+<title>none~add_cycle</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node4"><a xlink:href=".././type/advancedmeter.html#boundprocedure-add_cycle" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%add_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="526,-270 243,-270 243,-246 526,-246 526,-270"/>
+<text text-anchor="middle" x="384.5" y="-255.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%add_cycle</text>
+</a>
+</g>
+</g>
+<!-- proc~test_trivial&#45;&gt;none~add_cycle -->
+<g id="proc~~test_trivial~~CallsGraph_edge3" class="edge">
+<title>proc~test_trivial&#45;&gt;none~add_cycle</title>
+<path fill="none" stroke="#255000" d="M189.01,-258C203.02,-258 217.76,-258 232.6,-258"/>
+<polygon fill="#255000" stroke="#255000" points="232.88,-261.5 242.88,-258 232.88,-254.5 232.88,-261.5"/>
+</g>
+<!-- none~get_stats_total -->
+<g id="proc~~test_trivial~~CallsGraph_node5" class="node">
+<title>none~get_stats_total</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node5"><a xlink:href=".././type/distributedmeter.html#boundprocedure-get_stats_total" xlink:title="MAPL_DistributedMeter::DistributedMeter%get_stats_total">
+<polygon fill="#a7506f" stroke="#a7506f" points="544,-228 225,-228 225,-204 544,-204 544,-228"/>
+<text text-anchor="middle" x="384.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistributedMeter::DistributedMeter%get_stats_total</text>
+</a>
+</g>
+</g>
+<!-- proc~test_trivial&#45;&gt;none~get_stats_total -->
+<g id="proc~~test_trivial~~CallsGraph_edge4" class="edge">
+<title>proc~test_trivial&#45;&gt;none~get_stats_total</title>
+<path fill="none" stroke="#255000" d="M167.37,-245.97C186.11,-242.93 206.3,-239.75 225,-237 242.49,-234.42 261.1,-231.83 279.17,-229.38"/>
+<polygon fill="#255000" stroke="#255000" points="279.7,-232.84 289.15,-228.04 278.77,-225.91 279.7,-232.84"/>
+</g>
+<!-- none~reduce~2 -->
 <g id="proc~~test_trivial~~CallsGraph_node6" class="node">
-<title>reduce</title>
-<polygon fill="#777777" stroke="#777777" points="316,-24 262,-24 262,0 316,0 316,-24"/>
-<text text-anchor="middle" x="289" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">reduce</text>
+<title>none~reduce~2</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node6"><a xlink:href=".././type/distributedmeter.html#boundprocedure-reduce~2" xlink:title="MAPL_DistributedMeter::DistributedMeter%reduce">
+<polygon fill="#a7506f" stroke="#a7506f" points="524,-176 245,-176 245,-152 524,-152 524,-176"/>
+<text text-anchor="middle" x="384.5" y="-161.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistributedMeter::DistributedMeter%reduce</text>
+</a>
 </g>
-<!-- proc~test_trivial&#45;&gt;reduce -->
+</g>
+<!-- proc~test_trivial&#45;&gt;none~reduce~2 -->
 <g id="proc~~test_trivial~~CallsGraph_edge5" class="edge">
-<title>proc~test_trivial&#45;&gt;reduce</title>
-<path fill="none" stroke="#255000" d="M118.01,-83.93C143.53,-70.51 186.57,-48.67 225,-33 233.78,-29.42 243.42,-25.97 252.47,-22.94"/>
-<polygon fill="#255000" stroke="#255000" points="253.56,-26.27 261.97,-19.83 251.38,-19.61 253.56,-26.27"/>
+<title>proc~test_trivial&#45;&gt;none~reduce~2</title>
+<path fill="none" stroke="#255000" d="M116.32,-245.76C141.33,-231.57 184.93,-208.41 225,-195 245.87,-188.02 268.84,-182.4 290.66,-177.97"/>
+<polygon fill="#255000" stroke="#255000" points="291.45,-181.38 300.59,-176.02 290.1,-174.51 291.45,-181.38"/>
+</g>
+<!-- none~get_mean_cycle -->
+<g id="proc~~test_trivial~~CallsGraph_node7" class="node">
+<title>none~get_mean_cycle</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node7"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_mean_cycle" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_mean_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="896,-273 580,-273 580,-249 896,-249 896,-273"/>
+<text text-anchor="middle" x="738" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_mean_cycle</text>
+</a>
+</g>
+</g>
+<!-- none~add_cycle&#45;&gt;none~get_mean_cycle -->
+<g id="proc~~test_trivial~~CallsGraph_edge6" class="edge">
+<title>none~add_cycle&#45;&gt;none~get_mean_cycle</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M526.19,-259.2C540.55,-259.32 555.24,-259.45 569.85,-259.57"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="569.92,-263.07 579.95,-259.66 569.98,-256.07 569.92,-263.07"/>
+</g>
+<!-- none~reduce_mpi -->
+<g id="proc~~test_trivial~~CallsGraph_node8" class="node">
+<title>none~reduce_mpi</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node8"><a xlink:href=".././type/distributedmeter.html#boundprocedure-reduce_mpi" xlink:title="MAPL_DistributedMeter::DistributedMeter%reduce_mpi">
+<polygon fill="#a7506f" stroke="#a7506f" points="890,-155 586,-155 586,-131 890,-131 890,-155"/>
+<text text-anchor="middle" x="738" y="-140.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistributedMeter::DistributedMeter%reduce_mpi</text>
+</a>
+</g>
+</g>
+<!-- none~reduce~2&#45;&gt;none~reduce_mpi -->
+<g id="proc~~test_trivial~~CallsGraph_edge7" class="edge">
+<title>none~reduce~2&#45;&gt;none~reduce_mpi</title>
+<path fill="none" stroke="#204025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M524.17,-155.72C541.1,-154.7 558.52,-153.66 575.74,-152.63"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="576.09,-156.12 585.86,-152.03 575.67,-149.13 576.09,-156.12"/>
+</g>
+<!-- none~get_num_cycles -->
+<g id="proc~~test_trivial~~CallsGraph_node13" class="node">
+<title>none~get_num_cycles</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node13"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_num_cycles" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_num_cycles">
+<polygon fill="#a7506f" stroke="#a7506f" points="1275,-276 960,-276 960,-252 1275,-252 1275,-276"/>
+<text text-anchor="middle" x="1117.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_num_cycles</text>
+</a>
+</g>
+</g>
+<!-- none~get_mean_cycle&#45;&gt;none~get_num_cycles -->
+<g id="proc~~test_trivial~~CallsGraph_edge8" class="edge">
+<title>none~get_mean_cycle&#45;&gt;none~get_num_cycles</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M896.09,-262.25C913.69,-262.39 931.66,-262.53 949.38,-262.67"/>
+<polygon fill="#255000" stroke="#255000" points="949.76,-266.17 959.78,-262.75 949.81,-259.18 949.76,-266.17"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~test_trivial~~CallsGraph_node9" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="1168,-234 1067,-234 1067,-210 1168,-210 1168,-234"/>
+<text text-anchor="middle" x="1117.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- none~reduce_mpi&#45;&gt;mpi_comm_rank -->
+<g id="proc~~test_trivial~~CallsGraph_edge9" class="edge">
+<title>none~reduce_mpi&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M772.35,-155.01C810.46,-168.27 874.94,-189.28 932,-201 973.1,-209.44 1020.1,-214.73 1056.37,-217.89"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1056.53,-221.41 1066.79,-218.76 1057.11,-214.44 1056.53,-221.41"/>
+</g>
+<!-- mpi_reduce -->
+<g id="proc~~test_trivial~~CallsGraph_node10" class="node">
+<title>mpi_reduce</title>
+<polygon fill="#777777" stroke="#777777" points="1155,-192 1080,-192 1080,-168 1155,-168 1155,-192"/>
+<text text-anchor="middle" x="1117.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_reduce</text>
+</g>
+<!-- none~reduce_mpi&#45;&gt;mpi_reduce -->
+<g id="proc~~test_trivial~~CallsGraph_edge10" class="edge">
+<title>none~reduce_mpi&#45;&gt;mpi_reduce</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M861.56,-155.01C932.66,-161.98 1018.11,-170.36 1069.81,-175.42"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1069.71,-178.93 1080,-176.42 1070.39,-171.96 1069.71,-178.93"/>
+</g>
+<!-- none~get_max_cycle -->
+<g id="proc~~test_trivial~~CallsGraph_node11" class="node">
+<title>none~get_max_cycle</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node11"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_max_cycle" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_max_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="1272,-150 963,-150 963,-126 1272,-126 1272,-150"/>
+<text text-anchor="middle" x="1117.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_max_cycle</text>
+</a>
+</g>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_max_cycle -->
+<g id="proc~~test_trivial~~CallsGraph_edge11" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_max_cycle</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M890.1,-141C910.65,-140.73 931.81,-140.45 952.58,-140.17"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="952.78,-143.67 962.73,-140.04 952.69,-136.67 952.78,-143.67"/>
+</g>
+<!-- none~get_min_cycle -->
+<g id="proc~~test_trivial~~CallsGraph_node12" class="node">
+<title>none~get_min_cycle</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node12"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_min_cycle" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_min_cycle">
+<polygon fill="#a7506f" stroke="#a7506f" points="1270.5,-108 964.5,-108 964.5,-84 1270.5,-84 1270.5,-108"/>
+<text text-anchor="middle" x="1117.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_min_cycle</text>
+</a>
+</g>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_min_cycle -->
+<g id="proc~~test_trivial~~CallsGraph_edge12" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_min_cycle</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M825.42,-130.97C858.71,-126.44 897.11,-121.34 932,-117 953.22,-114.36 975.84,-111.68 997.7,-109.16"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="998.14,-112.63 1007.68,-108.01 997.34,-105.68 998.14,-112.63"/>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_num_cycles -->
+<g id="proc~~test_trivial~~CallsGraph_edge13" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_num_cycles</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M756.67,-155C789.55,-176.67 863.05,-222 932,-243 940.4,-245.56 949.11,-247.81 957.95,-249.79"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="957.48,-253.27 967.99,-251.92 958.93,-246.42 957.48,-253.27"/>
+</g>
+<!-- none~get_sum_square_deviation -->
+<g id="proc~~test_trivial~~CallsGraph_node14" class="node">
+<title>none~get_sum_square_deviation</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node14"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_sum_square_deviation" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_sum_square_deviation">
+<polygon fill="#a7506f" stroke="#a7506f" points="1303,-66 932,-66 932,-42 1303,-42 1303,-66"/>
+<text text-anchor="middle" x="1117.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_sum_square_deviation</text>
+</a>
+</g>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_sum_square_deviation -->
+<g id="proc~~test_trivial~~CallsGraph_edge14" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_sum_square_deviation</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M766.86,-130.94C803.86,-115.44 871.58,-88.89 932,-75 944.27,-72.18 957.09,-69.73 970,-67.6"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="970.56,-71.06 979.89,-66.04 969.46,-64.15 970.56,-71.06"/>
+</g>
+<!-- none~get_total -->
+<g id="proc~~test_trivial~~CallsGraph_node15" class="node">
+<title>none~get_total</title>
+<g id="a_proc~~test_trivial~~CallsGraph_node15"><a xlink:href=".././type/advancedmeter.html#boundprocedure-get_total" xlink:title="MAPL_AdvancedMeter::AdvancedMeter%get_total">
+<polygon fill="#a7506f" stroke="#a7506f" points="1256,-24 979,-24 979,0 1256,0 1256,-24"/>
+<text text-anchor="middle" x="1117.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AdvancedMeter::AdvancedMeter%get_total</text>
+</a>
+</g>
+</g>
+<!-- none~reduce_mpi&#45;&gt;none~get_total -->
+<g id="proc~~test_trivial~~CallsGraph_edge15" class="edge">
+<title>none~reduce_mpi&#45;&gt;none~get_total</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M754.96,-130.86C786.71,-107.42 860.88,-56.23 932,-33 943.73,-29.17 956.07,-26.02 968.59,-23.42"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="969.51,-26.81 978.65,-21.46 968.17,-19.94 969.51,-26.81"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>                <script>
+                  var panproctest_trivialCallsGraph = svgPanZoom('#proctest_trivialCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -302,11 +428,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -325,23 +451,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -361,70 +493,39 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/test_trivial.html#src">test_trivial</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_trivial</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_trivial</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <span class="w"> </span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedMeter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distributed</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedReal64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distributed_total</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedMeter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distributed</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedReal64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distributed_total</span>
 
 
-<span class="w">      </span><span class="n">distributed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DistributedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">())</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">1.0_REAL64</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">reduce</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="mf">0._REAL64</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">distributed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DistributedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">())</span>
+<span class="w">      </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">1.0_REAL64</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">distributed</span><span class="p">%</span><span class="n">reduce</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="mf">0._REAL64</span><span class="p">)</span>
 
-<span class="w">      </span><span class="n">distributed_total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">distributed</span><span class="p">%</span><span class="n">get_stats_total</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="n">total</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="nb">min</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="nb">max</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">distributed_total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">distributed</span><span class="p">%</span><span class="n">get_stats_total</span><span class="p">()</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="n">total</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="nb">min</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="nb">max</span><span class="p">)</span>
 
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="n">min_pe</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="n">max_pe</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="n">num_pes</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="n">min_pe</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="n">max_pe</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">distributed_total</span><span class="p">%</span><span class="n">num_pes</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_trivial</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_trivial</span>
 </pre></div>
 
     </section>
@@ -437,32 +538,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

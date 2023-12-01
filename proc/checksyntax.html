@@ -10,85 +10,58 @@
 
     <title>CheckSyntax &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.2% of total for procedures.">113 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.2% of total for procedures.">113 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/MAPL_NewArthParser.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/mapl_newarthparser.f90.html'>MAPL_NewArthParser.F90</a></li>
-              <li><a href='../module/mapl_newarthparsermod.html'>MAPL_NewArthParserMod</a></li>
-          <li class="active">CheckSyntax</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_newarthparser.f90.html'>MAPL_NewArthParser.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_newarthparsermod.html'>MAPL_NewArthParserMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">CheckSyntax</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/checksyntax.html#src">CheckSyntax</a>
       </div>
@@ -174,11 +152,11 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -243,7 +221,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1337"></span>
+              <span class="anchor" id="variable-rc~1148"></span>
               integer,
             </td>
 <td></td>
@@ -260,87 +238,126 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~checksyntax~~CallsGraph Pages: 1 -->
-<svg id="procchecksyntaxCallsGraph" width="641pt" height="99pt"
- viewBox="0.00 0.00 641.00 98.75" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~checksyntax~~CallsGraph" class="graph" transform="scale(1.17 1.17) rotate(0) translate(4 112)">
+<svg id="procchecksyntaxCallsGraph" width="641pt" height="134pt"
+ viewBox="0.00 0.00 641.00 134.50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~checksyntax~~CallsGraph" class="graph" transform="scale(1.17 1.17) rotate(0) translate(4 154)">
 <title>proc~~checksyntax~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 749,-112 749,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 749,-154 749,4 -4,4"/>
 <!-- proc~checksyntax -->
 <g id="proc~~checksyntax~~CallsGraph_node1" class="node">
 <title>proc~checksyntax</title>
-<polygon fill="none" stroke="black" points="224,-66 0,-66 0,-42 224,-42 224,-66"/>
-<text text-anchor="middle" x="112" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_NewArthParserMod::CheckSyntax</text>
+<polygon fill="none" stroke="black" points="224,-87 0,-87 0,-63 224,-63 224,-87"/>
+<text text-anchor="middle" x="112" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_NewArthParserMod::CheckSyntax</text>
 </g>
 <!-- interface~mapl_assert -->
 <g id="proc~~checksyntax~~CallsGraph_node2" class="node">
 <title>interface~mapl_assert</title>
 <g id="a_proc~~checksyntax~~CallsGraph_node2"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
-<polygon fill="#a7506f" stroke="#a7506f" points="478.5,-108 261.5,-108 261.5,-84 478.5,-84 478.5,-108"/>
-<text text-anchor="middle" x="370" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="478.5,-150 261.5,-150 261.5,-126 478.5,-126 478.5,-150"/>
+<text text-anchor="middle" x="370" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
 </a>
 </g>
 </g>
 <!-- proc~checksyntax&#45;&gt;interface~mapl_assert -->
 <g id="proc~~checksyntax~~CallsGraph_edge1" class="edge">
 <title>proc~checksyntax&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#255000" d="M186.36,-66.04C217.29,-71.11 253.46,-77.04 285.42,-82.29"/>
-<polygon fill="#255000" stroke="#255000" points="285.2,-85.8 295.63,-83.96 286.33,-78.89 285.2,-85.8"/>
+<path fill="none" stroke="#255000" d="M151.75,-87.08C181.25,-96.03 222.95,-108.16 260,-117 270.16,-119.42 280.9,-121.76 291.52,-123.94"/>
+<polygon fill="#255000" stroke="#255000" points="291.15,-127.44 301.64,-125.98 292.53,-120.58 291.15,-127.44"/>
+</g>
+<!-- proc~lowcase -->
+<g id="proc~~checksyntax~~CallsGraph_node3" class="node">
+<title>proc~lowcase</title>
+<g id="a_proc~~checksyntax~~CallsGraph_node3"><a xlink:href=".././proc/lowcase.html" xlink:title="MAPL_NewArthParserMod::LowCase">
+<polygon fill="#d9534f" stroke="#d9534f" points="471,-108 269,-108 269,-84 471,-84 471,-108"/>
+<text text-anchor="middle" x="370" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NewArthParserMod::LowCase</text>
+</a>
+</g>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~lowcase -->
+<g id="proc~~checksyntax~~CallsGraph_edge2" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~lowcase</title>
+<path fill="none" stroke="#255000" d="M224.17,-84.12C235.65,-85.06 247.31,-86.02 258.78,-86.96"/>
+<polygon fill="#255000" stroke="#255000" points="258.55,-90.45 268.8,-87.78 259.12,-83.47 258.55,-90.45"/>
 </g>
 <!-- proc~mapl_return -->
-<g id="proc~~checksyntax~~CallsGraph_node3" class="node">
+<g id="proc~~checksyntax~~CallsGraph_node4" class="node">
 <title>proc~mapl_return</title>
-<g id="a_proc~~checksyntax~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<g id="a_proc~~checksyntax~~CallsGraph_node4"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
 <polygon fill="#d9534f" stroke="#d9534f" points="480,-66 260,-66 260,-42 480,-42 480,-66"/>
 <text text-anchor="middle" x="370" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~checksyntax&#45;&gt;proc~mapl_return -->
-<g id="proc~~checksyntax~~CallsGraph_edge2" class="edge">
+<g id="proc~~checksyntax~~CallsGraph_edge3" class="edge">
 <title>proc~checksyntax&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M224.17,-54C232.7,-54 241.34,-54 249.92,-54"/>
-<polygon fill="#255000" stroke="#255000" points="249.96,-57.5 259.96,-54 249.96,-50.5 249.96,-57.5"/>
+<path fill="none" stroke="#255000" d="M224.17,-65.88C232.7,-65.18 241.34,-64.47 249.92,-63.77"/>
+<polygon fill="#255000" stroke="#255000" points="250.28,-67.25 259.96,-62.94 249.71,-60.27 250.28,-67.25"/>
 </g>
 <!-- proc~realnum -->
-<g id="proc~~checksyntax~~CallsGraph_node4" class="node">
+<g id="proc~~checksyntax~~CallsGraph_node5" class="node">
 <title>proc~realnum</title>
-<g id="a_proc~~checksyntax~~CallsGraph_node4"><a xlink:href=".././proc/realnum.html" xlink:title="MAPL_NewArthParserMod::RealNum">
+<g id="a_proc~~checksyntax~~CallsGraph_node5"><a xlink:href=".././proc/realnum.html" xlink:title="MAPL_NewArthParserMod::RealNum">
 <polygon fill="#d94e8f" stroke="#d94e8f" points="471.5,-24 268.5,-24 268.5,0 471.5,0 471.5,-24"/>
 <text text-anchor="middle" x="370" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NewArthParserMod::RealNum</text>
 </a>
 </g>
 </g>
 <!-- proc~checksyntax&#45;&gt;proc~realnum -->
-<g id="proc~~checksyntax~~CallsGraph_edge3" class="edge">
+<g id="proc~~checksyntax~~CallsGraph_edge4" class="edge">
 <title>proc~checksyntax&#45;&gt;proc~realnum</title>
-<path fill="none" stroke="#255000" d="M186.36,-41.96C217.29,-36.89 253.46,-30.96 285.42,-25.71"/>
-<polygon fill="#255000" stroke="#255000" points="286.33,-29.11 295.63,-24.04 285.2,-22.2 286.33,-29.11"/>
+<path fill="none" stroke="#255000" d="M151.75,-62.92C181.25,-53.97 222.95,-41.84 260,-33 270.16,-30.58 280.9,-28.24 291.52,-26.06"/>
+<polygon fill="#255000" stroke="#255000" points="292.53,-29.42 301.64,-24.02 291.15,-22.56 292.53,-29.42"/>
+</g>
+<!-- at -->
+<g id="proc~~checksyntax~~CallsGraph_node6" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="657.5,-108 603.5,-108 603.5,-84 657.5,-84 657.5,-108"/>
+<text text-anchor="middle" x="630.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~checksyntax~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M445.08,-66.04C493.62,-73.92 554.96,-83.89 593.21,-90.1"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="592.93,-93.6 603.36,-91.75 594.05,-86.69 592.93,-93.6"/>
+</g>
+<!-- insert -->
+<g id="proc~~checksyntax~~CallsGraph_node7" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="657.5,-66 603.5,-66 603.5,-42 657.5,-42 657.5,-66"/>
+<text text-anchor="middle" x="630.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~checksyntax~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M480.25,-54C520.63,-54 563.67,-54 593.11,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="593.3,-57.5 603.3,-54 593.3,-50.5 593.3,-57.5"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~checksyntax~~CallsGraph_node5" class="node">
+<g id="proc~~checksyntax~~CallsGraph_node8" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~checksyntax~~CallsGraph_node5"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="745,-66 516,-66 516,-42 745,-42 745,-66"/>
-<text text-anchor="middle" x="630.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~checksyntax~~CallsGraph_node8"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="745,-24 516,-24 516,0 745,0 745,-24"/>
+<text text-anchor="middle" x="630.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~checksyntax~~CallsGraph_edge4" class="edge">
+<g id="proc~~checksyntax~~CallsGraph_edge7" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#025500" d="M480.25,-54C488.58,-54 497.02,-54 505.43,-54"/>
-<polygon fill="#025500" stroke="#025500" points="505.67,-57.5 515.67,-54 505.67,-50.5 505.67,-57.5"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M445.08,-41.96C476.44,-36.87 513.15,-30.9 545.52,-25.65"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="546.1,-29.1 555.41,-24.04 544.98,-22.19 546.1,-29.1"/>
 </g>
 </g>
 </svg>
@@ -348,8 +365,8 @@
                   var panprocchecksyntaxCallsGraph = svgPanZoom('#procchecksyntaxCallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -366,11 +383,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -389,23 +406,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -423,57 +446,135 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~checksyntax~~CalledByGraph Pages: 1 -->
-<svg id="procchecksyntaxCalledByGraph" width="641pt" height="23pt"
- viewBox="0.00 0.00 641.00 23.10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~checksyntax~~CalledByGraph" class="graph" transform="scale(1.39 1.39) rotate(0) translate(4 28)">
+<svg id="procchecksyntaxCalledByGraph" width="641pt" height="59pt"
+ viewBox="0.00 0.00 641.00 58.54" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~checksyntax~~CalledByGraph" class="graph" transform="scale(2.44 2.44) rotate(0) translate(4 138.73)">
 <title>proc~~checksyntax~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 884,-28 884,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-138.73 1559,-138.73 1559,4 -4,4"/>
 <!-- proc~checksyntax -->
 <g id="proc~~checksyntax~~CalledByGraph_node1" class="node">
 <title>proc~checksyntax</title>
-<polygon fill="none" stroke="black" points="880,-24 656,-24 656,0 880,0 880,-24"/>
-<text text-anchor="middle" x="768" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_NewArthParserMod::CheckSyntax</text>
+<polygon fill="none" stroke="black" points="1555,-87 1331,-87 1331,-63 1555,-63 1555,-87"/>
+<text text-anchor="middle" x="1443" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_NewArthParserMod::CheckSyntax</text>
 </g>
 <!-- proc~mapl_stateeval -->
 <g id="proc~~checksyntax~~CalledByGraph_node2" class="node">
 <title>proc~mapl_stateeval</title>
 <g id="a_proc~~checksyntax~~CalledByGraph_node2"><a xlink:href=".././proc/mapl_stateeval.html" xlink:title="MAPL_NewArthParserMod::MAPL_StateEval">
-<polygon fill="#d9534f" stroke="#d9534f" points="620,-24 381,-24 381,0 620,0 620,-24"/>
-<text text-anchor="middle" x="500.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NewArthParserMod::MAPL_StateEval</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="1295,-87 1056,-87 1056,-63 1295,-63 1295,-87"/>
+<text text-anchor="middle" x="1175.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NewArthParserMod::MAPL_StateEval</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_stateeval&#45;&gt;proc~checksyntax -->
 <g id="proc~~checksyntax~~CalledByGraph_edge1" class="edge">
 <title>proc~mapl_stateeval&#45;&gt;proc~checksyntax</title>
-<path fill="none" stroke="#255000" d="M620.27,-12C628.71,-12 637.23,-12 645.69,-12"/>
-<polygon fill="#255000" stroke="#255000" points="645.96,-15.5 655.96,-12 645.96,-8.5 645.96,-15.5"/>
+<path fill="none" stroke="#255000" d="M1295.27,-75C1303.71,-75 1312.23,-75 1320.69,-75"/>
+<polygon fill="#255000" stroke="#255000" points="1320.96,-78.5 1330.96,-75 1320.96,-71.5 1320.96,-78.5"/>
+</g>
+<!-- none~evaluate_box_mask -->
+<g id="proc~~checksyntax~~CalledByGraph_node3" class="node">
+<title>none~evaluate_box_mask</title>
+<g id="a_proc~~checksyntax~~CalledByGraph_node3"><a xlink:href=".././type/extdatamask.html#boundprocedure-evaluate_box_mask" xlink:title="MAPL_ExtDataMask::ExtDataMask%evaluate_box_mask">
+<polygon fill="#a7506f" stroke="#a7506f" points="1012.5,-108 706.5,-108 706.5,-84 1012.5,-84 1012.5,-108"/>
+<text text-anchor="middle" x="859.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataMask::ExtDataMask%evaluate_box_mask</text>
+</a>
+</g>
+</g>
+<!-- none~evaluate_box_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~checksyntax~~CalledByGraph_edge2" class="edge">
+<title>none~evaluate_box_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#255000" d="M1012.9,-85.81C1023.79,-85.08 1034.72,-84.35 1045.46,-83.63"/>
+<polygon fill="#255000" stroke="#255000" points="1045.96,-87.1 1055.7,-82.95 1045.49,-80.12 1045.96,-87.1"/>
+</g>
+<!-- none~evaluate_region_mask -->
+<g id="proc~~checksyntax~~CalledByGraph_node4" class="node">
+<title>none~evaluate_region_mask</title>
+<g id="a_proc~~checksyntax~~CalledByGraph_node4"><a xlink:href=".././type/extdatamask.html#boundprocedure-evaluate_region_mask" xlink:title="MAPL_ExtDataMask::ExtDataMask%evaluate_region_mask">
+<polygon fill="#a7506f" stroke="#a7506f" points="1020,-66 699,-66 699,-42 1020,-42 1020,-66"/>
+<text text-anchor="middle" x="859.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataMask::ExtDataMask%evaluate_region_mask</text>
+</a>
+</g>
+</g>
+<!-- none~evaluate_region_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~checksyntax~~CalledByGraph_edge3" class="edge">
+<title>none~evaluate_region_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#255000" d="M1020.26,-64.68C1028.77,-65.25 1037.27,-65.82 1045.65,-66.38"/>
+<polygon fill="#255000" stroke="#255000" points="1045.61,-69.89 1055.82,-67.06 1046.08,-62.9 1045.61,-69.89"/>
+</g>
+<!-- none~evaluate_zone_mask -->
+<g id="proc~~checksyntax~~CalledByGraph_node5" class="node">
+<title>none~evaluate_zone_mask</title>
+<g id="a_proc~~checksyntax~~CalledByGraph_node5"><a xlink:href=".././type/extdatamask.html#boundprocedure-evaluate_zone_mask" xlink:title="MAPL_ExtDataMask::ExtDataMask%evaluate_zone_mask">
+<polygon fill="#a7506f" stroke="#a7506f" points="1016,-24 703,-24 703,0 1016,0 1016,-24"/>
+<text text-anchor="middle" x="859.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataMask::ExtDataMask%evaluate_zone_mask</text>
+</a>
+</g>
+</g>
+<!-- none~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~checksyntax~~CalledByGraph_edge4" class="edge">
+<title>none~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#255000" d="M967.22,-24.03C984.91,-26.6 1003.02,-29.59 1020,-33 1055.87,-40.2 1095.7,-51.1 1125.93,-59.99"/>
+<polygon fill="#255000" stroke="#255000" points="1125.21,-63.43 1135.79,-62.92 1127.2,-56.72 1125.21,-63.43"/>
 </g>
 <!-- proc~evaluate_derived_field -->
-<g id="proc~~checksyntax~~CalledByGraph_node3" class="node">
+<g id="proc~~checksyntax~~CalledByGraph_node6" class="node">
 <title>proc~evaluate_derived_field</title>
-<g id="a_proc~~checksyntax~~CalledByGraph_node3"><a xlink:href=".././proc/evaluate_derived_field.html" xlink:title="MAPL_ExtDataTypeDef::DerivedExport%evaluate_derived_field">
-<polygon fill="#d9534f" stroke="#d9534f" points="345,-24 0,-24 0,0 345,0 345,-24"/>
-<text text-anchor="middle" x="172.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataTypeDef::DerivedExport%evaluate_derived_field</text>
+<g id="a_proc~~checksyntax~~CalledByGraph_node6"><a xlink:href=".././proc/evaluate_derived_field.html" xlink:title="MAPL_ExtDataTypeDef::DerivedExport%evaluate_derived_field">
+<polygon fill="#d9534f" stroke="#d9534f" points="345,-107 0,-107 0,-83 345,-83 345,-107"/>
+<text text-anchor="middle" x="172.5" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataTypeDef::DerivedExport%evaluate_derived_field</text>
 </a>
 </g>
 </g>
 <!-- proc~evaluate_derived_field&#45;&gt;proc~mapl_stateeval -->
-<g id="proc~~checksyntax~~CalledByGraph_edge2" class="edge">
+<g id="proc~~checksyntax~~CalledByGraph_edge5" class="edge">
 <title>proc~evaluate_derived_field&#45;&gt;proc~mapl_stateeval</title>
-<path fill="none" stroke="#255000" d="M345.09,-12C353.71,-12 362.29,-12 370.74,-12"/>
-<polygon fill="#255000" stroke="#255000" points="370.99,-15.5 380.99,-12 370.99,-8.5 370.99,-15.5"/>
+<path fill="none" stroke="#255000" d="M266.7,-107.01C423.17,-125.02 748.23,-153.28 1020,-117 1058.16,-111.91 1100.26,-100.03 1130.86,-90.2"/>
+<polygon fill="#255000" stroke="#255000" points="1131.95,-93.53 1140.37,-87.09 1129.78,-86.87 1131.95,-93.53"/>
+</g>
+<!-- none~evaluate_mask -->
+<g id="proc~~checksyntax~~CalledByGraph_node7" class="node">
+<title>none~evaluate_mask</title>
+<g id="a_proc~~checksyntax~~CalledByGraph_node7"><a xlink:href=".././type/extdatamask.html#boundprocedure-evaluate_mask" xlink:title="MAPL_ExtDataMask::ExtDataMask%evaluate_mask">
+<polygon fill="#a7506f" stroke="#a7506f" points="663,-87 381,-87 381,-63 663,-63 663,-87"/>
+<text text-anchor="middle" x="522" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataMask::ExtDataMask%evaluate_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_derived_field&#45;&gt;none~evaluate_mask -->
+<g id="proc~~checksyntax~~CalledByGraph_edge9" class="edge">
+<title>proc~evaluate_derived_field&#45;&gt;none~evaluate_mask</title>
+<path fill="none" stroke="#255000" d="M345.21,-85.12C353.72,-84.63 362.24,-84.14 370.68,-83.65"/>
+<polygon fill="#255000" stroke="#255000" points="371.15,-87.13 380.93,-83.06 370.75,-80.14 371.15,-87.13"/>
+</g>
+<!-- none~evaluate_mask&#45;&gt;none~evaluate_box_mask -->
+<g id="proc~~checksyntax~~CalledByGraph_edge6" class="edge">
+<title>none~evaluate_mask&#45;&gt;none~evaluate_box_mask</title>
+<path fill="none" stroke="#255000" d="M663.34,-83.78C674.2,-84.46 685.22,-85.15 696.2,-85.84"/>
+<polygon fill="#255000" stroke="#255000" points="696.08,-89.34 706.28,-86.47 696.52,-82.35 696.08,-89.34"/>
+</g>
+<!-- none~evaluate_mask&#45;&gt;none~evaluate_region_mask -->
+<g id="proc~~checksyntax~~CalledByGraph_edge7" class="edge">
+<title>none~evaluate_mask&#45;&gt;none~evaluate_region_mask</title>
+<path fill="none" stroke="transparent" d="M663.34,-66.22C671.79,-65.69 680.34,-65.15 688.9,-64.62"/>
+<polygon fill="transparent" stroke="transparent" points="689.17,-68.11 698.94,-63.99 688.74,-61.12 689.17,-68.11"/>
+</g>
+<!-- none~evaluate_mask&#45;&gt;none~evaluate_zone_mask -->
+<g id="proc~~checksyntax~~CalledByGraph_edge8" class="edge">
+<title>none~evaluate_mask&#45;&gt;none~evaluate_zone_mask</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M567.94,-62.92C603.34,-53.73 654.05,-41.3 699,-33 713.87,-30.25 729.58,-27.73 745.12,-25.46"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="745.89,-28.88 755.29,-24 744.9,-21.95 745.89,-28.88"/>
 </g>
 </g>
 </svg>
@@ -481,8 +582,8 @@ large graphs.</div>
                   var panprocchecksyntaxCalledByGraph = svgPanZoom('#procchecksyntaxCalledByGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -499,11 +600,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -522,23 +623,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -558,176 +665,145 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/checksyntax.html#src">CheckSyntax</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">CheckSyntax</span><span class="w"> </span><span class="p">(</span><span class="n">FuncStr</span><span class="p">,</span><span class="n">Var</span><span class="p">,</span><span class="n">needed</span><span class="p">,</span><span class="n">ExtVar</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">CheckSyntax</span><span class="w"> </span><span class="p">(</span><span class="n">FuncStr</span><span class="p">,</span><span class="n">Var</span><span class="p">,</span><span class="n">needed</span><span class="p">,</span><span class="n">ExtVar</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
 <span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
 <span class="w">    </span><span class="c">! Check syntax of function string,  returns 0 if syntax is ok</span>
 <span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
 <span class="w">    </span><span class="k">IMPLICIT NONE</span>
 <span class="k">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w">               </span><span class="k">INTENT</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FuncStr</span><span class="w">   </span><span class="c">! Original function string</span>
 <span class="w">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(:),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Var</span><span class="w">       </span><span class="c">! Array with variable names</span>
-<span class="w">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w">     </span><span class="k">INTENT</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ExtVar</span><span class="w"></span>
-<span class="w">    </span><span class="kt">LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">needed</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">    </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
-<span class="w">    </span><span class="kt">INTEGER</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
-<span class="w">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">c</span><span class="w"></span>
-<span class="w">    </span><span class="kt">REAL</span><span class="w">                                        </span><span class="kd">::</span><span class="w"> </span><span class="n">r</span><span class="w"></span>
-<span class="w">    </span><span class="kt">LOGICAL</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">err</span><span class="w"></span>
+<span class="w">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w">     </span><span class="k">INTENT</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ExtVar</span>
+<span class="w">    </span><span class="kt">LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">needed</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">    </span><span class="kt">INTEGER</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+<span class="w">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">c</span>
+<span class="w">    </span><span class="kt">REAL</span><span class="w">                                        </span><span class="kd">::</span><span class="w"> </span><span class="n">r</span>
+<span class="w">    </span><span class="kt">LOGICAL</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">err</span>
 <span class="w">    </span><span class="kt">INTEGER</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">ParCnt</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! Parenthesis counter</span>
-<span class="w">                                                   </span><span class="n">j</span><span class="p">,</span><span class="n">ib</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">lFunc</span><span class="w"></span>
-<span class="w">    </span><span class="kt">LOGICAL</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">isUndef</span><span class="w"></span>
-<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXPATHLEN</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">func</span><span class="w"></span>
-<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">ipos</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">                                                   </span><span class="n">j</span><span class="p">,</span><span class="n">ib</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">lFunc</span>
+<span class="w">    </span><span class="kt">LOGICAL</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">isUndef</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXPATHLEN</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">func</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">ipos</span><span class="p">(:)</span>
 <span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
 <span class="w">    </span><span class="n">Func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FuncStr</span><span class="w">                                           </span><span class="c">! Local copy of function string</span>
-<span class="w">    </span><span class="k">ALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="n">ipos</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">FuncStr</span><span class="p">)))</span><span class="w"></span>
+<span class="w">    </span><span class="k">ALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="n">ipos</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">FuncStr</span><span class="p">)))</span>
 <span class="w">    </span><span class="k">CALL </span><span class="n">Replace</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;**&#39;</span><span class="p">,</span><span class="s1">&#39;^ &#39;</span><span class="p">,</span><span class="n">Func</span><span class="p">)</span><span class="w">                            </span><span class="c">! Exponent into 1-Char. format</span>
-<span class="w">    </span><span class="k">CALL </span><span class="n">RemoveSpaces</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">,</span><span class="n">ipos</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">    </span><span class="n">ParCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">    </span><span class="n">lFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">Func</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">needed</span><span class="p">))</span><span class="w"> </span><span class="n">needed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">    </span><span class="k">CALL </span><span class="n">RemoveSpaces</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">,</span><span class="n">ipos</span><span class="p">)</span>
+<span class="w">    </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">ParCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="n">lFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">Func</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">needed</span><span class="p">))</span><span class="w"> </span><span class="n">needed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
 <span class="w">    </span><span class="n">step</span><span class="p">:</span><span class="w"> </span><span class="k">DO</span>
-<span class="k">       IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">ParseErrMsg</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">FuncStr</span><span class="p">,</span><span class="w"> </span><span class="n">ipos</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="k">       IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">ParseErrMsg</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">FuncStr</span><span class="p">,</span><span class="w"> </span><span class="n">ipos</span><span class="p">)</span>
+<span class="w">       </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
 <span class="w">       </span><span class="c">!-- -------- --------- --------- --------- --------- --------- --------- -------</span>
 <span class="w">       </span><span class="c">! Check for valid operand (must appear)</span>
 <span class="w">       </span><span class="c">!-- -------- --------- --------- --------- --------- --------- --------- -------</span>
 <span class="w">       </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;+&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">                      </span><span class="c">! Check for leading - or +</span>
-<span class="w">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="w">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing operand in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing operand in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span>
 <span class="w">          </span><span class="k">END IF</span>
-<span class="k">          </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="k">          </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="nb">ANY</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Ops</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Multiple operators in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Multiple operators in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span>
 <span class="w">          </span><span class="k">END IF</span>
 <span class="k">       END IF</span>
-<span class="k">       </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MathFunctionIndex</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:))</span><span class="w"></span>
+<span class="k">       </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MathFunctionIndex</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:))</span>
 <span class="w">       </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">                                       </span><span class="c">! Check for math function</span>
-<span class="w">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">Funcs</span><span class="p">(</span><span class="n">n</span><span class="p">))</span><span class="w"></span>
+<span class="w">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">Funcs</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing function argument in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcStr</span><span class="p">))</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing function argument in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcStr</span><span class="p">))</span>
 <span class="w">          </span><span class="k">END IF</span>
-<span class="k">          </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="k">          </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing opening parenthesis in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing opening parenthesis in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span>
 <span class="w">          </span><span class="k">END IF</span>
 <span class="k">       END IF</span>
 <span class="k">       IF</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">                                    </span><span class="c">! Check for opening parenthesis</span>
-<span class="w">          </span><span class="n">ParCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParCnt</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
-<span class="w">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
-<span class="w">          </span><span class="k">CYCLE </span><span class="n">step</span><span class="w"></span>
+<span class="w">          </span><span class="n">ParCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParCnt</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">CYCLE </span><span class="n">step</span>
 <span class="w">       </span><span class="k">END IF</span>
 <span class="k">       IF</span><span class="w"> </span><span class="p">(</span><span class="nb">SCAN</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="s1">&#39;0123456789.&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">                   </span><span class="c">! Check for number</span>
-<span class="w">          </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RealNum</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:),</span><span class="n">ib</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RealNum</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:),</span><span class="n">ib</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">err</span><span class="p">)</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Invalid number format:  &#39;</span><span class="o">//</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="n">ib</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Invalid number format:  &#39;</span><span class="o">//</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="n">ib</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span>
 <span class="w">          </span><span class="k">END IF</span>
-<span class="k">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="k">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">1</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">EXIT</span>
-<span class="k">          </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="k">          </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
 <span class="w">       </span><span class="k">ELSE</span><span class="w">                                                  </span><span class="c">! Check for variable</span>
-<span class="w">          </span><span class="n">isUndef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">checkUndef</span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:),</span><span class="n">ib</span><span class="p">,</span><span class="n">in</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="n">isUndef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">checkUndef</span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:),</span><span class="n">ib</span><span class="p">,</span><span class="n">in</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isUndef</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="k">             </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">1</span>
 <span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">EXIT</span>
-<span class="k">             </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="k">             </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
 <span class="w">          </span><span class="k">else</span>
-<span class="k">             </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VariableIndex</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:),</span><span class="n">Var</span><span class="p">,</span><span class="n">ib</span><span class="p">,</span><span class="n">in</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">needed</span><span class="p">).</span><span class="nb">and</span><span class="p">.(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="n">needed</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="k">             </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VariableIndex</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:),</span><span class="n">Var</span><span class="p">,</span><span class="n">ib</span><span class="p">,</span><span class="n">in</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">needed</span><span class="p">).</span><span class="nb">and</span><span class="p">.(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="n">needed</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
 <span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <span class="k">                IF</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ExtVar</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">                   </span><span class="n">ExtVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">ExtVar</span><span class="p">)</span><span class="o">//</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="n">ib</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;,&quot;</span><span class="w"></span>
+<span class="k">                   </span><span class="n">ExtVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">ExtVar</span><span class="p">)</span><span class="o">//</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="n">ib</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;,&quot;</span>
 <span class="w">                </span><span class="k">ELSE</span>
-<span class="k">                   </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Invalid element: &#39;</span><span class="o">//</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="n">ib</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+<span class="k">                   </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Invalid element: &#39;</span><span class="o">//</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="n">ib</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span>
 <span class="w">                </span><span class="k">ENDIF</span>
 <span class="k">             END IF</span>
-<span class="k">             </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="k">             </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="n">in</span><span class="o">-</span><span class="mi">1</span>
 <span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">EXIT</span>
-<span class="k">             </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="k">             </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
 <span class="w">          </span><span class="k">end if</span>
 <span class="k">       END IF</span>
 <span class="k">       DO WHILE</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;)&#39;</span><span class="p">)</span><span class="w">                                   </span><span class="c">! Check for closing parenthesis</span>
-<span class="w">          </span><span class="n">ParCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParCnt</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">          </span><span class="n">ParCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParCnt</span><span class="o">-</span><span class="mi">1</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ParCnt</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Mismatched parenthesis in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcStr</span><span class="p">))</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Mismatched parenthesis in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcStr</span><span class="p">))</span>
 <span class="w">          </span><span class="k">END IF</span>
 <span class="k">          IF</span><span class="w"> </span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Empty paraentheses &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Empty paraentheses &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span>
 <span class="w">          </span><span class="k">END IF</span>
-<span class="k">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="k">          </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">EXIT</span>
-<span class="k">          </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">END DO</span><span class="w"></span>
+<span class="k">          </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
+<span class="w">       </span><span class="k">END DO</span>
 <span class="w">       </span><span class="c">!-- -------- --------- --------- --------- --------- --------- --------- -------</span>
 <span class="w">       </span><span class="c">! Now, we have a legal operand: A legal operator or end of string must follow</span>
 <span class="w">       </span><span class="c">!-- -------- --------- --------- --------- --------- --------- --------- -------</span>
 <span class="w">       </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">EXIT</span>
 <span class="k">       IF</span><span class="w"> </span><span class="p">(</span><span class="nb">ANY</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Ops</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span><span class="w">                               </span><span class="c">! Check for multiple operators</span>
 <span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">lFunc</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
 <span class="w">          </span><span class="k">END IF</span>
 <span class="k">          IF</span><span class="w"> </span><span class="p">(</span><span class="nb">ANY</span><span class="p">(</span><span class="n">Func</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Ops</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Multiple operatos in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">Funcstr</span><span class="p">))</span><span class="w"></span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Multiple operatos in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">Funcstr</span><span class="p">))</span>
 <span class="w">          </span><span class="k">END IF</span>
 <span class="k">       ELSE</span><span class="w">                                                  </span><span class="c">! Check for next operand</span>
-<span class="w">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing operator in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span><span class="w"></span>
-<span class="w">       </span><span class="k">END IF</span><span class="w"></span>
+<span class="w">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing operator in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span>
+<span class="w">       </span><span class="k">END IF</span>
 <span class="w">       </span><span class="c">!-- -------- --------- --------- --------- --------- --------- --------- -------</span>
 <span class="w">       </span><span class="c">! Now, we have an operand and an operator: the next loop will check for another</span>
 <span class="w">       </span><span class="c">! operand (must appear)</span>
 <span class="w">       </span><span class="c">!-- -------- --------- --------- --------- --------- --------- --------- -------</span>
-<span class="w">       </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
-<span class="w">    </span><span class="k">END DO </span><span class="n">step</span><span class="w"></span>
+<span class="w">       </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">    </span><span class="k">END DO </span><span class="n">step</span>
 <span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ParCnt</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="k">       </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing ) in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span><span class="w"></span>
+<span class="k">       </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Missing ) in &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">funcstr</span><span class="p">))</span>
 <span class="w">    </span><span class="k">END IF</span>
-<span class="k">    DEALLOCATE</span><span class="p">(</span><span class="n">ipos</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
-<span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">CheckSyntax</span><span class="w"></span>
+<span class="k">    DEALLOCATE</span><span class="p">(</span><span class="n">ipos</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">CheckSyntax</span>
 </pre></div>
 
     </section>
@@ -740,32 +816,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

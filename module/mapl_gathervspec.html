@@ -10,85 +10,58 @@
 
     <title>mapl_GathervSpec &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,39 +69,43 @@
       <small>Module</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for modules and submodules.">72 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for modules and submodules.">72 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/GathervSpec.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/gathervspec.f90.html'>GathervSpec.F90</a></li>
-          <li class="active">mapl_GathervSpec</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/gathervspec.f90.html'>GathervSpec.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl_GathervSpec</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
   </div>
 
   <div class="row">
-    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div class="col-md-3">
         <div id="sidebar">
       <h3>Contents</h3>
   
@@ -141,33 +118,32 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#types-0">Derived Types</a>
-        </h3>
-      </div>
-      <div id="types-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/mapl_gathervspec.html#type-gathervspec">GathervSpec</a>
         </div>
       </div>
     </div>
 
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#funcs-0">Functions</a>
-        </h3>
-      </div>
-      <div id="funcs-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/mapl_gathervspec.html#proc-make_gathervkernel">make_GathervKernel</a>
             <a class="list-group-item" href="../module/mapl_gathervspec.html#proc-make_gathervspec">make_GathervSpec</a>
         </div>
       </div>
     </div>
 
+  
   
   
   
@@ -183,141 +159,155 @@
 
     <div class="col-md-9" id='text'>
       
-<br>          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <ul class="list-inline">
-                <li><a href='<a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a>'>mpi</a></li>
-                <li>fArgParse</li>
-                <li><a href='../module/mapl_errorhandlingmod.html'>MAPL_ErrorHandlingMod</a></li>
-                <li><a href='../module/mapl_gathervkernel~2.html'>mapl_GathervKernel</a></li>
-                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_gathervkernel.html'>mapl_GathervKernel</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_errorhandlingmod.html'>MAPL_ErrorHandlingMod</a></li>
+                  <li class="list-inline-item">fArgParse</li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: module~~mapl_gathervspec~~UsesGraph Pages: 1 -->
-<svg id="modulemapl_gathervspecUsesGraph" width="595pt" height="194pt"
- viewBox="0.00 0.00 595.00 194.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="module~~mapl_gathervspec~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 190)">
+<svg id="modulemapl_gathervspecUsesGraph" width="595pt" height="214pt"
+ viewBox="0.00 0.00 595.00 213.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl_gathervspec~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 209.85)">
 <title>module~~mapl_gathervspec~~UsesGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-190 591,-190 591,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-209.85 591,-209.85 591,4 -4,4"/>
 <!-- module~mapl_gathervspec -->
 <g id="module~~mapl_gathervspec~~UsesGraph_node1" class="node">
 <title>module~mapl_gathervspec</title>
-<polygon fill="none" stroke="black" points="587,-104 473,-104 473,-80 587,-80 587,-104"/>
-<text text-anchor="middle" x="530" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_GathervSpec</text>
+<polygon fill="none" stroke="black" points="587,-123.85 473,-123.85 473,-99.85 587,-99.85 587,-123.85"/>
+<text text-anchor="middle" x="530" y="-109.45" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_GathervSpec</text>
 </g>
 <!-- fArgParse -->
 <g id="module~~mapl_gathervspec~~UsesGraph_node2" class="node">
 <title>fArgParse</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="408.5,-186 344.5,-186 344.5,-162 408.5,-162 408.5,-186"/>
-<text text-anchor="middle" x="376.5" y="-171.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fArgParse</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="408.5,-205.85 344.5,-205.85 344.5,-181.85 408.5,-181.85 408.5,-205.85"/>
+<text text-anchor="middle" x="376.5" y="-191.45" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fArgParse</text>
 </g>
 <!-- module~mapl_gathervspec&#45;&gt;fArgParse -->
 <g id="module~~mapl_gathervspec~~UsesGraph_edge1" class="edge">
 <title>module~mapl_gathervspec&#45;&gt;fArgParse</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M513.44,-104.06C495.7,-117.37 465.47,-138.81 437,-153 431.15,-155.92 424.78,-158.62 418.47,-161.04"/>
-<polygon fill="#255000" stroke="#255000" points="416.87,-157.9 408.67,-164.62 419.27,-164.48 416.87,-157.9"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M513.44,-123.9C495.7,-137.22 465.47,-158.65 437,-172.85 431.15,-175.76 424.78,-178.46 418.47,-180.89"/>
+<polygon fill="#255000" stroke="#255000" points="416.87,-177.75 408.67,-184.46 419.27,-184.32 416.87,-177.75"/>
 </g>
 <!-- iso_fortran_env -->
 <g id="module~~mapl_gathervspec~~UsesGraph_node3" class="node">
 <title>iso_fortran_env</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="423.5,-144 329.5,-144 329.5,-120 423.5,-120 423.5,-144"/>
-<text text-anchor="middle" x="376.5" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="423.5,-163.85 329.5,-163.85 329.5,-139.85 423.5,-139.85 423.5,-163.85"/>
+<text text-anchor="middle" x="376.5" y="-149.45" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
 </g>
 <!-- module~mapl_gathervspec&#45;&gt;iso_fortran_env -->
 <g id="module~~mapl_gathervspec~~UsesGraph_edge2" class="edge">
 <title>module~mapl_gathervspec&#45;&gt;iso_fortran_env</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M483.55,-104C467.74,-108.17 449.82,-112.9 433.28,-117.27"/>
-<polygon fill="#255000" stroke="#255000" points="431.96,-114 423.18,-119.94 433.75,-120.77 431.96,-114"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M483.55,-123.85C467.74,-128.02 449.82,-132.75 433.28,-137.12"/>
+<polygon fill="#255000" stroke="#255000" points="431.96,-133.85 423.18,-139.78 433.75,-140.62 431.96,-133.85"/>
 </g>
 <!-- module~mapl_errorhandlingmod -->
 <g id="module~~mapl_gathervspec~~UsesGraph_node4" class="node">
 <title>module~mapl_errorhandlingmod</title>
 <g id="a_module~~mapl_gathervspec~~UsesGraph_node4"><a xlink:href=".././module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="280,-65 137,-65 137,-41 280,-41 280,-65"/>
-<text text-anchor="middle" x="208.5" y="-50.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="280,-123.85 137,-123.85 137,-99.85 280,-99.85 280,-123.85"/>
+<text text-anchor="middle" x="208.5" y="-109.45" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
 </a>
 </g>
 </g>
 <!-- module~mapl_gathervspec&#45;&gt;module~mapl_errorhandlingmod -->
 <g id="module~~mapl_gathervspec~~UsesGraph_edge3" class="edge">
 <title>module~mapl_gathervspec&#45;&gt;module~mapl_errorhandlingmod</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M472.77,-88.47C429.73,-85.41 368.96,-80.32 316,-73 303.65,-71.29 290.55,-69.13 277.93,-66.86"/>
-<polygon fill="#255000" stroke="#255000" points="278.39,-63.39 267.93,-65.02 277.13,-70.27 278.39,-63.39"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M472.98,-111.85C422.42,-111.85 347.42,-111.85 290.36,-111.85"/>
+<polygon fill="#255000" stroke="#255000" points="290.29,-108.35 280.29,-111.85 290.29,-115.35 290.29,-108.35"/>
 </g>
-<!-- module~mapl_gathervkernel~2 -->
+<!-- module~mapl_gathervkernel -->
 <g id="module~~mapl_gathervspec~~UsesGraph_node5" class="node">
-<title>module~mapl_gathervkernel~2</title>
-<g id="a_module~~mapl_gathervspec~~UsesGraph_node5"><a xlink:href=".././module/mapl_gathervkernel~2.html" xlink:title="mapl_GathervKernel">
-<polygon fill="#337ab7" stroke="#337ab7" points="437,-64 316,-64 316,-40 437,-40 437,-64"/>
-<text text-anchor="middle" x="376.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_GathervKernel</text>
+<title>module~mapl_gathervkernel</title>
+<g id="a_module~~mapl_gathervspec~~UsesGraph_node5"><a xlink:href=".././module/mapl_gathervkernel.html" xlink:title="mapl_GathervKernel">
+<polygon fill="#337ab7" stroke="#337ab7" points="437,-83.85 316,-83.85 316,-59.85 437,-59.85 437,-83.85"/>
+<text text-anchor="middle" x="376.5" y="-69.45" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_GathervKernel</text>
 </a>
 </g>
 </g>
-<!-- module~mapl_gathervspec&#45;&gt;module~mapl_gathervkernel~2 -->
+<!-- module~mapl_gathervspec&#45;&gt;module~mapl_gathervkernel -->
 <g id="module~~mapl_gathervspec~~UsesGraph_edge4" class="edge">
-<title>module~mapl_gathervspec&#45;&gt;module~mapl_gathervkernel~2</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M483.55,-80C467.74,-75.83 449.82,-71.1 433.28,-66.73"/>
-<polygon fill="#255000" stroke="#255000" points="433.75,-63.23 423.18,-64.06 431.96,-70 433.75,-63.23"/>
+<title>module~mapl_gathervspec&#45;&gt;module~mapl_gathervkernel</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M483.55,-99.84C467.74,-95.67 449.82,-90.94 433.28,-86.57"/>
+<polygon fill="#255000" stroke="#255000" points="433.75,-83.08 423.18,-83.91 431.96,-89.84 433.75,-83.08"/>
 </g>
 <!-- mpi -->
 <g id="module~~mapl_gathervspec~~UsesGraph_node6" class="node">
 <title>mpi</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-24 23.5,-24 23.5,0 77.5,0 77.5,-24"/>
-<text text-anchor="middle" x="50.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-82.85 23.5,-82.85 23.5,-58.85 77.5,-58.85 77.5,-82.85"/>
+<text text-anchor="middle" x="50.5" y="-68.45" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
 </g>
 <!-- module~mapl_gathervspec&#45;&gt;mpi -->
 <g id="module~~mapl_gathervspec~~UsesGraph_edge5" class="edge">
 <title>module~mapl_gathervspec&#45;&gt;mpi</title>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M515.55,-79.85C498.61,-65.36 467.96,-41.76 437,-31 341.16,2.3 310.79,-18.01 209.5,-12"/>
-<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M207.5,-12C166.61,-9.03 119.53,-9.58 87.87,-10.51"/>
-<polygon fill="#255000" stroke="#255000" points="87.64,-7.02 77.76,-10.84 87.87,-14.02 87.64,-7.02"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M514.29,-99.81C496.85,-86.09 466.43,-63.9 437,-50.85 371.18,-21.65 351.45,-19.8 280,-10.85 216.94,-2.94 197.6,8.3 137,-10.85 111.67,-18.85 87.34,-37.33 71.15,-51.69"/>
+<polygon fill="#255000" stroke="#255000" points="68.47,-49.4 63.47,-58.74 73.2,-54.56 68.47,-49.4"/>
 </g>
 <!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
 <g id="module~~mapl_gathervspec~~UsesGraph_edge7" class="edge">
 <title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
-<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M161.54,-40.92C137.95,-34.72 109.63,-27.28 87.63,-21.5"/>
-<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="88.26,-18.04 77.7,-18.89 86.48,-24.81 88.26,-18.04"/>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M161.54,-99.77C137.95,-93.57 109.63,-86.12 87.63,-80.34"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="88.26,-76.89 77.7,-77.73 86.48,-83.66 88.26,-76.89"/>
 </g>
 <!-- module~mapl_throwmod -->
-<g id="module~~mapl_gathervspec~~UsesGraph_node7" class="node">
+<g id="module~~mapl_gathervspec~~UsesGraph_node8" class="node">
 <title>module~mapl_throwmod</title>
-<g id="a_module~~mapl_gathervspec~~UsesGraph_node7"><a xlink:href=".././module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
-<polygon fill="#337ab7" stroke="#337ab7" points="101,-66 0,-66 0,-42 101,-42 101,-66"/>
-<text text-anchor="middle" x="50.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+<g id="a_module~~mapl_gathervspec~~UsesGraph_node8"><a xlink:href=".././module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-124.85 0,-124.85 0,-100.85 101,-100.85 101,-124.85"/>
+<text text-anchor="middle" x="50.5" y="-110.45" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
 </a>
 </g>
 </g>
 <!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
 <g id="module~~mapl_gathervspec~~UsesGraph_edge6" class="edge">
 <title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
-<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M136.8,-53.45C128.41,-53.51 119.91,-53.56 111.69,-53.61"/>
-<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="111.43,-50.12 101.45,-53.68 111.47,-57.12 111.43,-50.12"/>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M136.8,-112.3C128.41,-112.35 119.91,-112.41 111.69,-112.46"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="111.43,-108.96 101.45,-112.53 111.47,-115.96 111.43,-108.96"/>
 </g>
-<!-- module~mapl_gathervkernel~2&#45;&gt;module~mapl_errorhandlingmod -->
-<g id="module~~mapl_gathervspec~~UsesGraph_edge8" class="edge">
-<title>module~mapl_gathervkernel~2&#45;&gt;module~mapl_errorhandlingmod</title>
-<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M315.57,-52.36C307.29,-52.41 298.68,-52.46 290.11,-52.51"/>
-<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="290.06,-49.01 280.08,-52.57 290.1,-56.01 290.06,-49.01"/>
-</g>
-<!-- module~mapl_gathervkernel~2&#45;&gt;mpi -->
+<!-- module~mapl_gathervkernel&#45;&gt;module~mapl_errorhandlingmod -->
 <g id="module~~mapl_gathervspec~~UsesGraph_edge9" class="edge">
-<title>module~mapl_gathervkernel~2&#45;&gt;mpi</title>
-<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M341.07,-39.92C307.87,-29.18 255.96,-14.76 209.5,-12"/>
+<title>module~mapl_gathervkernel&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M325.69,-83.85C307.97,-88.12 287.82,-92.97 269.34,-97.43"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="268.46,-94.04 259.56,-99.78 270.1,-100.84 268.46,-94.04"/>
+</g>
+<!-- module~mapl_gathervkernel&#45;&gt;mpi -->
+<g id="module~~mapl_gathervspec~~UsesGraph_edge10" class="edge">
+<title>module~mapl_gathervkernel&#45;&gt;mpi</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M315.7,-71.66C248.87,-71.46 142.85,-71.13 87.62,-70.96"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="87.61,-67.46 77.6,-70.93 87.59,-74.46 87.61,-67.46"/>
+</g>
+<!-- module~kernel_mod -->
+<g id="module~~mapl_gathervspec~~UsesGraph_node7" class="node">
+<title>module~kernel_mod</title>
+<g id="a_module~~mapl_gathervspec~~UsesGraph_node7"><a xlink:href=".././module/kernel_mod.html" xlink:title="Kernel_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="246.5,-43.85 170.5,-43.85 170.5,-19.85 246.5,-19.85 246.5,-43.85"/>
+<text text-anchor="middle" x="208.5" y="-29.45" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Kernel_mod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_gathervkernel&#45;&gt;module~kernel_mod -->
+<g id="module~~mapl_gathervspec~~UsesGraph_edge8" class="edge">
+<title>module~mapl_gathervkernel&#45;&gt;module~kernel_mod</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M325.69,-59.84C303.76,-54.56 278.13,-48.38 256.53,-43.18"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="257.14,-39.73 246.6,-40.79 255.5,-46.53 257.14,-39.73"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsesGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -388,17 +378,17 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
-          <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Used by</h3>
-      </div>
-      <ul class="list-group">
-          <li class="list-group-item">
-            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
@@ -415,25 +405,25 @@ large graphs.</div>
 <polygon fill="none" stroke="black" points="114,-24 0,-24 0,0 114,0 114,-24"/>
 <text text-anchor="middle" x="57" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_GathervSpec</text>
 </g>
-<!-- program~main~4 -->
+<!-- program~main~11 -->
 <g id="module~~mapl_gathervspec~~UsedByGraph_node2" class="node">
-<title>program~main~4</title>
-<g id="a_module~~mapl_gathervspec~~UsedByGraph_node2"><a xlink:href=".././program/main~4.html" xlink:title="main">
+<title>program~main~11</title>
+<g id="a_module~~mapl_gathervspec~~UsedByGraph_node2"><a xlink:href=".././program/main~11.html" xlink:title="main">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="204,-24 150,-24 150,0 204,0 204,-24"/>
 <text text-anchor="middle" x="177" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
 </a>
 </g>
 </g>
-<!-- program~main~4&#45;&gt;module~mapl_gathervspec -->
+<!-- program~main~11&#45;&gt;module~mapl_gathervspec -->
 <g id="module~~mapl_gathervspec~~UsedByGraph_edge1" class="edge">
-<title>program~main~4&#45;&gt;module~mapl_gathervspec</title>
+<title>program~main~11&#45;&gt;module~mapl_gathervspec</title>
 <path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M149.81,-12C142.12,-12 133.33,-12 124.31,-12"/>
 <polygon fill="#255000" stroke="#255000" points="124.07,-8.5 114.07,-12 124.07,-15.5 124.07,-8.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#UsedByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -504,62 +494,12 @@ large graphs.</div>
             </div>
           </div>
         </div>
-          </li>
-      </ul>
+            </li>
+        </ul>
+      </div>
     </div>
 
       <br>
-
-      <section class="visible-xs visible-sm hidden-md">
-          <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#types-1">Derived Types</a>
-        </h3>
-      </div>
-      <div id="types-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/mapl_gathervspec.html#type-gathervspec">GathervSpec</a>
-        </div>
-      </div>
-    </div>
-
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#funcs-1">Functions</a>
-        </h3>
-      </div>
-      <div id="funcs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../module/mapl_gathervspec.html#proc-make_gathervkernel">make_GathervKernel</a>
-            <a class="list-group-item" href="../module/mapl_gathervspec.html#proc-make_gathervspec">make_GathervSpec</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-
-
-      </section>
-      <br class="visible-xs visible-sm hidden-md">
 
 
 
@@ -568,8 +508,8 @@ large graphs.</div>
 
         <section>
           <h2>Derived Types</h2>
-              <div class="panel panel-default">
-    <div class="panel-heading codesum">
+              <div class="card">
+    <div class="card-header codesum">
       <span class="anchor" id="type-gathervspec"></span>
       <h3>
         type, public&nbsp;::&nbsp;
@@ -577,23 +517,23 @@ large graphs.</div>
         
       </h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       
 
         <h4>Components</h4>
           <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-n_levs"></span>
+              <span class="anchor" id="variable-n_levs~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -610,7 +550,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-n_tries"></span>
+              <span class="anchor" id="variable-n_tries~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -627,7 +567,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-n_writers"></span>
+              <span class="anchor" id="variable-n_writers~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -644,7 +584,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nx"></span>
+              <span class="anchor" id="variable-nx~14"></span>
               integer,
             </td>
               <td>public</td>
@@ -673,10 +613,10 @@ large graphs.</div>
 
         <section>
           <h2>Functions</h2>
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-make_gathervkernel"></span><h3>public  function <a href='../proc/make_gathervkernel.html'>make_GathervKernel</a>(spec, comm, rc) result(kernel)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-make_gathervkernel"></span><h3>public  function <a href='../proc/make_gathervkernel.html'>make_GathervKernel</a>(spec, comm, rc) result(kernel)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -684,16 +624,16 @@ large graphs.</div>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-spec~18"></span>
               type(<a href='../type/gathervspec.html'>GathervSpec</a>),
             </td>
 <td>intent(in)</td>
@@ -708,7 +648,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-comm~56"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -723,7 +663,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1388"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -741,17 +681,17 @@ large graphs.</div>
 
     <h4>
     Return Value
-    <small>type(<a href='../type/gathervkernel~2.html'>GathervKernel</a>)</small>
+    <small>type(<a href='../type/gathervkernel.html'>GathervKernel</a>)</small>
     </h4>
     
 
     </div>
   </div>
 
-              <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-make_gathervspec"></span><h3>public  function <a href='../proc/make_gathervspec.html'>make_GathervSpec</a>(rc) result(spec)  
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-make_gathervspec"></span><h3>public  function <a href='../proc/make_gathervspec.html'>make_GathervSpec</a>(rc) result(spec)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -759,16 +699,16 @@ large graphs.</div>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" ></span>
+              <span class="anchor" id="variable-rc~1389"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -806,32 +746,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

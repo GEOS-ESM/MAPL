@@ -10,85 +10,58 @@
 
     <title>ESMF_CFIOVarInfoGet &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.4% of total for procedures.">195 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.4% of total for procedures.">195 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/ESMF_CFIOVarInfoMod.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/esmf_cfiovarinfomod.f90.html'>ESMF_CFIOVarInfoMod.F90</a></li>
-              <li><a href='../module/esmf_cfiovarinfomod.html'>ESMF_CFIOVarInfoMod</a></li>
-          <li class="active">ESMF_CFIOVarInfoGet</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfiovarinfomod.f90.html'>ESMF_CFIOVarInfoMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfiovarinfomod.html'>ESMF_CFIOVarInfoMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ESMF_CFIOVarInfoGet</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/esmf_cfiovarinfoget.html#src">ESMF_CFIOVarInfoGet</a>
       </div>
@@ -175,11 +153,11 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -199,7 +177,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vname~13"></span>
+              <span class="anchor" id="variable-vname~17"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -214,7 +192,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-grid~6"></span>
+              <span class="anchor" id="variable-grid~10"></span>
               type(<a href='../type/esmf_cfiogrid.html'>ESMF_CFIOGrid</a>),
             </td>
 <td>intent(out),</td>
@@ -229,7 +207,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vtitle~2"></span>
+              <span class="anchor" id="variable-vtitle~3"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -244,7 +222,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vunits~2"></span>
+              <span class="anchor" id="variable-vunits~3"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -259,7 +237,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-twodimvar~2"></span>
+              <span class="anchor" id="variable-twodimvar~3"></span>
               logical,
             </td>
 <td></td>
@@ -274,7 +252,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-validrange~2"></span>
+              <span class="anchor" id="variable-validrange~3"></span>
               real,
             </td>
 <td>intent(out),</td>
@@ -289,7 +267,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-amiss~2"></span>
+              <span class="anchor" id="variable-amiss~4"></span>
               real,
             </td>
 <td>intent(out),</td>
@@ -529,7 +507,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ordering~2"></span>
+              <span class="anchor" id="variable-ordering~3"></span>
               character(len=*),
             </td>
 <td></td>
@@ -545,7 +523,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attcharname~4"></span>
+              <span class="anchor" id="variable-attcharname~2"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -560,7 +538,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attcharcnt~2"></span>
+              <span class="anchor" id="variable-attcharcnt"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -575,7 +553,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attchar~4"></span>
+              <span class="anchor" id="variable-attchar~2"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -590,7 +568,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attrealname~4"></span>
+              <span class="anchor" id="variable-attrealname~2"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -605,7 +583,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attrealcnt~2"></span>
+              <span class="anchor" id="variable-attrealcnt"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -620,7 +598,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attreal~4"></span>
+              <span class="anchor" id="variable-attreal~2"></span>
               real,
             </td>
 <td></td>
@@ -635,7 +613,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attintname~4"></span>
+              <span class="anchor" id="variable-attintname~2"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -650,7 +628,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attintcnt~2"></span>
+              <span class="anchor" id="variable-attintcnt"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -665,7 +643,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attint~4"></span>
+              <span class="anchor" id="variable-attint~2"></span>
               integer,
             </td>
 <td></td>
@@ -695,7 +673,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-timave~2"></span>
+              <span class="anchor" id="variable-timave~3"></span>
               logical,
             </td>
 <td></td>
@@ -710,7 +688,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-avemethod~2"></span>
+              <span class="anchor" id="variable-avemethod~3"></span>
               character(len=1),
             </td>
 <td></td>
@@ -726,7 +704,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-cellmthd~2"></span>
+              <span class="anchor" id="variable-cellmthd~3"></span>
               character(len=MVARLEN),
             </td>
 <td></td>
@@ -741,7 +719,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-chunksize~2"></span>
+              <span class="anchor" id="variable-chunksize~3"></span>
               integer,
             </td>
 <td></td>
@@ -756,7 +734,7 @@ can be any combination of xyzt</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~53"></span>
+              <span class="anchor" id="variable-rc~72"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -783,83 +761,47 @@ can be any combination of xyzt</p>
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~esmf_cfiovarinfoget~~CallsGraph Pages: 1 -->
-<svg id="procesmf_cfiovarinfogetCallsGraph" width="431pt" height="158pt"
- viewBox="0.00 0.00 431.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<svg id="procesmf_cfiovarinfogetCallsGraph" width="431pt" height="32pt"
+ viewBox="0.00 0.00 431.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmf_cfiovarinfoget~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
 <title>proc~~esmf_cfiovarinfoget~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 427,-154 427,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 427,-28 427,4 -4,4"/>
 <!-- proc~esmf_cfiovarinfoget -->
 <g id="proc~~esmf_cfiovarinfoget~~CallsGraph_node1" class="node">
 <title>proc~esmf_cfiovarinfoget</title>
-<polygon fill="none" stroke="black" points="253,-87 0,-87 0,-63 253,-63 253,-87"/>
-<text text-anchor="middle" x="126.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOVarInfoMod::ESMF_CFIOVarInfoGet</text>
-</g>
-<!-- attcharcnts -->
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_node2" class="node">
-<title>attcharcnts</title>
-<polygon fill="#777777" stroke="#777777" points="392,-150 320,-150 320,-126 392,-126 392,-150"/>
-<text text-anchor="middle" x="356" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">attcharcnts</text>
-</g>
-<!-- proc~esmf_cfiovarinfoget&#45;&gt;attcharcnts -->
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_edge1" class="edge">
-<title>proc~esmf_cfiovarinfoget&#45;&gt;attcharcnts</title>
-<path fill="none" stroke="#255000" d="M171.1,-87.07C210.94,-98.11 269.63,-114.36 309.93,-125.52"/>
-<polygon fill="#255000" stroke="#255000" points="309.19,-128.94 319.76,-128.24 311.05,-122.2 309.19,-128.94"/>
-</g>
-<!-- attintcnts -->
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_node3" class="node">
-<title>attintcnts</title>
-<polygon fill="#777777" stroke="#777777" points="387,-108 325,-108 325,-84 387,-84 387,-108"/>
-<text text-anchor="middle" x="356" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">attintcnts</text>
-</g>
-<!-- proc~esmf_cfiovarinfoget&#45;&gt;attintcnts -->
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_edge2" class="edge">
-<title>proc~esmf_cfiovarinfoget&#45;&gt;attintcnts</title>
-<path fill="none" stroke="#255000" d="M253.23,-86.61C275.35,-88.65 296.87,-90.63 314.37,-92.25"/>
-<polygon fill="#255000" stroke="#255000" points="314.44,-95.77 324.72,-93.21 315.09,-88.8 314.44,-95.77"/>
-</g>
-<!-- attrealcnts -->
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_node4" class="node">
-<title>attrealcnts</title>
-<polygon fill="#777777" stroke="#777777" points="390.5,-66 321.5,-66 321.5,-42 390.5,-42 390.5,-66"/>
-<text text-anchor="middle" x="356" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">attrealcnts</text>
-</g>
-<!-- proc~esmf_cfiovarinfoget&#45;&gt;attrealcnts -->
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_edge3" class="edge">
-<title>proc~esmf_cfiovarinfoget&#45;&gt;attrealcnts</title>
-<path fill="none" stroke="#255000" d="M253.23,-63.39C273.99,-61.48 294.22,-59.61 311.1,-58.05"/>
-<polygon fill="#255000" stroke="#255000" points="311.51,-61.53 321.15,-57.12 310.87,-54.56 311.51,-61.53"/>
+<polygon fill="none" stroke="black" points="253,-24 0,-24 0,0 253,0 253,-24"/>
+<text text-anchor="middle" x="126.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOVarInfoMod::ESMF_CFIOVarInfoGet</text>
 </g>
 <!-- proc~err -->
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_node5" class="node">
+<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_node2" class="node">
 <title>proc~err</title>
-<g id="a_proc~~esmf_cfiovarinfoget~~CallsGraph_node5"><a xlink:href=".././proc/err.html" xlink:title="ESMF_CFIOUtilMod::err">
+<g id="a_proc~~esmf_cfiovarinfoget~~CallsGraph_node2"><a xlink:href=".././proc/err.html" xlink:title="ESMF_CFIOUtilMod::err">
 <polygon fill="#d94e8f" stroke="#d94e8f" points="423,-24 289,-24 289,0 423,0 423,-24"/>
 <text text-anchor="middle" x="356" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOUtilMod::err</text>
 </a>
 </g>
 </g>
 <!-- proc~esmf_cfiovarinfoget&#45;&gt;proc~err -->
-<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_edge4" class="edge">
+<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_edge1" class="edge">
 <title>proc~esmf_cfiovarinfoget&#45;&gt;proc~err</title>
-<path fill="none" stroke="#255000" d="M171.1,-62.93C208.32,-52.62 262,-37.75 301.76,-26.74"/>
-<polygon fill="#255000" stroke="#255000" points="302.85,-30.07 311.55,-24.03 300.98,-23.33 302.85,-30.07"/>
+<path fill="none" stroke="#255000" d="M253.23,-12C261.83,-12 270.33,-12 278.55,-12"/>
+<polygon fill="#255000" stroke="#255000" points="278.78,-15.5 288.78,-12 278.78,-8.5 278.78,-15.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -876,11 +818,11 @@ can be any combination of xyzt</p>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -899,23 +841,29 @@ can be any combination of xyzt</p>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -933,11 +881,11 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -970,33 +918,33 @@ large graphs.</div>
 <path fill="none" stroke="#255000" d="M200.98,-167.94C213.79,-165.39 226.83,-162.42 239,-159 283.38,-146.54 332.46,-126.44 364.74,-112.3"/>
 <polygon fill="#255000" stroke="#255000" points="366.46,-115.37 374.19,-108.12 363.63,-108.97 366.46,-115.37"/>
 </g>
-<!-- program~test -->
+<!-- program~test~12 -->
 <g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_node3" class="node">
-<title>program~test</title>
-<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node3"><a xlink:href=".././program/test.html" xlink:title="test">
+<title>program~test~12</title>
+<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node3"><a xlink:href=".././program/test~12.html" xlink:title="test">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="146.5,-150 92.5,-150 92.5,-126 146.5,-126 146.5,-150"/>
 <text text-anchor="middle" x="119.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
 </a>
 </g>
 </g>
-<!-- program~test&#45;&gt;proc~esmf_cfiovarinfoget -->
+<!-- program~test~12&#45;&gt;proc~esmf_cfiovarinfoget -->
 <g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_edge2" class="edge">
-<title>program~test&#45;&gt;proc~esmf_cfiovarinfoget</title>
+<title>program~test~12&#45;&gt;proc~esmf_cfiovarinfoget</title>
 <path fill="none" stroke="#255000" d="M146.59,-134.09C183.6,-128.53 253.19,-118.1 310.17,-109.55"/>
 <polygon fill="#255000" stroke="#255000" points="310.92,-112.98 320.29,-108.03 309.88,-106.05 310.92,-112.98"/>
 </g>
-<!-- program~test~11 -->
+<!-- program~test~2 -->
 <g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_node4" class="node">
-<title>program~test~11</title>
-<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node4"><a xlink:href=".././program/test~11.html" xlink:title="test">
+<title>program~test~2</title>
+<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node4"><a xlink:href=".././program/test~2.html" xlink:title="test">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="146.5,-108 92.5,-108 92.5,-84 146.5,-84 146.5,-108"/>
 <text text-anchor="middle" x="119.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
 </a>
 </g>
 </g>
-<!-- program~test~11&#45;&gt;proc~esmf_cfiovarinfoget -->
+<!-- program~test~2&#45;&gt;proc~esmf_cfiovarinfoget -->
 <g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_edge3" class="edge">
-<title>program~test~11&#45;&gt;proc~esmf_cfiovarinfoget</title>
+<title>program~test~2&#45;&gt;proc~esmf_cfiovarinfoget</title>
 <path fill="none" stroke="#255000" d="M146.59,-96C174.11,-96 219.62,-96 264.58,-96"/>
 <polygon fill="#255000" stroke="#255000" points="264.76,-99.5 274.76,-96 264.76,-92.5 264.76,-99.5"/>
 </g>
@@ -1032,8 +980,8 @@ large graphs.</div>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -1050,11 +998,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -1073,23 +1021,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -1109,61 +1063,30 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/esmf_cfiovarinfoget.html#src">ESMF_CFIOVarInfoGet</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">ESMF_CFIOVarInfoGet</span><span class="w"> </span><span class="p">(</span><span class="n">varObj</span><span class="p">,</span><span class="w"> </span><span class="n">vName</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vTitle</span><span class="p">,</span><span class="w"> </span><span class="n">vUnits</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">twoDimVar</span><span class="p">,</span><span class="w"> </span><span class="n">validRange</span><span class="p">,</span><span class="w"> </span><span class="n">amiss</span><span class="p">,</span><span class="w"> </span><span class="n">addOffSet</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">scaleFactor</span><span class="p">,</span><span class="w"> </span><span class="n">standardName</span><span class="p">,</span><span class="w"> </span><span class="n">nVarAttChar</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">attCharNames</span><span class="p">,</span><span class="w">  </span><span class="n">vAttCharCnts</span><span class="p">,</span><span class="w"> </span><span class="n">varAttChars</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">nVarAttReal</span><span class="p">,</span><span class="w"> </span><span class="n">attRealNames</span><span class="p">,</span><span class="w"> </span><span class="n">vAttRealCnts</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">varAttReals</span><span class="p">,</span><span class="w"> </span><span class="n">nVarAttInt</span><span class="p">,</span><span class="w"> </span><span class="n">attIntNames</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">vAttIntCnts</span><span class="p">,</span><span class="w"> </span><span class="n">varAttInts</span><span class="p">,</span><span class="w"> </span><span class="n">ordering</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">attCharName</span><span class="p">,</span><span class="w"> </span><span class="n">attCharCnt</span><span class="p">,</span><span class="w"> </span><span class="n">attChar</span><span class="p">,</span><span class="w"> </span><span class="n">attRealName</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">attRealCnt</span><span class="p">,</span><span class="w"> </span><span class="n">attReal</span><span class="p">,</span><span class="w"> </span><span class="n">attIntName</span><span class="p">,</span><span class="w"> </span><span class="n">attIntCnt</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">attInt</span><span class="p">,</span><span class="w"> </span><span class="n">packingRange</span><span class="p">,</span><span class="w"> </span><span class="n">timAve</span><span class="p">,</span><span class="w"> </span><span class="n">aveMethod</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                              </span><span class="n">cellMthd</span><span class="p">,</span><span class="w"> </span><span class="n">ChunkSize</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">implicit NONE</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">ESMF_CFIOVarInfoGet</span><span class="w"> </span><span class="p">(</span><span class="n">varObj</span><span class="p">,</span><span class="w"> </span><span class="n">vName</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vTitle</span><span class="p">,</span><span class="w"> </span><span class="n">vUnits</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">twoDimVar</span><span class="p">,</span><span class="w"> </span><span class="n">validRange</span><span class="p">,</span><span class="w"> </span><span class="n">amiss</span><span class="p">,</span><span class="w"> </span><span class="n">addOffSet</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">scaleFactor</span><span class="p">,</span><span class="w"> </span><span class="n">standardName</span><span class="p">,</span><span class="w"> </span><span class="n">nVarAttChar</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">attCharNames</span><span class="p">,</span><span class="w">  </span><span class="n">vAttCharCnts</span><span class="p">,</span><span class="w"> </span><span class="n">varAttChars</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">nVarAttReal</span><span class="p">,</span><span class="w"> </span><span class="n">attRealNames</span><span class="p">,</span><span class="w"> </span><span class="n">vAttRealCnts</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">varAttReals</span><span class="p">,</span><span class="w"> </span><span class="n">nVarAttInt</span><span class="p">,</span><span class="w"> </span><span class="n">attIntNames</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">vAttIntCnts</span><span class="p">,</span><span class="w"> </span><span class="n">varAttInts</span><span class="p">,</span><span class="w"> </span><span class="n">ordering</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">attCharName</span><span class="p">,</span><span class="w"> </span><span class="n">attCharCnt</span><span class="p">,</span><span class="w"> </span><span class="n">attChar</span><span class="p">,</span><span class="w"> </span><span class="n">attRealName</span><span class="p">,&amp;</span>
+<span class="w">                              </span><span class="n">attRealCnt</span><span class="p">,</span><span class="w"> </span><span class="n">attReal</span><span class="p">,</span><span class="w"> </span><span class="n">attIntName</span><span class="p">,</span><span class="w"> </span><span class="n">attIntCnt</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">attInt</span><span class="p">,</span><span class="w"> </span><span class="n">packingRange</span><span class="p">,</span><span class="w"> </span><span class="n">timAve</span><span class="p">,</span><span class="w"> </span><span class="n">aveMethod</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">cellMthd</span><span class="p">,</span><span class="w"> </span><span class="n">ChunkSize</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">implicit NONE</span>
 
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
@@ -1186,32 +1109,32 @@ large graphs.</div>
 <span class="w">                                         </span><span class="c">!! &#39;u&#39;: upstream</span>
 <span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MVARLEN</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cellMthd</span><span class="w">    </span><span class="c">!! Cell methmod units</span>
 <span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">validRange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">    </span><span class="c">!! Variable valid range</span>
-<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">packingRange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">packingRange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">amiss</span><span class="w">            </span><span class="c">!! FILL value</span>
 <span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">addOffSet</span><span class="w">    </span>
-<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">scaleFactor</span><span class="w"></span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">scaleFactor</span>
 <span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">standardName</span><span class="w"> </span>
 <span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ordering</span><span class="w"> </span><span class="c">!! (time, lev, lat, lon) (default)</span>
 <span class="w">                                 </span><span class="c">!! can be any combination of xyzt</span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttInt</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttReal</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttChar</span><span class="w"></span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttInt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttReal</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttChar</span>
 
-<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharNames</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealNames</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntNames</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharNames</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealNames</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntNames</span><span class="p">(:)</span>
 
 <span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="k">OPTIONAL</span><span class="kd">::</span><span class="n">vAttCharCnts</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! length of attributes</span>
 <span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="k">OPTIONAL</span><span class="kd">::</span><span class="n">vAttRealCnts</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! length of attributes</span>
 <span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="k">OPTIONAL</span><span class="kd">::</span><span class="n">vAttIntCnts</span><span class="p">(:)</span><span class="w">  </span><span class="c">!! length of attributes</span>
 
-<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttChars</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttReals</span><span class="p">(:,:)</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttInts</span><span class="p">(:,:)</span><span class="w"></span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttChars</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttReals</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttInts</span><span class="p">(:,:)</span>
 <span class="w">                                                                                       </span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntCnt</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealCnt</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharCnt</span><span class="w"></span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntCnt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealCnt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharCnt</span>
 <span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attChar</span><span class="w"> </span><span class="c">!! User defined  char attribute</span>
 <span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attReal</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined  real attribute</span>
 <span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attInt</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined  int attribute</span>
@@ -1231,187 +1154,187 @@ large graphs.</div>
 
 <span class="c">!</span>
 <span class="c">!------------------------------------------------------------------------------</span>
-<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
 <span class="w">                                                                                     </span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">vName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">vName</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">vName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">vName</span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">grid</span><span class="w"> </span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vTitle</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">vTitle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">vTitle</span><span class="w"> </span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vUnits</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">vUnits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">vUnits</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vUnits</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">vUnits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">vUnits</span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">twoDimVar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">twoDimVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">twoDimVar</span><span class="w"> </span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">timAve</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">timAve</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">timAve</span><span class="w"></span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">aveMethod</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">aveMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">aveMethod</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">timAve</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">timAve</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">timAve</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">aveMethod</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">aveMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">aveMethod</span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">cellMthd</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">cellMthd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">cellMthd</span><span class="w">  </span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">validRange</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">validRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">validRange</span><span class="w"> </span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">packingRange</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">packingRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">packingRange</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">packingRange</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">packingRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">packingRange</span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">amiss</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">amiss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">amiss</span><span class="w"> </span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">addOffSet</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">addOffSet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">addOffSet</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">addOffSet</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">addOffSet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">addOffSet</span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">scaleFactor</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">scaleFactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">scaleFactor</span><span class="w"> </span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">standardName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="n">standardName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">standardName</span><span class="w"> </span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">ordering</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">ordering</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">ordering</span><span class="w"> </span>
 <span class="w">                                                                                     </span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttInt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="w"></span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttReal</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="w"></span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttChar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttInt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttReal</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttChar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span>
 
 <span class="c">!      get all attribute names</span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for attCharNames failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
-<span class="k">          </span><span class="n">attCharNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span><span class="w"></span>
+<span class="k">          </span><span class="n">attCharNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span>
 <span class="w">       </span><span class="k">end if</span>
 <span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for attRealNames failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
-<span class="k">          </span><span class="n">attRealNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span><span class="w"></span>
+<span class="k">          </span><span class="n">attRealNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span>
 <span class="w">       </span><span class="k">end if</span>
 <span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for attIntNames failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
-<span class="k">          </span><span class="n">attIntNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span><span class="w"></span>
-<span class="w">       </span><span class="k">end if</span><span class="w"></span>
+<span class="k">          </span><span class="n">attIntNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span>
+<span class="w">       </span><span class="k">end if</span>
 
 <span class="c">!      get all attribute counts</span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vAttCharCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttCharCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttCharCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for vAttCharCnts failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
-<span class="k">          </span><span class="n">vAttCharCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharCnts</span><span class="w"></span>
+<span class="k">          </span><span class="n">vAttCharCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharCnts</span>
 <span class="w">       </span><span class="k">end if</span>
 <span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vAttRealCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttRealCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttRealCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for vAttRealCnts failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
-<span class="k">          </span><span class="n">vAttRealCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="w"></span>
+<span class="k">          </span><span class="n">vAttRealCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span>
 <span class="w">       </span><span class="k">end if</span>
 <span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vAttIntCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttIntCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttIntCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for vAttIntCnts failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
-<span class="k">          </span><span class="n">vAttIntCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="w"></span>
-<span class="w">       </span><span class="k">end if</span><span class="w"></span>
+<span class="k">          </span><span class="n">vAttIntCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span>
+<span class="w">       </span><span class="k">end if</span>
 
 <span class="c">!      get all attribute data   </span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">varAttChars</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttChars</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttChars</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for varAttChars failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
 <span class="k">          </span><span class="n">varAttChars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttChars</span><span class="w"> </span>
 <span class="w">       </span><span class="k">end if</span>
 <span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">varAttReals</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttReals</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttReals</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                   </span><span class="o">/</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttReals</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttReals</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="o">/</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for varAttReals failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
 <span class="k">          </span><span class="n">varAttReals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttReals</span><span class="w"> </span>
 <span class="w">       </span><span class="k">end if</span>
 <span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">varAttInts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
-<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttInts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttInts</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                   </span><span class="o">/</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span><span class="w"></span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttInts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttInts</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="o">/</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for varAttInts failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">             </span><span class="k">return</span>
 <span class="k">          end if</span>
 <span class="k">          </span><span class="n">varAttInts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttInts</span><span class="w">  </span>
-<span class="w">       </span><span class="k">end if</span><span class="w"></span>
+<span class="w">       </span><span class="k">end if</span>
 
 <span class="c">!      Get Chunk Size</span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">ChunkSize</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">          if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">ChunkSize</span><span class="p">))</span><span class="w">  </span><span class="k">then </span>
-<span class="k">             allocate</span><span class="p">(</span><span class="w"> </span><span class="n">ChunkSize</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">ChunkSize</span><span class="p">)),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="k">             allocate</span><span class="p">(</span><span class="w"> </span><span class="n">ChunkSize</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">ChunkSize</span><span class="p">)),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
 <span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for ChunkSize fialed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 <span class="w">                </span><span class="k">return</span>
 <span class="k">             end if</span>
-<span class="k">             </span><span class="n">ChunkSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">ChunkSize</span><span class="w"></span>
+<span class="k">             </span><span class="n">ChunkSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">ChunkSize</span>
 <span class="w">          </span><span class="k">end if</span>
-<span class="k">       end if</span><span class="w"></span>
+<span class="k">       end if</span>
 
 <span class="c">!      user provides integer attribute name to get its count and data </span>
 <span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="w"></span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">                    </span><span class="k">then</span>
-<span class="k">                   </span><span class="n">attIntCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="k">                   </span><span class="n">attIntCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 <span class="w">                </span><span class="k">end if</span>
 <span class="k">             end do</span>
 <span class="k">          end if</span>
 <span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attInt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="w"></span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span><span class="w"></span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
 <span class="w">                    </span><span class="k">then</span>
-<span class="k">                   allocate</span><span class="p">(</span><span class="n">attInt</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"></span>
-<span class="w">                   </span><span class="n">attInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttInts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
-<span class="w">                </span><span class="k">end if</span>
-<span class="k">             end do</span>
-<span class="k">          end if</span>
-<span class="k">       end if</span><span class="w"></span>
-
-<span class="c">!      user provides real attribute name to get its count and data </span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="w"></span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                    </span><span class="k">then</span>
-<span class="k">                   </span><span class="n">attRealCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
-<span class="w">                </span><span class="k">end if</span>
-<span class="k">             end do</span>
-<span class="k">          end if</span>
-<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attReal</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="w"></span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span><span class="w"></span>
-<span class="w">                    </span><span class="k">then</span>
-<span class="k">                   allocate</span><span class="p">(</span><span class="n">attReal</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"></span>
-<span class="w">                   </span><span class="n">attReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttReals</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
-<span class="w">                </span><span class="k">end if</span>
-<span class="k">             end do</span>
-<span class="k">          end if</span>
-<span class="k">       end if</span><span class="w"></span>
-
-<span class="c">!      user provides char attribute name to get its count and data </span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="w"></span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                    </span><span class="k">then</span>
-<span class="k">                   </span><span class="n">attCharCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
-<span class="w">                </span><span class="k">end if</span>
-<span class="k">             end do</span>
-<span class="k">          end if</span>
-<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attChar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="w"></span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span><span class="w"></span>
-<span class="w">                    </span><span class="k">then</span>
-<span class="k">                   </span><span class="n">attChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttChars</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
+<span class="k">                   allocate</span><span class="p">(</span><span class="n">attInt</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">                   </span><span class="n">attInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttInts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
 <span class="w">                </span><span class="k">end if</span>
 <span class="k">             end do</span>
 <span class="k">          end if</span>
 <span class="k">       end if</span>
 
-<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
+<span class="c">!      user provides real attribute name to get its count and data </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attRealCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attReal</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   allocate</span><span class="p">(</span><span class="n">attReal</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">                   </span><span class="n">attReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttReals</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+
+<span class="c">!      user provides char attribute name to get its count and data </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attCharCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attChar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttChars</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
 
 
-<span class="w">      </span><span class="k">end subroutine </span><span class="n">ESMF_CFIOVarInfoGet</span><span class="w"></span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">ESMF_CFIOVarInfoGet</span>
 </pre></div>
 
     </section>
@@ -1424,32 +1347,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

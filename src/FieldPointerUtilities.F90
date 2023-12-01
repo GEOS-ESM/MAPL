@@ -3,8 +3,7 @@
 module MAPL_FieldPointerUtilities
    use ESMF
    use MAPL_ExceptionHandling
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-   use, intrinsic :: iso_fortran_env, only: INT8, INT16, INT32, INT64
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
    implicit none
    private
 

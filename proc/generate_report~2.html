@@ -10,85 +10,58 @@
 
     <title>generate_report &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">24 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">24 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/time_ave_util.F90"> Source File</a>
+              <a href="../src/Regrid_Util.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/time_ave_util.f90.html'>time_ave_util.F90</a></li>
-              <li><a href='../program/time_ave.html'>time_ave</a></li>
-          <li class="active">generate_report</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/regrid_util.f90.html'>Regrid_Util.F90</a></li>
+                <li class="breadcrumb-item"><a href='../program/regrid_util.html'>Regrid_Util</a></li>
+            <li class="breadcrumb-item active" aria-current="page">generate_report</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/generate_report~2.html#src">generate_report</a>
       </div>
@@ -174,65 +152,375 @@
     <em>None</em>
     <br>
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~generate_report~2~~CallsGraph Pages: 1 -->
-<svg id="procgenerate_report2CallsGraph" width="405pt" height="74pt"
- viewBox="0.00 0.00 405.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~generate_report~2~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<svg id="procgenerate_report2CallsGraph" width="641pt" height="136pt"
+ viewBox="0.00 0.00 641.00 135.66" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~generate_report~2~~CallsGraph" class="graph" transform="scale(3.49 3.49) rotate(0) translate(4 469)">
 <title>proc~~generate_report~2~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 401,-70 401,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-469 2231,-469 2231,4 -4,4"/>
 <!-- proc~generate_report~2 -->
 <g id="proc~~generate_report~2~~CallsGraph_node1" class="node">
 <title>proc~generate_report~2</title>
-<polygon fill="none" stroke="black" points="155,-45 0,-45 0,-21 155,-21 155,-45"/>
-<text text-anchor="middle" x="77.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">time_ave::generate_report</text>
-</g>
-<!-- proc~generate_report~2&#45;&gt;proc~generate_report~2 -->
-<g id="proc~~generate_report~2~~CallsGraph_edge3" class="edge">
-<title>proc~generate_report~2&#45;&gt;proc~generate_report~2</title>
-<path fill="none" stroke="#255000" d="M41.79,-45.01C29.31,-53.97 41.22,-63 77.5,-63 100.74,-63 113.98,-59.29 117.22,-54.28"/>
-<polygon fill="#255000" stroke="#255000" points="120.39,-52.81 113.21,-45.01 113.97,-55.58 120.39,-52.81"/>
-</g>
-<!-- add_column -->
-<g id="proc~~generate_report~2~~CallsGraph_node2" class="node">
-<title>add_column</title>
-<polygon fill="#777777" stroke="#777777" points="333,-66 255,-66 255,-42 333,-42 333,-66"/>
-<text text-anchor="middle" x="294" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_column</text>
-</g>
-<!-- proc~generate_report~2&#45;&gt;add_column -->
-<g id="proc~~generate_report~2~~CallsGraph_edge1" class="edge">
-<title>proc~generate_report~2&#45;&gt;add_column</title>
-<path fill="none" stroke="#255000" d="M155.03,-40.49C184.88,-43.41 218.19,-46.68 244.6,-49.26"/>
-<polygon fill="#255000" stroke="#255000" points="244.44,-52.76 254.73,-50.25 245.12,-45.8 244.44,-52.76"/>
+<polygon fill="none" stroke="black" points="163,-308 0,-308 0,-284 163,-284 163,-308"/>
+<text text-anchor="middle" x="81.5" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50">Regrid_Util::generate_report</text>
 </g>
 <!-- interface~mapl_am_i_root -->
-<g id="proc~~generate_report~2~~CallsGraph_node3" class="node">
+<g id="proc~~generate_report~2~~CallsGraph_node2" class="node">
 <title>interface~mapl_am_i_root</title>
-<g id="a_proc~~generate_report~2~~CallsGraph_node3"><a xlink:href=".././interface/mapl_am_i_root.html" xlink:title="MAPL_CommsMod::MAPL_Am_I_Root">
-<polygon fill="#a7506f" stroke="#a7506f" points="397,-24 191,-24 191,0 397,0 397,-24"/>
-<text text-anchor="middle" x="294" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::MAPL_Am_I_Root</text>
+<g id="a_proc~~generate_report~2~~CallsGraph_node2"><a xlink:href=".././interface/mapl_am_i_root.html" xlink:title="MAPL_CommsMod::MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="456.5,-348 250.5,-348 250.5,-324 456.5,-324 456.5,-348"/>
+<text text-anchor="middle" x="353.5" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::MAPL_Am_I_Root</text>
 </a>
 </g>
 </g>
 <!-- proc~generate_report~2&#45;&gt;interface~mapl_am_i_root -->
-<g id="proc~~generate_report~2~~CallsGraph_edge2" class="edge">
+<g id="proc~~generate_report~2~~CallsGraph_edge1" class="edge">
 <title>proc~generate_report~2&#45;&gt;interface~mapl_am_i_root</title>
-<path fill="none" stroke="#255000" d="M155.03,-25.51C163.33,-24.69 171.9,-23.86 180.52,-23.01"/>
-<polygon fill="#255000" stroke="#255000" points="181.03,-26.48 190.64,-22.02 180.34,-19.51 181.03,-26.48"/>
+<path fill="none" stroke="#255000" d="M163.14,-307.95C193.99,-312.52 229.38,-317.76 261.16,-322.47"/>
+<polygon fill="#255000" stroke="#255000" points="260.93,-325.97 271.34,-323.98 261.96,-319.05 260.93,-325.97"/>
+</g>
+<!-- none~add_column -->
+<g id="proc~~generate_report~2~~CallsGraph_node3" class="node">
+<title>none~add_column</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node3"><a xlink:href=".././type/multicolumn.html#boundprocedure-add_column" xlink:title="MAPL_MultiColumn::MultiColumn%add_column">
+<polygon fill="#a7506f" stroke="#a7506f" points="1195.5,-339 933.5,-339 933.5,-315 1195.5,-315 1195.5,-339"/>
+<text text-anchor="middle" x="1064.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MultiColumn::MultiColumn%add_column</text>
+</a>
+</g>
+</g>
+<!-- proc~generate_report~2&#45;&gt;none~add_column -->
+<g id="proc~~generate_report~2~~CallsGraph_edge2" class="edge">
+<title>proc~generate_report~2&#45;&gt;none~add_column</title>
+<path fill="none" stroke="#255000" d="M163.2,-298.55C330.05,-303.82 714.77,-315.98 923.2,-322.57"/>
+<polygon fill="#255000" stroke="#255000" points="923.19,-326.07 933.29,-322.89 923.41,-319.07 923.19,-326.07"/>
+</g>
+<!-- none~generate_report -->
+<g id="proc~~generate_report~2~~CallsGraph_node4" class="node">
+<title>none~generate_report</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node4"><a xlink:href=".././type/profilereporter.html#boundprocedure-generate_report" xlink:title="MAPL_ProfileReporter::ProfileReporter%generate_report">
+<polygon fill="#a7506f" stroke="#a7506f" points="508,-257 199,-257 199,-233 508,-233 508,-257"/>
+<text text-anchor="middle" x="353.5" y="-242.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ProfileReporter::ProfileReporter%generate_report</text>
+</a>
+</g>
+</g>
+<!-- proc~generate_report~2&#45;&gt;none~generate_report -->
+<g id="proc~~generate_report~2~~CallsGraph_edge3" class="edge">
+<title>proc~generate_report~2&#45;&gt;none~generate_report</title>
+<path fill="none" stroke="#255000" d="M146.14,-283.98C185.9,-276.47 237.23,-266.77 278.76,-258.93"/>
+<polygon fill="#255000" stroke="#255000" points="279.64,-262.32 288.82,-257.03 278.34,-255.45 279.64,-262.32"/>
+</g>
+<!-- get_num_rows_header -->
+<g id="proc~~generate_report~2~~CallsGraph_node5" class="node">
+<title>get_num_rows_header</title>
+<polygon fill="#777777" stroke="#777777" points="1458.5,-360 1326.5,-360 1326.5,-336 1458.5,-336 1458.5,-360"/>
+<text text-anchor="middle" x="1392.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_rows_header</text>
+</g>
+<!-- none~add_column&#45;&gt;get_num_rows_header -->
+<g id="proc~~generate_report~2~~CallsGraph_edge4" class="edge">
+<title>none~add_column&#45;&gt;get_num_rows_header</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1195.75,-335.39C1236.59,-338.02 1280.29,-340.84 1316.01,-343.14"/>
+<polygon fill="#025500" stroke="#025500" points="1316.15,-346.65 1326.35,-343.8 1316.6,-339.67 1316.15,-346.65"/>
+</g>
+<!-- none~get_num_rows_separator -->
+<g id="proc~~generate_report~2~~CallsGraph_node7" class="node">
+<title>none~get_num_rows_separator</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node7"><a xlink:href=".././type/textcolumn.html#boundprocedure-get_num_rows_separator" xlink:title="MAPL_TextColumn::TextColumn%get_num_rows_separator">
+<polygon fill="#a7506f" stroke="#a7506f" points="1552,-318 1233,-318 1233,-294 1552,-294 1552,-318"/>
+<text text-anchor="middle" x="1392.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumn::TextColumn%get_num_rows_separator</text>
+</a>
+</g>
+</g>
+<!-- none~add_column&#45;&gt;none~get_num_rows_separator -->
+<g id="proc~~generate_report~2~~CallsGraph_edge5" class="edge">
+<title>none~add_column&#45;&gt;none~get_num_rows_separator</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1195.75,-318.61C1204.64,-318.04 1213.67,-317.46 1222.72,-316.87"/>
+<polygon fill="#025500" stroke="#025500" points="1223.19,-320.35 1232.94,-316.21 1222.74,-313.36 1223.19,-320.35"/>
+</g>
+<!-- none~get_width -->
+<g id="proc~~generate_report~2~~CallsGraph_node8" class="node">
+<title>none~get_width</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node8"><a xlink:href=".././type/textcolumn.html#boundprocedure-get_width" xlink:title="MAPL_TextColumn::TextColumn%get_width">
+<polygon fill="#a7506f" stroke="#a7506f" points="1511.5,-276 1273.5,-276 1273.5,-252 1511.5,-252 1511.5,-276"/>
+<text text-anchor="middle" x="1392.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumn::TextColumn%get_width</text>
+</a>
+</g>
+</g>
+<!-- none~add_column&#45;&gt;none~get_width -->
+<g id="proc~~generate_report~2~~CallsGraph_edge6" class="edge">
+<title>none~add_column&#45;&gt;none~get_width</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1107.89,-314.95C1141.57,-305.72 1190.01,-293.21 1233,-285 1247.29,-282.27 1262.37,-279.78 1277.32,-277.54"/>
+<polygon fill="#025500" stroke="#025500" points="1278.25,-280.94 1287.64,-276.03 1277.24,-274.02 1278.25,-280.94"/>
+</g>
+<!-- none~push_back -->
+<g id="proc~~generate_report~2~~CallsGraph_node9" class="node">
+<title>none~push_back</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node9"><a xlink:href=".././type/textcolumnvector.html#boundprocedure-push_back" xlink:title="MAPL_TextColumnVector::TextColumnVector%push_back">
+<polygon fill="#a7506f" stroke="#a7506f" points="1547.5,-444 1237.5,-444 1237.5,-420 1547.5,-420 1547.5,-444"/>
+<text text-anchor="middle" x="1392.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumnVector::TextColumnVector%push_back</text>
+</a>
+</g>
+</g>
+<!-- none~add_column&#45;&gt;none~push_back -->
+<g id="proc~~generate_report~2~~CallsGraph_edge7" class="edge">
+<title>none~add_column&#45;&gt;none~push_back</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1084.22,-339.02C1114.29,-357.71 1175.78,-393.41 1233,-411 1241.39,-413.58 1250.12,-415.84 1258.98,-417.82"/>
+<polygon fill="#025500" stroke="#025500" points="1258.52,-421.3 1269.03,-419.95 1259.97,-414.46 1258.52,-421.3"/>
+</g>
+<!-- none~set_width -->
+<g id="proc~~generate_report~2~~CallsGraph_node10" class="node">
+<title>none~set_width</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node10"><a xlink:href=".././type/textcolumn.html#boundprocedure-set_width" xlink:title="MAPL_TextColumn::TextColumn%set_width">
+<polygon fill="#a7506f" stroke="#a7506f" points="1510.5,-402 1274.5,-402 1274.5,-378 1510.5,-378 1510.5,-402"/>
+<text text-anchor="middle" x="1392.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumn::TextColumn%set_width</text>
+</a>
+</g>
+</g>
+<!-- none~add_column&#45;&gt;none~set_width -->
+<g id="proc~~generate_report~2~~CallsGraph_edge8" class="edge">
+<title>none~add_column&#45;&gt;none~set_width</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1107.89,-339.05C1141.57,-348.28 1190.01,-360.79 1233,-369 1247.29,-371.73 1262.37,-374.22 1277.32,-376.46"/>
+<polygon fill="#025500" stroke="#025500" points="1277.24,-379.98 1287.64,-377.97 1278.25,-373.06 1277.24,-379.98"/>
+</g>
+<!-- none~generate_report_profiler -->
+<g id="proc~~generate_report~2~~CallsGraph_node6" class="node">
+<title>none~generate_report_profiler</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node6"><a xlink:href=".././type/profilereporter.html#boundprocedure-generate_report_profiler" xlink:title="MAPL_ProfileReporter::ProfileReporter%generate_report_profiler">
+<polygon fill="#a7506f" stroke="#a7506f" points="896,-235 544,-235 544,-211 896,-211 896,-235"/>
+<text text-anchor="middle" x="720" y="-220.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ProfileReporter::ProfileReporter%generate_report_profiler</text>
+</a>
+</g>
+</g>
+<!-- none~generate_report&#45;&gt;none~generate_report_profiler -->
+<g id="proc~~generate_report~2~~CallsGraph_edge9" class="edge">
+<title>none~generate_report&#45;&gt;none~generate_report_profiler</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M508.02,-235.73C516.55,-235.22 525.17,-234.7 533.8,-234.18"/>
+<polygon fill="#002505" stroke="#002505" points="534.15,-237.66 543.92,-233.57 533.73,-230.68 534.15,-237.66"/>
+</g>
+<!-- none~generate_report_profiler&#45;&gt;none~get_width -->
+<g id="proc~~generate_report~2~~CallsGraph_edge13" class="edge">
+<title>none~generate_report_profiler&#45;&gt;none~get_width</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M829.87,-235C862.66,-238.3 898.77,-241.62 932,-244 1043.7,-251.98 1170.92,-257.22 1263.13,-260.33"/>
+<polygon fill="transparent" stroke="transparent" points="1263.24,-263.83 1273.35,-260.67 1263.47,-256.84 1263.24,-263.83"/>
+</g>
+<!-- none~get_header -->
+<g id="proc~~generate_report~2~~CallsGraph_node12" class="node">
+<title>none~get_header</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node12"><a xlink:href=".././type/multicolumn.html#boundprocedure-get_header" xlink:title="MAPL_MultiColumn::MultiColumn%get_header">
+<polygon fill="#a7506f" stroke="#a7506f" points="1193.5,-235 935.5,-235 935.5,-211 1193.5,-211 1193.5,-235"/>
+<text text-anchor="middle" x="1064.5" y="-220.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MultiColumn::MultiColumn%get_header</text>
+</a>
+</g>
+</g>
+<!-- none~generate_report_profiler&#45;&gt;none~get_header -->
+<g id="proc~~generate_report~2~~CallsGraph_edge10" class="edge">
+<title>none~generate_report_profiler&#45;&gt;none~get_header</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M896.01,-223C905.69,-223 915.35,-223 924.88,-223"/>
+<polygon fill="transparent" stroke="transparent" points="925.15,-226.5 935.15,-223 925.15,-219.5 925.15,-226.5"/>
+</g>
+<!-- none~get_root_node -->
+<g id="proc~~generate_report~2~~CallsGraph_node13" class="node">
+<title>none~get_root_node</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node13"><a xlink:href=".././type/baseprofiler.html#boundprocedure-get_root_node" xlink:title="mapl_BaseProfiler::BaseProfiler%get_root_node">
+<polygon fill="#a7506f" stroke="#a7506f" points="1197,-193 932,-193 932,-169 1197,-169 1197,-193"/>
+<text text-anchor="middle" x="1064.5" y="-178.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%get_root_node</text>
+</a>
+</g>
+</g>
+<!-- none~generate_report_profiler&#45;&gt;none~get_root_node -->
+<g id="proc~~generate_report~2~~CallsGraph_edge11" class="edge">
+<title>none~generate_report_profiler&#45;&gt;none~get_root_node</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M819.15,-210.96C861.78,-205.74 911.86,-199.59 955.55,-194.24"/>
+<polygon fill="transparent" stroke="transparent" points="956.14,-197.69 965.64,-193 955.28,-190.74 956.14,-197.69"/>
+</g>
+<!-- none~get_rows -->
+<g id="proc~~generate_report~2~~CallsGraph_node14" class="node">
+<title>none~get_rows</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node14"><a xlink:href=".././type/multicolumn.html#boundprocedure-get_rows" xlink:title="MAPL_MultiColumn::MultiColumn%get_rows">
+<polygon fill="#a7506f" stroke="#a7506f" points="1186.5,-108 942.5,-108 942.5,-84 1186.5,-84 1186.5,-108"/>
+<text text-anchor="middle" x="1064.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MultiColumn::MultiColumn%get_rows</text>
+</a>
+</g>
+</g>
+<!-- none~generate_report_profiler&#45;&gt;none~get_rows -->
+<g id="proc~~generate_report~2~~CallsGraph_edge12" class="edge">
+<title>none~generate_report_profiler&#45;&gt;none~get_rows</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M753.53,-210.94C815.84,-187.83 951.97,-137.36 1021.22,-111.68"/>
+<polygon fill="transparent" stroke="transparent" points="1022.78,-114.83 1030.94,-108.07 1020.34,-108.27 1022.78,-114.83"/>
+</g>
+<!-- none~capacity -->
+<g id="proc~~generate_report~2~~CallsGraph_node11" class="node">
+<title>none~capacity</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node11"><a xlink:href=".././type/textcolumnvector.html#boundprocedure-capacity" xlink:title="MAPL_TextColumnVector::TextColumnVector%capacity">
+<polygon fill="#a7506f" stroke="#a7506f" points="1887,-465 1588,-465 1588,-441 1887,-441 1887,-465"/>
+<text text-anchor="middle" x="1737.5" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumnVector::TextColumnVector%capacity</text>
+</a>
+</g>
+</g>
+<!-- none~push_back&#45;&gt;none~capacity -->
+<g id="proc~~generate_report~2~~CallsGraph_edge14" class="edge">
+<title>none~push_back&#45;&gt;none~capacity</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M1547.69,-441.44C1557.7,-442.05 1567.79,-442.67 1577.82,-443.29"/>
+<polygon fill="#002505" stroke="#002505" points="1577.63,-446.78 1587.83,-443.9 1578.06,-439.79 1577.63,-446.78"/>
+</g>
+<!-- none~resize -->
+<g id="proc~~generate_report~2~~CallsGraph_node15" class="node">
+<title>none~resize</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node15"><a xlink:href=".././type/textcolumnvector.html#boundprocedure-resize" xlink:title="MAPL_TextColumnVector::TextColumnVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="1880,-423 1595,-423 1595,-399 1880,-399 1880,-423"/>
+<text text-anchor="middle" x="1737.5" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumnVector::TextColumnVector%resize</text>
+</a>
+</g>
+</g>
+<!-- none~push_back&#45;&gt;none~resize -->
+<g id="proc~~generate_report~2~~CallsGraph_edge15" class="edge">
+<title>none~push_back&#45;&gt;none~resize</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M1547.69,-422.56C1560,-421.81 1572.42,-421.05 1584.71,-420.29"/>
+<polygon fill="#002505" stroke="#002505" points="1585.22,-423.77 1594.99,-419.66 1584.8,-416.78 1585.22,-423.77"/>
+</g>
+<!-- none~get_header&#45;&gt;get_num_rows_header -->
+<g id="proc~~generate_report~2~~CallsGraph_edge17" class="edge">
+<title>none~get_header&#45;&gt;get_num_rows_header</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1084.57,-235.14C1126.75,-261.95 1224.92,-324.11 1233,-327 1259.3,-336.41 1289.42,-341.67 1316.29,-344.59"/>
+<polygon fill="transparent" stroke="transparent" points="1316.12,-348.09 1326.41,-345.59 1316.81,-341.12 1316.12,-348.09"/>
+</g>
+<!-- none~get_header&#45;&gt;none~get_num_rows_separator -->
+<g id="proc~~generate_report~2~~CallsGraph_edge20" class="edge">
+<title>none~get_header&#45;&gt;none~get_num_rows_separator</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1092.47,-235.12C1125.1,-249.27 1181.99,-272.35 1233,-285 1243.94,-287.71 1255.4,-290.09 1266.93,-292.18"/>
+<polygon fill="transparent" stroke="transparent" points="1266.63,-295.68 1277.08,-293.94 1267.82,-288.78 1266.63,-295.68"/>
+</g>
+<!-- none~get_header&#45;&gt;none~get_width -->
+<g id="proc~~generate_report~2~~CallsGraph_edge22" class="edge">
+<title>none~get_header&#45;&gt;none~get_width</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1161.11,-235.02C1200.25,-239.95 1245.69,-245.66 1285.81,-250.71"/>
+<polygon fill="transparent" stroke="transparent" points="1285.54,-254.2 1295.89,-251.98 1286.41,-247.26 1285.54,-254.2"/>
+</g>
+<!-- get_header -->
+<g id="proc~~generate_report~2~~CallsGraph_node16" class="node">
+<title>get_header</title>
+<polygon fill="#777777" stroke="#777777" points="1429,-234 1356,-234 1356,-210 1429,-210 1429,-234"/>
+<text text-anchor="middle" x="1392.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_header</text>
+</g>
+<!-- none~get_header&#45;&gt;get_header -->
+<g id="proc~~generate_report~2~~CallsGraph_edge16" class="edge">
+<title>none~get_header&#45;&gt;get_header</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1193.88,-222.61C1247.52,-222.44 1306.42,-222.26 1345.84,-222.14"/>
+<polygon fill="transparent" stroke="transparent" points="1345.93,-225.64 1355.92,-222.11 1345.91,-218.64 1345.93,-225.64"/>
+</g>
+<!-- none~at~2 -->
+<g id="proc~~generate_report~2~~CallsGraph_node19" class="node">
+<title>none~at~2</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node19"><a xlink:href=".././type/textcolumnvector.html#boundprocedure-at~2" xlink:title="MAPL_TextColumnVector::TextColumnVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1525,-108 1260,-108 1260,-84 1525,-84 1525,-108"/>
+<text text-anchor="middle" x="1392.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumnVector::TextColumnVector%at</text>
+</a>
+</g>
+</g>
+<!-- none~get_header&#45;&gt;none~at~2 -->
+<g id="proc~~generate_report~2~~CallsGraph_edge18" class="edge">
+<title>none~get_header&#45;&gt;none~at~2</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1182.99,-210.95C1187.93,-208.38 1192.63,-205.42 1197,-202 1229.3,-176.71 1200.36,-141.86 1233,-117 1238.49,-112.82 1244.41,-109.25 1250.62,-106.22"/>
+<polygon fill="transparent" stroke="transparent" points="1252.16,-109.37 1259.91,-102.15 1249.35,-102.95 1252.16,-109.37"/>
+</g>
+<!-- none~center -->
+<g id="proc~~generate_report~2~~CallsGraph_node20" class="node">
+<title>none~center</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node20"><a xlink:href=".././type/textcolumn.html#boundprocedure-center" xlink:title="MAPL_TextColumn::TextColumn%center">
+<polygon fill="#a7506f" stroke="#a7506f" points="1503,-192 1282,-192 1282,-168 1503,-168 1503,-192"/>
+<text text-anchor="middle" x="1392.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumn::TextColumn%center</text>
+</a>
+</g>
+</g>
+<!-- none~get_header&#45;&gt;none~center -->
+<g id="proc~~generate_report~2~~CallsGraph_edge19" class="edge">
+<title>none~get_header&#45;&gt;none~center</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1156.74,-210.96C1198.25,-205.49 1247.5,-198.99 1290.16,-193.37"/>
+<polygon fill="transparent" stroke="transparent" points="1290.82,-196.81 1300.28,-192.03 1289.91,-189.87 1290.82,-196.81"/>
+</g>
+<!-- none~get_separator -->
+<g id="proc~~generate_report~2~~CallsGraph_node21" class="node">
+<title>none~get_separator</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node21"><a xlink:href=".././type/textcolumn.html#boundprocedure-get_separator" xlink:title="MAPL_TextColumn::TextColumn%get_separator">
+<polygon fill="#a7506f" stroke="#a7506f" points="1523,-150 1262,-150 1262,-126 1523,-126 1523,-150"/>
+<text text-anchor="middle" x="1392.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumn::TextColumn%get_separator</text>
+</a>
+</g>
+</g>
+<!-- none~get_header&#45;&gt;none~get_separator -->
+<g id="proc~~generate_report~2~~CallsGraph_edge21" class="edge">
+<title>none~get_header&#45;&gt;none~get_separator</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1177.57,-210.92C1184.33,-208.43 1190.87,-205.48 1197,-202 1218.68,-189.7 1211.16,-171.01 1233,-159 1239.05,-155.68 1245.41,-152.8 1251.98,-150.31"/>
+<polygon fill="transparent" stroke="transparent" points="1253.42,-153.52 1261.73,-146.95 1251.14,-146.9 1253.42,-153.52"/>
+</g>
+<!-- none~get_rows&#45;&gt;none~get_width -->
+<g id="proc~~generate_report~2~~CallsGraph_edge26" class="edge">
+<title>none~get_rows&#45;&gt;none~get_width</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1107.81,-108.02C1136.19,-117.95 1172.68,-134.6 1197,-160 1224.8,-189.05 1200.91,-218.77 1233,-243 1242.17,-249.92 1252.51,-255.15 1263.41,-259.06"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1262.53,-262.45 1273.12,-262.16 1264.66,-255.79 1262.53,-262.45"/>
+</g>
+<!-- get_num_nodes -->
+<g id="proc~~generate_report~2~~CallsGraph_node17" class="node">
+<title>get_num_nodes</title>
+<polygon fill="#777777" stroke="#777777" points="1441,-66 1344,-66 1344,-42 1441,-42 1441,-66"/>
+<text text-anchor="middle" x="1392.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_nodes</text>
+</g>
+<!-- none~get_rows&#45;&gt;get_num_nodes -->
+<g id="proc~~generate_report~2~~CallsGraph_edge23" class="edge">
+<title>none~get_rows&#45;&gt;get_num_nodes</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1158.92,-83.96C1215.3,-76.7 1285.36,-67.67 1333.77,-61.44"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1334.29,-64.9 1343.76,-60.15 1333.4,-57.96 1334.29,-64.9"/>
+</g>
+<!-- get_rows -->
+<g id="proc~~generate_report~2~~CallsGraph_node18" class="node">
+<title>get_rows</title>
+<polygon fill="#777777" stroke="#777777" points="1422,-24 1363,-24 1363,0 1422,0 1422,-24"/>
+<text text-anchor="middle" x="1392.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_rows</text>
+</g>
+<!-- none~get_rows&#45;&gt;get_rows -->
+<g id="proc~~generate_report~2~~CallsGraph_edge24" class="edge">
+<title>none~get_rows&#45;&gt;get_rows</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1091.88,-83.92C1124.38,-69.55 1181.62,-45.89 1233,-33 1273.03,-22.96 1320.03,-17.5 1352.4,-14.68"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1353.11,-18.14 1362.79,-13.83 1352.53,-11.16 1353.11,-18.14"/>
+</g>
+<!-- none~get_rows&#45;&gt;none~at~2 -->
+<g id="proc~~generate_report~2~~CallsGraph_edge25" class="edge">
+<title>none~get_rows&#45;&gt;none~at~2</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1186.89,-96C1207.35,-96 1228.74,-96 1249.66,-96"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1249.89,-99.5 1259.89,-96 1249.89,-92.5 1249.89,-99.5"/>
+</g>
+<!-- none~resize_32 -->
+<g id="proc~~generate_report~2~~CallsGraph_node22" class="node">
+<title>none~resize_32</title>
+<g id="a_proc~~generate_report~2~~CallsGraph_node22"><a xlink:href=".././type/textcolumnvector.html#boundprocedure-resize_32" xlink:title="MAPL_TextColumnVector::TextColumnVector%resize_32">
+<polygon fill="#a7506f" stroke="#a7506f" points="2227,-423 1923,-423 1923,-399 2227,-399 2227,-423"/>
+<text text-anchor="middle" x="2075" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TextColumnVector::TextColumnVector%resize_32</text>
+</a>
+</g>
+</g>
+<!-- none~resize&#45;&gt;none~resize_32 -->
+<g id="proc~~generate_report~2~~CallsGraph_edge27" class="edge">
+<title>none~resize&#45;&gt;none~resize_32</title>
+<path fill="none" stroke="#204025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1880.3,-411C1890.93,-411 1901.72,-411 1912.46,-411"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1912.75,-414.5 1922.75,-411 1912.75,-407.5 1912.75,-414.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>                <script>
+                  var panprocgenerate_report2CallsGraph = svgPanZoom('#procgenerate_report2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -249,11 +537,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -272,23 +560,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -306,53 +600,62 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~generate_report~2~~CalledByGraph Pages: 1 -->
-<svg id="procgenerate_report2CalledByGraph" width="260pt" height="50pt"
- viewBox="0.00 0.00 260.00 50.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~generate_report~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 46)">
+<svg id="procgenerate_report2CalledByGraph" width="417pt" height="32pt"
+ viewBox="0.00 0.00 417.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~generate_report~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
 <title>proc~~generate_report~2~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-46 256,-46 256,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 413,-28 413,4 -4,4"/>
 <!-- proc~generate_report~2 -->
 <g id="proc~~generate_report~2~~CalledByGraph_node1" class="node">
 <title>proc~generate_report~2</title>
-<polygon fill="none" stroke="black" points="252,-24 97,-24 97,0 252,0 252,-24"/>
-<text text-anchor="middle" x="174.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">time_ave::generate_report</text>
+<polygon fill="none" stroke="black" points="409,-24 246,-24 246,0 409,0 409,-24"/>
+<text text-anchor="middle" x="327.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">Regrid_Util::generate_report</text>
 </g>
-<!-- proc~generate_report~2&#45;&gt;proc~generate_report~2 -->
-<g id="proc~~generate_report~2~~CalledByGraph_edge1" class="edge">
-<title>proc~generate_report~2&#45;&gt;proc~generate_report~2</title>
-<path fill="none" stroke="#255000" d="M150.69,-24.01C142.38,-32.97 150.31,-42 174.5,-42 189.24,-42 197.94,-38.65 200.61,-34"/>
-<polygon fill="#255000" stroke="#255000" points="203.97,-32.97 198.31,-24.01 197.15,-34.54 203.97,-32.97"/>
-</g>
-<!-- program~time_ave -->
+<!-- proc~main -->
 <g id="proc~~generate_report~2~~CalledByGraph_node2" class="node">
-<title>program~time_ave</title>
-<g id="a_proc~~generate_report~2~~CalledByGraph_node2"><a xlink:href=".././program/time_ave.html" xlink:title="time_ave">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="61,-24 0,-24 0,0 61,0 61,-24"/>
-<text text-anchor="middle" x="30.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+<title>proc~main</title>
+<g id="a_proc~~generate_report~2~~CalledByGraph_node2"><a xlink:href=".././proc/main.html" xlink:title="Regrid_Util::main">
+<polygon fill="#d9534f" stroke="#d9534f" points="210,-24 106,-24 106,0 210,0 210,-24"/>
+<text text-anchor="middle" x="158" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util::main</text>
 </a>
 </g>
 </g>
-<!-- program~time_ave&#45;&gt;proc~generate_report~2 -->
+<!-- proc~main&#45;&gt;proc~generate_report~2 -->
+<g id="proc~~generate_report~2~~CalledByGraph_edge1" class="edge">
+<title>proc~main&#45;&gt;proc~generate_report~2</title>
+<path fill="none" stroke="#255000" d="M210.17,-12C218.26,-12 226.83,-12 235.5,-12"/>
+<polygon fill="#255000" stroke="#255000" points="235.71,-15.5 245.71,-12 235.71,-8.5 235.71,-15.5"/>
+</g>
+<!-- program~regrid_util -->
+<g id="proc~~generate_report~2~~CalledByGraph_node3" class="node">
+<title>program~regrid_util</title>
+<g id="a_proc~~generate_report~2~~CalledByGraph_node3"><a xlink:href=".././program/regrid_util.html" xlink:title="Regrid_Util">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
+</a>
+</g>
+</g>
+<!-- program~regrid_util&#45;&gt;proc~main -->
 <g id="proc~~generate_report~2~~CalledByGraph_edge2" class="edge">
-<title>program~time_ave&#45;&gt;proc~generate_report~2</title>
-<path fill="none" stroke="#255000" d="M61.27,-12C69.03,-12 77.8,-12 86.93,-12"/>
-<polygon fill="#255000" stroke="#255000" points="86.96,-15.5 96.96,-12 86.96,-8.5 86.96,-15.5"/>
+<title>program~regrid_util&#45;&gt;proc~main</title>
+<path fill="none" stroke="#255000" d="M70.03,-12C77.97,-12 86.66,-12 95.39,-12"/>
+<polygon fill="#255000" stroke="#255000" points="95.6,-15.5 105.6,-12 95.6,-8.5 95.6,-15.5"/>
 </g>
 </g>
 </svg>
-</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -369,11 +672,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -392,23 +695,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -428,75 +737,44 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/generate_report~2.html#src">generate_report</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">generate_report</span><span class="p">()</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">generate_report</span><span class="p">()</span>
 
-<span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
-<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="w">         </span><span class="n">reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProfileReporter</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Inclusive&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">)))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;% Incl&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">InclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">),</span><span class="s1">&#39;MAX&#39;</span><span class="p">)))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Exclusive&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">)))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;% Excl&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">))))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; Max Excl)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MAX&#39;</span><span class="p">)))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; Min Excl)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MIN&#39;</span><span class="p">)))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Max PE)&#39;</span><span class="p">,</span><span class="s1">&#39;(1x,i4.4,1x)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MAX_PE&#39;</span><span class="p">)))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Min PE)&#39;</span><span class="p">,</span><span class="s1">&#39;(1x,i4.4,1x)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MIN_PE&#39;</span><span class="p">)))</span><span class="w"></span>
-<span class="w">        </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">t_prof</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProfileReporter</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Inclusive&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">)))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;% Incl&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">InclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">),</span><span class="s1">&#39;MAX&#39;</span><span class="p">)))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Exclusive&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">)))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;% Excl&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">))))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; Max Excl)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MAX&#39;</span><span class="p">)))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; Min Excl)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MIN&#39;</span><span class="p">)))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Max PE)&#39;</span><span class="p">,</span><span class="s1">&#39;(1x,i4.4,1x)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MAX_PE&#39;</span><span class="p">)))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Min PE)&#39;</span><span class="p">,</span><span class="s1">&#39;(1x,i4.4,1x)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MIN_PE&#39;</span><span class="p">)))</span>
+<span class="w">        </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">t_prof</span><span class="p">)</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_I_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Final profile&#39;</span><span class="w"></span>
-<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;=============&#39;</span><span class="w"></span>
-<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span><span class="w"></span>
-<span class="w">               </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="k">            write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Final profile&#39;</span>
+<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;=============&#39;</span>
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
+<span class="w">               </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 <span class="w">            </span><span class="k">end do</span>
-<span class="k">            write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"></span>
+<span class="k">            write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
 <span class="w">         </span><span class="k">end if</span>
-<span class="k">    end subroutine </span><span class="n">generate_report</span><span class="w"></span>
+<span class="k">    end subroutine </span><span class="n">generate_report</span>
 </pre></div>
 
     </section>
@@ -509,32 +787,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

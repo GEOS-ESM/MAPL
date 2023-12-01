@@ -77,7 +77,8 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      fargparsecap%parser = ArgParser()
+      call fargparsecap%parser%initialize('executable')
+
 
       call fargparsecap%add_command_line_options(fargparsecap%parser, _RC)
 

@@ -10,85 +10,58 @@
 
     <title>dealloc_ &ndash; MAPL</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">MAPL </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +69,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">43 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">43 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/FileIOShared.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/fileioshared.f90.html'>FileIOShared.F90</a></li>
-              <li><a href='../module/fileiosharedmod.html'>FileIOSharedMod</a></li>
-          <li class="active">dealloc_</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/fileioshared.f90.html'>FileIOShared.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/fileiosharedmod.html'>FileIOSharedMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">dealloc_</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -151,8 +128,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/dealloc_.html#src">dealloc_</a>
       </div>
@@ -174,16 +152,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~35"></span>
+              <span class="anchor" id="variable-a~51"></span>
               type(PTR),
             </td>
 <td>intent(inout)</td>
@@ -198,7 +176,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1307"></span>
+              <span class="anchor" id="variable-rc~1322"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -215,72 +193,96 @@
   </table>
 
     <br>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~dealloc_~~CallsGraph Pages: 1 -->
-<svg id="procdealloc_CallsGraph" width="641pt" height="69pt"
- viewBox="0.00 0.00 641.00 69.45" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~dealloc_~~CallsGraph" class="graph" transform="scale(1.07 1.07) rotate(0) translate(4 70)">
+<svg id="procdealloc_CallsGraph" width="641pt" height="109pt"
+ viewBox="0.00 0.00 641.00 108.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~dealloc_~~CallsGraph" class="graph" transform="scale(1.07 1.07) rotate(0) translate(4 112)">
 <title>proc~~dealloc_~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 679,-70 679,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 679,-112 679,4 -4,4"/>
 <!-- proc~dealloc_ -->
 <g id="proc~~dealloc_~~CallsGraph_node1" class="node">
 <title>proc~dealloc_</title>
-<polygon fill="none" stroke="black" points="154,-45 0,-45 0,-21 154,-21 154,-45"/>
-<text text-anchor="middle" x="77" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">FileIOSharedMod::dealloc_</text>
+<polygon fill="none" stroke="black" points="154,-87 0,-87 0,-63 154,-63 154,-87"/>
+<text text-anchor="middle" x="77" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">FileIOSharedMod::dealloc_</text>
 </g>
 <!-- interface~mapl_assert -->
 <g id="proc~~dealloc_~~CallsGraph_node2" class="node">
 <title>interface~mapl_assert</title>
 <g id="a_proc~~dealloc_~~CallsGraph_node2"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
-<polygon fill="#a7506f" stroke="#a7506f" points="408.5,-66 191.5,-66 191.5,-42 408.5,-42 408.5,-66"/>
-<text text-anchor="middle" x="300" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="408.5,-108 191.5,-108 191.5,-84 408.5,-84 408.5,-108"/>
+<text text-anchor="middle" x="300" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
 </a>
 </g>
 </g>
 <!-- proc~dealloc_&#45;&gt;interface~mapl_assert -->
 <g id="proc~~dealloc_~~CallsGraph_edge1" class="edge">
 <title>proc~dealloc_&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#255000" d="M154.06,-40.23C162.86,-41.06 171.98,-41.93 181.18,-42.8"/>
-<polygon fill="#255000" stroke="#255000" points="180.88,-46.29 191.17,-43.75 181.55,-39.32 180.88,-46.29"/>
+<path fill="none" stroke="#255000" d="M154.06,-82.23C162.86,-83.06 171.98,-83.93 181.18,-84.8"/>
+<polygon fill="#255000" stroke="#255000" points="180.88,-88.29 191.17,-85.75 181.55,-81.32 180.88,-88.29"/>
 </g>
 <!-- proc~mapl_return -->
 <g id="proc~~dealloc_~~CallsGraph_node3" class="node">
 <title>proc~mapl_return</title>
 <g id="a_proc~~dealloc_~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="410,-24 190,-24 190,0 410,0 410,-24"/>
-<text text-anchor="middle" x="300" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="410,-66 190,-66 190,-42 410,-42 410,-66"/>
+<text text-anchor="middle" x="300" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~dealloc_&#45;&gt;proc~mapl_return -->
 <g id="proc~~dealloc_~~CallsGraph_edge2" class="edge">
 <title>proc~dealloc_&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M154.06,-25.77C162.49,-24.97 171.23,-24.14 180.03,-23.3"/>
-<polygon fill="#255000" stroke="#255000" points="180.37,-26.79 189.99,-22.36 179.71,-19.82 180.37,-26.79"/>
+<path fill="none" stroke="#255000" d="M154.06,-67.77C162.49,-66.97 171.23,-66.14 180.03,-65.3"/>
+<polygon fill="#255000" stroke="#255000" points="180.37,-68.79 189.99,-64.36 179.71,-61.82 180.37,-68.79"/>
+</g>
+<!-- at -->
+<g id="proc~~dealloc_~~CallsGraph_node4" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="587.5,-108 533.5,-108 533.5,-84 587.5,-84 587.5,-108"/>
+<text text-anchor="middle" x="560.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~dealloc_~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M375.08,-66.04C423.62,-73.92 484.96,-83.89 523.21,-90.1"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="522.93,-93.6 533.36,-91.75 524.05,-86.69 522.93,-93.6"/>
+</g>
+<!-- insert -->
+<g id="proc~~dealloc_~~CallsGraph_node5" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="587.5,-66 533.5,-66 533.5,-42 587.5,-42 587.5,-66"/>
+<text text-anchor="middle" x="560.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~dealloc_~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M410.25,-54C450.63,-54 493.67,-54 523.11,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="523.3,-57.5 533.3,-54 523.3,-50.5 523.3,-57.5"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~dealloc_~~CallsGraph_node4" class="node">
+<g id="proc~~dealloc_~~CallsGraph_node6" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~dealloc_~~CallsGraph_node4"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<g id="a_proc~~dealloc_~~CallsGraph_node6"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
 <polygon fill="#d9534f" stroke="#d9534f" points="675,-24 446,-24 446,0 675,0 675,-24"/>
 <text text-anchor="middle" x="560.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~dealloc_~~CallsGraph_edge3" class="edge">
+<g id="proc~~dealloc_~~CallsGraph_edge5" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M410.25,-12C418.58,-12 427.02,-12 435.43,-12"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="435.67,-15.5 445.67,-12 435.67,-8.5 435.67,-15.5"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M375.08,-41.96C406.44,-36.87 443.15,-30.9 475.52,-25.65"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="476.1,-29.1 485.41,-24.04 474.98,-22.19 476.1,-29.1"/>
 </g>
 </g>
 </svg>
@@ -288,8 +290,8 @@
                   var panprocdealloc_CallsGraph = svgPanZoom('#procdealloc_CallsGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -306,11 +308,11 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -329,23 +331,29 @@
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -363,78 +371,99 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~dealloc_~~CalledByGraph Pages: 1 -->
-<svg id="procdealloc_CalledByGraph" width="641pt" height="74pt"
- viewBox="0.00 0.00 641.00 73.66" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~dealloc_~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<svg id="procdealloc_CalledByGraph" width="641pt" height="109pt"
+ viewBox="0.00 0.00 641.00 109.49" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~dealloc_~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 106)">
 <title>proc~~dealloc_~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 640,-70 640,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-106 640,-106 640,4 -4,4"/>
 <!-- proc~dealloc_ -->
 <g id="proc~~dealloc_~~CalledByGraph_node1" class="node">
 <title>proc~dealloc_</title>
-<polygon fill="none" stroke="black" points="636,-45 482,-45 482,-21 636,-21 636,-45"/>
-<text text-anchor="middle" x="559" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">FileIOSharedMod::dealloc_</text>
+<polygon fill="none" stroke="black" points="636,-75 482,-75 482,-51 636,-51 636,-75"/>
+<text text-anchor="middle" x="559" y="-60.6" font-family="Helvetica,sans-Serif" font-size="10.50">FileIOSharedMod::dealloc_</text>
 </g>
 <!-- proc~alloc_ -->
 <g id="proc~~dealloc_~~CalledByGraph_node2" class="node">
 <title>proc~alloc_</title>
 <g id="a_proc~~dealloc_~~CalledByGraph_node2"><a xlink:href=".././proc/alloc_.html" xlink:title="FileIOSharedMod::alloc_">
-<polygon fill="#d9534f" stroke="#d9534f" points="434.5,-66 294.5,-66 294.5,-42 434.5,-42 434.5,-66"/>
-<text text-anchor="middle" x="364.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::alloc_</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="434.5,-96 294.5,-96 294.5,-72 434.5,-72 434.5,-96"/>
+<text text-anchor="middle" x="364.5" y="-81.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::alloc_</text>
 </a>
 </g>
 </g>
 <!-- proc~alloc_&#45;&gt;proc~dealloc_ -->
 <g id="proc~~dealloc_~~CalledByGraph_edge1" class="edge">
 <title>proc~alloc_&#45;&gt;proc~dealloc_</title>
-<path fill="none" stroke="#255000" d="M434.72,-46.45C446.68,-45.14 459.25,-43.77 471.59,-42.43"/>
-<polygon fill="#255000" stroke="#255000" points="472.33,-45.87 481.89,-41.3 471.57,-38.91 472.33,-45.87"/>
+<path fill="none" stroke="#255000" d="M434.72,-76.45C446.68,-75.14 459.25,-73.77 471.59,-72.43"/>
+<polygon fill="#255000" stroke="#255000" points="472.33,-75.87 481.89,-71.3 471.57,-68.91 472.33,-75.87"/>
 </g>
 <!-- proc~mapl_destroyfile -->
 <g id="proc~~dealloc_~~CalledByGraph_node3" class="node">
 <title>proc~mapl_destroyfile</title>
 <g id="a_proc~~dealloc_~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_destroyfile.html" xlink:title="BinIOMod::MAPL_DestroyFile">
-<polygon fill="#d9534f" stroke="#d9534f" points="446,-24 283,-24 283,0 446,0 446,-24"/>
-<text text-anchor="middle" x="364.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BinIOMod::MAPL_DestroyFile</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="446,-54 283,-54 283,-30 446,-30 446,-54"/>
+<text text-anchor="middle" x="364.5" y="-39.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BinIOMod::MAPL_DestroyFile</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_destroyfile&#45;&gt;proc~dealloc_ -->
 <g id="proc~~dealloc_~~CalledByGraph_edge2" class="edge">
 <title>proc~mapl_destroyfile&#45;&gt;proc~dealloc_</title>
-<path fill="none" stroke="#255000" d="M446.02,-20.78C454.54,-21.71 463.22,-22.66 471.8,-23.6"/>
-<polygon fill="#255000" stroke="#255000" points="471.48,-27.08 481.8,-24.69 472.24,-20.12 471.48,-27.08"/>
+<path fill="none" stroke="#255000" d="M446.02,-50.78C454.54,-51.71 463.22,-52.66 471.8,-53.6"/>
+<polygon fill="#255000" stroke="#255000" points="471.48,-57.08 481.8,-54.69 472.24,-50.12 471.48,-57.08"/>
 </g>
 <!-- proc~mapl_destroystatesave -->
 <g id="proc~~dealloc_~~CalledByGraph_node4" class="node">
 <title>proc~mapl_destroystatesave</title>
 <g id="a_proc~~dealloc_~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_destroystatesave.html" xlink:title="MAPL_GenericMod::MAPL_DestroyStateSave">
-<polygon fill="#d9534f" stroke="#d9534f" points="247,-24 0,-24 0,0 247,0 247,-24"/>
-<text text-anchor="middle" x="123.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_DestroyStateSave</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="247,-84 0,-84 0,-60 247,-60 247,-84"/>
+<text text-anchor="middle" x="123.5" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_DestroyStateSave</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroyfile -->
 <g id="proc~~dealloc_~~CalledByGraph_edge3" class="edge">
 <title>proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroyfile</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M247.15,-12C255.79,-12 264.4,-12 272.82,-12"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="272.96,-15.5 282.96,-12 272.96,-8.5 272.96,-15.5"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M220.33,-59.97C237.59,-57.8 255.54,-55.55 272.66,-53.4"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="273.14,-56.87 282.62,-52.15 272.27,-49.92 273.14,-56.87"/>
 </g>
 <!-- proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroystatesave -->
-<g id="proc~~dealloc_~~CalledByGraph_edge4" class="edge">
+<g id="proc~~dealloc_~~CalledByGraph_edge5" class="edge">
 <title>proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroystatesave</title>
-<path fill="none" stroke="#255000" d="M83.82,-24.01C69.96,-32.97 83.19,-42 123.5,-42 149.96,-42 164.75,-38.11 167.87,-32.91"/>
-<polygon fill="#255000" stroke="#255000" points="170.94,-31.23 163.18,-24.01 164.75,-34.49 170.94,-31.23"/>
+<path fill="none" stroke="#255000" d="M83.82,-84.01C69.96,-92.97 83.19,-102 123.5,-102 149.96,-102 164.75,-98.11 167.87,-92.91"/>
+<polygon fill="#255000" stroke="#255000" points="170.94,-91.23 163.18,-84.01 164.75,-94.49 170.94,-91.23"/>
+</g>
+<!-- proc~mapl_genericrefresh -->
+<g id="proc~~dealloc_~~CalledByGraph_node5" class="node">
+<title>proc~mapl_genericrefresh</title>
+<g id="a_proc~~dealloc_~~CalledByGraph_node5"><a xlink:href=".././proc/mapl_genericrefresh.html" xlink:title="MAPL_GenericMod::MAPL_GenericRefresh">
+<polygon fill="#d9534f" stroke="#d9534f" points="240.5,-24 6.5,-24 6.5,0 240.5,0 240.5,-24"/>
+<text text-anchor="middle" x="123.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericRefresh</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;proc~mapl_destroyfile -->
+<g id="proc~~dealloc_~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;proc~mapl_destroyfile</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M220.33,-24.03C237.59,-26.2 255.54,-28.45 272.66,-30.6"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="272.27,-34.08 282.62,-31.85 273.14,-27.13 272.27,-34.08"/>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;proc~mapl_genericrefresh -->
+<g id="proc~~dealloc_~~CalledByGraph_edge6" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;proc~mapl_genericrefresh</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M83.82,-24.01C69.96,-32.97 83.19,-42 123.5,-42 149.96,-42 164.75,-38.11 167.87,-32.91"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="170.94,-31.23 163.18,-24.01 164.75,-34.49 170.94,-31.23"/>
 </g>
 </g>
 </svg>
@@ -442,8 +471,8 @@ large graphs.</div>
                   var panprocdealloc_CalledByGraph = svgPanZoom('#procdealloc_CalledByGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
-                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
-          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -460,11 +489,11 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="597pt" height="32pt"
- viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
@@ -483,23 +512,29 @@ large graphs.</div>
 <polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
 <text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
-<!-- Unknown Procedure Type -->
+<!-- Type Bound Procedure -->
 <g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
-<g id="node5" class="node">
+<g id="node6" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
-<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
+<g id="node7" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
-<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
@@ -519,94 +554,63 @@ large graphs.</div>
     </div>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/dealloc_.html#src">dealloc_</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     
     
 
     
     
+
 
 
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">dealloc_</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Ptr</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">A</span><span class="w"></span>
-<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">dealloc_</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Ptr</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">A</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
 
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="nb">allocated</span><span class="o">/=</span><span class="n">not_allocated</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">       select case</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="nb">allocated</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">R4_2</span><span class="p">)</span><span class="w"></span>
+<span class="k">       select case</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="nb">allocated</span><span class="p">)</span>
+<span class="w">       </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">R4_2</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_2</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_2</span><span class="p">)</span><span class="w"></span>
+<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_2</span><span class="p">)</span>
+<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_2</span><span class="p">)</span>
 <span class="w">          </span><span class="k">end if</span>
-<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">R4_1</span><span class="p">)</span><span class="w"></span>
+<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">R4_1</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_1</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_1</span><span class="p">)</span><span class="w"></span>
+<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_1</span><span class="p">)</span>
+<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r4_1</span><span class="p">)</span>
 <span class="w">          </span><span class="k">end if</span>
-<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">R8_2</span><span class="p">)</span><span class="w"></span>
+<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">R8_2</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_2</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_2</span><span class="p">)</span><span class="w"></span>
+<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_2</span><span class="p">)</span>
+<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_2</span><span class="p">)</span>
 <span class="w">          </span><span class="k">end if</span>
-<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">R8_1</span><span class="p">)</span><span class="w"></span>
+<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">R8_1</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_1</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_1</span><span class="p">)</span><span class="w"></span>
+<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_1</span><span class="p">)</span>
+<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">r8_1</span><span class="p">)</span>
 <span class="w">          </span><span class="k">end if</span>
-<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">i4_1</span><span class="p">)</span><span class="w"></span>
+<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">i4_1</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_1</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_1</span><span class="p">)</span><span class="w"></span>
+<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_1</span><span class="p">)</span>
+<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_1</span><span class="p">)</span>
 <span class="w">          </span><span class="k">end if</span>
-<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">i4_2</span><span class="p">)</span><span class="w"></span>
+<span class="k">       case</span><span class="w"> </span><span class="p">(</span><span class="n">i4_2</span><span class="p">)</span>
 <span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_2</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_2</span><span class="p">)</span><span class="w"></span>
+<span class="k">             deallocate</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_2</span><span class="p">)</span>
+<span class="w">             </span><span class="k">nullify</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">i4_2</span><span class="p">)</span>
 <span class="w">          </span><span class="k">end if</span>
-<span class="k">       case </span><span class="n">default</span><span class="w"></span>
-<span class="w">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;unsupported tkr&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="k">       case </span><span class="n">default</span>
+<span class="w">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;unsupported tkr&#39;</span><span class="p">)</span>
 <span class="w">       </span><span class="k">end select</span>
-<span class="k">       </span><span class="n">a</span><span class="p">%</span><span class="nb">allocated</span><span class="o">=</span><span class="n">not_allocated</span><span class="w"></span>
+<span class="k">       </span><span class="n">a</span><span class="p">%</span><span class="nb">allocated</span><span class="o">=</span><span class="n">not_allocated</span>
 <span class="w">    </span><span class="k">end if</span>
 
-<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
-<span class="w">  </span><span class="k">end subroutine </span><span class="n">dealloc_</span><span class="w"></span>
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">dealloc_</span>
 </pre></div>
 
     </section>
@@ -619,32 +623,27 @@ large graphs.</div>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-10-04T18:31:45.877742             </p>
+ on 2023-12-01T20:55:34.154492             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">
