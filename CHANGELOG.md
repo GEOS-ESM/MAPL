@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
+- Update CI to Baselibs 7.17.0 (for future MAPL3 work) and BCs v11.3.0
+- Update `components.yaml`
+  - ESMA_env v4.22.0 (Baselibs 7.15.1)
 
 ### Fixed
 
