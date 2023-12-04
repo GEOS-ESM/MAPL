@@ -68,6 +68,14 @@ target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 target_link_libraries (${this} PUBLIC MAPL.field_utils esmf NetCDF::NetCDF_Fortran)
 
+# Workaround for ifort 2010.10.0 Explicit deep copy in some containers
+# result in odd error in GEOM_Manager.  This is not sufficient on its
+# own, and some constructors had to be converted to
+# subroutines. (ComponentSpecParser.F90)
+  target_compile_definitions(${this} PRIVATE "__gftl_map_use_default_assignment")
+  target_compile_definitions(${this} PRIVATE "__gftl_set_use_default_assignment")
+
+
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()

@@ -130,7 +130,10 @@ target_include_directories (${this} PUBLIC
 # Workaround for ifort 2010.10.0 Explicit deep copy in some pfio
 # container results in odd error in GEOM_Manager - even when pfio is
 # not being directly used.
-target_compile_options(${this} PRIVATE "-D__gftl_map_use_default_assignment")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM" OR CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  target_compile_definitions(${this} PRIVATE "__gftl_map_use_default_assignment")
+  target_compile_definitions(${this} PRIVATE "__gftl_set_use_default_assignment")
+endif()
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...

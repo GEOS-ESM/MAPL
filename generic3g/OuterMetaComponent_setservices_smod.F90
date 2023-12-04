@@ -41,7 +41,8 @@ contains
       geom_mgr => get_geom_manager()
       _ASSERT(associated(geom_mgr), 'uh oh - cannot acces global geom_manager.')
 
-      this%component_spec = parse_component_spec(this%hconfig, _RC)
+      call parse_component_spec(this%component_spec, this%hconfig, _RC)
+!#      this%component_spec = parse_component_spec(this%hconfig, _RC)
       call process_user_gridcomp(this, _RC)
       call process_children(this, _RC)
 

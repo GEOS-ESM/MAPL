@@ -53,7 +53,9 @@ module mapl3g_ComponentSpecParser
    
 contains
 
-   type(ComponentSpec) function parse_component_spec(hconfig, rc) result(spec)
+
+   subroutine parse_component_spec(spec, hconfig, rc)
+      type(ComponentSpec), intent(out) :: spec
       type(ESMF_HConfig), target, intent(inout) :: hconfig
       integer, optional, intent(out) :: rc
 
@@ -73,12 +75,52 @@ contains
 
       spec%var_specs = parse_var_specs(subcfg, _RC)
       spec%connections = parse_connections(subcfg, _RC)
-      spec%children = parse_children(subcfg, _RC)
+!#      spec%children = parse_children(subcfg, _RC)
+      call parse_children(spec%children, subcfg, _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
-   end function parse_component_spec
+   end subroutine parse_component_spec
+
+!#
+!#   type(ComponentSpec) function parse_component_spec(hconfig, rc) result(spec)
+!#      type(ESMF_HConfig), target, intent(inout) :: hconfig
+!#      integer, optional, intent(out) :: rc
+!#
+!#      integer :: status
+!#      logical :: has_mapl_section
+!#      logical :: has_geom_section
+!#      type(ESMF_HConfig) :: subcfg
+!#
+!#      has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
+!#      _RETURN_UNLESS(has_mapl_section)
+!#      subcfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
+!#
+!#      has_geom_section = ESMF_HConfigIsDefined(subcfg,keyString=COMPONENT_GEOM_SECTION, _RC)
+!#      if (has_geom_section) then
+!#         spec%geom_hconfig = parse_geom_spec(subcfg, _RC)
+!#      end if
+!#
+!#      spec%var_specs = parse_var_specs(subcfg, _RC)
+!#      spec%connections = parse_connections(subcfg, _RC)
+!#  !#      spec%children = parse_children(subcfg, _RC)
+!#      call parse_children(spec%children, subcfg, _RC)
+!#
+!#      block
+!#        type(ChildSpecMapIterator) :: iter
+!#        associate(e => spec%children%ftn_end())
+!#          iter = spec%children%ftn_begin()
+!#          do while (iter /= e)
+!#             call iter%next()
+!#             _HERE, iter%first()
+!#          end do
+!#        end associate
+!#      end block
+!#      call ESMF_HConfigDestroy(subcfg, _RC)
+!#
+!#      _RETURN(_SUCCESS)
+!#   end function parse_component_spec
 
 
    ! Geom subcfg is passed raw to the GeomManager layer.  So little
@@ -553,8 +595,8 @@ contains
    end function parse_setservices
 
 
-   function parse_children(hconfig, rc) result(children)
-      type(ChildSpecMap) :: children
+   subroutine parse_children(children, hconfig, rc)
+      type(ChildSpecMap), intent(out) :: children
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
@@ -589,7 +631,50 @@ contains
       call ESMF_HConfigDestroy(children_cfg, _RC)
 
       _RETURN(_SUCCESS)
-   end function parse_children
+   end subroutine parse_children
+
+!#   function parse_children(hconfig, rc) result(children)
+!#      type(ChildSpecMap) :: children
+!#      type(ESMF_HConfig), intent(in) :: hconfig
+!#      integer, optional, intent(out) :: rc
+!#
+!#      integer :: status
+!#      logical :: has_children
+!#      logical :: is_map
+!#      type(ESMF_HConfig) :: children_cfg, child_cfg
+!#      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
+!#      type(ChildSpec) :: child_spec
+!#      character(:), allocatable :: child_name
+!#
+!#
+!#      has_children = ESMF_HConfigIsDefined(hconfig, keyString=COMPONENT_CHILDREN_SECTION, _RC)
+!#      _RETURN_UNLESS(has_children)
+!#
+!#      _HERE, has_children
+!#      children_cfg = ESMF_HConfigCreateAt(hconfig, keyString=COMPONENT_CHILDREN_SECTION, _RC)
+!#      is_map = ESMF_HConfigIsMap(children_cfg, _RC)
+!#
+!#      _ASSERT(is_map, 'children spec must be mapping')
+!#
+!#      iter_begin = ESMF_HCOnfigIterBegin(children_cfg, _RC)
+!#      iter_end = ESMF_HConfigIterEnd(children_cfg, _RC)
+!#      iter = ESMF_HConfigIterBegin(children_cfg, _RC)
+!#      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end))
+!#         child_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+!#         _HERE, 'child name: <', child_name, '>'
+!#         child_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
+!#         _HERE
+!#         child_spec = parse_child(child_cfg, _RC)
+!#         _HERE, ' insterting child: ', child_name
+!#         call children%insert(child_name, child_spec)
+!#         _HERE, children%count(child_name) == 1
+!#         call ESMF_HConfigDestroy(child_cfg, _RC)
+!#      end do
+!#
+!#      call ESMF_HConfigDestroy(children_cfg, _RC)
+!#
+!#      _RETURN(_SUCCESS)
+!#   end function parse_children
 
 
    function parse_child(hconfig, rc) result(child)

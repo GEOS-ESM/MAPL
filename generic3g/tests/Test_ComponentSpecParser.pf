@@ -138,7 +138,8 @@ contains
 
       hconfig = ESMF_HConfigCreate(content='{}')
 
-      found = parse_children(hconfig, _RC)
+!#      found = parse_children(hconfig, _RC)
+      call parse_children(found, hconfig, _RC)
       @assert_that(found == expected, is(true()))
 
       call ESMF_HConfigDestroy(hconfig)
@@ -154,7 +155,8 @@ contains
       config = ESMF_HConfigCreate(content='children: {A: {sharedObj: libA}}')
       config_ptr => config
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
-      found = parse_children(config_ptr, _RC)
+!#      found = parse_children(config_ptr, _RC)
+      call parse_children(found, config_ptr, _RC)
       @assert_that(found == expected, is(true()))
       
    end subroutine test_parse_ChildSpecMap_1
@@ -173,7 +175,8 @@ contains
 
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
       call expected%insert('B', ChildSpec(user_setservices('libB', 'setservices_')))
-      found = parse_children(config_ptr, _RC)
+!#      found = parse_children(config_ptr, _RC)
+      call parse_children(found, config_ptr, _RC)
 
       @assert_that(found%of('A') == expected%of('A'), is(true()))
       @assert_that(found%of('B') == expected%of('B'), is(true()))

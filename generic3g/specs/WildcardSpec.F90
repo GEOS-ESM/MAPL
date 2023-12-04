@@ -136,13 +136,14 @@ contains
 
          integer :: status
          class(AbstractStateItemSpec), pointer :: spec
+         type(StateItemSpecPtr) :: empty(0)
 
          _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
          _ASSERT(this%matched_items%count(actual_pt) == 0, 'duplicate connection pt')
          
          call this%matched_items%insert(actual_pt, this%reference_spec)
          spec => this%matched_items%of(actual_pt)
-!#         call spec%create([StateItemSpecPtr::], _RC)
+         call spec%create(empty, _RC)
          call spec%connect_to(src_spec, actual_pt, _RC)
 
          _RETURN(ESMF_SUCCESS)
