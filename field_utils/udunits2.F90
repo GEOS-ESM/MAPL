@@ -1,228 +1,220 @@
+#if defined TRIMALL(S)
+#undef TRIMALL(S)
+#endif
+#define TRIMALL(S) trim(adjustl(S))
+
 module udunits2mod
 
-   use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
-   use iso_c_binding, only:   c_char, c_int, c_float, c_double, c_ptr
+   use iso_c_binding, only: c_char, c_int, c_float, c_double, c_ptr, c_null_ptr
 
    implicit none
 
-   public :: udunits2initialize => initialize
-   public :: udunits2converter => get_converter
-   !private
+   private
 
+   public :: MAPL_UDUNITS_CONVERTER
+
+!================================== INCLUDE ====================================
    include 'udunits2enumerators.h'
+   include "udunits2interfaces.h"
 
-!=================================== TYPES =====================================
-
-   type, abstract :: CPT
-      type(c_ptr) :: ptr_ = c_null_ptr
+!=================================== CWRAP =====================================
+   type, abstract :: Cwrap
+      type(c_ptr) :: ptr = c_null_ptr
    contains
-      procedure, public, pass(this) :: is_null => cpt_is_null
-      procedure, public, pass(this) :: ptr => cpt_ptr
-      procedure, public, deferred, pass(this) :: finalize
-   end type CPT
-   
-!=================== TYPE: UT_UNIT - type to wrap C union ut_unit ==============
-   type, extends(CPT) :: ut_unit
-   contains
-      procedure, public, pass(this) :: finalize => finalize_ut_unit
-   end type ut_unit
-   
-   interface ut_unit
-      module procedure :: construct_ut_unit_from_string
-   end interface ut_unit
-!================================ END UT_UNIT ==================================
+      procedure, public, deferred, pass(this) :: destroy
+      generic, public :: operator(==) => equals_c_ptr
+   end type Cwrap
 
-!============== TYPE: CV_CONVERTER - type to wrap C union cv_converter =========
-   type, extends(CPT) :: cv_converter
+!=========================== MAPL_UDUNITSCONVERTER =============================
+   type, extends(Cwrap) :: MAPL_Udunits_Converter
    contains
-      procedure, private, pass(this) :: finalize => finalize_cv_converter
-   end type cv_converter
-   
-   interface cv_converter
-      procedure, public, pass(this) :: construct_cv_converter
-   end interface cv_converter
-!============================== END CV_CONVERTER ===============================
-
-!================================= TYPE: UT_SYSTEM =============================
-! unit system
-   type, extends(CPT) :: ut_system
-   contains
-      procedure, public, pass(this) :: finalize => finalize_ut_system
-      procedure, public, pass(this) :: is_initialized => &
-         ut_system_is_initialized
-   end type ut_system
-
-   interface ut_system
-      module procedure :: construct_ut_system_path
-      module procedure :: construct_ut_system_no_path
-   end interface ut_system
-!=============================== END UT_SYSTEM =================================
-
-!================================= CONVERTER ===================================
-   type :: Converter
-      private
-      type(cv_converter) :: conv_
-      logical :: is_null_
-   contains
-      procedure, public, pass(this) :: is_null
+      procedure, public, pass(this) :: destroy => destroy_converter
       procedure, public, pass(this) :: convert_double
       procedure, public, pass(this) :: convert_float
       procedure, public, pass(this) :: convert_doubles
       procedure, public, pass(this) :: convert_floats
-      generic :: convert => convert_double, convert_float, convert_doubles, convert_floats
-   end type Converter
+      generic :: convert => &
+         convert_double, convert_float, convert_doubles, convert_floats
+   end type MAPL_Udunits_Converter
 
-   interface Converter
-      module procedure :: construct_null_converter
-   end interface Converter
-!============================== END - CONVERTER ================================
+   interface MAPL_Udunits_Converter
+      module procedure :: get_converter
+   end interface MAPL_Udunits_Converter
 
-!================================= END TYPES ===================================
+!============================ MAPL_UDUNITS_SYSTEM ==============================
+   type, extends(Cwrap) :: MAPL_Udunits_System
+      procedure, public, pass(this) :: destroy => destroy_system
+   end type MAPL_Udunits_System
 
-include "udunits2interfaces.h"
+!================================= OPERATORS ===================================
+   interface operator(=)
+      module procedure :: assign_from_cwrap
+      module procedure :: assign_to_cwrap
+   end interface
 
-   type(ut_system) :: unit_system = ut_system(c_null_ptr)
+   type(MAPL_Udunits_System) :: SYSTEM_INSTANCE
 
-   interface get_converter
-      module procedure :: get_converter_from_strings
-   end interface get_converter
-      
-   interface convert
-      module procedure :: convertR64
-      module procedure :: convertR32
-   end interface convert
-
-   integer, parameter :: SUCCESS = 0
-   integer, parameter :: FAILURE = SUCCESS - 1
-   integer(ut_encoding), parameter :: UT_ENCODING_DEFAULT = UT_ASCII
-   character(len=*), parameter :: EMPTY = ''
-
+!================================= PROCEDURES ==================================
 contains
 
-   logical function cpt_is_null(this)
-      type(CPT), intent(in) :: this
-      cpt_is_null = (this % ptr() == c_null_ptr)
-   end function cpt_is_null
+   subroutine assign_to_cwrap(cwrap_, ptr)
+      class(Cwrap), intent(inout) :: cwrap_
+      type(c_ptr), intent(in) :: ptr
 
-   type(ptr) function cpt_ptr(this)
-      type(CPT), intent(in) :: this
-      cpt_ptr = this % ptr_
-   end function cpt_ptr
+      cwrap_ % ptr = ptr
 
-   subroutine finalize_ut_unit(this)
-      type(ut_unit), intent(in) :: this
-      call ut_free(this % ptr())
-   end subroutine finalize_ut_unit
+   end subroutine assign_to_cwrap_ptr
 
-   subroutine finalize_cv_converter(this)
-      type(cv_converter), intent(in) :: this
-      call cv_free(this % ptr())
-   end subroutine finalize_cv_converter
+   type(c_ptr) function assign_from_cwrap(cwrap_)
+      class(Cwrap), intent(in) :: cwrap_
 
-   subroutine finalize_ut_system(this)
-      type(ut_system), intent(in) :: this
-      call ut_free_system(this % ptr())
-   end subroutine finalize_ut_system
+      assign_from_cwrap = cwrap_ % ptr
 
-   subroutine initialize(path)
+   end subroutine assign_from_cwrap
+
+   logical function cwrap_equals_c_ptr(this, ptr)
+      class(Cwrap), intent(in) :: cwrap_
+      type(c_ptr), intent(in) :: ptr
+
+      cwrap_equals_c_ptr = (cwrap_ % ptr == ptr)
+      
+   end function cwrap_equals_c_ptr
+
+   type(MAPL_Udunits_Converter) function get_converter(from, to, path, encoding)
+      character(len=*), intent(in) :: from, to
       character(len=*), optional, intent(in) :: path
-      character(len=len(path)) :: path_
-
-      if(unit_system.is_null()) then
-         if(present(path)) then
-            path_ = path
-         else
-            path_ = EMPTY
-         end if
-         unit_system = ut_system(path_)
-      end if
-
-   end subroutine initialize
-
-   function construct_cv_converter(usfrom, usto) result(conv)
-      character(len=*), intent(in) :: usfrom, usto
-      type(cv_converter) :: conv
-      type(c_ptr) :: from, to
-      type(ut_unit) :: fromunit, tounit
-
-      fromunit = ut_unit
-      conv = cv_converter(ut_get_converter(from, to))
-
-   end function construct_cv_converter
-
-   function construct_ut_system_path(path) result(usys)
-      character(len=*), intent(in) :: path
-      type(ut_system) :: usys
-
-      usys = ut_system(ut_read_xml(trim(adjustl(path)) // c_null_ptr))
-
-   end function construct_ut_system_path
-
-   function construct_ut_system_no_path() result(usys)
-      type(ut_system) :: usys
-
-      usys = ut_system(ut_read_xml(c_null_ptr))
-
-   end function construct_ut_system_no_path
-
-   function construct_ut_unit(usys, string, encoding) result(uwrap)
-      type(ut_system), intent(in) :: usys
-      character(len=*), intent(in) :: string
       integer(ut_encoding), optional, intent(in) :: encoding
-      type(ut_unit) :: uwrap
-      integer(ut_encoding) :: encoding_
+      type(c_ptr) :: ut_system_ptr
+      type(c_ptr) :: from_unit, to_unit
+      logical :: from_destroyed, to_destroyed
+ 
+      ut_system_ptr = initialize(path)
+      from_unit = ut_parse(ut_system_ptr, TRIMALL(from), get_encoding(encoding))
+      to_unit = ut_parse(ut_system_ptr, TRIMALL(to), get_encoding(encoding))
+      get_converter = ut_get_converter(from_unit, to_unit)
+      from_destroyed = destroy_ut_unit(from_unit)
+      to_destroyed = destroy_ut_unit(from_unit)
 
-      encoding_ = merge(encoding, UT_ENCODING_DEFAULT)
-      uwrap = ut_unit(ut_parse(usys % ptr(), &
-         trim(adjustl(string)) // c_null_ptr, encoding_))
+   end function get_converter
 
-   end function construct_ut_unit
+   function convert_double(this, from) result(to)
+      type(MAPL_Udunits_Converter), intent(in) :: this
+      real(c_double), intent(in) :: from
+      real(c_double) :: to
+      type(c_ptr) :: cv_converter
 
-   integer function status(condition)
-      logical, intent(in) :: condition
-      status = merge(SUCCESS, ut_get_status(), condition)
-   end function status
+      cv_converter = this
+
+      to = cv_convert_double(cv_converter, from)
+
+   end function convert_double
+
+   function convert_float(this, from) result(to)
+      type(MAPL_Udunits_Converter), intent(in) :: this
+      real(c_float), intent(in) :: from
+      real(c_float) :: to
+      type(c_ptr) :: cv_converter
+
+      cv_converter = this
+
+      to = cv_convert_float(cv_converter, from)
+
+   end function convert_float
+
+   subroutine convert_doubles(this, from) result(to)
+      type(MAPL_Udunits_Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:)
+      real(c_double), intent(out) :: to(size(from))
+      type(c_ptr) :: cv_converter
+
+      cv_converter = this
+
+      call cv_convert_doubles(cv_converter, from, size(from), to)
+
+   end subroutine convert_doubles
+
+   function convert_floats(this, from) result(to)
+      type(MAPL_Udunits_Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:)
+      real(c_float) :: to(:)
+      type(c_ptr) :: cv_converter
+
+      cv_converter = this
+
+      call cv_convert_floats(cv_converter, from, size(from), to)
+
+   end function convert_floats
+
+   function initialize(path)
+      character(len=*), optional, intent(in) :: path
+      type(c_ptr) :: initialize
+
+      if(SYSTEM_INSTANCE == c_null_ptr) then
+         SYSTEM_INSTANCE = get_ut_system(path)
+      end if
+      initialize = SYSTEM_INSTANCE
+
+   end function initialize
+
+   type(c_ptr) function get_ut_system(path)
+      character(len=*), optional, intent(in) :: path
+
+      if(present(path)) then
+         get_ut_system = ut_read_xml(TRIMALL(path) // c_null_ptr)
+      else
+         get_ut_system = ut_read_xml(c_null_ptr)
+      end if
+               
+   end function get_ut_system
+
+   logical function destroy_ut_unit(ut_unit_ptr) result(destroyed)
+      type(c_ptr), intent(in) :: ut_unit_ptr
+      
+      destroyed = .TRUE.
+      if(ut_unit_ptr == c_null_ptr) return
+      call ut_free(ut_unit_ptr)
+      destroyed=(ut_unit_ptr == c_null_ptr)
+
+   end function destroy_ut_unit
+
+   logical function destroy_all() result(destroyed)
+      destroyed = .TRUE.
+      destroyed = SYSTEM_INSTANCE.destroy()
+   end function destroy_all
+
+   logical function destroy_system(this) result(destroyed)
+      type(MAPL_Udunits_System), intent(in) :: this
+      type(c_ptr) :: ut_system_ptr 
+
+      destroyed = .TRUE.
+      if(this == c_null_ptr) return
+      ut_system_ptr = this
+      call ut_free_system(ut_system_ptr)
+      destroyed = (ut_system_ptr == c_null_ptr) 
+
+   end function destroy_ut_system
+
+   logical function destroy_converter(conv) result(destroyed)
+      type(MAPL_Udunits_Converter), intent(in) :: conv
+      type(c_ptr) :: ptr
+
+      destroyed = .TRUE.
+      if(conv == c_null_ptr) return
+      ptr = conv
+      call cv_free(ptr)
+      destroyed = (conv == c_null_ptr)
+
+   end function destroy_converter
 
    logical are_convertible(unit1, unit2)
-      type(ut_unit), intent(in) :: unit1, unit2
-      are_convertible = c_true(ut_are_convertible(unit1 % ptr(), unit2 % ptr()))
+      type(c_ptr), intent(in) :: unit1, unit2
+      integer(c_int), parameter :: ZERO = 0_c_int
+      are_convertible = (ut_are_convertible(unit1, unit2) /= ZERO)
    end function are_convertible
 
-   logical function c_true(n)
-      integer(c_int), intent(in) :: n
-      true = (n /= 0)
-   end function c_true
-
-   elemental real(R64) function convertR64(from, conv, path)
-      real(R64), intent(in) :: from
-      type(cv_converter), intent(in) :: conv
-      character(len=*), optional, intent(in) :: path
-      
-      convertR64 = cv_convert_double(conv, from)
-
-   end function convertR64
-
-   elemental real(R32) function convertR32(from, conv, path)
-      real(R32), intent(in) :: from
-      type(cv_converter), intent(in) :: conv
-      character(len=*), optional, intent(in) :: path
-      
-      convertR32 = cv_convert_float(conv, from)
-
-   end function convertR32
-
-   type(Converter) function construct_converter() result(conv)
-      conv = Converter(cv_converter(c_null_ptr), .TRUE.)
-   end function construct_converter
-
-   type(Converter) function get_converter_from_strings(u1string, u2string, path) result(convtr)
-      character(len=*), intent(in) :: u1string, u2string
-      character(len=*), optional, intent(in) :: path
-   end function get_converter_from_strings
-
-   logical function is_null(this)
-      type(Converter), intent(in) :: this
-      is_null = this % is_null_
-   end function is_null
+   integer(ut_encoding) function get_encoding(encoding)
+      integer(ut_encoding), optional, intent(in) :: encoding
+      get_encoding = merge(encoding, UT_ENCODING_DEFAULT, present(encoding))
+   end function get_encoding
 
 end module udunits2mod
