@@ -58,15 +58,18 @@ submodule (HistoryMaskMod)  HistoryMask_implement
          mask%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=epoch_frequency, &
               RingTime=mask%RingTime, sticky=.false., _RC )
 
-         call ESMF_ConfigGetAttribute(config, value=mask%nc_index, default="", &
-              label=trim(string) // 'nc_Index:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=mask%nc_time, default="", &
-              label=trim(string) // 'nc_Time:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=mask%nc_longitude, default="", &
-              label=trim(string) // 'nc_Longitude:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=mask%nc_latitude, default="", &
-              label=trim(string) // 'nc_Latitude:', _RC)
-
+         call ESMF_ConfigGetAttribute(config, value=mask%index_name_lon, default="", &
+              label=trim(string) // 'index_name_lon:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=mask%index_name_lat, default="", &
+              label=trim(string) // 'index_name_lat:', _RC)         
+         call ESMF_ConfigGetAttribute(config, value=mask%index_name_loc, default="", &
+              label=trim(string) // 'index_name_loc:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=mask%var_name_time, default="", &
+              label=trim(string) // 'var_name_Time:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=mask%var_name_lon, default="", &
+              label=trim(string) // 'var_name_lon:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=mask%var_name_lat, default="", &
+              label=trim(string) // 'var_name_lat:', _RC)
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_begin:', _RC)
@@ -114,6 +117,7 @@ submodule (HistoryMaskMod)  HistoryMask_implement
             shms=trim(STR1)
          endif
          call convert_twostring_2_esmfinterval (symd, shms,  mask%obsfile_interval, _RC)
+!! ??  what is this?
          mask%is_valid = .true.
 
 
@@ -295,22 +299,22 @@ submodule (HistoryMaskMod)  HistoryMask_implement
 
 
          do k=1, this%nobs_type
-            call this%obs(k)%metadata%add_dimension(this%nc_index, this%obs(k)%nobs_epoch)
+            call this%obs(k)%metadata%add_dimension(this%index_name_loc, this%obs(k)%nobs_epoch)
             if (this%time_info%integer_time) then
-               v = Variable(type=PFIO_INT32,dimensions=this%nc_index)
+               v = Variable(type=PFIO_INT32,dimensions=this%index_name_loc)
             else
-               v = Variable(type=PFIO_REAL32,dimensions=this%nc_index)
+               v = Variable(type=PFIO_REAL32,dimensions=this%index_name_loc)
             end if
             call v%add_attribute('units', this%datetime_units)
             call v%add_attribute('long_name', 'dateTime')
             call this%obs(k)%metadata%add_variable(this%var_name_time,v)
 
-            v = variable(type=PFIO_REAL64,dimensions=this%nc_index)
+            v = variable(type=PFIO_REAL64,dimensions=this%index_name_loc)
             call v%add_attribute('units','degrees_east')
             call v%add_attribute('long_name','longitude')
             call this%obs(k)%metadata%add_variable(this%var_name_lon,v)
 
-            v = variable(type=PFIO_REAL64,dimensions=this%nc_index)
+            v = variable(type=PFIO_REAL64,dimensions=this%index_name_loc)
             call v%add_attribute('units','degrees_north')
             call v%add_attribute('long_name','latitude')
             call this%obs(k)%metadata%add_variable(this%var_name_lat,v)
@@ -358,9 +362,9 @@ submodule (HistoryMaskMod)  HistoryMask_implement
            units = 'unknown'
         endif
         if (field_rank==2) then
-           vdims = this%nc_index
+           vdims = this%index_name_loc
         else if (field_rank==3) then
-           vdims = trim(this%nc_index)//",lev"
+           vdims = trim(this%index_name_loc)//",lev"
         end if
         v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
         call v%add_attribute('units',trim(units))
@@ -428,7 +432,7 @@ submodule (HistoryMaskMod)  HistoryMask_implement
          endif
 
          do k=1, this%nobs_type
-            call this%obs(k)%metadata%modify_dimension(this%nc_index, this%obs(k)%nobs_epoch)
+            call this%obs(k)%metadata%modify_dimension(this%index_name_loc, this%obs(k)%nobs_epoch)
          enddo
          if (mapl_am_I_root()) then
             do k=1, this%nobs_type
@@ -508,7 +512,7 @@ submodule (HistoryMaskMod)  HistoryMask_implement
          call ESMF_VMGetGlobal(vm,_RC)
          call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
 
-         if (this%nc_index == '') then
+         if (this%index_name_loc == '') then
             !
             !-- non IODA case
             !
@@ -517,14 +521,14 @@ submodule (HistoryMaskMod)  HistoryMask_implement
             !
             !-- IODA case
             !
-            i=index(this%nc_longitude, '/')
+            i=index(this%var_name_lon, '/')
             _ASSERT (i>0, 'group name not found')
-            grp_name = this%nc_longitude(1:i-1)
-            this%var_name_lon = this%nc_longitude(i+1:)
-            i=index(this%nc_latitude, '/')
-            this%var_name_lat = this%nc_latitude(i+1:)
-            i=index(this%nc_time, '/')
-            this%var_name_time= this%nc_time(i+1:)
+            grp_name = this%var_name_lon(1:i-1)
+            this%var_name_lon = this%var_name_lon(i+1:)
+            i=index(this%var_name_lat, '/')
+            this%var_name_lat = this%var_name_lat(i+1:)
+            i=index(this%var_name_time, '/')
+            this%var_name_time= this%var_name_time(i+1:)
 
             call lgr%debug('%a', 'grp_name,this%var_name_lat,this%var_name_lon,this%var_name_time')
             call lgr%debug('%a %a %a %a', &
@@ -553,7 +557,7 @@ submodule (HistoryMaskMod)  HistoryMask_implement
                           j, this%obs(k)%input_template, _RC)
                      if (filename /= '') then
                         call lgr%debug('%a %a', 'true filename: ', trim(filename))
-                        call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)
+                        call get_ncfile_dimension(filename, tdim=num_times, key_time=this%index_name_loc, _RC)
                         len = len + num_times
                      end if
                      j=j+1
@@ -573,7 +577,7 @@ submodule (HistoryMaskMod)  HistoryMask_implement
                           this%obsfile_start_time, this%obsfile_interval, &
                           j, this%obs(k)%input_template, _RC)
                      if (filename /= '') then
-                        call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
+                        call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%index_name_loc, _RC)
                         call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
                         call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
                         call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
