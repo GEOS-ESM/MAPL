@@ -543,15 +543,10 @@ contains
     ios = 0
     if (rew) rewind (iunps)
     do while (ios==0)
-       read (iunps, '(a100)', iostat = ios, err = 300) line
-       !       if (matchbgn (line, substring) ) return
-       !!write(6,*) 'line ', trim(line)
-       !!write(6,*) 'substring ', trim(substring)
+       read (iunps, '(a100)', iostat = ios) line
        if (matchbgn (trim(line), trim(substring)) ) return
     enddo
     return
-300 call error_nonstop ('scan_begin', &
-         'No '//trim(substring)//' block', abs (ios) )
   end subroutine scan_begin
 
 
@@ -569,12 +564,10 @@ contains
     ios = 0
     if (rew) rewind (iunps)
     do while (ios==0)
-       read (iunps, '(a100)', iostat = ios, err = 300) line
+       read (iunps, '(a100)', iostat = ios) line
        if (matches (trim(line), trim(stop_string)) ) return
     enddo
     return
-300 call error_nonstop ('scan_contain', &
-         'No '//trim(stop_string)//' block', abs (ios) )
   end subroutine scan_contain
 
 
@@ -595,14 +588,12 @@ contains
     count = 0
     if (rew) rewind (iunps)
     do while (ios==0)
-       read (iunps, '(a100)', iostat = ios, err = 300) line
+       read (iunps, '(a100)', iostat = ios) line
        if (matchbgn (line, string) ) then
           count = count + 1
        endif
     enddo
     return
-300 call error_nonstop ('scan_contain', &
-         'No '//trim(string)//' block', abs (ios) )
   end subroutine scan_count_match_bgn
 
 
@@ -721,31 +712,5 @@ contains
   end subroutine split_string_by_space
 
 
-  subroutine error_nonstop( insubroutine, message, ierr )
-    character (len=*), intent (in) :: insubroutine
-    character (len=*), intent (in) :: message
-    integer, intent (in) :: ierr
-    !
-    write (6, 11)
-    write (6, 12)  trim(insubroutine), trim(message), ierr
-    write (6, 11)
-11  format ('**====================**')
-12  format (2x, a, 4x, a, 4x, "ierr =", i4)
-    return
-  end subroutine error_nonstop
 
-
-  subroutine error(insubroutine, message, ierr )
-    character (len=*), intent (in) :: insubroutine
-    character (len=*), intent (in) :: message
-    integer, intent (in) :: ierr
-    !
-    write (6, 11)
-    write (6, 12)  trim(insubroutine), trim(message), ierr
-    write (6, 11)
-    stop
-11  format ('**====================**')
-12  format (2x, a, 4x, a, 4x, "ierr =", i4)
-    return
-  end subroutine error
 end module MAPL_scan_pattern_in_file
