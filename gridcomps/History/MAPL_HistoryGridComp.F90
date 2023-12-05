@@ -3471,21 +3471,9 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
-!         write(6,'(a)') 'bf fill_grads_template'
-!         write(6,'(10a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
-!         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
-!         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
-
-
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
-
-!         write(6,'(a)') 'af fill_grads_template'
-!         write(6,'(a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
-!         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
-!         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
-
 
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'
@@ -3608,7 +3596,7 @@ ENDDO PARSER
 
          list(n)%currentFile = filename(n)
 
-         if (.not.list(n)%timeseries_output) then
+         if (.not.list(n)%timeseries_output .AND. list(n)%sampler_spec /= 'station') then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
             else
