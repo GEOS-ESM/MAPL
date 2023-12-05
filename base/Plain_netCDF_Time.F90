@@ -87,7 +87,6 @@ contains
        lat_name=trim(key_lat)
        call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
-       call check_nc_status(nf90_close(ncid), _RC)
     endif
 
     if(present(key_time)) then
@@ -446,10 +445,10 @@ contains
     integer :: i, nmax
 
     LB=1; UB=size(xa,1)
-    if(present(n_LB)) LB=n_LB
-    if(present(n_UB)) UB=n_UB
+    if(present(n_LB)) LB=max(LB, n_LB)
+    if(present(n_UB)) UB=min(UB, n_UB)
     klo=LB; khi=UB; dk=1
-
+    
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
        khi= LB
