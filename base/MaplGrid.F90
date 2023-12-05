@@ -245,10 +245,11 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
   
  end subroutine GridCoordGet
    
-  subroutine MAPL_GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, RC)
+  subroutine MAPL_GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, layout, RC)
       type (ESMF_Grid), intent(IN) :: GRID
       integer, optional, intent(INout) :: globalCellCountPerDim(:)
       integer, optional, intent(INout) :: localCellCountPerDim(:)
+      integer, optional, intent(inout) :: layout(2)
       integer, optional, intent(  OUT) :: RC
 
 ! local vars
@@ -258,9 +259,14 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       integer :: maxcounts(ESMF_MAXDIM)
       integer :: gridRank
       integer :: UNGRID
-      integer :: sz, tileCount
+      integer :: sz, tileCount, dimCount
       logical :: plocal, pglobal, lxtradim
       logical :: isPresent,hasDE
+      type(ESMF_DistGrid) :: distGrid
+      type(ESMF_VM) :: vm
+      integer :: ndes
+      integer, allocatable :: maxindex(:,:),minindex(:,:)
+      integer, pointer :: ims(:),jms(:)
 
       pglobal = present(globalCellCountPerDim)
       plocal  = present(localCellCountPerDim)
@@ -323,6 +329,23 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
          if (lxtradim ) then
             localCellCountPerDim(gridRank+1) = UNGRID
          end if
+      end if
+
+      if (present(layout)) then
+         call ESMF_GridGet(grid,distgrid=distgrid,dimCount=dimCount,_RC)
+         call ESMF_VMGetCurrent(vm,_RC)
+         call ESMF_VMGet(vm,petCount=ndes,_RC)
+         allocate(minindex(dimCount,ndes),maxindex(dimCount,ndes))
+
+         call MAPL_DistGridGet(distgrid, &
+            minIndex=minindex, &
+            maxIndex=maxindex, _RC)
+
+         call MAPL_GetImsJms(Imins=minindex(1,:),Imaxs=maxindex(1,:),&
+           Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,_RC)          
+
+         layout(1) = size(ims)
+         layout(2) = size(jms)
       end if
 
       _RETURN(ESMF_SUCCESS)
