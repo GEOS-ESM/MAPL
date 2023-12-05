@@ -50,11 +50,12 @@ module StationSamplerMod
 
 contains
 
-  function new_StationSampler_readfile (filename,rc) result(sampler)
+  function new_StationSampler_readfile (filename,nskip_line, rc) result(sampler)
     use pflogger, only             :  Logger, logging
     implicit none
     type(StationSampler)           :: sampler
     character(len=*), intent(in)   :: filename
+    integer, optional, intent(in) :: nskip_line
     integer, optional, intent(out) :: rc
 
     integer :: unit, ios, nstation, status
@@ -63,6 +64,7 @@ contains
     character (len=1)     :: CH1
     character (len=5)     :: seq
     character (len=100)   :: line, line2
+    integer               :: nskip
     type(Logger), pointer :: lgr
 
     !__ 1. read from station_id_file: static
@@ -75,12 +77,23 @@ contains
          access='sequential', status='old', _IOSTAT)
     ios=0
     nstation=0
+    nskip=0
+    if (present(nskip_line)) then
+       nskip=nskip_line
+    end if
+    if (nskip>0) then
+       do i=1, nskip
+          read(unit, *)
+       end do
+    end if
     read(unit, '(a100)', IOSTAT=ios) line
     call count_substring(line, ',', ncount)
-    con1= (ncount>=3 .AND. ncount<=4).OR.(ncount==0)
+    con1= (ncount>=2 .AND. ncount<=4).OR.(ncount==0)
     _ASSERT(con1, 'string sequence in Aeronet file not supported')
     if (ncount==0) then
        seq='AFFFA'
+    elseif (ncount==2) then
+       seq='AFF'
     elseif (ncount==3) then
        seq='AFFF'
     elseif (ncount==4) then
@@ -99,6 +112,11 @@ contains
     end if
 
     rewind(unit)
+    if (nskip>0) then
+       do i=1, nskip
+          read(unit, *)
+       end do
+    end if
     ios=0
     do while (ios==0)
        read(unit, '(a100)', IOSTAT=ios) line
@@ -111,7 +129,13 @@ contains
     allocate(sampler%lons(nstation))
     allocate(sampler%lats(nstation))
     allocate(sampler%elevs(nstation))
+
     rewind(unit)
+    if (nskip>0) then
+       do i=1, nskip
+          read(unit, *)
+       end do
+    end if
     do i=1, nstation
        if(seq=='IAFFF') then
           read(unit, *) &
@@ -125,7 +149,7 @@ contains
                sampler%station_id(i), &
                sampler%lats(i), &
                sampler%lons(i)
-       elseif(trim(seq)=='AFFF') then
+       elseif(trim(seq)=='AFF' .OR. trim(seq)=='AFFF') then
           read(unit, *) &
                sampler%station_name(i), &
                sampler%lats(i), &

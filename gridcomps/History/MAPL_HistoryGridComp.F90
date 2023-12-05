@@ -880,6 +880,8 @@ contains
             label=trim(string) // 'sampler_spec:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationSkipLine, default=0, &
+            label=trim(string) // 'station_skip_line:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
@@ -2395,7 +2397,7 @@ ENDDO PARSER
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%sampler_spec == 'station') then
-             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
+             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
@@ -3620,6 +3622,11 @@ ENDDO PARSER
             end if IOTYPE
          end if
 
+         if (list(n)%sampler_spec == 'station') then
+            call ESMF_ClockGet(clock,currTime=current_time,_RC)
+            call list(n)%station_sampler%append_file(current_time,_RC)
+         endif
+
       endif OUTTIME
 
       if( NewSeg(n) .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
@@ -3684,10 +3691,6 @@ ENDDO PARSER
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
       end if
-      if (list(n)%sampler_spec == 'station') then
-         call ESMF_ClockGet(clock,currTime=current_time,_RC)
-         call list(n)%station_sampler%append_file(current_time,_RC)
-      endif
 
       if( Writing(n) .and. list(n)%unit < 0) then
 
