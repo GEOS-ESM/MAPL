@@ -39,4 +39,4 @@ if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
-target_link_libraries(udunits2 udunits::udunits)
+target_link_libraries(udunits udunits::udunits)
