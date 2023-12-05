@@ -3,7 +3,7 @@
 
 module pFIO_StringVariableMapMod
    use pFIO_VariableMod
-   use pFIO_CoordinateVariableMod 
+   use pFIO_CoordinateVariableMod
 
    ! Create a map (associative array) between names and pFIO_Variables.
 
@@ -13,7 +13,7 @@ module pFIO_StringVariableMapMod
 #define Map StringVariableMap
 #define MapIterator StringVariableMapIterator
 #define MapPair StringVariableMapPair
-   
+
 #include "map/template.inc"
 
 #undef MapPair
@@ -38,7 +38,7 @@ module pFIO_StringVariableMapUtilMod
    public :: StringVariableMap_deserialize
 
 contains
- 
+
     integer function StringVariableMap_get_length(this) result(length)
       type (StringVariableMap), intent(in) :: this
       integer, allocatable :: buffer(:)
@@ -50,7 +50,7 @@ contains
 
     subroutine StringVariableMap_serialize(map, buffer, rc)
        type (StringVariableMap), target, intent(in):: map
-       integer, allocatable,intent(inout) :: buffer(:)
+       integer, allocatable, intent(inout) :: buffer(:)
        integer, optional, intent(out) :: rc
 
        type (StringVariableMapIterator) :: iter
@@ -85,7 +85,7 @@ contains
        character(len=:),allocatable :: key
        integer :: length,n,n0,n1,n2, v_type
        type (Variable) :: v
-       type (CoordinateVariable) :: c 
+       type (CoordinateVariable) :: c
        integer :: status
 
        n = 1
@@ -101,7 +101,7 @@ contains
           n1 = serialize_buffer_length(key)
           n = n + n1
 
-          ! the first one is length, the second one is type          
+          ! the first one is length, the second one is type
           call deserialize_intrinsic(buffer(n:),n2)
           call deserialize_intrinsic(buffer(n+1:),v_type)
 
