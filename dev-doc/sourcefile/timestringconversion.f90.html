@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>TimeStringConversion.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>TimeStringConversion.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for source files.">203 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/TimeStringConversion.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">TimeStringConversion.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_timestringconversion.html">MAPL_TimeStringConversion</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/timestringconversion.f90.html#src">TimeStringConversion.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~timestringconversion.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletimestringconversionf90EfferentGraph" width="641pt" height="88pt"
+ viewBox="0.00 0.00 641.00 88.48" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph" class="graph" transform="scale(1.06 1.06) rotate(0) translate(4 90)">
+<title>sourcefile~~timestringconversion.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-90 677,-90 677,4 -4,4"/>
+<!-- sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~timestringconversion.f90</title>
+<polygon fill="none" stroke="black" points="673,-45 520,-45 520,-21 673,-21 673,-45"/>
+<text text-anchor="middle" x="596.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">TimeStringConversion.F90</text>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484,-66 315,-66 315,-42 484,-42 484,-66"/>
+<text text-anchor="middle" x="399.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~timestringconversion.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~timestringconversion.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M519.83,-41.15C511.44,-42.05 502.83,-42.98 494.25,-43.9"/>
+<polygon fill="#255000" stroke="#255000" points="493.79,-40.43 484.22,-44.98 494.54,-47.39 493.79,-40.43"/>
+</g>
+<!-- sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~mapl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~EfferentGraph_node3"><a xlink:href=".././sourcefile/mapl_keywordenforcer.f90.html" xlink:title="MAPL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="478,-24 321,-24 321,0 478,0 478,-24"/>
+<text text-anchor="middle" x="399.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~timestringconversion.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~timestringconversion.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M519.83,-24.85C509.44,-23.73 498.71,-22.58 488.14,-21.44"/>
+<polygon fill="#255000" stroke="#255000" points="488.38,-17.94 478.06,-20.35 487.63,-24.9 488.38,-17.94"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_errorhandling.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~EfferentGraph_node4"><a xlink:href=".././sourcefile/mapl_errorhandling.f90.html" xlink:title="MAPL_ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279,-86 136,-86 136,-62 279,-62 279,-86"/>
+<text text-anchor="middle" x="207.5" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M314.89,-62.8C306.3,-63.71 297.59,-64.62 289.03,-65.52"/>
+<polygon fill="#255000" stroke="#255000" points="288.66,-62.04 279.08,-66.57 289.4,-69 288.66,-62.04"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~EfferentGraph_node5"><a xlink:href=".././sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-66 0,-66 0,-42 100,-42 100,-66"/>
+<text text-anchor="middle" x="50" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M314.93,-53.21C302.87,-53.12 290.62,-53.05 279,-53 215.45,-52.73 199.55,-52.63 136,-53 127.82,-53.05 119.19,-53.12 110.7,-53.21"/>
+<polygon fill="#255000" stroke="#255000" points="110.4,-49.71 100.44,-53.32 110.48,-56.71 110.4,-49.71"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M135.58,-64.88C127.03,-63.78 118.38,-62.67 110.03,-61.59"/>
+<polygon fill="#255000" stroke="#255000" points="110.4,-58.11 100.03,-60.31 109.5,-65.05 110.4,-58.11"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletimestringconversionf90EfferentGraph = svgPanZoom('#sourcefiletimestringconversionf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#EfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~timestringconversion.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefiletimestringconversionf90AfferentGraph" width="641pt" height="128pt"
+ viewBox="0.00 0.00 641.00 128.11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph" class="graph" transform="scale(2.43 2.43) rotate(0) translate(4 306.77)">
+<title>sourcefile~~timestringconversion.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-306.77 1551,-306.77 1551,4 -4,4"/>
+<!-- sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~timestringconversion.f90</title>
+<polygon fill="none" stroke="black" points="153,-201 0,-201 0,-177 153,-177 153,-201"/>
+<text text-anchor="middle" x="76.5" y="-186.6" font-family="Helvetica,sans-Serif" font-size="10.50">TimeStringConversion.F90</text>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~extdataabstractfilehandler.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/extdataabstractfilehandler.f90.html" xlink:title="ExtDataAbstractFileHandler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="575,-105 394,-105 394,-81 575,-81 575,-105"/>
+<text text-anchor="middle" x="484.5" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataAbstractFileHandler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M393.82,-82.4C356.31,-80.68 312.66,-82.25 274.5,-93"/>
+</g>
+<!-- sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~extdatafilestream.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/extdatafilestream.f90.html" xlink:title="ExtDataFileStream.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="340,-181 207,-181 207,-157 340,-157 340,-181"/>
+<text text-anchor="middle" x="273.5" y="-166.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataFileStream.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdatafilestream.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M450.38,-105.04C414.41,-118.12 356.83,-139.06 317.41,-153.4"/>
+<polygon fill="#025500" stroke="#025500" points="316.01,-150.18 307.81,-156.89 318.4,-156.76 316.01,-150.18"/>
+</g>
+<!-- sourcefile~extdataclimfilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~extdataclimfilehandler.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/extdataclimfilehandler.f90.html" xlink:title="ExtDataClimFileHandler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="777.5,-146 617.5,-146 617.5,-122 777.5,-122 777.5,-146"/>
+<text text-anchor="middle" x="697.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataClimFileHandler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M617.3,-131.1C556.15,-128.3 469.51,-123.1 394,-114 340.46,-107.55 326.41,-78.38 274.5,-93"/>
+</g>
+<!-- sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M634.62,-121.98C610.36,-117.26 582.36,-111.82 557.22,-106.94"/>
+<polygon fill="#255000" stroke="#255000" points="557.86,-103.5 547.38,-105.02 556.53,-110.37 557.86,-103.5"/>
+</g>
+<!-- sourcefile~extdataconfig.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~extdataconfig.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/extdataconfig.f90.html" xlink:title="ExtDataConfig.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="753.5,-226 641.5,-226 641.5,-202 753.5,-202 753.5,-226"/>
+<text text-anchor="middle" x="697.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataConfig.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataconfig.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~extdataconfig.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M483.5,-289C353.31,-304.97 312.37,-314.52 189,-270 152.44,-256.81 117.39,-227.74 96.64,-208.26"/>
+<polygon fill="#255000" stroke="#255000" points="98.8,-205.48 89.17,-201.07 93.95,-210.53 98.8,-205.48"/>
+</g>
+<!-- sourcefile~extdataconfig.f90&#45;&gt;sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~extdataconfig.f90&#45;&gt;sourcefile~extdatafilestream.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M655.32,-201.98C613.13,-190.52 545.4,-174.51 485.5,-171"/>
+</g>
+<!-- sourcefile~extdatarule.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~extdatarule.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/extdatarule.f90.html" xlink:title="ExtDataRule.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="534.5,-223 434.5,-223 434.5,-199 534.5,-199 534.5,-223"/>
+<text text-anchor="middle" x="484.5" y="-208.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataRule.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataconfig.f90&#45;&gt;sourcefile~extdatarule.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~extdataconfig.f90&#45;&gt;sourcefile~extdatarule.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M641.34,-213.22C611.61,-212.79 574.91,-212.27 544.6,-211.84"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="544.63,-208.34 534.58,-211.7 544.53,-215.34 544.63,-208.34"/>
+</g>
+<!-- sourcefile~extdatasample.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~extdatasample.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/extdatasample.f90.html" xlink:title="ExtDataSample.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="332.5,-261 214.5,-261 214.5,-237 332.5,-237 332.5,-261"/>
+<text text-anchor="middle" x="273.5" y="-246.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataSample.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataconfig.f90&#45;&gt;sourcefile~extdatasample.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~extdataconfig.f90&#45;&gt;sourcefile~extdatasample.f90</title>
+<path fill="none" stroke="#016925" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M673.29,-226.09C635.29,-244.98 556.89,-280.25 485.5,-289"/>
+<path fill="none" stroke="#016925" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M483.5,-289C454.45,-292.56 381.31,-276.39 329.77,-263.55"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="330.32,-260.08 319.77,-261.04 328.62,-266.87 330.32,-260.08"/>
+</g>
+<!-- sourcefile~extdatafilestream.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~extdatafilestream.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M206.75,-175.74C192.74,-177.18 177.74,-178.72 163.11,-180.22"/>
+<polygon fill="#255000" stroke="#255000" points="162.64,-176.75 153.05,-181.25 163.36,-183.71 162.64,-176.75"/>
+</g>
+<!-- sourcefile~extdatarule.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~extdatarule.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M434.12,-208.32C366.87,-204.68 245.45,-198.1 163.18,-193.64"/>
+<polygon fill="#255000" stroke="#255000" points="163.27,-190.14 153.1,-193.1 162.89,-197.13 163.27,-190.14"/>
+</g>
+<!-- sourcefile~extdatarule.f90&#45;&gt;sourcefile~extdatasample.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extdatarule.f90&#45;&gt;sourcefile~extdatasample.f90</title>
+<path fill="none" stroke="#016925" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M434.5,-219.91C407.18,-224.88 372.74,-231.14 342.81,-236.58"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="342.07,-233.16 332.85,-238.39 343.32,-240.05 342.07,-233.16"/>
+</g>
+<!-- sourcefile~extdatasample.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~extdatasample.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M233.04,-236.86C202.28,-227.39 159.4,-214.2 126.45,-204.06"/>
+<polygon fill="#255000" stroke="#255000" points="127.16,-200.62 116.57,-201.02 125.1,-207.31 127.16,-200.62"/>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~extdatasimplefilehandler.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/extdatasimplefilehandler.f90.html" xlink:title="ExtDataSimpleFileHandler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="784,-66 611,-66 611,-42 784,-42 784,-66"/>
+<text text-anchor="middle" x="697.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataSimpleFileHandler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M610.87,-56.48C550.17,-58.88 466.89,-63.46 394,-72 340.44,-78.28 326.3,-78.01 274.5,-93"/>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M631.47,-66.02C609.11,-70.15 583.89,-74.81 560.78,-79.09"/>
+<polygon fill="#255000" stroke="#255000" points="559.87,-75.69 550.68,-80.95 561.15,-82.58 559.87,-75.69"/>
+</g>
+<!-- sourcefile~extdataupdatepointer.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~extdataupdatepointer.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/extdataupdatepointer.f90.html" xlink:title="ExtDataUpdatePointer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="560,-24 409,-24 409,0 560,0 560,-24"/>
+<text text-anchor="middle" x="484.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataUpdatePointer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataupdatepointer.f90&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~extdataupdatepointer.f90&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M428.27,-24.14C416.51,-27.95 404.49,-32.82 394,-39 374.77,-50.32 377.61,-63.35 358,-74 324.55,-92.16 311.13,-82.68 274.5,-93"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M272.5,-93C209.05,-110.87 141.39,-149.06 104.81,-171.51"/>
+<polygon fill="#255000" stroke="#255000" points="102.85,-168.61 96.21,-176.86 106.55,-174.55 102.85,-168.61"/>
+</g>
+<!-- sourcefile~test_timestringconversion.pf -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~test_timestringconversion.pf</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/test_timestringconversion.pf.html" xlink:title="test_TimeStringConversion.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="358,-65 189,-65 189,-41 358,-41 358,-65"/>
+<text text-anchor="middle" x="273.5" y="-50.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_TimeStringConversion.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_timestringconversion.pf&#45;&gt;sourcefile~timestringconversion.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~test_timestringconversion.pf&#45;&gt;sourcefile~timestringconversion.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M220.07,-65.12C209.38,-68.74 198.51,-73.3 189,-79 148.95,-103.02 112.45,-144.32 92.77,-168.91"/>
+<polygon fill="#255000" stroke="#255000" points="89.95,-166.82 86.53,-176.85 95.46,-171.15 89.95,-166.82"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1166,-126 1019,-126 1019,-102 1166,-102 1166,-126"/>
+<text text-anchor="middle" x="1092.5" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdataconfig.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdataconfig.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1044.1,-126.06C971.71,-144.48 833.83,-179.56 755.89,-199.4"/>
+<polygon fill="transparent" stroke="transparent" points="754.59,-196.11 745.77,-201.97 756.32,-202.9 754.59,-196.11"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~extdataoldtypescreator.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node12"><a xlink:href=".././sourcefile/extdataoldtypescreator.f90.html" xlink:title="ExtDataOldTypesCreator.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="983,-126 820,-126 820,-102 983,-102 983,-126"/>
+<text text-anchor="middle" x="901.5" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataOldTypesCreator.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdataoldtypescreator.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdataoldtypescreator.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1018.97,-114C1010.51,-114 1001.81,-114 993.15,-114"/>
+<polygon fill="#025500" stroke="#025500" points="993.02,-110.5 983.02,-114 993.02,-117.5 993.02,-110.5"/>
+</g>
+<!-- sourcefile~extdatatypedef.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~extdatatypedef.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node13"><a xlink:href=".././sourcefile/extdatatypedef.f90.html" xlink:title="ExtDataTypeDef.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="757,-24 638,-24 638,0 757,0 757,-24"/>
+<text text-anchor="middle" x="697.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataTypeDef.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdatatypedef.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdatatypedef.f90</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M1046.75,-101.96C986.94,-85.93 877.63,-56.83 784,-33 775.61,-30.86 766.74,-28.64 758.02,-26.48"/>
+<polygon fill="#002505" stroke="#002505" points="758.81,-23.07 748.27,-24.07 757.14,-29.87 758.81,-23.07"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M819.99,-109.93C753.04,-106.54 657.43,-101.7 585.57,-98.06"/>
+<polygon fill="#255000" stroke="#255000" points="585.31,-94.55 575.14,-97.54 584.95,-101.54 585.31,-94.55"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataclimfilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataclimfilehandler.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M819.79,-121.99C809.3,-123.03 798.5,-124.1 787.88,-125.15"/>
+<polygon fill="transparent" stroke="transparent" points="787.37,-121.68 777.76,-126.15 788.06,-128.65 787.37,-121.68"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataconfig.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataconfig.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M884.71,-126.01C863.02,-142.02 822.32,-170.4 784,-188 775.21,-192.04 765.63,-195.65 756.17,-198.81"/>
+<polygon fill="transparent" stroke="transparent" points="754.85,-195.55 746.39,-201.93 756.98,-202.22 754.85,-195.55"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatafilestream.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M858.4,-126.06C845.94,-129.9 832.33,-134.36 820,-139 803.61,-145.16 800.63,-149.52 784,-155 747.03,-167.19 736.41,-165.16 698.5,-174"/>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M696.5,-174C605.16,-195.29 579.13,-176.49 485.5,-171"/>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M483.5,-171C439.51,-168.42 390.23,-167.84 350.57,-167.94"/>
+<polygon fill="#025500" stroke="#025500" points="350.43,-164.44 340.45,-167.98 350.46,-171.44 350.43,-164.44"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatarule.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatarule.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M696.5,-174C645.7,-185.84 587.23,-195.81 544.74,-202.41"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="544.19,-198.95 534.84,-203.93 545.26,-205.87 544.19,-198.95"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatasample.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatasample.f90</title>
+<path fill="none" stroke="#016925" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M696.5,-174C658.59,-182.84 644.74,-173.59 611,-193 590.55,-204.76 596.33,-221.93 575,-232 501.48,-266.7 406.32,-265.5 342.99,-259.22"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="343.03,-255.71 332.72,-258.13 342.29,-262.67 343.03,-255.71"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatasimplefilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatasimplefilehandler.f90</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M859.62,-101.86C827.62,-92.35 782.96,-79.09 748.77,-68.93"/>
+<polygon fill="#002505" stroke="#002505" points="749.55,-65.51 738.97,-66.02 747.56,-72.22 749.55,-65.51"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatatypedef.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatatypedef.f90</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M876.71,-101.97C860.19,-93.18 838.01,-80.48 820,-67 802.38,-53.81 803.33,-43.53 784,-33 778.54,-30.02 772.65,-27.46 766.62,-25.26"/>
+<polygon fill="#002505" stroke="#002505" points="767.64,-21.92 757.05,-22.09 765.44,-28.56 767.64,-21.92"/>
+</g>
+<!-- sourcefile~extdatatypedef.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~extdatatypedef.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M640.36,-24.04C630.47,-26.65 620.36,-29.65 611,-33 577.53,-44.97 541.06,-63.01 516.1,-76.18"/>
+<polygon fill="#255000" stroke="#255000" points="514.3,-73.18 507.13,-80.97 517.6,-79.35 514.3,-73.18"/>
+</g>
+<!-- sourcefile~extdatatypedef.f90&#45;&gt;sourcefile~extdataupdatepointer.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~extdatatypedef.f90&#45;&gt;sourcefile~extdataupdatepointer.f90</title>
+<path fill="none" stroke="#170025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M637.72,-12C616.89,-12 593.02,-12 570.44,-12"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="570.18,-8.5 560.18,-12 570.18,-15.5 570.18,-8.5"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node14"><a xlink:href=".././sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1366,-147 1202,-147 1202,-123 1366,-123 1366,-147"/>
+<text text-anchor="middle" x="1284" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1201.81,-126C1193.29,-125.06 1184.62,-124.1 1176.09,-123.15"/>
+<polygon fill="#255000" stroke="#255000" points="1176.47,-119.67 1166.14,-122.05 1175.7,-126.63 1176.47,-119.67"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node15"><a xlink:href=".././sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1356,-105 1212,-105 1212,-81 1356,-81 1356,-105"/>
+<text text-anchor="middle" x="1284" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1211.9,-100.88C1200.36,-102.16 1188.33,-103.49 1176.54,-104.8"/>
+<polygon fill="#255000" stroke="#255000" points="1175.82,-101.36 1166.26,-105.94 1176.59,-108.31 1175.82,-101.36"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node16"><a xlink:href=".././sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1547,-105 1402,-105 1402,-81 1547,-81 1547,-105"/>
+<text text-anchor="middle" x="1474.5" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1401.97,-93C1390.37,-93 1378.28,-93 1366.46,-93"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1366.17,-89.5 1356.17,-93 1366.17,-96.5 1366.17,-89.5"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node17"><a xlink:href=".././sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1529,-189 1420,-189 1420,-165 1529,-165 1529,-189"/>
+<text text-anchor="middle" x="1474.5" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1419.99,-165.08C1397.9,-160.15 1372.11,-154.41 1349.02,-149.26"/>
+<polygon fill="#255000" stroke="#255000" points="1349.5,-145.78 1338.97,-147.03 1347.97,-152.62 1349.5,-145.78"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node18"><a xlink:href=".././sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1541,-147 1408,-147 1408,-123 1541,-123 1541,-147"/>
+<text text-anchor="middle" x="1474.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1407.84,-135C1397.61,-135 1386.89,-135 1376.22,-135"/>
+<polygon fill="#255000" stroke="#255000" points="1376.02,-131.5 1366.02,-135 1376.02,-138.5 1376.02,-131.5"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~timestringconversion.f90~~AfferentGraph_node19"><a xlink:href=".././sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1519.5,-63 1429.5,-63 1429.5,-39 1519.5,-39 1519.5,-63"/>
+<text text-anchor="middle" x="1474.5" y="-48.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~timestringconversion.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1429.31,-60.85C1405.38,-66.18 1375.38,-72.86 1348.95,-78.75"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1348.01,-75.38 1339.01,-80.97 1349.53,-82.21 1348.01,-75.38"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletimestringconversionf90AfferentGraph = svgPanZoom('#sourcefiletimestringconversionf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#AfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Exceptions.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">MAPL_TimeStringConversion</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_KeywordEnforcerMod</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">   private</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">string_to_integer_time</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">string_to_integer_date</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">string_to_esmf_time</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">string_to_esmf_timeinterval</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="k">contains</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="k">   function </span><span class="n">string_to_integer_time</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="nb">time</span><span class="p">)</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_string</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="nb">      </span><span class="kt">integer </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">spos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="kt">integer </span><span class="n">strlen</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="kt">integer </span><span class="n">firstcolon</span><span class="p">,</span><span class="w"> </span><span class="n">lastcolon</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="kt">integer </span><span class="n">lastspace</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="kt">integer </span><span class="n">hour</span><span class="p">,</span><span class="nb">min</span><span class="p">,</span><span class="n">sec</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="n">strlen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN_TRIM</span><span class="w"> </span><span class="p">(</span><span class="n">time_string</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">firstcolon</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">        </span><span class="c">! If no colons, check for hour.</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">        </span><span class="c">! Logic below assumes a null character or something else is after the hour</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">        </span><span class="c">! if we do not find a null character add one so that it correctly parses time</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">        </span><span class="c">!if (time_string(strlen:strlen) /= char(0)) then</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">           </span><span class="c">!time_string = trim(time_string)//char(0)</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">           </span><span class="c">!strlen=len_trim(time_string)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">        </span><span class="c">!endif</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">        </span><span class="n">lastspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">time_string</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">BACK</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">strlen</span><span class="o">-</span><span class="n">lastspace</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">2</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">strlen</span><span class="o">-</span><span class="n">lastspace</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="k">          </span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastspace</span><span class="o">+</span><span class="mi">1</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">          </span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strlen</span><span class="o">-</span><span class="mi">1</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">hour</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">          </span><span class="nb">min</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">          </span><span class="n">sec</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">        </span><span class="k">else</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="k">          </span><span class="n">hour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">          </span><span class="nb">min</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">          </span><span class="n">sec</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">        </span><span class="k">endif</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="k">      else</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="k">        </span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">        </span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">        </span><span class="n">lastcolon</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="nb">index</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">BACK</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">lastcolon</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="k">          </span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">          </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">hour</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="nb">min</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="nb">          </span><span class="n">sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">        </span><span class="k">else</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="k">          </span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">          </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastcolon</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">          </span><span class="n">spos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">          </span><span class="n">spos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">hour</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="nb">min</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="nb">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">spos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">spos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">sec</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">        </span><span class="k">endif</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="k">      endif</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="k">      </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hour</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="nb">min</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="n">sec</span><span class="w"> </span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">   </span><span class="k">end function </span><span class="n">string_to_integer_time</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">   </span><span class="k">function </span><span class="n">string_to_integer_date</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_string</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">date</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="kt">integer </span><span class="n">ypos</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">dpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="kt">integer </span><span class="n">strlen</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="kt">integer </span><span class="n">firstdash</span><span class="p">,</span><span class="w"> </span><span class="n">lastdash</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="kt">integer </span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="n">strlen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN_TRIM</span><span class="w"> </span><span class="p">(</span><span class="n">time_string</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="n">firstdash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="n">lastdash</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">BACK</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">firstdash</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">lastdash</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">FAILURE</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="k">      </span><span class="n">ypos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstdash</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstdash</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="n">ypos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ypos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastdash</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="n">dpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastdash</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="n">dpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">time_string</span><span class="p">(</span><span class="n">ypos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">ypos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">year</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">time_string</span><span class="p">(</span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">month</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">time_string</span><span class="p">(</span><span class="n">dpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">dpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">day</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">year</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">month</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="n">day</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">   </span><span class="k">end function </span><span class="n">string_to_integer_date</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">   </span><span class="k">function </span><span class="n">string_to_esmf_time</span><span class="p">(</span><span class="n">input_string</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="nb">time</span><span class="p">)</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_string</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="nb">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tpos</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="kt">integer </span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="nb">min</span><span class="p">,</span><span class="n">sec</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">int_time</span><span class="p">,</span><span class="w"> </span><span class="n">int_date</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">date_string</span><span class="p">,</span><span class="n">time_string</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">have_time</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="n">tpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">input_string</span><span class="p">,</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tpos</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="k">         </span><span class="n">have_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="k">         </span><span class="n">have_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="k">    </span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">have_time</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="k">         </span><span class="n">time_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input_string</span><span class="p">(</span><span class="n">tpos</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">         </span><span class="n">date_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input_string</span><span class="p">(:</span><span class="n">tpos</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">         </span><span class="n">int_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">string_to_integer_time</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="k">         </span><span class="n">date_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span><span class="w"> </span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">         </span><span class="n">int_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="k">      </span><span class="n">int_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">string_to_integer_date</span><span class="p">(</span><span class="n">date_string</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="n">year</span><span class="o">=</span><span class="n">int_date</span><span class="o">/</span><span class="mi">10000</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">      </span><span class="n">month</span><span class="o">=</span><span class="nb">mod</span><span class="p">(</span><span class="n">int_date</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="n">day</span><span class="o">=</span><span class="nb">mod</span><span class="p">(</span><span class="n">int_date</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">      </span><span class="n">hour</span><span class="o">=</span><span class="n">int_time</span><span class="o">/</span><span class="mi">10000</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="nb">min</span><span class="o">=</span><span class="nb">mod</span><span class="p">(</span><span class="n">int_time</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="n">sec</span><span class="o">=</span><span class="nb">mod</span><span class="p">(</span><span class="n">int_time</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">sec</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">   </span><span class="k">end function </span><span class="n">string_to_esmf_time</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">   </span><span class="k">function </span><span class="n">string_to_esmf_timeinterval</span><span class="p">(</span><span class="n">time_interval_string</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">time_interval</span><span class="p">)</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_interval_string</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_interval</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">strlen</span><span class="p">,</span><span class="n">ppos</span><span class="p">,</span><span class="n">cpos</span><span class="p">,</span><span class="n">lpos</span><span class="p">,</span><span class="n">tpos</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">      </span><span class="kt">integer </span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="nb">min</span><span class="p">,</span><span class="n">sec</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">date_string</span><span class="p">,</span><span class="n">time_string</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">      </span><span class="n">year</span><span class="o">=</span><span class="mi">0</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">      </span><span class="n">month</span><span class="o">=</span><span class="mi">0</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">      </span><span class="n">day</span><span class="o">=</span><span class="mi">0</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">      </span><span class="n">hour</span><span class="o">=</span><span class="mi">0</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">      </span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">      </span><span class="n">sec</span><span class="o">=</span><span class="mi">0</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="n">strlen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len_trim</span><span class="p">(</span><span class="n">time_interval_string</span><span class="p">)</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="n">tpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">time_interval_string</span><span class="p">,</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="n">ppos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">time_interval_string</span><span class="p">,</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_interval_string</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;P&#39;</span><span class="p">,</span><span class="s1">&#39;Not valid time duration&#39;</span><span class="p">)</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tpos</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">tpos</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">ppos</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="k">            </span><span class="n">date_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_interval_string</span><span class="p">(</span><span class="n">ppos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">tpos</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="k">         </span><span class="n">time_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_interval_string</span><span class="p">(</span><span class="n">tpos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">strlen</span><span class="p">)</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="k">         </span><span class="n">date_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_interval_string</span><span class="p">(</span><span class="n">ppos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">strlen</span><span class="p">)</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">date_string</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="k">         </span><span class="n">strlen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len_trim</span><span class="p">(</span><span class="n">date_string</span><span class="p">)</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">         </span><span class="n">lpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">         </span><span class="n">cpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">date_string</span><span class="p">,</span><span class="s1">&#39;Y&#39;</span><span class="p">)</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cpos</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="k">            read</span><span class="p">(</span><span class="n">date_string</span><span class="p">(</span><span class="n">lpos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">cpos</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="n">year</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">            </span><span class="n">lpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpos</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="k">         </span><span class="n">cpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">date_string</span><span class="p">,</span><span class="s1">&#39;M&#39;</span><span class="p">)</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cpos</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="k">            read</span><span class="p">(</span><span class="n">date_string</span><span class="p">(</span><span class="n">lpos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">cpos</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="n">month</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">            </span><span class="n">lpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpos</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="k">         </span><span class="n">cpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">date_string</span><span class="p">,</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cpos</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="k">            read</span><span class="p">(</span><span class="n">date_string</span><span class="p">(</span><span class="n">lpos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">cpos</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="n">day</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">            </span><span class="n">lpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpos</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="k">      end if</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">time_string</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="k">         </span><span class="n">strlen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len_trim</span><span class="p">(</span><span class="n">time_string</span><span class="p">)</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">         </span><span class="n">lpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">         </span><span class="n">cpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cpos</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="k">            read</span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">lpos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">cpos</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="n">hour</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">            </span><span class="n">lpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpos</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="k">         </span><span class="n">cpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="s1">&#39;M&#39;</span><span class="p">)</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cpos</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="k">            read</span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">lpos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">cpos</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="nb">min</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="nb">            </span><span class="n">lpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpos</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="k">         </span><span class="n">cpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span><span class="s1">&#39;S&#39;</span><span class="p">)</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cpos</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="k">            read</span><span class="p">(</span><span class="n">time_string</span><span class="p">(</span><span class="n">lpos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">cpos</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="n">sec</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">            </span><span class="n">lpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpos</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="k">      end if</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="k">      call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">time_interval</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">d</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">sec</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">   </span><span class="k">end function </span><span class="n">string_to_esmf_timeinterval</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="k">end module </span><span class="n">MAPL_TimeStringConversion</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-05T16:03:27.726859             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
