@@ -7,13 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed - 2023-11-28
-Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
 ### Added
 
 - New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool.
 
 ### Changed
+
 - Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
 - Swath grid step 1: allow for destroying and regenerating swath grid and regenerating regridder route handle, and creating
   allocatable metadata in griddedIO. Modifications are made to GriddedIO.F90, MAPL_AbstractRegridder.F90, and MAPL_EsmfRegridder.F90.
@@ -22,6 +21,7 @@ Made changes to allocate fields to use farray instead of farrayPtr. This allows 
 - Update `components.yaml`
   - ESMA_env v4.24.0 (Baselibs 7.17.0)
 - Update CI to use circleci-tools v2
+- Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
 
 ### Fixed
 
