@@ -1,6 +1,7 @@
 #if defined XML_PATH
 #undef XML_PATH
 #endif
+
 ! This needs to be set to a path to the xml unit database for testing.
 !#define XML_PATH 
 
@@ -17,6 +18,9 @@ module Test_udunits2
 
    integer(ut_encoding) :: encoding = UT_ASCII
    type(c_ptr) :: ut_system_ptr, unit1, unit2
+   character(len=*), parameter :: KM = 'km'
+   character(len=*), parameter :: M = 'm'
+   character(len=*), parameter :: S = 's'
 
 contains
 
@@ -67,7 +71,7 @@ contains
    subroutine test_get_converter()
       type(MAPL_Udunits_Converter) :: conv
 
-      conv = get_converter('m', 'km', encoding=encoding)
+      conv = get_converter(KM, M, encoding=encoding)
       @assertFalse(conv % ptr == c_null_ptr, 'get_converter returned the C null pointer.')
 
    end subroutine test_get_converter
@@ -76,7 +80,7 @@ contains
    subroutine test_get_converter_noencoding()
       type(MAPL_Udunits_Converter) :: conv
 
-      conv = get_converter('m', 'km')
+      conv = get_converter(KM, M)
       @assertFalse(conv % ptr == c_null_ptr, 'get_converter returned the C null pointer.')
 
    end subroutine test_get_converter_noencoding
@@ -154,6 +158,86 @@ contains
       @assertEqual(ustat, UT_SUCCESS, 'Unsuccessful')
       
    end subroutine test_ut_parse
+
+   @Test
+   subroutine test_convert_double()
+      real(c_double), parameter :: FROM = 1.0
+      real(c_double), parameter :: EXPECTED = 1000.0
+      real(c_double) :: ACTUAL
+      type(MAPL_Udunits_Converter) :: conv
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      conv = get_converter(FROM_STRING, TO_STRING)
+      ACTUAL = conv % convert_double(FROM)
+      @assertEqual(ACTUAL, EXPECTED, 'Actual does not equal expected.')
+
+   end subroutine test_convert_double
+
+   @Test
+   subroutine test_convert_float()
+      real(c_float), parameter :: FROM = 1.0
+      real(c_float), parameter :: EXPECTED = 1000.0
+      real(c_float) :: ACTUAL
+      type(MAPL_Udunits_Converter) :: conv
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      conv = get_converter(FROM_STRING, TO_STRING)
+      ACTUAL = conv % convert_float(FROM)
+      @assertEqual(ACTUAL, EXPECTED, 'Actual does not equal expected.')
+
+   end subroutine test_convert_float
+
+   @Test
+   subroutine test_convert_doubles()
+      real(c_double), parameter :: FROM(:) = [1.0, 2.0, 3.0]
+      real(c_double), parameter :: EXPECTED(:) = 1000.0 * FROM
+      real(c_double) :: ACTUAL(size(EXPECTED))
+      type(MAPL_Udunits_Converter) :: conv
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      conv = get_converter(FROM_STRING, TO_STRING)
+      call conv % convert_doubles(FROM, ACTUAL)
+      @assertEqual(ACTUAL, EXPECTED, 'Actual does not equal expected.')
+
+   end subroutine test_convert_doubles
+
+   @Test
+   subroutine test_convert_floats()
+      real(c_float), parameter :: FROM(:) = [1.0, 2.0, 3.0]
+      real(c_float), parameter :: EXPECTED(:) = 1000.0 * FROM
+      real(c_float) :: ACTUAL(size(EXPECTED))
+      type(MAPL_Udunits_Converter) :: conv
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      conv = get_converter(FROM_STRING, TO_STRING)
+      call conv % convert_floats(FROM, ACTUAL)
+      @assertEqual(ACTUAL, EXPECTED, 'Actual does not equal expected.')
+
+   end subroutine test_convert_floats
+
+   @Test
+   subroutine test_destroy_all()
+      @assertTrue(.FALSE., 'Test not implemented')
+   end subroutine test_destroy_all
+
+   @Test
+   subroutine test_destroy_system()
+      @assertTrue(.FALSE., 'Test not implemented')
+   end subroutine test_destroy_system
+
+   @Test
+   subroutine test_destroy_converter()
+      @assertTrue(.FALSE., 'Test not implemented')
+   end subroutine test_destroy_converter
+
+   @Test
+   subroutine test_destroy_ut_unit()
+      @assertTrue(.FALSE., 'Test not implemented')
+   end subroutine test_destroy_ut_unit
 
    subroutine all_c_null_ptr(ptr)
       type(c_ptr), intent(inout) :: ptr(:)
