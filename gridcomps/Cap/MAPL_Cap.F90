@@ -447,7 +447,7 @@ contains
 
       if (.not. this%mpi_already_initialized) then
          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
-         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supporte by this MPI.')
+         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
 !         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
 !         _VERIFY(ierror)
 !         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
