@@ -12,12 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool.
 
 ### Changed
-
 - Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
+- Swath grid step 1: allow for destroying and regenerating swath grid and regenerating regridder route handle, and creating
+  allocatable metadata in griddedIO. Modifications are made to GriddedIO.F90, MAPL_AbstractRegridder.F90, and MAPL_EsmfRegridder.F90.
+- Swath grid step 2: add control keywords for swath grid. Allow for filename template with '*' and DOY. Allow for missing obs files. Specify index_name_lon/lat, var_name_lon/lat/time, tunit, obs_file_begin/end/interval, Epoch and Epoch_init.
+- Update CI to Baselibs 7.17.0 (for future MAPL3 work) and the BCs v11.3.0 (to fix coupled run)
+- Update `components.yaml`
+  - ESMA_env v4.22.0 (Baselibs 7.15.1)
 
 ### Fixed
 
 - [#2433] Implemented workarounds for gfortran-13
+- Missing TARGET in GriddedIO - exposed runtime error when using NAG + debug.
 
 ### Removed
 
