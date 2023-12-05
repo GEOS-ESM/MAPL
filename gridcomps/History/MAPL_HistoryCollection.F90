@@ -11,6 +11,7 @@ module MAPL_HistoryCollectionMod
   use HistoryTrajectoryMod
   use StationSamplerMod
   use gFTL_StringStringMap
+  use MAPL_EpochSwathMod
   implicit none
 
   private
@@ -55,6 +56,7 @@ module MAPL_HistoryCollectionMod
      integer,pointer                    :: expSTATE (:)
      integer                            :: unit
      type(ESMF_FieldBundle)             :: bundle
+     type(sampler)                      :: xsampler
      type(MAPL_CFIO)                    :: MCFIO
      type(MAPL_GriddedIO)               :: mGriddedIO
      type(VerticalData) :: vdata
