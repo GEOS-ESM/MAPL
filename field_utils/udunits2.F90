@@ -133,7 +133,7 @@ contains
 
    end subroutine convert_doubles
 
-   function convert_floats(this, from) result(to)
+   subroutine convert_floats(this, from) result(to)
       type(MAPL_Udunits_Converter), intent(in) :: this
       real(c_float), intent(in) :: from(:)
       real(c_float) :: to(:)
@@ -143,7 +143,7 @@ contains
 
       call cv_convert_floats(cv_converter, from, size(from), to)
 
-   end function convert_floats
+   end subroutine convert_floats
 
    function initialize(path)
       character(len=*), optional, intent(in) :: path

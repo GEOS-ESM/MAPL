@@ -39,3 +39,4 @@ if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
+target_link_libraries(foo Fortran_UDUNITS2::Fortran_UDUNITS2)
