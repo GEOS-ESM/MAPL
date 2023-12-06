@@ -300,7 +300,3 @@ if (MAPL_STANDALONE)
     endif()
   endif ()
 endif ()
-
-find_package(udunits REQUIRED)
-find_package(Fortran_UDUNITS2 REQUIRED)
-find_package(EXPAT REQUIRED)

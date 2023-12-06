@@ -1,4 +1,3 @@
-! vim: filetype=fortran
 !============================ PROCEDURE INTERFACES =============================
 
    interface
@@ -70,7 +69,7 @@
       ! Use ut_get_status to check error condition. 
       type(c_ptr) function ut_parse(system, string, encoding) &
          bind(c, name='ut_parse')
-         import :: c_ptr, ut_system, ut_encoding, c_char
+         import :: c_ptr, c_char, ut_encoding
          type(c_ptr), intent(in) :: system
          character(c_char), intent(in) ::  string
          integer(ut_encoding), value, intent(in) :: encoding
@@ -94,3 +93,4 @@
    end interface
 
 !========================== END PROCEDURE INTERFACES ===========================
+! vim: set ft=fortran:

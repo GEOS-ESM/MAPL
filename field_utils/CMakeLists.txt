@@ -39,4 +39,8 @@ if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
-target_link_libraries(udunits udunits::udunits)
+find_package(udunits REQUIRED)
+#find_package(Fortran_UDUNITS2 REQUIRED)
+find_package(EXPAT REQUIRED)
+
+target_link_libraries(${this} PUBLIC udunits::udunits)
