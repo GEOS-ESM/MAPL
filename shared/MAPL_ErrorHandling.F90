@@ -240,9 +240,9 @@ contains
         !$omp end critical (MAPL_ErrorHandling10)
    end function MAPL_VRFYT
 
-   subroutine MAPL_abort
+   subroutine MAPL_abort()
       integer :: status
-      integer :: error_code
+      integer :: error_code = -1
       call MPI_Abort(MPI_COMM_WORLD,error_code,status)
   end subroutine MAPL_abort
 
