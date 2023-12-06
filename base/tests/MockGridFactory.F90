@@ -196,8 +196,9 @@ contains
    end subroutine initialize_from_file_metadata
 
 
-   subroutine append_metadata(this, metadata)
+   subroutine append_metadata(this, chunking, metadata)
       class (MockGridFactory), intent(inout) :: this
+      integer, intent(in) :: chunking(:)
       type (FileMetadata), intent(inout) :: metadata
 
       _UNUSED_DUMMY(this)

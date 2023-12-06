@@ -897,13 +897,15 @@ contains
 
    end subroutine halo
 
-   subroutine append_metadata(this, metadata)
+   subroutine append_metadata(this, chunking, metadata)
       class (TripolarGridFactory), intent(inout) :: this
+      integer, intent(in) :: chunking(:)
       type (FileMetadata), intent(inout) :: metadata
 
       type (Variable) :: v
       real(kind=real64), allocatable :: fake_coord(:)
       integer :: i
+      integer, allocatable :: corner_chunking(:)
 
       call metadata%add_dimension('Xdim', this%im_world)
       call metadata%add_dimension('Ydim', this%jm_world)
@@ -935,22 +937,26 @@ contains
       call metadata%add_variable('Ydim', v)
       deallocate(fake_coord)
 
-      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim',chunksizes=chunking)
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('lons',v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim',chunksizes=chunking)
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
+      allocate(corner_chunking(size(chunking)))
+      corner_chunking = chunking
+      corner_chunking(1)=corner_chunking(1)+1
+      corner_chunking(2)=corner_chunking(2)+1
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim',chunksizes=corner_chunking)
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('corner_lons',v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim',chunksizes=corner_chunking)
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('corner_lats',v)

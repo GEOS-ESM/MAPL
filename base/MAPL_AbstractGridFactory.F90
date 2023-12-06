@@ -174,10 +174,11 @@ module MAPL_AbstractGridFactoryMod
          class (AbstractGridFactory), intent(in) :: this
       end function generate_grid_name
 
-      subroutine append_metadata(this, metadata)
+      subroutine append_metadata(this, chunking, metadata)
          use pFIO
          import AbstractGridFactory
          class (AbstractGridFactory), intent(inout) :: this
+         integer, intent(in) :: chunking(:)
          type (FileMetadata), intent(inout) :: metadata
       end subroutine append_metadata
 

@@ -162,7 +162,15 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
-        call factory%append_metadata(this%metadata)
+
+        if (.not.allocated(this%chunking)) then
+           call this%set_default_chunking(rc=status)
+           _VERIFY(status)
+        else
+           call this%check_chunking(this%vdata%lm,_RC)
+        end if
+
+        call factory%append_metadata(this%chunking,this%metadata)
 
 
         if (present(vdata)) then
@@ -181,13 +189,6 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
 
         iter = this%items%begin()
-        if (.not.allocated(this%chunking)) then
-           call this%set_default_chunking(rc=status)
-           _VERIFY(status)
-        else
-           call this%check_chunking(this%vdata%lm,_RC)
-        end if
-
 
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)

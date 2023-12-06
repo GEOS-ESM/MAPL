@@ -1161,9 +1161,10 @@ contains
    end subroutine halo
 
 
-   subroutine append_metadata(this, metadata)
+   subroutine append_metadata(this, chunking, metadata)
       use MAPL_Constants
       class (SwathGridFactory), intent(inout) :: this
+      integer, intent(in) :: chunking(:)
       type (FileMetadata), intent(inout) :: metadata
 
       type (Variable) :: v
@@ -1177,12 +1178,12 @@ contains
       call metadata%add_dimension('lat', this%jm_world)
 
       ! Coordinate variables
-      v = Variable(type=PFIO_REAL64, dimensions='lon,lat')
+      v = Variable(type=PFIO_REAL64, dimensions='lon,lat',chunksizes=chunking)
       call v%add_attribute('long_name', 'longitude')
       call v%add_attribute('units', 'degrees_east')
       call metadata%add_variable('lons', v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='lon,lat')
+      v = Variable(type=PFIO_REAL64, dimensions='lon,lat',chunksizes=chunking)
       call v%add_attribute('long_name', 'latitude')
       call v%add_attribute('units', 'degrees_north')
       call metadata%add_variable('lats', v)

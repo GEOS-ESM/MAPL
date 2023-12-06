@@ -223,8 +223,9 @@ contains
       _UNUSED_DUMMY(this)
    end function generate_grid_name
 
-   subroutine append_metadata(this, metadata)
+   subroutine append_metadata(this, chunking, metadata)
       class(ExternalGridFactory), intent(inout) :: this
+      integer, intent(in) :: chunking(:)
       type(FileMetadata),         intent(inout) :: metadata
 
       ! Unimplemented

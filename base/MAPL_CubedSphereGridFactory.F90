@@ -935,8 +935,9 @@ contains
 
    end function generate_grid_name
 
-   subroutine append_metadata(this, metadata)!, unusable, rc)
+   subroutine append_metadata(this, chunking, metadata)!, unusable, rc)
       class (CubedSphereGridFactory), intent(inout) :: this
+      integer, intent(in) :: chunking(:)
       type (FileMetadata), intent(inout) :: metadata
 !!$      class (KeywordEnforcer), optional, intent(in) :: unusable
 !!$      integer, optional, intent(out) :: rc
@@ -948,6 +949,7 @@ contains
       !!! character(len=5), allocatable :: cvar(:,:)
       integer, allocatable :: ivar(:,:)
       integer, allocatable :: ivar2(:,:,:)
+      integer, allocatable :: corner_chunking(:)
 
       real(REAL64), allocatable :: temp_coords(:)
 
@@ -1055,22 +1057,26 @@ contains
       write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') this%im_world
       call Metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
 
-      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf',chunksizes=chunking)
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('lons',v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf',chunksizes=chunking)
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
+      allocate(corner_chunking(size(chunking)))
+      corner_chunking = chunking
+      corner_chunking(1)=corner_chunking(1)+1
+      corner_chunking(2)=corner_chunking(2)+1
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf',chunksizes=corner_chunking)
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('corner_lons',v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf',chunksizes=corner_chunking)
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('corner_lats',v)

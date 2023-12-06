@@ -411,7 +411,7 @@ contains
            deallocate (this%metadata)
         end if
         allocate(this%metadata)
-        call factory%append_metadata(this%metadata)
+        call factory%append_metadata(this%chunking,this%metadata)
         if (present(vdata)) then
            this%vdata=vdata
         else

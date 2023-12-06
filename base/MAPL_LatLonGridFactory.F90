@@ -1805,9 +1805,10 @@ contains
    end subroutine halo
 
 
-   subroutine append_metadata(this, metadata)
+   subroutine append_metadata(this, chunking, metadata)
       use MAPL_Constants
       class (LatLonGridFactory), intent(inout) :: this
+      integer, intent(in) :: chunking(:)
       type (FileMetadata), intent(inout) :: metadata
 
       type (Variable) :: v

@@ -928,8 +928,9 @@ contains
 
    end subroutine halo
 
-   subroutine append_metadata(this, metadata)
+   subroutine append_metadata(this, chunking, metadata)
       class (LlcGridFactory), intent(inout) :: this
+      integer, intent(in) :: chunking(:)
       type (FileMetadata), intent(inout) :: metadata
 
       call metadata%add_dimension('lon', this%im_world)
