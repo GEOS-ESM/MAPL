@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MpiMutex &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MpiMutex
+      <small>Interface</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 41 statements,  0.0% of total for procedures.">3 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MpiMutex.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mpimutex.f90.html'>MpiMutex.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_mpimutexmod.html'>pFIO_MpiMutexMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MpiMutex</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../interface/mpimutex.html#moduleprocedure-new_mpimutex">new_MpiMutex</a>
+        </div>
+      </div>
+    </div>
+
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <h2>public interface MpiMutex</h2>
+      
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Calls</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~mpimutex~~CallsGraph Pages: 1 -->
+<svg id="interfacempimutexCallsGraph" width="560pt" height="494pt"
+ viewBox="0.00 0.00 560.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~mpimutex~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<title>interface~~mpimutex~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 556,-490 556,4 -4,4"/>
+<!-- interface~mpimutex -->
+<g id="interface~~mpimutex~~CallsGraph_node1" class="node">
+<title>interface~mpimutex</title>
+<polygon fill="none" stroke="black" points="172,-255 0,-255 0,-231 172,-231 172,-255"/>
+<text text-anchor="middle" x="86" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_MpiMutexMod::MpiMutex</text>
+</g>
+<!-- proc~new_mpimutex -->
+<g id="interface~~mpimutex~~CallsGraph_node2" class="node">
+<title>proc~new_mpimutex</title>
+<g id="a_interface~~mpimutex~~CallsGraph_node2"><a xlink:href=".././proc/new_mpimutex.html" xlink:title="pFIO_MpiMutexMod::new_MpiMutex">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="407,-255 208,-255 208,-231 407,-231 407,-255"/>
+<text text-anchor="middle" x="307.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MpiMutexMod::new_MpiMutex</text>
+</a>
+</g>
+</g>
+<!-- interface~mpimutex&#45;&gt;proc~new_mpimutex -->
+<g id="interface~~mpimutex~~CallsGraph_edge1" class="edge">
+<title>interface~mpimutex&#45;&gt;proc~new_mpimutex</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M172.18,-243C180.58,-243 189.18,-243 197.78,-243"/>
+<polygon fill="#255000" stroke="#255000" points="197.85,-246.5 207.85,-243 197.85,-239.5 197.85,-246.5"/>
+</g>
+<!-- blklens -->
+<g id="interface~~mpimutex~~CallsGraph_node3" class="node">
+<title>blklens</title>
+<polygon fill="#777777" stroke="#777777" points="524.5,-486 470.5,-486 470.5,-462 524.5,-462 524.5,-486"/>
+<text text-anchor="middle" x="497.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">blklens</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;blklens -->
+<g id="interface~~mpimutex~~CallsGraph_edge2" class="edge">
+<title>proc~new_mpimutex&#45;&gt;blklens</title>
+<path fill="none" stroke="#255000" d="M313.06,-255.06C327.03,-290.45 372.57,-395.16 443,-453 448.16,-457.24 454.28,-460.7 460.51,-463.49"/>
+<polygon fill="#255000" stroke="#255000" points="459.66,-466.92 470.25,-467.36 462.25,-460.42 459.66,-466.92"/>
+</g>
+<!-- buffer -->
+<g id="interface~~mpimutex~~CallsGraph_node4" class="node">
+<title>buffer</title>
+<polygon fill="#777777" stroke="#777777" points="524.5,-444 470.5,-444 470.5,-420 524.5,-420 524.5,-444"/>
+<text text-anchor="middle" x="497.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">buffer</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;buffer -->
+<g id="interface~~mpimutex~~CallsGraph_edge3" class="edge">
+<title>proc~new_mpimutex&#45;&gt;buffer</title>
+<path fill="none" stroke="#255000" d="M315.3,-255.38C332.66,-285.95 381.63,-365.8 443,-411 448.32,-414.92 454.48,-418.22 460.68,-420.96"/>
+<polygon fill="#255000" stroke="#255000" points="459.75,-424.36 470.34,-424.8 462.34,-417.85 459.75,-424.36"/>
+</g>
+<!-- displs -->
+<g id="interface~~mpimutex~~CallsGraph_node5" class="node">
+<title>displs</title>
+<polygon fill="#777777" stroke="#777777" points="524.5,-402 470.5,-402 470.5,-378 524.5,-378 524.5,-402"/>
+<text text-anchor="middle" x="497.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">displs</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;displs -->
+<g id="interface~~mpimutex~~CallsGraph_edge4" class="edge">
+<title>proc~new_mpimutex&#45;&gt;displs</title>
+<path fill="none" stroke="#255000" d="M318.46,-255C339.31,-279.44 389.98,-335.51 443,-369 448.48,-372.46 454.63,-375.52 460.74,-378.15"/>
+<polygon fill="#255000" stroke="#255000" points="459.65,-381.49 470.24,-381.95 462.25,-374.99 459.65,-381.49"/>
+</g>
+<!-- mpi_alloc_mem -->
+<g id="interface~~mpimutex~~CallsGraph_node6" class="node">
+<title>mpi_alloc_mem</title>
+<polygon fill="#777777" stroke="#777777" points="546,-360 449,-360 449,-336 546,-336 546,-360"/>
+<text text-anchor="middle" x="497.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_alloc_mem</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;mpi_alloc_mem -->
+<g id="interface~~mpimutex~~CallsGraph_edge5" class="edge">
+<title>proc~new_mpimutex&#45;&gt;mpi_alloc_mem</title>
+<path fill="none" stroke="#255000" d="M325.74,-255.22C350.76,-272.61 398.98,-304.85 443,-327 446.36,-328.69 449.89,-330.34 453.47,-331.92"/>
+<polygon fill="#255000" stroke="#255000" points="452.4,-335.27 462.98,-335.94 455.13,-328.82 452.4,-335.27"/>
+</g>
+<!-- mpi_comm_dup -->
+<g id="interface~~mpimutex~~CallsGraph_node7" class="node">
+<title>mpi_comm_dup</title>
+<polygon fill="#777777" stroke="#777777" points="546,-318 449,-318 449,-294 546,-294 546,-318"/>
+<text text-anchor="middle" x="497.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_dup</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;mpi_comm_dup -->
+<g id="interface~~mpimutex~~CallsGraph_edge6" class="edge">
+<title>proc~new_mpimutex&#45;&gt;mpi_comm_dup</title>
+<path fill="none" stroke="#255000" d="M344.75,-255.15C375.01,-265.29 418.32,-279.8 450.93,-290.73"/>
+<polygon fill="#255000" stroke="#255000" points="450.09,-294.14 460.68,-294 452.31,-287.5 450.09,-294.14"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="interface~~mpimutex~~CallsGraph_node8" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="548,-276 447,-276 447,-252 548,-252 548,-276"/>
+<text text-anchor="middle" x="497.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;mpi_comm_rank -->
+<g id="interface~~mpimutex~~CallsGraph_edge7" class="edge">
+<title>proc~new_mpimutex&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#255000" d="M407.18,-254.02C417.21,-255.14 427.16,-256.25 436.59,-257.31"/>
+<polygon fill="#255000" stroke="#255000" points="436.26,-260.79 446.59,-258.42 437.04,-253.84 436.26,-260.79"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="interface~~mpimutex~~CallsGraph_node9" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="546,-234 449,-234 449,-210 546,-210 546,-234"/>
+<text text-anchor="middle" x="497.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;mpi_comm_size -->
+<g id="interface~~mpimutex~~CallsGraph_edge8" class="edge">
+<title>proc~new_mpimutex&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#255000" d="M407.18,-231.98C417.97,-230.77 428.68,-229.58 438.73,-228.45"/>
+<polygon fill="#255000" stroke="#255000" points="439.4,-231.9 448.95,-227.31 438.62,-224.94 439.4,-231.9"/>
+</g>
+<!-- mpi_type_commit -->
+<g id="interface~~mpimutex~~CallsGraph_node10" class="node">
+<title>mpi_type_commit</title>
+<polygon fill="#777777" stroke="#777777" points="551,-192 444,-192 444,-168 551,-168 551,-192"/>
+<text text-anchor="middle" x="497.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_type_commit</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;mpi_type_commit -->
+<g id="interface~~mpimutex~~CallsGraph_edge9" class="edge">
+<title>proc~new_mpimutex&#45;&gt;mpi_type_commit</title>
+<path fill="none" stroke="#255000" d="M344.75,-230.85C375.01,-220.71 418.32,-206.2 450.93,-195.27"/>
+<polygon fill="#255000" stroke="#255000" points="452.31,-198.5 460.68,-192 450.09,-191.86 452.31,-198.5"/>
+</g>
+<!-- mpi_type_extent -->
+<g id="interface~~mpimutex~~CallsGraph_node11" class="node">
+<title>mpi_type_extent</title>
+<polygon fill="#777777" stroke="#777777" points="547.5,-150 447.5,-150 447.5,-126 547.5,-126 547.5,-150"/>
+<text text-anchor="middle" x="497.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_type_extent</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;mpi_type_extent -->
+<g id="interface~~mpimutex~~CallsGraph_edge10" class="edge">
+<title>proc~new_mpimutex&#45;&gt;mpi_type_extent</title>
+<path fill="none" stroke="#255000" d="M325.74,-230.78C350.76,-213.39 398.98,-181.15 443,-159 446.36,-157.31 449.89,-155.66 453.47,-154.08"/>
+<polygon fill="#255000" stroke="#255000" points="455.13,-157.18 462.98,-150.06 452.4,-150.73 455.13,-157.18"/>
+</g>
+<!-- mpi_type_indexed -->
+<g id="interface~~mpimutex~~CallsGraph_node12" class="node">
+<title>mpi_type_indexed</title>
+<polygon fill="#777777" stroke="#777777" points="552,-108 443,-108 443,-84 552,-84 552,-108"/>
+<text text-anchor="middle" x="497.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_type_indexed</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;mpi_type_indexed -->
+<g id="interface~~mpimutex~~CallsGraph_edge11" class="edge">
+<title>proc~new_mpimutex&#45;&gt;mpi_type_indexed</title>
+<path fill="none" stroke="#255000" d="M318.46,-231C339.31,-206.56 389.98,-150.49 443,-117 445.57,-115.37 448.29,-113.84 451.09,-112.39"/>
+<polygon fill="#255000" stroke="#255000" points="452.65,-115.53 460.19,-108.09 449.65,-109.2 452.65,-115.53"/>
+</g>
+<!-- mpi_win_create -->
+<g id="interface~~mpimutex~~CallsGraph_node13" class="node">
+<title>mpi_win_create</title>
+<polygon fill="#777777" stroke="#777777" points="545,-66 450,-66 450,-42 545,-42 545,-66"/>
+<text text-anchor="middle" x="497.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_create</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;mpi_win_create -->
+<g id="interface~~mpimutex~~CallsGraph_edge12" class="edge">
+<title>proc~new_mpimutex&#45;&gt;mpi_win_create</title>
+<path fill="none" stroke="#255000" d="M315.3,-230.62C332.66,-200.05 381.63,-120.2 443,-75 445.04,-73.5 447.2,-72.09 449.44,-70.77"/>
+<polygon fill="#255000" stroke="#255000" points="451.12,-73.83 458.36,-66.09 447.87,-67.63 451.12,-73.83"/>
+</g>
+<!-- scratchpad -->
+<g id="interface~~mpimutex~~CallsGraph_node14" class="node">
+<title>scratchpad</title>
+<polygon fill="#777777" stroke="#777777" points="533.5,-24 461.5,-24 461.5,0 533.5,0 533.5,-24"/>
+<text text-anchor="middle" x="497.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scratchpad</text>
+</g>
+<!-- proc~new_mpimutex&#45;&gt;scratchpad -->
+<g id="interface~~mpimutex~~CallsGraph_edge13" class="edge">
+<title>proc~new_mpimutex&#45;&gt;scratchpad</title>
+<path fill="none" stroke="#255000" d="M313.06,-230.94C327.03,-195.55 372.57,-90.84 443,-33 445.87,-30.64 449.03,-28.53 452.34,-26.64"/>
+<polygon fill="#255000" stroke="#255000" points="453.98,-29.73 461.36,-22.13 450.85,-23.47 453.98,-29.73"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+
+
+        <h2>Module Procedures</h2>
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-new_mpimutex"></span><h3>private  function <a href='../proc/new_mpimutex.html'>new_MpiMutex</a>(comm) result(lock)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~33"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>comm</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/mpimutex.html'>MpiMutex</a>)</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+</div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T14:54:27.925594             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

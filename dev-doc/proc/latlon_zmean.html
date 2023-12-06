@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>latlon_zmean &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>latlon_zmean
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">71 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/time_ave_util.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/time_ave_util.f90.html'>time_ave_util.F90</a></li>
+                <li class="breadcrumb-item"><a href='../program/time_ave.html'>time_ave</a></li>
+            <li class="breadcrumb-item active" aria-current="page">latlon_zmean</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/latlon_zmean.html#src">latlon_zmean</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2> subroutine latlon_zmean(q, qz, undef, grid, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~5"></span>
+              real,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>q</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qz"></span>
+              real,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>qz</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-undef~10"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>undef</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~58"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1479"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~latlon_zmean~~CallsGraph Pages: 1 -->
+<svg id="proclatlon_zmeanCallsGraph" width="641pt" height="225pt"
+ viewBox="0.00 0.00 641.00 225.07" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~latlon_zmean~~CallsGraph" class="graph" transform="scale(2.6 2.6) rotate(0) translate(4 581.67)">
+<title>proc~~latlon_zmean~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-581.67 1664,-581.67 1664,4 -4,4"/>
+<!-- proc~latlon_zmean -->
+<g id="proc~~latlon_zmean~~CallsGraph_node1" class="node">
+<title>proc~latlon_zmean</title>
+<polygon fill="none" stroke="black" points="140,-373.67 0,-373.67 0,-349.67 140,-349.67 140,-373.67"/>
+<text text-anchor="middle" x="70" y="-359.27" font-family="Helvetica,sans-Serif" font-size="10.50">time_ave::latlon_zmean</text>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_node2" class="node">
+<title>ESMF_VMGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="593,-577.67 476,-577.67 476,-553.67 593,-553.67 593,-577.67"/>
+<text text-anchor="middle" x="534.5" y="-563.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGet</text>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;ESMF_VMGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge1" class="edge">
+<title>proc~latlon_zmean&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#255000" d="M75.52,-374.1C87.07,-403.88 120.68,-479.34 176,-513.67 264.69,-568.7 389.15,-574.16 465.39,-571.24"/>
+<polygon fill="#255000" stroke="#255000" points="465.99,-574.72 475.82,-570.78 465.68,-567.72 465.99,-574.72"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~latlon_zmean~~CallsGraph_node3" class="node">
+<title>ESMF_VMGetCurrent</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="613,-535.67 456,-535.67 456,-511.67 613,-511.67 613,-535.67"/>
+<text text-anchor="middle" x="534.5" y="-521.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGetCurrent</text>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge2" class="edge">
+<title>proc~latlon_zmean&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#255000" d="M78.12,-373.88C92.9,-397.98 129.46,-451.44 176,-475.67 260.09,-519.44 369.73,-528.23 445.31,-528.11"/>
+<polygon fill="#255000" stroke="#255000" points="445.77,-531.6 455.74,-528.03 445.72,-524.6 445.77,-531.6"/>
+</g>
+<!-- interface~mapl_grid_interior -->
+<g id="proc~~latlon_zmean~~CallsGraph_node4" class="node">
+<title>interface~mapl_grid_interior</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node4"><a xlink:href=".././interface/mapl_grid_interior.html" xlink:title="MAPL_Base::MAPL_GRID_INTERIOR">
+<polygon fill="#a7506f" stroke="#a7506f" points="372,-235.67 176,-235.67 176,-211.67 372,-211.67 372,-235.67"/>
+<text text-anchor="middle" x="274" y="-221.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;interface~mapl_grid_interior -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge3" class="edge">
+<title>proc~latlon_zmean&#45;&gt;interface~mapl_grid_interior</title>
+<path fill="none" stroke="#255000" d="M78.21,-349.46C93.15,-325.3 129.98,-271.41 176,-244.67 179.25,-242.79 182.64,-241.07 186.14,-239.51"/>
+<polygon fill="#255000" stroke="#255000" points="187.61,-242.69 195.59,-235.72 185.01,-236.19 187.61,-242.69"/>
+</g>
+<!-- mpi_recv -->
+<g id="proc~~latlon_zmean~~CallsGraph_node5" class="node">
+<title>mpi_recv</title>
+<polygon fill="#777777" stroke="#777777" points="304.5,-193.67 243.5,-193.67 243.5,-169.67 304.5,-169.67 304.5,-193.67"/>
+<text text-anchor="middle" x="274" y="-179.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_recv</text>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;mpi_recv -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge4" class="edge">
+<title>proc~latlon_zmean&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#255000" d="M75.34,-349.37C86.7,-319.12 120.31,-240.78 176,-202.67 192.68,-191.26 214.43,-185.89 233.11,-183.43"/>
+<polygon fill="#255000" stroke="#255000" points="233.56,-186.91 243.12,-182.34 232.8,-179.95 233.56,-186.91"/>
+</g>
+<!-- mpi_send -->
+<g id="proc~~latlon_zmean~~CallsGraph_node6" class="node">
+<title>mpi_send</title>
+<polygon fill="#777777" stroke="#777777" points="306,-151.67 242,-151.67 242,-127.67 306,-127.67 306,-151.67"/>
+<text text-anchor="middle" x="274" y="-137.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_send</text>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;mpi_send -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge5" class="edge">
+<title>proc~latlon_zmean&#45;&gt;mpi_send</title>
+<path fill="none" stroke="#255000" d="M73.53,-349.64C81.58,-314.43 110.09,-210.91 176,-160.67 191.84,-148.6 213.15,-143.14 231.77,-140.8"/>
+<polygon fill="#255000" stroke="#255000" points="232.18,-144.27 241.78,-139.79 231.48,-137.31 232.18,-144.27"/>
+</g>
+<!-- proc~get_esmf_grid_layout -->
+<g id="proc~~latlon_zmean~~CallsGraph_node7" class="node">
+<title>proc~get_esmf_grid_layout</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node7"><a xlink:href=".././proc/get_esmf_grid_layout.html" xlink:title="time_ave::get_esmf_grid_layout">
+<polygon fill="#d9534f" stroke="#d9534f" points="365,-433.67 183,-433.67 183,-409.67 365,-409.67 365,-433.67"/>
+<text text-anchor="middle" x="274" y="-419.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave::get_esmf_grid_layout</text>
+</a>
+</g>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;proc~get_esmf_grid_layout -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge6" class="edge">
+<title>proc~latlon_zmean&#45;&gt;proc~get_esmf_grid_layout</title>
+<path fill="none" stroke="#255000" d="M111.88,-373.81C143.88,-383.32 188.54,-396.58 222.73,-406.74"/>
+<polygon fill="#255000" stroke="#255000" points="221.95,-410.16 232.53,-409.65 223.94,-403.45 221.95,-410.16"/>
+</g>
+<!-- proc~mapl_abort -->
+<g id="proc~~latlon_zmean~~CallsGraph_node8" class="node">
+<title>proc~mapl_abort</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node8"><a xlink:href=".././proc/mapl_abort.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="641,-493.67 428,-493.67 428,-469.67 641,-469.67 641,-493.67"/>
+<text text-anchor="middle" x="534.5" y="-479.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_abort</text>
+</a>
+</g>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;proc~mapl_abort -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge7" class="edge">
+<title>proc~latlon_zmean&#45;&gt;proc~mapl_abort</title>
+<path fill="none" stroke="#255000" d="M82.21,-373.83C100.06,-392.3 136.92,-426.93 176,-442.67 252.75,-473.58 345.83,-482.94 417.78,-484.78"/>
+<polygon fill="#255000" stroke="#255000" points="417.71,-488.28 427.78,-484.99 417.86,-481.28 417.71,-488.28"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~latlon_zmean~~CallsGraph_node9" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node9"><a xlink:href=".././proc/mapl_gridget.html" xlink:title="mapl_MaplGrid::MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="361.5,-277.67 186.5,-277.67 186.5,-253.67 361.5,-253.67 361.5,-277.67"/>
+<text text-anchor="middle" x="274" y="-263.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge8" class="edge">
+<title>proc~latlon_zmean&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#255000" d="M96.58,-349.51C132.56,-332.42 198.18,-301.23 238.45,-282.09"/>
+<polygon fill="#255000" stroke="#255000" points="240.09,-285.18 247.62,-277.73 237.09,-278.86 240.09,-285.18"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~latlon_zmean~~CallsGraph_node10" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node10"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1186.5,-319.67 972.5,-319.67 972.5,-295.67 1186.5,-295.67 1186.5,-319.67"/>
+<text text-anchor="middle" x="1079.5" y="-305.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;proc~mapl_verify -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge9" class="edge">
+<title>proc~latlon_zmean&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M140.25,-357.96C310.51,-348.83 751.02,-325.22 962.22,-313.9"/>
+<polygon fill="#255000" stroke="#255000" points="962.61,-317.39 972.41,-313.36 962.24,-310.4 962.61,-317.39"/>
+</g>
+<!-- proc~mapl_grid_interior -->
+<g id="proc~~latlon_zmean~~CallsGraph_node16" class="node">
+<title>proc~mapl_grid_interior</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node16"><a xlink:href=".././proc/mapl_grid_interior.html" xlink:title="Base_Implementation::MAPL_GRID_INTERIOR">
+<polygon fill="#d9534f" stroke="#d9534f" points="661,-139.67 408,-139.67 408,-115.67 661,-115.67 661,-139.67"/>
+<text text-anchor="middle" x="534.5" y="-125.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_grid_interior&#45;&gt;proc~mapl_grid_interior -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_grid_interior&#45;&gt;proc~mapl_grid_interior</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M355.43,-211.54C361.27,-209.09 366.87,-206.16 372,-202.67 395.84,-186.43 383.78,-164.34 408,-148.67 410.61,-146.99 413.3,-145.42 416.07,-143.97"/>
+<polygon fill="transparent" stroke="transparent" points="417.58,-147.13 425.15,-139.71 414.61,-140.79 417.58,-147.13"/>
+</g>
+<!-- proc~get_esmf_grid_layout&#45;&gt;ESMF_VMGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge12" class="edge">
+<title>proc~get_esmf_grid_layout&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M284.07,-433.91C303.6,-459.25 352.37,-517.38 408,-544.67 425.73,-553.37 446.39,-558.55 465.76,-561.62"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="465.36,-565.1 475.75,-563.03 466.34,-558.17 465.36,-565.1"/>
+</g>
+<!-- proc~get_esmf_grid_layout&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge13" class="edge">
+<title>proc~get_esmf_grid_layout&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M290.36,-433.76C314.12,-451.81 361.89,-485.5 408,-502.67 420.04,-507.15 433.09,-510.69 446.07,-513.46"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="445.47,-516.91 455.96,-515.45 446.85,-510.05 445.47,-516.91"/>
+</g>
+<!-- proc~get_esmf_grid_layout&#45;&gt;proc~mapl_abort -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge14" class="edge">
+<title>proc~get_esmf_grid_layout&#45;&gt;proc~mapl_abort</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M319.82,-433.67C345.55,-440.43 378.51,-448.85 408,-455.67 425.74,-459.77 444.97,-463.91 462.91,-467.64"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="462.23,-471.07 472.74,-469.67 463.65,-464.22 462.23,-471.07"/>
+</g>
+<!-- proc~get_esmf_grid_layout&#45;&gt;proc~mapl_verify -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge17" class="edge">
+<title>proc~get_esmf_grid_layout&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M365.2,-425.38C461.95,-430.31 608.74,-440.82 661,-460.67 679.45,-467.68 678.22,-480.6 697,-486.67 790.03,-516.75 827.66,-526.4 917,-486.67 990.84,-453.84 1045.17,-368.71 1067.41,-328.84"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="1070.54,-330.42 1072.25,-319.96 1064.39,-327.07 1070.54,-330.42"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_node12" class="node">
+<title>ESMF_GridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="868.5,-237.67 745.5,-237.67 745.5,-213.67 868.5,-213.67 868.5,-237.67"/>
+<text text-anchor="middle" x="807" y="-223.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGet</text>
+</g>
+<!-- proc~get_esmf_grid_layout&#45;&gt;ESMF_GridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge11" class="edge">
+<title>proc~get_esmf_grid_layout&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M284.93,-409.56C305.31,-385.6 354.45,-332.16 408,-305.67 514.28,-253.11 652.75,-235.08 735.21,-228.9"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="735.5,-232.39 745.23,-228.18 735.01,-225.4 735.5,-232.39"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~latlon_zmean~~CallsGraph_node14" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node14"><a xlink:href=".././proc/mapl_distgridget.html" xlink:title="mapl_MaplGrid::MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="905,-279.67 709,-279.67 709,-255.67 905,-255.67 905,-279.67"/>
+<text text-anchor="middle" x="807" y="-265.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_grid_layout&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge15" class="edge">
+<title>proc~get_esmf_grid_layout&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M313.34,-409.6C339.88,-401.31 376.03,-390.14 408,-380.67 530.93,-344.28 675.91,-303.7 752.44,-282.47"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="753.63,-285.77 762.33,-279.73 751.76,-279.03 753.63,-285.77"/>
+</g>
+<!-- proc~mapl_getimsjms -->
+<g id="proc~~latlon_zmean~~CallsGraph_node15" class="node">
+<title>proc~mapl_getimsjms</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node15"><a xlink:href=".././proc/mapl_getimsjms.html" xlink:title="mapl_MaplGrid::MAPL_GetImsJms">
+<polygon fill="#d9534f" stroke="#d9534f" points="629.5,-413.67 439.5,-413.67 439.5,-389.67 629.5,-389.67 629.5,-413.67"/>
+<text text-anchor="middle" x="534.5" y="-399.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GetImsJms</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_grid_layout&#45;&gt;proc~mapl_getimsjms -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge16" class="edge">
+<title>proc~get_esmf_grid_layout&#45;&gt;proc~mapl_getimsjms</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M365.05,-414.7C385.8,-413.1 408.05,-411.38 429.35,-409.73"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="429.68,-413.21 439.38,-408.95 429.14,-406.23 429.68,-413.21"/>
+</g>
+<!-- mpi_abort -->
+<g id="proc~~latlon_zmean~~CallsGraph_node13" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="840.5,-557.67 773.5,-557.67 773.5,-533.67 840.5,-533.67 840.5,-557.67"/>
+<text text-anchor="middle" x="807" y="-543.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~mapl_abort&#45;&gt;mpi_abort -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_abort&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#002505" d="M625.68,-493.67C637.68,-496.17 649.72,-499.14 661,-502.67 677.89,-507.96 680.3,-513.81 697,-519.67 718.36,-527.17 742.81,-533.22 763.14,-537.59"/>
+<polygon fill="#002505" stroke="#002505" points="762.55,-541.05 773.06,-539.67 763.99,-534.19 762.55,-541.05"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M361.88,-270.52C447.19,-275.26 581.05,-282.62 697,-288.67 786.05,-293.31 886.8,-298.32 962.4,-302.03"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="962.26,-305.53 972.42,-302.52 962.61,-298.54 962.26,-305.53"/>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_node11" class="node">
+<title>ESMF_AttributeGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="607.5,-181.67 461.5,-181.67 461.5,-157.67 607.5,-157.67 607.5,-181.67"/>
+<text text-anchor="middle" x="534.5" y="-167.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeGet</text>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M354.27,-253.67C360.51,-251.2 366.51,-248.23 372,-244.67 394.68,-229.97 385.26,-210.27 408,-195.67 420.98,-187.34 436.13,-181.61 451.33,-177.69"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="452.35,-181.05 461.3,-175.37 450.76,-174.23 452.35,-181.05"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M334.43,-253.62C346.89,-250.87 359.91,-247.82 372,-244.67 388.19,-240.45 391.48,-236.31 408,-233.67 521.16,-215.6 654.69,-217.58 734.74,-221.22"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="735.04,-224.74 745.19,-221.72 735.37,-217.75 735.04,-224.74"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~latlon_zmean~~CallsGraph_node17" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node17"><a xlink:href=".././proc/mapl_gridhasde.html" xlink:title="mapl_MaplGrid::MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="630.5,-97.67 438.5,-97.67 438.5,-73.67 630.5,-73.67 630.5,-97.67"/>
+<text text-anchor="middle" x="534.5" y="-83.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M360.04,-253.58C364.36,-251.07 368.39,-248.13 372,-244.67 417.75,-200.8 361.22,-149.44 408,-106.67 414.08,-101.12 421.04,-96.73 428.51,-93.3"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="430.21,-96.39 438.21,-89.44 427.62,-89.88 430.21,-96.39"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~latlon_zmean~~CallsGraph_node18" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node18"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="917,-39.67 697,-39.67 697,-15.67 917,-15.67 917,-39.67"/>
+<text text-anchor="middle" x="807" y="-25.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M360.72,-253.55C364.81,-251.05 368.62,-248.11 372,-244.67 429.23,-186.53 347.37,-119.26 408,-64.67 501.26,19.3 661.37,3.1 747.34,-13.65"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="746.7,-17.09 757.2,-15.64 748.08,-10.23 746.7,-17.09"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~latlon_zmean~~CallsGraph_node19" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node19"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1471,-218.67 1242,-218.67 1242,-194.67 1471,-194.67 1471,-218.67"/>
+<text text-anchor="middle" x="1356.5" y="-204.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M1113.4,-295.59C1163.29,-277.26 1258.1,-242.44 1313.11,-222.24"/>
+<polygon fill="transparent" stroke="transparent" points="1314.38,-225.5 1322.56,-218.77 1311.97,-218.93 1314.38,-225.5"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025500" d="M889.16,-279.67C919.91,-284.22 955.13,-289.43 986.79,-294.11"/>
+<polygon fill="#025500" stroke="#025500" points="986.53,-297.61 996.93,-295.61 987.55,-290.68 986.53,-297.61"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_node21" class="node">
+<title>ESMF_DistGridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1151,-197.67 1008,-197.67 1008,-173.67 1151,-173.67 1151,-197.67"/>
+<text text-anchor="middle" x="1079.5" y="-183.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DistGridGet</text>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#025500" d="M879.94,-255.62C892.39,-253.02 905.13,-250.03 917,-246.67 960.65,-234.32 1009.13,-215.25 1041.48,-201.73"/>
+<polygon fill="#025500" stroke="#025500" points="1043.12,-204.83 1050.98,-197.72 1040.4,-198.38 1043.12,-204.83"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_verify -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M629.63,-396.61C707.36,-391.17 820.24,-380.35 917,-359.67 959.03,-350.69 1005.61,-335.05 1037.9,-323.27"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="1039.28,-326.49 1047.45,-319.74 1036.85,-319.92 1039.28,-326.49"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_return -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M543.02,-389.4C562.76,-357.1 617.53,-266.95 661,-190.67 677.54,-161.64 676.21,-150.83 697,-124.67 721.7,-93.58 757.02,-64.2 780.69,-46.09"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="782.97,-48.76 788.85,-39.94 778.75,-43.17 782.97,-48.76"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~latlon_zmean~~CallsGraph_node22" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node22"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="915.5,-435.67 698.5,-435.67 698.5,-411.67 915.5,-411.67 915.5,-435.67"/>
+<text text-anchor="middle" x="807" y="-421.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_assert -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M629.73,-409.33C648.55,-410.87 668.55,-412.49 688.06,-414.08"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="687.96,-417.58 698.21,-414.9 688.53,-410.61 687.96,-417.58"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~latlon_zmean~~CallsGraph_node23" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node23"><a xlink:href=".././interface/mapl_sort.html" xlink:title="MAPL_SortMod::MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="884,-477.67 730,-477.67 730,-453.67 884,-453.67 884,-477.67"/>
+<text text-anchor="middle" x="807" y="-463.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_sort -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M608.28,-413.71C625.76,-417.43 644.22,-422.06 661,-427.67 677.78,-433.28 680.18,-439.18 697,-444.67 704.55,-447.14 712.5,-449.36 720.52,-451.34"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="719.78,-454.76 730.32,-453.65 721.39,-447.95 719.78,-454.76"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_GridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M643.43,-139.76C649.57,-142.26 655.48,-145.2 661,-148.67 684.49,-163.43 674.03,-184.12 697,-199.67 708.47,-207.44 722,-212.9 735.54,-216.73"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="734.83,-220.16 745.38,-219.24 736.56,-213.38 734.83,-220.16"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M647.84,-139.81C652.5,-142.35 656.92,-145.29 661,-148.67 696.72,-178.29 661.65,-216.62 697,-246.67 698.39,-247.85 699.82,-248.97 701.3,-250.04"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="699.81,-253.24 710.15,-255.55 703.51,-247.29 699.81,-253.24"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_node20" class="node">
+<title>ESMF_DELayoutGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="882.5,-157.67 731.5,-157.67 731.5,-133.67 882.5,-133.67 882.5,-157.67"/>
+<text text-anchor="middle" x="807" y="-143.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DELayoutGet</text>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M661.25,-136.04C681.6,-137.39 702.23,-138.77 721.3,-140.03"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="721.21,-143.54 731.42,-140.71 721.68,-136.55 721.21,-143.54"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M627.1,-139.72C638.64,-142.19 650.18,-145.15 661,-148.67 678.01,-154.21 679.7,-162.13 697,-166.67 798.13,-193.22 919.41,-194.27 997.65,-191.16"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="998.08,-194.65 1007.92,-190.72 997.78,-187.66 998.08,-194.65"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#002505" d="M630.79,-90.44C736.22,-96.49 894.33,-108.16 917,-124.67 949.17,-148.1 928.8,-175.07 953,-206.67 979.85,-241.74 1021.33,-271.97 1049.17,-289.99"/>
+<polygon fill="#002505" stroke="#002505" points="1047.38,-293 1057.69,-295.41 1051.13,-287.09 1047.38,-293"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#002505" d="M630.78,-92.5C641.52,-95.86 651.87,-100.45 661,-106.67 686.7,-124.18 674.53,-145.17 697,-166.67 716.23,-185.07 742.33,-199.46 764.16,-209.43"/>
+<polygon fill="#002505" stroke="#002505" points="762.98,-212.73 773.54,-213.56 765.8,-206.32 762.98,-212.73"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002505" d="M591.55,-73.65C634.71,-64.4 694.48,-51.58 739.96,-41.83"/>
+<polygon fill="#002505" stroke="#002505" points="740.98,-45.19 750.02,-39.67 739.51,-38.35 740.98,-45.19"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#002505" d="M620.33,-97.72C634.02,-100.28 647.96,-103.26 661,-106.67 677.46,-110.98 680.7,-114.8 697,-119.67 710.93,-123.83 726.02,-127.78 740.41,-131.29"/>
+<polygon fill="#002505" stroke="#002505" points="739.69,-134.71 750.23,-133.64 741.32,-127.91 739.69,-134.71"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#002505" d="M604.4,-73.66C682.71,-62.94 813.12,-54.11 917,-91.67 936.32,-98.66 935.79,-109.45 953,-120.67 981.61,-139.33 1016.22,-156.92 1041.84,-169.08"/>
+<polygon fill="#002505" stroke="#002505" points="1040.65,-172.39 1051.19,-173.47 1043.62,-166.05 1040.65,-172.39"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M848.72,-39.71C869.24,-45.85 894.48,-53.51 917,-60.67 1061.47,-106.58 1231.51,-164.24 1310.71,-191.31"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1309.77,-194.68 1320.37,-194.61 1312.04,-188.06 1309.77,-194.68"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~latlon_zmean~~CallsGraph_node24" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node24"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1206,-39.67 953,-39.67 953,-15.67 1206,-15.67 1206,-39.67"/>
+<text text-anchor="middle" x="1079.5" y="-25.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M917.24,-27.67C925.67,-27.67 934.25,-27.67 942.82,-27.67"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="942.88,-31.17 952.88,-27.67 942.88,-24.17 942.88,-31.17"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~latlon_zmean~~CallsGraph_node25" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~latlon_zmean~~CallsGraph_node25"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1660,-218.67 1507,-218.67 1507,-194.67 1660,-194.67 1660,-218.67"/>
+<text text-anchor="middle" x="1583.5" y="-204.27" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~latlon_zmean~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="transparent" d="M1471.32,-206.67C1479.92,-206.67 1488.51,-206.67 1496.89,-206.67"/>
+<polygon fill="transparent" stroke="transparent" points="1496.99,-210.17 1506.99,-206.67 1496.99,-203.17 1496.99,-210.17"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproclatlon_zmeanCallsGraph = svgPanZoom('#proclatlon_zmeanCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~latlon_zmean~~CalledByGraph Pages: 1 -->
+<svg id="proclatlon_zmeanCalledByGraph" width="411pt" height="32pt"
+ viewBox="0.00 0.00 411.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~latlon_zmean~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~latlon_zmean~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 407,-28 407,4 -4,4"/>
+<!-- proc~latlon_zmean -->
+<g id="proc~~latlon_zmean~~CalledByGraph_node1" class="node">
+<title>proc~latlon_zmean</title>
+<polygon fill="none" stroke="black" points="403,-24 263,-24 263,0 403,0 403,-24"/>
+<text text-anchor="middle" x="333" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">time_ave::latlon_zmean</text>
+</g>
+<!-- proc~latlon_zstar -->
+<g id="proc~~latlon_zmean~~CalledByGraph_node2" class="node">
+<title>proc~latlon_zstar</title>
+<g id="a_proc~~latlon_zmean~~CalledByGraph_node2"><a xlink:href=".././proc/latlon_zstar.html" xlink:title="time_ave::latlon_zstar">
+<polygon fill="#d9534f" stroke="#d9534f" points="227,-24 97,-24 97,0 227,0 227,-24"/>
+<text text-anchor="middle" x="162" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave::latlon_zstar</text>
+</a>
+</g>
+</g>
+<!-- proc~latlon_zstar&#45;&gt;proc~latlon_zmean -->
+<g id="proc~~latlon_zmean~~CalledByGraph_edge1" class="edge">
+<title>proc~latlon_zstar&#45;&gt;proc~latlon_zmean</title>
+<path fill="none" stroke="#255000" d="M227.37,-12C235.6,-12 244.09,-12 252.52,-12"/>
+<polygon fill="#255000" stroke="#255000" points="252.74,-15.5 262.74,-12 252.74,-8.5 252.74,-15.5"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~latlon_zmean~~CalledByGraph_node3" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~latlon_zmean~~CalledByGraph_node3"><a xlink:href=".././program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="61,-24 0,-24 0,0 61,0 61,-24"/>
+<text text-anchor="middle" x="30.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~latlon_zstar -->
+<g id="proc~~latlon_zmean~~CalledByGraph_edge2" class="edge">
+<title>program~time_ave&#45;&gt;proc~latlon_zstar</title>
+<path fill="none" stroke="#255000" d="M61.21,-12C68.97,-12 77.69,-12 86.66,-12"/>
+<polygon fill="#255000" stroke="#255000" points="86.85,-15.5 96.85,-12 86.85,-8.5 86.85,-15.5"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">latlon_zmean</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="n">qz</span><span class="p">,</span><span class="n">undef</span><span class="p">,</span><span class="n">grid</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">q</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">qz</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">undef</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">im_global</span><span class="p">,</span><span class="n">jm_global</span><span class="p">,</span><span class="n">local_dims</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">global_dims</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">status</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w">   </span><span class="n">qg</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buf</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">qsum</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpistatus</span><span class="p">(</span><span class="n">mpi_status_size</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ims</span><span class="p">(:),</span><span class="n">jms</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">j</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">peid</span><span class="p">,</span><span class="n">peid0</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">j1</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">jn</span><span class="p">,</span><span class="n">mypet</span><span class="p">,</span><span class="n">i_start</span><span class="p">,</span><span class="n">i_end</span><span class="p">,</span><span class="n">isum</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="n">localPet</span><span class="o">=</span><span class="n">mypet</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">local_dims</span><span class="p">,</span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">global_dims</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">im</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_dims</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">jm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_dims</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">im_global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">global_dims</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">jm_global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">global_dims</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">get_esmf_grid_layout</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">,</span><span class="n">ims</span><span class="p">,</span><span class="n">jms</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mapl_grid_interior</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">j1</span><span class="p">,</span><span class="n">jn</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">qz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">qg</span><span class="p">(</span><span class="n">im_global</span><span class="p">,</span><span class="n">jm</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">peid0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mypet</span><span class="o">/</span><span class="n">nx</span><span class="p">)</span><span class="o">*</span><span class="n">ny</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i1</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">i_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="n">i_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ims</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">qg</span><span class="p">(</span><span class="n">i_start</span><span class="p">:</span><span class="n">i_end</span><span class="p">,:)</span><span class="o">=</span><span class="n">q</span>
+<span class="w">         </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">buf</span><span class="p">(</span><span class="n">ims</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">jm</span><span class="p">))</span>
+<span class="w">            </span><span class="n">peid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mypet</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span>
+<span class="w">            </span><span class="k">call </span><span class="n">mpi_recv</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="n">ims</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">jm</span><span class="p">,</span><span class="n">MPI_FLOAT</span><span class="p">,</span><span class="n">peid</span><span class="p">,</span><span class="n">peid</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">mpistatus</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="n">i_start</span><span class="o">=</span><span class="n">i_end</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">            </span><span class="n">i_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i_start</span><span class="o">+</span><span class="n">ims</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">            </span><span class="n">qg</span><span class="p">(</span><span class="n">i_start</span><span class="p">:</span><span class="n">i_end</span><span class="p">,:)</span><span class="o">=</span><span class="n">buf</span>
+<span class="w">            </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+<span class="w">         </span><span class="k">enddo</span>
+<span class="k">      else</span>
+<span class="k">         call </span><span class="n">mpi_send</span><span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="n">im</span><span class="o">*</span><span class="n">jm</span><span class="p">,</span><span class="n">MPI_FLOAT</span><span class="p">,</span><span class="n">peid0</span><span class="p">,</span><span class="n">mypet</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="c">! compute zonal mean</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">jm</span>
+<span class="w">            </span><span class="n">isum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">qg</span><span class="p">(:,</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span>
+<span class="w">            </span><span class="n">qsum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">qg</span><span class="p">(:,</span><span class="n">j</span><span class="p">),</span><span class="n">mask</span><span class="o">=</span><span class="n">qg</span><span class="p">(:,</span><span class="n">j</span><span class="p">)</span><span class="o">/=</span><span class="n">undef</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isum</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">qz</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="n">undef</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">qz</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="n">qsum</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">isum</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         enddo</span>
+
+<span class="c">! send mean back to other ranks</span>
+<span class="w">         </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">            </span><span class="n">peid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">peid0</span><span class="o">+</span><span class="n">n</span>
+<span class="w">            </span><span class="k">call </span><span class="n">mpi_send</span><span class="p">(</span><span class="n">qz</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">MPI_FLOAT</span><span class="p">,</span><span class="n">peid</span><span class="p">,</span><span class="n">peid0</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">enddo</span>
+<span class="k">      else</span>
+<span class="k">         call </span><span class="n">mpi_recv</span><span class="p">(</span><span class="n">qz</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">MPI_FLOAT</span><span class="p">,</span><span class="n">peid0</span><span class="p">,</span><span class="n">peid0</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">mpistatus</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="o">=</span><span class="err">_</span><span class="n">SUCCESS</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">   end subroutine </span><span class="n">latlon_zmean</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T14:54:27.925594             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
