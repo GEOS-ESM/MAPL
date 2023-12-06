@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_pressures_r4_3d &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_pressures_r4_3d
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">27 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_EtaHybridVerticalCoordinate.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_etahybridverticalcoordinate.f90.html'>MAPL_EtaHybridVerticalCoordinate.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_etahybridverticalcoordinatemod.html'>MAPL_EtaHybridVerticalCoordinateMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_pressures_r4_3d</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_pressures_r4_3d.html#src">get_pressures_r4_3d</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine get_pressures_r4_3d(this, pressures, surface_pressure, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/etahybridverticalcoordinate.html'>EtaHybridVerticalCoordinate</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1071"></span>
+              class(<a href='../type/etahybridverticalcoordinate.html'>EtaHybridVerticalCoordinate</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pressures~2"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pressures</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-surface_pressure~2"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>surface_pressure</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~75"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~402"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_pressures_r4_3d~~CallsGraph Pages: 1 -->
+<svg id="procget_pressures_r4_3dCallsGraph" width="641pt" height="29pt"
+ viewBox="0.00 0.00 641.00 29.04" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_pressures_r4_3d~~CallsGraph" class="graph" transform="scale(4.11 4.11) rotate(0) translate(4 115.22)">
+<title>proc~~get_pressures_r4_3d~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-115.22 2628,-115.22 2628,4 -4,4"/>
+<!-- proc~get_pressures_r4_3d -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node1" class="node">
+<title>proc~get_pressures_r4_3d</title>
+<polygon fill="none" stroke="black" points="497,-107 0,-107 0,-83 497,-83 497,-107"/>
+<text text-anchor="middle" x="248.5" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_EtaHybridVerticalCoordinateMod::EtaHybridVerticalCoordinate%get_pressures_r4_3d</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node2"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1824,-87 1607,-87 1607,-63 1824,-63 1824,-87"/>
+<text text-anchor="middle" x="1715.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_pressures_r4_3d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge1" class="edge">
+<title>proc~get_pressures_r4_3d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M497.27,-95.92C509.35,-95.95 521.31,-95.98 533,-96 994.33,-96.81 1110.88,-129.49 1571,-96 1592.35,-94.45 1615.35,-91.61 1636.55,-88.51"/>
+<polygon fill="#255000" stroke="#255000" points="1637.1,-91.97 1646.47,-87.02 1636.06,-85.04 1637.1,-91.97"/>
+</g>
+<!-- none~get_pressure_levels -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node3" class="node">
+<title>none~get_pressure_levels</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node3"><a xlink:href=".././type/etahybridverticalcoordinate.html#boundprocedure-get_pressure_levels" xlink:title="MAPL_EtaHybridVerticalCoordinateMod::EtaHybridVerticalCoordinate%get_pressure_levels">
+<polygon fill="#a7506f" stroke="#a7506f" points="1026,-87 533,-87 533,-63 1026,-63 1026,-87"/>
+<text text-anchor="middle" x="779.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EtaHybridVerticalCoordinateMod::EtaHybridVerticalCoordinate%get_pressure_levels</text>
+</a>
+</g>
+</g>
+<!-- proc~get_pressures_r4_3d&#45;&gt;none~get_pressure_levels -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge2" class="edge">
+<title>proc~get_pressures_r4_3d&#45;&gt;none~get_pressure_levels</title>
+<path fill="none" stroke="#255000" d="M497.35,-85.63C505.75,-85.31 514.18,-84.99 522.6,-84.68"/>
+<polygon fill="#255000" stroke="#255000" points="522.99,-88.16 532.85,-84.29 522.73,-81.17 522.99,-88.16"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node6" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node6"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2139,-108 1867,-108 1867,-84 2139,-84 2139,-108"/>
+<text text-anchor="middle" x="2003" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge3" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1824.03,-82.91C1834.68,-83.69 1845.61,-84.5 1856.56,-85.3"/>
+<polygon fill="#255000" stroke="#255000" points="1856.38,-88.8 1866.61,-86.04 1856.9,-81.82 1856.38,-88.8"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node7" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node7"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2146,-66 1860,-66 1860,-42 2146,-42 2146,-66"/>
+<text text-anchor="middle" x="2003" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1824.03,-67.09C1832.44,-66.47 1841.02,-65.84 1849.64,-65.21"/>
+<polygon fill="#255000" stroke="#255000" points="1850.07,-68.68 1859.79,-64.46 1849.56,-61.7 1850.07,-68.68"/>
+</g>
+<!-- proc~get_pressure_levels_r4 -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node4" class="node">
+<title>proc~get_pressure_levels_r4</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node4"><a xlink:href=".././proc/get_pressure_levels_r4.html" xlink:title="MAPL_EtaHybridVerticalCoordinateMod::EtaHybridVerticalCoordinate%get_pressure_levels_r4">
+<polygon fill="#d9534f" stroke="#d9534f" points="1571,-87 1062,-87 1062,-63 1571,-63 1571,-87"/>
+<text text-anchor="middle" x="1316.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EtaHybridVerticalCoordinateMod::EtaHybridVerticalCoordinate%get_pressure_levels_r4</text>
+</a>
+</g>
+</g>
+<!-- none~get_pressure_levels&#45;&gt;proc~get_pressure_levels_r4 -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge5" class="edge">
+<title>none~get_pressure_levels&#45;&gt;proc~get_pressure_levels_r4</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1026.08,-68.27C1034.48,-68.25 1042.9,-68.25 1051.32,-68.25"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1051.59,-71.75 1061.59,-68.26 1051.6,-64.75 1051.59,-71.75"/>
+</g>
+<!-- proc~get_pressure_levels_r8 -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node5" class="node">
+<title>proc~get_pressure_levels_r8</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node5"><a xlink:href=".././proc/get_pressure_levels_r8.html" xlink:title="MAPL_EtaHybridVerticalCoordinateMod::EtaHybridVerticalCoordinate%get_pressure_levels_r8">
+<polygon fill="#d9534f" stroke="#d9534f" points="1571,-45 1062,-45 1062,-21 1571,-21 1571,-45"/>
+<text text-anchor="middle" x="1316.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EtaHybridVerticalCoordinateMod::EtaHybridVerticalCoordinate%get_pressure_levels_r8</text>
+</a>
+</g>
+</g>
+<!-- none~get_pressure_levels&#45;&gt;proc~get_pressure_levels_r8 -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge6" class="edge">
+<title>none~get_pressure_levels&#45;&gt;proc~get_pressure_levels_r8</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M933.45,-62.99C1001.88,-57.62 1082.65,-51.28 1152.25,-45.82"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1152.74,-49.29 1162.44,-45.02 1152.19,-42.31 1152.74,-49.29"/>
+</g>
+<!-- proc~get_pressure_levels_r4&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge7" class="edge">
+<title>proc~get_pressure_levels_r4&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M1571.17,-75C1579.92,-75 1588.52,-75 1596.88,-75"/>
+<polygon fill="#255000" stroke="#255000" points="1596.97,-78.5 1606.97,-75 1596.97,-71.5 1596.97,-78.5"/>
+</g>
+<!-- proc~get_pressure_levels_r4&#45;&gt;none~get_pressure_levels -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge8" class="edge">
+<title>proc~get_pressure_levels_r4&#45;&gt;none~get_pressure_levels</title>
+<path fill="none" stroke="#255000" d="M1061.59,-81.74C1053.18,-81.75 1044.75,-81.75 1036.33,-81.74"/>
+<polygon fill="#255000" stroke="#255000" points="1036.08,-78.24 1026.08,-81.73 1036.07,-85.24 1036.08,-78.24"/>
+</g>
+<!-- proc~get_pressure_levels_r8&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge9" class="edge">
+<title>proc~get_pressure_levels_r8&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M1480.95,-45.02C1510.93,-47.66 1541.93,-50.67 1571,-54 1589.66,-56.14 1609.63,-58.81 1628.56,-61.53"/>
+<polygon fill="transparent" stroke="transparent" points="1628.25,-65.02 1638.65,-62.99 1629.26,-58.09 1628.25,-65.02"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node9" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node9"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="2423,-108 2194,-108 2194,-84 2423,-84 2423,-108"/>
+<text text-anchor="middle" x="2308.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M2139.33,-96C2154.1,-96 2169.08,-96 2183.7,-96"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="2183.76,-99.5 2193.76,-96 2183.76,-92.5 2183.76,-99.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node8" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node8"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2435,-66 2182,-66 2182,-42 2435,-42 2435,-66"/>
+<text text-anchor="middle" x="2308.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M2146.42,-54C2154.85,-54 2163.32,-54 2171.72,-54"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="2171.93,-57.5 2181.93,-54 2171.93,-50.5 2171.93,-57.5"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M2090.97,-66.04C2128.36,-71.21 2172.2,-77.28 2210.62,-82.59"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="2210.39,-86.1 2220.78,-84 2211.35,-79.16 2210.39,-86.1"/>
+</g>
+<!-- at -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node10" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="2574.5,-66 2520.5,-66 2520.5,-42 2574.5,-42 2574.5,-66"/>
+<text text-anchor="middle" x="2547.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M2435.29,-54C2462.83,-54 2489.86,-54 2510.36,-54"/>
+<polygon fill="#255000" stroke="#255000" points="2510.46,-57.5 2520.46,-54 2510.46,-50.5 2510.46,-57.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node11" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="2574.5,-24 2520.5,-24 2520.5,0 2574.5,0 2574.5,-24"/>
+<text text-anchor="middle" x="2547.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M2377.41,-41.96C2420.55,-34.32 2474.7,-24.72 2509.93,-18.48"/>
+<polygon fill="#255000" stroke="#255000" points="2510.98,-21.85 2520.22,-16.66 2509.76,-14.96 2510.98,-21.85"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_node12" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~get_pressures_r4_3d~~CallsGraph_node12"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="2624,-108 2471,-108 2471,-84 2624,-84 2624,-108"/>
+<text text-anchor="middle" x="2547.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~get_pressures_r4_3d~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M2423.14,-96C2435.76,-96 2448.46,-96 2460.65,-96"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="2460.77,-99.5 2470.77,-96 2460.77,-92.5 2460.77,-99.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_pressures_r4_3dCallsGraph = svgPanZoom('#procget_pressures_r4_3dCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_pressures_r4_3d</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">pressures</span><span class="p">,</span><span class="w"> </span><span class="n">surface_pressure</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">EtaHybridVerticalCoordinate</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pressures</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">surface_pressure</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">isize</span><span class="p">,</span><span class="w"> </span><span class="n">jsize</span><span class="p">,</span><span class="w"> </span><span class="n">ksize</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">levels</span><span class="p">(:)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="n">isize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">pressures</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">jsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">pressures</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">ksize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">pressures</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">num_levels</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ksize</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pressure levels should match&quot;</span><span class="p">)</span><span class="w"> </span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">levels</span><span class="p">(</span><span class="n">ksize</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_pressure_levels</span><span class="p">(</span><span class="n">levels</span><span class="p">(:),</span><span class="w"> </span><span class="n">reference_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0._REAL32</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ksize</span>
+<span class="w">        </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">jsize</span>
+<span class="w">          </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">isize</span>
+<span class="w">             </span><span class="n">pressures</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">surface_pressure</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">levels</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<span class="w">          </span><span class="k">enddo</span>
+<span class="k">        enddo</span>
+<span class="k">      enddo</span>
+<span class="k">      deallocate</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_pressures_r4_3d</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T15:53:13.082079             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

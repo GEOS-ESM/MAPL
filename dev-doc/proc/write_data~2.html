@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>write_data &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>write_data
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">218 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cub2latlon_regridder.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/cub2latlon_regridder.f90.html'>cub2latlon_regridder.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/supportmod.html'>SupportMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">write_data</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/write_data~2.html#src">write_data</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine write_data(this, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/regridsupport.html'>RegridSupport</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5047"></span>
+              class(<a href='../type/regridsupport.html'>RegridSupport</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1249"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_data~2~~CallsGraph Pages: 1 -->
+<svg id="procwrite_data2CallsGraph" width="637pt" height="914pt"
+ viewBox="0.00 0.00 637.00 914.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_data~2~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 910)">
+<title>proc~~write_data~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-910 633,-910 633,4 -4,4"/>
+<!-- proc~write_data~2 -->
+<g id="proc~~write_data~2~~CallsGraph_node1" class="node">
+<title>proc~write_data~2</title>
+<polygon fill="none" stroke="black" points="226,-465 0,-465 0,-441 226,-441 226,-465"/>
+<text text-anchor="middle" x="113" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50">SupportMod::RegridSupport%write_data</text>
+</g>
+<!-- ESMF_FieldRegridStore -->
+<g id="proc~~write_data~2~~CallsGraph_node2" class="node">
+<title>ESMF_FieldRegridStore</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="530,-906 361,-906 361,-882 530,-882 530,-906"/>
+<text text-anchor="middle" x="445.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_FieldRegridStore</text>
+</g>
+<!-- proc~write_data~2&#45;&gt;ESMF_FieldRegridStore -->
+<g id="proc~~write_data~2~~CallsGraph_edge1" class="edge">
+<title>proc~write_data~2&#45;&gt;ESMF_FieldRegridStore</title>
+<path fill="none" stroke="#255000" d="M114,-465.21C114.74,-522.29 126.01,-764.53 262,-873 286.75,-892.74 319.74,-900.33 350.86,-902.22"/>
+<polygon fill="#255000" stroke="#255000" points="350.75,-905.72 360.89,-902.65 351.05,-898.73 350.75,-905.72"/>
+</g>
+<!-- ESMF_GridGetCoord -->
+<g id="proc~~write_data~2~~CallsGraph_node3" class="node">
+<title>ESMF_GridGetCoord</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="523,-864 368,-864 368,-840 523,-840 523,-864"/>
+<text text-anchor="middle" x="445.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGetCoord</text>
+</g>
+<!-- proc~write_data~2&#45;&gt;ESMF_GridGetCoord -->
+<g id="proc~~write_data~2~~CallsGraph_edge2" class="edge">
+<title>proc~write_data~2&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="#255000" d="M114.52,-465.08C117.5,-518.49 137.19,-734.91 262,-831 288.8,-851.63 324.7,-858.77 357.58,-860.06"/>
+<polygon fill="#255000" stroke="#255000" points="357.59,-863.56 367.67,-860.28 357.75,-856.56 357.59,-863.56"/>
+</g>
+<!-- ESMF_VMBarrier -->
+<g id="proc~~write_data~2~~CallsGraph_node4" class="node">
+<title>ESMF_VMBarrier</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="513.5,-822 377.5,-822 377.5,-798 513.5,-798 513.5,-822"/>
+<text text-anchor="middle" x="445.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMBarrier</text>
+</g>
+<!-- proc~write_data~2&#45;&gt;ESMF_VMBarrier -->
+<g id="proc~~write_data~2~~CallsGraph_edge3" class="edge">
+<title>proc~write_data~2&#45;&gt;ESMF_VMBarrier</title>
+<path fill="none" stroke="#255000" d="M115.15,-465.1C120.57,-514.88 148.35,-705.22 262,-789 291.79,-810.96 332.07,-817.33 367.21,-817.72"/>
+<polygon fill="#255000" stroke="#255000" points="367.47,-821.22 377.46,-817.68 367.44,-814.22 367.47,-821.22"/>
+</g>
+<!-- ESMF_VMGetGlobal -->
+<g id="proc~~write_data~2~~CallsGraph_node5" class="node">
+<title>ESMF_VMGetGlobal</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="521,-780 370,-780 370,-756 521,-756 521,-780"/>
+<text text-anchor="middle" x="445.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGetGlobal</text>
+</g>
+<!-- proc~write_data~2&#45;&gt;ESMF_VMGetGlobal -->
+<g id="proc~~write_data~2~~CallsGraph_edge4" class="edge">
+<title>proc~write_data~2&#45;&gt;ESMF_VMGetGlobal</title>
+<path fill="none" stroke="#255000" d="M115.95,-465.16C124.03,-511.13 159.39,-675.36 262,-747 290.08,-766.61 326.72,-773.46 359.79,-774.81"/>
+<polygon fill="#255000" stroke="#255000" points="359.85,-778.31 369.93,-775.06 360.02,-771.31 359.85,-778.31"/>
+</g>
+<!-- at -->
+<g id="proc~~write_data~2~~CallsGraph_node6" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="472.5,-738 418.5,-738 418.5,-714 472.5,-714 472.5,-738"/>
+<text text-anchor="middle" x="445.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~write_data~2&#45;&gt;at -->
+<g id="proc~~write_data~2~~CallsGraph_edge5" class="edge">
+<title>proc~write_data~2&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M116.98,-465.15C127.94,-506.91 170.16,-645.2 262,-705 305.95,-733.61 368.73,-734.13 408.02,-730.85"/>
+<polygon fill="#255000" stroke="#255000" points="408.58,-734.31 418.2,-729.86 407.91,-727.34 408.58,-734.31"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~write_data~2~~CallsGraph_node7" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="496,-696 395,-696 395,-672 496,-672 496,-696"/>
+<text text-anchor="middle" x="445.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~write_data~2&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~write_data~2~~CallsGraph_edge6" class="edge">
+<title>proc~write_data~2&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#255000" d="M118.41,-465.2C132.55,-502.39 180.69,-614.73 262,-663 298.72,-684.8 346.96,-689.54 384.62,-689.1"/>
+<polygon fill="#255000" stroke="#255000" points="385.04,-692.59 394.95,-688.85 384.87,-685.6 385.04,-692.59"/>
+</g>
+<!-- get_index -->
+<g id="proc~~write_data~2~~CallsGraph_node8" class="node">
+<title>get_index</title>
+<polygon fill="#777777" stroke="#777777" points="477.5,-654 413.5,-654 413.5,-630 477.5,-630 477.5,-654"/>
+<text text-anchor="middle" x="445.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_index</text>
+</g>
+<!-- proc~write_data~2&#45;&gt;get_index -->
+<g id="proc~~write_data~2~~CallsGraph_edge7" class="edge">
+<title>proc~write_data~2&#45;&gt;get_index</title>
+<path fill="none" stroke="#255000" d="M120.35,-465.01C137.94,-496.89 190.69,-583.73 262,-621 306.18,-644.09 364.45,-646.81 403.13,-645.43"/>
+<polygon fill="#255000" stroke="#255000" points="403.66,-648.91 413.49,-644.95 403.33,-641.92 403.66,-648.91"/>
+</g>
+<!-- lev -->
+<g id="proc~~write_data~2~~CallsGraph_node9" class="node">
+<title>lev</title>
+<polygon fill="#777777" stroke="#777777" points="472.5,-612 418.5,-612 418.5,-588 472.5,-588 472.5,-612"/>
+<text text-anchor="middle" x="445.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">lev</text>
+</g>
+<!-- proc~write_data~2&#45;&gt;lev -->
+<g id="proc~~write_data~2~~CallsGraph_edge8" class="edge">
+<title>proc~write_data~2&#45;&gt;lev</title>
+<path fill="none" stroke="#255000" d="M123.91,-465.37C145.7,-491.56 200.72,-552.37 262,-579 309.59,-599.68 370.41,-602.56 408.41,-601.91"/>
+<polygon fill="#255000" stroke="#255000" points="408.59,-605.4 418.5,-601.64 408.41,-598.4 408.59,-605.4"/>
+</g>
+<!-- none~get_var -->
+<g id="proc~~write_data~2~~CallsGraph_node10" class="node">
+<title>none~get_var</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node10"><a xlink:href=".././type/netcdf4_fileformatter.html#boundprocedure-get_var" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%get_var">
+<polygon fill="#a7506f" stroke="#a7506f" points="629,-570 262,-570 262,-546 629,-546 629,-570"/>
+<text text-anchor="middle" x="445.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%get_var</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;none~get_var -->
+<g id="proc~~write_data~2~~CallsGraph_edge9" class="edge">
+<title>proc~write_data~2&#45;&gt;none~get_var</title>
+<path fill="none" stroke="#255000" d="M130.27,-465.19C156.47,-484.12 210.32,-520.14 262,-537 269.65,-539.5 277.57,-541.71 285.62,-543.66"/>
+<polygon fill="#255000" stroke="#255000" points="284.98,-547.1 295.51,-545.92 286.54,-540.28 284.98,-547.1"/>
+</g>
+<!-- none~put_var -->
+<g id="proc~~write_data~2~~CallsGraph_node11" class="node">
+<title>none~put_var</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node11"><a xlink:href=".././type/netcdf4_fileformatter.html#boundprocedure-put_var" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%put_var">
+<polygon fill="#a7506f" stroke="#a7506f" points="629,-528 262,-528 262,-504 629,-504 629,-528"/>
+<text text-anchor="middle" x="445.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%put_var</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;none~put_var -->
+<g id="proc~~write_data~2~~CallsGraph_edge10" class="edge">
+<title>proc~write_data~2&#45;&gt;none~put_var</title>
+<path fill="none" stroke="#255000" d="M150.09,-465.02C179.82,-474.48 223.22,-487.32 262,-495 276.5,-497.87 291.73,-500.39 306.95,-502.59"/>
+<polygon fill="#255000" stroke="#255000" points="306.56,-506.07 316.95,-504 307.53,-499.14 306.56,-506.07"/>
+</g>
+<!-- proc~cosd -->
+<g id="proc~~write_data~2~~CallsGraph_node12" class="node">
+<title>proc~cosd</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node12"><a xlink:href=".././proc/cosd.html" xlink:title="SupportMod::cosd">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="500,-486 391,-486 391,-462 500,-462 500,-486"/>
+<text text-anchor="middle" x="445.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SupportMod::cosd</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~cosd -->
+<g id="proc~~write_data~2~~CallsGraph_edge11" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~cosd</title>
+<path fill="none" stroke="#255000" d="M226.35,-460.14C277.81,-463.41 336.91,-467.16 380.61,-469.94"/>
+<polygon fill="#255000" stroke="#255000" points="380.61,-473.45 390.81,-470.59 381.05,-466.46 380.61,-473.45"/>
+</g>
+<!-- proc~get_attribute -->
+<g id="proc~~write_data~2~~CallsGraph_node13" class="node">
+<title>proc~get_attribute</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node13"><a xlink:href=".././proc/get_attribute.html" xlink:title="pFIO_VariableMod::Variable%get_attribute">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="564,-444 327,-444 327,-420 564,-420 564,-444"/>
+<text text-anchor="middle" x="445.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%get_attribute</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~get_attribute -->
+<g id="proc~~write_data~2~~CallsGraph_edge12" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~get_attribute</title>
+<path fill="none" stroke="#255000" d="M226.35,-445.86C255.44,-444.01 286.97,-442.01 316.78,-440.12"/>
+<polygon fill="#255000" stroke="#255000" points="317.06,-443.6 326.82,-439.48 316.62,-436.62 317.06,-443.6"/>
+</g>
+<!-- proc~get_dimensions -->
+<g id="proc~~write_data~2~~CallsGraph_node14" class="node">
+<title>proc~get_dimensions</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node14"><a xlink:href=".././proc/get_dimensions.html" xlink:title="pFIO_VariableMod::Variable%get_dimensions">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="571.5,-402 319.5,-402 319.5,-378 571.5,-378 571.5,-402"/>
+<text text-anchor="middle" x="445.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%get_dimensions</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~get_dimensions -->
+<g id="proc~~write_data~2~~CallsGraph_edge13" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~get_dimensions</title>
+<path fill="none" stroke="#255000" d="M150.09,-440.98C179.82,-431.52 223.22,-418.68 262,-411 277.29,-407.97 293.38,-405.34 309.43,-403.05"/>
+<polygon fill="#255000" stroke="#255000" points="309.98,-406.51 319.4,-401.67 309.02,-399.57 309.98,-406.51"/>
+</g>
+<!-- proc~get_values -->
+<g id="proc~~write_data~2~~CallsGraph_node15" class="node">
+<title>proc~get_values</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node15"><a xlink:href=".././proc/get_values.html" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%get_values">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="596,-360 295,-360 295,-336 596,-336 596,-360"/>
+<text text-anchor="middle" x="445.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%get_values</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~get_values -->
+<g id="proc~~write_data~2~~CallsGraph_edge14" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~get_values</title>
+<path fill="none" stroke="#255000" d="M130.27,-440.81C156.47,-421.88 210.32,-385.86 262,-369 269.65,-366.5 277.57,-364.29 285.62,-362.34"/>
+<polygon fill="#255000" stroke="#255000" points="286.54,-365.72 295.51,-360.08 284.98,-358.9 286.54,-365.72"/>
+</g>
+<!-- proc~get_variable -->
+<g id="proc~~write_data~2~~CallsGraph_node16" class="node">
+<title>proc~get_variable</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node16"><a xlink:href=".././proc/get_variable.html" xlink:title="pFIO_FileMetadataMod::FileMetadata%get_variable">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="587.5,-318 303.5,-318 303.5,-294 587.5,-294 587.5,-318"/>
+<text text-anchor="middle" x="445.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%get_variable</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~get_variable -->
+<g id="proc~~write_data~2~~CallsGraph_edge15" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~get_variable</title>
+<path fill="none" stroke="#255000" d="M123.91,-440.63C145.7,-414.44 200.72,-353.63 262,-327 271.97,-322.67 282.51,-319.12 293.31,-316.22"/>
+<polygon fill="#255000" stroke="#255000" points="294.42,-319.55 303.28,-313.73 292.73,-312.76 294.42,-319.55"/>
+</g>
+<!-- proc~get_variables -->
+<g id="proc~~write_data~2~~CallsGraph_node17" class="node">
+<title>proc~get_variables</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node17"><a xlink:href=".././proc/get_variables.html" xlink:title="pFIO_FileMetadataMod::FileMetadata%get_variables">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="590,-276 301,-276 301,-252 590,-252 590,-276"/>
+<text text-anchor="middle" x="445.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%get_variables</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~get_variables -->
+<g id="proc~~write_data~2~~CallsGraph_edge16" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~get_variables</title>
+<path fill="none" stroke="#255000" d="M120.35,-440.99C137.94,-409.11 190.69,-322.27 262,-285 271.21,-280.19 281.03,-276.26 291.16,-273.07"/>
+<polygon fill="#255000" stroke="#255000" points="292.33,-276.37 300.96,-270.23 290.38,-269.65 292.33,-276.37"/>
+</g>
+<!-- proc~m_begin~3 -->
+<g id="proc~~write_data~2~~CallsGraph_node18" class="node">
+<title>proc~m_begin~3</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node18"><a xlink:href=".././proc/m_begin~3.html" xlink:title="pFIO_StringVariableMapMod::StringVariableMap%m_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="606.5,-234 284.5,-234 284.5,-210 606.5,-210 606.5,-234"/>
+<text text-anchor="middle" x="445.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::StringVariableMap%m_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~m_begin~3 -->
+<g id="proc~~write_data~2~~CallsGraph_edge17" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~m_begin~3</title>
+<path fill="none" stroke="#255000" d="M118.41,-440.8C132.55,-403.61 180.69,-291.27 262,-243 266.15,-240.54 270.45,-238.29 274.87,-236.24"/>
+<polygon fill="#255000" stroke="#255000" points="276.25,-239.46 284.08,-232.32 273.51,-233.02 276.25,-239.46"/>
+</g>
+<!-- proc~m_key~2 -->
+<g id="proc~~write_data~2~~CallsGraph_node19" class="node">
+<title>proc~m_key~2</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node19"><a xlink:href=".././proc/m_key~2.html" xlink:title="pFIO_StringVariableMapMod::StringVariableMapIterator%m_key">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="621,-192 270,-192 270,-168 621,-168 621,-192"/>
+<text text-anchor="middle" x="445.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::StringVariableMapIterator%m_key</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~m_key~2 -->
+<g id="proc~~write_data~2~~CallsGraph_edge18" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~m_key~2</title>
+<path fill="none" stroke="#255000" d="M116.98,-440.85C127.94,-399.09 170.16,-260.8 262,-201 264.22,-199.55 266.49,-198.18 268.8,-196.87"/>
+<polygon fill="#255000" stroke="#255000" points="270.64,-199.86 277.92,-192.17 267.43,-193.64 270.64,-199.86"/>
+</g>
+<!-- proc~m_next~2 -->
+<g id="proc~~write_data~2~~CallsGraph_node20" class="node">
+<title>proc~m_next~2</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node20"><a xlink:href=".././proc/m_next~2.html" xlink:title="pFIO_StringVariableMapMod::StringVariableMapIterator%m_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="623,-150 268,-150 268,-126 623,-126 623,-150"/>
+<text text-anchor="middle" x="445.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::StringVariableMapIterator%m_next</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~m_next~2 -->
+<g id="proc~~write_data~2~~CallsGraph_edge19" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~m_next~2</title>
+<path fill="none" stroke="#255000" d="M115.95,-440.84C124.03,-394.87 159.39,-230.64 262,-159 263.91,-157.66 265.86,-156.39 267.85,-155.17"/>
+<polygon fill="#255000" stroke="#255000" points="269.76,-158.11 276.79,-150.18 266.35,-152 269.76,-158.11"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~write_data~2~~CallsGraph_node21" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node21"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="552.5,-108 338.5,-108 338.5,-84 552.5,-84 552.5,-108"/>
+<text text-anchor="middle" x="445.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~write_data~2~~CallsGraph_edge20" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M115.15,-440.9C120.57,-391.12 148.35,-200.78 262,-117 281.09,-102.93 304.5,-95.26 328.09,-91.46"/>
+<polygon fill="#255000" stroke="#255000" points="328.78,-94.9 338.21,-90.06 327.82,-87.96 328.78,-94.9"/>
+</g>
+<!-- proc~regrid -->
+<g id="proc~~write_data~2~~CallsGraph_node22" class="node">
+<title>proc~regrid</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node22"><a xlink:href=".././proc/regrid.html" xlink:title="SupportMod::regrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="503.5,-66 387.5,-66 387.5,-42 503.5,-42 503.5,-66"/>
+<text text-anchor="middle" x="445.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SupportMod::regrid</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~regrid -->
+<g id="proc~~write_data~2~~CallsGraph_edge21" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~regrid</title>
+<path fill="none" stroke="#255000" d="M114.52,-440.92C117.5,-387.51 137.19,-171.09 262,-75 294.22,-50.19 339.62,-44.89 377.08,-45.81"/>
+<polygon fill="#255000" stroke="#255000" points="377.28,-49.32 387.42,-46.23 377.57,-42.33 377.28,-49.32"/>
+</g>
+<!-- proc~sind -->
+<g id="proc~~write_data~2~~CallsGraph_node23" class="node">
+<title>proc~sind</title>
+<g id="a_proc~~write_data~2~~CallsGraph_node23"><a xlink:href=".././proc/sind.html" xlink:title="SupportMod::sind">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="498.5,-24 392.5,-24 392.5,0 498.5,0 498.5,-24"/>
+<text text-anchor="middle" x="445.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SupportMod::sind</text>
+</a>
+</g>
+</g>
+<!-- proc~write_data~2&#45;&gt;proc~sind -->
+<g id="proc~~write_data~2~~CallsGraph_edge22" class="edge">
+<title>proc~write_data~2&#45;&gt;proc~sind</title>
+<path fill="none" stroke="#255000" d="M114,-440.79C114.74,-383.71 126.01,-141.47 262,-33 295.3,-6.44 343.53,-1.88 382.05,-3.59"/>
+<polygon fill="#255000" stroke="#255000" points="381.93,-7.09 392.12,-4.19 382.35,-0.1 381.93,-7.09"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_data~2~~CalledByGraph Pages: 1 -->
+<svg id="procwrite_data2CalledByGraph" width="324pt" height="32pt"
+ viewBox="0.00 0.00 324.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_data~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~write_data~2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 320,-28 320,4 -4,4"/>
+<!-- proc~write_data~2 -->
+<g id="proc~~write_data~2~~CalledByGraph_node1" class="node">
+<title>proc~write_data~2</title>
+<polygon fill="none" stroke="black" points="316,-24 90,-24 90,0 316,0 316,-24"/>
+<text text-anchor="middle" x="203" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">SupportMod::RegridSupport%write_data</text>
+</g>
+<!-- program~main~20 -->
+<g id="proc~~write_data~2~~CalledByGraph_node2" class="node">
+<title>program~main~20</title>
+<g id="a_proc~~write_data~2~~CalledByGraph_node2"><a xlink:href=".././program/main~20.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- program~main~20&#45;&gt;proc~write_data~2 -->
+<g id="proc~~write_data~2~~CalledByGraph_edge1" class="edge">
+<title>program~main~20&#45;&gt;proc~write_data~2</title>
+<path fill="none" stroke="#255000" d="M54.05,-12C61.58,-12 70.33,-12 79.75,-12"/>
+<polygon fill="#255000" stroke="#255000" points="79.78,-15.5 89.78,-12 79.78,-8.5 79.78,-15.5"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">write_data</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">RegridSupport</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVariableMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_iter</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVariableMap</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">variables</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_scalar_patch</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_vector_patch</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_uvw</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ll_uvw</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ll_scalar_patch</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ll_vector_patch</span><span class="p">(:,:,:)</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_scalar_field</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ll_scalar_field</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_uvw_field</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ll_uvw_field</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">level</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_levels</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVector</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dims</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Variable</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_start</span><span class="p">(:),</span><span class="w"> </span><span class="n">cs_count</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ll_start</span><span class="p">(:),</span><span class="w"> </span><span class="n">ll_count</span><span class="p">(:)</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lat</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon</span><span class="p">(:,:)</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Attribute</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">missing_attr</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">missing_ptr</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">missing</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">d</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_scalar</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_east_vector_component</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">idx</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">north_component</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c0</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="n">crate</span>
+
+<span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">cs_fmtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">formatter_cubed_sphere</span><span class="p">,</span><span class="w"> </span><span class="n">ll_fmtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">formatter_lat_lon</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cs_fmtr</span><span class="p">%</span><span class="k">open</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">in_file</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="o">=</span><span class="n">pFIO_READ</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">pFIO_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">local_pet</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unable to open input file: &#39;</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">in_file</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">      end if</span>
+<span class="k">      call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="k">open</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">out_file</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="o">=</span><span class="n">pFIO_WRITE</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">pFIO_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">local_pet</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unable to open new output file: &#39;</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">out_file</span>
+<span class="w">            </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Possibly it already exists?&#39;</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">latitudes</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">longitudes</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">block</span>
+<span class="k">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lev</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">LM</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">cfio_cubed_sphere</span><span class="p">%</span><span class="n">get_variable</span><span class="p">(</span><span class="s1">&#39;lev&#39;</span><span class="p">)))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">cs_fmtr</span><span class="p">%</span><span class="n">get_var</span><span class="p">(</span><span class="s1">&#39;lev&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">lev</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="s1">&#39;lev&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">lev</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">      end block</span>
+<span class="k">      block</span>
+<span class="k">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">NT</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">cs_fmtr</span><span class="p">%</span><span class="n">get_var</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end block</span>
+
+<span class="k">      allocate</span><span class="p">(</span><span class="n">ll_scalar_patch</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">i_1</span><span class="p">:</span><span class="n">this</span><span class="p">%</span><span class="n">i_n</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">j_1</span><span class="p">:</span><span class="n">this</span><span class="p">%</span><span class="n">j_n</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">ll_vector_patch</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">i_1</span><span class="p">:</span><span class="n">this</span><span class="p">%</span><span class="n">i_n</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">j_1</span><span class="p">:</span><span class="n">this</span><span class="p">%</span><span class="n">j_n</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">ll_uvw</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">i_1</span><span class="p">:</span><span class="n">this</span><span class="p">%</span><span class="n">i_n</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">j_1</span><span class="p">:</span><span class="n">this</span><span class="p">%</span><span class="n">j_n</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">cs_scalar_patch</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">nx_loc</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">ny_loc</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">cs_vector_patch</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">nx_loc</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">ny_loc</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">cs_uvw</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">nx_loc</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">ny_loc</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+
+<span class="w">      </span><span class="c">! Create fields</span>
+<span class="w">      </span><span class="n">ll_scalar_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_lat_lon</span><span class="p">,</span><span class="w"> </span><span class="n">ll_scalar_patch</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">datacopyflag</span><span class="o">=</span><span class="n">ESMF_DATACOPY_REFERENCE</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">cs_scalar_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_cubed_sphere</span><span class="p">,</span><span class="w"> </span><span class="n">cs_scalar_patch</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">datacopyflag</span><span class="o">=</span><span class="n">ESMF_DATACOPY_REFERENCE</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">do </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">         </span><span class="n">ll_uvw_field</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_lat_lon</span><span class="p">,</span><span class="w"> </span><span class="n">ll_uvw</span><span class="p">(:,:,</span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">datacopyflag</span><span class="o">=</span><span class="n">ESMF_DATACOPY_REFERENCE</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="n">cs_uvw_field</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_cubed_sphere</span><span class="p">,</span><span class="w"> </span><span class="n">cs_uvw</span><span class="p">(:,:,</span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">datacopyflag</span><span class="o">=</span><span class="n">ESMF_DATACOPY_REFERENCE</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="w">      </span><span class="c">! Create regrid</span>
+<span class="w">      </span><span class="n">srcTerm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="k">call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">c0</span><span class="p">,</span><span class="n">crate</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldRegridStore</span><span class="p">(</span><span class="n">cs_scalar_field</span><span class="p">,</span><span class="w"> </span><span class="n">ll_scalar_field</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_BILINEAR</span><span class="p">,</span><span class="w"> </span><span class="n">lineType</span><span class="o">=</span><span class="n">ESMF_LINETYPE_GREAT_CIRCLE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="o">=</span><span class="n">srcTerm</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">routehandle</span><span class="o">=</span><span class="n">default_route_handle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="n">crate</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">local_pet</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;regrid store: &#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">c1</span><span class="o">-</span><span class="n">c0</span><span class="p">)</span><span class="o">/</span><span class="n">crate</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      block</span>
+<span class="k">        type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">global</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_VMGetGlobal</span><span class="p">(</span><span class="n">global</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_VMBarrier</span><span class="p">(</span><span class="n">global</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end block</span>
+<span class="k">      </span><span class="n">variables</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cfio_cubed_sphere</span><span class="p">%</span><span class="n">get_variables</span><span class="p">()</span>
+<span class="w">      </span><span class="n">var_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variables</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">var_iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">variables</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">         </span><span class="n">var_name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var_iter</span><span class="p">%</span><span class="n">key</span><span class="p">()</span>
+
+<span class="w">         </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;nf&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ncontact&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;cubed_sphere&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="s1">&#39;Xdim&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Ydim&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lons&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lats&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="s1">&#39;contacts&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;orientation&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;anchor&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="s1">&#39;lev&#39;</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="c">! skip</span>
+<span class="w">         </span><span class="k">case </span><span class="n">default</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">local_pet</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">debug</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;var = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">var_name</span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">            </span><span class="n">var</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var_iter</span><span class="p">%</span><span class="k">value</span><span class="p">()</span>
+<span class="w">            </span><span class="n">missing_attr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var</span><span class="p">%</span><span class="n">get_attribute</span><span class="p">(</span><span class="s1">&#39;missing_value&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">missing_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">missing_attr</span><span class="p">%</span><span class="n">get_values</span><span class="p">()</span>
+
+<span class="w">            </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">missing_ptr</span><span class="p">)</span>
+<span class="w">            </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">))</span>
+<span class="w">               </span><span class="k">allocate</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="w"> </span><span class="c">! memory leak!</span>
+<span class="w">               </span><span class="n">missing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">missing_ptr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">))</span>
+<span class="w">               </span><span class="n">missing</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">missing_ptr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="k">class </span><span class="n">default</span>
+<span class="w">               </span><span class="c">! no missing value?</span>
+<span class="w">            </span><span class="k">end select</span>
+<span class="k">            </span><span class="n">num_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="n">dims</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var</span><span class="p">%</span><span class="n">get_dimensions</span><span class="p">()</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dims</span><span class="p">%</span><span class="n">get_index</span><span class="p">(</span><span class="s1">&#39;lev&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">num_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">LM</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">num_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">            </span><span class="n">is_scalar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">            </span><span class="n">is_east_vector_component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+
+<span class="w">            </span><span class="k">do </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">scalar_variables</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">scalar_variables</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">var_name</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">is_scalar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                  </span><span class="k">exit</span>
+<span class="k">               end if</span>
+<span class="k">            end do</span>
+
+<span class="k">            if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">is_scalar</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               do </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">vector_variables</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vector_variables</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">at</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">var_name</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="n">is_east_vector_component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                     </span><span class="n">north_component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">vector_variables</span><span class="p">(</span><span class="mi">2</span><span class="p">)%</span><span class="n">at</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">exit</span>
+<span class="k">                  end if</span>
+<span class="k">               end do</span>
+<span class="k">            end if</span>
+
+<span class="k">            if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">is_scalar</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">is_east_vector_component</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">var_iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">               </span><span class="k">cycle</span>
+<span class="k">            end if</span>
+
+
+<span class="k">            do </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">nt</span>
+<span class="w">               </span><span class="k">do </span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span>
+
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_levels</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="n">cs_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">x_1</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">y_1</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">my_tile</span><span class="p">,</span><span class="nb">time</span><span class="p">]</span>
+<span class="w">                     </span><span class="n">ll_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">i_1</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">j_1</span><span class="p">,</span><span class="nb">time</span><span class="p">]</span>
+<span class="w">                     </span><span class="n">cs_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">nx_loc</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">ny_loc</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">                     </span><span class="n">ll_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">i_n</span><span class="o">-</span><span class="n">this</span><span class="p">%</span><span class="n">i_1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">j_n</span><span class="o">-</span><span class="n">this</span><span class="p">%</span><span class="n">j_1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">                  </span><span class="k">else</span>
+<span class="k">                     </span><span class="n">cs_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">x_1</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">y_1</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">my_tile</span><span class="p">,</span><span class="n">level</span><span class="p">,</span><span class="nb">time</span><span class="p">]</span>
+<span class="w">                     </span><span class="n">ll_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">i_1</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">j_1</span><span class="p">,</span><span class="n">level</span><span class="p">,</span><span class="nb">time</span><span class="p">]</span>
+<span class="w">                     </span><span class="n">cs_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">nx_loc</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">ny_loc</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">                     </span><span class="n">ll_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">i_n</span><span class="o">-</span><span class="n">this</span><span class="p">%</span><span class="n">i_1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">j_n</span><span class="o">-</span><span class="n">this</span><span class="p">%</span><span class="n">j_1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">                  </span><span class="k">end if</span>
+
+<span class="k">                  if</span><span class="w"> </span><span class="p">(</span><span class="n">is_east_vector_component</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! vector</span>
+
+<span class="w">                     </span><span class="k">call </span><span class="n">cs_fmtr</span><span class="p">%</span><span class="n">get_var</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">cs_vector_patch</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">cs_start</span><span class="p">,</span><span class="nb">count</span><span class="o">=</span><span class="n">cs_count</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">cs_fmtr</span><span class="p">%</span><span class="n">get_var</span><span class="p">(</span><span class="n">north_component</span><span class="p">,</span><span class="w"> </span><span class="n">cs_vector_patch</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">cs_start</span><span class="p">,</span><span class="nb">count</span><span class="o">=</span><span class="n">cs_count</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                     </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_cubed_sphere</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="p">&amp;</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_cubed_sphere</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="p">&amp;</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                     </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">cs_vector_patch</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">cs_vector_patch</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">))</span>
+<span class="w">                       </span><span class="k">where</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">missing</span><span class="p">)</span>
+<span class="w">                          </span><span class="n">cs_uvw</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">missing</span>
+<span class="w">                          </span><span class="n">cs_uvw</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">missing</span>
+<span class="w">                          </span><span class="n">cs_uvw</span><span class="p">(:,:,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">missing</span>
+<span class="w">                       </span><span class="n">elsewhere</span>
+<span class="w">                          </span><span class="n">cs_uvw</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sind</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sind</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="o">*</span><span class="n">cosd</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+<span class="w">                          </span><span class="n">cs_uvw</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cosd</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sind</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="o">*</span><span class="n">sind</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+<span class="w">                          </span><span class="n">cs_uvw</span><span class="p">(:,:,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cosd</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+<span class="w">                      </span><span class="k">end where</span>
+<span class="k">                     end associate</span>
+
+
+<span class="k">                     do </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">                        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">missing</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                           call </span><span class="n">regrid</span><span class="p">(</span><span class="n">srcField</span><span class="o">=</span><span class="n">cs_uvw_field</span><span class="p">(</span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">dstField</span><span class="o">=</span><span class="n">ll_uvw_field</span><span class="p">(</span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                        </span><span class="k">else</span>
+<span class="k">                           call </span><span class="n">regrid</span><span class="p">(</span><span class="n">srcField</span><span class="o">=</span><span class="n">cs_uvw_field</span><span class="p">(</span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">dstField</span><span class="o">=</span><span class="n">ll_uvw_field</span><span class="p">(</span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                        </span><span class="k">end if</span>
+<span class="k">                     end do</span>
+
+<span class="k">                     call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_lat_lon</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="p">&amp;</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_lat_lon</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="p">&amp;</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                     </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ll_vector_patch</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ll_vector_patch</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">))</span>
+<span class="w">                       </span><span class="k">where</span><span class="w"> </span><span class="p">(</span><span class="n">ll_uvw</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">missing</span><span class="p">)</span>
+<span class="w">                          </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">missing</span>
+<span class="w">                          </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">missing</span>
+<span class="w">                       </span><span class="n">elsewhere</span>
+<span class="w">                          </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">ll_uvw</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sind</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ll_uvw</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cosd</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+<span class="w">                          </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">ll_uvw</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sind</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="o">*</span><span class="n">cosd</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ll_uvw</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sind</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="o">*</span><span class="n">sind</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="n">ll_uvw</span><span class="p">(:,:,</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">cosd</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+<span class="w">                       </span><span class="k">end where</span>
+<span class="k">                     end associate</span>
+
+<span class="k">                     call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">ll_vector_patch</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">ll_start</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="n">ll_count</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">north_component</span><span class="p">,</span><span class="w"> </span><span class="n">ll_vector_patch</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">ll_start</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="n">ll_count</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                  </span><span class="k">else</span><span class="w"> </span><span class="c">! scalar</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">cs_fmtr</span><span class="p">%</span><span class="n">get_var</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">cs_scalar_patch</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">cs_start</span><span class="p">,</span><span class="nb">count</span><span class="o">=</span><span class="n">cs_count</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">missing</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                        call </span><span class="n">regrid</span><span class="p">(</span><span class="n">srcField</span><span class="o">=</span><span class="n">cs_scalar_field</span><span class="p">,</span><span class="w"> </span><span class="n">dstField</span><span class="o">=</span><span class="n">ll_scalar_field</span><span class="p">,</span><span class="w"> </span><span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">else</span>
+<span class="k">                        call </span><span class="n">regrid</span><span class="p">(</span><span class="n">srcField</span><span class="o">=</span><span class="n">cs_scalar_field</span><span class="p">,</span><span class="w"> </span><span class="n">dstField</span><span class="o">=</span><span class="n">ll_scalar_field</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">end if</span>
+<span class="k">                     call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">ll_scalar_patch</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">ll_start</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="n">ll_count</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                  </span><span class="k">end if</span>
+
+<span class="k">               end do</span>
+<span class="k">            end do</span>
+<span class="k">         end select</span>
+<span class="k">         call </span><span class="n">var_iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">      </span><span class="k">end do</span>
+
+
+<span class="k">      call </span><span class="n">ll_fmtr</span><span class="p">%</span><span class="k">close</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cs_fmtr</span><span class="p">%</span><span class="k">close</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">end associate</span>
+
+<span class="k">   end subroutine </span><span class="n">write_data</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T15:53:13.082079             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

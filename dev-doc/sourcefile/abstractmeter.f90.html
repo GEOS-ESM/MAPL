@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>AbstractMeter.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>AbstractMeter.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for source files.">62 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/AbstractMeter.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">AbstractMeter.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_abstractmeter.html">MAPL_AbstractMeter</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/abstractmeter.f90.html#src">AbstractMeter.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~abstractmeter.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefileabstractmeterf90AfferentGraph" width="301pt" height="746pt"
+ viewBox="0.00 0.00 301.00 746.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 742)">
+<title>sourcefile~~abstractmeter.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-742 297,-742 297,4 -4,4"/>
+<!-- sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~abstractmeter.f90</title>
+<polygon fill="none" stroke="black" points="109,-381 0,-381 0,-357 109,-357 109,-381"/>
+<text text-anchor="middle" x="54.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50">AbstractMeter.F90</text>
+</g>
+<!-- sourcefile~abstractgauge.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~abstractgauge.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/abstractgauge.f90.html" xlink:title="AbstractGauge.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276.5,-738 161.5,-738 161.5,-714 276.5,-714 276.5,-738"/>
+<text text-anchor="middle" x="219" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractGauge.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractgauge.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~abstractgauge.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M161.23,-716.24C155.21,-713.38 149.62,-709.71 145,-705 100.16,-659.27 68.17,-458.51 58.53,-391.14"/>
+<polygon fill="#255000" stroke="#255000" points="61.98,-390.59 57.13,-381.17 55.05,-391.56 61.98,-390.59"/>
+</g>
+<!-- sourcefile~abstractmeterfactory.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~abstractmeterfactory.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/abstractmeterfactory.f90.html" xlink:title="AbstractMeterFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="293,-696 145,-696 145,-672 293,-672 293,-696"/>
+<text text-anchor="middle" x="219" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMeterFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractmeterfactory.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~abstractmeterfactory.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M157.12,-671.9C152.69,-669.45 148.57,-666.52 145,-663 67.63,-586.81 56.71,-445.94 55.49,-391.39"/>
+<polygon fill="#255000" stroke="#255000" points="58.98,-391.07 55.35,-381.12 51.98,-391.16 58.98,-391.07"/>
+</g>
+<!-- sourcefile~abstractmeternode.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~abstractmeternode.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/abstractmeternode.f90.html" xlink:title="AbstractMeterNode.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="288,-654 150,-654 150,-630 288,-630 288,-654"/>
+<text text-anchor="middle" x="219" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMeterNode.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractmeternode.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~abstractmeternode.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M157.64,-629.91C153.05,-627.46 148.75,-624.52 145,-621 77.55,-557.55 60.87,-439.99 56.8,-391.16"/>
+<polygon fill="#255000" stroke="#255000" points="60.28,-390.78 56.06,-381.06 53.3,-391.29 60.28,-390.78"/>
+</g>
+<!-- sourcefile~advancedmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~advancedmeter.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/advancedmeter.f90.html" xlink:title="AdvancedMeter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="277.5,-612 160.5,-612 160.5,-588 277.5,-588 277.5,-612"/>
+<text text-anchor="middle" x="219" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AdvancedMeter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~advancedmeter.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~advancedmeter.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M160.4,-588.9C154.81,-586.27 149.54,-583.02 145,-579 87.37,-528.04 65.68,-433.63 58.56,-390.96"/>
+<polygon fill="#255000" stroke="#255000" points="62.01,-390.39 57.02,-381.05 55.1,-391.47 62.01,-390.39"/>
+</g>
+<!-- sourcefile~baseprofiler.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~baseprofiler.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/baseprofiler.f90.html" xlink:title="BaseProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="267.5,-570 170.5,-570 170.5,-546 267.5,-546 267.5,-570"/>
+<text text-anchor="middle" x="219" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseprofiler.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~baseprofiler.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M170.13,-550.18C161.13,-547.13 152.28,-542.89 145,-537 97.29,-498.36 71.69,-427.33 61.24,-391.26"/>
+<polygon fill="#255000" stroke="#255000" points="64.51,-389.97 58.47,-381.27 57.77,-391.84 64.51,-389.97"/>
+</g>
+<!-- sourcefile~distributedmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~distributedmeter.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/distributedmeter.f90.html" xlink:title="DistributedMeter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="280.5,-528 157.5,-528 157.5,-504 280.5,-504 280.5,-528"/>
+<text text-anchor="middle" x="219" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedMeter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~distributedmeter.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~distributedmeter.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M161.21,-503.87C155.48,-501.43 149.95,-498.51 145,-495 106.59,-467.78 78.79,-418.68 65.1,-390.49"/>
+<polygon fill="#255000" stroke="#255000" points="68.12,-388.68 60.7,-381.12 61.78,-391.66 68.12,-388.68"/>
+</g>
+<!-- sourcefile~distributedprofiler.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~distributedprofiler.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/distributedprofiler.f90.html" xlink:title="DistributedProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="284,-486 154,-486 154,-462 284,-462 284,-486"/>
+<text text-anchor="middle" x="219" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~distributedprofiler.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~distributedprofiler.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M164.94,-461.98C158.02,-459.49 151.19,-456.52 145,-453 115.63,-436.3 88.31,-408.07 71.77,-388.99"/>
+<polygon fill="#255000" stroke="#255000" points="74.29,-386.56 65.16,-381.19 68.95,-391.09 74.29,-386.56"/>
+</g>
+<!-- sourcefile~exclusivecolumn.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~exclusivecolumn.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/exclusivecolumn.f90.html" xlink:title="ExclusiveColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="282,-444 156,-444 156,-420 282,-420 282,-444"/>
+<text text-anchor="middle" x="219" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExclusiveColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~exclusivecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~exclusivecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M172.07,-419.99C163.02,-417.29 153.64,-414.25 145,-411 125.66,-403.73 104.72,-394.01 87.96,-385.75"/>
+<polygon fill="#255000" stroke="#255000" points="89.13,-382.43 78.62,-381.09 86,-388.69 89.13,-382.43"/>
+</g>
+<!-- sourcefile~inclusivecolumn.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~inclusivecolumn.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/inclusivecolumn.f90.html" xlink:title="InclusiveColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="280.5,-402 157.5,-402 157.5,-378 280.5,-378 280.5,-402"/>
+<text text-anchor="middle" x="219" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InclusiveColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~inclusivecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~inclusivecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M157.49,-382.18C144.96,-380.56 131.72,-378.85 119.08,-377.22"/>
+<polygon fill="#255000" stroke="#255000" points="119.47,-373.74 109.1,-375.93 118.57,-380.68 119.47,-373.74"/>
+</g>
+<!-- sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~mapl_profiler.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/mapl_profiler.f90.html" xlink:title="MAPL_Profiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="271.5,-360 166.5,-360 166.5,-336 271.5,-336 271.5,-360"/>
+<text text-anchor="middle" x="219" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Profiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_profiler.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl_profiler.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M166.14,-354.7C151.2,-356.63 134.74,-358.76 119.18,-360.77"/>
+<polygon fill="#255000" stroke="#255000" points="118.58,-357.32 109.11,-362.07 119.47,-364.26 118.58,-357.32"/>
+</g>
+<!-- sourcefile~maxcyclecolumn.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~maxcyclecolumn.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node12"><a xlink:href=".././sourcefile/maxcyclecolumn.f90.html" xlink:title="MaxCycleColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="282.5,-318 155.5,-318 155.5,-294 282.5,-294 282.5,-318"/>
+<text text-anchor="middle" x="219" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaxCycleColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maxcyclecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~maxcyclecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M172.07,-318.01C163.02,-320.71 153.64,-323.75 145,-327 125.66,-334.27 104.72,-343.99 87.96,-352.25"/>
+<polygon fill="#255000" stroke="#255000" points="86,-349.31 78.62,-356.91 89.13,-355.57 86,-349.31"/>
+</g>
+<!-- sourcefile~meancyclecolumn.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~meancyclecolumn.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node13"><a xlink:href=".././sourcefile/meancyclecolumn.f90.html" xlink:title="MeanCycleColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="286.5,-276 151.5,-276 151.5,-252 286.5,-252 286.5,-276"/>
+<text text-anchor="middle" x="219" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeanCycleColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meancyclecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~meancyclecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M164.94,-276.02C158.02,-278.51 151.19,-281.48 145,-285 115.63,-301.7 88.31,-329.93 71.77,-349.01"/>
+<polygon fill="#255000" stroke="#255000" points="68.95,-346.91 65.16,-356.81 74.29,-351.44 68.95,-346.91"/>
+</g>
+<!-- sourcefile~memoryprofiler.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~memoryprofiler.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node14"><a xlink:href=".././sourcefile/memoryprofiler.f90.html" xlink:title="MemoryProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276.5,-234 161.5,-234 161.5,-210 276.5,-210 276.5,-234"/>
+<text text-anchor="middle" x="219" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MemoryProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~memoryprofiler.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~memoryprofiler.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M161.21,-234.13C155.48,-236.57 149.95,-239.49 145,-243 106.59,-270.22 78.79,-319.32 65.1,-347.51"/>
+<polygon fill="#255000" stroke="#255000" points="61.78,-346.34 60.7,-356.88 68.12,-349.32 61.78,-346.34"/>
+</g>
+<!-- sourcefile~meternode.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~meternode.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node15"><a xlink:href=".././sourcefile/meternode.f90.html" xlink:title="MeterNode.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="266,-192 172,-192 172,-168 266,-168 266,-192"/>
+<text text-anchor="middle" x="219" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeterNode.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meternode.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~meternode.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M171.65,-187.31C162.13,-190.4 152.69,-194.78 145,-201 97.29,-239.64 71.69,-310.67 61.24,-346.74"/>
+<polygon fill="#255000" stroke="#255000" points="57.77,-346.16 58.47,-356.73 64.51,-348.03 57.77,-346.16"/>
+</g>
+<!-- sourcefile~mincyclecolumn.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mincyclecolumn.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node16"><a xlink:href=".././sourcefile/mincyclecolumn.f90.html" xlink:title="MinCycleColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="281,-150 157,-150 157,-126 281,-126 281,-150"/>
+<text text-anchor="middle" x="219" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MinCycleColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M158.23,-150.16C153.45,-152.59 148.95,-155.51 145,-159 87.37,-209.96 65.68,-304.37 58.56,-347.04"/>
+<polygon fill="#255000" stroke="#255000" points="55.1,-346.53 57.02,-356.95 62.01,-347.61 55.1,-346.53"/>
+</g>
+<!-- sourcefile~numcyclescolumn.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~numcyclescolumn.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node17"><a xlink:href=".././sourcefile/numcyclescolumn.f90.html" xlink:title="NumCyclesColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="287,-108 151,-108 151,-84 287,-84 287,-108"/>
+<text text-anchor="middle" x="219" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NumCyclesColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~numcyclescolumn.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~numcyclescolumn.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M157.64,-108.09C153.05,-110.54 148.75,-113.48 145,-117 77.55,-180.45 60.87,-298.01 56.8,-346.84"/>
+<polygon fill="#255000" stroke="#255000" points="53.3,-346.71 56.06,-356.94 60.28,-347.22 53.3,-346.71"/>
+</g>
+<!-- sourcefile~stddevcolumn.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~stddevcolumn.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node18"><a xlink:href=".././sourcefile/stddevcolumn.f90.html" xlink:title="StdDevColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276.5,-66 161.5,-66 161.5,-42 276.5,-42 276.5,-66"/>
+<text text-anchor="middle" x="219" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StdDevColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stddevcolumn.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~stddevcolumn.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M161.39,-63.92C155.35,-66.75 149.7,-70.37 145,-75 67.63,-151.19 56.71,-292.06 55.49,-346.61"/>
+<polygon fill="#255000" stroke="#255000" points="51.98,-346.84 55.35,-356.88 58.98,-346.93 51.98,-346.84"/>
+</g>
+<!-- sourcefile~timeprofiler.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~timeprofiler.f90</title>
+<g id="a_sourcefile~~abstractmeter.f90~~AfferentGraph_node19"><a xlink:href=".././sourcefile/timeprofiler.f90.html" xlink:title="TimeProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="267.5,-24 170.5,-24 170.5,0 267.5,0 267.5,-24"/>
+<text text-anchor="middle" x="219" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TimeProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~timeprofiler.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~abstractmeter.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~timeprofiler.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M170.13,-18.18C160.81,-21.34 151.83,-26.03 145,-33 100.16,-78.73 68.17,-279.49 58.53,-346.86"/>
+<polygon fill="#255000" stroke="#255000" points="55.05,-346.44 57.13,-356.83 61.98,-347.41 55.05,-346.44"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#AfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;unused_dummy.H&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">MAPL_AbstractMeter</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">REAL64</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="k">   private</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">AbstractMeter</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dist_initialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">type_dist_struct</span><span class="p">,</span><span class="w"> </span><span class="n">type_dist_real64</span><span class="p">,</span><span class="w"> </span><span class="n">type_dist_integer</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dist_reduce_op</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">AbstractMeter</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="k">   contains</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="c">! Override in subclasses for different timing mechanisms</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_action</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">start</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_action</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">stop</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">      procedure</span><span class="p">(</span><span class="n">i_action</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reset</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_add_cycle</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_cycle</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_get</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_total</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">i_accumulate</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">accumulate</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalize</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="k">end type </span><span class="n">AbstractMeter</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">abstract interface</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="k">      subroutine </span><span class="n">i_action</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractMeter</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">i_action</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">subroutine </span><span class="n">i_add_cycle</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">increment</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractMeter</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">         </span><span class="k">import </span><span class="n">REAL64</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">increment</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">i_add_cycle</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">function </span><span class="n">i_get</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractMeter</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">         </span><span class="k">import </span><span class="n">REAL64</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">val</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">end function </span><span class="n">i_get</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">subroutine </span><span class="n">i_accumulate</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">lap</span><span class="p">)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractMeter</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lap</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">i_accumulate</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">   </span><span class="k">end interface</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="k">   contains</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="k">      subroutine </span><span class="n">finalize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">        </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">        </span><span class="n">ierror</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dist_initialized</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="k">           call </span><span class="n">MPI_type_free</span><span class="p">(</span><span class="n">type_dist_struct</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">           </span><span class="k">call </span><span class="n">MPI_type_free</span><span class="p">(</span><span class="n">type_dist_real64</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">           </span><span class="k">call </span><span class="n">MPI_type_free</span><span class="p">(</span><span class="n">type_dist_integer</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">           </span><span class="k">call </span><span class="n">MPI_Op_free</span><span class="p">(</span><span class="n">dist_reduce_op</span><span class="p">,</span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">           </span><span class="n">dist_initialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">        </span><span class="k">endif</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ierror</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">end subroutine</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="k">end module </span><span class="n">MAPL_AbstractMeter</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T15:53:13.082079             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

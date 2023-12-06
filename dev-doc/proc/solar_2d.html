@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>SOLAR_2D &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>SOLAR_2D
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">261 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_sun_uc.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sun_uc.f90.html'>MAPL_sun_uc.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">SOLAR_2D</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/solar_2d.html#src">SOLAR_2D</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private recursive subroutine SOLAR_2D(LONS, LATS, ORBIT, ZTH, SLR, INTV, CLOCK, TIME, currTime, DIST, ZTHB, ZTHD, ZTH1, ZTHN, ZTHP, STEPSIZE, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lons~7"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LONS</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lats~8"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LATS</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orbit~14"></span>
+              type(<a href='../type/mapl_sunorbit.html'>MAPL_SunOrbit</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORBIT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zth~2"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ZTH</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-slr~2"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SLR</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-intv~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INTV</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~47"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~6"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TIME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-currtime~8"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>currTime</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dist~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DIST</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zthb~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ZTHB</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zthd~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ZTHD</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zth1~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ZTH1</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zthn~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ZTHN</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zthp~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ZTHP</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-stepsize~2"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>STEPSIZE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~325"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~solar_2d~~CallsGraph Pages: 1 -->
+<svg id="procsolar_2dCallsGraph" width="641pt" height="434pt"
+ viewBox="0.00 0.00 641.00 433.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~solar_2d~~CallsGraph" class="graph" transform="scale(1.61 1.61) rotate(0) translate(4 692)">
+<title>proc~~solar_2d~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-692 1025,-692 1025,4 -4,4"/>
+<!-- proc~solar_2d -->
+<g id="proc~~solar_2d~~CallsGraph_node1" class="node">
+<title>proc~solar_2d</title>
+<polygon fill="none" stroke="black" points="153,-373 0,-373 0,-349 153,-349 153,-373"/>
+<text text-anchor="middle" x="76.5" y="-358.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SunMod::SOLAR_2D</text>
+</g>
+<!-- ESMF_ClockAdvance -->
+<g id="proc~~solar_2d~~CallsGraph_node2" class="node">
+<title>ESMF_ClockAdvance</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="378,-688 221,-688 221,-664 378,-664 378,-688"/>
+<text text-anchor="middle" x="299.5" y="-673.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ClockAdvance</text>
+</g>
+<!-- proc~solar_2d&#45;&gt;ESMF_ClockAdvance -->
+<g id="proc~~solar_2d~~CallsGraph_edge1" class="edge">
+<title>proc~solar_2d&#45;&gt;ESMF_ClockAdvance</title>
+<path fill="none" stroke="#255000" d="M78.1,-373.14C81.02,-418.34 97.69,-578.26 189,-655 195.6,-660.55 203.23,-664.8 211.31,-668.04"/>
+<polygon fill="#255000" stroke="#255000" points="210.39,-671.43 220.99,-671.4 212.69,-664.82 210.39,-671.43"/>
+</g>
+<!-- ESMF_ClockCreate -->
+<g id="proc~~solar_2d~~CallsGraph_node3" class="node">
+<title>ESMF_ClockCreate</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="372.5,-646 226.5,-646 226.5,-622 372.5,-622 372.5,-646"/>
+<text text-anchor="middle" x="299.5" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ClockCreate</text>
+</g>
+<!-- proc~solar_2d&#45;&gt;ESMF_ClockCreate -->
+<g id="proc~~solar_2d~~CallsGraph_edge2" class="edge">
+<title>proc~solar_2d&#45;&gt;ESMF_ClockCreate</title>
+<path fill="none" stroke="#255000" d="M78.93,-373.11C84.46,-414.12 108.31,-548.83 189,-613 197.15,-619.48 206.71,-624.17 216.73,-627.53"/>
+<polygon fill="#255000" stroke="#255000" points="215.87,-630.92 226.45,-630.35 217.82,-624.2 215.87,-630.92"/>
+</g>
+<!-- ESMF_ClockDestroy -->
+<g id="proc~~solar_2d~~CallsGraph_node4" class="node">
+<title>ESMF_ClockDestroy</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="375,-604 224,-604 224,-580 375,-580 375,-604"/>
+<text text-anchor="middle" x="299.5" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ClockDestroy</text>
+</g>
+<!-- proc~solar_2d&#45;&gt;ESMF_ClockDestroy -->
+<g id="proc~~solar_2d~~CallsGraph_edge3" class="edge">
+<title>proc~solar_2d&#45;&gt;ESMF_ClockDestroy</title>
+<path fill="none" stroke="#255000" d="M80.07,-373.13C88.48,-409.63 118.77,-519.14 189,-571 196.49,-576.53 205.03,-580.73 213.96,-583.89"/>
+<polygon fill="#255000" stroke="#255000" points="213.19,-587.31 223.78,-586.93 215.27,-580.63 213.19,-587.31"/>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="proc~~solar_2d~~CallsGraph_node5" class="node">
+<title>ESMF_ClockGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="364.5,-562 234.5,-562 234.5,-538 364.5,-538 364.5,-562"/>
+<text text-anchor="middle" x="299.5" y="-547.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ClockGet</text>
+</g>
+<!-- proc~solar_2d&#45;&gt;ESMF_ClockGet -->
+<g id="proc~~solar_2d~~CallsGraph_edge4" class="edge">
+<title>proc~solar_2d&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#255000" d="M81.73,-373.15C93.35,-404.61 128.97,-489.05 189,-529 199.55,-536.02 211.87,-540.83 224.37,-544.09"/>
+<polygon fill="#255000" stroke="#255000" points="223.86,-547.56 234.39,-546.39 225.43,-540.74 223.86,-547.56"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~solar_2d~~CallsGraph_node6" class="node">
+<title>ESMF_TimeGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="363,-520 236,-520 236,-496 363,-496 363,-520"/>
+<text text-anchor="middle" x="299.5" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeGet</text>
+</g>
+<!-- proc~solar_2d&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~solar_2d~~CallsGraph_edge5" class="edge">
+<title>proc~solar_2d&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#255000" d="M84.34,-373.06C99.53,-398.65 138.75,-458.37 189,-487 200.26,-493.41 213.11,-497.91 225.96,-501.05"/>
+<polygon fill="#255000" stroke="#255000" points="225.25,-504.48 235.76,-503.2 226.74,-497.64 225.25,-504.48"/>
+</g>
+<!-- ESMF_TimeIntervalGet -->
+<g id="proc~~solar_2d~~CallsGraph_node7" class="node">
+<title>ESMF_TimeIntervalGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="383,-478 216,-478 216,-454 383,-454 383,-478"/>
+<text text-anchor="middle" x="299.5" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeIntervalGet</text>
+</g>
+<!-- proc~solar_2d&#45;&gt;ESMF_TimeIntervalGet -->
+<g id="proc~~solar_2d~~CallsGraph_edge6" class="edge">
+<title>proc~solar_2d&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#255000" d="M89.64,-373.21C108.9,-391.82 148.46,-427.01 189,-445 194.44,-447.41 200.15,-449.55 206,-451.44"/>
+<polygon fill="#255000" stroke="#255000" points="205.34,-454.9 215.93,-454.4 207.34,-448.19 205.34,-454.9"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~solar_2d~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node8"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="408,-436 191,-436 191,-412 408,-412 408,-436"/>
+<text text-anchor="middle" x="299.5" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~solar_2d~~CallsGraph_edge7" class="edge">
+<title>proc~solar_2d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M105.47,-373.06C127.75,-382.3 159.93,-394.8 189,-403 197.76,-405.47 206.99,-407.74 216.23,-409.8"/>
+<polygon fill="#255000" stroke="#255000" points="215.72,-413.27 226.23,-411.96 217.19,-406.43 215.72,-413.27"/>
+</g>
+<!-- interface~mapl_sungetinsolation -->
+<g id="proc~~solar_2d~~CallsGraph_node9" class="node">
+<title>interface~mapl_sungetinsolation</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node9"><a xlink:href=".././interface/mapl_sungetinsolation.html" xlink:title="MAPL_SunMod::MAPL_SunGetInsolation">
+<polygon fill="#a7506f" stroke="#a7506f" points="410,-394 189,-394 189,-370 410,-370 410,-394"/>
+<text text-anchor="middle" x="299.5" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::MAPL_SunGetInsolation</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;interface~mapl_sungetinsolation -->
+<g id="proc~~solar_2d~~CallsGraph_edge8" class="edge">
+<title>proc~solar_2d&#45;&gt;interface~mapl_sungetinsolation</title>
+<path fill="none" stroke="#255000" d="M153.25,-361.75C176.87,-363.57 202.84,-366.06 226.22,-368.75"/>
+<polygon fill="#255000" stroke="#255000" points="226.07,-372.26 236.41,-369.96 226.89,-365.31 226.07,-372.26"/>
+</g>
+<!-- interface~write_parallel -->
+<g id="proc~~solar_2d~~CallsGraph_node10" class="node">
+<title>interface~write_parallel</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node10"><a xlink:href=".././interface/write_parallel.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL">
+<polygon fill="#a7506f" stroke="#a7506f" points="400.5,-352 198.5,-352 198.5,-328 400.5,-328 400.5,-352"/>
+<text text-anchor="middle" x="299.5" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;interface~write_parallel -->
+<g id="proc~~solar_2d~~CallsGraph_edge9" class="edge">
+<title>proc~solar_2d&#45;&gt;interface~write_parallel</title>
+<path fill="none" stroke="#255000" d="M153.25,-353.8C164.46,-352.74 176.2,-351.62 187.94,-350.51"/>
+<polygon fill="#255000" stroke="#255000" points="188.62,-353.96 198.25,-349.53 187.96,-346.99 188.62,-353.96"/>
+</g>
+<!-- proc~calcradfromta -->
+<g id="proc~~solar_2d~~CallsGraph_node11" class="node">
+<title>proc~calcradfromta</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node11"><a xlink:href=".././proc/calcradfromta.html" xlink:title="MAPL_SunMod::calcRadfromTA">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="387.5,-310 211.5,-310 211.5,-286 387.5,-286 387.5,-310"/>
+<text text-anchor="middle" x="299.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::calcRadfromTA</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;proc~calcradfromta -->
+<g id="proc~~solar_2d~~CallsGraph_edge10" class="edge">
+<title>proc~solar_2d&#45;&gt;proc~calcradfromta</title>
+<path fill="none" stroke="#255000" d="M105.47,-348.94C127.75,-339.7 159.93,-327.2 189,-319 197.76,-316.53 206.99,-314.26 216.23,-312.2"/>
+<polygon fill="#255000" stroke="#255000" points="217.19,-315.57 226.23,-310.04 215.72,-308.73 217.19,-315.57"/>
+</g>
+<!-- proc~calctafromea -->
+<g id="proc~~solar_2d~~CallsGraph_node12" class="node">
+<title>proc~calctafromea</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node12"><a xlink:href=".././proc/calctafromea.html" xlink:title="MAPL_SunMod::calcTAfromEA">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="384,-268 215,-268 215,-244 384,-244 384,-268"/>
+<text text-anchor="middle" x="299.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::calcTAfromEA</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;proc~calctafromea -->
+<g id="proc~~solar_2d~~CallsGraph_edge11" class="edge">
+<title>proc~solar_2d&#45;&gt;proc~calctafromea</title>
+<path fill="none" stroke="#255000" d="M89.64,-348.79C108.9,-330.18 148.46,-294.99 189,-277 194.09,-274.74 199.41,-272.73 204.86,-270.93"/>
+<polygon fill="#255000" stroke="#255000" points="206.22,-274.18 214.77,-267.92 204.18,-267.48 206.22,-274.18"/>
+</g>
+<!-- proc~getiday -->
+<g id="proc~~solar_2d~~CallsGraph_node13" class="node">
+<title>proc~getiday</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node13"><a xlink:href=".././proc/getiday.html" xlink:title="MAPL_SunMod::GETIDAY">
+<polygon fill="#d9534f" stroke="#d9534f" points="370.5,-226 228.5,-226 228.5,-202 370.5,-202 370.5,-226"/>
+<text text-anchor="middle" x="299.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::GETIDAY</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;proc~getiday -->
+<g id="proc~~solar_2d~~CallsGraph_edge12" class="edge">
+<title>proc~solar_2d&#45;&gt;proc~getiday</title>
+<path fill="none" stroke="#255000" d="M84.34,-348.94C99.53,-323.35 138.75,-263.63 189,-235 198.05,-229.84 208.13,-225.93 218.41,-222.96"/>
+<polygon fill="#255000" stroke="#255000" points="219.5,-226.29 228.3,-220.39 217.75,-219.51 219.5,-226.29"/>
+</g>
+<!-- proc~invert_keplers_newton -->
+<g id="proc~~solar_2d~~CallsGraph_node14" class="node">
+<title>proc~invert_keplers_newton</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node14"><a xlink:href=".././proc/invert_keplers_newton.html" xlink:title="MAPL_SunMod::invert_Keplers_Newton">
+<polygon fill="#d9534f" stroke="#d9534f" points="408,-184 191,-184 191,-160 408,-160 408,-184"/>
+<text text-anchor="middle" x="299.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::invert_Keplers_Newton</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;proc~invert_keplers_newton -->
+<g id="proc~~solar_2d~~CallsGraph_edge13" class="edge">
+<title>proc~solar_2d&#45;&gt;proc~invert_keplers_newton</title>
+<path fill="none" stroke="#255000" d="M81.73,-348.85C93.35,-317.39 128.97,-232.95 189,-193 191.45,-191.37 194.01,-189.85 196.63,-188.45"/>
+<polygon fill="#255000" stroke="#255000" points="198.28,-191.54 205.82,-184.1 195.29,-185.22 198.28,-191.54"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~solar_2d~~CallsGraph_node15" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node15"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="699,-106 479,-106 479,-82 699,-82 699,-106"/>
+<text text-anchor="middle" x="589" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;proc~mapl_return -->
+<g id="proc~~solar_2d~~CallsGraph_edge14" class="edge">
+<title>proc~solar_2d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M79.9,-348.98C87.92,-312.31 117.39,-201.3 189,-151 200.83,-142.69 363.67,-121.36 477.61,-107.28"/>
+<polygon fill="#255000" stroke="#255000" points="478.29,-110.72 487.79,-106.02 477.44,-103.77 478.29,-110.72"/>
+</g>
+<!-- proc~mapl_sunorbitcreated -->
+<g id="proc~~solar_2d~~CallsGraph_node16" class="node">
+<title>proc~mapl_sunorbitcreated</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node16"><a xlink:href=".././proc/mapl_sunorbitcreated.html" xlink:title="MAPL_SunMod::MAPL_SunOrbitCreated">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="409,-104 190,-104 190,-80 409,-80 409,-104"/>
+<text text-anchor="middle" x="299.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::MAPL_SunOrbitCreated</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;proc~mapl_sunorbitcreated -->
+<g id="proc~~solar_2d~~CallsGraph_edge15" class="edge">
+<title>proc~solar_2d&#45;&gt;proc~mapl_sunorbitcreated</title>
+<path fill="none" stroke="#255000" d="M79.27,-348.89C85.76,-309.07 112.01,-181.14 189,-118 193.55,-114.27 198.54,-111.06 203.81,-108.29"/>
+<polygon fill="#255000" stroke="#255000" points="205.33,-111.45 212.92,-104.05 202.37,-105.1 205.33,-111.45"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~solar_2d~~CallsGraph_node17" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node17"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="696,-64 482,-64 482,-40 696,-40 696,-64"/>
+<text text-anchor="middle" x="589" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~solar_2d~~CallsGraph_edge16" class="edge">
+<title>proc~solar_2d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M77.81,-348.91C79.72,-303.23 93.25,-140.18 189,-71 232.66,-39.46 370.23,-39.2 471.67,-43.87"/>
+<polygon fill="#255000" stroke="#255000" points="471.53,-47.37 481.68,-44.35 471.86,-40.38 471.53,-47.37"/>
+</g>
+<!-- proc~rect_pmpi -->
+<g id="proc~~solar_2d~~CallsGraph_node18" class="node">
+<title>proc~rect_pmpi</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node18"><a xlink:href=".././proc/rect_pmpi.html" xlink:title="MAPL_SunMod::RECT_PMPI">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="376.5,-24 222.5,-24 222.5,0 376.5,0 376.5,-24"/>
+<text text-anchor="middle" x="299.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::RECT_PMPI</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;proc~rect_pmpi -->
+<g id="proc~~solar_2d~~CallsGraph_edge17" class="edge">
+<title>proc~solar_2d&#45;&gt;proc~rect_pmpi</title>
+<path fill="none" stroke="#255000" d="M77.75,-348.83C79.44,-301.18 92.25,-125.59 189,-38 195.91,-31.74 204.06,-26.91 212.73,-23.2"/>
+<polygon fill="#255000" stroke="#255000" points="214.19,-26.39 222.32,-19.59 211.72,-19.84 214.19,-26.39"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~solar_2d~~CallsGraph_node20" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node20"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="725,-568 453,-568 453,-544 725,-544 725,-568"/>
+<text text-anchor="middle" x="589" y="-553.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~solar_2d~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025530" stroke-dasharray="5,2" d="M396.41,-436.09C401.24,-438.6 405.82,-441.55 410,-445 443.23,-472.42 412.19,-508.3 446,-535 447.61,-536.27 449.27,-537.49 450.97,-538.64"/>
+<polygon fill="#025530" stroke="#025530" points="449.38,-541.78 459.75,-543.96 453,-535.79 449.38,-541.78"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~solar_2d~~CallsGraph_node21" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node21"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="732,-526 446,-526 446,-502 732,-502 732,-526"/>
+<text text-anchor="middle" x="589" y="-511.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~solar_2d~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025530" stroke-dasharray="5,2" d="M391.85,-436.01C398.21,-438.5 404.34,-441.46 410,-445 432.62,-459.13 423.09,-479.36 446,-493 448.89,-494.72 451.87,-496.32 454.92,-497.8"/>
+<polygon fill="#025530" stroke="#025530" points="453.72,-501.1 464.28,-501.92 456.54,-494.69 453.72,-501.1"/>
+</g>
+<!-- interface~mapl_sungetinsolation&#45;&gt;proc~solar_2d -->
+<g id="proc~~solar_2d~~CallsGraph_edge21" class="edge">
+<title>interface~mapl_sungetinsolation&#45;&gt;proc~solar_2d</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M188.85,-378.33C175.43,-377.06 161.99,-375.66 149.33,-374.19"/>
+<polygon fill="transparent" stroke="transparent" points="149.7,-370.71 139.35,-373.01 148.87,-377.66 149.7,-370.71"/>
+</g>
+<!-- proc~solar_1d -->
+<g id="proc~~solar_2d~~CallsGraph_node23" class="node">
+<title>proc~solar_1d</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node23"><a xlink:href=".././proc/solar_1d.html" xlink:title="MAPL_SunMod::SOLAR_1D">
+<polygon fill="#d9534f" stroke="#d9534f" points="665.5,-484 512.5,-484 512.5,-460 665.5,-460 665.5,-484"/>
+<text text-anchor="middle" x="589" y="-469.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::SOLAR_1D</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sungetinsolation&#45;&gt;proc~solar_1d -->
+<g id="proc~~solar_2d~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_sungetinsolation&#45;&gt;proc~solar_1d</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M391.85,-394.01C398.21,-396.5 404.34,-399.46 410,-403 432.62,-417.13 423.09,-437.36 446,-451 462.87,-461.04 482.8,-466.89 502.31,-470.18"/>
+<polygon fill="transparent" stroke="transparent" points="502.05,-473.68 512.46,-471.68 503.07,-466.76 502.05,-473.68"/>
+</g>
+<!-- proc~solar_arr_int -->
+<g id="proc~~solar_2d~~CallsGraph_node24" class="node">
+<title>proc~solar_arr_int</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node24"><a xlink:href=".././proc/solar_arr_int.html" xlink:title="MAPL_SunMod::SOLAR_ARR_INT">
+<polygon fill="#d9534f" stroke="#d9534f" points="680.5,-442 497.5,-442 497.5,-418 680.5,-418 680.5,-442"/>
+<text text-anchor="middle" x="589" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::SOLAR_ARR_INT</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sungetinsolation&#45;&gt;proc~solar_arr_int -->
+<g id="proc~~solar_2d~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_sungetinsolation&#45;&gt;proc~solar_arr_int</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M362.72,-394.06C388.46,-398.92 418.63,-404.44 446,-409 461.12,-411.52 477.18,-414.04 492.85,-416.42"/>
+<polygon fill="transparent" stroke="transparent" points="492.66,-419.93 503.07,-417.96 493.7,-413.01 492.66,-419.93"/>
+</g>
+<!-- proc~write_parallel_i4_0 -->
+<g id="proc~~solar_2d~~CallsGraph_node25" class="node">
+<title>proc~write_parallel_i4_0</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node25"><a xlink:href=".././proc/write_parallel_i4_0.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL_I4_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="703.5,-400 474.5,-400 474.5,-376 703.5,-376 703.5,-400"/>
+<text text-anchor="middle" x="589" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL_I4_0</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_i4_0 -->
+<g id="proc~~solar_2d~~CallsGraph_edge23" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_i4_0</title>
+<path fill="none" stroke="#025520" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M362.72,-352.06C388.46,-356.92 418.63,-362.44 446,-367 461.12,-369.52 477.18,-372.04 492.85,-374.42"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="492.66,-377.93 503.07,-375.96 493.7,-371.01 492.66,-377.93"/>
+</g>
+<!-- proc~write_parallel_i4_1 -->
+<g id="proc~~solar_2d~~CallsGraph_node26" class="node">
+<title>proc~write_parallel_i4_1</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node26"><a xlink:href=".././proc/write_parallel_i4_1.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL_I4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="703.5,-358 474.5,-358 474.5,-334 703.5,-334 703.5,-358"/>
+<text text-anchor="middle" x="589" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL_I4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_i4_1 -->
+<g id="proc~~solar_2d~~CallsGraph_edge24" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_i4_1</title>
+<path fill="none" stroke="#025520" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M400.65,-342.09C421.22,-342.52 443.1,-342.98 464.38,-343.42"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="464.36,-346.92 474.43,-343.63 464.51,-339.92 464.36,-346.92"/>
+</g>
+<!-- proc~write_parallel_r4_0 -->
+<g id="proc~~solar_2d~~CallsGraph_node27" class="node">
+<title>proc~write_parallel_r4_0</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node27"><a xlink:href=".././proc/write_parallel_r4_0.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL_R4_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="705.5,-316 472.5,-316 472.5,-292 705.5,-292 705.5,-316"/>
+<text text-anchor="middle" x="589" y="-301.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL_R4_0</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_r4_0 -->
+<g id="proc~~solar_2d~~CallsGraph_edge25" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_r4_0</title>
+<path fill="none" stroke="#025520" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M396.63,-327.96C423.97,-324.54 453.89,-320.79 481.78,-317.3"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="482.47,-320.74 491.96,-316.03 481.6,-313.8 482.47,-320.74"/>
+</g>
+<!-- proc~write_parallel_r4_1 -->
+<g id="proc~~solar_2d~~CallsGraph_node28" class="node">
+<title>proc~write_parallel_r4_1</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node28"><a xlink:href=".././proc/write_parallel_r4_1.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="705.5,-274 472.5,-274 472.5,-250 705.5,-250 705.5,-274"/>
+<text text-anchor="middle" x="589" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL_R4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_r4_1 -->
+<g id="proc~~solar_2d~~CallsGraph_edge26" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_r4_1</title>
+<path fill="none" stroke="#025520" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M388.77,-327.94C396.15,-325.48 403.33,-322.54 410,-319 429.99,-308.4 425.79,-293.17 446,-283 451.35,-280.31 456.94,-277.94 462.69,-275.85"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="464.1,-279.07 472.49,-272.6 461.9,-272.43 464.1,-279.07"/>
+</g>
+<!-- proc~write_parallel_r8_0 -->
+<g id="proc~~solar_2d~~CallsGraph_node29" class="node">
+<title>proc~write_parallel_r8_0</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node29"><a xlink:href=".././proc/write_parallel_r8_0.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL_R8_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="705.5,-232 472.5,-232 472.5,-208 705.5,-208 705.5,-232"/>
+<text text-anchor="middle" x="589" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL_R8_0</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_r8_0 -->
+<g id="proc~~solar_2d~~CallsGraph_edge27" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_r8_0</title>
+<path fill="none" stroke="#025520" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M395.67,-327.91C400.75,-325.4 405.58,-322.46 410,-319 440.07,-295.47 415.43,-263.88 446,-241 451.24,-237.08 456.89,-233.74 462.83,-230.91"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="464.52,-233.99 472.36,-226.86 461.79,-227.55 464.52,-233.99"/>
+</g>
+<!-- proc~write_parallel_r8_1 -->
+<g id="proc~~solar_2d~~CallsGraph_node30" class="node">
+<title>proc~write_parallel_r8_1</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node30"><a xlink:href=".././proc/write_parallel_r8_1.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL_R8_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="705.5,-190 472.5,-190 472.5,-166 705.5,-166 705.5,-190"/>
+<text text-anchor="middle" x="589" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL_R8_1</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_r8_1 -->
+<g id="proc~~solar_2d~~CallsGraph_edge28" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_r8_1</title>
+<path fill="none" stroke="#025520" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M397.54,-327.92C402,-325.39 406.19,-322.44 410,-319 451.33,-281.68 403.89,-235.43 446,-199 451.26,-194.45 457.05,-190.65 463.21,-187.48"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="464.8,-190.6 472.46,-183.27 461.91,-184.22 464.8,-190.6"/>
+</g>
+<!-- proc~write_parallel_string_0 -->
+<g id="proc~~solar_2d~~CallsGraph_node31" class="node">
+<title>proc~write_parallel_string_0</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node31"><a xlink:href=".././proc/write_parallel_string_0.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL_STRING_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="718.5,-148 459.5,-148 459.5,-124 718.5,-124 718.5,-148"/>
+<text text-anchor="middle" x="589" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL_STRING_0</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_string_0 -->
+<g id="proc~~solar_2d~~CallsGraph_edge29" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_string_0</title>
+<path fill="none" stroke="#025520" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M398.59,-327.8C402.69,-325.28 406.53,-322.37 410,-319 462.91,-267.61 392.01,-207.25 446,-157 447.54,-155.57 449.13,-154.21 450.77,-152.91"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="453.09,-155.56 459.34,-147.01 449.12,-149.8 453.09,-155.56"/>
+</g>
+<!-- proc~getiday&#45;&gt;proc~mapl_return -->
+<g id="proc~~solar_2d~~CallsGraph_edge30" class="edge">
+<title>proc~getiday&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#029255" d="M370.74,-210.63C384.81,-207.31 398.72,-201.83 410,-193 440.07,-169.47 415.43,-137.88 446,-115 453.1,-109.68 460.98,-105.44 469.27,-102.07"/>
+<polygon fill="#029255" stroke="#029255" points="470.57,-105.32 478.79,-98.63 468.2,-98.74 470.57,-105.32"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~solar_2d~~CallsGraph_node19" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node19"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1021,-106 768,-106 768,-82 1021,-82 1021,-106"/>
+<text text-anchor="middle" x="894.5" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~solar_2d~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#149025" stroke-opacity="0.019608" d="M699.14,-94C718.1,-94 738.02,-94 757.59,-94"/>
+<polygon fill="#149025" fill-opacity="0.019608" stroke="#149025" stroke-opacity="0.019608" points="757.78,-97.5 767.78,-94 757.78,-90.5 757.78,-97.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~solar_2d~~CallsGraph_node22" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~solar_2d~~CallsGraph_node22"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1009,-64 780,-64 780,-40 1009,-40 1009,-64"/>
+<text text-anchor="middle" x="894.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~solar_2d~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#149025" stroke-opacity="0.019608" d="M676.97,-81.96C714.36,-76.79 758.2,-70.72 796.62,-65.41"/>
+<polygon fill="#149025" fill-opacity="0.019608" stroke="#149025" stroke-opacity="0.019608" points="797.35,-68.84 806.78,-64 796.39,-61.9 797.35,-68.84"/>
+</g>
+<!-- proc~mapl_sunorbitcreated&#45;&gt;proc~mapl_return -->
+<g id="proc~~solar_2d~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_sunorbitcreated&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#240025" stroke-opacity="0.019608" d="M409.19,-92.76C428.56,-92.89 448.82,-93.03 468.47,-93.17"/>
+<polygon fill="#240025" fill-opacity="0.019608" stroke="#240025" stroke-opacity="0.019608" points="468.65,-96.67 478.68,-93.24 468.7,-89.67 468.65,-96.67"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~solar_2d~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M696.15,-52C719.96,-52 745.43,-52 769.88,-52"/>
+<polygon fill="transparent" stroke="transparent" points="769.92,-55.5 779.92,-52 769.92,-48.5 769.92,-55.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocsolar_2dCallsGraph = svgPanZoom('#procsolar_2dCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~solar_2d~~CalledByGraph Pages: 1 -->
+<svg id="procsolar_2dCalledByGraph" width="637pt" height="74pt"
+ viewBox="0.00 0.00 637.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~solar_2d~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~solar_2d~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 633,-70 633,4 -4,4"/>
+<!-- proc~solar_2d -->
+<g id="proc~~solar_2d~~CalledByGraph_node1" class="node">
+<title>proc~solar_2d</title>
+<polygon fill="none" stroke="black" points="153,-45 0,-45 0,-21 153,-21 153,-45"/>
+<text text-anchor="middle" x="76.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SunMod::SOLAR_2D</text>
+</g>
+<!-- interface~mapl_sungetinsolation -->
+<g id="proc~~solar_2d~~CalledByGraph_node2" class="node">
+<title>interface~mapl_sungetinsolation</title>
+<g id="a_proc~~solar_2d~~CalledByGraph_node2"><a xlink:href=".././interface/mapl_sungetinsolation.html" xlink:title="MAPL_SunMod::MAPL_SunGetInsolation">
+<polygon fill="#a7506f" stroke="#a7506f" points="410,-45 189,-45 189,-21 410,-21 410,-45"/>
+<text text-anchor="middle" x="299.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::MAPL_SunGetInsolation</text>
+</a>
+</g>
+</g>
+<!-- proc~solar_2d&#45;&gt;interface~mapl_sungetinsolation -->
+<g id="proc~~solar_2d~~CalledByGraph_edge3" class="edge">
+<title>proc~solar_2d&#45;&gt;interface~mapl_sungetinsolation</title>
+<path fill="none" stroke="#255000" d="M153.25,-26.56C161.51,-26.41 170.06,-26.31 178.69,-26.27"/>
+<polygon fill="#255000" stroke="#255000" points="178.84,-29.77 188.84,-26.25 178.83,-22.77 178.84,-29.77"/>
+</g>
+<!-- interface~mapl_sungetinsolation&#45;&gt;proc~solar_2d -->
+<g id="proc~~solar_2d~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_sungetinsolation&#45;&gt;proc~solar_2d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M188.84,-39.75C180.28,-39.75 171.71,-39.7 163.34,-39.6"/>
+<polygon fill="#255000" stroke="#255000" points="163.3,-36.1 153.25,-39.44 163.19,-43.1 163.3,-36.1"/>
+</g>
+<!-- proc~solar_1d -->
+<g id="proc~~solar_2d~~CalledByGraph_node3" class="node">
+<title>proc~solar_1d</title>
+<g id="a_proc~~solar_2d~~CalledByGraph_node3"><a xlink:href=".././proc/solar_1d.html" xlink:title="MAPL_SunMod::SOLAR_1D">
+<polygon fill="#d9534f" stroke="#d9534f" points="614,-66 461,-66 461,-42 614,-42 614,-66"/>
+<text text-anchor="middle" x="537.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::SOLAR_1D</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sungetinsolation&#45;&gt;proc~solar_1d -->
+<g id="proc~~solar_2d~~CalledByGraph_edge5" class="edge">
+<title>interface~mapl_sungetinsolation&#45;&gt;proc~solar_1d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M410.21,-36.03C427.09,-37.47 444.21,-39.12 460.15,-40.85"/>
+<polygon fill="#255000" stroke="#255000" points="460.13,-44.36 470.45,-41.99 460.9,-37.41 460.13,-44.36"/>
+</g>
+<!-- proc~solar_arr_int -->
+<g id="proc~~solar_2d~~CalledByGraph_node4" class="node">
+<title>proc~solar_arr_int</title>
+<g id="a_proc~~solar_2d~~CalledByGraph_node4"><a xlink:href=".././proc/solar_arr_int.html" xlink:title="MAPL_SunMod::SOLAR_ARR_INT">
+<polygon fill="#d9534f" stroke="#d9534f" points="629,-24 446,-24 446,0 629,0 629,-24"/>
+<text text-anchor="middle" x="537.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::SOLAR_ARR_INT</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sungetinsolation&#45;&gt;proc~solar_arr_int -->
+<g id="proc~~solar_2d~~CalledByGraph_edge6" class="edge">
+<title>interface~mapl_sungetinsolation&#45;&gt;proc~solar_arr_int</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M366.55,-20.99C387.93,-18.54 412.16,-16.2 435.48,-14.3"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="436.07,-17.77 445.76,-13.49 435.51,-10.79 436.07,-17.77"/>
+</g>
+<!-- proc~solar_1d&#45;&gt;interface~mapl_sungetinsolation -->
+<g id="proc~~solar_2d~~CalledByGraph_edge2" class="edge">
+<title>proc~solar_1d&#45;&gt;interface~mapl_sungetinsolation</title>
+<path fill="none" stroke="#255000" d="M460.88,-53.62C433.97,-51.76 403.67,-49.06 376.71,-46.14"/>
+<polygon fill="#255000" stroke="#255000" points="376.88,-42.64 366.55,-45.01 376.1,-49.59 376.88,-42.64"/>
+</g>
+<!-- proc~solar_arr_int&#45;&gt;interface~mapl_sungetinsolation -->
+<g id="proc~~solar_2d~~CalledByGraph_edge4" class="edge">
+<title>proc~solar_arr_int&#45;&gt;interface~mapl_sungetinsolation</title>
+<path fill="none" stroke="#255000" d="M470.45,-24.01C454.79,-25.8 437.6,-27.54 420.36,-29.08"/>
+<polygon fill="#255000" stroke="#255000" points="419.87,-25.61 410.21,-29.97 420.48,-32.59 419.87,-25.61"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">recursive subroutine </span><span class="n">SOLAR_2D</span><span class="p">(</span><span class="n">LONS</span><span class="p">,</span><span class="w"> </span><span class="n">LATS</span><span class="p">,</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">,</span><span class="n">ZTH</span><span class="p">,</span><span class="n">SLR</span><span class="p">,</span><span class="n">INTV</span><span class="p">,</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                    </span><span class="nb">TIME</span><span class="p">,</span><span class="n">currTime</span><span class="p">,</span><span class="n">DIST</span><span class="p">,</span><span class="n">ZTHB</span><span class="p">,</span><span class="n">ZTHD</span><span class="p">,</span><span class="n">ZTH1</span><span class="p">,</span><span class="n">ZTHN</span><span class="p">,</span><span class="n">ZTHP</span><span class="p">,&amp;</span>
+<span class="w">                                    </span><span class="n">STEPSIZE</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span>
+<span class="cp">#include &quot;sun.H&quot;</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">SOLAR_2D</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T15:53:13.082079             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

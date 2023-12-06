@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>put_DataToFile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>put_DataToFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">44 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MultiCommServer.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/multicommserver.f90.html'>MultiCommServer.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_multicommservermod.html'>pFIO_MultiCommServerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">put_DataToFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/put_datatofile~6.html#src">put_DataToFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine put_DataToFile(this, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/multicommserver.html'>MultiCommServer</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5395"></span>
+              class(<a href='../type/multicommserver.html'>MultiCommServer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1321"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~put_datatofile~6~~CallsGraph Pages: 1 -->
+<svg id="procput_datatofile6CallsGraph" width="641pt" height="243pt"
+ viewBox="0.00 0.00 641.00 243.37" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~put_datatofile~6~~CallsGraph" class="graph" transform="scale(2.55 2.55) rotate(0) translate(4 616)">
+<title>proc~~put_datatofile~6~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-616 1629,-616 1629,4 -4,4"/>
+<!-- proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node1" class="node">
+<title>proc~put_datatofile~6</title>
+<polygon fill="none" stroke="black" points="351,-401 0,-401 0,-377 351,-377 351,-401"/>
+<text text-anchor="middle" x="175.5" y="-386.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_MultiCommServerMod::MultiCommServer%put_DataToFile</text>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node2" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="669.5,-611 568.5,-611 568.5,-587 669.5,-587 669.5,-611"/>
+<text text-anchor="middle" x="619" y="-596.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;mpi_comm_rank -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge1" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#255000" d="M185.29,-401.12C211.37,-436.01 292.46,-536.78 387,-578 441.51,-601.77 509.99,-605.1 558.19,-603.67"/>
+<polygon fill="#255000" stroke="#255000" points="558.6,-607.16 568.46,-603.28 558.34,-600.16 558.6,-607.16"/>
+</g>
+<!-- none~at~19 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node3" class="node">
+<title>none~at~19</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node3"><a xlink:href=".././type/serverthreadvector.html#boundprocedure-at~19" xlink:title="pFIO_ServerThreadVectorMod::ServerThreadVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="771.5,-569 466.5,-569 466.5,-545 771.5,-545 771.5,-569"/>
+<text text-anchor="middle" x="619" y="-554.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ServerThreadVectorMod::ServerThreadVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;none~at~19 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge2" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;none~at~19</title>
+<path fill="none" stroke="#255000" d="M188.9,-401.3C219.44,-430.71 302,-504.96 387,-536 408.84,-543.98 432.59,-549.42 456.26,-553.08"/>
+<polygon fill="#255000" stroke="#255000" points="456,-556.57 466.4,-554.53 457,-549.65 456,-556.57"/>
+</g>
+<!-- of -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node4" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="646,-527 592,-527 592,-503 646,-503 646,-527"/>
+<text text-anchor="middle" x="619" y="-512.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;of -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge3" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;of</title>
+<path fill="none" stroke="#255000" d="M194.69,-401.04C230.04,-423.72 311.18,-472.47 387,-494 453.85,-512.98 535.53,-515.92 581.68,-515.81"/>
+<polygon fill="#255000" stroke="#255000" points="581.82,-519.31 591.79,-515.74 581.77,-512.31 581.82,-519.31"/>
+</g>
+<!-- proc~clear_backlog -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node5" class="node">
+<title>proc~clear_backlog</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node5"><a xlink:href=".././proc/clear_backlog.html" xlink:title="pFIO_ServerThreadMod::ServerThread%clear_backlog">
+<polygon fill="#d9534f" stroke="#d9534f" points="769.5,-485 468.5,-485 468.5,-461 769.5,-461 769.5,-485"/>
+<text text-anchor="middle" x="619" y="-470.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ServerThreadMod::ServerThread%clear_backlog</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~clear_backlog -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge4" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~clear_backlog</title>
+<path fill="none" stroke="#255000" d="M209.17,-401.01C250.12,-415.54 322.76,-439.6 387,-452 409.83,-456.41 434.12,-459.9 458.04,-462.66"/>
+<polygon fill="#255000" stroke="#255000" points="457.94,-466.17 468.27,-463.79 458.72,-459.21 457.94,-466.17"/>
+</g>
+<!-- proc~clear_hist_collections -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node6" class="node">
+<title>proc~clear_hist_collections</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node6"><a xlink:href=".././proc/clear_hist_collections.html" xlink:title="pFIO_ServerThreadMod::ServerThread%clear_hist_collections">
+<polygon fill="#d9534f" stroke="#d9534f" points="789,-443 449,-443 449,-419 789,-419 789,-443"/>
+<text text-anchor="middle" x="619" y="-428.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ServerThreadMod::ServerThread%clear_hist_collections</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~clear_hist_collections -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge5" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~clear_hist_collections</title>
+<path fill="none" stroke="#255000" d="M295.05,-401.01C325.04,-404 357.2,-407.16 387,-410 414.97,-412.67 444.85,-415.44 473.53,-418.06"/>
+<polygon fill="#255000" stroke="#255000" points="473.34,-421.56 483.62,-418.98 473.98,-414.59 473.34,-421.56"/>
+</g>
+<!-- proc~clear_subarray -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node7" class="node">
+<title>proc~clear_subarray</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node7"><a xlink:href=".././proc/clear_subarray.html" xlink:title="pFIO_ServerThreadMod::ServerThread%clear_subarray">
+<polygon fill="#d9534f" stroke="#d9534f" points="772.5,-297 465.5,-297 465.5,-273 772.5,-273 772.5,-297"/>
+<text text-anchor="middle" x="619" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ServerThreadMod::ServerThread%clear_subarray</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~clear_subarray -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge6" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~clear_subarray</title>
+<path fill="none" stroke="#255000" d="M221.55,-376.92C264.09,-365.63 329.72,-348.54 387,-335 441.5,-322.12 503.55,-308.76 549.6,-299.09"/>
+<polygon fill="#255000" stroke="#255000" points="550.4,-302.5 559.47,-297.03 548.97,-295.65 550.4,-302.5"/>
+</g>
+<!-- proc~get_datareference -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node8" class="node">
+<title>proc~get_datareference</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node8"><a xlink:href=".././proc/get_datareference.html" xlink:title="pFIO_AbstractServerMod::AbstractServer%get_DataReference">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="790.5,-255 447.5,-255 447.5,-231 790.5,-231 790.5,-255"/>
+<text text-anchor="middle" x="619" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractServerMod::AbstractServer%get_DataReference</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~get_datareference -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge7" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~get_datareference</title>
+<path fill="none" stroke="#255000" d="M191.69,-376.65C224.8,-350.53 306.94,-289.93 387,-264 403.01,-258.81 419.95,-254.76 437.09,-251.61"/>
+<polygon fill="#255000" stroke="#255000" points="437.95,-255.01 447.2,-249.86 436.75,-248.12 437.95,-255.01"/>
+</g>
+<!-- proc~get_writing_pe~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node9" class="node">
+<title>proc~get_writing_pe~2</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node9"><a xlink:href=".././proc/get_writing_pe~2.html" xlink:title="pFIO_MultiCommServerMod::MultiCommServer%get_writing_PE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="794,-213 444,-213 444,-189 794,-189 794,-213"/>
+<text text-anchor="middle" x="619" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MultiCommServerMod::MultiCommServer%get_writing_PE</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~get_writing_pe~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge8" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~get_writing_pe~2</title>
+<path fill="none" stroke="#255000" d="M186.83,-376.93C215.05,-344.92 297.35,-257.88 387,-222 401.86,-216.05 417.68,-211.45 433.79,-207.91"/>
+<polygon fill="#255000" stroke="#255000" points="434.77,-211.28 443.86,-205.84 433.36,-204.42 434.77,-211.28"/>
+</g>
+<!-- proc~i_to_string -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node10" class="node">
+<title>proc~i_to_string</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node10"><a xlink:href=".././proc/i_to_string.html" xlink:title="pFIO_UtilitiesMod::i_to_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="701.5,-401 536.5,-401 536.5,-377 701.5,-377 701.5,-401"/>
+<text text-anchor="middle" x="619" y="-386.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::i_to_string</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~i_to_string -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge9" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~i_to_string</title>
+<path fill="none" stroke="#255000" d="M351.31,-389C411.03,-389 475.45,-389 526.01,-389"/>
+<polygon fill="#255000" stroke="#255000" points="526.25,-392.5 536.25,-389 526.25,-385.5 526.25,-392.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node11" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node11"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1221.5,-360 1001.5,-360 1001.5,-336 1221.5,-336 1221.5,-360"/>
+<text text-anchor="middle" x="1111.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge10" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M281.85,-376.99C315.41,-373.57 352.73,-370.18 387,-368 599.47,-354.48 847.62,-350.1 991.15,-348.68"/>
+<polygon fill="#255000" stroke="#255000" points="991.33,-352.18 1001.3,-348.58 991.27,-345.18 991.33,-352.18"/>
+</g>
+<!-- proc~v_push_back~8 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node12" class="node">
+<title>proc~v_push_back~8</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node12"><a xlink:href=".././proc/v_push_back~8.html" xlink:title="pFIO_AbstractDataReferenceVectorMod::AbstractDataReferenceVector%v_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="851,-66 387,-66 387,-42 851,-42 851,-66"/>
+<text text-anchor="middle" x="619" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractDataReferenceVectorMod::AbstractDataReferenceVector%v_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~v_push_back~8 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge11" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~v_push_back~8</title>
+<path fill="none" stroke="#255000" d="M186.45,-376.96C215.01,-342.92 300.71,-244.33 387,-180 450.39,-132.75 533.65,-91.79 580.94,-70.22"/>
+<polygon fill="#255000" stroke="#255000" points="582.52,-73.35 590.19,-66.04 579.63,-66.97 582.52,-73.35"/>
+</g>
+<!-- proc~v_at_32~11 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node26" class="node">
+<title>proc~v_at_32~11</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node26"><a xlink:href=".././proc/v_at_32~11.html" xlink:title="pFIO_ServerThreadVectorMod::ServerThreadVector%v_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1279,-612 944,-612 944,-588 1279,-588 1279,-612"/>
+<text text-anchor="middle" x="1111.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ServerThreadVectorMod::ServerThreadVector%v_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~19&#45;&gt;proc~v_at_32~11 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge12" class="edge">
+<title>none~at~19&#45;&gt;proc~v_at_32~11</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M756.96,-569.01C821.26,-574.64 897.98,-581.37 963.5,-587.11"/>
+<polygon fill="transparent" stroke="transparent" points="963.23,-590.6 973.5,-587.99 963.84,-583.63 963.23,-590.6"/>
+</g>
+<!-- none~erase~18 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node20" class="node">
+<title>none~erase~18</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node20"><a xlink:href=".././type/messagevector.html#boundprocedure-erase~18" xlink:title="pFIO_MessageVectorMod::MessageVector%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="1247.5,-528 975.5,-528 975.5,-504 1247.5,-504 1247.5,-528"/>
+<text text-anchor="middle" x="1111.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MessageVectorMod::MessageVector%erase</text>
+</a>
+</g>
+</g>
+<!-- proc~clear_backlog&#45;&gt;none~erase~18 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge13" class="edge">
+<title>proc~clear_backlog&#45;&gt;none~erase~18</title>
+<path fill="none" stroke="#922550" d="M756.96,-485.01C821.8,-490.69 899.27,-497.48 965.15,-503.26"/>
+<polygon fill="#922550" stroke="#922550" points="964.93,-506.75 975.2,-504.14 965.54,-499.78 964.93,-506.75"/>
+</g>
+<!-- proc~v_begin~17 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node27" class="node">
+<title>proc~v_begin~17</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node27"><a xlink:href=".././proc/v_begin~17.html" xlink:title="pFIO_MessageVectorMod::MessageVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1253,-570 970,-570 970,-546 1253,-546 1253,-570"/>
+<text text-anchor="middle" x="1111.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MessageVectorMod::MessageVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~clear_backlog&#45;&gt;proc~v_begin~17 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge14" class="edge">
+<title>proc~clear_backlog&#45;&gt;proc~v_begin~17</title>
+<path fill="none" stroke="#922550" d="M769.69,-469.53C797.85,-473.54 826.2,-481.02 851,-494 873.08,-505.56 864.94,-525.41 887,-537 909.23,-548.68 934.44,-555.81 959.71,-559.94"/>
+<polygon fill="#922550" stroke="#922550" points="959.36,-563.43 969.77,-561.43 960.39,-556.51 959.36,-563.43"/>
+</g>
+<!-- none~at~22 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node19" class="node">
+<title>none~at~22</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node19"><a xlink:href=".././type/historycollectionvector.html#boundprocedure-at~22" xlink:title="pFIO_HistoryCollectionVectorMod::HistoryCollectionVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1282,-444 941,-444 941,-420 1282,-420 1282,-444"/>
+<text text-anchor="middle" x="1111.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_HistoryCollectionVectorMod::HistoryCollectionVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~clear_hist_collections&#45;&gt;none~at~22 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge15" class="edge">
+<title>proc~clear_hist_collections&#45;&gt;none~at~22</title>
+<path fill="none" stroke="#025546" d="M789.15,-431.34C834.83,-431.44 884.41,-431.54 930.66,-431.63"/>
+<polygon fill="#025546" stroke="#025546" points="930.77,-435.13 940.78,-431.65 930.79,-428.13 930.77,-435.13"/>
+</g>
+<!-- proc~clear -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node22" class="node">
+<title>proc~clear</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node22"><a xlink:href=".././proc/clear.html" xlink:title="pFIO_HistoryCollectionMod::HistoryCollection%clear">
+<polygon fill="#d9534f" stroke="#d9534f" points="1256.5,-486 966.5,-486 966.5,-462 1256.5,-462 1256.5,-486"/>
+<text text-anchor="middle" x="1111.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_HistoryCollectionMod::HistoryCollection%clear</text>
+</a>
+</g>
+</g>
+<!-- proc~clear_hist_collections&#45;&gt;proc~clear -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge16" class="edge">
+<title>proc~clear_hist_collections&#45;&gt;proc~clear</title>
+<path fill="none" stroke="#025546" d="M756.96,-443.01C821.26,-448.64 897.98,-455.37 963.5,-461.11"/>
+<polygon fill="#025546" stroke="#025546" points="963.23,-464.6 973.5,-461.99 963.84,-457.63 963.23,-464.6"/>
+</g>
+<!-- proc~clear_subarray&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge21" class="edge">
+<title>proc~clear_subarray&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025518" stroke-opacity="0.019608" d="M688.71,-297.01C742.53,-306.14 819.37,-318.51 887,-327 920.64,-331.22 957.23,-335 990.88,-338.15"/>
+<polygon fill="#025518" fill-opacity="0.019608" stroke="#025518" stroke-opacity="0.019608" points="990.94,-341.67 1001.22,-339.1 991.58,-334.7 990.94,-341.67"/>
+</g>
+<!-- at -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node13" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1138.5,-318 1084.5,-318 1084.5,-294 1138.5,-294 1138.5,-318"/>
+<text text-anchor="middle" x="1111.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~clear_subarray&#45;&gt;at -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge17" class="edge">
+<title>proc~clear_subarray&#45;&gt;at</title>
+<path fill="none" stroke="#025518" stroke-opacity="0.019608" d="M772.51,-291.53C878.32,-296.06 1011.13,-301.75 1074.13,-304.44"/>
+<polygon fill="#025518" fill-opacity="0.019608" stroke="#025518" stroke-opacity="0.019608" points="1074.2,-307.95 1084.34,-304.88 1074.5,-300.96 1074.2,-307.95"/>
+</g>
+<!-- begin -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node14" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="1138.5,-276 1084.5,-276 1084.5,-252 1138.5,-252 1138.5,-276"/>
+<text text-anchor="middle" x="1111.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~clear_subarray&#45;&gt;begin -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge18" class="edge">
+<title>proc~clear_subarray&#45;&gt;begin</title>
+<path fill="none" stroke="#025518" stroke-opacity="0.019608" d="M772.51,-278.47C878.32,-273.94 1011.13,-268.25 1074.13,-265.56"/>
+<polygon fill="#025518" fill-opacity="0.019608" stroke="#025518" stroke-opacity="0.019608" points="1074.5,-269.04 1084.34,-265.12 1074.2,-262.05 1074.5,-269.04"/>
+</g>
+<!-- erase -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node15" class="node">
+<title>erase</title>
+<polygon fill="#777777" stroke="#777777" points="1138.5,-234 1084.5,-234 1084.5,-210 1138.5,-210 1138.5,-234"/>
+<text text-anchor="middle" x="1111.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">erase</text>
+</g>
+<!-- proc~clear_subarray&#45;&gt;erase -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge19" class="edge">
+<title>proc~clear_subarray&#45;&gt;erase</title>
+<path fill="none" stroke="#025518" stroke-opacity="0.019608" d="M772.56,-280.64C799.11,-277.2 826.16,-271.94 851,-264 868.64,-258.36 869.36,-248.67 887,-243 950.55,-222.58 1029.1,-220.08 1074.14,-220.67"/>
+<polygon fill="#025518" fill-opacity="0.019608" stroke="#025518" stroke-opacity="0.019608" points="1074.24,-224.17 1084.3,-220.86 1074.37,-217.17 1074.24,-224.17"/>
+</g>
+<!-- mpi_type_free -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node17" class="node">
+<title>mpi_type_free</title>
+<polygon fill="#777777" stroke="#777777" points="1155.5,-192 1067.5,-192 1067.5,-168 1155.5,-168 1155.5,-192"/>
+<text text-anchor="middle" x="1111.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_type_free</text>
+</g>
+<!-- proc~clear_subarray&#45;&gt;mpi_type_free -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge20" class="edge">
+<title>proc~clear_subarray&#45;&gt;mpi_type_free</title>
+<path fill="none" stroke="#025518" stroke-opacity="0.019608" d="M772.59,-291.75C800.27,-287.41 827.71,-278.97 851,-264 878.13,-246.57 859.9,-218.47 887,-201 937.66,-168.34 1008.68,-167.48 1056.97,-171.91"/>
+<polygon fill="#025518" fill-opacity="0.019608" stroke="#025518" stroke-opacity="0.019608" points="1056.91,-175.42 1067.21,-172.96 1057.62,-168.46 1056.91,-175.42"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node25" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node25"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1218.5,-150 1004.5,-150 1004.5,-126 1218.5,-126 1218.5,-150"/>
+<text text-anchor="middle" x="1111.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~clear_subarray&#45;&gt;proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge22" class="edge">
+<title>proc~clear_subarray&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025518" stroke-opacity="0.019608" d="M687.77,-297.02C738,-301.98 805.39,-299.81 851,-264 889.8,-233.54 848.24,-189.52 887,-159 926,-128.29 981.51,-122.94 1027.46,-125.32"/>
+<polygon fill="#025518" fill-opacity="0.019608" stroke="#025518" stroke-opacity="0.019608" points="1027.5,-128.83 1037.71,-125.98 1027.96,-121.84 1027.5,-128.83"/>
+</g>
+<!-- none~at~14 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node18" class="node">
+<title>none~at~14</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node18"><a xlink:href=".././type/abstractdatareferencevector.html#boundprocedure-at~14" xlink:title="pFIO_AbstractDataReferenceVectorMod::AbstractDataReferenceVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1315,-108 908,-108 908,-84 1315,-84 1315,-108"/>
+<text text-anchor="middle" x="1111.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractDataReferenceVectorMod::AbstractDataReferenceVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datareference&#45;&gt;none~at~14 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge23" class="edge">
+<title>proc~get_datareference&#45;&gt;none~at~14</title>
+<path fill="none" stroke="#018525" stroke-opacity="0.019608" d="M687.77,-255.02C738,-259.98 805.39,-257.81 851,-222 889.8,-191.54 848.24,-147.52 887,-117 926,-86.29 981.51,-80.94 1027.46,-83.32"/>
+<polygon fill="#018525" fill-opacity="0.019608" stroke="#018525" stroke-opacity="0.019608" points="1027.5,-86.83 1037.71,-83.98 1027.96,-79.84 1027.5,-86.83"/>
+</g>
+<!-- proc~i_to_string&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge25" class="edge">
+<title>proc~i_to_string&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#920255" d="M701.55,-382.18C780.58,-375.58 901.36,-365.48 991.19,-357.97"/>
+<polygon fill="#920255" stroke="#920255" points="991.49,-361.46 1001.16,-357.14 990.9,-354.48 991.49,-361.46"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node16" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node16"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1220,-402 1003,-402 1003,-378 1220,-378 1220,-402"/>
+<text text-anchor="middle" x="1111.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~i_to_string&#45;&gt;interface~mapl_assert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge24" class="edge">
+<title>proc~i_to_string&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#920255" d="M701.55,-389.17C781.02,-389.33 902.72,-389.58 992.7,-389.76"/>
+<polygon fill="#920255" stroke="#920255" points="992.96,-393.26 1002.96,-389.78 992.97,-386.26 992.96,-393.26"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node23" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node23"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1625,-381 1372,-381 1372,-357 1625,-357 1625,-381"/>
+<text text-anchor="middle" x="1498.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M1221.54,-353.95C1265.14,-356.33 1315.83,-359.09 1361.78,-361.6"/>
+<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="1361.63,-365.09 1371.81,-362.14 1362.01,-358.1 1361.63,-365.09"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node24" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node24"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1613,-339 1384,-339 1384,-315 1613,-315 1613,-339"/>
+<text text-anchor="middle" x="1498.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M1221.54,-342.05C1268.96,-339.47 1324.77,-336.42 1373.74,-333.75"/>
+<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="1373.97,-337.24 1383.76,-333.2 1373.59,-330.25 1373.97,-337.24"/>
+</g>
+<!-- none~resize~12 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node21" class="node">
+<title>none~resize~12</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node21"><a xlink:href=".././type/abstractdatareferencevector.html#boundprocedure-resize~12" xlink:title="pFIO_AbstractDataReferenceVectorMod::AbstractDataReferenceVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="1325,-24 898,-24 898,0 1325,0 1325,-24"/>
+<text text-anchor="middle" x="1111.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractDataReferenceVectorMod::AbstractDataReferenceVector%resize</text>
+</a>
+</g>
+</g>
+<!-- proc~v_push_back~8&#45;&gt;none~resize~12 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge28" class="edge">
+<title>proc~v_push_back~8&#45;&gt;none~resize~12</title>
+<path fill="none" stroke="#255013" stroke-opacity="0.035294" d="M760.23,-41.99C822.71,-36.64 896.41,-30.33 960.04,-24.88"/>
+<polygon fill="#255013" fill-opacity="0.035294" stroke="#255013" stroke-opacity="0.035294" points="960.5,-28.36 970.17,-24.02 959.9,-21.38 960.5,-28.36"/>
+</g>
+<!-- proc~v_grow_to~8 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node28" class="node">
+<title>proc~v_grow_to~8</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node28"><a xlink:href=".././proc/v_grow_to~8.html" xlink:title="pFIO_AbstractDataReferenceVectorMod::AbstractDataReferenceVector%v_grow_to">
+<polygon fill="#d9534f" stroke="#d9534f" points="1336,-66 887,-66 887,-42 1336,-42 1336,-66"/>
+<text text-anchor="middle" x="1111.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractDataReferenceVectorMod::AbstractDataReferenceVector%v_grow_to</text>
+</a>
+</g>
+</g>
+<!-- proc~v_push_back~8&#45;&gt;proc~v_grow_to~8 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge29" class="edge">
+<title>proc~v_push_back~8&#45;&gt;proc~v_grow_to~8</title>
+<path fill="none" stroke="#255013" stroke-opacity="0.035294" d="M851.25,-54C859.63,-54 868.04,-54 876.42,-54"/>
+<polygon fill="#255013" fill-opacity="0.035294" stroke="#255013" stroke-opacity="0.035294" points="876.64,-57.5 886.64,-54 876.64,-50.5 876.64,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocput_datatofile6CallsGraph = svgPanZoom('#procput_datatofile6CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~put_datatofile~6~~CalledByGraph Pages: 1 -->
+<svg id="procput_datatofile6CalledByGraph" width="641pt" height="30pt"
+ viewBox="0.00 0.00 641.00 29.60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~put_datatofile~6~~CalledByGraph" class="graph" transform="scale(1.08 1.08) rotate(0) translate(4 28)">
+<title>proc~~put_datatofile~6~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 689,-28 689,4 -4,4"/>
+<!-- proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node1" class="node">
+<title>proc~put_datatofile~6</title>
+<polygon fill="none" stroke="black" points="685,-24 334,-24 334,0 685,0 685,-24"/>
+<text text-anchor="middle" x="509.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_MultiCommServerMod::MultiCommServer%put_DataToFile</text>
+</g>
+<!-- proc~start~7 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node2" class="node">
+<title>proc~start~7</title>
+<g id="a_proc~~put_datatofile~6~~CalledByGraph_node2"><a xlink:href=".././proc/start~7.html" xlink:title="pFIO_MultiCommServerMod::MultiCommServer%start">
+<polygon fill="#d9534f" stroke="#d9534f" points="298,-24 0,-24 0,0 298,0 298,-24"/>
+<text text-anchor="middle" x="149" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MultiCommServerMod::MultiCommServer%start</text>
+</a>
+</g>
+</g>
+<!-- proc~start~7&#45;&gt;proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_edge1" class="edge">
+<title>proc~start~7&#45;&gt;proc~put_datatofile~6</title>
+<path fill="none" stroke="#255000" d="M298.14,-12C306.6,-12 315.14,-12 323.7,-12"/>
+<polygon fill="#255000" stroke="#255000" points="323.76,-15.5 333.76,-12 323.76,-8.5 323.76,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocput_datatofile6CalledByGraph = svgPanZoom('#procput_datatofile6CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">put_DataToFile</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MultiCommServer</span><span class="p">),</span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">n</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">threadPtr</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i_ptr</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection_counter</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataReference</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dataRefPtr</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">LocalMemReference</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">memdataPtr</span><span class="o">=&gt;</span><span class="nb">null</span><span class="p">()</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">msize</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_clients</span><span class="p">,</span><span class="w"> </span><span class="n">l_rank</span><span class="p">,</span><span class="w"> </span><span class="n">w_rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">,</span><span class="w"> </span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">     </span><span class="c">!real(KIND=REAL64) :: t0, t1</span>
+
+<span class="w">     </span><span class="c">!t0 = 0.0d0</span>
+<span class="w">     </span><span class="c">!t1 = -1.0d0</span>
+<span class="w">     </span><span class="n">num_clients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_clients</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">     </span><span class="k">endif</span>
+
+
+<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">back_comm</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MPI_COMM_NULL</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">        call </span><span class="n">MPI_comm_rank</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">back_comm</span><span class="p">,</span><span class="w"> </span><span class="n">l_rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">        </span><span class="c">! copy and save the data</span>
+<span class="w">        </span><span class="k">do </span><span class="n">collection_counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">dataRefPtrs</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">              </span><span class="n">dataRefPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_dataReference</span><span class="p">(</span><span class="n">collection_counter</span><span class="p">)</span>
+<span class="w">              </span><span class="n">msize</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">MSIZE_ID</span><span class="o">+</span><span class="n">collection_counter</span><span class="p">))</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">dataRefPtr</span><span class="p">%</span><span class="n">base_address</span><span class="p">,</span><span class="n">i_ptr</span><span class="p">,</span><span class="nb">shape</span><span class="o">=</span><span class="p">[</span><span class="n">msize</span><span class="p">])</span>
+<span class="w">              </span><span class="n">w_rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_writing_PE</span><span class="p">(</span><span class="n">collection_counter</span><span class="p">)</span>
+<span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">w_rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">back_ranks</span><span class="p">(</span><span class="n">l_rank</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">!</span>
+<span class="w">                 </span><span class="k">allocate</span><span class="p">(</span><span class="n">memdataPtr</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalMemReference</span><span class="p">(</span><span class="n">i_ptr</span><span class="p">))</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">MemdataRefPtrs</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">memdataPtr</span><span class="p">)</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="w">                 </span><span class="c">! push null ptr, make sure the total is collection_total</span>
+<span class="w">                 </span><span class="k">allocate</span><span class="p">(</span><span class="n">memdataPtr</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalMemReference</span><span class="p">(</span><span class="n">empty</span><span class="p">))</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">MemdataRefPtrs</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">memdataPtr</span><span class="p">)</span>
+<span class="w">              </span><span class="k">endif</span>
+<span class="k">              </span><span class="n">memdataPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">         </span><span class="k">enddo</span>
+
+<span class="k">     endif</span>
+
+<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">front_comm</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MPI_COMM_NULL</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">num_clients</span>
+<span class="w">           </span><span class="n">threadPtr</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_backlog</span><span class="p">()</span>
+<span class="w">           </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_hist_collections</span><span class="p">()</span>
+<span class="w">           </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_subarray</span><span class="p">()</span>
+<span class="w">        </span><span class="k">enddo</span><span class="w"> </span><span class="c">! threads</span>
+<span class="w">     </span><span class="k">endif</span>
+<span class="w">     </span><span class="c">!if( t1-t0 &gt; 0) then</span>
+<span class="w">     </span><span class="c">!   print*, &quot;this rank&quot;,this%rank,&quot;spending &quot;, t1-t0, &quot; seconds writing&quot;</span>
+<span class="w">     </span><span class="c">!endif</span>
+<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">put_DataToFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T15:53:13.082079             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

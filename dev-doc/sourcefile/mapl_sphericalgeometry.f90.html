@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_SphericalGeometry.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_SphericalGeometry.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for source files.">207 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_SphericalGeometry.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MAPL_SphericalGeometry.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_sphericalgeometry.html">MAPL_SphericalGeometry</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mapl_sphericalgeometry.f90.html#src">MAPL_SphericalGeometry.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_sphericalgeometryf90EfferentGraph" width="641pt" height="173pt"
+ viewBox="0.00 0.00 641.00 173.29" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph" class="graph" transform="scale(1.07 1.07) rotate(0) translate(4 182)">
+<title>sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-182 684,-182 684,4 -4,4"/>
+<!-- sourcefile~mapl_sphericalgeometry.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~mapl_sphericalgeometry.f90</title>
+<polygon fill="none" stroke="black" points="680,-66 509,-66 509,-42 680,-42 680,-66"/>
+<text text-anchor="middle" x="594.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SphericalGeometry.F90</text>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="438.5,-118 350.5,-118 350.5,-94 438.5,-94 438.5,-118"/>
+<text text-anchor="middle" x="394.5" y="-103.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_sphericalgeometry.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~mapl_sphericalgeometry.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M547.58,-66.06C517.99,-73.83 479.43,-83.96 448.54,-92.07"/>
+<polygon fill="#255000" stroke="#255000" points="447.58,-88.7 438.8,-94.63 449.36,-95.47 447.58,-88.7"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~mapl_errorhandling.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node3"><a xlink:href=".././sourcefile/mapl_errorhandling.f90.html" xlink:title="MAPL_ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="466,-66 323,-66 323,-42 466,-42 466,-66"/>
+<text text-anchor="middle" x="394.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_sphericalgeometry.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~mapl_sphericalgeometry.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M508.96,-54C498.12,-54 487.05,-54 476.28,-54"/>
+<polygon fill="#255000" stroke="#255000" points="476.07,-50.5 466.07,-54 476.07,-57.5 476.07,-50.5"/>
+</g>
+<!-- sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node4"><a xlink:href=".././sourcefile/mapl_keywordenforcer.f90.html" xlink:title="MAPL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="473,-24 316,-24 316,0 473,0 473,-24"/>
+<text text-anchor="middle" x="394.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_sphericalgeometry.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_sphericalgeometry.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M536.76,-41.96C513.46,-37.02 486.31,-31.26 462.08,-26.12"/>
+<polygon fill="#255000" stroke="#255000" points="462.76,-22.69 452.25,-24.04 461.3,-29.54 462.76,-22.69"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node5"><a xlink:href=".././sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279.5,-178 150.5,-178 150.5,-154 279.5,-154 279.5,-178"/>
+<text text-anchor="middle" x="215" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M357.58,-118.14C329.82,-127.53 291.22,-140.57 261.34,-150.68"/>
+<polygon fill="#255000" stroke="#255000" points="259.92,-147.46 251.56,-153.98 262.16,-154.09 259.92,-147.46"/>
+</g>
+<!-- sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~mathconstants.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node7"><a xlink:href=".././sourcefile/mathconstants.f90.html" xlink:title="MathConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="114,-118 0,-118 0,-94 114,-94 114,-118"/>
+<text text-anchor="middle" x="57" y="-103.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MathConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~mathconstants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M350.38,-106.47C329.18,-106.68 303.25,-106.9 280,-107 222.22,-107.25 207.78,-107.31 150,-107 141.73,-106.96 133.05,-106.89 124.46,-106.81"/>
+<polygon fill="#255000" stroke="#255000" points="124.47,-103.31 114.44,-106.71 124.4,-110.31 124.47,-103.31"/>
+</g>
+<!-- sourcefile~physicalconstants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~physicalconstants.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node8"><a xlink:href=".././sourcefile/physicalconstants.f90.html" xlink:title="PhysicalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="280,-98 150,-98 150,-74 280,-74 280,-98"/>
+<text text-anchor="middle" x="215" y="-83.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PhysicalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~physicalconstants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~physicalconstants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M350.08,-101.11C332.08,-99.08 310.68,-96.67 290.32,-94.37"/>
+<polygon fill="#255000" stroke="#255000" points="290.44,-90.87 280.11,-93.22 289.66,-97.82 290.44,-90.87"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_node6"><a xlink:href=".././sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="265,-56 165,-56 165,-32 265,-32 265,-56"/>
+<text text-anchor="middle" x="215" y="-41.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M322.84,-50.02C307.13,-49.13 290.63,-48.2 275.42,-47.35"/>
+<polygon fill="#025500" stroke="#025500" points="275.31,-43.84 265.13,-46.77 274.91,-50.82 275.31,-43.84"/>
+</g>
+<!-- sourcefile~physicalconstants.f90&#45;&gt;sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~physicalconstants.f90&#45;&gt;sourcefile~mathconstants.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M149.65,-94.25C141.29,-95.32 132.73,-96.42 124.34,-97.49"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="123.7,-94.05 114.23,-98.79 124.59,-100.99 123.7,-94.05"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemapl_sphericalgeometryf90EfferentGraph = svgPanZoom('#sourcefilemapl_sphericalgeometryf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#EfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_sphericalgeometryf90AfferentGraph" width="641pt" height="188pt"
+ viewBox="0.00 0.00 641.00 187.91" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph" class="graph" transform="scale(2.05 2.05) rotate(0) translate(4 381.5)">
+<title>sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-381.5 1311,-381.5 1311,4 -4,4"/>
+<!-- sourcefile~mapl_sphericalgeometry.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mapl_sphericalgeometry.f90</title>
+<polygon fill="none" stroke="black" points="171,-108 0,-108 0,-84 171,-84 171,-108"/>
+<text text-anchor="middle" x="85.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SphericalGeometry.F90</text>
+</g>
+<!-- sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~base.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/base.f90.html" xlink:title="Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="329,-129 268,-129 268,-105 329,-105 329,-129"/>
+<text text-anchor="middle" x="298.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~mapl_sphericalgeometry.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~mapl_sphericalgeometry.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M267.72,-114.04C245.06,-111.78 212.57,-108.55 181.33,-105.44"/>
+<polygon fill="#255000" stroke="#255000" points="181.54,-101.94 171.24,-104.43 180.85,-108.91 181.54,-101.94"/>
+</g>
+<!-- sourcefile~base_base_implementation.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~base_base_implementation.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/base_base_implementation.f90.html" xlink:title="Base_Base_implementation.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="390,-87 207,-87 207,-63 390,-63 390,-87"/>
+<text text-anchor="middle" x="298.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base_implementation.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base_implementation.f90&#45;&gt;sourcefile~mapl_sphericalgeometry.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~base_base_implementation.f90&#45;&gt;sourcefile~mapl_sphericalgeometry.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M206.79,-84.03C198.28,-84.87 189.64,-85.73 181.1,-86.59"/>
+<polygon fill="#255000" stroke="#255000" points="180.73,-83.1 171.12,-87.58 181.42,-90.07 180.73,-83.1"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="545,-234 481,-234 481,-210 545,-210 545,-234"/>
+<text text-anchor="middle" x="513" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M480.91,-217.11C464.18,-213.81 443.46,-208.65 426,-201 386.69,-183.78 346.21,-154.49 321.96,-135.45"/>
+<polygon fill="#255000" stroke="#255000" points="324.09,-132.67 314.08,-129.17 319.72,-138.14 324.09,-132.67"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="600,-192 426,-192 426,-168 600,-168 600,-192"/>
+<text text-anchor="middle" x="513" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M459.52,-167.9C448.41,-165.14 436.78,-162.1 426,-159 396.45,-150.5 363.5,-139.51 338.64,-130.91"/>
+<polygon fill="#255000" stroke="#255000" points="339.79,-127.6 329.19,-127.62 337.48,-134.21 339.79,-127.6"/>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~test_cfio_bundle.pf</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/test_cfio_bundle.pf.html" xlink:title="Test_CFIO_Bundle.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="572.5,-150 453.5,-150 453.5,-126 572.5,-126 572.5,-150"/>
+<text text-anchor="middle" x="513" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CFIO_Bundle.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M453.37,-132.21C417.17,-128.63 371.67,-124.13 339.56,-120.96"/>
+<polygon fill="#255000" stroke="#255000" points="339.52,-117.44 329.22,-119.94 338.83,-124.4 339.52,-117.44"/>
+</g>
+<!-- sourcefile~tstqsat.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~tstqsat.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/tstqsat.f90.html" xlink:title="tstqsat.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="548,-108 478,-108 478,-84 548,-84 548,-108"/>
+<text text-anchor="middle" x="513" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tstqsat.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M477.86,-99.37C440.06,-103.11 379.2,-109.12 339.27,-113.07"/>
+<polygon fill="#255000" stroke="#255000" points="338.71,-109.61 329.1,-114.07 339.4,-116.57 338.71,-109.61"/>
+</g>
+<!-- sourcefile~ut_extdata.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~ut_extdata.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/ut_extdata.f90.html" xlink:title="ut_ExtData.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="559.5,-66 466.5,-66 466.5,-42 559.5,-42 559.5,-66"/>
+<text text-anchor="middle" x="513" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ExtData.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M466.15,-62.61C452.94,-65.78 438.68,-69.88 426,-75 408.82,-81.94 407.22,-89.16 390,-96 373.89,-102.4 355.36,-107.12 339.28,-110.46"/>
+<polygon fill="#255000" stroke="#255000" points="338.25,-107.09 329.11,-112.45 339.6,-113.96 338.25,-107.09"/>
+</g>
+<!-- sourcefile~utcfio_bundle.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~utcfio_bundle.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/utcfio_bundle.f90.html" xlink:title="utCFIO_Bundle.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="569.5,-24 456.5,-24 456.5,0 569.5,0 569.5,-24"/>
+<text text-anchor="middle" x="513" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO_Bundle.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M456.28,-18.63C445.51,-21.77 434.84,-26.34 426,-33 400.24,-52.4 415.87,-76.75 390,-96 375.53,-106.77 356.44,-112.13 339.53,-114.77"/>
+<polygon fill="#255000" stroke="#255000" points="338.81,-111.33 329.33,-116.07 339.7,-118.27 338.81,-111.33"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="787,-356 642,-356 642,-332 787,-332 787,-356"/>
+<text text-anchor="middle" x="714.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M668.95,-331.96C657.87,-328.18 646.24,-323.53 636,-318 596.54,-296.69 556.84,-262.53 533.88,-241.22"/>
+<polygon fill="#255000" stroke="#255000" points="536.16,-238.57 526.48,-234.26 531.37,-243.67 536.16,-238.57"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1307,-296 1198,-296 1198,-272 1307,-272 1307,-296"/>
+<text text-anchor="middle" x="1252.5" y="-281.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1094.5,-364C978.14,-385.37 941.66,-381.09 829,-345 811.14,-339.28 810.31,-330.21 793,-323 760.26,-309.37 750.25,-311.1 715.5,-304"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node12"><a xlink:href=".././sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="993,-336 829,-336 829,-312 993,-312 993,-336"/>
+<text text-anchor="middle" x="911" y="-321.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1235.93,-296.07C1209.23,-315.8 1152.2,-353.77 1096.5,-364"/>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1094.5,-364C1069.22,-368.64 1005.27,-352.2 960.24,-339"/>
+<polygon fill="transparent" stroke="transparent" points="960.95,-335.57 950.37,-336.08 958.96,-342.28 960.95,-335.57"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node13"><a xlink:href=".././sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1162,-296 1029,-296 1029,-272 1162,-272 1162,-296"/>
+<text text-anchor="middle" x="1095.5" y="-281.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90</title>
+<path fill="none" stroke="#512550" stroke-dasharray="5,2" d="M1197.72,-284C1189.49,-284 1180.86,-284 1172.26,-284"/>
+<polygon fill="#512550" stroke="#512550" points="1172.21,-280.5 1162.21,-284 1172.21,-287.5 1172.21,-280.5"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~extdataroot_gridcomp.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node14"><a xlink:href=".././sourcefile/extdataroot_gridcomp.f90.html" xlink:title="ExtDataRoot_GridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="991,-256 831,-256 831,-232 991,-232 991,-256"/>
+<text text-anchor="middle" x="911" y="-241.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataRoot_GridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1206.24,-271.95C1192.15,-268.58 1176.51,-265.24 1162,-263 1108.99,-254.82 1049.08,-250.11 1001.2,-247.43"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1001.35,-243.93 991.17,-246.88 1000.97,-250.92 1001.35,-243.93"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M828.6,-318.94C793.58,-315.91 752.31,-311.2 715.5,-304"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1028.89,-289.21C928.52,-296.91 745.29,-309.83 715.5,-304"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1039.74,-296C1019.98,-300.33 997.49,-305.26 976.94,-309.77"/>
+<polygon fill="transparent" stroke="transparent" points="976.05,-306.38 967.03,-311.94 977.55,-313.22 976.05,-306.38"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1039.74,-272C1019.98,-267.67 997.49,-262.74 976.94,-258.23"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="977.55,-254.78 967.03,-256.06 976.05,-261.62 977.55,-254.78"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M870.22,-256.03C857.02,-260.22 842.31,-265.1 829,-270 779.58,-288.19 767.18,-314.11 715.5,-304"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M713.5,-304C678.7,-297.19 669.21,-297.45 636,-285 602.75,-272.54 566.88,-253.25 542.71,-239.29"/>
+<polygon fill="#255000" stroke="#255000" points="544.44,-236.26 534.04,-234.23 540.91,-242.3 544.44,-236.26"/>
+</g>
+<!-- sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~varspecdescription.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node19"><a xlink:href=".././sourcefile/varspecdescription.f90.html" xlink:title="VarspecDescription.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="783.5,-276 645.5,-276 645.5,-252 783.5,-252 783.5,-276"/>
+<text text-anchor="middle" x="714.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarspecDescription.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90</title>
+<path fill="none" stroke="#255015" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M830.89,-252.13C818.65,-253.39 806.01,-254.69 793.78,-255.95"/>
+<polygon fill="#255015" fill-opacity="0.007843" stroke="#255015" stroke-opacity="0.007843" points="793.22,-252.49 783.63,-256.99 793.93,-259.45 793.22,-252.49"/>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mapl_demo_fargparse.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node15"><a xlink:href=".././sourcefile/mapl_demo_fargparse.f90.html" xlink:title="MAPL_demo_fargparse.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="793,-234 636,-234 636,-210 793,-210 793,-234"/>
+<text text-anchor="middle" x="714.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_demo_fargparse.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M635.8,-222C608.38,-222 578.62,-222 555.38,-222"/>
+<polygon fill="#255000" stroke="#255000" points="555.19,-218.5 545.19,-222 555.19,-225.5 555.19,-218.5"/>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~pfio_mapl_demo.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node16"><a xlink:href=".././sourcefile/pfio_mapl_demo.f90.html" xlink:title="pfio_MAPL_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="776.5,-192 652.5,-192 652.5,-168 776.5,-168 776.5,-192"/>
+<text text-anchor="middle" x="714.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfio_MAPL_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M656.33,-192.04C623.99,-198.84 584.3,-207.2 555.05,-213.36"/>
+<polygon fill="#255000" stroke="#255000" points="554.24,-209.95 545.17,-215.44 555.68,-216.8 554.24,-209.95"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node17"><a xlink:href=".././sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="760.5,-150 668.5,-150 668.5,-126 760.5,-126 760.5,-150"/>
+<text text-anchor="middle" x="714.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M668.15,-145.46C657.09,-148.55 645.66,-152.9 636,-159 615.21,-172.13 620.95,-188.13 600,-201 586.59,-209.24 570.16,-214.24 555.26,-217.29"/>
+<polygon fill="#255000" stroke="#255000" points="554.46,-213.87 545.24,-219.1 555.71,-220.76 554.46,-213.87"/>
+</g>
+<!-- sourcefile~time_ave_util.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~time_ave_util.f90</title>
+<g id="a_sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_node18"><a xlink:href=".././sourcefile/time_ave_util.f90.html" xlink:title="time_ave_util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="767.5,-108 661.5,-108 661.5,-84 767.5,-84 767.5,-108"/>
+<text text-anchor="middle" x="714.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave_util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M661.48,-103.15C652.24,-106.26 643.26,-110.69 636,-117 605.34,-143.64 631,-174.75 600,-201 587.59,-211.51 570.74,-216.92 555.25,-219.65"/>
+<polygon fill="#255000" stroke="#255000" points="554.72,-216.19 545.33,-221.08 555.72,-223.12 554.72,-216.19"/>
+</g>
+<!-- sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_sphericalgeometry.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M656.33,-251.96C623.99,-245.16 584.3,-236.8 555.05,-230.64"/>
+<polygon fill="#255000" stroke="#255000" points="555.68,-227.2 545.17,-228.56 554.24,-234.05 555.68,-227.2"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemapl_sphericalgeometryf90AfferentGraph = svgPanZoom('#sourcefilemapl_sphericalgeometryf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#AfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">MAPL_SphericalGeometry</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_KeywordEnforcerMod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_Constants</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">REAL64</span><span class="p">,</span><span class="n">REAL32</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="k">implicit none</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="k">private</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="k">public </span><span class="n">get_points_in_spherical_domain</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="k">public </span><span class="n">get_area_spherical_polygon</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="k">contains</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w"> </span><span class="c">! get area of spherical rectangle given the four corners</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w"> </span><span class="c">! p4 ------ p3</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w"> </span><span class="c">!    |    |</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w"> </span><span class="c">!    |    |</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w"> </span><span class="c">!    |    |</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w"> </span><span class="c">! p1 ------ p2</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w"> </span><span class="k">function </span><span class="n">get_area_spherical_polygon</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p4</span><span class="p">,</span><span class="n">p2</span><span class="p">,</span><span class="n">p3</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">area</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p1</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">p2</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">p3</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">p4</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">    </span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">e2</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">e3</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ang1</span><span class="p">,</span><span class="n">ang2</span><span class="p">,</span><span class="n">ang3</span><span class="p">,</span><span class="n">ang4</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">    </span><span class="n">e1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">    </span><span class="n">e2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">    </span><span class="n">e3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p4</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">    </span><span class="n">ang1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spherical_angles</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span><span class="w"> </span><span class="n">e2</span><span class="p">,</span><span class="w"> </span><span class="n">e3</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">    </span><span class="n">e1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">    </span><span class="n">e2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p3</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">    </span><span class="n">e3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">    </span><span class="n">ang2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spherical_angles</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span><span class="w"> </span><span class="n">e2</span><span class="p">,</span><span class="w"> </span><span class="n">e3</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">    </span><span class="n">e1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p3</span><span class="p">)</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">    </span><span class="n">e2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p4</span><span class="p">)</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">    </span><span class="n">e3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">    </span><span class="n">ang3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spherical_angles</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span><span class="w"> </span><span class="n">e2</span><span class="p">,</span><span class="w"> </span><span class="n">e3</span><span class="p">)</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">    </span><span class="n">e1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p4</span><span class="p">)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">    </span><span class="n">e2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p3</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">    </span><span class="n">e3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">    </span><span class="n">ang4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spherical_angles</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span><span class="w"> </span><span class="n">e2</span><span class="p">,</span><span class="w"> </span><span class="n">e3</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">    </span><span class="n">area</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ang1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ang2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ang3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ang4</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0d0</span><span class="o">*</span><span class="n">MAPL_PI_R8</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w"> </span><span class="k">end function </span><span class="n">get_area_spherical_polygon</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w"> </span><span class="k">subroutine </span><span class="n">get_points_in_spherical_domain</span><span class="p">(</span><span class="n">center_lons</span><span class="p">,</span><span class="n">center_lats</span><span class="p">,</span><span class="n">corner_lons</span><span class="p">,</span><span class="n">corner_lats</span><span class="p">,</span><span class="n">lons</span><span class="p">,</span><span class="n">lats</span><span class="p">,</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">center_lats</span><span class="p">(:,:),</span><span class="n">center_lons</span><span class="p">(:,:)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corner_lats</span><span class="p">(:,:),</span><span class="n">corner_lons</span><span class="p">(:,:)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(:),</span><span class="n">lats</span><span class="p">(:)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ii</span><span class="p">(:),</span><span class="n">jj</span><span class="p">(:)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npts</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">niter</span><span class="p">,</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">,</span><span class="n">iub</span><span class="p">,</span><span class="n">jub</span><span class="p">,</span><span class="n">ifound</span><span class="p">,</span><span class="n">jfound</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lold</span><span class="p">,</span><span class="n">uold</span><span class="p">,</span><span class="n">lnew</span><span class="p">,</span><span class="n">unew</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">in_region</span><span class="p">,</span><span class="n">in_sub_region</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">    </span><span class="n">npts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span><span class="o">==</span><span class="n">size</span><span class="p">(</span><span class="n">lons</span><span class="p">),</span><span class="s2">&quot;lats and lons do not match&quot;</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">npts</span><span class="o">==</span><span class="n">size</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span><span class="s2">&quot;size of ii does not match&quot;</span><span class="p">)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">npts</span><span class="o">==</span><span class="n">size</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span><span class="s2">&quot;size of jj does not match&quot;</span><span class="p">)</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">    </span><span class="n">im</span><span class="o">=</span><span class="n">size</span><span class="p">(</span><span class="n">corner_lons</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">    </span><span class="n">jm</span><span class="o">=</span><span class="n">size</span><span class="p">(</span><span class="n">corner_lons</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">    </span><span class="n">niter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">npts</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">       </span><span class="n">ifound</span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">       </span><span class="n">jfound</span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">       </span><span class="n">ilb</span><span class="o">=</span><span class="mi">1</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">       </span><span class="n">iub</span><span class="o">=</span><span class="n">im</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">       </span><span class="n">jlb</span><span class="o">=</span><span class="mi">1</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">       </span><span class="n">jub</span><span class="o">=</span><span class="n">jm</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">       </span><span class="n">in_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">point_in_polygon</span><span class="p">([</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">)],[</span><span class="n">center_lons</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">center_lats</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w">  </span><span class="p">&amp;</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">           </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">           </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">iub</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">iub</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">           </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">iub</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">iub</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">           </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_region</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">          </span><span class="c">! bisect first dimension</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">          </span><span class="n">lnew</span><span class="o">=</span><span class="n">ilb</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">          </span><span class="n">unew</span><span class="o">=</span><span class="n">iub</span><span class="w"> </span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">          </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">niter</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">             </span><span class="n">lold</span><span class="o">=</span><span class="n">lnew</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">             </span><span class="n">uold</span><span class="o">=</span><span class="n">unew</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">             </span><span class="n">unew</span><span class="o">=</span><span class="n">lold</span><span class="o">+</span><span class="p">(</span><span class="n">uold</span><span class="o">-</span><span class="n">lold</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">             </span><span class="n">in_sub_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">point_in_polygon</span><span class="p">([</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">)],</span><span class="w"> </span><span class="p">[</span><span class="n">center_lons</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">center_lats</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_sub_region</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="k">               </span><span class="n">lnew</span><span class="o">=</span><span class="n">lold</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">               </span><span class="n">unew</span><span class="o">=</span><span class="n">unew</span><span class="w"> </span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">             </span><span class="k">else</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="k">               </span><span class="n">lnew</span><span class="o">=</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">               </span><span class="n">unew</span><span class="o">=</span><span class="n">uold</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">             </span><span class="k">end if</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">unew</span><span class="o">==</span><span class="n">lnew</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="k">                </span><span class="n">ifound</span><span class="o">=</span><span class="n">unew</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">                </span><span class="k">exit</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="k">             end if</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="k">          enddo</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">          </span><span class="c">! bisect 2nd dimension</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">          </span><span class="n">lnew</span><span class="o">=</span><span class="n">jlb</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">          </span><span class="n">unew</span><span class="o">=</span><span class="n">jub</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">          </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">niter</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">             </span><span class="n">lold</span><span class="o">=</span><span class="n">lnew</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">             </span><span class="n">uold</span><span class="o">=</span><span class="n">unew</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">             </span><span class="n">unew</span><span class="o">=</span><span class="n">lold</span><span class="o">+</span><span class="p">(</span><span class="n">uold</span><span class="o">-</span><span class="n">lold</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">             </span><span class="n">in_sub_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">point_in_polygon</span><span class="p">([</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">)],</span><span class="w"> </span><span class="p">[</span><span class="n">center_lons</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">lnew</span><span class="p">),</span><span class="n">center_lats</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">lnew</span><span class="p">)]</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">lnew</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">lnew</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ifound</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">lnew</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ifound</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">lnew</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ifound</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ifound</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_sub_region</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="k">               </span><span class="n">lnew</span><span class="o">=</span><span class="n">lold</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">               </span><span class="n">unew</span><span class="o">=</span><span class="n">unew</span><span class="w"> </span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">             </span><span class="k">else</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="k">               </span><span class="n">lnew</span><span class="o">=</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">               </span><span class="n">unew</span><span class="o">=</span><span class="n">uold</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">             </span><span class="k">end if</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">unew</span><span class="o">==</span><span class="n">lnew</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="k">                </span><span class="n">jfound</span><span class="o">=</span><span class="n">unew</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">                </span><span class="k">exit</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="k">             end if</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="k">          enddo</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="k">       end if</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="k">       </span><span class="n">ii</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">ifound</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">       </span><span class="n">jj</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">jfound</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">    </span><span class="k">enddo</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">         </span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w"> </span><span class="k">end subroutine </span><span class="n">get_points_in_spherical_domain</span><span class="w"> </span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w"> </span><span class="k">function </span><span class="n">point_in_polygon</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span><span class="n">pinside</span><span class="p">,</span><span class="n">a1</span><span class="p">,</span><span class="n">a2</span><span class="p">,</span><span class="n">a3</span><span class="p">,</span><span class="n">a4</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">in_poly</span><span class="p">)</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p0</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">pinside</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">a1</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">a2</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">a3</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">a4</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">in_poly</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w"> </span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p1c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">p2c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a1c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a2c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a3c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a4c</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">intersect</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">    </span><span class="n">p1c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p0</span><span class="p">)</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">    </span><span class="n">p2c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">pinside</span><span class="p">)</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">    </span><span class="n">a1c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">    </span><span class="n">a2c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">a2</span><span class="p">)</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">    </span><span class="n">a3c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">a3</span><span class="p">)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">    </span><span class="n">a4c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">a4</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">    </span><span class="n">intersect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">p1c</span><span class="p">,</span><span class="n">p2c</span><span class="p">,</span><span class="n">a1c</span><span class="p">,</span><span class="n">a2c</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">    </span><span class="n">intersect</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">p1c</span><span class="p">,</span><span class="n">p2c</span><span class="p">,</span><span class="n">a2c</span><span class="p">,</span><span class="n">a3c</span><span class="p">)</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">    </span><span class="n">intersect</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">p1c</span><span class="p">,</span><span class="n">p2c</span><span class="p">,</span><span class="n">a3c</span><span class="p">,</span><span class="n">a4c</span><span class="p">)</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">    </span><span class="n">intersect</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">p1c</span><span class="p">,</span><span class="n">p2c</span><span class="p">,</span><span class="n">a4c</span><span class="p">,</span><span class="n">a1c</span><span class="p">)</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">mod</span><span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="n">intersect</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="k">       </span><span class="n">in_poly</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="k">       </span><span class="n">in_poly</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">    </span><span class="k">end if</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a>
+<a id="ln-165" name="ln-165" href="#ln-165"></a>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="k"> end function </span><span class="n">point_in_polygon</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="c">! it is claimed this should work but doesn&#39;t</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w"> </span><span class="c">!function point_in_polygon_crosprod(p1,a1,a2,a3,a4) result(in_poly)</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">    </span><span class="c">!real(real64), intent(in) :: p1(2),a1(2),a2(2),a3(2),a4(2)</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">    </span><span class="c">!logical :: in_poly</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w"> </span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">    </span><span class="c">!real(real64) :: p1c(3),a1c(3),a2c(3),a3c(3),a4c(3)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">    </span><span class="c">!real(real64) :: crs12(3),crs23(3),crs34(3),crs41(3)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">    </span><span class="c">!real(real64) :: d12,d23,d34,d41</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">    </span><span class="c">!logical :: signs(4)</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">    </span><span class="c">! a1 -&gt; a2 -&gt; a3 -&gt; a4 so a4 connects to a1</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">    </span><span class="c">!p1c=convert_to_cart(p1)</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">    </span><span class="c">!a1c=convert_to_cart(a1)</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">    </span><span class="c">!a2c=convert_to_cart(a2)</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">    </span><span class="c">!a3c=convert_to_cart(a3)</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">    </span><span class="c">!a4c=convert_to_cart(a4)</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">    </span><span class="c">!crs12 = cross_prod(a1c,a2c)</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">    </span><span class="c">!crs23 = cross_prod(a2c,a3c)</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">    </span><span class="c">!crs34 = cross_prod(a3c,a4c)</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">    </span><span class="c">!crs41 = cross_prod(a4c,a1c)</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">    </span><span class="c">!d12=dot_product(p1c,crs12)</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">    </span><span class="c">!d23=dot_product(p1c,crs23)</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">    </span><span class="c">!d34=dot_product(p1c,crs34)</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">    </span><span class="c">!d41=dot_product(p1c,crs41)</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">    </span><span class="c">!signs(1)= (d12&lt;0.0)</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">    </span><span class="c">!signs(2)= (d23&lt;0.0)</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">    </span><span class="c">!signs(3)= (d34&lt;0.0)</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">    </span><span class="c">!signs(4)= (d41&lt;0.0)</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">    </span><span class="c">!in_poly=( (count(signs)==0) .or. (count(signs)==4) )</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w"> </span><span class="c">!end function point_in_polygon_crossprod</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w"> </span><span class="k">function </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">b0</span><span class="p">,</span><span class="n">b1</span><span class="p">,</span><span class="n">a0</span><span class="p">,</span><span class="n">a1</span><span class="p">)</span><span class="w">  </span><span class="k">result</span><span class="p">(</span><span class="n">intersect</span><span class="p">)</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b0</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">b1</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a0</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a1</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">intersect</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">q</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">t</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">,</span><span class="n">s3</span><span class="p">,</span><span class="n">s4</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">signs</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">    </span><span class="n">intersect</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">    </span><span class="n">q</span><span class="o">=</span><span class="n">cross_prod</span><span class="p">(</span><span class="n">b0</span><span class="p">,</span><span class="n">b1</span><span class="p">)</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">    </span><span class="n">p</span><span class="o">=</span><span class="n">cross_prod</span><span class="p">(</span><span class="n">a0</span><span class="p">,</span><span class="n">a1</span><span class="p">)</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">    </span><span class="n">t</span><span class="o">=</span><span class="n">normal_vect</span><span class="p">(</span><span class="n">cross_prod</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">q</span><span class="p">))</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">    </span><span class="n">s1</span><span class="o">=</span><span class="nb">dot_product</span><span class="p">(</span><span class="n">cross_prod</span><span class="p">(</span><span class="n">a0</span><span class="p">,</span><span class="n">p</span><span class="p">),</span><span class="n">t</span><span class="p">)</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">    </span><span class="n">s2</span><span class="o">=</span><span class="nb">dot_product</span><span class="p">(</span><span class="n">cross_prod</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span><span class="n">p</span><span class="p">),</span><span class="n">t</span><span class="p">)</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">    </span><span class="n">s3</span><span class="o">=</span><span class="nb">dot_product</span><span class="p">(</span><span class="n">cross_prod</span><span class="p">(</span><span class="n">b0</span><span class="p">,</span><span class="n">q</span><span class="p">),</span><span class="n">t</span><span class="p">)</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">    </span><span class="n">s4</span><span class="o">=</span><span class="nb">dot_product</span><span class="p">(</span><span class="n">cross_prod</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span><span class="n">q</span><span class="p">),</span><span class="n">t</span><span class="p">)</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">    </span><span class="n">signs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">s1</span><span class="w"> </span><span class="o">&lt;</span><span class="mf">0.d0</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">    </span><span class="n">signs</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="o">&lt;</span><span class="mf">0.d0</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">    </span><span class="n">signs</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">s3</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.d0</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">    </span><span class="n">signs</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s4</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.d0</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">    </span><span class="n">intersect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="nb">count</span><span class="p">(</span><span class="n">signs</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="n">signs</span><span class="p">)</span><span class="o">==</span><span class="mi">4</span><span class="p">))</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w"> </span><span class="k">end function </span><span class="n">lines_intersect</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w"> </span><span class="k">function </span><span class="n">normal_vect</span><span class="p">(</span><span class="n">vin</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">vout</span><span class="p">)</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vin</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vout</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">    </span><span class="n">vout</span><span class="o">=</span><span class="n">vin</span><span class="o">/</span><span class="nb">sqrt</span><span class="p">(</span><span class="n">vin</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">vin</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">vin</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">vin</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">vin</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">vin</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w"> </span><span class="k">end function </span><span class="n">normal_vect</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w"> </span><span class="k">function </span><span class="n">cross_prod</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">vout</span><span class="p">)</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v1</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">v2</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vout</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">    </span><span class="n">vout</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">v1</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">v2</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">-</span><span class="n">v1</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">v2</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">    </span><span class="n">vout</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">v1</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">v2</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">v1</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">v2</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">    </span><span class="n">vout</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">=</span><span class="n">v1</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">v2</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">v1</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">v2</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w"> </span><span class="k">end function </span><span class="n">cross_prod</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w"> </span><span class="k">function </span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xyz</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">    </span><span class="n">xyz</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="nb">cos</span><span class="p">(</span><span class="n">v</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="nb">cos</span><span class="p">(</span><span class="n">v</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">    </span><span class="n">xyz</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="nb">cos</span><span class="p">(</span><span class="n">v</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="nb">sin</span><span class="p">(</span><span class="n">v</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">    </span><span class="n">xyz</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">=</span><span class="nb">sin</span><span class="p">(</span><span class="n">v</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w"> </span><span class="k">end function </span><span class="n">convert_to_cart</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="k">function </span><span class="n">vect_mag</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="w">   </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mag</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="w">   </span><span class="n">mag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="n">v</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">v</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">v</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">v</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">v</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">v</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="k">end function </span><span class="n">vect_mag</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="k">function </span><span class="n">spherical_angles</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">,</span><span class="n">p3</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">spherical_angle</span><span class="p">)</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spherical_angle</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p1</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">p2</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">p3</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">   </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">e2</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">e3</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">   </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">px</span><span class="p">,</span><span class="w"> </span><span class="n">py</span><span class="p">,</span><span class="w"> </span><span class="n">pz</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">   </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">qx</span><span class="p">,</span><span class="w"> </span><span class="n">qy</span><span class="p">,</span><span class="w"> </span><span class="n">qz</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">   </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="n">ddd</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">   </span><span class="kt">integer </span><span class="n">n</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a>
+<a id="ln-268" name="ln-268" href="#ln-268"></a><span class="w">   </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">      </span><span class="n">e1</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p1</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">      </span><span class="n">e2</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p2</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="w">      </span><span class="n">e3</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p3</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">   </span><span class="k">enddo</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">   </span><span class="c">!-------------------------------------------------------------------</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">   </span><span class="c">! Page 41, Silverman&#39;s book on Vector Algebra; spherical trigonmetry</span>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">   </span><span class="c">!-------------------------------------------------------------------</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">   </span><span class="c">! Vector P:</span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="w">   </span><span class="n">px</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">e2</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">e2</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="w">   </span><span class="n">py</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">e2</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">e2</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="w">   </span><span class="n">pz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">e2</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">e2</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">   </span><span class="c">! Vector Q:</span>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">   </span><span class="n">qx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">e3</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">e3</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="w">   </span><span class="n">qy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">e3</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">e3</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="w">   </span><span class="n">qz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">e3</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">e3</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-285" name="ln-285" href="#ln-285"></a>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">   </span><span class="n">ddd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">px</span><span class="o">*</span><span class="n">px</span><span class="o">+</span><span class="n">py</span><span class="o">*</span><span class="n">py</span><span class="o">+</span><span class="n">pz</span><span class="o">*</span><span class="n">pz</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">qx</span><span class="o">*</span><span class="n">qx</span><span class="o">+</span><span class="n">qy</span><span class="o">*</span><span class="n">qy</span><span class="o">+</span><span class="n">qz</span><span class="o">*</span><span class="n">qz</span><span class="p">)</span>
+<a id="ln-287" name="ln-287" href="#ln-287"></a>
+<a id="ln-288" name="ln-288" href="#ln-288"></a><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">ddd</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">0.0d0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-289" name="ln-289" href="#ln-289"></a><span class="k">      </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.d0</span>
+<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="w">   </span><span class="k">else</span>
+<a id="ln-291" name="ln-291" href="#ln-291"></a><span class="k">      </span><span class="n">ddd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">px</span><span class="o">*</span><span class="n">qx</span><span class="o">+</span><span class="n">py</span><span class="o">*</span><span class="n">qy</span><span class="o">+</span><span class="n">pz</span><span class="o">*</span><span class="n">qz</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="n">ddd</span><span class="p">)</span>
+<a id="ln-292" name="ln-292" href="#ln-292"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">abs</span><span class="p">(</span><span class="n">ddd</span><span class="p">)</span><span class="o">&gt;</span><span class="mf">1.d0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-293" name="ln-293" href="#ln-293"></a><span class="k">         </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5d0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MAPL_PI_R8</span>
+<a id="ln-294" name="ln-294" href="#ln-294"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ddd</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.d0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="k">            </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_PI_R8</span>
+<a id="ln-296" name="ln-296" href="#ln-296"></a><span class="w">         </span><span class="k">else</span>
+<a id="ln-297" name="ln-297" href="#ln-297"></a><span class="k">            </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.d0</span>
+<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-299" name="ln-299" href="#ln-299"></a><span class="k">      else</span>
+<a id="ln-300" name="ln-300" href="#ln-300"></a><span class="k">         </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">acos</span><span class="p">(</span><span class="w"> </span><span class="n">ddd</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-301" name="ln-301" href="#ln-301"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-302" name="ln-302" href="#ln-302"></a><span class="k">   endif</span>
+<a id="ln-303" name="ln-303" href="#ln-303"></a>
+<a id="ln-304" name="ln-304" href="#ln-304"></a><span class="k">   </span><span class="n">spherical_angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">angle</span>
+<a id="ln-305" name="ln-305" href="#ln-305"></a><span class="k">end function</span>
+<a id="ln-306" name="ln-306" href="#ln-306"></a>
+<a id="ln-307" name="ln-307" href="#ln-307"></a><span class="k">end module </span><span class="n">MAPL_SphericalGeometry</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T15:53:13.082079             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

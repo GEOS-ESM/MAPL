@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>write_bundle_single_time &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>write_bundle_single_time
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">18 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FieldBundleWrite.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/fieldbundlewrite.f90.html'>FieldBundleWrite.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_esmffieldbundlewrite.html'>MAPL_ESMFFieldBundleWrite</a></li>
+            <li class="breadcrumb-item active" aria-current="page">write_bundle_single_time</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/write_bundle_single_time.html#src">write_bundle_single_time</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine write_bundle_single_time(bundle, clock, output_file, nbits_to_keep, deflate, quantize_algorithm, quantize_level, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~22"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bundle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~39"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-output_file~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>output_file</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nbits_to_keep~8"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nbits_to_keep</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deflate~6"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deflate</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-quantize_algorithm~7"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_algorithm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-quantize_level~7"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_level</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1606"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_bundle_single_time~~CallsGraph Pages: 1 -->
+<svg id="procwrite_bundle_single_timeCallsGraph" width="641pt" height="183pt"
+ viewBox="0.00 0.00 641.00 183.14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_bundle_single_time~~CallsGraph" class="graph" transform="scale(2.24 2.24) rotate(0) translate(4 406)">
+<title>proc~~write_bundle_single_time~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 1431,-406 1431,4 -4,4"/>
+<!-- proc~write_bundle_single_time -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node1" class="node">
+<title>proc~write_bundle_single_time</title>
+<polygon fill="none" stroke="black" points="307,-295 0,-295 0,-271 307,-271 307,-295"/>
+<text text-anchor="middle" x="153.5" y="-280.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ESMFFieldBundleWrite::write_bundle_single_time</text>
+</g>
+<!-- proc~create_from_bundle -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node2" class="node">
+<title>proc~create_from_bundle</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node2"><a xlink:href=".././proc/create_from_bundle.html" xlink:title="MAPL_ESMFFieldBundleWrite::FieldBundleWriter%create_from_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="725,-192 343,-192 343,-168 725,-168 725,-192"/>
+<text text-anchor="middle" x="534" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::FieldBundleWriter%create_from_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~write_bundle_single_time&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge1" class="edge">
+<title>proc~write_bundle_single_time&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M198.66,-270.98C268.37,-252.01 403.7,-215.19 479.05,-194.68"/>
+<polygon fill="#255000" stroke="#255000" points="480.1,-198.02 488.83,-192.02 478.26,-191.27 480.1,-198.02"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1059.5,-318 839.5,-318 839.5,-294 1059.5,-294 1059.5,-318"/>
+<text text-anchor="middle" x="949.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~write_bundle_single_time&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge2" class="edge">
+<title>proc~write_bundle_single_time&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M307.12,-287.42C459.29,-291.83 689.85,-298.51 829.13,-302.54"/>
+<polygon fill="#255000" stroke="#255000" points="829.31,-306.05 839.41,-302.84 829.51,-299.05 829.31,-306.05"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1056.5,-276 842.5,-276 842.5,-252 1056.5,-252 1056.5,-276"/>
+<text text-anchor="middle" x="949.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~write_bundle_single_time&#45;&gt;proc~mapl_verify -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge3" class="edge">
+<title>proc~write_bundle_single_time&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M307.12,-279.35C460.39,-275.68 693.18,-270.11 832.13,-266.78"/>
+<polygon fill="#255000" stroke="#255000" points="832.47,-270.28 842.38,-266.54 832.3,-263.28 832.47,-270.28"/>
+</g>
+<!-- proc~write_to_file -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node5" class="node">
+<title>proc~write_to_file</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node5"><a xlink:href=".././proc/write_to_file.html" xlink:title="MAPL_ESMFFieldBundleWrite::FieldBundleWriter%write_to_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="704,-354 364,-354 364,-330 704,-330 704,-354"/>
+<text text-anchor="middle" x="534" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::FieldBundleWriter%write_to_file</text>
+</a>
+</g>
+</g>
+<!-- proc~write_bundle_single_time&#45;&gt;proc~write_to_file -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge4" class="edge">
+<title>proc~write_bundle_single_time&#45;&gt;proc~write_to_file</title>
+<path fill="none" stroke="#255000" d="M219.83,-295.05C256.06,-301.59 301.97,-309.6 343,-316 371.13,-320.38 401.66,-324.74 429.85,-328.6"/>
+<polygon fill="#255000" stroke="#255000" points="429.74,-332.12 440.13,-330 430.69,-325.18 429.74,-332.12"/>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge9" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M555.01,-192.03C593.43,-214.48 680.81,-262.53 761,-285 782.71,-291.08 806.29,-295.41 829.18,-298.49"/>
+<polygon fill="#255000" stroke="#255000" points="828.92,-301.99 839.28,-299.78 829.8,-295.04 828.92,-301.99"/>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~mapl_verify -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge10" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M571.36,-192.09C615.67,-206.35 693.02,-229.81 761,-243 783.93,-247.45 808.64,-251.05 832.35,-253.93"/>
+<polygon fill="#255000" stroke="#255000" points="832.1,-257.42 842.44,-255.12 832.92,-250.47 832.1,-257.42"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node6" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1032.5,-234 866.5,-234 866.5,-210 1032.5,-210 1032.5,-234"/>
+<text text-anchor="middle" x="949.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeIntervalSet</text>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge5" class="edge">
+<title>proc~create_from_bundle&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#255000" d="M653.22,-192.01C717.63,-198.55 796.19,-206.53 856.07,-212.61"/>
+<polygon fill="#255000" stroke="#255000" points="855.97,-216.12 866.27,-213.65 856.68,-209.16 855.97,-216.12"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node7" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="1010,-192 889,-192 889,-168 1010,-168 1010,-192"/>
+<text text-anchor="middle" x="949.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge6" class="edge">
+<title>proc~create_from_bundle&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#255000" d="M725.11,-180C779.79,-180 836.03,-180 878.4,-180"/>
+<polygon fill="#255000" stroke="#255000" points="878.59,-183.5 888.59,-180 878.59,-176.5 878.59,-183.5"/>
+</g>
+<!-- proc~add_hist_collection -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node8" class="node">
+<title>proc~add_hist_collection</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node8"><a xlink:href=".././proc/add_hist_collection.html" xlink:title="pFIO_ClientManagerMod::ClientManager%add_hist_collection">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1119,-150 780,-150 780,-126 1119,-126 1119,-150"/>
+<text text-anchor="middle" x="949.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ClientManagerMod::ClientManager%add_hist_collection</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~add_hist_collection -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge7" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~add_hist_collection</title>
+<path fill="none" stroke="#255000" d="M653.22,-167.99C705.35,-162.7 766.74,-156.46 820,-151.05"/>
+<polygon fill="#255000" stroke="#255000" points="820.6,-154.51 830.2,-150.02 819.89,-147.54 820.6,-154.51"/>
+</g>
+<!-- proc~createfilemetadata -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node10" class="node">
+<title>proc~createfilemetadata</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node10"><a xlink:href=".././proc/createfilemetadata.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%CreateFileMetaData">
+<polygon fill="#d9534f" stroke="#d9534f" points="1116,-108 783,-108 783,-84 1116,-84 1116,-108"/>
+<text text-anchor="middle" x="949.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%CreateFileMetaData</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge8" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#255000" d="M571.36,-167.91C615.67,-153.65 693.02,-130.19 761,-117 775.77,-114.13 791.28,-111.62 806.78,-109.42"/>
+<polygon fill="#255000" stroke="#255000" points="807.53,-112.85 816.96,-108.03 806.58,-105.92 807.53,-112.85"/>
+</g>
+<!-- proc~set_param -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node14" class="node">
+<title>proc~set_param</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node14"><a xlink:href=".././proc/set_param.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%set_param">
+<polygon fill="#d9534f" stroke="#d9534f" points="1091.5,-66 807.5,-66 807.5,-42 1091.5,-42 1091.5,-66"/>
+<text text-anchor="middle" x="949.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%set_param</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~set_param -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge11" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~set_param</title>
+<path fill="none" stroke="#255000" d="M555.01,-167.97C593.43,-145.52 680.81,-97.47 761,-75 772.7,-71.72 784.94,-68.95 797.33,-66.61"/>
+<polygon fill="#255000" stroke="#255000" points="798.06,-70.04 807.28,-64.83 796.82,-63.15 798.06,-70.04"/>
+</g>
+<!-- proc~v_push_back~20 -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node15" class="node">
+<title>proc~v_push_back~20</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node15"><a xlink:href=".././proc/v_push_back~20.html" xlink:title="MAPL_GriddedIOitemVectorMod::GriddedIOitemVector%v_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="1138,-24 761,-24 761,0 1138,0 1138,-24"/>
+<text text-anchor="middle" x="949.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemVectorMod::GriddedIOitemVector%v_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~v_push_back~20 -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge12" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~v_push_back~20</title>
+<path fill="none" stroke="#255000" d="M548.55,-167.83C581.86,-138.71 671.55,-65.05 761,-33 767.53,-30.66 774.25,-28.57 781.11,-26.69"/>
+<polygon fill="#255000" stroke="#255000" points="782.41,-29.97 791.23,-24.09 780.67,-23.19 782.41,-29.97"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node12" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node12"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1427,-318 1174,-318 1174,-294 1427,-294 1427,-318"/>
+<text text-anchor="middle" x="1300.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="transparent" d="M1059.97,-306C1092.9,-306 1129.44,-306 1163.85,-306"/>
+<polygon fill="transparent" stroke="transparent" points="1163.97,-309.5 1173.97,-306 1163.97,-302.5 1163.97,-309.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node13"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1415,-276 1186,-276 1186,-252 1415,-252 1415,-276"/>
+<text text-anchor="middle" x="1300.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M1059.6,-294.11C1085.32,-291.22 1112.64,-288.07 1138,-285 1157.81,-282.6 1178.97,-279.93 1199.24,-277.32"/>
+<polygon fill="transparent" stroke="transparent" points="1199.95,-280.76 1209.42,-276 1199.05,-273.81 1199.95,-280.76"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1056.63,-264C1094.19,-264 1136.76,-264 1175.66,-264"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1175.99,-267.5 1185.99,-264 1175.99,-260.5 1175.99,-267.5"/>
+</g>
+<!-- proc~write_to_file&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge18" class="edge">
+<title>proc~write_to_file&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M672.98,-329.99C723.62,-325.58 780.48,-320.63 829.34,-316.37"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="829.66,-319.86 839.32,-315.51 829.05,-312.89 829.66,-319.86"/>
+</g>
+<!-- proc~write_to_file&#45;&gt;proc~mapl_verify -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge19" class="edge">
+<title>proc~write_to_file&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M575.87,-329.91C620.86,-317.02 695.5,-296.87 761,-285 783.84,-280.86 808.41,-277.4 831.99,-274.57"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="832.51,-278.03 842.03,-273.39 831.69,-271.08 832.51,-278.03"/>
+</g>
+<!-- proc~bundlepost -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node9" class="node">
+<title>proc~bundlepost</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node9"><a xlink:href=".././proc/bundlepost.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%bundlepost">
+<polygon fill="#d9534f" stroke="#d9534f" points="1093,-402 806,-402 806,-378 1093,-378 1093,-402"/>
+<text text-anchor="middle" x="949.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%bundlepost</text>
+</a>
+</g>
+</g>
+<!-- proc~write_to_file&#45;&gt;proc~bundlepost -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge16" class="edge">
+<title>proc~write_to_file&#45;&gt;proc~bundlepost</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M634.27,-354.02C673.71,-358.75 719.49,-364.2 761,-369 783.25,-371.58 806.99,-374.27 829.84,-376.84"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="829.59,-380.34 839.92,-377.98 830.37,-373.38 829.59,-380.34"/>
+</g>
+<!-- proc~done_collective_stage -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_node11" class="node">
+<title>proc~done_collective_stage</title>
+<g id="a_proc~~write_bundle_single_time~~CallsGraph_node11"><a xlink:href=".././proc/done_collective_stage.html" xlink:title="pFIO_ClientManagerMod::ClientManager%done_collective_stage">
+<polygon fill="#d9534f" stroke="#d9534f" points="1127,-360 772,-360 772,-336 1127,-336 1127,-360"/>
+<text text-anchor="middle" x="949.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ClientManagerMod::ClientManager%done_collective_stage</text>
+</a>
+</g>
+</g>
+<!-- proc~write_to_file&#45;&gt;proc~done_collective_stage -->
+<g id="proc~~write_bundle_single_time~~CallsGraph_edge17" class="edge">
+<title>proc~write_to_file&#45;&gt;proc~done_collective_stage</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M704.08,-344.45C723.09,-344.73 742.53,-345.01 761.74,-345.29"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="761.71,-348.79 771.76,-345.44 761.82,-341.79 761.71,-348.79"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocwrite_bundle_single_timeCallsGraph = svgPanZoom('#procwrite_bundle_single_timeCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_bundle_single_time~~CalledByGraph Pages: 1 -->
+<svg id="procwrite_bundle_single_timeCalledByGraph" width="628pt" height="32pt"
+ viewBox="0.00 0.00 628.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_bundle_single_time~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~write_bundle_single_time~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 624,-28 624,4 -4,4"/>
+<!-- proc~write_bundle_single_time -->
+<g id="proc~~write_bundle_single_time~~CalledByGraph_node1" class="node">
+<title>proc~write_bundle_single_time</title>
+<polygon fill="none" stroke="black" points="620,-24 313,-24 313,0 620,0 620,-24"/>
+<text text-anchor="middle" x="466.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ESMFFieldBundleWrite::write_bundle_single_time</text>
+</g>
+<!-- interface~mapl_write_bundle -->
+<g id="proc~~write_bundle_single_time~~CalledByGraph_node2" class="node">
+<title>interface~mapl_write_bundle</title>
+<g id="a_proc~~write_bundle_single_time~~CalledByGraph_node2"><a xlink:href=".././interface/mapl_write_bundle.html" xlink:title="MAPL_ESMFFieldBundleWrite::MAPL_Write_Bundle">
+<polygon fill="#a7506f" stroke="#a7506f" points="277,-24 0,-24 0,0 277,0 277,-24"/>
+<text text-anchor="middle" x="138.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::MAPL_Write_Bundle</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_write_bundle&#45;&gt;proc~write_bundle_single_time -->
+<g id="proc~~write_bundle_single_time~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_write_bundle&#45;&gt;proc~write_bundle_single_time</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M277.28,-12C285.62,-12 294.05,-12 302.48,-12"/>
+<polygon fill="#255000" stroke="#255000" points="302.76,-15.5 312.76,-12 302.75,-8.5 302.76,-15.5"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">write_bundle_single_time</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="n">output_file</span><span class="p">,</span><span class="n">nbits_to_keep</span><span class="p">,</span><span class="n">deflate</span><span class="p">,</span><span class="n">quantize_algorithm</span><span class="p">,</span><span class="n">quantize_level</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">output_file</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">nbits_to_keep</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">deflate</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">quantize_algorithm</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">quantize_level</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">FieldBundleWriter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">newWriter</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">newWriter</span><span class="p">%</span><span class="n">create_from_bundle</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="n">output_file</span><span class="o">=</span><span class="n">output_File</span><span class="p">,</span><span class="n">n_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">time_interval</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nbits_to_keep</span><span class="o">=</span><span class="n">nbits_to_keep</span><span class="p">,</span><span class="n">deflate</span><span class="o">=</span><span class="n">deflate</span><span class="p">,</span><span class="n">quantize_algorithm</span><span class="o">=</span><span class="n">quantize_algorithm</span><span class="p">,</span><span class="n">quantize_level</span><span class="o">=</span><span class="n">quantize_level</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">newWriter</span><span class="p">%</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">write_bundle_single_time</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-06T15:53:13.082079             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
