@@ -43,13 +43,18 @@ module HistoryTrajectoryMod
      type(ESMF_TimeInterval)  :: epoch_frequency
 
      integer                        :: nobs_type
-     character(len=ESMF_MAXSTR)     :: nc_index
-     character(len=ESMF_MAXSTR)     :: nc_time
-     character(len=ESMF_MAXSTR)     :: nc_latitude
-     character(len=ESMF_MAXSTR)     :: nc_longitude
+!     character(len=ESMF_MAXSTR)     :: nc_index
+!     character(len=ESMF_MAXSTR)     :: nc_time
+!     character(len=ESMF_MAXSTR)     :: nc_latitude
+!     character(len=ESMF_MAXSTR)     :: nc_longitude
+
+     character(len=ESMF_MAXSTR)     :: index_name_x
      character(len=ESMF_MAXSTR)     :: var_name_time
      character(len=ESMF_MAXSTR)     :: var_name_lat
      character(len=ESMF_MAXSTR)     :: var_name_lon
+     character(len=ESMF_MAXSTR)     :: var_name_time_full
+     character(len=ESMF_MAXSTR)     :: var_name_lat_full
+     character(len=ESMF_MAXSTR)     :: var_name_lon_full
      character(len=ESMF_MAXSTR)     :: datetime_units
      integer                        :: epoch        ! unit: second
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)

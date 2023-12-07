@@ -33,10 +33,10 @@ module MAPL_ObsUtilMod
 
   type obs_platform
      character (len=ESMF_MAXSTR) :: name=''
-     character (len=ESMF_MAXSTR) :: nc_index=''
-     character (len=ESMF_MAXSTR) :: nc_lon=''
-     character (len=ESMF_MAXSTR) :: nc_lat=''
-     character (len=ESMF_MAXSTR) :: nc_time=''
+     character (len=ESMF_MAXSTR) :: index_name_x=''
+     character (len=ESMF_MAXSTR) :: var_name_lon=''
+     character (len=ESMF_MAXSTR) :: var_name_lat=''
+     character (len=ESMF_MAXSTR) :: var_name_time=''
      character (len=ESMF_MAXSTR) :: file_name_template=''
      integer :: ngeoval=0
      integer :: nentry_name=0
@@ -577,16 +577,15 @@ contains
   end subroutine sort_four_arrays_by_time
 
 
-
   function copy_platform_nckeys(a, rc)
     type(obs_platform) :: copy_platform_nckeys
     type(obs_platform), intent(in) :: a
     integer, optional, intent(out) :: rc
 
-    copy_platform_nckeys%nc_index = a%nc_index
-    copy_platform_nckeys%nc_lon = a%nc_lon
-    copy_platform_nckeys%nc_lat = a%nc_lat
-    copy_platform_nckeys%nc_time = a%nc_time
+    copy_platform_nckeys%index_name_x = a%index_name_x
+    copy_platform_nckeys%var_name_lon = a%var_name_lon
+    copy_platform_nckeys%var_name_lat = a%var_name_lat
+    copy_platform_nckeys%var_name_time = a%var_name_time
     copy_platform_nckeys%nentry_name = a%nentry_name
     _RETURN(_SUCCESS)
 

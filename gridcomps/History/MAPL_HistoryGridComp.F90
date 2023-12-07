@@ -895,6 +895,7 @@ contains
           endif
        endif
 
+       
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
        call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &
@@ -5311,7 +5312,7 @@ ENDDO PARSER
     allocate (PLFS(nplf))
     allocate (map(nplf))
     
-    ! __ s1. scan get  platform name + nc_index/lat/lon/time
+    ! __ s1. scan get  platform name + index_name_x  var_name_lat/lon/time
     do k=1, count
        call scan_begin(unitr, 'PLATFORM.', .false.)
        backspace(unitr)
@@ -5324,32 +5325,32 @@ ENDDO PARSER
 
        call lgr%debug('%a %a', 'marker=', trim(marker))
        call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'index:', .false.)
+       call scan_contain(unitr, 'index_name_x:', .false.)
        backspace(unitr)
        read(unitr, '(a)') line
        i=index(line, ':')
-       PLFS(k)%nc_index = trim(line(i+1:))
+       PLFS(k)%index_name_x = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'longitude:', .false.)
+       call scan_contain(unitr, 'var_name_lon:', .false.)
        backspace(unitr)
        read(unitr, '(a)') line
        i=index(line, ':')
-       PLFS(k)%nc_lon = trim(line(i+1:))
+       PLFS(k)%var_name_lon = trim(line(i+1:))
        
        call scan_contain(unitr, marker, .true.)     
-       call scan_contain(unitr, 'latitude:', .false.)
+       call scan_contain(unitr, 'var_name_lat:', .false.)
        backspace(unitr)
        read(unitr, '(a)') line
        i=index(line, ':')
-       PLFS(k)%nc_lat = trim(line(i+1:))
+       PLFS(k)%var_name_lat = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)     
-       call scan_contain(unitr, 'time:', .false.)
+       call scan_contain(unitr, 'var_name_time:', .false.)
        backspace(unitr)
        read(unitr, '(a)') line
        i=index(line, ':')
-       PLFS(k)%nc_time = trim(line(i+1:))
+       PLFS(k)%var_name_time = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)     
        call scan_contain(unitr, 'file_name_template:', .false.)
@@ -5360,9 +5361,9 @@ ENDDO PARSER
 
        call lgr%debug('%a %a %a %a %a', &
             trim( PLFS(k)%name ), &
-            trim( PLFS(k)%nc_lon ), &
-            trim( PLFS(k)%nc_lat ), &
-            trim( PLFS(k)%nc_time ), &
+            trim( PLFS(k)%var_name_lon ), &
+            trim( PLFS(k)%var_name_lat ), &
+            trim( PLFS(k)%var_name_time ), &
             trim( PLFS(k)%file_name_template ) )
 
     end do
@@ -5477,10 +5478,10 @@ ENDDO PARSER
 
           ! __ write common nc_index,time,lon,lat
           k=1   ! plat form # 1
-          write(unitw, '(2(2x,a))') trim(string)//'nc_Index:    ', trim(adjustl(PLFS(k)%nc_index))
-          write(unitw, '(2(2x,a))') trim(string)//'nc_Time:     ', trim(adjustl(PLFS(k)%nc_time))
-          write(unitw, '(2(2x,a))') trim(string)//'nc_Longitude:', trim(adjustl(PLFS(k)%nc_lon))
-          write(unitw, '(2(2x,a))') trim(string)//'nc_Latitude: ', trim(adjustl(PLFS(k)%nc_lat))
+          write(unitw, '(2(2x,a))') trim(string)//'index_name_x:    ', trim(adjustl(PLFS(k)%index_name_x))
+          write(unitw, '(2(2x,a))') trim(string)//'var_name_time:   ', trim(adjustl(PLFS(k)%var_name_time))
+          write(unitw, '(2(2x,a))') trim(string)//'var_name_lon:    ', trim(adjustl(PLFS(k)%var_name_lon))
+          write(unitw, '(2(2x,a))') trim(string)//'var_name_lat:    ', trim(adjustl(PLFS(k)%var_name_lat))
           write(unitw, '(/)')
 
           length_mx = ESMF_MAXSTR
@@ -5535,7 +5536,7 @@ ENDDO PARSER
              end if
           end do
           write(unitw,'(a,/)') '::'
-          write(unitw,'(a)') 'geovals.obs_files:     # table start from next line'
+          write(unitw,'(a)') trim(string)//'obs_files:     # table start from next line'
 
           do k=1, nplatform
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
