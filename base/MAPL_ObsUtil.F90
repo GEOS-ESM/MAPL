@@ -412,31 +412,8 @@ contains
     
     ! parse time info
     !
-    j= index(file_template, '*')
-    if (j>0) then
-       ! wild char exist
-       !!print*, 'pos of * in template =', j
-       file_template_left = file_template(1:j-1)
-       call fill_grads_template ( filename_left, file_template_left, &
-            experiment_id='', nymd=nymd, nhms=nhms, _RC )
-       filename= trim(filename_left)//trim(file_template(j:))
-    else
-       ! exact file name
-       call fill_grads_template ( filename, file_template, &
-            experiment_id='', nymd=nymd, nhms=nhms, _RC )
-    end if
-
-    ! test on bash
-    !
-    cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
-    CALL execute_command_line(trim(cmd))
-    open(newunit=u, file='zzz_MAPL', status='unknown')
-    read(u, '(a)') filename
-    i=index(trim(filename), 'ls')
-    if (i==1) then
-       filename=''
-    end if
-    close(u)
+    call fill_grads_template ( filename, file_template, &
+         experiment_id='', nymd=nymd, nhms=nhms, _RC )
 
     _RETURN(_SUCCESS)
 
