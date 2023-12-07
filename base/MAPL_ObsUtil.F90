@@ -393,6 +393,7 @@ contains
     type(ESMF_TimeInterval) :: dT
     type(ESMF_Time) :: time
     integer :: i, j, u
+    logical :: EX
 
     character(len=ESMF_MAXSTR) :: file_template_left
     character(len=ESMF_MAXSTR) :: file_template_right
@@ -409,11 +410,13 @@ contains
     call ESMF_time_to_two_integer(time, itime, _RC)
     nymd = itime(1)
     nhms = itime(2)
-    
+
     ! parse time info
     !
     call fill_grads_template ( filename, file_template, &
          experiment_id='', nymd=nymd, nhms=nhms, _RC )
+    inquire(file= trim(filename), EXIST = EX)
+    if(.not.EX) filename=''
 
     _RETURN(_SUCCESS)
 
