@@ -538,25 +538,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
             ! ygyu test
             ! should not happen
-
-!!            if(fid_e < L) then
-               allocate(this%lons(0),this%lats(0),_STAT)
-               allocate(this%times_R8(0),_STAT)
-               allocate(this%obstype_id(0),_STAT)
-               this%epoch_index(1:2) = 0
-               this%nobs_epoch = 0
-
-               this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
-               this%LS_rt = this%locstream_factory%create_locstream(_RC)
-               call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-               this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)
-               rc = 0
-               return
-!!            end if
+            ! even if fid_e =0,  we can let code continue to find the file does not exist
+            
+!!!            if(fid_e < L) then
+!!!            end if
 
 
-            len_full = 0            
-            arr(1)= len_full
+            arr(1)=0     ! len_full
             if (mapl_am_I_root()) then
                len = 0
                do k=1, this%nobs_type
@@ -573,49 +561,53 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      j=j+1
                   enddo
                enddo
-               len_full = len
-               allocate(lons_full(len),lats_full(len),_STAT)
-               allocate(times_R8_full(len),_STAT)
-               allocate(obstype_id_full(len),_STAT)
-               call lgr%debug('%a %i12', 'nobs from input file:', len_full)
-               arr(1)=len_full
+               arr(1)=len
 
-               if (len_full>0) then
-                  len = 0
-                  do k=1, this%nobs_type
-                     j = max (fid_s, L)
-                     do while (j<=fid_e)
-                        filename = get_filename_from_template_use_index( &
-                             this%obsfile_start_time, this%obsfile_interval, &
-                             j, this%obs(k)%input_template, _RC)
-                        if (filename /= '') then
-                           call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%index_name_x, _RC)
-                           call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
-                           call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
-                           call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
-
-                           call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
-                           obstype_id_full(len+1:len+num_times) = k
-                           call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
-                                times_R8_full(1), times_R8_full(200))
-
-                           len = len + num_times
-                        end if
-                        j=j+1
-                     enddo
+               len = 0
+               do k=1, this%nobs_type
+                  j = max (fid_s, L)
+                  do while (j<=fid_e)
+                     filename = get_filename_from_template_use_index( &
+                          this%obsfile_start_time, this%obsfile_interval, &
+                          j, this%obs(k)%input_template, _RC)
+                     if (filename /= '') then
+                        call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%index_name_x, _RC)
+                        call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
+                        call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
+                        call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)                        
+                        call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
+                        obstype_id_full(len+1:len+num_times) = k
+                        call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
+                             times_R8_full(1), times_R8_full(200))                        
+                        len = len + num_times
+                     end if
+                     j=j+1
                   enddo
-               end if
+               enddo
             end if
-
 
             call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
                  count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
             if (nx_sum == 0) then
+!               allocate(this%lons(0),this%lats(0),_STAT)
+!               allocate(this%times_R8(0),_STAT)
+!               allocate(this%obstype_id(0),_STAT)
+!               this%epoch_index(1:2) = 0
+!               this%nobs_epoch = 0
+!
+!               this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
+!               this%LS_rt = this%locstream_factory%create_locstream(_RC)
+!               call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+!               this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)
+!               rc = 0
+!               return
+
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
                allocate(this%obstype_id(0),_STAT)
                this%epoch_index(1:2) = 0
                this%nobs_epoch = 0
+               this%obsTime= -1.d0               
                rc = 0
                write(6,*) 'nx_sum=', nx_sum
                return

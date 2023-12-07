@@ -5281,7 +5281,7 @@ ENDDO PARSER
     character (len=ESMF_MAXSTR), allocatable :: str_piece(:)  
     type(obs_platform), allocatable :: PLFS(:)
     type(obs_platform) :: p1
-    integer :: k, i, j
+    integer :: k, i, j, i2
     integer :: ios, ngeoval, count, nplf
     integer :: length_mx
     integer :: mxseg
@@ -5476,14 +5476,6 @@ ENDDO PARSER
 
        if (obs_flag) then
 
-          ! __ write common nc_index,time,lon,lat
-          k=1   ! plat form # 1
-          write(unitw, '(2(2x,a))') trim(string)//'index_name_x:    ', trim(adjustl(PLFS(k)%index_name_x))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_time:   ', trim(adjustl(PLFS(k)%var_name_time))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_lon:    ', trim(adjustl(PLFS(k)%var_name_lon))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_lat:    ', trim(adjustl(PLFS(k)%var_name_lat))
-          write(unitw, '(/)')
-
           length_mx = ESMF_MAXSTR
           mxseg = 100
           allocate (str_piece(mxseg))
@@ -5496,10 +5488,10 @@ ENDDO PARSER
 !          do j=1, nplf
 !             write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
 !          enddo
+          
 
           !
           !   a) union the platform
-          !
           !
           ! find the index for each str_piece
           map(:) = -1
@@ -5507,12 +5499,20 @@ ENDDO PARSER
              do j=1, nplf    ! tot
                 if ( trim(str_piece(i)) == trim( PLFS(j)%name ) ) then
                    map(i)=j
+                   exit
                 end if
              end do
           end do
           deallocate(str_piece)
+          !! write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          
+          ! __ write common nc_index,time,lon,lat
+          k=map(1)   ! plat form # 1
+          write(unitw, '(2(2x,a))') trim(string)//'index_name_x:    ', trim(adjustl(PLFS(k)%index_name_x))
+          write(unitw, '(2(2x,a))') trim(string)//'var_name_time:   ', trim(adjustl(PLFS(k)%var_name_time))
+          write(unitw, '(2(2x,a))') trim(string)//'var_name_lon:    ', trim(adjustl(PLFS(k)%var_name_lon))
+          write(unitw, '(2(2x,a))') trim(string)//'var_name_lat:    ', trim(adjustl(PLFS(k)%var_name_lat))
 
-          !!write(6,*) 'map(:)=', map(:)
           do i=1, nplatform
              k=map(i)
              if (i==1) then
@@ -5538,7 +5538,8 @@ ENDDO PARSER
           write(unitw,'(a,/)') '::'
           write(unitw,'(a)') trim(string)//'obs_files:     # table start from next line'
 
-          do k=1, nplatform
+          do i2=1, nplatform
+             k=map(i2)
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
              do j=1, PLFS(k)%ngeoval
                 line=''
