@@ -256,7 +256,7 @@ CONTAINS
    integer           :: idx
    type(MAPL_MetaComp),pointer :: MAPLSTATE
 
-   type(ExtDataOldTypesCreator),target :: config_yaml
+   type(ExtDataOldTypesCreator), target :: config_yaml
    character(len=ESMF_MAXSTR) :: new_rc_file
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
@@ -1449,7 +1449,7 @@ CONTAINS
 
   subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,rc)
      type(IOBundleNGVector), intent(inout) :: IOBundles
-     type(primaryExport), intent(inout)        :: item
+     type(primaryExport), target, intent(inout)        :: item
      integer, intent(in)                    :: entry_num
      integer, intent(out), optional         :: rc
 

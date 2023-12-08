@@ -162,7 +162,7 @@ contains
 
    function count_rules_for_item(this,item_name,rc) result(number_of_rules)
       integer :: number_of_rules
-      class(ExtDataConfig), intent(in) :: this
+      class(ExtDataConfig), target, intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
 
@@ -265,7 +265,7 @@ contains
    end function sort_rules_by_start
 
    function get_item_type(this,item_name,unusable,rc) result(item_type)
-      class(ExtDataConfig), intent(inout) :: this
+      class(ExtDataConfig), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc

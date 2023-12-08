@@ -55,7 +55,7 @@ module MAPL_ExtDataOldTypesCreator
 
 
    subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,unusable,rc)
-      class(ExtDataOldTypesCreator), intent(inout) :: this
+      class(ExtDataOldTypesCreator), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       character(len=*), intent(in) :: base_name
       type(PrimaryExport), intent(inout) :: primary_item

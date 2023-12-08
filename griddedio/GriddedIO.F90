@@ -729,8 +729,8 @@ module MAPL_GriddedIOMod
               yptr3d => yptr3d_inter
            end if
         else
-           if (associated(xptr3d)) nullify(xptr3d)
-           if (associated(yptr3d)) nullify(yptr3d)
+           nullify(xptr3d)
+           nullify(yptr3d)
         end if
 
         call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
