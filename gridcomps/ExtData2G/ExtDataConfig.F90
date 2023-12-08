@@ -87,8 +87,8 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Samplings")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Samplings",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -96,12 +96,14 @@ contains
             ts = ExtDataTimeSample(single_sample,_RC)
             call ext_config%sample_map%insert(trim(hconfig_key),ts)
          enddo
+         call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Collections")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Collections",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
+         call ESMF_HConfigFileSave(temp_configs,"temp_file.yaml")
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -111,12 +113,13 @@ contains
             ds = ExtDataFileStream(single_collection,current_time,_RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
          enddo
+         call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Exports")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Exports",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -140,8 +143,9 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Derived")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Derived",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
+         !hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
