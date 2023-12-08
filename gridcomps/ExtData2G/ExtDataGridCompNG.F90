@@ -308,7 +308,7 @@ CONTAINS
        _RETURN(ESMF_SUCCESS)
     end if
 
-    config_yaml = ExtDataOldTypesCreator(new_rc_file,time,_RC)
+    call new_ExtDataOldTypesCreator(config_yaml, new_rc_file, time, _RC)
 
     allocate(ITEMNAMES(ITEMCOUNT), STAT=STATUS)
     _VERIFY(STATUS)
