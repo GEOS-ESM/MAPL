@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
 
+- Fix for CMake an Apple.  Needs to set `__DARWIN` as an fpp flag.  (Only used by NAG, but ...)
+
 ### Removed
 
 ### Deprecated
