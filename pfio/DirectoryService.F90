@@ -185,7 +185,6 @@ contains
       ! First, check ports to see if server is local, in which case
       ! a SimpleSocket is used for the connection.
       ! Note: In this scenario, the server _must_ always publish prior to this.
-
       do n = 1, this%n_local_ports
          if (trim(this%local_ports(n)%port_name) == port_name) then
             ss = SimpleSocket(client)
@@ -286,7 +285,7 @@ contains
    subroutine connect_to_client(this, port_name, server, rc)
       class (DirectoryService), target, intent(inout) :: this
       character(*), intent(in) :: port_name
-      class (BaseServer), intent(inout) :: server
+      class (BaseServer), target, intent(inout) :: server
       integer, optional, intent(out) :: rc
 
       class (AbstractSocket), pointer :: sckt
@@ -422,9 +421,9 @@ contains
    ! But it would allow future implementation to query for servers
    ! or possibly to allow servers to satisfy multiple clients.
    subroutine publish(this, port, server, rc)
-      class (DirectoryService), intent(inout) :: this
+      class (DirectoryService),target, intent(inout) :: this
       type(PortInfo),target, intent(in) :: port
-      class (BaseServer), intent(inout) :: server
+      class (BaseServer), target, intent(inout) :: server
       integer, optional, intent(out) :: rc
       character(len=MAX_LEN_PORT_NAME) :: port_name
       integer :: ierror
