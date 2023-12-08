@@ -63,7 +63,7 @@ module pFIO_AbstractDirectoryServiceMod
          import PortInfo
          class (AbstractDirectoryService),target, intent(inout) :: this
          type(PortInfo), target, intent(in) :: port
-         class (BaseServer), target, intent(inout) :: server
+         class (BaseServer), target, intent(in) :: server
          integer, optional, intent(out) :: rc
       end subroutine
 
