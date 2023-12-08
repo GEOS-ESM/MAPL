@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Improved error message for missing labels in GridManager.
+
 ### Fixed
 
 - Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
