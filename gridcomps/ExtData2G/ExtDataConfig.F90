@@ -101,7 +101,6 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Collections")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Collections",_RC)
-         call ESMF_HConfigFileSave(temp_configs,"temp_file.yaml")
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
          hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
