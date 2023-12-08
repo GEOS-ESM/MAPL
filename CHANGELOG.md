@@ -64,10 +64,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_env v4.22.0 (Baselibs 7.15.1)
 
+- Improved error message for missing labels in GridManager.
+
 ### Fixed
 
 - [#2433] Implemented workarounds for gfortran-13
 - Missing TARGET in GriddedIO - exposed runtime error when using NAG + debug.
+- Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
+- Fix for CMake an Apple.  Needs to set `__DARWIN` as an fpp flag.  (Only used by NAG, but ...)
 
 ### Removed
 
