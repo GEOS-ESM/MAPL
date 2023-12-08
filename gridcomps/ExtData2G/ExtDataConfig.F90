@@ -143,7 +143,6 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Derived")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Derived",_RC)
-         !hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
          hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
