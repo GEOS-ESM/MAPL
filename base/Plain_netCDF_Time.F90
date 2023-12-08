@@ -117,7 +117,11 @@ contains
     character(len=100) :: str2
 
     call check_nc_status(nf90_open(fileName, NF90_NOWRITE, ncid2), _RC)
-    call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+    if (group_name/='') then
+       call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+    else
+       ncid = ncid2
+    end if
     call check_nc_status(nf90_inq_varid(ncid, var_name, varid), _RC)
     call check_nc_status(nf90_inquire_attribute(ncid, varid, attr_name, xtype, len=len), _RC)
     c_ncid= ncid

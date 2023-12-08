@@ -66,7 +66,7 @@ module HistoryTrajectoryMod
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
-     logical                        :: is_valid
+     logical                        :: active
    contains
      procedure :: initialize
      procedure :: create_variable => create_metadata_variable
