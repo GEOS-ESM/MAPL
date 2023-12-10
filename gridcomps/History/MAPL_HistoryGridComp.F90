@@ -5257,6 +5257,8 @@ ENDDO PARSER
   ! __ read data to object: obs_platform
   ! __ for each collection: find union fields, write to collection.rcx
   !
+  ! __ note: this subroutine is called by MPI root only
+  !
   subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
     use  MAPL_scan_pattern_in_file
     use MAPL_ObsUtilMod, only : obs_platform, union_platform
@@ -5295,7 +5297,6 @@ ENDDO PARSER
     lgr => logging%get_logger('HISTORY.sampler')
 
     !
-    ! -- note: work on HEAD node
     !
     call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
          label="HIST_CF:", default="HIST.rc", _RC )
@@ -5399,7 +5400,6 @@ ENDDO PARSER
        PLFS(k)%ngeoval = ngeoval
        PLFS(k)%nentry_name = nseg
 !!       call lgr%debug('%a %i','ngeoval=', ngeoval)
-
        allocate ( PLFS(k)%field_name (nseg, ngeoval) )
        nentry_name = nseg   ! assume the same for each field_name
     end do
@@ -5420,7 +5420,8 @@ ENDDO PARSER
        ios=0
        ngeoval=0
        do while (ios == 0)
-          read (unitr, '(A)' ) line
+          read (unitr, '(A)', iostat = ios) line
+          !! write(6,*) 'k in count, line', k, trim(line)
           i=index(line, '::')
           if (i==0) then
              ngeoval = ngeoval + 1
@@ -5437,7 +5438,7 @@ ENDDO PARSER
     
     !!do k=1, nplf
     !!   do i=1, ngeoval
-    !!      write(6,*) 'PLFS(k)%field_name (1:nseg, ngeoval)=', PLFS(k)%field_name (1:nseg,i)
+    !!      write(6,*) 'PLFS(k)%field_name (1:nseg, ngeoval)=', PLFS(k)%field_name (1:nseg,1)          
     !!   enddo
     !!enddo
     !!write(6,*) 'nlist=', nlist
@@ -5467,9 +5468,11 @@ ENDDO PARSER
           if (contLine) then
              if (adjustl(line) == '::') contLine = .false.
           end if
-          if ( index(line, trim(string)//'ObsPlatforms:') > 0 ) then
+          if ( index(adjustl(line), trim(string)//'ObsPlatforms:') == 1 ) then
              obs_flag =.true.
              line2 = line
+             write(6,*) 'first line for ObsPlatforms:=', trim(line)
+          
           endif
        end do
 1236   continue
@@ -5481,13 +5484,15 @@ ENDDO PARSER
           allocate (str_piece(mxseg))
           i = index(line2, ':')
           line = adjustl ( line2(i+1:) )
+          write(6,*) 'line for obsplatforms=', trim(line)
           call split_string_by_space (line, length_mx, mxseg, &
                nplatform, str_piece, status)          
-!          write(6,*) 'nplatform=', nplatform
-!          write(6,*) 'str_piece=', str_piece(1:nplatform)
-!          do j=1, nplf
-!             write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
-!          enddo
+
+
+          !!write(6,*) 'str_piece=', str_piece(1:nplatform)
+          !!do j=1, nplf
+          !!   write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
+          !!enddo
           
 
           !
@@ -5538,6 +5543,8 @@ ENDDO PARSER
           write(unitw,'(a,/)') '::'
           write(unitw,'(a)') trim(string)//'obs_files:     # table start from next line'
 
+
+          write(6,*) 'nplatform', nplatform          
           do i2=1, nplatform
              k=map(i2)
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
@@ -5556,6 +5563,7 @@ ENDDO PARSER
     end do
     call free_file(unitr, _RC)
 
+    _RETURN(ESMF_SUCCESS)
   end subroutine regen_rcx_for_obs_platform
 
       

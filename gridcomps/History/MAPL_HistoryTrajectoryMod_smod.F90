@@ -554,7 +554,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          L=0
          fid_s=this%obsfile_Ts_index
          fid_e=this%obsfile_Te_index
-         write(6,*) 
+
          call lgr%debug('%a %i10 %i10', &
               'fid_s,  fid_e', fid_s,  fid_e)
               
@@ -608,7 +608,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         obstype_id_full(len+1:len+num_times) = k
                         call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
                              times_R8_full(1), times_R8_full(200))
-                        write(6,'(f12.2)')  times_R8_full(::50) 
+                        !!write(6,'(f12.2)')  times_R8_full(::50) 
                         len = len + num_times
                      end if
                      j=j+1
