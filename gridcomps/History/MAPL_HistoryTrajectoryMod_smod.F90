@@ -140,11 +140,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          enddo
 
          ! __ s3. retrieve template and geoval, set metadata file_handle
-         lgr => logging%get_logger('HISTORY.sampler')         
+         lgr => logging%get_logger('HISTORY.sampler')
          if ( nobs == 0 ) then
             !
             !   treatment-1:
             !
+            _FAIL('this setting in HISTORY.rc obs_files: is not supported, stop')
             traj%nobs_type = nline         ! here .rc format cannot have empty spaces
             allocate (traj%obs(nline))
             call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
@@ -417,9 +418,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
       module procedure create_file_handle
+      use pflogger, only         :  Logger, logging
          integer :: status
          integer :: k
          character(len=ESMF_MAXSTR) :: filename
+         type(Logger), pointer :: lgr
 
          if (.NOT. this%active) then
             _RETURN(ESMF_SUCCESS)
@@ -430,6 +433,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             return
          endif
 
+         lgr => logging%get_logger('HISTORY.sampler')         
          do k=1, this%nobs_type
             call this%obs(k)%metadata%modify_dimension(this%index_name_x, this%obs(k)%nobs_epoch)
          enddo
@@ -437,9 +441,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             do k=1, this%nobs_type
                if (this%obs(k)%nobs_epoch > 0) then
                   filename=trim(this%obs(k)%name)//trim(filename_suffix)
+                  call lgr%debug('%a %a', & 
+                       "Sampling to new file : ",trim(filename))
                   call this%obs(k)%file_handle%create(trim(filename),_RC)
                   call this%obs(k)%file_handle%write(this%obs(k)%metadata,_RC)
-                  write(6,*) "Sampling to new file : ",trim(filename)
                end if
             enddo
          end if
@@ -509,6 +514,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: sec
          integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
          integer :: nx2
+         logical :: EX ! file
+         logical :: zero_obs
 
 !!         this%datetime_units = "seconds since 1970-01-01 00:00:00"
          lgr => logging%get_logger('HISTORY.sampler')
@@ -518,7 +525,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          if (this%index_name_x == '') then
             !
-            !-- non IODA case
+            !-- non IODA case / non netCDF
             !
             _FAIL('non-IODA format is not implemented here')
          end if
@@ -539,16 +546,18 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          i=index(this%var_name_time_full, '/')
          this%var_name_time= this%var_name_time_full(i+1:)
 
-         call lgr%debug('%a', 'grp_name,this%index_name_x,this%var_name_lat,this%var_name_lon,this%var_name_time')
+         call lgr%debug('%a', 'grp_name,this%index_name_x,this%var_name_lon,this%var_name_lat,this%var_name_time')
          call lgr%debug('%a %a %a %a %a', &
-              trim(grp_name),trim(this%index_name_x),trim(this%var_name_lat),&
-              trim(this%var_name_lon),trim(this%var_name_time))
+              trim(grp_name),trim(this%index_name_x),trim(this%var_name_lon),&
+              trim(this%var_name_lat),trim(this%var_name_time))
 
          L=0
          fid_s=this%obsfile_Ts_index
          fid_e=this%obsfile_Te_index
-         write(6,*) 'fid_s,  fid_e', fid_s,  fid_e
-
+         write(6,*) 
+         call lgr%debug('%a %i10 %i10', &
+              'fid_s,  fid_e', fid_s,  fid_e)
+              
          arr(1)=0     ! len_full
          if (mapl_am_I_root()) then
             len = 0
@@ -557,11 +566,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                do while (j<=fid_e)
                   filename = get_filename_from_template_use_index( &
                        this%obsfile_start_time, this%obsfile_interval, &
-                       j, this%obs(k)%input_template, _RC)
-                  if (filename /= '') then
-                     call lgr%debug('%a %a', 'true filename: ', trim(filename))
+                       j, this%obs(k)%input_template, EX, _RC)
+                  if (EX) then
+                     call lgr%debug('%a %i10', 'exist: filename fid j      :', j)
+                     call lgr%debug('%a %a',   'exist: true filename       :', trim(filename))
                      call get_ncfile_dimension(filename, tdim=num_times, key_time=this%index_name_x, _RC)
                      len = len + num_times
+                  else
+                     call lgr%debug('%a %i10', 'non-exist: filename fid j  :', j)
+                     call lgr%debug('%a %a',   'non-exist: missing filename:', trim(filename))                     
                   end if
                   j=j+1
                enddo
@@ -580,8 +593,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   do while (j<=fid_e)
                      filename = get_filename_from_template_use_index( &
                           this%obsfile_start_time, this%obsfile_interval, &
-                          j, this%obs(k)%input_template, _RC)
-                     if (filename /= '') then
+                          j, this%obs(k)%input_template, EX, _RC)
+                     if (EX) then
                         ii = ii + 1
                         call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%index_name_x, _RC)
                         call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
@@ -589,12 +602,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name) 
                         call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
                         if (ii == 1) then
-                           !! this%datetime_units = "seconds since 1970-01-01 00:00:00"
                            this%datetime_units = trim(timeunits_file)
+                           call lgr%debug('%a %a', 'datetime_units from 1st file:', trim(timeunits_file))
                         end if
                         obstype_id_full(len+1:len+num_times) = k
                         call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
-                             times_R8_full(1), times_R8_full(200))                        
+                             times_R8_full(1), times_R8_full(200))
+                        write(6,'(f12.2)')  times_R8_full(::50) 
                         len = len + num_times
                      end if
                      j=j+1
@@ -623,7 +637,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=this%obsTime)
             this%obsTime= -1.d0
             
-            write(6,*) 'nx_sum=', nx_sum            
+            call lgr%debug('%a %i5', 'nobservation points=', nx_sum)
             rc = 0
             return
          end if
@@ -644,81 +658,111 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             nstart=1; nend=size(times_R8_full)
             call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
             call bisect( times_R8_full, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
-            if (jt1==jt2) then
-               _FAIL('Epoch Time is too small, empty grid is generated, increase Epoch')
-            endif
-            call lgr%debug ('%a %f20.1 %f20.1', 'jx0, jx1', jx0, jx1)
-            call lgr%debug ('%a %i20 %i20', 'jt1, jt2', jt1, jt2)
+            call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
+            call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Epoch]  w.r.t. timeunit ', jx0, jx1)
+            call lgr%debug ('%a %f20.1 %f20.1', 'x0[times(1)] xn[times(N)] w.r.t. timeunit ', &
+                 times_R8_full(1), times_R8_full(nend))
+            call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
 
-            ! (x1, x2]  design in bisect
-            if (jt1==0) then
-               this%epoch_index(1)= 1
+
+!            if (jt1==jt2) then
+!               _FAIL('Epoch Time is too small, empty grid is generated, increase Epoch')
+!            endif
+
+            !-- shift the zero item to index 1
+            zero_obs = .false.
+            if (jt1/=jt2) then
+               zero_obs = .false.
+               if (jt1==0) jt1=1
             else
-               this%epoch_index(1)= jt1
-            endif
-            _ASSERT(jt2<=len, 'bisect index for this%epoch_index(2) failed')
-            if (jt2==0) then
-               this%epoch_index(2)= 1
+               ! at most one obs point exist, set it .true.
+               zero_obs = .true.
+               !!  if (jt1==0) jt1=1
+            end if
+            
+            !
+            !-- exclude the out-of-range case
+            !
+            if ( zero_obs ) then
+               allocate(this%lons(0),this%lats(0),_STAT)
+               allocate(this%times_R8(0),_STAT)
+               allocate(this%obstype_id(0),_STAT)
+               this%epoch_index(1:2)=0
+               this%nobs_epoch = 0
+               nx=0
+               arr(1)=nx
             else
-               this%epoch_index(2)= jt2
-            endif
+               ! (x1, x2]  design in bisect
+               if (jt1==0) then
+                  this%epoch_index(1)= 1
+               else
+                  this%epoch_index(1)= jt1
+               endif
+               _ASSERT(jt2<=len, 'bisect index for this%epoch_index(2) failed')
+               if (jt2==0) then
+                  this%epoch_index(2)= 1
+               else
+                  this%epoch_index(2)= jt2
+               endif
 
-            nx= this%epoch_index(2) - this%epoch_index(1) + 1
-            this%nobs_epoch = nx
-            allocate(this%lons(nx),this%lats(nx),_STAT)
-            allocate(this%times_R8(nx),_STAT)
-            allocate(this%obstype_id(nx),_STAT)
+               nx= this%epoch_index(2) - this%epoch_index(1) + 1
+               this%nobs_epoch = nx
 
-            j=this%epoch_index(1)
-            do i=1, nx
-               this%lons(i) = lons_full(j)
-               this%lats(i) = lats_full(j)
-               this%times_R8(i) = times_R8_full(j)
-               this%obstype_id(i) = obstype_id_full(j)
-               j=j+1
-            enddo
-            arr(1)=nx
 
-            do k=1, this%nobs_type
-               this%obs(k)%nobs_epoch = 0
-            enddo
-            do j = this%epoch_index(1), this%epoch_index(2)
-               k = obstype_id_full(j)
-               this%obs(k)%nobs_epoch = this%obs(k)%nobs_epoch + 1
-            enddo
+               allocate(this%lons(nx),this%lats(nx),_STAT)
+               allocate(this%times_R8(nx),_STAT)
+               allocate(this%obstype_id(nx),_STAT)
 
-            do k=1, this%nobs_type
-               nx2 = this%obs(k)%nobs_epoch
-               allocate (this%obs(k)%lons(nx2))
-               allocate (this%obs(k)%lats(nx2))
-               allocate (this%obs(k)%times_R8(nx2))
-            enddo
+               j=this%epoch_index(1)
+               do i=1, nx
+                  this%lons(i) = lons_full(j)
+                  this%lats(i) = lats_full(j)
+                  this%times_R8(i) = times_R8_full(j)
+                  this%obstype_id(i) = obstype_id_full(j)
+                  j=j+1
+               enddo
+               arr(1)=nx
 
-            allocate(ix(this%nobs_type))
-            ix(:)=0
-            j=this%epoch_index(1)
-            do i=1, nx
-               k = obstype_id_full(j)
-               ix(k) = ix(k) + 1
-               this%obs(k)%lons(ix(k)) = lons_full(j)
-               this%obs(k)%lats(ix(k)) = lats_full(j)
-               this%obs(k)%times_R8(ix(k)) = times_R8_full(j)
-               !if (mod(k,10**8)==1) then
-               !   write(6,*) 'this%obs(k)%times_R8(ix(k))', this%obs(k)%times_R8(ix(k))
-               !endif
-               j=j+1
-            enddo
-            deallocate(ix)
-            deallocate(lons_full, lats_full, times_R8_full, obstype_id_full)
+               do k=1, this%nobs_type
+                  this%obs(k)%nobs_epoch = 0
+               enddo
+               do j = this%epoch_index(1), this%epoch_index(2)
+                  k = obstype_id_full(j)
+                  this%obs(k)%nobs_epoch = this%obs(k)%nobs_epoch + 1
+               enddo
 
-            call lgr%debug('%a %i12 %i12 %i12', &
-                 'epoch_index(1:2), nx', this%epoch_index(1), &
-                 this%epoch_index(2), this%nobs_epoch)
-            do k=1, this%nobs_type
-               call lgr%debug('%a %i4 %a %i12', &
-                    'obs(', k, ')%nobs_epoch', this%obs(k)%nobs_epoch )
-            enddo
+               do k=1, this%nobs_type
+                  nx2 = this%obs(k)%nobs_epoch
+                  allocate (this%obs(k)%lons(nx2))
+                  allocate (this%obs(k)%lats(nx2))
+                  allocate (this%obs(k)%times_R8(nx2))
+               enddo
 
+               allocate(ix(this%nobs_type))
+               ix(:)=0
+               j=this%epoch_index(1)
+               do i=1, nx
+                  k = obstype_id_full(j)
+                  ix(k) = ix(k) + 1
+                  this%obs(k)%lons(ix(k)) = lons_full(j)
+                  this%obs(k)%lats(ix(k)) = lats_full(j)
+                  this%obs(k)%times_R8(ix(k)) = times_R8_full(j)
+                  !if (mod(k,10**8)==1) then
+                  !   write(6,*) 'this%obs(k)%times_R8(ix(k))', this%obs(k)%times_R8(ix(k))
+                  !endif
+                  j=j+1
+               enddo
+               deallocate(ix)
+               deallocate(lons_full, lats_full, times_R8_full, obstype_id_full)
+
+               call lgr%debug('%a %i12 %i12 %i12', &
+                    'epoch_index(1:2), nx', this%epoch_index(1), &
+                    this%epoch_index(2), this%nobs_epoch)
+               do k=1, this%nobs_type
+                  call lgr%debug('%a %i4 %a %i12', &
+                       'obs(', k, ')%nobs_epoch', this%obs(k)%nobs_epoch )
+               enddo
+            end if         
          else
             allocate(this%lons(0),this%lats(0),_STAT)
             allocate(this%times_R8(0),_STAT)
@@ -732,7 +776,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
          this%nobs_epoch_sum = nx_sum
-         if (mapl_am_I_root()) write(6,*) 'nobs in Epoch    :', nx_sum
+         if (mapl_am_I_root()) write(6,'(2x,a,2x,i15)') 'nobs in Epoch    :', nx_sum
 
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
@@ -873,6 +917,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            enddo
                         endif
                      enddo
+                     do k=1, this%nobs_type
+                        deallocate (this%obs(k)%p2d)
+                     enddo                     
                   end if
                else if (rank==2) then
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
@@ -927,6 +974,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      !!write(6,*) 'here in append_file:  put_var 3d'
                      !!call this%obs(k)%file_handle%put_var(trim(item%xname),p_acc_rt_3d(:,:),&
                      !!     start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                     !!
+                     do k=1, this%nobs_type
+                        deallocate (this%obs(k)%p3d)
+                     enddo
                   end if
                endif
             else if (item%itemType == ItemTypeVector) then
