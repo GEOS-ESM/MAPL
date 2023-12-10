@@ -257,7 +257,6 @@ endif ()
 # Support for automated code generation
 include(mapl_acg)
 include(mapl_create_stub_component)
-add_subdirectory (Apps)
 
 add_subdirectory (Tests)
 

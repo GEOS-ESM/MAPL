@@ -29,9 +29,10 @@ module MAPL_GriddedIOMod
   implicit none
 
   private
+  public :: MAPL_GriddedIO
 
-  type, public :: MAPL_GriddedIO
-     type(FileMetaData), allocatable :: metadata
+  type :: MAPL_GriddedIO
+     type(FileMetaData) :: metadata
      type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id
      integer :: read_collection_id
@@ -105,6 +106,7 @@ module MAPL_GriddedIOMod
         if (present(metadata_collection_id)) GriddedIO%metadata_collection_id=metadata_collection_id
         if (present(items)) GriddedIO%items=items
         if (present(fraction)) GriddedIO%fraction=fraction
+
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_GriddedIO
 
@@ -128,9 +130,6 @@ module MAPL_GriddedIOMod
         type(StringStringMapIterator) :: s_iter
         character(len=:), pointer :: attr_name, attr_val
         integer :: status
-
-        if ( allocated (this%metadata) ) deallocate(this%metadata)
-        allocate(this%metadata)
 
         call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
 
@@ -177,7 +176,7 @@ module MAPL_GriddedIOMod
            call this%check_chunking(this%vdata%lm,_RC)
         end if
 
-        order = this%metadata%get_order(_RC)
+       order = this%metadata%get_order(_RC)
         metadataVarsSize = order%size()
 
         do while (iter /= this%items%end())
@@ -1127,7 +1126,7 @@ module MAPL_GriddedIOMod
   end subroutine request_data_from_file
 
   subroutine process_data_from_file(this,rc)
-     class(mapl_GriddedIO), intent(inout) :: this
+     class(mapl_GriddedIO), target, intent(inout) :: this
      integer, intent(out), optional :: rc
 
      integer :: status

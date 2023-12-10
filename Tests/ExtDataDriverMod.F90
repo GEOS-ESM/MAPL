@@ -84,7 +84,7 @@ contains
       integer :: lineCount, columnCount,i,rank
       character(len=ESMF_MAXSTR) :: ctemp
       character(len=:), pointer :: cname
-      type(StringVector) :: cases
+      type(StringVector), target :: cases
       type(StringVectorIterator) :: iter  
       type(SplitCommunicator) :: split_comm
 

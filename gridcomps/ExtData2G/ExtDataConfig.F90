@@ -195,7 +195,7 @@ contains
 
       type(ExtDataRuleMapIterator) :: rule_iterator
       character(len=:), pointer :: key
-      type(StringVector) :: start_times
+      type(StringVector), target :: start_times
       integer :: num_rules
       type(ExtDataRule), pointer :: rule
       integer :: i,status,idx
@@ -318,7 +318,7 @@ contains
    end function get_item_type
 
    subroutine add_new_rule(this,key,export_rule,multi_rule,rc)
-      class(ExtDataConfig), intent(inout) :: this
+      class(ExtDataConfig), target, intent(inout) :: this
       character(len=*), intent(in) :: key
       type(ESMF_HConfig), intent(in) :: export_rule
       logical, optional, intent(in) :: multi_rule
@@ -360,7 +360,7 @@ contains
 
    function get_extra_derived_items(this,primary_items,derived_items,rc) result(needed_vars)
       type(StringVector) :: needed_vars
-      class(ExtDataConfig), intent(inout) :: this
+      class(ExtDataConfig), target, intent(inout) :: this
       type(StringVector), intent(in) :: primary_items
       type(StringVector), intent(in) :: derived_items
       integer, intent(out), optional :: rc
@@ -368,7 +368,7 @@ contains
       integer :: status
       type(StringVectorIterator) :: string_iter
       type(ExtDataDerived), pointer :: derived_item
-      type(StringVector) :: variables_in_expression
+      type(StringVector), target :: variables_in_expression
       character(len=:), pointer :: sval,derived_name
       logical :: in_primary,found_rule
       integer :: i
@@ -403,7 +403,7 @@ contains
 
    function has_rule_for(this,base_name,rc) result(found_rule)
       logical :: found_rule
-      class(ExtDataConfig), intent(inout) :: This
+      class(ExtDataConfig), target, intent(inout) :: This
       character(len=*), intent(in) :: base_name
       integer, optional, intent(out) :: rc
 

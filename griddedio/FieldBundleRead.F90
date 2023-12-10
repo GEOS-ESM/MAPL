@@ -21,7 +21,6 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_SimpleAlarm
    use MAPL_StringTemplate
    use gFTL_StringVector
-   use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
 
@@ -57,10 +56,11 @@ module MAPL_ESMFFieldBundleRead
          type(ESMF_Info) :: infoh
 
          collection => DataCollections%at(metadata_id)
+         _ASSERT(associated(collection), 'specified metadata_id not found')
          metadata => collection%find(trim(file_name), _RC)
+         _ASSERT(associated(metadata), 'filename <'//trim(file_name)//'> not found')
          file_grid=collection%src_grid
-         lev_name = metadata%get_level_name(rc=status)
-         _VERIFY(status)
+         lev_name = metadata%get_level_name(_RC)
          has_vertical_level = (metadata%get_level_name(rc=status)/='')
          call ESMF_FieldBundleGet(bundle,grid=grid,FieldCount=num_fields,rc=status)
          _VERIFY(status)
@@ -184,11 +184,12 @@ module MAPL_ESMFFieldBundleRead
 
          metadata_id = MAPL_DataAddCollection(trim(file_tmpl))
          collection => DataCollections%at(metadata_id)
+         _ASSERT(associated(collection), 'specified metadata_id not found')
          if (present(file_override)) file_name = file_override
-        
+
          metadata => collection%find(trim(file_name), _RC)
-         call metadata%get_time_info(timeVector=time_series,rc=status)
-         _VERIFY(status)
+         _ASSERT(associated(metadata), 'filename <'//trim(file_name)//'> not found')
+         call metadata%get_time_info(timeVector=time_series,_RC)
          time_index=-1
          do i=1,size(time_series)
             if (time==time_series(i)) then
