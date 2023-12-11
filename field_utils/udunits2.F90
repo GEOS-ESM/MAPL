@@ -3,16 +3,23 @@
 #endif
 #define TRIMALL(S) trim(adjustl(S))
 
+#if defined(LEN_TRIMALL)
+#undef LEN_TRIMALL
+#endif
+#define LEN_TRIMALL(S) len_trim(adjustl(S))
+
 module udunits2mod
 
-   use iso_c_binding, only: c_char, c_int, c_float, c_double, c_null_ptr, &
-      c_ptr, c_associated, c_null_char
+!   use iso_c_binding, only: c_char, c_int, c_float, c_double, c_null_ptr, &
+!      c_ptr, c_associated, c_null_char
+   use iso_c_binding, only: c_ptr, c_loc, c_associated, c_null_ptr, c_null_char, &
+      c_char, c_int, c_float, c_double
 
    implicit none
 
-   private
+   !private
 
-   public :: MAPL_UDUNITS_CONVERTER
+   public :: MAPL_Udunits_Converter
 
 !================================== INCLUDE ====================================
    include 'udunits2enumerators.h'
@@ -29,10 +36,10 @@ module udunits2mod
    end type Cwrap
 
    interface
-      logical function Destroyer(this)
+       subroutine Destroyer(this)
          import :: Cwrap
          class(Cwrap), intent(inout) :: this
-      end function Destroyer
+      end subroutine Destroyer
    end interface
 !=========================== MAPL_UDUNITSCONVERTER =============================
    type, extends(Cwrap) :: MAPL_Udunits_Converter
@@ -64,6 +71,11 @@ module udunits2mod
       module procedure :: is_c_null_ptr
       module procedure :: is_null_cwrap
    end interface is_null
+
+   interface get_unit_database_path
+      module procedure :: get_unit_database_path_
+      module procedure :: get_unit_database_path_null
+   end interface get_unit_database_path
 
    type(MAPL_Udunits_System), target :: SYSTEM_INSTANCE
    integer(ut_encoding) :: UT_ENCODING_DEFAULT = UT_ASCII
@@ -111,16 +123,16 @@ contains
       character(len=*), intent(in) :: from, to
       character(len=*), optional, intent(in) :: path
       integer(ut_encoding), optional, intent(in) :: encoding
-      type(c_ptr) :: ut_system_ptr
+      type(c_ptr) :: ut_system_ptr, converter_ptr
       type(c_ptr) :: from_unit, to_unit
-      logical :: from_destroyed, to_destroyed
  
       ut_system_ptr = initialize(path)
       from_unit = ut_parse(ut_system_ptr, TRIMALL(from), get_encoding(encoding))
       to_unit = ut_parse(ut_system_ptr, TRIMALL(to), get_encoding(encoding))
-      call get_converter % set(ut_get_converter(from_unit, to_unit))
-      from_destroyed = destroy_ut_unit(from_unit)
-      to_destroyed = destroy_ut_unit(from_unit)
+      converter_ptr = ut_get_converter(from_unit, to_unit)
+      call get_converter % set(converter_ptr)
+      call destroy_ut_unit(from_unit)
+      call destroy_ut_unit(from_unit)
 
    end function get_converter
 
@@ -179,55 +191,65 @@ contains
 
    type(c_ptr) function get_ut_system(path)
       character(len=*), optional, intent(in) :: path
-
-      if(present(path)) then
-         get_ut_system = ut_read_xml(TRIMALL(path) // c_null_char)
-      else
-         get_ut_system = ut_read_xml(c_null_char)
-      end if
+      
+      get_ut_system = ut_read_xml(get_path_pointer(path))
                
    end function get_ut_system
 
-   logical function destroy_ut_unit(ut_unit_ptr) result(destroyed)
+   type(c_ptr) function get_path_pointer(path)
+      character(len=*), optional, intent(in) :: path
+
+      get_path_pointer = c_null_ptr
+
+      if(.not. present(path)) return
+      if(len(path) == 0) return
+      get_path_pointer = get_c_char_ptr(path)
+
+   end function get_path_pointer
+
+   type(c_ptr) function get_c_char_ptr(s)
+      character(len=*), intent(in) :: s
+      character(len=len_trim(adjustl(s))+1), target :: s_
+
+      s_ = trim(adjustl(s)) // c_null_char
+      get_c_char_ptr = c_loc(s_)
+
+   end function get_c_char_ptr
+
+   subroutine destroy_ut_unit(ut_unit_ptr)
       type(c_ptr), intent(inout) :: ut_unit_ptr
       
-      destroyed = .TRUE.
       if(is_null(ut_unit_ptr)) return
       call ut_free(ut_unit_ptr)
-      destroyed = is_null(ut_unit_ptr)
 
-   end function destroy_ut_unit
+   end subroutine destroy_ut_unit
 
-   logical function destroy_all() result(destroyed)
-      destroyed = .TRUE.
-      destroyed = SYSTEM_INSTANCE.destroy()
-   end function destroy_all
+   subroutine destroy_all()
+      call SYSTEM_INSTANCE.destroy()
+   end subroutine destroy_all
 
-   logical function destroy_system(this) result(destroyed)
+   subroutine destroy_system(this)
       class(MAPL_Udunits_System), intent(inout) :: this
       type(c_ptr) :: ut_system_ptr 
-
-      destroyed = .TRUE.
-      if(is_null(this)) return
+      
       ut_system_ptr = this % ptr
+!      if(is_null(this)) return
+      if(.not. c_associated(ut_system_ptr)) return
       call ut_free_system(ut_system_ptr)
       call this % set()
-      destroyed = is_null(ut_system_ptr)
 
-   end function destroy_system
+   end subroutine destroy_system
 
-   logical function destroy_converter(this) result(destroyed)
+   subroutine destroy_converter(this)
       class(MAPL_Udunits_Converter), intent(inout) :: this
       type(c_ptr) :: ptr
 
-      destroyed = .TRUE.
       if(is_null(this)) return
       ptr = this % ptr
       call cv_free(ptr)
       call this % set()
-      destroyed = is_null(ptr)
 
-   end function destroy_converter
+   end subroutine destroy_converter
 
    logical function are_convertible(unit1, unit2)
       type(c_ptr), intent(in) :: unit1, unit2
@@ -239,5 +261,60 @@ contains
       integer(ut_encoding), optional, intent(in) :: encoding
       get_encoding = merge(encoding, UT_ENCODING_DEFAULT, present(encoding))
    end function get_encoding
+
+   type(c_ptr) function get_unit_database_path(path, status)
+      character(len=*), optional, intent(in) :: path
+      integer(c_int), intent(in) :: status
+
+      get_unit_database_path = ut_get_path_xml(get_path_pointer(path), status, path)
+
+   end function get_unit_database_path
+
+   subroutine get_string_from_cptr(cptr, string)
+      type(c_ptr), intent(in) :: cptr
+      character(len=*), intent(out) :: string
+      character(c_char) :: ca
+      integer :: n, i
+
+      do i = 1, len(string)
+         
+
+   function make_ut_status_messages() result(messages)
+      character(len=32) :: messages(0:15)
+
+      messages = [ &
+         'UT_SUCCESS', & ! Success 
+         'UT_BAD_ARG', & ! An argument violates the function's contract 
+         'UT_EXISTS', & ! Unit, prefix, or identifier already exists 
+         'UT_NO_UNIT', & ! No such unit exists 
+         'UT_OS', & ! Operating-system error. See "errno". 
+         'UT_NOT_SAME_SYSTEM', & ! The units belong to different unit-systems 
+         'UT_MEANINGLESS', & ! The operation on the unit(s) is meaningless 
+         'UT_NO_SECOND', & ! The unit-system doesn't have a unit named "second" 
+         'UT_VISIT_ERROR', & ! An error occurred while visiting a unit 
+         'UT_CANT_FORMAT', & ! A unit can't be formatted in the desired manner 
+         'UT_SYNTAX', & ! string unit representation contains syntax error 
+         'UT_UNKNOWN', & ! string unit representation contains unknown word 
+         'UT_OPEN_ARG', & ! Can't open argument-specified unit database 
+         'UT_OPEN_ENV', & ! Can't open environment-specified unit database 
+         'UT_OPEN_DEFAULT', & ! Can't open installed, default, unit database 
+         'UT_PARSE_ERROR' & ! Error parsing unit specification 
+      ]
+
+    end function make_ut_status_messages
+
+   function get_ut_status_message(utstat) result(message)
+      integer(ut_status), intent(in) :: utstat
+      character(len=32) :: message
+      character(len=32) :: messages(16)
+      
+      messages = make_ut_status_messages()
+      if(utstat < 0) return
+      if(utstat < size(messages)) then
+         message = messages(utstat + 1)
+         return
+      end if
+
+   end function get_ut_status_message
 
 end module udunits2mod

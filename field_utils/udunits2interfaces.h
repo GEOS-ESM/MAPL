@@ -2,6 +2,13 @@
 
    interface
 
+      function ut_get_path_xml(path, status) bind(c, name='ut_get_path_xml') result(path_xml)
+         import :: c_ptr, ut_status, c_char
+         type(c_ptr), intent(in) :: path
+         integer(ut_status), intent(out) :: status
+         type(c_ptr) :: path_xml
+      end function ut_get_path_xml
+
       ! Get last status
       integer(ut_status) function ut_get_status() &
          bind(c, name='ut_get_status')
@@ -61,9 +68,9 @@
       end subroutine cv_convert_floats
 
       ! Use ut_get_status to check error condition. 
-      type(c_ptr) function ut_read_xml(path) bind(c, name='ut_read_xml')
-         import :: c_char, c_ptr
-         character(c_char), intent(in) :: path(*)
+      type(c_ptr) function ut_read_xml(path_ptr) bind(c, name='ut_read_xml')
+         import :: c_ptr
+         type(c_ptr), intent(in) :: path_ptr
       end function ut_read_xml
 
       ! Use ut_get_status to check error condition. 
@@ -71,7 +78,7 @@
          bind(c, name='ut_parse')
          import :: c_ptr, c_char, ut_encoding
          type(c_ptr), intent(in) :: system
-         character(c_char), intent(in) ::  string
+         character(c_char), intent(in) :: string(*)
          integer(ut_encoding), value, intent(in) :: encoding
       end function ut_parse
 

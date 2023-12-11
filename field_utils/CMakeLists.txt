@@ -44,3 +44,4 @@ find_package(udunits REQUIRED)
 find_package(EXPAT REQUIRED)
 
 target_link_libraries(${this} PUBLIC udunits::udunits)
+target_link_libraries(${this} PUBLIC EXPAT::EXPAT)

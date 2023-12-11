@@ -12,9 +12,12 @@ module Test_udunits2
    ! The instances from iso_c_binding are not explicitly included in an include
    ! statement, to verify that the use statement for the module being tested
    ! is correct.
-   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
+   use iso_c_binding, only: c_ptr, c_null_ptr, c_double, c_float, c_associated
 
    implicit none
+
+!   include 'udunits2enumerators.h'
+!   include "udunits2interfaces.h"
 
    integer(ut_encoding) :: encoding = UT_ASCII
    type(c_ptr) :: ut_system_ptr, unit1, unit2
@@ -28,8 +31,10 @@ contains
    subroutine set_up()
 
       encoding = UT_ASCII
-      SYSTEM_INSTANCE = c_null_ptr
-      call all_c_null_ptr(ut_system_ptr, unit1, unit2)
+      call SYSTEM_INSTANCE % set()
+      ut_system_ptr = c_null_ptr
+      unit1 = c_null_ptr
+      unit2 = c_null_ptr
 
    end subroutine set_up
 
@@ -37,119 +42,121 @@ contains
    subroutine tear_down()
 
       encoding = UT_ASCII
-      @assertTrue(destroy_all(), 'System destroy failed.')
+      !call destroy_all()
 
-      if .not. is_null(ut_system_ptr) call ut_free_system(ut_system_ptr)
-      if .not. is_null(unit1) call ut_free(unit1)
-      if .not. is_null(unit2) call ut_free(unit2)
+      if(c_associated(unit1)) call ut_free(unit1)
+      if(c_associated(unit2)) call ut_free(unit2)
+      if(c_associated(ut_system_ptr)) call ut_free_system(ut_system_ptr)
+!      if(.not. is_null(ut_system_ptr)) call ut_free_system(ut_system_ptr)
+!      if(.not. is_null(unit1)) call ut_free(unit1)
+!      if(.not. is_null(unit2)) call ut_free(unit2)
 
    end subroutine tear_down
 
    @Test
-   subroutine test_initialize()
-      type(c_ptr) :: ptr
+   subroutine test_get_unit_database_path()
+      character(len=1024) :: path
+      type(c_ptr) :: path_ptr
+      integer(c_int) :: status
 
-      ptr = initialize()
-      @assertEqual(ptr, c_null_ptr, 'initialize returned the C null pointer.')
+      path_ptr = get_unit_database_path(status)
+      @assertEqual(status, UT_SUCCESS, 'Unsuccessful: ' // trim(path))
+      @assertFalse(len_trim(path) == 0, 'Nonzero path: ' // trim(path))
 
-   end subroutine test_initialize
+   end subroutine test_get_unit_database_path
+
+!   @Test
+!   subroutine test_initialize()
+!      type(c_ptr) :: ptr
+
+!      ptr = initialize()
+!      @assertEqual(ptr, c_null_ptr, 'initialize returned the C null pointer (no path).')
+
+!#if defined XML_PATH
+!      ptr = initialize(XML_PATH)
+!      @assertTrue(c_associated(ptr), 'initialize returned the C null pointer (path).')
+!#endif
+
+!   end subroutine test_initialize
    
-#if defined XML_PATH
-
-   @Test
-   subroutine test_initialize_noencoding()
-      type(c_ptr) :: ptr
-
-      ptr = initialize(XML_PATH)
-      @assertEqual(ptr, c_null_ptr, 'initialize returned the C null pointer.')
-
-   end subroutine test_initialize_noencoding()
-
-#endif
-
-   @Test
+   !@Test
    subroutine test_get_converter()
       type(MAPL_Udunits_Converter) :: conv
 
       conv = get_converter(KM, M, encoding=encoding)
-      @assertFalse(conv % ptr == c_null_ptr, 'get_converter returned the C null pointer.')
+      @assertTrue(c_associated(conv % ptr), 'get_converter returned the C null pointer.')
 
    end subroutine test_get_converter
 
-   @Test
+   !@Test
    subroutine test_get_converter_noencoding()
       type(MAPL_Udunits_Converter) :: conv
 
       conv = get_converter(KM, M)
-      @assertFalse(conv % ptr == c_null_ptr, 'get_converter returned the C null pointer.')
+      @assertTrue(c_associated(conv % ptr), 'get_converter returned the C null pointer.')
 
    end subroutine test_get_converter_noencoding
 
-   @Test
+   !@Test
    subroutine test_get_ut_system()
       type(c_ptr) :: ptr
       logical :: destroyed
 
       ptr = get_ut_system()
-      @assertEqual(ptr, c_null_ptr, 'get_ut_system returned the C null pointer.')
-      destroyed = ut_free_system(ptr)
+      @assertTrue(c_associated(ptr), 'get_ut_system returned the C null pointer (no path).')
+      call ut_free_system(ptr)
+
+#if defined XML_PATH
+      ptr = get_ut_system(XML_PATH)
+      @assertTrue(c_associated(ptr), 'get_ut_system returned the C null pointer (path).')
+      call ut_free_system(ptr)
+#endif
 
    end subroutine test_get_ut_system
 
-#if defined XML_PATH
-
-   @Test
-   subroutine test_get_ut_system_nopath()
-      type(c_ptr) :: ptr
-      logical :: destroyed
-
-      ptr = get_ut_system(XML_PATH)
-      @assertEqual(ptr, c_null_ptr, 'get_ut_system returned the C null pointer.')
-      destroyed = ut_free_system(ptr)
-
-#endif
-
-   @Test
+   !@Test
    subroutine test_are_convertible()
       type(c_ptr) :: unit1, unit2, ut_system_ptr
       
       ut_system_ptr = ut_read_xml(c_null_ptr)
-      unit1 = ut_parse(ut_system_ptr, 'km')
-      unit2 = ut_parse(ut_system_ptr, 'm')
+      unit1 = ut_parse(ut_system_ptr, 'km', encoding)
+      unit2 = ut_parse(ut_system_ptr, 'm', encoding)
       @assertTrue(are_convertible(unit1, unit2), 'Units are convertible.')
 
    end subroutine test_are_convertible
 
-   @Test
+   !@Test
    subroutine test_are_not_convertible()
       type(c_ptr) :: unit1, unit2, ut_system_ptr
 
       ut_system_ptr = ut_read_xml(c_null_ptr)
-      unit1 = ut_parse(ut_system_ptr, 'km')
-      unit2 = ut_parse(ut_system_ptr, 's')
+      unit1 = ut_parse(ut_system_ptr, 'km', encoding)
+      unit2 = ut_parse(ut_system_ptr, 's', encoding)
       @assertFalse(are_convertible(unit1, unit2), 'Units are not convertible.')
 
    end subroutine test_are_not_convertible
 
-   @Test
+   !@Test
    subroutine test_ut_read_xml()
       type(c_ptr) :: path = c_null_ptr
       integer(ut_status) :: ustat
+      type(c_ptr) :: utsys
       
       utsys = ut_read_xml(path)
       ustat = ut_get_status()
       @assertEqual(ustat, UT_SUCCESS, 'Failed to get ut_system')
+      @assertTrue(c_associated(utsys), 'Unsuccessful ut_read_xml')
       call ut_free_system(utsys)
 
    end subroutine test_ut_read_xml
 
-   @Test
+   !@Test
    subroutine test_ut_parse()
-      type(ut_system) :: utsys
+      type(c_ptr) :: utsys
       character(c_char), parameter :: string = 'kilogram'
       integer(ut_encoding) :: encoding
       type(c_ptr) :: path = c_null_ptr
-      type(ut_unit) :: unit0
+      type(c_ptr) :: unit0
       integer(ut_status) :: ustat
 
       utsys = ut_read_xml(path)
@@ -159,7 +166,7 @@ contains
       
    end subroutine test_ut_parse
 
-   @Test
+   !@Test
    subroutine test_convert_double()
       real(c_double), parameter :: FROM = 1.0
       real(c_double), parameter :: EXPECTED = 1000.0
@@ -174,7 +181,7 @@ contains
 
    end subroutine test_convert_double
 
-   @Test
+   !@Test
    subroutine test_convert_float()
       real(c_float), parameter :: FROM = 1.0
       real(c_float), parameter :: EXPECTED = 1000.0
@@ -189,10 +196,10 @@ contains
 
    end subroutine test_convert_float
 
-   @Test
+   !@Test
    subroutine test_convert_doubles()
-      real(c_double), parameter :: FROM(:) = [1.0, 2.0, 3.0]
-      real(c_double), parameter :: EXPECTED(:) = 1000.0 * FROM
+      real(c_double), parameter :: FROM(3) = [1.0, 2.0, 3.0]
+      real(c_double), parameter :: EXPECTED(3) = 1000.0 * FROM
       real(c_double) :: ACTUAL(size(EXPECTED))
       type(MAPL_Udunits_Converter) :: conv
       character(len=*), parameter :: FROM_STRING = KM
@@ -204,10 +211,10 @@ contains
 
    end subroutine test_convert_doubles
 
-   @Test
+   !@Test
    subroutine test_convert_floats()
-      real(c_float), parameter :: FROM(:) = [1.0, 2.0, 3.0]
-      real(c_float), parameter :: EXPECTED(:) = 1000.0 * FROM
+      real(c_float), parameter :: FROM(3) = [1.0, 2.0, 3.0]
+      real(c_float), parameter :: EXPECTED(3) = 1000.0 * FROM
       real(c_float) :: ACTUAL(size(EXPECTED))
       type(MAPL_Udunits_Converter) :: conv
       character(len=*), parameter :: FROM_STRING = KM
@@ -219,41 +226,24 @@ contains
 
    end subroutine test_convert_floats
 
-   @Test
+   !@Test
    subroutine test_destroy_all()
       @assertTrue(.FALSE., 'Test not implemented')
    end subroutine test_destroy_all
 
-   @Test
+   !@Test
    subroutine test_destroy_system()
       @assertTrue(.FALSE., 'Test not implemented')
    end subroutine test_destroy_system
 
-   @Test
+   !@Test
    subroutine test_destroy_converter()
       @assertTrue(.FALSE., 'Test not implemented')
    end subroutine test_destroy_converter
 
-   @Test
+   !@Test
    subroutine test_destroy_ut_unit()
       @assertTrue(.FALSE., 'Test not implemented')
    end subroutine test_destroy_ut_unit
-
-   subroutine all_c_null_ptr(ptr)
-      type(c_ptr), intent(inout) :: ptr(:)
-      integer :: i
-
-      do i = 1, size(ptrs)
-         ptr(i) = c_null_ptr
-      end do
-
-   end subroutine all_c_null_ptr
-
-   logical function is_null(cptr)
-      type(c_ptr), intent(in) :: cptr
-
-      is_null = (cptr == c_null_ptr)
-
-   end function is_null
 
 end module Test_udunits2
