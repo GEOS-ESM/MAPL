@@ -38,13 +38,18 @@ module mapl3g_OuterMetaComponent
    public :: attach_outer_meta
    public :: free_outer_meta
 
+   type :: UserComponent
+      class(AbstractUserSetServices), allocatable :: setservices
+      type(ESMF_GridComp) :: gridcomp
+      type(MultiState) :: states
+   end type UserComponent
+
    type :: OuterMetaComponent
       private
       
       type(ESMF_GridComp)                         :: self_gridcomp
-      class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_GridComp)                         :: user_gridcomp
-      type(MultiState)                            :: user_states
+
+      type(UserComponent) :: user_component
       type(ESMF_HConfig)                          :: hconfig
 
       type(ESMF_Geom), allocatable                :: geom
@@ -194,8 +199,8 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
 
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_setservices = set_services
-      outer_meta%user_gridcomp = user_gridcomp
+      outer_meta%user_component%setservices = set_services
+      outer_meta%user_component%gridcomp = user_gridcomp
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
@@ -240,7 +245,8 @@ contains
          importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=this%get_name(), _RC)
          exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=this%get_name(), _RC)
          internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, name=this%get_name(), _RC)
-         this%user_states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
+         this%user_component%states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
+
          _RETURN(_SUCCESS)
       end subroutine create_user_states
       
@@ -346,7 +352,7 @@ contains
       call MAPL_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
-      call free_inner_meta(wrapper%outer_meta%user_gridcomp)
+      call free_inner_meta(wrapper%outer_meta%user_component%gridcomp)
 
       deallocate(wrapper%outer_meta)
 
@@ -376,14 +382,14 @@ contains
    type(ESMF_GridComp) function get_user_gridcomp(this) result(gridcomp)
       class(OuterMetaComponent), intent(in) :: this
 
-      gridcomp = this%user_gridcomp
+      gridcomp = this%user_component%gridcomp
       
    end function get_user_gridcomp
 
    type(MultiState) function get_user_states(this) result(states)
       class(OuterMetaComponent), intent(in) :: this
 
-      states = this%user_states
+      states = this%user_component%states
       
    end function get_user_states
 
@@ -420,7 +426,7 @@ contains
    subroutine set_user_setservices(this, user_setservices)
       class(OuterMetaComponent), intent(inout) :: this
       class(AbstractUserSetServices), intent(in) :: user_setservices
-      this%user_setServices = user_setservices
+      this%user_component%setservices = user_setservices
    end subroutine set_user_setservices
 
 
@@ -611,7 +617,7 @@ contains
       type(MultiState) :: outer_states
 
       call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
-      call this%registry%add_to_states(this%user_states, mode='user', _RC)
+      call this%registry%add_to_states(this%user_component%states, mode='user', _RC)
       this%state_extensions = this%registry%get_extensions()
       
       outer_states = MultiState(importState=importState, exportState=exportState)
@@ -662,10 +668,10 @@ contains
       associate (phase => get_phase_index(init_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
         associate ( &
-             importState => this%user_states%importState, &
-             exportState => this%user_states%exportState)
+             importState => this%user_component%states%importState, &
+             exportState => this%user_component%states%exportState)
           
-          call ESMF_GridCompInitialize(this%user_gridcomp, &
+          call ESMF_GridCompInitialize(this%user_component%gridcomp, &
                importState=importState, exportState=exportState, &
                clock=clock, phase=phase, userRC=userRC, _RC)
           _VERIFY(userRC)
@@ -789,8 +795,9 @@ contains
 
       associate(phase_idx => get_phase_index(this%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found))
         _ASSERT(found, "run phase: <"//phase_name//"> not found.")
-        call ESMF_GridCompRun(this%user_gridcomp, &
-             importState=this%user_states%importState, exportState=this%user_states%exportState, &
+        call ESMF_GridCompRun(this%user_component%gridcomp, &
+             importState=this%user_component%states%importState, &
+             exportState=this%user_component%states%exportState, &
              clock=clock, phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
       end associate
@@ -825,10 +832,10 @@ contains
       associate (phase => get_phase_index(finalize_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
         associate ( &
-             importState => this%user_states%importState, &
-             exportState => this%user_states%exportState)
+             importState => this%user_component%states%importState, &
+             exportState => this%user_component%states%exportState)
           
-          call ESMF_GridCompFinalize(this%user_gridcomp, importState=importState, exportState=exportState, &
+          call ESMF_GridCompFinalize(this%user_component%gridcomp, importState=importState, exportState=exportState, &
                clock=clock, userRC=userRC, _RC)
           _VERIFY(userRC)
         end associate
@@ -896,7 +903,7 @@ contains
       integer :: status
       character(len=ESMF_MAXSTR) :: buffer
 
-      call ESMF_GridCompGet(this%user_gridcomp, name=buffer, _RC)
+      call ESMF_GridCompGet(this%user_component%gridcomp, name=buffer, _RC)
       inner_name=trim(buffer)
 
       _RETURN(ESMF_SUCCESS)
@@ -1008,7 +1015,7 @@ contains
       type(ESMF_State) :: internal_state
       class(OuterMetaComponent), intent(in) :: this
 
-      internal_state = this%user_states%internalState
+     internal_state = this%user_component%states%internalState
 
    end function get_internal_state
 

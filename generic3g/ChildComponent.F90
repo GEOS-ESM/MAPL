@@ -28,6 +28,16 @@ module mapl3g_ChildComponent
    end interface ChildComponent
 
    interface
+
+      module recursive subroutine initialize_self(this, clock, unusable, phase_idx, rc)
+         use :: MaplShared, only: KeywordEnforcer
+         class(ChildComponent), intent(inout) :: this
+         type(ESMF_Clock), intent(inout) :: clock
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: phase_idx
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_self
+
       ! run_self() is implemented in submodule to avoid circular dependency
       ! on OuterMetaComponent.
       module subroutine run_self(this, clock, unusable, phase_idx, rc)
@@ -38,15 +48,6 @@ module mapl3g_ChildComponent
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine
-
-      module recursive subroutine initialize_self(this, clock, unusable, phase_idx, rc)
-         use :: MaplShared, only: KeywordEnforcer
-         class(ChildComponent), intent(inout) :: this
-         type(ESMF_Clock), intent(inout) :: clock
-         class(KeywordEnforcer), optional, intent(in) :: unusable
-         integer, optional, intent(in) :: phase_idx
-         integer, optional, intent(out) :: rc
-      end subroutine initialize_self
 
       module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer

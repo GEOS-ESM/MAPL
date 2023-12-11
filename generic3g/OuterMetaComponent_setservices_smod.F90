@@ -55,8 +55,8 @@ contains
          
          integer :: status
 
-         call attach_inner_meta(this%user_gridcomp, this%self_gridcomp, _RC)
-         call this%user_setServices%run(this%user_gridcomp, _RC)
+         call attach_inner_meta(this%user_component%gridcomp, this%self_gridcomp, _RC)
+         call this%user_component%setservices%run(this%user_component%gridcomp, _RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine process_user_gridcomp
@@ -148,7 +148,7 @@ contains
       call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
 
       associate(phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name_))
-        call ESMF_GridCompSetEntryPoint(this%user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
+        call ESMF_GridCompSetEntryPoint(this%user_component%gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
       end associate
 
       _RETURN(ESMF_SUCCESS)
