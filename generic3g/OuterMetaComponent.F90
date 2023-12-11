@@ -24,6 +24,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_StateExtension
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
+   use mapl3g_UserComponent
    use mapl_ErrorHandling
    use mapl3g_VerticalGeom
    use gFTL2_StringVector
@@ -37,12 +38,6 @@ module mapl3g_OuterMetaComponent
    public :: get_outer_meta
    public :: attach_outer_meta
    public :: free_outer_meta
-
-   type :: UserComponent
-      class(AbstractUserSetServices), allocatable :: setservices
-      type(ESMF_GridComp) :: gridcomp
-      type(MultiState) :: states
-   end type UserComponent
 
    type :: OuterMetaComponent
       private
