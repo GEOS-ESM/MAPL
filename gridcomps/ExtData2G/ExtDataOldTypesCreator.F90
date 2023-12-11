@@ -21,7 +21,9 @@ module MAPL_ExtDataOldTypesCreator
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
    implicit none
+
    public :: ExtDataOldTypesCreator
+   public :: new_ExtDataOldTypesCreator
 
    type, extends(ExtDataConfig) :: ExtDataOldTypesCreator
       private
@@ -30,32 +32,31 @@ module MAPL_ExtDataOldTypesCreator
          procedure :: fillin_derived
    end type ExtDataOldTypesCreator
 
-   interface ExtDataOldTypesCreator
-      module procedure :: new_ExtDataOldTypesCreator
-   end interface
+!#   interface ExtDataOldTypesCreator
+!#      module procedure :: new_ExtDataOldTypesCreator
+!#   end interface
 
    contains
 
-   function new_ExtDataOldTypesCreator(config_file,current_time,unusable,rc ) result(ExtDataObj)
-      character(len=*), intent(in) :: config_file
-      type(ESMF_Time), intent(in) :: current_time
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+      subroutine new_ExtDataOldTypesCreator(extdataobj, config_file,current_time,unusable,rc )
+         type(ExtDataOldTypesCreator), target, intent(out) :: ExtDataObj
+         character(len=*), intent(in) :: config_file
+         type(ESMF_Time), intent(in) :: current_time
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
 
-      type(ExtDataOldTypesCreator) :: ExtDataObj
 
-      integer :: status
-
-      _UNUSED_DUMMY(unusable)
-      call ExtDataObj%ExtDataConfig%new_ExtDataConfig_from_yaml(config_file,current_time,rc=status)
-      _VERIFY(status)
-
-      _RETURN(_SUCCESS)
-   end function new_ExtDataOldTypesCreator
+         integer :: status
+         
+         call ExtDataObj%ExtDataConfig%new_ExtDataConfig_from_yaml(config_file,current_time,_RC)
+         
+         _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
+      end subroutine new_ExtDataOldTypesCreator
 
 
    subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,unusable,rc)
-      class(ExtDataOldTypesCreator), intent(inout) :: this
+      class(ExtDataOldTypesCreator), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       character(len=*), intent(in) :: base_name
       type(PrimaryExport), intent(inout) :: primary_item
