@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug broken multi-step file output in History under certain template conditions
 - [#2433] Implemented workarounds for gfortran-13
 - Missing TARGET in GriddedIO - exposed runtime error when using NAG + debug.
 
