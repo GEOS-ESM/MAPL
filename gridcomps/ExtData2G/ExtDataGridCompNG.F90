@@ -258,7 +258,7 @@ CONTAINS
    integer           :: idx
    type(MAPL_MetaComp),pointer :: MAPLSTATE
 
-   type(ExtDataOldTypesCreator),target :: config_yaml
+   type(ExtDataOldTypesCreator), target :: config_yaml
    character(len=ESMF_MAXSTR) :: new_rc_file
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
@@ -310,7 +310,7 @@ CONTAINS
        _RETURN(ESMF_SUCCESS)
     end if
 
-    config_yaml = ExtDataOldTypesCreator(new_rc_file,time,_RC)
+    call new_ExtDataOldTypesCreator(config_yaml, new_rc_file, time, _RC)
 
     allocate(ITEMNAMES(ITEMCOUNT), STAT=STATUS)
     _VERIFY(STATUS)
