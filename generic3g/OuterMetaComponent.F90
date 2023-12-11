@@ -5,19 +5,12 @@ module mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
    use mapl3g_StateItem
-   use mapl3g_UngriddedDimsSpec
-   use mapl3g_InvalidSpec
-   use mapl3g_FieldSpec
    use mapl3g_MultiState
-!!$   use mapl3g_BundleSpec
-   use mapl3g_StateSpec
-   use mapl3g_VirtualConnectionPt
    use mapl3g_VariableSpecVector
    use mapl3g_ComponentSpec
    use mapl3g_GenericPhases
    use mapl3g_ChildComponent
    use mapl3g_Validation, only: is_valid_name
-!!$   use mapl3g_CouplerComponentVector
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
    use mapl3g_ChildComponentMap, only: ChildComponentMap
@@ -26,10 +19,8 @@ module mapl3g_OuterMetaComponent
    use mapl3g_AbstractStateItemSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualPtVector
-   use mapl3g_ConnectionPt
    use mapl3g_ConnectionVector
    use mapl3g_HierarchicalRegistry
-   use mapl3g_ExtensionAction
    use mapl3g_StateExtension
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
@@ -588,7 +579,6 @@ contains
 
      subroutine process_connections(this, rc)
         use mapl3g_VirtualConnectionPt
-        use mapl3g_ConnectionPt
         class(OuterMetaComponent), intent(inout) :: this
         integer, optional, intent(out) :: rc
 
