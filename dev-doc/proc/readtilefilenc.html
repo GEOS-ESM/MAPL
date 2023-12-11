@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>readTileFileNC &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>readTileFileNC
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">24 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Regrid_Functions_Mod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/regrid_functions_mod.f90.html'>Regrid_Functions_Mod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/regrid_functions_mod.html'>Regrid_Functions_Mod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">readTileFileNC</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/readtilefilenc.html#src">readTileFileNC</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine readTileFileNC(TFDir, gridIn, gridOut, RC)  
+</h2>
+    
+
+    <p>The routine <code>readTileFileNC</code> reads a Tempest NetCDF tile file
+ and stores the relevant data in module variables for later use.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>09 Jan 2016 - S. D. Eastham - Initial version</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tfdir~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TFDir</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridin~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gridIn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridout~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gridOut</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~393"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~readtilefilenc~~CallsGraph Pages: 1 -->
+<svg id="procreadtilefilencCallsGraph" width="641pt" height="243pt"
+ viewBox="0.00 0.00 641.00 242.97" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~readtilefilenc~~CallsGraph" class="graph" transform="scale(1.65 1.65) rotate(0) translate(4 397.03)">
+<title>proc~~readtilefilenc~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-397.03 1054,-397.03 1054,4 -4,4"/>
+<!-- proc~readtilefilenc -->
+<g id="proc~~readtilefilenc~~CallsGraph_node1" class="node">
+<title>proc~readtilefilenc</title>
+<polygon fill="none" stroke="black" points="214,-213 0,-213 0,-189 214,-189 214,-213"/>
+<text text-anchor="middle" x="107" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50">Regrid_Functions_Mod::readTileFileNC</text>
+</g>
+<!-- proc~readtilefilenc_file -->
+<g id="proc~~readtilefilenc~~CallsGraph_node2" class="node">
+<title>proc~readtilefilenc_file</title>
+<g id="a_proc~~readtilefilenc~~CallsGraph_node2"><a xlink:href=".././proc/readtilefilenc_file.html" xlink:title="Regrid_Functions_Mod::readTileFileNC_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="485,-213 250,-213 250,-189 485,-189 485,-213"/>
+<text text-anchor="middle" x="367.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Functions_Mod::readTileFileNC_file</text>
+</a>
+</g>
+</g>
+<!-- proc~readtilefilenc&#45;&gt;proc~readtilefilenc_file -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge1" class="edge">
+<title>proc~readtilefilenc&#45;&gt;proc~readtilefilenc_file</title>
+<path fill="none" stroke="#255000" d="M214.26,-201C222.58,-201 231.02,-201 239.46,-201"/>
+<polygon fill="#255000" stroke="#255000" points="239.73,-204.5 249.73,-201 239.73,-197.5 239.73,-204.5"/>
+</g>
+<!-- nf90_close -->
+<g id="proc~~readtilefilenc~~CallsGraph_node3" class="node">
+<title>nf90_close</title>
+<polygon fill="#777777" stroke="#777777" points="1050,-190 980,-190 980,-166 1050,-166 1050,-190"/>
+<text text-anchor="middle" x="1015" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;nf90_close -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge2" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#255000" d="M374.67,-213.01C392.23,-245.65 446.08,-335.83 521,-369 604.31,-405.89 638.77,-395.3 726,-369 840.1,-334.6 950.53,-238.59 994.29,-197.29"/>
+<polygon fill="#255000" stroke="#255000" points="996.85,-199.68 1001.67,-190.24 992.02,-194.62 996.85,-199.68"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~readtilefilenc~~CallsGraph_node4" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="664.5,-360 582.5,-360 582.5,-336 664.5,-336 664.5,-360"/>
+<text text-anchor="middle" x="623.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;nf90_get_var -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge3" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#255000" d="M379.35,-213.33C402.58,-238.9 460,-297.74 521,-327 536.72,-334.54 555.08,-339.38 571.83,-342.49"/>
+<polygon fill="#255000" stroke="#255000" points="571.57,-345.99 582.01,-344.2 572.73,-339.09 571.57,-345.99"/>
+</g>
+<!-- nf90_inq_dimid -->
+<g id="proc~~readtilefilenc~~CallsGraph_node5" class="node">
+<title>nf90_inq_dimid</title>
+<polygon fill="#777777" stroke="#777777" points="670.5,-318 576.5,-318 576.5,-294 670.5,-294 670.5,-318"/>
+<text text-anchor="middle" x="623.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;nf90_inq_dimid -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge4" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;nf90_inq_dimid</title>
+<path fill="none" stroke="#255000" d="M386.42,-213.22C414.09,-231.53 469.39,-265.94 521,-285 535.33,-290.29 551.32,-294.38 566.3,-297.49"/>
+<polygon fill="#255000" stroke="#255000" points="565.98,-300.99 576.46,-299.49 567.33,-294.13 565.98,-300.99"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~readtilefilenc~~CallsGraph_node6" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="669,-276 578,-276 578,-252 669,-252 669,-276"/>
+<text text-anchor="middle" x="623.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;nf90_inq_varid -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge5" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#255000" d="M409.41,-213.04C440.01,-221.86 482.96,-233.84 521,-243 536.21,-246.66 552.8,-250.26 568.07,-253.42"/>
+<polygon fill="#255000" stroke="#255000" points="567.4,-256.85 577.89,-255.42 568.8,-249.99 567.4,-256.85"/>
+</g>
+<!-- nf90_inquire_dimension -->
+<g id="proc~~readtilefilenc~~CallsGraph_node7" class="node">
+<title>nf90_inquire_dimension</title>
+<polygon fill="#777777" stroke="#777777" points="693,-234 554,-234 554,-210 693,-210 693,-234"/>
+<text text-anchor="middle" x="623.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;nf90_inquire_dimension -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge6" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#255000" d="M485.09,-210.64C504.9,-212.28 525.05,-213.94 543.59,-215.48"/>
+<polygon fill="#255000" stroke="#255000" points="543.46,-218.98 553.71,-216.31 544.03,-212 543.46,-218.98"/>
+</g>
+<!-- nf90_open -->
+<g id="proc~~readtilefilenc~~CallsGraph_node8" class="node">
+<title>nf90_open</title>
+<polygon fill="#777777" stroke="#777777" points="658,-192 589,-192 589,-168 658,-168 658,-192"/>
+<text text-anchor="middle" x="623.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;nf90_open -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge7" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#255000" d="M485.09,-191.36C518.33,-188.61 552.53,-185.78 578.49,-183.64"/>
+<polygon fill="#255000" stroke="#255000" points="579.06,-187.1 588.73,-182.79 578.48,-180.13 579.06,-187.1"/>
+</g>
+<!-- proc~assert -->
+<g id="proc~~readtilefilenc~~CallsGraph_node9" class="node">
+<title>proc~assert</title>
+<g id="a_proc~~readtilefilenc~~CallsGraph_node9"><a xlink:href=".././proc/assert.html" xlink:title="Regrid_Functions_Mod::Assert">
+<polygon fill="#d9534f" stroke="#d9534f" points="709,-150 538,-150 538,-126 709,-126 709,-150"/>
+<text text-anchor="middle" x="623.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Functions_Mod::Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;proc~assert -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge8" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;proc~assert</title>
+<path fill="none" stroke="#255000" d="M409.41,-188.96C440.01,-180.14 482.96,-168.16 521,-159 530.71,-156.66 540.98,-154.35 551.11,-152.16"/>
+<polygon fill="#255000" stroke="#255000" points="552.12,-155.53 561.17,-150.02 550.66,-148.68 552.12,-155.53"/>
+</g>
+<!-- proc~flipcs -->
+<g id="proc~~readtilefilenc~~CallsGraph_node10" class="node">
+<title>proc~flipcs</title>
+<g id="a_proc~~readtilefilenc~~CallsGraph_node10"><a xlink:href=".././proc/flipcs.html" xlink:title="Regrid_Functions_Mod::flipCS">
+<polygon fill="#d9534f" stroke="#d9534f" points="708,-108 539,-108 539,-84 708,-84 708,-108"/>
+<text text-anchor="middle" x="623.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Functions_Mod::flipCS</text>
+</a>
+</g>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;proc~flipcs -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge9" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;proc~flipcs</title>
+<path fill="none" stroke="#255000" d="M386.42,-188.78C414.09,-170.47 469.39,-136.06 521,-117 527.35,-114.65 534.03,-112.55 540.8,-110.65"/>
+<polygon fill="#255000" stroke="#255000" points="541.97,-113.96 550.76,-108.03 540.19,-107.19 541.97,-113.96"/>
+</g>
+<!-- proc~swapcs -->
+<g id="proc~~readtilefilenc~~CallsGraph_node11" class="node">
+<title>proc~swapcs</title>
+<g id="a_proc~~readtilefilenc~~CallsGraph_node11"><a xlink:href=".././proc/swapcs.html" xlink:title="Regrid_Functions_Mod::swapCS">
+<polygon fill="#d9534f" stroke="#d9534f" points="713,-66 534,-66 534,-42 713,-42 713,-66"/>
+<text text-anchor="middle" x="623.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Functions_Mod::swapCS</text>
+</a>
+</g>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;proc~swapcs -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge10" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;proc~swapcs</title>
+<path fill="none" stroke="#255000" d="M379.35,-188.67C402.58,-163.1 460,-104.26 521,-75 525.38,-72.9 529.97,-71 534.67,-69.3"/>
+<polygon fill="#255000" stroke="#255000" points="536.06,-72.53 544.45,-66.06 533.86,-65.88 536.06,-72.53"/>
+</g>
+<!-- proc~transposecs -->
+<g id="proc~~readtilefilenc~~CallsGraph_node12" class="node">
+<title>proc~transposecs</title>
+<g id="a_proc~~readtilefilenc~~CallsGraph_node12"><a xlink:href=".././proc/transposecs.html" xlink:title="Regrid_Functions_Mod::transposeCS">
+<polygon fill="#d9534f" stroke="#d9534f" points="726,-24 521,-24 521,0 726,0 726,-24"/>
+<text text-anchor="middle" x="623.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Functions_Mod::transposeCS</text>
+</a>
+</g>
+</g>
+<!-- proc~readtilefilenc_file&#45;&gt;proc~transposecs -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge11" class="edge">
+<title>proc~readtilefilenc_file&#45;&gt;proc~transposecs</title>
+<path fill="none" stroke="#255000" d="M375.62,-188.88C394.73,-157.5 450.53,-73.24 521,-33 524.28,-31.13 527.7,-29.42 531.22,-27.87"/>
+<polygon fill="#255000" stroke="#255000" points="532.74,-31.03 540.75,-24.09 530.16,-24.52 532.74,-31.03"/>
+</g>
+<!-- proc~assert&#45;&gt;nf90_close -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge12" class="edge">
+<title>proc~assert&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M696.44,-150.05C717.52,-153.29 740.65,-156.57 762,-159 834.44,-167.25 919.02,-172.8 969.46,-175.67"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="969.5,-179.18 979.68,-176.24 969.89,-172.19 969.5,-179.18"/>
+</g>
+<!-- proc~cleanup -->
+<g id="proc~~readtilefilenc~~CallsGraph_node13" class="node">
+<title>proc~cleanup</title>
+<g id="a_proc~~readtilefilenc~~CallsGraph_node13"><a xlink:href=".././proc/cleanup.html" xlink:title="Regrid_Functions_Mod::Cleanup">
+<polygon fill="#d9534f" stroke="#d9534f" points="944,-150 762,-150 762,-126 944,-126 944,-150"/>
+<text text-anchor="middle" x="853" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Functions_Mod::Cleanup</text>
+</a>
+</g>
+</g>
+<!-- proc~assert&#45;&gt;proc~cleanup -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge13" class="edge">
+<title>proc~assert&#45;&gt;proc~cleanup</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M709.21,-138C723.04,-138 737.48,-138 751.63,-138"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="751.88,-141.5 761.88,-138 751.88,-134.5 751.88,-141.5"/>
+</g>
+<!-- proc~cleanup&#45;&gt;nf90_close -->
+<g id="proc~~readtilefilenc~~CallsGraph_edge14" class="edge">
+<title>proc~cleanup&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#255000" d="M902.01,-150C923.52,-155.38 948.73,-161.68 969.78,-166.95"/>
+<polygon fill="#255000" stroke="#255000" points="969.2,-170.41 979.75,-169.44 970.9,-163.62 969.2,-170.41"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocreadtilefilencCallsGraph = svgPanZoom('#procreadtilefilencCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">readTileFileNC</span><span class="p">(</span><span class="n">TFDir</span><span class="p">,</span><span class="n">gridIn</span><span class="p">,</span><span class="n">gridOut</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !USES:</span>
+<span class="c">!</span>
+<span class="c">!      Use Precision_Mod, Only: f4</span>
+
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">Intent</span><span class="p">(</span><span class="n">In</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">TFDir</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">Intent</span><span class="p">(</span><span class="n">In</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">gridIn</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">Intent</span><span class="p">(</span><span class="n">In</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">gridOut</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="p">,</span><span class="w"> </span><span class="k">Optional</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+<span class="c">!</span>
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="c">!Real(kind=sp), Intent(Out) :: TestOut</span>
+<span class="c">!</span>
+<span class="c">!-----------------------------------------------------------------------</span>
+<span class="c">!</span>
+<span class="c">! !LOCAL VARIABLES:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">fName</span>
+<span class="w">      </span><span class="kt">Logical</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">Found</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="c">!=================================================================</span>
+<span class="w">      </span><span class="c">! readTileFileNC starts here!</span>
+<span class="w">      </span><span class="c">!=================================================================</span>
+
+<span class="w">      </span><span class="c">! Assemble the full tile file name</span>
+<span class="w">      </span><span class="k">Write</span><span class="p">(</span><span class="n">fName</span><span class="p">,</span><span class="s1">&#39;(a,a,a,a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridIn</span><span class="p">),</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridOut</span><span class="p">),</span><span class="s1">&#39;.nc&#39;</span>
+<span class="w">      </span><span class="n">fName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">TFDir</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">Inquire</span><span class="p">(</span><span class="k">File</span><span class="o">=</span><span class="n">fName</span><span class="p">,</span><span class="n">Exist</span><span class="o">=</span><span class="n">Found</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Found</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="w">         </span><span class="c">! Try the reverse name</span>
+<span class="w">         </span><span class="k">Write</span><span class="p">(</span><span class="n">fName</span><span class="p">,</span><span class="s1">&#39;(a,a,a,a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridOut</span><span class="p">),</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridIn</span><span class="p">),</span><span class="s1">&#39;.nc&#39;</span>
+<span class="w">         </span><span class="n">fName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">TFDir</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">Inquire</span><span class="p">(</span><span class="k">File</span><span class="o">=</span><span class="n">fName</span><span class="p">,</span><span class="n">Exist</span><span class="o">=</span><span class="n">Found</span><span class="p">)</span>
+<span class="w">         </span><span class="k">If</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Found</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">            Write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(a,a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39; --- Could not find NetCDF tile file &#39;</span><span class="p">,</span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">)</span>
+<span class="w">            </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">            </span><span class="k">Return</span>
+<span class="k">         End If</span>
+<span class="k">      End If</span>
+
+
+<span class="k">      call </span><span class="n">readTileFileNC_file</span><span class="p">(</span><span class="n">fName</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">readTileFileNC</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-11T15:30:30.126995             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

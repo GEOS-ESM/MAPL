@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>DataCollection.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>DataCollection.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.4% of total for source files.">770 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/DataCollection.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">DataCollection.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_datacollectionmod.html">MAPL_DataCollectionMod</a>
+            <a class="list-group-item" href="../module/mapl_collectionvectormod.html">MAPL_CollectionVectorMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/datacollection.f90.html#src">DataCollection.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~datacollection.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiledatacollectionf90EfferentGraph" width="333pt" height="200pt"
+ viewBox="0.00 0.00 333.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~datacollection.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<title>sourcefile~~datacollection.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 329,-196 329,4 -4,4"/>
+<!-- sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~datacollection.f90</title>
+<polygon fill="none" stroke="black" points="325,-108 211,-108 211,-84 325,-84 325,-108"/>
+<text text-anchor="middle" x="268" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">DataCollection.F90</text>
+</g>
+<!-- sourcefile~filemetadatautilities.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~filemetadatautilities.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/filemetadatautilities.f90.html" xlink:title="FileMetadataUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="158.5,-192 16.5,-192 16.5,-168 158.5,-168 158.5,-192"/>
+<text text-anchor="middle" x="87.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~filemetadatautilities.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~filemetadatautilities.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M253,-108.02C235.77,-122.22 205.06,-145.6 175,-159 170.27,-161.11 165.29,-163.03 160.22,-164.76"/>
+<polygon fill="#255000" stroke="#255000" points="158.85,-161.53 150.38,-167.89 160.97,-168.2 158.85,-161.53"/>
+</g>
+<!-- sourcefile~filemetadatautilitiesvector.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~filemetadatautilitiesvector.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~EfferentGraph_node3"><a xlink:href=".././sourcefile/filemetadatautilitiesvector.f90.html" xlink:title="FileMetadataUtilitiesVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="175,-150 0,-150 0,-126 175,-126 175,-150"/>
+<text text-anchor="middle" x="87.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtilitiesVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~filemetadatautilitiesvector.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~filemetadatautilitiesvector.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M215.85,-108.04C195.12,-112.91 171.02,-118.58 149.4,-123.67"/>
+<polygon fill="#255000" stroke="#255000" points="148.59,-120.27 139.66,-125.96 150.19,-127.08 148.59,-120.27"/>
+</g>
+<!-- sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_abstractgridfactory.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~EfferentGraph_node4"><a xlink:href=".././sourcefile/mapl_abstractgridfactory.f90.html" xlink:title="MAPL_AbstractGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="174,-108 1,-108 1,-84 174,-84 174,-108"/>
+<text text-anchor="middle" x="87.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M210.52,-96C202.14,-96 193.3,-96 184.38,-96"/>
+<polygon fill="#255000" stroke="#255000" points="184.29,-92.5 174.29,-96 184.29,-99.5 184.29,-92.5"/>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_gridmanager.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~EfferentGraph_node5"><a xlink:href=".././sourcefile/mapl_gridmanager.f90.html" xlink:title="MAPL_GridManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="156,-66 19,-66 19,-42 156,-42 156,-66"/>
+<text text-anchor="middle" x="87.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~mapl_gridmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M215.85,-83.96C195.12,-79.09 171.02,-73.42 149.4,-68.33"/>
+<polygon fill="#255000" stroke="#255000" points="150.19,-64.92 139.66,-66.04 148.59,-71.73 150.19,-64.92"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~EfferentGraph_node6"><a xlink:href=".././sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="116.5,-24 58.5,-24 58.5,0 116.5,0 116.5,-24"/>
+<text text-anchor="middle" x="87.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollection.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~datacollection.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~datacollection.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M253,-83.98C235.77,-69.78 205.06,-46.4 175,-33 159.86,-26.25 142.23,-21.47 126.84,-18.2"/>
+<polygon fill="#255000" stroke="#255000" points="127.1,-14.68 116.61,-16.16 125.74,-21.54 127.1,-14.68"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#EfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~datacollection.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefiledatacollectionf90AfferentGraph" width="641pt" height="326pt"
+ viewBox="0.00 0.00 641.00 326.25" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~datacollection.f90~~AfferentGraph" class="graph" transform="scale(1.77 1.77) rotate(0) translate(4 572.66)">
+<title>sourcefile~~datacollection.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-572.66 1129,-572.66 1129,4 -4,4"/>
+<!-- sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~datacollection.f90</title>
+<polygon fill="none" stroke="black" points="114,-331 0,-331 0,-307 114,-307 114,-331"/>
+<text text-anchor="middle" x="57" y="-316.6" font-family="Helvetica,sans-Serif" font-size="10.50">DataCollection.F90</text>
+</g>
+<!-- sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~datacollectionmanager.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/datacollectionmanager.f90.html" xlink:title="DataCollectionManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="310,-331 150,-331 150,-307 310,-307 310,-331"/>
+<text text-anchor="middle" x="230" y="-316.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DataCollectionManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~datacollectionmanager.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~datacollectionmanager.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M149.51,-319C141.17,-319 132.75,-319 124.58,-319"/>
+<polygon fill="#255000" stroke="#255000" points="124.38,-315.5 114.38,-319 124.38,-322.5 124.38,-315.5"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~extdataabstractfilehandler.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/extdataabstractfilehandler.f90.html" xlink:title="ExtDataAbstractFileHandler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="717,-436 536,-436 536,-412 717,-412 717,-436"/>
+<text text-anchor="middle" x="626.5" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataAbstractFileHandler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M583.5,-436.04C485.21,-464.03 247.24,-530.52 231,-523"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M229,-523C146.2,-485 89.52,-384.55 67.83,-340.36"/>
+<polygon fill="#255000" stroke="#255000" points="70.88,-338.63 63.4,-331.12 64.57,-341.65 70.88,-338.63"/>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M535.79,-433.43C500.47,-434.71 459.85,-433.12 424,-424"/>
+</g>
+<!-- sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~extdatafilestream.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/extdatafilestream.f90.html" xlink:title="ExtDataFileStream.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="489.5,-535 356.5,-535 356.5,-511 489.5,-511 489.5,-535"/>
+<text text-anchor="middle" x="423" y="-520.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataFileStream.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~extdataabstractfilehandler.f90&#45;&gt;sourcefile~extdatafilestream.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M607.4,-436.07C583.54,-451.61 539.9,-478.79 500,-497 491.62,-500.83 482.49,-504.41 473.58,-507.62"/>
+<polygon fill="#025500" stroke="#025500" points="472.31,-504.36 464.02,-510.96 474.62,-510.97 472.31,-504.36"/>
+</g>
+<!-- sourcefile~extdataclimfilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~extdataclimfilehandler.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/extdataclimfilehandler.f90.html" xlink:title="ExtDataClimFileHandler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="919.5,-516 759.5,-516 759.5,-492 919.5,-492 919.5,-516"/>
+<text text-anchor="middle" x="839.5" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataClimFileHandler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M801.36,-516.05C702.87,-545.79 429.04,-613.89 231,-523"/>
+</g>
+<!-- sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M769.96,-491.93C669.78,-474.09 488.31,-440.98 424,-424"/>
+</g>
+<!-- sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~extdataclimfilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M774.15,-491.95C766.81,-489.48 759.6,-486.53 753,-483 733.86,-472.76 735.92,-460.64 717,-450 709.7,-445.9 701.7,-442.39 693.57,-439.4"/>
+<polygon fill="transparent" stroke="transparent" points="694.6,-436.06 684.01,-436.14 692.34,-442.68 694.6,-436.06"/>
+</g>
+<!-- sourcefile~extdatafilestream.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~extdatafilestream.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M365.84,-535.02C326.3,-540.68 273.13,-542.51 231,-523"/>
+</g>
+<!-- sourcefile~extdatafilestream.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~extdatafilestream.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M410.62,-510.85C378.71,-476.76 288.13,-380.02 249.18,-338.41"/>
+<polygon fill="#255000" stroke="#255000" points="251.71,-335.99 242.32,-331.09 246.6,-340.78 251.71,-335.99"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="500,-352 346,-352 346,-328 500,-328 500,-352"/>
+<text text-anchor="middle" x="423" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M366.9,-327.91C359.67,-325.43 352.52,-322.48 346,-319 286.5,-287.25 297.29,-207.57 231,-220"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M345.96,-331.64C337.51,-330.71 328.85,-329.76 320.26,-328.81"/>
+<polygon fill="#255000" stroke="#255000" points="320.54,-325.32 310.22,-327.71 319.78,-332.28 320.54,-325.32"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="496.5,-310 349.5,-310 349.5,-286 496.5,-286 496.5,-310"/>
+<text text-anchor="middle" x="423" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M407.76,-285.79C376.84,-260.74 300.71,-206.93 231,-220"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M349.25,-306C339.78,-307.04 329.99,-308.12 320.3,-309.18"/>
+<polygon fill="#255000" stroke="#255000" points="319.79,-305.72 310.24,-310.29 320.56,-312.67 319.79,-305.72"/>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~extdatasimplefilehandler.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/extdatasimplefilehandler.f90.html" xlink:title="ExtDataSimpleFileHandler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="926,-394 753,-394 753,-370 926,-370 926,-394"/>
+<text text-anchor="middle" x="839.5" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataSimpleFileHandler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M832.63,-369.97C817.87,-341.21 776.09,-268.69 717,-239 600.4,-180.41 554.34,-213.61 424,-220"/>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M752.84,-385.29C692.12,-388.28 608.84,-393.67 536,-403 485.76,-409.43 473.08,-436.49 424,-424"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M422,-424C356.57,-406.72 289.34,-362.34 254.76,-337.16"/>
+<polygon fill="#255000" stroke="#255000" points="256.82,-334.32 246.69,-331.2 252.66,-339.95 256.82,-334.32"/>
+</g>
+<!-- sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~extdatasimplefilehandler.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M778.04,-394.04C753.09,-399 724.02,-404.79 698.11,-409.95"/>
+<polygon fill="transparent" stroke="transparent" points="697.1,-406.58 687.97,-411.96 698.46,-413.44 697.1,-406.58"/>
+</g>
+<!-- sourcefile~fieldbundleread.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~fieldbundleread.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/fieldbundleread.f90.html" xlink:title="FieldBundleRead.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="688.5,-192 564.5,-192 564.5,-168 688.5,-168 688.5,-192"/>
+<text text-anchor="middle" x="626.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleRead.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleread.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~fieldbundleread.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M583.5,-192.09C543.04,-202.83 479.93,-217.26 424,-220"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M422,-220C337.21,-224.16 314.44,-204.36 231,-220"/>
+</g>
+<!-- sourcefile~fieldbundleread.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~fieldbundleread.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M599.94,-192.2C574.86,-203.88 535.34,-221.53 500,-234 432.99,-257.65 413.65,-255.24 346,-277 321.08,-285.02 293.53,-295.04 271.64,-303.28"/>
+<polygon fill="#255000" stroke="#255000" points="270.12,-300.11 262.01,-306.93 272.6,-306.66 270.12,-300.11"/>
+</g>
+<!-- sourcefile~griddedio.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~griddedio.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/griddedio.f90.html" xlink:title="GriddedIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="467,-150 379,-150 379,-126 467,-126 467,-150"/>
+<text text-anchor="middle" x="423" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleread.f90&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldbundleread.f90&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M567.76,-167.96C539.17,-162.01 504.9,-154.86 476.99,-149.04"/>
+<polygon fill="transparent" stroke="transparent" points="477.52,-145.58 467.01,-146.97 476.09,-152.43 477.52,-145.58"/>
+</g>
+<!-- sourcefile~griddedio.f90&#45;&gt;sourcefile~datacollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~griddedio.f90&#45;&gt;sourcefile~datacollection.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M402.04,-150.11C368.29,-169.75 297.15,-207.6 231,-220"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M229,-220C168.9,-231.27 109.6,-274.84 79.11,-300.27"/>
+<polygon fill="#255000" stroke="#255000" points="76.65,-297.77 71.3,-306.92 81.18,-303.1 76.65,-297.77"/>
+</g>
+<!-- sourcefile~griddedio.f90&#45;&gt;sourcefile~datacollectionmanager.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~griddedio.f90&#45;&gt;sourcefile~datacollectionmanager.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M409.17,-150.16C376.69,-180.94 290.97,-262.17 251.46,-299.61"/>
+<polygon fill="#255000" stroke="#255000" points="248.62,-297.48 243.77,-306.9 253.44,-302.56 248.62,-297.48"/>
+</g>
+<!-- sourcefile~extdata_iobundlemod.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdata_iobundlemod.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/extdata_iobundlemod.f90.html" xlink:title="ExtData_IOBundleMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="703.5,-150 549.5,-150 549.5,-126 703.5,-126 703.5,-150"/>
+<text text-anchor="middle" x="626.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_IOBundleMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdata_iobundlemod.f90&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~extdata_iobundlemod.f90&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M549.32,-138C525.37,-138 499.43,-138 477.41,-138"/>
+<polygon fill="transparent" stroke="transparent" points="477.26,-134.5 467.26,-138 477.26,-141.5 477.26,-134.5"/>
+</g>
+<!-- sourcefile~extdata_iobundlemod.f90~2 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~extdata_iobundlemod.f90~2</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node12"><a xlink:href=".././sourcefile/extdata_iobundlemod.f90~2.html" xlink:title="ExtData_IOBundleMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="703.5,-108 549.5,-108 549.5,-84 703.5,-84 703.5,-108"/>
+<text text-anchor="middle" x="626.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_IOBundleMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdata_iobundlemod.f90~2&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~extdata_iobundlemod.f90~2&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M567.76,-108.04C539.17,-113.99 504.9,-121.14 476.99,-126.96"/>
+<polygon fill="transparent" stroke="transparent" points="476.09,-123.57 467.01,-129.03 477.52,-130.42 476.09,-123.57"/>
+</g>
+<!-- sourcefile~extdataconfig.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~extdataconfig.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node13"><a xlink:href=".././sourcefile/extdataconfig.f90.html" xlink:title="ExtDataConfig.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="682.5,-516 570.5,-516 570.5,-492 682.5,-492 682.5,-516"/>
+<text text-anchor="middle" x="626.5" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataConfig.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataconfig.f90&#45;&gt;sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extdataconfig.f90&#45;&gt;sourcefile~extdatafilestream.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M570.44,-509.19C548.72,-511.24 523.4,-513.63 499.99,-515.84"/>
+<polygon fill="#025500" stroke="#025500" points="499.36,-512.38 489.73,-516.8 500.02,-519.35 499.36,-512.38"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node14"><a xlink:href=".././sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="708.5,-314 544.5,-314 544.5,-290 708.5,-290 708.5,-314"/>
+<text text-anchor="middle" x="626.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M561.74,-314.02C541.34,-317.87 518.58,-322.16 497.54,-326.13"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="496.86,-322.7 487.69,-327.99 498.16,-329.58 496.86,-322.7"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#016925" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M544.41,-300.39C532.11,-300.15 519.4,-299.89 507.06,-299.65"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="506.86,-296.14 496.79,-299.44 506.72,-303.14 506.86,-296.14"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~extdataoldtypescreator.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node15"><a xlink:href=".././sourcefile/extdataoldtypescreator.f90.html" xlink:title="ExtDataOldTypesCreator.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1125,-475 962,-475 962,-451 1125,-451 1125,-475"/>
+<text text-anchor="middle" x="1043.5" y="-460.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataOldTypesCreator.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M986.73,-450.95C967.57,-447.21 945.92,-443.44 926,-441 860.14,-432.94 785.63,-428.69 727.53,-426.46"/>
+<polygon fill="transparent" stroke="transparent" points="727.37,-422.95 717.24,-426.08 727.11,-429.94 727.37,-422.95"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataclimfilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdataclimfilehandler.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M983.26,-475.02C960.24,-479.7 933.7,-485.08 909.8,-489.93"/>
+<polygon fill="transparent" stroke="transparent" points="908.84,-486.56 899.74,-491.98 910.24,-493.42 908.84,-486.56"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatafilestream.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatafilestream.f90</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1026.2,-475.04C1004.6,-490.17 964.68,-515.35 926,-525 778.64,-561.77 599.28,-547.55 499.78,-534.73"/>
+<polygon fill="#025500" stroke="#025500" points="500.18,-531.25 489.81,-533.41 499.27,-538.19 500.18,-531.25"/>
+</g>
+<!-- sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatasimplefilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~extdataoldtypescreator.f90&#45;&gt;sourcefile~extdatasimplefilehandler.f90</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M1019.29,-450.81C996.08,-438.92 959.18,-420.8 926,-408 915.8,-404.07 904.75,-400.33 894.07,-396.98"/>
+<polygon fill="#002505" stroke="#002505" points="895,-393.6 884.41,-394.02 892.95,-400.29 895,-393.6"/>
+</g>
+<!-- sourcefile~extdatatypedef.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~extdatatypedef.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node16"><a xlink:href=".././sourcefile/extdatatypedef.f90.html" xlink:title="ExtDataTypeDef.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="899,-474 780,-474 780,-450 899,-450 899,-474"/>
+<text text-anchor="middle" x="839.5" y="-459.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataTypeDef.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatatypedef.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~extdatatypedef.f90&#45;&gt;sourcefile~extdataabstractfilehandler.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M779.72,-451.41C756.36,-447.21 729.17,-442.31 704.28,-437.83"/>
+<polygon fill="transparent" stroke="transparent" points="704.6,-434.33 694.14,-436 703.36,-441.22 704.6,-434.33"/>
+</g>
+<!-- sourcefile~fieldbundlewrite.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~fieldbundlewrite.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node17"><a xlink:href=".././sourcefile/fieldbundlewrite.f90.html" xlink:title="FieldBundleWrite.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="689,-66 564,-66 564,-42 689,-42 689,-66"/>
+<text text-anchor="middle" x="626.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleWrite.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundlewrite.f90&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge38" class="edge">
+<title>sourcefile~fieldbundlewrite.f90&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M563.66,-66.1C554.26,-68.62 544.77,-71.58 536,-75 505.12,-87.03 472.37,-106.31 450.32,-120.37"/>
+<polygon fill="transparent" stroke="transparent" points="448.33,-117.49 441.84,-125.86 452.14,-123.36 448.33,-117.49"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node18"><a xlink:href=".././sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="871.5,-234 807.5,-234 807.5,-210 871.5,-210 871.5,-234"/>
+<text text-anchor="middle" x="839.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~fieldbundleread.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~fieldbundleread.f90</title>
+<path fill="none" stroke="#170025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M807.37,-215.8C778.76,-210.11 735.31,-201.46 698.29,-194.09"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="698.52,-190.57 688.03,-192.05 697.15,-197.43 698.52,-190.57"/>
+</g>
+<!-- sourcefile~mapl_bundleio_test.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~mapl_bundleio_test.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node19"><a xlink:href=".././sourcefile/mapl_bundleio_test.f90.html" xlink:title="mapl_bundleio_test.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="909,-192 770,-192 770,-168 909,-168 909,-192"/>
+<text text-anchor="middle" x="839.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_bundleio_test.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_bundleio_test.f90&#45;&gt;sourcefile~fieldbundleread.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~mapl_bundleio_test.f90&#45;&gt;sourcefile~fieldbundleread.f90</title>
+<path fill="none" stroke="#170025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M769.99,-180C747.14,-180 721.64,-180 698.6,-180"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="698.55,-176.5 688.55,-180 698.55,-183.5 698.55,-176.5"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node20"><a xlink:href=".././sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="698.5,-272 554.5,-272 554.5,-248 698.5,-248 698.5,-272"/>
+<text text-anchor="middle" x="626.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M555.55,-272.16C548.73,-274.59 542.09,-277.5 536,-281 515.83,-292.59 519.94,-307.02 500,-319 496.97,-320.82 493.79,-322.48 490.5,-324.01"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="488.93,-320.87 481.04,-327.94 491.62,-327.33 488.93,-320.87"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#016925" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M561.74,-272.02C541.34,-275.87 518.58,-280.16 497.54,-284.13"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="496.86,-280.7 487.69,-285.99 498.16,-287.58 496.86,-280.7"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node21"><a xlink:href=".././sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="706.5,-24 546.5,-24 546.5,0 706.5,0 706.5,-24"/>
+<text text-anchor="middle" x="626.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge39" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M557.16,-24.05C549.81,-26.51 542.61,-29.46 536,-33 496.03,-54.41 459.73,-93.73 439.87,-117.7"/>
+<polygon fill="transparent" stroke="transparent" points="436.9,-115.81 433.32,-125.78 442.33,-120.22 436.9,-115.81"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node22"><a xlink:href=".././sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="885.5,-150 793.5,-150 793.5,-126 885.5,-126 885.5,-150"/>
+<text text-anchor="middle" x="839.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~fieldbundleread.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~fieldbundleread.f90</title>
+<path fill="none" stroke="#170025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M793.49,-146.96C765.75,-152.48 729.59,-159.68 698.09,-165.95"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="697.18,-162.56 688.05,-167.95 698.54,-169.43 697.18,-162.56"/>
+</g>
+<!-- sourcefile~ut_extdata.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~ut_extdata.f90</title>
+<g id="a_sourcefile~~datacollection.f90~~AfferentGraph_node23"><a xlink:href=".././sourcefile/ut_extdata.f90.html" xlink:title="ut_ExtData.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="673,-356 580,-356 580,-332 673,-332 673,-356"/>
+<text text-anchor="middle" x="626.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ExtData.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~datacollection.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M579.78,-343.09C559.25,-342.68 534.34,-342.19 510.5,-341.72"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="510.44,-338.22 500.37,-341.52 510.3,-345.21 510.44,-338.22"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiledatacollectionf90AfferentGraph = svgPanZoom('#sourcefiledatacollectionf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#AfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">MAPL_DataCollectionMod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">  </span><span class="k">use </span><span class="n">pFIO</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">  </span><span class="k">use </span><span class="n">MAPL_FileMetadataUtilsVectorMod</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">  </span><span class="k">use </span><span class="n">MAPL_FileMetadataUtilsMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">  </span><span class="k">use </span><span class="n">MAPL_GridManagerMod</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">  </span><span class="k">use </span><span class="n">MAPL_AbstractGridFactoryMod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">  </span><span class="k">use </span><span class="n">gFTL_StringIntegerMap</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">  </span><span class="k">implicit none</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="k">  private</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="k">  public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPLDataCollection</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_MAPLDataCollection</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">  </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPLDataCollection</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">template</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_file_coords</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadataUtilsVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadatas</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringIntegerMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_ids</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_grid</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="k">contains</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="k">    procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">find</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="k">end type </span><span class="n">MAPLDataCollection</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="k">interface </span><span class="n">MAPLDataCollection</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">    </span><span class="k">module procedure </span><span class="n">new_MAPLDataCollection</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="k">end interface </span><span class="n">MAPLDataCollection</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAX_FORMATTERS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="k">contains</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="k">  function </span><span class="n">new_MAPLDataCollection</span><span class="p">(</span><span class="n">template</span><span class="p">,</span><span class="n">use_file_coords</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPLDataCollection</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">template</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_file_coords</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">    </span><span class="n">collection</span><span class="p">%</span><span class="n">template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">template</span><span class="w"> </span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">use_file_coords</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="k">       </span><span class="n">collection</span><span class="p">%</span><span class="n">use_file_coords</span><span class="o">=</span><span class="n">use_file_coords</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="k">       </span><span class="n">collection</span><span class="p">%</span><span class="n">use_file_coords</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">    </span><span class="k">end if</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="k">  end function </span><span class="n">new_MAPLDataCollection</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="k">function </span><span class="n">find</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadataUtils</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadata</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MAPLDataCollection</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_name</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">NetCDF4_FileFormatter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">basic_metadata</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_id</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringIntegerMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">StringIntegerMap</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dimensions</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tile_size</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">skip_grid</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">    </span><span class="n">file_id</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_ids</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">file_id</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="k">       </span><span class="n">metadata</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">metadatas</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadatas</span><span class="p">%</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MAX_FORMATTERS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="k">          </span><span class="n">metadata</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">metadatas</span><span class="p">%</span><span class="n">front</span><span class="p">()</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">          </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">metadatas</span><span class="p">%</span><span class="n">erase</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadatas</span><span class="p">%</span><span class="n">begin</span><span class="p">())</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">          </span><span class="k">nullify</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">          </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_ids</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">          </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_ids</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">             </span><span class="n">file_id</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="k">value</span><span class="p">()</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">file_id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="k">                call </span><span class="n">this</span><span class="p">%</span><span class="n">file_ids</span><span class="p">%</span><span class="n">erase</span><span class="p">(</span><span class="n">iter</span><span class="p">)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">                </span><span class="k">exit</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="k">             end if</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="k">             call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">          </span><span class="k">end do</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">          </span><span class="c">! Fix the old file_id&#39;s accordingly</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">          </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_ids</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">          </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_ids</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">             </span><span class="n">file_id</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="k">value</span><span class="p">()</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">             </span><span class="n">file_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_id</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">             </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">          </span><span class="k">end do</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="k">          </span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="k">       end if</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="k">       allocate</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">       </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">pFIO_READ</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">       </span><span class="n">basic_metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">formatter</span><span class="p">%</span><span class="k">read</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">       </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">close</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">       </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">create</span><span class="p">(</span><span class="n">basic_metadata</span><span class="p">,</span><span class="n">file_name</span><span class="p">)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">       </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">metadatas</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">       </span><span class="k">deallocate</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">       </span><span class="n">metadata</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">metadatas</span><span class="p">%</span><span class="n">back</span><span class="p">()</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">       </span><span class="n">dimensions</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">metadata</span><span class="p">%</span><span class="n">get_dimensions</span><span class="p">()</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">       </span><span class="n">tile_size</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">dimensions</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;tile_index&quot;</span><span class="p">)</span><span class="w"> </span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">       </span><span class="n">skip_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">tile_size</span><span class="p">)</span><span class="w">   </span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w"> </span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">src_grid</span><span class="p">))</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">skip_grid</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="k">          allocate</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">grid_manager</span><span class="p">%</span><span class="n">make_factory</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">file_name</span><span class="p">),</span><span class="n">force_file_coordinates</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">use_file_coords</span><span class="p">))</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">          </span><span class="n">this</span><span class="p">%</span><span class="n">src_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grid_manager</span><span class="p">%</span><span class="n">make_grid</span><span class="p">(</span><span class="n">factory</span><span class="p">)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">       </span><span class="k">end if</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">       </span><span class="c">! size() returns 64-bit integer;  cast to 32 bit for this usage.</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">       </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">file_ids</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadatas</span><span class="p">%</span><span class="n">size</span><span class="p">()))</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">    </span><span class="k">end if</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">  </span><span class="k">end function </span><span class="n">find</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="k">end module </span><span class="n">MAPL_DataCollectionMod</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a>
+<a id="ln-125" name="ln-125" href="#ln-125"></a>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="k">module </span><span class="n">MAPL_CollectionVectorMod</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_DataCollectionMod</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">   </span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">   </span><span class="c">! Create a map (associative array) between names and pFIO_Attributes.</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">   </span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="cp">#define _type type (MAPLDataCollection)</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="cp">#define _vector MAPLCollectionVector</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="cp">#define _iterator MAPLCollectionVectorIterator</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="cp">#define _FTL_THROW pFIO_throw_exception</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="cp">#include &quot;templates/vector.inc&quot;</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">   </span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="k">end module </span><span class="n">MAPL_CollectionVectorMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-11T15:30:30.126995             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>old_CapOptions_from_Fargparse &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>old_CapOptions_from_Fargparse
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">178 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FargparseCLI.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/fargparsecli.f90.html'>FargparseCLI.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_fargparseclimod.html'>MAPL_FargparseCLIMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">old_CapOptions_from_Fargparse</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/old_capoptions_from_fargparse.html#src">old_CapOptions_from_Fargparse</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function old_CapOptions_from_Fargparse(fargparseCLI, unusable, rc) result(cap_options)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fargparsecli~2"></span>
+              type(<a href='../type/mapl_fargparsecli.html'>MAPL_FargparseCLI</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fargparseCLI</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~355"></span>
+              class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1666"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-cap_options~12"></span>
+          type(<a href='../type/mapl_capoptions.html'>MAPL_CapOptions</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~old_capoptions_from_fargparse~~CallsGraph Pages: 1 -->
+<svg id="procold_capoptions_from_fargparseCallsGraph" width="641pt" height="110pt"
+ viewBox="0.00 0.00 641.00 109.70" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph" class="graph" transform="scale(2.15 2.15) rotate(0) translate(4 232)">
+<title>proc~~old_capoptions_from_fargparse~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-232 1375,-232 1375,4 -4,4"/>
+<!-- proc~old_capoptions_from_fargparse -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node1" class="node">
+<title>proc~old_capoptions_from_fargparse</title>
+<polygon fill="none" stroke="black" points="318,-126 0,-126 0,-102 318,-102 318,-126"/>
+<text text-anchor="middle" x="159" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_FargparseCLIMod::old_CapOptions_from_Fargparse</text>
+</g>
+<!-- at -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node2" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1321.5,-228 1267.5,-228 1267.5,-204 1321.5,-204 1321.5,-228"/>
+<text text-anchor="middle" x="1294.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~old_capoptions_from_fargparse&#45;&gt;at -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge1" class="edge">
+<title>proc~old_capoptions_from_fargparse&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M189.66,-126.06C227.22,-140.76 294.26,-165.11 354,-177 699.76,-245.81 1130.74,-226.28 1257.11,-218.49"/>
+<polygon fill="#255000" stroke="#255000" points="1257.61,-221.96 1267.37,-217.84 1257.17,-214.98 1257.61,-221.96"/>
+</g>
+<!-- cast -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node3" class="node">
+<title>cast</title>
+<polygon fill="#777777" stroke="#777777" points="489.5,-66 435.5,-66 435.5,-42 489.5,-42 489.5,-66"/>
+<text text-anchor="middle" x="462.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cast</text>
+</g>
+<!-- proc~old_capoptions_from_fargparse&#45;&gt;cast -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge2" class="edge">
+<title>proc~old_capoptions_from_fargparse&#45;&gt;cast</title>
+<path fill="none" stroke="#255000" d="M220.65,-101.93C281.94,-89.73 374.63,-71.29 425.29,-61.21"/>
+<polygon fill="#255000" stroke="#255000" points="426.01,-64.63 435.13,-59.25 424.64,-57.77 426.01,-64.63"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node4" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CallsGraph_node4"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="571,-146 354,-146 354,-122 571,-122 571,-146"/>
+<text text-anchor="middle" x="462.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~old_capoptions_from_fargparse&#45;&gt;interface~mapl_assert -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge3" class="edge">
+<title>proc~old_capoptions_from_fargparse&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M318.26,-124.5C326.75,-125.06 335.2,-125.62 343.52,-126.17"/>
+<polygon fill="#255000" stroke="#255000" points="343.38,-129.67 353.59,-126.84 343.85,-122.69 343.38,-129.67"/>
+</g>
+<!-- of -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node5" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="489.5,-24 435.5,-24 435.5,0 489.5,0 489.5,-24"/>
+<text text-anchor="middle" x="462.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~old_capoptions_from_fargparse&#45;&gt;of -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge4" class="edge">
+<title>proc~old_capoptions_from_fargparse&#45;&gt;of</title>
+<path fill="none" stroke="#255000" d="M184.52,-101.86C220.76,-84.36 291.13,-52.05 354,-33 377.2,-25.97 403.94,-20.74 424.96,-17.25"/>
+<polygon fill="#255000" stroke="#255000" points="425.75,-20.67 435.07,-15.63 424.64,-13.76 425.75,-20.67"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CallsGraph_node6"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="860,-188 640,-188 640,-164 860,-164 860,-188"/>
+<text text-anchor="middle" x="750" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~old_capoptions_from_fargparse&#45;&gt;proc~mapl_return -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge5" class="edge">
+<title>proc~old_capoptions_from_fargparse&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M207.08,-126.09C246.15,-135.61 303.32,-148.34 354,-155 445.88,-167.08 550.65,-172.26 629.19,-174.46"/>
+<polygon fill="#255000" stroke="#255000" points="629.51,-177.97 639.6,-174.73 629.7,-170.97 629.51,-177.97"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CallsGraph_node7"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="857,-62 643,-62 643,-38 857,-38 857,-62"/>
+<text text-anchor="middle" x="750" y="-47.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~old_capoptions_from_fargparse&#45;&gt;proc~mapl_verify -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge6" class="edge">
+<title>proc~old_capoptions_from_fargparse&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M303.3,-101.99C382.34,-94.97 482.2,-85.44 571,-75 599.57,-71.64 630.64,-67.46 658.71,-63.48"/>
+<polygon fill="#255000" stroke="#255000" points="659.5,-66.91 668.91,-62.03 658.51,-59.98 659.5,-66.91"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CallsGraph_node9"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="886,-104 614,-104 614,-80 886,-80 886,-104"/>
+<text text-anchor="middle" x="750" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M545.31,-121.96C580.26,-116.82 621.19,-110.8 657.17,-105.51"/>
+<polygon fill="#025500" stroke="#025500" points="657.79,-108.96 667.18,-104.04 656.77,-102.03 657.79,-108.96"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node10" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CallsGraph_node10"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="893,-146 607,-146 607,-122 893,-122 893,-146"/>
+<text text-anchor="middle" x="750" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M571.03,-134C579.44,-134 588.02,-134 596.64,-134"/>
+<polygon fill="#025500" stroke="#025500" points="596.79,-137.5 606.79,-134 596.79,-130.5 596.79,-137.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node8" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CallsGraph_node8"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1182,-187 929,-187 929,-163 1182,-163 1182,-187"/>
+<text text-anchor="middle" x="1055.5" y="-172.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#002505" d="M860.14,-175.64C879.1,-175.58 899.02,-175.51 918.59,-175.45"/>
+<polygon fill="#002505" stroke="#002505" points="918.8,-178.95 928.78,-175.41 918.77,-171.95 918.8,-178.95"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CallsGraph_node11"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1170,-124 941,-124 941,-100 1170,-100 1170,-124"/>
+<text text-anchor="middle" x="1055.5" y="-109.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M842.93,-163.96C859.65,-161.33 876.89,-158.32 893,-155 930.69,-147.22 972.68,-135.96 1004.4,-126.91"/>
+<polygon fill="#002505" stroke="#002505" points="1005.67,-130.19 1014.32,-124.06 1003.74,-123.46 1005.67,-130.19"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M841.76,-62.02C858.84,-64.67 876.51,-67.7 893,-71 929.73,-78.36 970.62,-88.76 1002.07,-97.25"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1001.36,-100.68 1011.93,-99.93 1003.2,-93.93 1001.36,-100.68"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge12" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1126.01,-187.02C1168.96,-194.45 1222.33,-203.69 1257.12,-209.71"/>
+<polygon fill="#255000" stroke="#255000" points="1256.84,-213.21 1267.29,-211.47 1258.04,-206.31 1256.84,-213.21"/>
+</g>
+<!-- insert -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1321.5,-186 1267.5,-186 1267.5,-162 1321.5,-162 1321.5,-186"/>
+<text text-anchor="middle" x="1294.5" y="-171.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1182.29,-174.47C1209.83,-174.35 1236.86,-174.24 1257.36,-174.15"/>
+<polygon fill="#255000" stroke="#255000" points="1257.48,-177.65 1267.46,-174.11 1257.45,-170.65 1257.48,-177.65"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M886.33,-100.92C901.1,-101.89 916.08,-102.88 930.7,-103.84"/>
+<polygon fill="transparent" stroke="transparent" points="930.55,-107.34 940.76,-104.5 931.01,-100.35 930.55,-107.34"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M840.01,-146.02C876.14,-150.91 918.03,-156.56 955.16,-161.58"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="955.11,-165.11 965.49,-162.98 956.05,-158.17 955.11,-165.11"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M893.42,-123.68C905.81,-122.78 918.29,-121.87 930.52,-120.99"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="931,-124.46 940.72,-120.25 930.49,-117.48 931,-124.46"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_node13" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CallsGraph_node13"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1371,-124 1218,-124 1218,-100 1371,-100 1371,-124"/>
+<text text-anchor="middle" x="1294.5" y="-109.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~old_capoptions_from_fargparse~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1170.14,-112C1182.76,-112 1195.46,-112 1207.65,-112"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1207.77,-115.5 1217.77,-112 1207.77,-108.5 1207.77,-115.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocold_capoptions_from_fargparseCallsGraph = svgPanZoom('#procold_capoptions_from_fargparseCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~old_capoptions_from_fargparse~~CalledByGraph Pages: 1 -->
+<svg id="procold_capoptions_from_fargparseCalledByGraph" width="603pt" height="32pt"
+ viewBox="0.00 0.00 603.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~old_capoptions_from_fargparse~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~old_capoptions_from_fargparse~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 599,-28 599,4 -4,4"/>
+<!-- proc~old_capoptions_from_fargparse -->
+<g id="proc~~old_capoptions_from_fargparse~~CalledByGraph_node1" class="node">
+<title>proc~old_capoptions_from_fargparse</title>
+<polygon fill="none" stroke="black" points="595,-24 277,-24 277,0 595,0 595,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_FargparseCLIMod::old_CapOptions_from_Fargparse</text>
+</g>
+<!-- interface~mapl_capoptions~3 -->
+<g id="proc~~old_capoptions_from_fargparse~~CalledByGraph_node2" class="node">
+<title>interface~mapl_capoptions~3</title>
+<g id="a_proc~~old_capoptions_from_fargparse~~CalledByGraph_node2"><a xlink:href=".././interface/mapl_capoptions~3.html" xlink:title="MAPL_FargparseCLIMod::MAPL_CapOptions">
+<polygon fill="#a7506f" stroke="#a7506f" points="241,-24 0,-24 0,0 241,0 241,-24"/>
+<text text-anchor="middle" x="120.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FargparseCLIMod::MAPL_CapOptions</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_capoptions~3&#45;&gt;proc~old_capoptions_from_fargparse -->
+<g id="proc~~old_capoptions_from_fargparse~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_capoptions~3&#45;&gt;proc~old_capoptions_from_fargparse</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M241.36,-12C249.75,-12 258.28,-12 266.87,-12"/>
+<polygon fill="#255000" stroke="#255000" points="266.95,-15.5 276.95,-12 266.95,-8.5 266.95,-15.5"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">old_CapOptions_from_Fargparse</span><span class="p">(</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="w"> </span><span class="p">(</span><span class="n">cap_options</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_CapOptions</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_options</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_FargparseCLI</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fargparseCLI</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">one_node_output</span><span class="p">,</span><span class="w"> </span><span class="n">compress_nodes</span><span class="p">,</span><span class="w"> </span><span class="n">use_sub_comm</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nodes_output_server</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">option_npes</span><span class="p">,</span><span class="w"> </span><span class="n">option_nodes</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">IntegerVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_npes_vector</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_nodes_vector</span>
+
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;root_dso&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">root_dso</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;egress_file&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">egress_file</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;use_sub_comm&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">use_sub_comm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">use_comm_world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">use_sub_comm</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">use_comm_world</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;comm_model&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Should provide comm for model&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      else</span>
+<span class="w">        </span><span class="c">! comm will be set to MPI_COMM_WORLD later on in initialize_mpi</span>
+<span class="w">        </span><span class="c">! npes will be set to npes_world later on in initialize_mpi</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;npes_model&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_model</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;compress_nodes&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">compress_nodes</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">isolate_nodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">compress_nodes</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;fast_oclient&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">fast_oclient</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;with_io_profiler&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">with_io_profiler</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;with_esmf_moab&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">with_esmf_moab</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! We only allow one of npes_input_server or nodes_input_server</span>
+<span class="w">      </span><span class="n">option_npes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;npes_input_server&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option_npes</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_npes_vector</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">option_nodes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;nodes_input_server&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option_nodes</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_nodes_vector</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.(</span><span class="n">tmp_npes_vector</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NO_VALUE_PASSED_IN</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">tmp_nodes_vector</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NO_VALUE_PASSED_IN</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;Cannot specify both --npes_input_server and --nodes_input_server&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! npes_input_server is a gFTL IntegerVector that we need to convert to an integer array</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;npes_input_server&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp_int_vector</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NO_VALUE_PASSED_IN</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_input_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">%</span><span class="k">data</span><span class="p">()</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_input_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! nodes_input_server is a gFTL IntegerVector that we need to convert to an integer array</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;nodes_input_server&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp_int_vector</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NO_VALUE_PASSED_IN</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_input_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">%</span><span class="k">data</span><span class="p">()</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_input_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! We only allow one of npes_output_server or nodes_output_server</span>
+<span class="w">      </span><span class="n">option_npes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;npes_output_server&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option_npes</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_npes_vector</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">option_nodes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;nodes_output_server&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option_nodes</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_nodes_vector</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.(</span><span class="n">tmp_npes_vector</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NO_VALUE_PASSED_IN</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">tmp_nodes_vector</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NO_VALUE_PASSED_IN</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;Cannot specify both --npes_output_server and --nodes_output_server&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! npes_output_server is a gFTL IntegerVector that we need to convert to an integer array</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;npes_output_server&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp_int_vector</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NO_VALUE_PASSED_IN</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_output_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">%</span><span class="k">data</span><span class="p">()</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_output_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! nodes_output_server is a gFTL IntegerVector that we need to convert to an integer array</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;nodes_output_server&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp_int_vector</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NO_VALUE_PASSED_IN</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">nodes_output_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp_int_vector</span><span class="p">%</span><span class="k">data</span><span class="p">()</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">nodes_output_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;one_node_output&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">one_node_output</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">one_node_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">one_node_output</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_output_server</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">nodes_output_server</span><span class="p">)),</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_output_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nodes_output_server</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">n_iserver_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_input_server</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_input_server</span><span class="p">))</span>
+<span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">n_oserver_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_output_server</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_output_server</span><span class="p">))</span>
+
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;esmf_logtype&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="w">      </span><span class="c">! set_esmf_logging_mode</span>
+<span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">esmf_logging_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_LOGKIND_NONE</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;single&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">esmf_logging_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_LOGKIND_SINGLE</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;multi&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">esmf_logging_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_LOGKIND_MULTI</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;multi_on_error&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">cap_options</span><span class="p">%</span><span class="n">esmf_logging_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_LOGKIND_MULTI_ON_ERROR</span>
+<span class="w">      </span><span class="k">case </span><span class="n">default</span>
+<span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Unsupported ESMF logging option: &quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
+<span class="w">      </span><span class="k">end select</span>
+
+<span class="w">      </span><span class="c">! Ensemble specific options</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;prefix&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">ensemble_subdir_prefix</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;n_members&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">n_members</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;cap_rc&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">cap_rc_file</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! Logging options</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;logging_config&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">logging_config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;oserver_type&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">oserver_type</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">fargparseCLI</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;npes_backend_pernode&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_backend_pernode</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">old_CapOptions_from_Fargparse</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-11T15:30:30.126995             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CFIOCreateFromFile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CFIOCreateFromFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.2% of total for procedures.">314 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_CFIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_cfio.f90.html'>MAPL_CFIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_cfiomod.html'>MAPL_CFIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_CFIOCreateFromFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_cfiocreatefromfile.html#src">MAPL_CFIOCreateFromFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_CFIOCreateFromFile(MCFIO, BundleIn, RegridMethod, hw, only_vars, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mcfio~6"></span>
+              type(<a href='../type/mapl_cfio.html'>MAPL_CFIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MCFIO</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundlein"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BundleIn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-regridmethod"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RegridMethod</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hw~22"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hw</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-only_vars~7"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>only_vars</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~414"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cfiocreatefromfile~~CallsGraph Pages: 1 -->
+<svg id="procmapl_cfiocreatefromfileCallsGraph" width="603pt" height="914pt"
+ viewBox="0.00 0.00 603.00 914.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 910)">
+<title>proc~~mapl_cfiocreatefromfile~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-910 599,-910 599,4 -4,4"/>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node1" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<polygon fill="none" stroke="black" points="239,-465 0,-465 0,-441 239,-441 239,-465"/>
+<text text-anchor="middle" x="119.5" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CFIOMod::MAPL_CFIOCreateFromFile</text>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="508,-906 362,-906 362,-882 508,-882 508,-906"/>
+<text text-anchor="middle" x="435" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeGet</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#255000" d="M120.74,-465.18C122.59,-522.11 138.5,-763.79 275,-873 296.4,-890.12 324.85,-897.18 351.76,-899.39"/>
+<polygon fill="#255000" stroke="#255000" points="351.79,-902.89 361.98,-900 352.21,-895.91 351.79,-902.89"/>
+</g>
+<!-- ESMF_AttributeSet -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node3" class="node">
+<title>ESMF_AttributeSet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="507.5,-864 362.5,-864 362.5,-840 507.5,-840 507.5,-864"/>
+<text text-anchor="middle" x="435" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeSet</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_AttributeSet -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_AttributeSet</title>
+<path fill="none" stroke="#255000" d="M121.27,-465.05C125.38,-518.31 149.54,-734.22 275,-831 296.7,-847.74 325.22,-854.71 352.1,-856.95"/>
+<polygon fill="#255000" stroke="#255000" points="352.11,-860.46 362.31,-857.59 352.55,-853.47 352.11,-860.46"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node4" class="node">
+<title>ESMF_GridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="496.5,-822 373.5,-822 373.5,-798 496.5,-798 496.5,-822"/>
+<text text-anchor="middle" x="435" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGet</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#255000" d="M121.93,-465.06C128.49,-514.71 160.56,-704.58 275,-789 299.95,-807.41 333.29,-813.77 362.99,-815.09"/>
+<polygon fill="#255000" stroke="#255000" points="363.24,-818.6 373.32,-815.36 363.42,-811.6 363.24,-818.6"/>
+</g>
+<!-- ESMF_UtilStringLowerCase -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node5" class="node">
+<title>ESMF_UtilStringLowerCase</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="529.5,-780 340.5,-780 340.5,-756 529.5,-756 529.5,-780"/>
+<text text-anchor="middle" x="435" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_UtilStringLowerCase</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_UtilStringLowerCase -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_UtilStringLowerCase</title>
+<path fill="none" stroke="#255000" d="M122.76,-465.12C132,-510.96 171.44,-674.75 275,-747 291.21,-758.31 310.67,-764.96 330.31,-768.67"/>
+<polygon fill="#255000" stroke="#255000" points="329.84,-772.14 340.27,-770.31 330.97,-765.23 329.84,-772.14"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node6" class="node">
+<title>ESMF_VMGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="493.5,-738 376.5,-738 376.5,-714 493.5,-714 493.5,-738"/>
+<text text-anchor="middle" x="435" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGet</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_VMGet -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#255000" d="M123.83,-465.11C135.96,-506.73 182.04,-644.62 275,-705 301.64,-722.31 336.12,-728.36 366.16,-729.75"/>
+<polygon fill="#255000" stroke="#255000" points="366.06,-733.25 376.16,-730.05 366.27,-726.25 366.06,-733.25"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node7" class="node">
+<title>ESMF_VMGetCurrent</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="513.5,-696 356.5,-696 356.5,-672 513.5,-672 513.5,-696"/>
+<text text-anchor="middle" x="435" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGetCurrent</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#255000" d="M125.3,-465.15C140.65,-502.2 192.4,-614.17 275,-663 296.28,-675.58 321.92,-681.96 346.33,-684.93"/>
+<polygon fill="#255000" stroke="#255000" points="346.03,-688.41 356.34,-685.97 346.76,-681.45 346.03,-688.41"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node8" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="495.5,-654 374.5,-654 374.5,-630 495.5,-630 495.5,-654"/>
+<text text-anchor="middle" x="435" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#255000" d="M127.59,-465.41C146.66,-497.51 202.57,-583.36 275,-621 302.18,-635.13 335.37,-640.99 364.38,-643.08"/>
+<polygon fill="#255000" stroke="#255000" points="364.26,-646.58 374.45,-643.67 364.67,-639.59 364.26,-646.58"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node9" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="485.5,-612 384.5,-612 384.5,-588 485.5,-588 485.5,-612"/>
+<text text-anchor="middle" x="435" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#255000" d="M131.01,-465.29C154.07,-491.31 212.09,-551.83 275,-579 306,-592.39 343.32,-597.81 374.01,-599.8"/>
+<polygon fill="#255000" stroke="#255000" points="373.97,-603.3 384.14,-600.35 374.35,-596.31 373.97,-603.3"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node10" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="477.5,-570 392.5,-570 392.5,-546 477.5,-546 477.5,-570"/>
+<text text-anchor="middle" x="435" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#255000" d="M137.61,-465.07C165.14,-483.83 221.58,-519.61 275,-537 309.61,-548.26 350.33,-553.5 381.9,-555.93"/>
+<polygon fill="#255000" stroke="#255000" points="382.02,-559.44 392.23,-556.65 382.5,-552.46 382.02,-559.44"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node11" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node11"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="543.5,-528 326.5,-528 326.5,-504 543.5,-504 543.5,-528"/>
+<text text-anchor="middle" x="435" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M159.21,-465.07C190.25,-474.38 235.08,-486.97 275,-495 288.75,-497.76 303.25,-500.25 317.66,-502.47"/>
+<polygon fill="#255000" stroke="#255000" points="317.21,-505.94 327.62,-503.96 318.25,-499.02 317.21,-505.94"/>
+</g>
+<!-- interface~mapl_fieldbundleadd -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node12" class="node">
+<title>interface~mapl_fieldbundleadd</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node12"><a xlink:href=".././interface/mapl_fieldbundleadd.html" xlink:title="MAPL_Base::MAPL_FieldBundleAdd">
+<polygon fill="#a7506f" stroke="#a7506f" points="533,-486 337,-486 337,-462 533,-462 533,-486"/>
+<text text-anchor="middle" x="435" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_FieldBundleAdd</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;interface~mapl_fieldbundleadd -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;interface~mapl_fieldbundleadd</title>
+<path fill="none" stroke="#255000" d="M239.02,-460.94C267.74,-462.86 298.29,-464.91 326.48,-466.8"/>
+<polygon fill="#255000" stroke="#255000" points="326.53,-470.31 336.75,-467.49 327,-463.32 326.53,-470.31"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node13" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="480.5,-444 389.5,-444 389.5,-420 480.5,-420 480.5,-444"/>
+<text text-anchor="middle" x="435" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;nf90_inq_varid -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#255000" d="M239.02,-445.06C287.25,-441.83 340.62,-438.26 379.31,-435.66"/>
+<polygon fill="#255000" stroke="#255000" points="379.58,-439.15 389.32,-434.99 379.11,-432.17 379.58,-439.15"/>
+</g>
+<!-- none~at~32 -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node14" class="node">
+<title>none~at~32</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node14"><a xlink:href=".././type/cfiocollectionvector.html#boundprocedure-at~32" xlink:title="ESMF_CFIOCollectionVectorMod::CFIOCollectionVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="595,-402 275,-402 275,-378 595,-378 595,-402"/>
+<text text-anchor="middle" x="435" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOCollectionVectorMod::CFIOCollectionVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;none~at~32 -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;none~at~32</title>
+<path fill="none" stroke="#255000" d="M159.21,-440.93C190.25,-431.62 235.08,-419.03 275,-411 288.75,-408.24 303.25,-405.75 317.66,-403.53"/>
+<polygon fill="#255000" stroke="#255000" points="318.25,-406.98 327.62,-402.04 317.21,-400.06 318.25,-406.98"/>
+</g>
+<!-- proc~esmf_cfioget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node15" class="node">
+<title>proc~esmf_cfioget</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node15"><a xlink:href=".././proc/esmf_cfioget.html" xlink:title="ESMF_CFIOFileMod::ESMF_CFIOGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="533,-360 337,-360 337,-336 533,-336 533,-360"/>
+<text text-anchor="middle" x="435" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileMod::ESMF_CFIOGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#255000" d="M137.61,-440.93C165.14,-422.17 221.58,-386.39 275,-369 291.38,-363.67 309.13,-359.69 326.62,-356.72"/>
+<polygon fill="#255000" stroke="#255000" points="327.56,-360.11 336.88,-355.08 326.46,-353.2 327.56,-360.11"/>
+</g>
+<!-- proc~esmf_cfiogridget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node16" class="node">
+<title>proc~esmf_cfiogridget</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node16"><a xlink:href=".././proc/esmf_cfiogridget.html" xlink:title="ESMF_CFIOGridMod::ESMF_CFIOGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="546.5,-318 323.5,-318 323.5,-294 546.5,-294 546.5,-318"/>
+<text text-anchor="middle" x="435" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOGridMod::ESMF_CFIOGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfiogridget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfiogridget</title>
+<path fill="none" stroke="#255000" d="M131.01,-440.71C154.07,-414.69 212.09,-354.17 275,-327 287.02,-321.81 299.98,-317.82 313.15,-314.76"/>
+<polygon fill="#255000" stroke="#255000" points="314.19,-318.11 323.24,-312.6 312.72,-311.27 314.19,-318.11"/>
+</g>
+<!-- proc~esmf_cfiovarinfoget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node17" class="node">
+<title>proc~esmf_cfiovarinfoget</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node17"><a xlink:href=".././proc/esmf_cfiovarinfoget.html" xlink:title="ESMF_CFIOVarInfoMod::ESMF_CFIOVarInfoGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="561.5,-276 308.5,-276 308.5,-252 561.5,-252 561.5,-276"/>
+<text text-anchor="middle" x="435" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarInfoMod::ESMF_CFIOVarInfoGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfiovarinfoget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfiovarinfoget</title>
+<path fill="none" stroke="#255000" d="M127.59,-440.59C146.66,-408.49 202.57,-322.64 275,-285 282.46,-281.12 290.37,-277.87 298.52,-275.15"/>
+<polygon fill="#255000" stroke="#255000" points="299.65,-278.46 308.19,-272.18 297.6,-271.77 299.65,-278.46"/>
+</g>
+<!-- proc~find~2 -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node18" class="node">
+<title>proc~find~2</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node18"><a xlink:href=".././proc/find~2.html" xlink:title="ESMF_CFIOCollectionMod::CFIOCollection%find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="566,-234 304,-234 304,-210 566,-210 566,-234"/>
+<text text-anchor="middle" x="435" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOCollectionMod::CFIOCollection%find</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~find~2 -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~find~2</title>
+<path fill="none" stroke="#255000" d="M125.3,-440.85C140.65,-403.8 192.4,-291.83 275,-243 281.04,-239.43 287.43,-236.36 294.04,-233.72"/>
+<polygon fill="#255000" stroke="#255000" points="295.67,-236.86 303.88,-230.17 293.29,-230.28 295.67,-236.86"/>
+</g>
+<!-- proc~make_regridder -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node19" class="node">
+<title>proc~make_regridder</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node19"><a xlink:href=".././proc/make_regridder.html" xlink:title="MAPL_CFIOMod::make_regridder">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="528,-192 342,-192 342,-168 528,-168 528,-192"/>
+<text text-anchor="middle" x="435" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::make_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~make_regridder -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~make_regridder</title>
+<path fill="none" stroke="#255000" d="M123.83,-440.89C135.96,-399.27 182.04,-261.38 275,-201 291.78,-190.1 311.67,-183.67 331.6,-180.05"/>
+<polygon fill="#255000" stroke="#255000" points="332.36,-183.47 341.68,-178.45 331.26,-176.56 332.36,-183.47"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node20" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node20"><a xlink:href=".././proc/mapl_gridget.html" xlink:title="mapl_MaplGrid::MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="522.5,-150 347.5,-150 347.5,-126 522.5,-126 522.5,-150"/>
+<text text-anchor="middle" x="435" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#255000" d="M122.76,-440.88C132,-395.04 171.44,-231.25 275,-159 293.12,-146.36 315.28,-139.54 337.24,-136.14"/>
+<polygon fill="#255000" stroke="#255000" points="337.84,-139.59 347.3,-134.81 336.93,-132.65 337.84,-139.59"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node21" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node21"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="545,-108 325,-108 325,-84 545,-84 545,-108"/>
+<text text-anchor="middle" x="435" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M121.93,-440.94C128.49,-391.29 160.56,-201.42 275,-117 286.83,-108.27 300.55,-102.25 314.87,-98.19"/>
+<polygon fill="#255000" stroke="#255000" points="316.02,-101.51 324.87,-95.68 314.32,-94.72 316.02,-101.51"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node22" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CallsGraph_node22"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="542,-66 328,-66 328,-42 542,-42 542,-66"/>
+<text text-anchor="middle" x="435" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M121.27,-440.95C125.38,-387.69 149.54,-171.78 275,-75 287.6,-65.28 302.49,-58.86 318.03,-54.74"/>
+<polygon fill="#255000" stroke="#255000" points="318.84,-58.14 327.78,-52.46 317.24,-51.33 318.84,-58.14"/>
+</g>
+<!-- vectorlist -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_node23" class="node">
+<title>vectorlist</title>
+<polygon fill="#777777" stroke="#777777" points="465.5,-24 404.5,-24 404.5,0 465.5,0 465.5,-24"/>
+<text text-anchor="middle" x="435" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vectorlist</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;vectorlist -->
+<g id="proc~~mapl_cfiocreatefromfile~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;vectorlist</title>
+<path fill="none" stroke="#255000" d="M120.74,-440.82C122.59,-383.89 138.5,-142.21 275,-33 308.4,-6.28 358.96,-4.06 394.07,-6.57"/>
+<polygon fill="#255000" stroke="#255000" points="394.16,-10.09 404.43,-7.47 394.77,-3.12 394.16,-10.09"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cfiocreatefromfile~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_cfiocreatefromfileCalledByGraph" width="641pt" height="26pt"
+ viewBox="0.00 0.00 641.00 26.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cfiocreatefromfile~~CalledByGraph" class="graph" transform="scale(1.21 1.21) rotate(0) translate(4 28)">
+<title>proc~~mapl_cfiocreatefromfile~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 773,-28 773,4 -4,4"/>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~mapl_cfiocreatefromfile~~CalledByGraph_node1" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<polygon fill="none" stroke="black" points="769,-24 530,-24 530,0 769,0 769,-24"/>
+<text text-anchor="middle" x="649.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CFIOMod::MAPL_CFIOCreateFromFile</text>
+</g>
+<!-- proc~mapl_cfioreadparallel_ -->
+<g id="proc~~mapl_cfiocreatefromfile~~CalledByGraph_node2" class="node">
+<title>proc~mapl_cfioreadparallel_</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CalledByGraph_node2"><a xlink:href=".././proc/mapl_cfioreadparallel_.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOReadParallel_">
+<polygon fill="#d9534f" stroke="#d9534f" points="494,-24 262,-24 262,0 494,0 494,-24"/>
+<text text-anchor="middle" x="378" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOReadParallel_</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadparallel_&#45;&gt;proc~mapl_cfiocreatefromfile -->
+<g id="proc~~mapl_cfiocreatefromfile~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_cfioreadparallel_&#45;&gt;proc~mapl_cfiocreatefromfile</title>
+<path fill="none" stroke="#255000" d="M494.07,-12C502.61,-12 511.25,-12 519.86,-12"/>
+<polygon fill="#255000" stroke="#255000" points="519.94,-15.5 529.94,-12 519.94,-8.5 519.94,-15.5"/>
+</g>
+<!-- interface~mapl_cfioreadparallel -->
+<g id="proc~~mapl_cfiocreatefromfile~~CalledByGraph_node3" class="node">
+<title>interface~mapl_cfioreadparallel</title>
+<g id="a_proc~~mapl_cfiocreatefromfile~~CalledByGraph_node3"><a xlink:href=".././interface/mapl_cfioreadparallel.html" xlink:title="MAPL_CFIOMod::MAPL_CFIOReadParallel">
+<polygon fill="#a7506f" stroke="#a7506f" points="226,-24 0,-24 0,0 226,0 226,-24"/>
+<text text-anchor="middle" x="113" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOMod::MAPL_CFIOReadParallel</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_cfioreadparallel&#45;&gt;proc~mapl_cfioreadparallel_ -->
+<g id="proc~~mapl_cfiocreatefromfile~~CalledByGraph_edge2" class="edge">
+<title>interface~mapl_cfioreadparallel&#45;&gt;proc~mapl_cfioreadparallel_</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M226.3,-12C234.64,-12 243.08,-12 251.49,-12"/>
+<polygon fill="#255000" stroke="#255000" points="251.72,-15.5 261.72,-12 251.72,-8.5 251.72,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_cfiocreatefromfileCalledByGraph = svgPanZoom('#procmapl_cfiocreatefromfileCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CFIOCreateFromFile</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">,</span><span class="n">bundlein</span><span class="p">,</span><span class="n">RegridMethod</span><span class="p">,</span><span class="n">hw</span><span class="p">,</span><span class="n">only_vars</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_CFIO</span><span class="w">  </span><span class="p">),</span><span class="w">               </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MCFIO</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BundleIn</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">               </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RegridMethod</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">               </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hw</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">      </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">only_vars</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">               </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOGrid</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CFIOGRID</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GRID</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">ESMFGRID</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOGrid</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">varsGrid</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOVarInfo</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VARS</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">kv</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">lm</span><span class="p">,</span><span class="n">nvars</span><span class="p">,</span><span class="n">fvars</span><span class="p">,</span><span class="n">bvars</span><span class="p">,</span><span class="n">img</span><span class="p">,</span><span class="n">jmg</span><span class="p">,</span><span class="n">lt</span><span class="p">,</span><span class="n">num2dvars</span><span class="p">,</span><span class="n">num3dvars</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">twoD</span><span class="p">,</span><span class="n">fillbundle</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">units</span><span class="p">,</span><span class="n">cfiovarname</span><span class="p">,</span><span class="n">long_name</span><span class="p">,</span><span class="n">bundlevarname</span><span class="p">,</span><span class="n">ctemp1</span><span class="p">,</span><span class="n">ctemp2</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">regridMethod_</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">gridToFieldMap</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">hw_</span><span class="p">,</span><span class="w"> </span><span class="n">gridrank</span><span class="p">,</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">halowidth</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr2</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr3</span><span class="p">(:,:,:)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">isPresent</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">lonsfile</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">latsfile</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">levsfile</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfiop</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">CFIOCollection</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="n">localPet</span><span class="o">=</span><span class="n">mcfio</span><span class="p">%</span><span class="n">myPE</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">collection</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">collections</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">mcfio</span><span class="p">%</span><span class="n">collection_ID</span><span class="p">)</span>
+<span class="w">    </span><span class="n">cfiop</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">collection</span><span class="p">%</span><span class="n">find</span><span class="p">(</span><span class="n">mcfio</span><span class="p">%</span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CFIOGet</span><span class="w">       </span><span class="p">(</span><span class="n">cfiop</span><span class="p">,</span><span class="w">     </span><span class="n">grid</span><span class="o">=</span><span class="n">CFIOGRID</span><span class="p">,</span><span class="w">                     </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CFIOGridGet</span><span class="w">   </span><span class="p">(</span><span class="n">CFIOGRID</span><span class="p">,</span><span class="w"> </span><span class="n">IM</span><span class="o">=</span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="n">JM</span><span class="o">=</span><span class="n">JM</span><span class="p">,</span><span class="w"> </span><span class="n">KM</span><span class="o">=</span><span class="n">LM</span><span class="p">,</span><span class="w">               </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CFIOGridGet</span><span class="w">    </span><span class="p">(</span><span class="n">CFIOGRID</span><span class="p">,</span><span class="w"> </span><span class="n">LON</span><span class="o">=</span><span class="n">LONSFILE</span><span class="p">,</span><span class="w"> </span><span class="n">LAT</span><span class="o">=</span><span class="n">LATSFILE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">CFIOGRID</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CFIOGet</span><span class="w"> </span><span class="p">(</span><span class="n">cfiop</span><span class="p">,</span><span class="n">varObjs</span><span class="o">=</span><span class="n">VARS</span><span class="p">,</span><span class="w"> </span><span class="n">nVars</span><span class="o">=</span><span class="n">fVars</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">hw</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">hw_</span><span class="o">=</span><span class="n">hw</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">hw_</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">    </span><span class="k">end if</span>
+<span class="k">    </span><span class="n">haloWidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">hw_</span><span class="p">,</span><span class="n">hw_</span><span class="p">,</span><span class="mi">0</span><span class="o">/</span><span class="p">)</span>
+<span class="w">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">kreverse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">xshift</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">JM</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">6</span><span class="o">*</span><span class="n">IM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">mcfio</span><span class="p">%</span><span class="n">xshift</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">abs</span><span class="p">(</span><span class="n">LONSfile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">18</span><span class="mf">0._REAL64</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="nb">abs</span><span class="p">(</span><span class="n">LONSfile</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">LONSfile</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    call </span><span class="n">ESMF_FieldbundleGet</span><span class="p">(</span><span class="n">bundlein</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">esmfgrid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">esmfgrid</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">COUNTS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">DIMS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="n">img</span><span class="o">=</span><span class="n">counts</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="n">jmg</span><span class="o">=</span><span class="n">counts</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Get the number of variables we will be reading</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">bundlein</span><span class="p">,</span><span class="n">fieldCount</span><span class="o">=</span><span class="n">bvars</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bvars</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">fillbundle</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">       </span><span class="n">nvars</span><span class="o">=</span><span class="n">bvars</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">fillbundle</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">       </span><span class="n">nvars</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">fVars</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">ONLY_VARS</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">ONLY_VARS</span><span class="p">)</span><span class="w">  </span><span class="o">//</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="s1">&#39;,&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">CFIOVARNAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;,&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">          endif</span>
+<span class="k">          </span><span class="n">nvars</span><span class="o">=</span><span class="n">nvars</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">    end if</span>
+
+<span class="k">    allocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">(</span><span class="n">NVars</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarName</span><span class="p">(</span><span class="n">NVars</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarID</span><span class="p">(</span><span class="n">NVars</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">fillbundle</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nvars</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">bundlein</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="n">bundlevarname</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="n">found</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">          </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">fvars</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_CFIOVarInfoGet</span><span class="p">(</span><span class="n">VARS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="n">vname</span><span class="o">=</span><span class="n">CFIOVARNAME</span><span class="p">,</span><span class="n">twoDimVar</span><span class="o">=</span><span class="n">twoD</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="n">ctemp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_UtilStringLowerCase</span><span class="p">(</span><span class="n">cfiovarname</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="n">ctemp2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_UtilStringLowerCase</span><span class="p">(</span><span class="n">bundlevarname</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">ctemp1</span><span class="p">)</span><span class="o">==</span><span class="nb">trim</span><span class="p">(</span><span class="n">ctemp2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">found</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                </span><span class="n">kv</span><span class="o">=</span><span class="n">k</span>
+<span class="w">                </span><span class="k">exit</span>
+<span class="k">             endif</span>
+<span class="k">          enddo</span>
+<span class="k">          </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">found</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;search failed&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="n">mcfio</span><span class="p">%</span><span class="n">varname</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">bundleVarName</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">twoD</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">mcfio</span><span class="p">%</span><span class="n">vardims</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="mi">2</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             </span><span class="n">mcfio</span><span class="p">%</span><span class="n">vardims</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="mi">3</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_CFIOVarinfoGet</span><span class="p">(</span><span class="n">Vars</span><span class="p">(</span><span class="n">kv</span><span class="p">),</span><span class="n">grid</span><span class="o">=</span><span class="n">varsgrid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_CFIOGridGet</span><span class="w"> </span><span class="p">(</span><span class="n">varsGrid</span><span class="p">,</span><span class="w"> </span><span class="n">lev</span><span class="o">=</span><span class="n">levsfile</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">levsfile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">levsfile</span><span class="p">(</span><span class="n">lm</span><span class="p">))</span><span class="w"> </span><span class="n">mcfio</span><span class="p">%</span><span class="n">kreverse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">          </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nf90_inq_varid</span><span class="p">(</span><span class="n">cfiop</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="n">cfiovarname</span><span class="p">,</span><span class="n">mcfio</span><span class="p">%</span><span class="n">varid</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w">   </span><span class="n">Grid</span><span class="o">=</span><span class="n">ESMFGRID</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">ESMFGRID</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">COUNTS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="w"> </span><span class="n">LM</span><span class="o">==</span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">LM</span><span class="o">==</span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">lm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="p">(</span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;incompatible file and bundle&#39;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">enddo</span>
+
+<span class="k">    else</span>
+<span class="k">       </span><span class="n">nVars</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">fvars</span>
+
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_CFIOVarInfoGet</span><span class="p">(</span><span class="n">VARS</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">vname</span><span class="o">=</span><span class="n">CFIOVARNAME</span><span class="p">,</span><span class="w"> </span><span class="n">vtitle</span><span class="o">=</span><span class="n">LONG_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">vunits</span><span class="o">=</span><span class="n">UNITS</span><span class="p">,</span><span class="w"> </span><span class="n">twoDimVar</span><span class="o">=</span><span class="n">twoD</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">ONLY_VARS</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">ONLY_VARS</span><span class="p">)</span><span class="w">  </span><span class="o">//</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="s1">&#39;,&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">CFIOVARNAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;,&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">          endif</span>
+<span class="k">          </span><span class="n">nvars</span><span class="o">=</span><span class="n">nvars</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarName</span><span class="p">(</span><span class="n">nvars</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfiovarname</span>
+
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">twoD</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">(</span><span class="n">nvars</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+
+<span class="w">             </span><span class="k">allocate</span><span class="p">(</span><span class="n">PTR2</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">hw_</span><span class="p">:</span><span class="n">DIMS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">hw_</span><span class="p">,</span><span class="mi">1</span><span class="o">-</span><span class="n">hw_</span><span class="p">:</span><span class="n">DIMS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">hw_</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="n">PTR2</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">esmfgrid</span><span class="p">,</span><span class="w"> </span><span class="n">dimCount</span><span class="o">=</span><span class="n">gridRank</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">allocate</span><span class="p">(</span><span class="n">gridToFieldMap</span><span class="p">(</span><span class="n">gridRank</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="p">(</span><span class="n">gridRank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">gridToFieldMap</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                </span><span class="n">gridToFieldMap</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">             </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">gridRank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">gridToFieldMap</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                </span><span class="n">gridToFieldMap</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">                </span><span class="n">gridToFieldMap</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">             </span><span class="n">FIELD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">esmfgrid</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">datacopyFlag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_DATACOPY_REFERENCE</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">PTR2</span><span class="p">,</span><span class="w"> </span><span class="n">gridToFieldMap</span><span class="o">=</span><span class="n">gridToFieldMap</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">name</span><span class="o">=</span><span class="n">CFIOVARNAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">totalLWidth</span><span class="o">=</span><span class="n">haloWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">totalUWidth</span><span class="o">=</span><span class="n">haloWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">             </span><span class="k">deallocate</span><span class="p">(</span><span class="n">gridToFieldMap</span><span class="p">)</span>
+
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;LONG_NAME&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">LONG_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;UNITS&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">UNITS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;DIMS&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">MAPL_DimsHorzOnly</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;VLOCATION&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                        </span><span class="k">VALUE</span><span class="o">=</span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             call </span><span class="n">ESMF_CFIOVarinfoGet</span><span class="p">(</span><span class="n">Vars</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">grid</span><span class="o">=</span><span class="n">varsgrid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_CFIOGridGet</span><span class="w"> </span><span class="p">(</span><span class="n">varsGrid</span><span class="p">,</span><span class="w"> </span><span class="n">lev</span><span class="o">=</span><span class="n">levsfile</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">levsfile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">levsfile</span><span class="p">(</span><span class="n">lm</span><span class="p">))</span><span class="w"> </span><span class="n">mcfio</span><span class="p">%</span><span class="n">kreverse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">               </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="p">(</span><span class="n">nvars</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  allocate</span><span class="p">(</span><span class="n">PTR3</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">hw_</span><span class="p">:</span><span class="n">DIMS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">hw_</span><span class="p">,</span><span class="mi">1</span><span class="o">-</span><span class="n">hw_</span><span class="p">:</span><span class="n">DIMS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">hw_</span><span class="p">,</span><span class="n">LM</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">lm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="p">(</span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  allocate</span><span class="p">(</span><span class="n">PTR3</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">hw_</span><span class="p">:</span><span class="n">DIMS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">hw_</span><span class="p">,</span><span class="mi">1</span><span class="o">-</span><span class="n">hw_</span><span class="p">:</span><span class="n">DIMS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">hw_</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="n">LM</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="k">endif</span>
+<span class="k">               </span><span class="n">PTR3</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">               </span><span class="n">FIELD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">esmfgrid</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">datacopyFlag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_DATACOPY_REFERENCE</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">PTR3</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">CFIOVARNAME</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">totalLWidth</span><span class="o">=</span><span class="n">haloWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">totalUWidth</span><span class="o">=</span><span class="n">haloWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="c">!ALT: for now we add only HorzVert (no tiles)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;LONG_NAME&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">LONG_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;UNITS&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">UNITS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;DIMS&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">MAPL_DimsHorzVert</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;VLOCATION&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                              </span><span class="k">VALUE</span><span class="o">=</span><span class="n">MAPL_VLocationCenter</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">lm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="p">(</span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;VLOCATION&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                              </span><span class="k">VALUE</span><span class="o">=</span><span class="n">MAPL_VLocationEdge</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="k">end if</span>
+
+<span class="k">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">          </span><span class="k">end if</span>
+
+<span class="k">          call </span><span class="n">MAPL_FieldBundleAdd</span><span class="p">(</span><span class="n">bundlein</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nf90_inq_varid</span><span class="p">(</span><span class="n">cfiop</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="n">cfiovarname</span><span class="p">,</span><span class="n">mcfio</span><span class="p">%</span><span class="n">varid</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">enddo</span>
+<span class="k">    end if</span>
+
+<span class="w">    </span><span class="c">! Fill in MCFIO object</span>
+<span class="w">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">esmfgrid</span>
+<span class="w">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">bundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bundlein</span>
+<span class="w">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">im</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">im</span>
+<span class="w">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">jm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jm</span>
+<span class="w">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">lm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lm</span>
+<span class="w">    </span><span class="n">Num2DVars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Num3DVars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VarDims</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">    </span><span class="n">LT</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">Num2DVars</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Num3DVars</span><span class="o">*</span><span class="n">LM</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="w"> </span><span class="p">(</span><span class="n">LT</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="p">(</span><span class="n">LT</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">krank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">pairList</span><span class="p">(</span><span class="n">LT</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">regridmethod</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">regridmethod_</span><span class="o">=</span><span class="n">regridmethod</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">regridmethod_</span><span class="o">=</span><span class="n">REGRID_METHOD_BILINEAR</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    </span><span class="n">mcfio</span><span class="p">%</span><span class="n">regrid_type</span><span class="o">=-</span><span class="mi">1</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">img</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">im</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">jmg</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">jm</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">regridMethod_</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">regridmethod_</span><span class="o">==</span><span class="n">REGRID_METHOD_VOTE</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">regridmethod_</span><span class="o">==</span><span class="n">REGRID_METHOD_CONSERVE</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">regridmethod_</span><span class="o">==</span><span class="n">REGRID_METHOD_FRACTION</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">mcfio</span><span class="p">%</span><span class="n">regridConservative</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">          </span><span class="n">mcfio</span><span class="p">%</span><span class="n">regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">make_regridder</span><span class="p">(</span><span class="n">esmfgrid</span><span class="p">,</span><span class="n">regridMethod_</span><span class="p">,</span><span class="n">lonsfile</span><span class="p">,</span><span class="n">latsfile</span><span class="p">,</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">),.</span><span class="n">false</span><span class="p">.,</span><span class="n">localTiles</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">regridmethod_</span><span class="o">==</span><span class="n">REGRID_METHOD_BILINEAR</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">mcfio</span><span class="p">%</span><span class="n">regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">make_regridder</span><span class="p">(</span><span class="n">ESMFGRID</span><span class="p">,</span><span class="w"> </span><span class="n">regridMethod_</span><span class="p">,</span><span class="w"> </span><span class="n">LONSfile</span><span class="p">,</span><span class="w"> </span><span class="n">LATSfile</span><span class="p">,</span><span class="w"> </span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="n">JM</span><span class="p">,</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       </span><span class="n">mcfio</span><span class="p">%</span><span class="n">regrid_type</span><span class="o">=</span><span class="n">regridmethod_</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="w">    </span><span class="c">!check for vector pairs, right now limit to 1</span>
+<span class="w">    </span><span class="k">block</span>
+<span class="k">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vectorlist</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">j</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rotation</span><span class="p">,</span><span class="n">gridstagger</span><span class="p">,</span><span class="n">rotation1</span><span class="p">,</span><span class="n">rotation2</span><span class="p">,</span><span class="n">gridStagger1</span><span class="p">,</span><span class="n">gridStagger2</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field1</span><span class="p">,</span><span class="n">field2</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">needVar</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">varname</span><span class="p">)),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">needVar</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">bundlein</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;VectorList:&quot;</span><span class="p">,</span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">bundlein</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;VectorList:&quot;</span><span class="p">,</span><span class="n">valuelist</span><span class="o">=</span><span class="n">vectorlist</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">          </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">varname</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">varname</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">vectorList</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">found</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">                </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">varname</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">varName</span><span class="p">(</span><span class="n">J</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">vectorlist</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                      </span><span class="k">exit</span>
+<span class="k">                   end if</span>
+<span class="k">                end do</span>
+<span class="k">                </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">found</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;search failed&#39;</span><span class="p">)</span>
+<span class="w">                </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">needvar</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">j</span>
+<span class="w">             </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">varname</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">vectorList</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">found</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">                </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">varname</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">varName</span><span class="p">(</span><span class="n">J</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">vectorlist</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                      </span><span class="k">exit</span>
+<span class="k">                   end if</span>
+<span class="k">                end do</span>
+<span class="k">                </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">found</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;search failed&#39;</span><span class="p">)</span>
+<span class="w">                </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">needvar</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=-</span><span class="n">j</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">          end do</span>
+
+<span class="k">          call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">BUNDLE</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">vectorList</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span><span class="w"> </span><span class="n">field</span><span class="o">=</span><span class="n">FIELD1</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">BUNDLE</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">vectorList</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="n">field</span><span class="o">=</span><span class="n">FIELD2</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">doRotate</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field1</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ROTATION&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">rotation1</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field1</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;STAGGERING&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">gridStagger1</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field2</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ROTATION&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">rotation2</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field2</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;STAGGERING&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">gridStagger2</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">rotation1</span><span class="o">==</span><span class="n">rotation2</span><span class="p">,</span><span class="s1">&#39;rotation does not match&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">gridStagger1</span><span class="o">==</span><span class="n">gridStagger2</span><span class="p">,</span><span class="s1">&#39;stagger does not match&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="n">rotation</span><span class="o">=</span><span class="n">rotation1</span>
+<span class="w">          </span><span class="n">gridStagger</span><span class="o">=</span><span class="n">gridStagger1</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gridStagger</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_AGrid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">rotation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_RotateLL</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">doRotate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">             </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">rotation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_RotateCube</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">doRotate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">          else if</span><span class="w"> </span><span class="p">(</span><span class="n">gridStagger</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DGrid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">rotation</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_RotateCube</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;must rotate LL&#39;</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">doRotate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">          else if</span><span class="w"> </span><span class="p">(</span><span class="n">gridStagger</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_CGrid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">rotation</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_RotateCube</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;must rotate LL&#39;</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">doRotate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+<span class="k">    end block</span>
+<span class="c">!@    call ESMF_CFIOVarInfoDestroy(vars, _RC)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">vars</span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">LONSfile</span><span class="p">,</span><span class="n">LATSfile</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">levsfile</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       deallocate</span><span class="p">(</span><span class="n">levsfile</span><span class="p">)</span>
+<span class="w">       </span><span class="k">nullify</span><span class="p">(</span><span class="n">levsfile</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">PartSize</span><span class="o">=-</span><span class="mi">1</span>
+<span class="w">    </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">root</span><span class="o">=-</span><span class="mi">1</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_CFIOCreateFromFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-11T15:30:30.126995             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
