@@ -53,7 +53,7 @@ module pFIO_AbstractDirectoryServiceMod
          import AbstractSocketVector
          class (AbstractDirectoryService), target, intent(inout) :: this
          character(*), intent(in) :: port_name
-         class (BaseServer), intent(inout) :: server
+         class (BaseServer), target, intent(inout) :: server
          integer, optional, intent(out) :: rc
       end subroutine connect_to_client
 
@@ -61,9 +61,9 @@ module pFIO_AbstractDirectoryServiceMod
          use pFIO_BaseServerMod
          import AbstractDirectoryService
          import PortInfo
-         class (AbstractDirectoryService), intent(inout) :: this
+         class (AbstractDirectoryService), target, intent(inout) :: this
          type(PortInfo), target, intent(in) :: port
-         class (BaseServer), intent(inout) :: server
+         class (BaseServer), intent(in) :: server
          integer, optional, intent(out) :: rc
       end subroutine
 

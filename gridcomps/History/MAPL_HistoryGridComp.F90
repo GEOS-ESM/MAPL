@@ -3596,8 +3596,6 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         list(n)%currentFile = filename(n)
-
          if (.not.list(n)%timeseries_output .AND. list(n)%sampler_spec /= 'station') then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
