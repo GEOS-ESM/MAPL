@@ -4,7 +4,7 @@ use MAPL_DataCollectionMod
 implicit none
 private
 
-type(MAPLCollectionVector) :: DataCollections
+type(MAPLCollectionVector), target :: DataCollections
 
 public DataCollections
 public MAPL_DataAddCollection

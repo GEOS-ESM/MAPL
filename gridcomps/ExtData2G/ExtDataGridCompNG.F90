@@ -263,7 +263,7 @@ CONTAINS
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
    integer :: item_type
-   type(StringVector) :: unsatisfied_imports,extra_variables_needed
+   type(StringVector), target :: unsatisfied_imports,extra_variables_needed
    type(StringVectorIterator) :: siter
    character(len=:), pointer :: current_base_name,extra_var
    character(len=:), allocatable :: primary_var_name,derived_var_name
@@ -600,7 +600,7 @@ CONTAINS
 
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IoBundles%end())
-      io_bundle => bundle_iter%get()
+      io_bundle => bundle_iter%of()
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       file_Processed = io_bundle%file_name
@@ -641,7 +641,7 @@ CONTAINS
 
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IOBundles%end())
-      io_bundle => bundle_iter%get()
+      io_bundle => bundle_iter%of()
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       item => self%primary%item(entry_num)
@@ -1348,7 +1348,7 @@ CONTAINS
 
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
-        io_bundle => bundle_iter%get()
+        io_bundle => bundle_iter%of()
         call io_bundle%make_io(_RC)
         call bundle_iter%next()
      enddo
@@ -1367,7 +1367,7 @@ CONTAINS
 
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
-        io_bundle => bundle_iter%get()
+        io_bundle => bundle_iter%of()
         call io_bundle%clean(_RC)
         call bundle_iter%next
      enddo
@@ -1450,7 +1450,7 @@ CONTAINS
 
 
   subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,rc)
-     type(IOBundleNGVector), intent(inout) :: IOBundles
+     type(IOBundleNGVector), target, intent(inout) :: IOBundles
      type(primaryExport), target, intent(inout)  :: item
      integer, intent(in)                    :: entry_num
      integer, intent(out), optional         :: rc

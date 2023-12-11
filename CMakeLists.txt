@@ -254,6 +254,10 @@ if (PFUNIT_FOUND)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
 
+# Support for automated code generation
+include(mapl_acg)
+include(mapl_create_stub_component)
+
 add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm

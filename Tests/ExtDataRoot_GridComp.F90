@@ -317,7 +317,7 @@ MODULE ExtDataUtRoot_GridCompMod
 
       integer :: status
 
-      type(VarspecDescriptionVector) :: VarspecVec
+      type(VarspecDescriptionVector), target :: VarspecVec
       type(VarspecDescriptionVectorIterator) :: Iter
       type(VarspecDescription) :: VarspecDescr
       type(VarspecDescription), pointer :: VarspecPtr
@@ -675,7 +675,7 @@ MODULE ExtDataUtRoot_GridCompMod
                end if
             end if
             if (foundDiff(i)) then
-               _FAIL('found difference when compare state')
+               _FAIL('found difference when compare state for field: [' // trim(namelist(i))//']')
             end if
          enddo
 

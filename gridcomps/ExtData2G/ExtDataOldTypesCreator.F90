@@ -170,7 +170,7 @@ module MAPL_ExtDataOldTypesCreator
    end subroutine fillin_primary
 
    subroutine fillin_derived(this,item_name,derived_item,time,clock,unusable,rc)
-      class(ExtDataOldTypesCreator), intent(inout) :: this
+      class(ExtDataOldTypesCreator), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       type(DerivedExport), intent(inout) :: derived_item
       type(ESMF_Time), intent(inout) :: time
