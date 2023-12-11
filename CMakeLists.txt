@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.42.3
+  VERSION 2.42.4
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -220,6 +220,9 @@ include(CheckCompilerCapabilities)
 if(SUPPORT_FOR_MPI_IERROR_KEYWORD)
   add_compile_definitions(SUPPORT_FOR_MPI_IERROR_KEYWORD)
 endif()
+if (APPLE)
+  add_compile_definitions("-D__DARWIN")
+endif()
 
 add_subdirectory (pfio)
 add_subdirectory (profiler)
@@ -241,6 +244,7 @@ if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
+
 
 # Support for automated code generation
 include(mapl_acg)
