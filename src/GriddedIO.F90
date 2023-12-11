@@ -108,13 +108,13 @@ module MAPL_GriddedIOMod
      end function new_MAPL_GriddedIO
 
      subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
-        class (MAPL_GriddedIO), intent(inout) :: this
+        class (MAPL_GriddedIO), target, intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
-        type(StringStringMap), intent(in), optional :: global_attributes
+        type(StringStringMap), intent(in), target, optional :: global_attributes
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -729,8 +729,8 @@ module MAPL_GriddedIOMod
               yptr3d => yptr3d_inter
            end if
         else
-           if (associated(xptr3d)) nullify(xptr3d)
-           if (associated(yptr3d)) nullify(yptr3d)
+           nullify(xptr3d)
+           nullify(yptr3d)
         end if
 
         call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)

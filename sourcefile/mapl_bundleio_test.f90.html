@@ -77,7 +77,7 @@
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip"
                  data-bs-placement="bottom" data-html="true"
-                 title=" 0.2% of total for source files.">292 statements</a>
+                 title=" 0.2% of total for source files.">294 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -616,8 +616,8 @@ large graphs.</div>
 <a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">dateline</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.DATELINE:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">       </span><span class="k">end if</span>
 <a id="ln-152" name="ln-152" href="#ln-152"></a>
-<a id="ln-153" name="ln-153" href="#ln-153"></a>
-<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="k">     end function </span><span class="n">create_cf</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="k">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">     </span><span class="k">end function </span><span class="n">create_cf</span>
 <a id="ln-155" name="ln-155" href="#ln-155"></a>
 <a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">    </span><span class="k">function </span><span class="n">create_gridname</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">date</span><span class="p">,</span><span class="n">pole</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">gridname</span><span class="p">)</span>
 <a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im</span>
@@ -726,7 +726,7 @@ large graphs.</div>
 <a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">    </span><span class="k">call </span><span class="n">UnpackGridName</span><span class="p">(</span><span class="n">Gridname</span><span class="p">,</span><span class="n">im_world_new</span><span class="p">,</span><span class="n">jm_world_new</span><span class="p">,</span><span class="n">dateline_new</span><span class="p">,</span><span class="n">pole_new</span><span class="p">)</span>
 <a id="ln-261" name="ln-261" href="#ln-261"></a>
 <a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">    </span><span class="n">lm_world</span><span class="o">=</span><span class="mi">3</span>
-<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">    </span><span class="n">cfoutput</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_cf</span><span class="p">(</span><span class="n">gridname</span><span class="p">,</span><span class="n">im_world_new</span><span class="p">,</span><span class="n">jm_world_new</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">,</span><span class="n">lm_world</span><span class="p">,</span><span class="n">cs_stretch_param</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">    </span><span class="n">cfoutput</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_cf</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">gridname</span><span class="p">),</span><span class="n">im_world_new</span><span class="p">,</span><span class="n">jm_world_new</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">,</span><span class="n">lm_world</span><span class="p">,</span><span class="n">cs_stretch_param</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">    </span><span class="n">grid_new</span><span class="o">=</span><span class="n">grid_manager</span><span class="p">%</span><span class="n">make_grid</span><span class="p">(</span><span class="n">cfoutput</span><span class="p">,</span><span class="n">prefix</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">gridname</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">    </span><span class="n">bundle</span><span class="o">=</span><span class="n">ESMF_FieldBundleCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;cfio_bundle&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_FieldBundleSet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">grid_new</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
@@ -782,7 +782,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-12-06T15:56:18.739939             </p>
+ on 2023-12-11T15:30:27.838925             </p>
           </div>
         </div>
         <br>
