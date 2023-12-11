@@ -606,8 +606,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            call lgr%debug('%a %a', 'datetime_units from 1st file:', trim(timeunits_file))
                         end if
                         obstype_id_full(len+1:len+num_times) = k
-                        call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
-                             times_R8_full(1), times_R8_full(200))
                         !!write(6,'(f12.2)')  times_R8_full(::50) 
                         len = len + num_times
                      end if

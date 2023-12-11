@@ -5266,6 +5266,7 @@ ENDDO PARSER
     !  Plan:
     !- read and write  schema
     !- extract union of field lines, print out to rc    
+    integer, parameter :: ESMF_MAXSTR2 = 2*ESMF_MAXSTR
     type(ESMF_Config), intent(inout)       :: config
     integer, intent(in)                    :: nlist
     type(HistoryCollection), pointer       :: list(:)
@@ -5278,12 +5279,12 @@ ENDDO PARSER
 
     character (len=ESMF_MAXSTR) :: fname
     character (len=ESMF_MAXSTR) :: marker
-    character (len=ESMF_MAXSTR) :: line, line2
     character (len=ESMF_MAXSTR) :: string
-    character (len=ESMF_MAXSTR), allocatable :: str_piece(:)  
+    character (len=ESMF_MAXSTR2) :: line, line2
+    character (len=ESMF_MAXSTR2), allocatable :: str_piece(:)
     type(obs_platform), allocatable :: PLFS(:)
     type(obs_platform) :: p1
-    integer :: k, i, j, i2
+    integer :: k, i, j, m, i2
     integer :: ios, ngeoval, count, nplf
     integer :: length_mx
     integer :: mxseg
@@ -5312,6 +5313,10 @@ ENDDO PARSER
     nplf = count
     allocate (PLFS(nplf))
     allocate (map(nplf))
+
+    ! __ global set for call split_string by space
+    length_mx = ESMF_MAXSTR2
+    mxseg = 100
     
     ! __ s1. scan get  platform name + index_name_x  var_name_lat/lon/time
     do k=1, count
@@ -5371,8 +5376,6 @@ ENDDO PARSER
 
 
     ! __ s2.1 scan fields: get ngeoval / nentry_name = nword
-    length_mx = ESMF_MAXSTR
-    mxseg = 10 
     allocate (str_piece(mxseg))
     rewind(unitr)
     do k=1, count
@@ -5427,7 +5430,9 @@ ENDDO PARSER
              ngeoval = ngeoval + 1
              call  split_string_by_space (line, length_mx, mxseg, &
                   nseg, str_piece, status)
-             PLFS(k)%field_name (1:nseg, ngeoval) = str_piece(1:nseg)
+             do m=1, nseg
+                PLFS(k)%field_name (m, ngeoval) = trim(str_piece(m))
+             end do
           else
              exit
           endif
@@ -5479,8 +5484,6 @@ ENDDO PARSER
 
        if (obs_flag) then
 
-          length_mx = ESMF_MAXSTR
-          mxseg = 100
           allocate (str_piece(mxseg))
           i = index(line2, ':')
           line = adjustl ( line2(i+1:) )
@@ -5489,6 +5492,8 @@ ENDDO PARSER
                nplatform, str_piece, status)          
 
 
+          write(6,*) 'split string,  nplatform=', nplatform
+          write(6,*) 'nplf=', nplf
           !!write(6,*) 'str_piece=', str_piece(1:nplatform)
           !!do j=1, nplf
           !!   write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
@@ -5500,7 +5505,7 @@ ENDDO PARSER
           !
           ! find the index for each str_piece
           map(:) = -1
-          do i=1, nplatform  ! loc collection
+          do i=1, nplatform  ! for loc collection
              do j=1, nplf    ! tot
                 if ( trim(str_piece(i)) == trim( PLFS(j)%name ) ) then
                    map(i)=j
