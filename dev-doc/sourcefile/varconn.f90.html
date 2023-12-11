@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>VarConn.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>VarConn.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for source files.">232 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/VarConn.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">VarConn.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_varconn.html">mapl_VarConn</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/varconn.f90.html#src">VarConn.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~varconn.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilevarconnf90EfferentGraph" width="641pt" height="239pt"
+ viewBox="0.00 0.00 641.00 238.97" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~varconn.f90~~EfferentGraph" class="graph" transform="scale(1.95 1.95) rotate(0) translate(4 462.37)">
+<title>sourcefile~~varconn.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-462.37 1247,-462.37 1247,4 -4,4"/>
+<!-- sourcefile~varconn.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~varconn.f90</title>
+<polygon fill="none" stroke="black" points="1243,-216.37 1163,-216.37 1163,-192.37 1243,-192.37 1243,-216.37"/>
+<text text-anchor="middle" x="1203" y="-201.97" font-family="Helvetica,sans-Serif" font-size="10.50">VarConn.F90</text>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="829,-378.37 741,-378.37 741,-354.37 829,-354.37 829,-378.37"/>
+<text text-anchor="middle" x="785" y="-363.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M926,-366.37C897.43,-364.27 865.5,-364.11 839.35,-364.54"/>
+<polygon fill="#255000" stroke="#255000" points="839.19,-361.04 829.26,-364.74 839.33,-368.04 839.19,-361.04"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~mapl_errorhandling.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node3"><a xlink:href=".././sourcefile/mapl_errorhandling.f90.html" xlink:title="MAPL_ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="688,-252.37 545,-252.37 545,-228.37 688,-228.37 688,-252.37"/>
+<text text-anchor="middle" x="616.5" y="-237.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1070,-204.37C939.47,-195.35 787.93,-213.17 697.52,-226.82"/>
+<polygon fill="#255000" stroke="#255000" points="696.98,-223.36 687.62,-228.33 698.03,-230.28 696.98,-223.36"/>
+</g>
+<!-- sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~pflogger_stub.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node4"><a xlink:href=".././sourcefile/pflogger_stub.f90.html" xlink:title="pflogger_stub.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="839,-336.37 731,-336.37 731,-312.37 839,-312.37 839,-336.37"/>
+<text text-anchor="middle" x="785" y="-321.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger_stub.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1070,-366.37C1010.45,-387.27 990.94,-371 928,-366.37"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M926,-366.37C907.23,-364.99 863.2,-351.11 829.49,-339.67"/>
+<polygon fill="#255000" stroke="#255000" points="830.43,-336.3 819.84,-336.37 828.17,-342.92 830.43,-336.3"/>
+</g>
+<!-- sourcefile~varconnpoint.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~varconnpoint.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node5"><a xlink:href=".././sourcefile/varconnpoint.f90.html" xlink:title="VarConnPoint.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="838,-164.37 732,-164.37 732,-140.37 838,-140.37 838,-164.37"/>
+<text text-anchor="middle" x="785" y="-149.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnPoint.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varconnpoint.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varconnpoint.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1192.09,-192.36C1178.99,-177.53 1154.36,-153.1 1127,-143.37 1032.72,-109.88 914.37,-124.51 844.78,-138.34"/>
+<polygon fill="#255000" stroke="#255000" points="843.97,-134.93 834.87,-140.37 845.37,-141.79 843.97,-134.93"/>
+</g>
+<!-- sourcefile~varconntype.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~varconntype.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node6"><a xlink:href=".././sourcefile/varconntype.f90.html" xlink:title="VarConnType.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="979,-176.37 875,-176.37 875,-152.37 979,-152.37 979,-176.37"/>
+<text text-anchor="middle" x="927" y="-161.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnType.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varconntype.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varconntype.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1162.99,-205.77C1137.14,-206.36 1102.51,-206.48 1072,-204.37"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1070,-204.37C1034.12,-201.89 994.87,-190.1 966.75,-179.95"/>
+<polygon fill="#255000" stroke="#255000" points="967.88,-176.64 957.29,-176.45 965.45,-183.2 967.88,-176.64"/>
+</g>
+<!-- sourcefile~varconnvector.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~varconnvector.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node7"><a xlink:href=".././sourcefile/varconnvector.f90.html" xlink:title="VarConnVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1127,-176.37 1015,-176.37 1015,-152.37 1127,-152.37 1127,-176.37"/>
+<text text-anchor="middle" x="1071" y="-161.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varconnvector.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varconnvector.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1163,-192.37C1149.88,-188.34 1135.06,-183.78 1121.26,-179.53"/>
+<polygon fill="#255000" stroke="#255000" points="1122.01,-176.1 1111.43,-176.5 1119.95,-182.79 1122.01,-176.1"/>
+</g>
+<!-- sourcefile~varspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~varspec.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node8"><a xlink:href=".././sourcefile/varspec.f90.html" xlink:title="VarSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="966.5,-316.37 887.5,-316.37 887.5,-292.37 966.5,-292.37 966.5,-316.37"/>
+<text text-anchor="middle" x="927" y="-301.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1197.47,-216.7C1184.36,-250.11 1142.77,-341.53 1072,-366.37"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1070,-366.37C1025.37,-382.03 975.07,-346.94 947.93,-323.42"/>
+<polygon fill="#255000" stroke="#255000" points="950.07,-320.64 940.29,-316.56 945.39,-325.85 950.07,-320.64"/>
+</g>
+<!-- sourcefile~varspecptr.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~varspecptr.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node9"><a xlink:href=".././sourcefile/varspecptr.f90.html" xlink:title="VarSpecPtr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1116.5,-296.37 1025.5,-296.37 1025.5,-272.37 1116.5,-272.37 1116.5,-296.37"/>
+<text text-anchor="middle" x="1071" y="-281.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecPtr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varspecptr.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varspecptr.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1182.26,-216.52C1160.37,-229.99 1124.89,-251.83 1100.11,-267.08"/>
+<polygon fill="#255000" stroke="#255000" points="1098.19,-264.15 1091.5,-272.37 1101.86,-270.11 1098.19,-264.15"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node10"><a xlink:href=".././sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="681,-458.37 552,-458.37 552,-434.37 681,-434.37 681,-458.37"/>
+<text text-anchor="middle" x="616.5" y="-443.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M766.58,-378.55C749.09,-390.38 721.07,-408.28 695,-420.37 686.68,-424.23 677.62,-427.8 668.73,-430.98"/>
+<polygon fill="#255000" stroke="#255000" points="667.5,-427.7 659.19,-434.27 669.78,-434.32 667.5,-427.7"/>
+</g>
+<!-- sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~mathconstants.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node13"><a xlink:href=".././sourcefile/mathconstants.f90.html" xlink:title="MathConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="498,-398.37 384,-398.37 384,-374.37 498,-374.37 498,-398.37"/>
+<text text-anchor="middle" x="441" y="-383.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MathConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~mathconstants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M741.8,-378.44C727.12,-382.08 710.45,-385.57 695,-387.37 632.14,-394.69 559.9,-393.45 508.75,-390.97"/>
+<polygon fill="#255000" stroke="#255000" points="508.65,-387.47 498.49,-390.45 508.29,-394.46 508.65,-387.47"/>
+</g>
+<!-- sourcefile~physicalconstants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~physicalconstants.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node16"><a xlink:href=".././sourcefile/physicalconstants.f90.html" xlink:title="PhysicalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="681.5,-378.37 551.5,-378.37 551.5,-354.37 681.5,-354.37 681.5,-378.37"/>
+<text text-anchor="middle" x="616.5" y="-363.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PhysicalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~physicalconstants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~physicalconstants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M740.69,-366.37C725.77,-366.37 708.6,-366.37 691.92,-366.37"/>
+<polygon fill="#255000" stroke="#255000" points="691.61,-362.87 681.61,-366.37 691.61,-369.87 691.61,-362.87"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node12"><a xlink:href=".././sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="491,-276.37 391,-276.37 391,-252.37 491,-252.37 491,-276.37"/>
+<text text-anchor="middle" x="441" y="-261.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M544.93,-250.14C530.44,-252.14 515.32,-254.23 501.27,-256.17"/>
+<polygon fill="transparent" stroke="transparent" points="500.68,-252.72 491.25,-257.56 501.64,-259.66 500.68,-252.72"/>
+</g>
+<!-- sourcefile~pfl_keywordenforcer.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~pfl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node15"><a xlink:href=".././sourcefile/pfl_keywordenforcer.f90.html" xlink:title="PFL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="690,-336.37 543,-336.37 543,-312.37 690,-312.37 690,-336.37"/>
+<text text-anchor="middle" x="616.5" y="-321.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~pfl_keywordenforcer.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~pfl_keywordenforcer.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M730.86,-324.37C721.15,-324.37 710.81,-324.37 700.48,-324.37"/>
+<polygon fill="transparent" stroke="transparent" points="700.17,-320.87 690.17,-324.37 700.17,-327.87 700.17,-320.87"/>
+</g>
+<!-- sourcefile~wraparray.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~wraparray.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node18"><a xlink:href=".././sourcefile/wraparray.f90.html" xlink:title="WrapArray.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="662,-294.37 571,-294.37 571,-270.37 662,-270.37 662,-294.37"/>
+<text text-anchor="middle" x="616.5" y="-279.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WrapArray.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~wraparray.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~wraparray.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M736.29,-312.34C716.22,-307.28 692.76,-301.36 672.02,-296.13"/>
+<polygon fill="transparent" stroke="transparent" points="672.63,-292.67 662.08,-293.62 670.92,-299.46 672.63,-292.67"/>
+</g>
+<!-- sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~mapl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node11"><a xlink:href=".././sourcefile/mapl_keywordenforcer.f90.html" xlink:title="MAPL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="695,-152.37 538,-152.37 538,-128.37 695,-128.37 695,-152.37"/>
+<text text-anchor="middle" x="616.5" y="-137.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconnpoint.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~varconnpoint.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M731.78,-148.61C723.32,-148 714.37,-147.36 705.35,-146.7"/>
+<polygon fill="#025563" stroke="#025563" points="705.38,-143.2 695.15,-145.97 704.87,-150.18 705.38,-143.2"/>
+</g>
+<!-- sourcefile~oomph.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~oomph.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node14"><a xlink:href=".././sourcefile/oomph.f90.html" xlink:title="oomph.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="653,-194.37 580,-194.37 580,-170.37 653,-170.37 653,-194.37"/>
+<text text-anchor="middle" x="616.5" y="-179.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">oomph.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconnpoint.f90&#45;&gt;sourcefile~oomph.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~varconnpoint.f90&#45;&gt;sourcefile~oomph.f90</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M731.78,-161.78C709.81,-165.74 684.48,-170.3 663.26,-174.13"/>
+<polygon fill="#025563" stroke="#025563" points="662.43,-170.72 653.21,-175.94 663.67,-177.61 662.43,-170.72"/>
+</g>
+<!-- sourcefile~varconntype.f90&#45;&gt;sourcefile~varconnpoint.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~varconntype.f90&#45;&gt;sourcefile~varconnpoint.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M874.66,-159.97C866.14,-159.24 857.21,-158.48 848.45,-157.73"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="848.53,-154.22 838.27,-156.85 847.93,-161.19 848.53,-154.22"/>
+</g>
+<!-- sourcefile~varconnvector.f90&#45;&gt;sourcefile~varconntype.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~varconnvector.f90&#45;&gt;sourcefile~varconntype.f90</title>
+<path fill="none" stroke="#063255" stroke-dasharray="5,2" d="M1014.69,-164.37C1006.39,-164.37 997.78,-164.37 989.36,-164.37"/>
+<polygon fill="#063255" stroke="#063255" points="989.21,-160.87 979.21,-164.37 989.21,-167.87 989.21,-160.87"/>
+</g>
+<!-- sourcefile~varspec.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~varspec.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M901.44,-316.46C884.12,-324.85 860.3,-336.15 839,-345.37 835.12,-347.06 831.05,-348.76 826.98,-350.44"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="825.48,-347.27 817.52,-354.26 828.11,-353.76 825.48,-347.27"/>
+</g>
+<!-- sourcefile~varspec.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~varspec.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M887.48,-296.9C848.11,-289.2 785.23,-276.77 731,-265.37 714.81,-261.97 697.35,-258.19 681.09,-254.61"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="681.67,-251.15 671.15,-252.41 680.16,-257.99 681.67,-251.15"/>
+</g>
+<!-- sourcefile~varspec.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~varspec.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M887.37,-309.89C875.62,-311.57 862.38,-313.46 849.45,-315.31"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="848.58,-311.9 839.17,-316.78 849.57,-318.83 848.58,-311.9"/>
+</g>
+<!-- sourcefile~varspectype.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~varspectype.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node17"><a xlink:href=".././sourcefile/varspectype.f90.html" xlink:title="VarSpecType.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="836.5,-256.37 733.5,-256.37 733.5,-232.37 836.5,-232.37 836.5,-256.37"/>
+<text text-anchor="middle" x="785" y="-241.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecType.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspec.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~varspec.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M897.67,-292.23C876.32,-283.08 846.84,-270.45 823.53,-260.46"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="824.86,-257.22 814.29,-256.5 822.1,-263.65 824.86,-257.22"/>
+</g>
+<!-- sourcefile~varspecptr.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~varspecptr.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#255019" stroke-dasharray="5,2" stroke-opacity="0.003922" d="M1025.46,-290.65C1009.98,-292.83 992.54,-295.28 976.74,-297.51"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="976.05,-294.07 966.63,-298.93 977.02,-301 976.05,-294.07"/>
+</g>
+<!-- sourcefile~abstractstateitemspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~abstractstateitemspec.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node19"><a xlink:href=".././sourcefile/abstractstateitemspec.f90.html" xlink:title="AbstractStateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="344,-154.37 187,-154.37 187,-130.37 344,-130.37 344,-154.37"/>
+<text text-anchor="middle" x="265.5" y="-139.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractStateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~abstractstateitemspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~abstractstateitemspec.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M579.91,-183.55C544.82,-184.44 489.67,-185.08 442,-182.37"/>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M440,-182.37C395.9,-179.87 346.97,-167.7 312.35,-157.43"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="313.12,-154.01 302.53,-154.46 311.09,-160.71 313.12,-154.01"/>
+</g>
+<!-- sourcefile~connectionpoint.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~connectionpoint.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node20"><a xlink:href=".././sourcefile/connectionpoint.f90.html" xlink:title="ConnectionPoint.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="502,-234.37 380,-234.37 380,-210.37 502,-210.37 502,-234.37"/>
+<text text-anchor="middle" x="441" y="-219.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConnectionPoint.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~connectionpoint.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~connectionpoint.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M579.97,-190.56C558.18,-195.59 529.67,-202.16 504.22,-208.03"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="503.23,-204.66 494.27,-210.32 504.8,-211.49 503.23,-204.66"/>
+</g>
+<!-- sourcefile~dimspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~dimspec.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node21"><a xlink:href=".././sourcefile/dimspec.f90.html" xlink:title="DimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="307,-70.37 224,-70.37 224,-46.37 307,-46.37 307,-70.37"/>
+<text text-anchor="middle" x="265.5" y="-55.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~dimspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~dimspec.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M440,-18.37C428.29,-14.5 363.71,-31.02 316.76,-43.99"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="315.73,-40.65 307.03,-46.7 317.6,-47.39 315.73,-40.65"/>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node22"><a xlink:href=".././sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484,-133.37 398,-133.37 398,-109.37 484,-109.37 484,-133.37"/>
+<text text-anchor="middle" x="441" y="-118.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M579.71,-173.72C566.49,-170.25 551.45,-165.98 538,-161.37 517.82,-154.47 495.82,-145.42 477.98,-137.67"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="479.1,-134.34 468.54,-133.53 476.29,-140.75 479.1,-134.34"/>
+</g>
+<!-- sourcefile~horizontalstaggerloc.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~horizontalstaggerloc.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node23"><a xlink:href=".././sourcefile/horizontalstaggerloc.f90.html" xlink:title="HorizontalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="151,-194.37 0,-194.37 0,-170.37 151,-170.37 151,-194.37"/>
+<text text-anchor="middle" x="75.5" y="-179.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HorizontalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M264.5,-182.37C230.93,-179.22 193.83,-178.61 161.52,-179.01"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="161.16,-175.51 151.21,-179.17 161.27,-182.51 161.16,-175.51"/>
+</g>
+<!-- sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~ungriddeddimspec.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node24"><a xlink:href=".././sourcefile/ungriddeddimspec.f90.html" xlink:title="UngriddedDimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="145,-122.37 6,-122.37 6,-98.37 145,-98.37 145,-122.37"/>
+<text text-anchor="middle" x="75.5" y="-107.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~ungriddeddimspec.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M440,-182.37C363.01,-178 343.27,-189.58 266.5,-182.37"/>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M264.5,-182.37C205.41,-176.82 141.98,-146.95 105.98,-127.47"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="107.45,-124.29 97.01,-122.52 104.07,-130.42 107.45,-124.29"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node25"><a xlink:href=".././sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="143.5,-50.37 7.5,-50.37 7.5,-26.37 143.5,-26.37 143.5,-50.37"/>
+<text text-anchor="middle" x="75.5" y="-35.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M579.75,-178.58C565.64,-175.66 549.97,-170.5 538,-161.37 512.96,-142.29 519.32,-126.66 502,-100.37 477.16,-62.66 484.88,-32.54 442,-18.37"/>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M440,-18.37C333.53,16.79 200.06,-6.38 128.14,-23.93"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="127.26,-20.54 118.41,-26.36 128.96,-27.33 127.26,-20.54"/>
+</g>
+<!-- sourcefile~physicalconstants.f90&#45;&gt;sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~physicalconstants.f90&#45;&gt;sourcefile~mathconstants.f90</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M551.39,-373.76C537.33,-375.38 522.42,-377.1 508.27,-378.73"/>
+<polygon fill="#002505" stroke="#002505" points="507.67,-375.28 498.13,-379.9 508.47,-382.23 507.67,-375.28"/>
+</g>
+<!-- sourcefile~varspectype.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~varspectype.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#170025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M733.14,-243.15C722.19,-242.89 710.36,-242.6 698.59,-242.32"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="698.36,-238.82 688.28,-242.07 698.19,-245.81 698.36,-238.82"/>
+</g>
+<!-- sourcefile~varspectype.f90&#45;&gt;sourcefile~oomph.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~varspectype.f90&#45;&gt;sourcefile~oomph.f90</title>
+<path fill="none" stroke="#170025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M751.5,-232.27C725.26,-222.5 688.13,-208.68 659.61,-198.06"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="660.51,-194.65 649.92,-194.44 658.07,-201.21 660.51,-194.65"/>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90</title>
+<path fill="none" stroke="#722550" stroke-dasharray="5,2" d="M223.93,-63.78C211.28,-66.87 197.82,-71.73 187,-79.37 164.04,-95.59 170.93,-111.55 151,-131.37 138.15,-144.16 121.7,-155.8 107.53,-164.73"/>
+<polygon fill="#722550" stroke="#722550" points="105.31,-161.98 98.61,-170.18 108.97,-167.95 105.31,-161.98"/>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~ungriddeddimspec.f90</title>
+<path fill="none" stroke="#722550" stroke-dasharray="5,2" d="M223.86,-69.31C211.97,-72.53 198.96,-76.08 187,-79.37 167.95,-84.63 147.08,-90.46 128.65,-95.64"/>
+<polygon fill="#722550" stroke="#722550" points="127.66,-92.28 118.98,-98.36 129.55,-99.02 127.66,-92.28"/>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#722550" stroke-dasharray="5,2" d="M223.71,-54.03C203.3,-51.86 177.9,-49.16 153.97,-46.61"/>
+<polygon fill="#722550" stroke="#722550" points="154.14,-43.11 143.82,-45.54 153.4,-50.07 154.14,-43.11"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~abstractstateitemspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~abstractstateitemspec.f90</title>
+<path fill="none" stroke="#025514" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M397.56,-126.51C384.31,-128.11 369.17,-129.95 354.01,-131.78"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="353.56,-128.31 344.06,-132.99 354.41,-135.26 353.56,-128.31"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~dimspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~dimspec.f90</title>
+<path fill="none" stroke="#025514" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M415.14,-109.29C396,-100.27 368.71,-88.07 344,-79.37 335.31,-76.31 325.94,-73.43 316.82,-70.85"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="317.64,-67.44 307.07,-68.16 315.78,-74.19 317.64,-67.44"/>
+</g>
+<!-- sourcefile~couplingspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~couplingspec.f90</title>
+<g id="a_sourcefile~~varconn.f90~~EfferentGraph_node26"><a xlink:href=".././sourcefile/couplingspec.f90.html" xlink:title="CouplingSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="320,-112.37 211,-112.37 211,-88.37 320,-88.37 320,-112.37"/>
+<text text-anchor="middle" x="265.5" y="-97.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CouplingSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~couplingspec.f90 -->
+<g id="sourcefile~~varconn.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~couplingspec.f90</title>
+<path fill="none" stroke="#025514" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M397.56,-116.24C377.29,-113.78 352.6,-110.8 330.15,-108.08"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="330.36,-104.58 320.01,-106.85 329.52,-111.53 330.36,-104.58"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilevarconnf90EfferentGraph = svgPanZoom('#sourcefilevarconnf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#EfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~varconn.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilevarconnf90AfferentGraph" width="641pt" height="161pt"
+ viewBox="0.00 0.00 641.00 160.67" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~varconn.f90~~AfferentGraph" class="graph" transform="scale(2.98 2.98) rotate(0) translate(4 474)">
+<title>sourcefile~~varconn.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-474 1903,-474 1903,4 -4,4"/>
+<!-- sourcefile~varconn.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~varconn.f90</title>
+<polygon fill="none" stroke="black" points="80,-143 0,-143 0,-119 80,-119 80,-143"/>
+<text text-anchor="middle" x="40" y="-128.6" font-family="Helvetica,sans-Serif" font-size="10.50">VarConn.F90</text>
+</g>
+<!-- sourcefile~maplgeneric.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~maplgeneric.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/maplgeneric.f90.html" xlink:title="MaplGeneric.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="789,-142 686,-142 686,-118 789,-118 789,-142"/>
+<text text-anchor="middle" x="737.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGeneric.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varconn.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varconn.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M685.9,-128.79C643.65,-128.13 581.85,-127.97 528,-131"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M526,-131C444.8,-135.57 424.33,-131 343,-131"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M341,-131C296.11,-131 284.89,-130.22 240,-130 184.89,-129.73 171.11,-129.63 116,-130 107.76,-130.05 99.01,-130.14 90.51,-130.25"/>
+<polygon fill="#255000" stroke="#255000" points="90.27,-126.75 80.31,-130.38 90.36,-133.75 90.27,-126.75"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~varspecmiscmod.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/varspecmiscmod.f90.html" xlink:title="VarSpecMiscMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="240,-163 116,-163 116,-139 240,-139 240,-163"/>
+<text text-anchor="middle" x="178" y="-148.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecMiscMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M341,-131C311.22,-131 278.59,-134.37 250.46,-138.34"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="249.71,-134.92 240.32,-139.83 250.72,-141.84 249.71,-134.92"/>
+</g>
+<!-- sourcefile~statespecification.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~statespecification.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/statespecification.f90.html" xlink:title="StateSpecification.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="408,-183 276,-183 276,-159 408,-159 408,-183"/>
+<text text-anchor="middle" x="342" y="-168.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateSpecification.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~statespecification.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~statespecification.f90</title>
+<path fill="none" stroke="#204025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M526,-131C479.4,-133.62 427.54,-145.87 390.96,-156.14"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="389.72,-152.85 381.07,-158.97 391.64,-159.58 389.72,-152.85"/>
+</g>
+<!-- sourcefile~componentspecification.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~componentspecification.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/componentspecification.f90.html" xlink:title="ComponentSpecification.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="610,-183 444,-183 444,-159 610,-159 610,-183"/>
+<text text-anchor="middle" x="527" y="-168.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecification.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~componentspecification.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~componentspecification.f90</title>
+<path fill="none" stroke="#255950" stroke-dasharray="5,2" d="M685.76,-139.98C659.78,-145.09 627.7,-151.39 599.28,-156.98"/>
+<polygon fill="#255950" stroke="#255950" points="598.53,-153.56 589.39,-158.93 599.88,-160.43 598.53,-153.56"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varconn.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varconn.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M115.76,-141.99C107.14,-140.73 98.37,-139.44 90.02,-138.21"/>
+<polygon fill="#255000" stroke="#255000" points="90.48,-134.74 80.08,-136.75 89.46,-141.66 90.48,-134.74"/>
+</g>
+<!-- sourcefile~genericcplcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~genericcplcomp.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/genericcplcomp.f90.html" xlink:title="GenericCplComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="800.5,-226 674.5,-226 674.5,-202 800.5,-202 800.5,-226"/>
+<text text-anchor="middle" x="737.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericCplComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericcplcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~genericcplcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M693.01,-226.09C651.13,-236.84 585.8,-251.26 528,-254"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M526,-254C405.05,-259.73 269.58,-198.48 209.98,-167.83"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="211.56,-164.71 201.08,-163.19 208.32,-170.92 211.56,-164.71"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1126.5,-306 1062.5,-306 1062.5,-282 1126.5,-282 1126.5,-306"/>
+<text text-anchor="middle" x="1094.5" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1062.26,-287C1000.57,-273.96 858.66,-247.78 738.5,-254"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="976,-146 865,-146 865,-122 976,-122 976,-146"/>
+<text text-anchor="middle" x="920.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1080.57,-281.97C1050.94,-254.41 977.91,-186.47 942.04,-153.11"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="944.28,-150.41 934.58,-146.17 939.52,-155.54 944.28,-150.41"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~maplgeneric.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~maplgeneric.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M864.7,-132.79C844.05,-132.33 820.44,-131.81 799.27,-131.34"/>
+<polygon fill="#255000" stroke="#255000" points="799.17,-127.84 789.1,-131.12 799.02,-134.84 799.17,-127.84"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~genericcplcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~genericcplcomp.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M904.43,-146.22C887.19,-159.61 857.64,-180.79 829,-193 823.16,-195.49 816.97,-197.71 810.69,-199.69"/>
+<polygon fill="#255000" stroke="#255000" points="809.37,-196.42 800.76,-202.59 811.34,-203.14 809.37,-196.42"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~mapl_historygridcomp.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/mapl_historygridcomp.f90.html" xlink:title="MAPL_HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1373,-146 1213,-146 1213,-122 1373,-122 1373,-146"/>
+<text text-anchor="middle" x="1293" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M919.5,-216C837.98,-226.56 820.64,-250.86 738.5,-254"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M736.5,-254C643.9,-257.54 620.57,-258.27 528,-254"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~genericcplcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~genericcplcomp.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1256.52,-146.07C1191.18,-167.33 1047.01,-209.84 921.5,-216"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M919.5,-216C883.91,-220.61 844.06,-220.71 810.83,-219.4"/>
+<polygon fill="#255000" stroke="#255000" points="810.89,-215.9 800.74,-218.96 810.58,-222.9 810.89,-215.9"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1231.3,-121.96C1224.88,-119.5 1218.65,-116.55 1213,-113 1192.18,-99.92 1198.02,-83.76 1177,-71 1145.21,-51.7 1132.17,-45.75 1095.5,-52"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node19"><a xlink:href=".././sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1174.5,-146 1014.5,-146 1014.5,-122 1174.5,-122 1174.5,-146"/>
+<text text-anchor="middle" x="1094.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge47" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_historycollection.f90</title>
+<path fill="none" stroke="#063255" stroke-dasharray="5,2" d="M1212.93,-134C1203.68,-134 1194.21,-134 1184.84,-134"/>
+<polygon fill="#063255" stroke="#063255" points="1184.73,-130.5 1174.73,-134 1184.73,-137.5 1184.73,-130.5"/>
+</g>
+<!-- sourcefile~statespecification.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~statespecification.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M275.58,-162.92C267.27,-161.9 258.74,-160.84 250.35,-159.81"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="250.57,-156.31 240.21,-158.56 249.71,-163.26 250.57,-156.31"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1754,-264 1609,-264 1609,-240 1754,-240 1754,-264"/>
+<text text-anchor="middle" x="1681.5" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1490,-274C1398.9,-274.65 1384.79,-341.52 1294,-334"/>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1292,-334C1237.58,-329.5 1176.08,-315.5 1136.61,-305.33"/>
+<polygon fill="transparent" stroke="transparent" points="1137.38,-301.91 1126.82,-302.77 1135.61,-308.68 1137.38,-301.91"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1609.12,-264.04C1573.96,-269.03 1530.88,-273.72 1492,-274"/>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1490,-274C1434.6,-274.4 1426.25,-246.3 1373,-231 1215.42,-185.71 1172.09,-190.42 1012,-155 1002.43,-152.88 992.31,-150.59 982.43,-148.32"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="983.2,-144.9 972.67,-146.07 981.63,-151.73 983.2,-144.9"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node17"><a xlink:href=".././sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1563,-104 1419,-104 1419,-80 1563,-80 1563,-104"/>
+<text text-anchor="middle" x="1491" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge45" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1668.33,-239.83C1648.82,-220.52 1609.07,-181.98 1573,-152 1555.17,-137.18 1534.1,-121.63 1517.93,-110.08"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1519.67,-107.03 1509.49,-104.1 1515.63,-112.74 1519.67,-107.03"/>
+</g>
+<!-- sourcefile~componentspecification.f90&#45;&gt;sourcefile~statespecification.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~componentspecification.f90&#45;&gt;sourcefile~statespecification.f90</title>
+<path fill="none" stroke="#204025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M443.87,-171C435.36,-171 426.74,-171 418.3,-171"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="418.13,-167.5 408.13,-171 418.13,-174.5 418.13,-167.5"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1899,-306 1790,-306 1790,-282 1899,-282 1899,-306"/>
+<text text-anchor="middle" x="1844.5" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1801.81,-306.09C1769.51,-315.03 1723.5,-326.85 1682.5,-334"/>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1680.5,-334C1597.97,-348.39 1575.66,-329.62 1492,-334"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node12"><a xlink:href=".././sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1573,-185 1409,-185 1409,-161 1573,-161 1573,-185"/>
+<text text-anchor="middle" x="1491" y="-170.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1829.99,-281.86C1813.32,-267.54 1783.55,-244.04 1754,-231 1699.86,-207.11 1634.94,-192.64 1583.26,-184.14"/>
+<polygon fill="transparent" stroke="transparent" points="1583.54,-180.64 1573.11,-182.51 1582.43,-187.55 1583.54,-180.64"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node13"><a xlink:href=".././sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1748,-306 1615,-306 1615,-282 1748,-282 1748,-306"/>
+<text text-anchor="middle" x="1681.5" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge37" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1789.89,-294C1779.77,-294 1769.01,-294 1758.35,-294"/>
+<polygon fill="transparent" stroke="transparent" points="1758.2,-290.5 1748.2,-294 1758.2,-297.5 1758.2,-290.5"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~extdataroot_gridcomp.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node16"><a xlink:href=".././sourcefile/extdataroot_gridcomp.f90.html" xlink:title="ExtDataRoot_GridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1571,-386 1411,-386 1411,-362 1571,-362 1571,-386"/>
+<text text-anchor="middle" x="1491" y="-371.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataRoot_GridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge43" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#025515" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M1680.5,-334C1638.02,-341.41 1590.54,-351.49 1553.86,-359.69"/>
+<polygon fill="#025515" fill-opacity="0.035294" stroke="#025515" stroke-opacity="0.035294" points="1552.8,-356.34 1543.81,-361.94 1554.33,-363.17 1552.8,-356.34"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1408.91,-183.72C1352.77,-192.65 1276.94,-207.71 1213,-231 1180.55,-242.82 1146.02,-262.26 1122.85,-276.42"/>
+<polygon fill="transparent" stroke="transparent" points="1120.91,-273.51 1114.25,-281.76 1124.6,-279.46 1120.91,-273.51"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1429.59,-160.98C1409.01,-156.88 1385.81,-152.27 1364.51,-148.03"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1365.03,-144.57 1354.54,-146.05 1363.67,-151.43 1365.03,-144.57"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node14"><a xlink:href=".././sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1370,-24 1216,-24 1216,0 1370,0 1370,-24"/>
+<text text-anchor="middle" x="1293" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge38" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#312550" stroke-dasharray="5,2" d="M1471.39,-160.98C1454.36,-149.58 1428.85,-131.49 1409,-113 1391.01,-96.24 1390.96,-87.79 1373,-71 1356.75,-55.81 1336.65,-40.84 1320.78,-29.78"/>
+<polygon fill="#312550" stroke="#312550" points="1322.68,-26.84 1312.46,-24.06 1318.72,-32.61 1322.68,-26.84"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node15"><a xlink:href=".././sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1366.5,-104 1219.5,-104 1219.5,-80 1366.5,-80 1366.5,-104"/>
+<text text-anchor="middle" x="1293" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge41" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M1469.49,-160.77C1446.6,-147.53 1408.16,-126.51 1373,-113 1367.48,-110.88 1361.67,-108.89 1355.81,-107.06"/>
+<polygon fill="#025563" stroke="#025563" points="1356.51,-103.61 1345.93,-104.1 1354.51,-110.32 1356.51,-103.61"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1641.26,-306.09C1603.47,-316.83 1544.45,-331.25 1492,-334"/>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1490,-334C1403.01,-338.55 1380.81,-341.19 1294,-334"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1629.43,-281.89C1622.38,-279.4 1615.37,-276.45 1609,-273 1569.28,-251.48 1530.99,-214.77 1509.57,-192.32"/>
+<polygon fill="transparent" stroke="transparent" points="1512.12,-189.92 1502.72,-185.02 1507.01,-194.71 1512.12,-189.92"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge44" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#025515" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M1640.57,-306.03C1630.01,-309.88 1618.83,-314.57 1609,-320 1591.26,-329.81 1590.92,-338.54 1573,-348 1565.31,-352.06 1556.88,-355.63 1548.45,-358.71"/>
+<polygon fill="#025515" fill-opacity="0.035294" stroke="#025515" stroke-opacity="0.035294" points="1547.28,-355.41 1538.97,-361.99 1549.57,-362.03 1547.28,-355.41"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1237.54,-24.06C1198.2,-32.54 1143.72,-43.79 1095.5,-52"/>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1093.5,-52C1056.83,-58.25 1045.98,-55.88 1012,-71 986.45,-82.37 960.59,-101.28 943.09,-115.42"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="940.69,-112.86 935.21,-121.93 945.15,-118.26 940.69,-112.86"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1250.68,-79.93C1202.21,-66.41 1124.76,-47.02 1095.5,-52"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1446.06,-361.91C1406.62,-351.82 1346.95,-338.38 1294,-334"/>
+</g>
+<!-- sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~varspecdescription.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node24"><a xlink:href=".././sourcefile/varspecdescription.f90.html" xlink:title="VarspecDescription.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1362,-386 1224,-386 1224,-362 1362,-362 1362,-386"/>
+<text text-anchor="middle" x="1293" y="-371.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarspecDescription.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge48" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90</title>
+<path fill="none" stroke="#255095" stroke-dasharray="5,2" d="M1410.84,-374C1398.1,-374 1384.92,-374 1372.2,-374"/>
+<polygon fill="#255095" stroke="#255095" points="1372.11,-370.5 1362.11,-374 1372.11,-377.5 1372.11,-370.5"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1446.54,-79.99C1373.6,-61.52 1222.06,-30.44 1095.5,-52"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1433.83,-104.04C1410.87,-108.96 1384.13,-114.69 1360.23,-119.81"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1359.22,-116.45 1350.17,-121.96 1360.69,-123.29 1359.22,-116.45"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge39" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#312550" stroke-dasharray="5,2" d="M1465.7,-79.79C1442.28,-68.26 1405.68,-50.87 1373,-38 1363.53,-34.27 1353.28,-30.62 1343.41,-27.29"/>
+<polygon fill="#312550" stroke="#312550" points="1344.29,-23.9 1333.7,-24.08 1342.09,-30.55 1344.29,-23.9"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge42" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M1418.96,-92C1405.3,-92 1390.88,-92 1376.87,-92"/>
+<polygon fill="#025563" stroke="#025563" points="1376.77,-88.5 1366.77,-92 1376.77,-95.5 1376.77,-88.5"/>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl_demo_fargparse.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node18"><a xlink:href=".././sourcefile/mapl_demo_fargparse.f90.html" xlink:title="MAPL_demo_fargparse.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1371.5,-306 1214.5,-306 1214.5,-282 1371.5,-282 1371.5,-306"/>
+<text text-anchor="middle" x="1293" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_demo_fargparse.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1214.34,-294C1187.85,-294 1159.28,-294 1136.78,-294"/>
+<polygon fill="transparent" stroke="transparent" points="1136.59,-290.5 1126.59,-294 1136.59,-297.5 1136.59,-290.5"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1014.3,-134C1004.94,-134 995.48,-134 986.36,-134"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="986.23,-130.5 976.23,-134 986.23,-137.5 986.23,-130.5"/>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~mapl_orbgridcompmod.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node20"><a xlink:href=".././sourcefile/mapl_orbgridcompmod.f90.html" xlink:title="MAPL_OrbGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1177,-104 1012,-104 1012,-80 1177,-80 1177,-104"/>
+<text text-anchor="middle" x="1094.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M1044.21,-104.04C1024.42,-108.87 1001.43,-114.48 980.74,-119.53"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="979.68,-116.19 970.8,-121.96 981.34,-122.99 979.68,-116.19"/>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~pfio_mapl_demo.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node21"><a xlink:href=".././sourcefile/pfio_mapl_demo.f90.html" xlink:title="pfio_MAPL_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1355,-264 1231,-264 1231,-240 1355,-240 1355,-264"/>
+<text text-anchor="middle" x="1293" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfio_MAPL_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1235.69,-264.04C1204.18,-270.77 1165.58,-279.02 1136.86,-285.16"/>
+<polygon fill="transparent" stroke="transparent" points="1135.81,-281.8 1126.76,-287.32 1137.28,-288.65 1135.81,-281.8"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node22"><a xlink:href=".././sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1339,-470 1247,-470 1247,-446 1339,-446 1339,-470"/>
+<text text-anchor="middle" x="1293" y="-455.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1246.93,-451.14C1235.26,-448.03 1223.15,-443.52 1213,-437 1163.77,-405.35 1125.11,-346.34 1106.9,-314.93"/>
+<polygon fill="transparent" stroke="transparent" points="1109.89,-313.11 1101.92,-306.13 1103.8,-316.56 1109.89,-313.11"/>
+</g>
+<!-- sourcefile~time_ave_util.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~time_ave_util.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node23"><a xlink:href=".././sourcefile/time_ave_util.f90.html" xlink:title="time_ave_util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1346,-428 1240,-428 1240,-404 1346,-404 1346,-428"/>
+<text text-anchor="middle" x="1293" y="-413.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave_util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1239.74,-405.68C1230.55,-402.88 1221.29,-399.37 1213,-395 1172.76,-373.8 1134.43,-336.55 1113.03,-313.7"/>
+<polygon fill="transparent" stroke="transparent" points="1115.54,-311.25 1106.19,-306.26 1110.38,-315.99 1115.54,-311.25"/>
+</g>
+<!-- sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1252.31,-361.9C1239.64,-357.79 1225.63,-352.96 1213,-348 1184.17,-336.67 1152.28,-321.87 1129.01,-310.62"/>
+<polygon fill="transparent" stroke="transparent" points="1130.43,-307.43 1119.91,-306.2 1127.37,-313.72 1130.43,-307.43"/>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~baseframeworkcomponent.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node25"><a xlink:href=".././sourcefile/baseframeworkcomponent.f90.html" xlink:title="BaseFrameworkComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="829,-184 646,-184 646,-160 829,-160 829,-184"/>
+<text text-anchor="middle" x="737.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseFrameworkComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~componentspecification.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~componentspecification.f90</title>
+<path fill="none" stroke="#255950" stroke-dasharray="5,2" d="M645.96,-171.57C637.52,-171.53 628.96,-171.48 620.5,-171.44"/>
+<polygon fill="#255950" stroke="#255950" points="620.27,-167.94 610.26,-171.39 620.24,-174.94 620.27,-167.94"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node26"><a xlink:href=".././sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1726.5,-104 1636.5,-104 1636.5,-80 1726.5,-80 1726.5,-104"/>
+<text text-anchor="middle" x="1681.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge46" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M1636.31,-92C1617.52,-92 1594.99,-92 1573.38,-92"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1573.21,-88.5 1563.2,-92 1573.2,-95.5 1573.21,-88.5"/>
+</g>
+<!-- sourcefile~ut_extdata.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~ut_extdata.f90</title>
+<g id="a_sourcefile~~varconn.f90~~AfferentGraph_node27"><a xlink:href=".././sourcefile/ut_extdata.f90.html" xlink:title="ut_ExtData.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1537.5,-24 1444.5,-24 1444.5,0 1537.5,0 1537.5,-24"/>
+<text text-anchor="middle" x="1491" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ExtData.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~varconn.f90~~AfferentGraph_edge40" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#312550" stroke-dasharray="5,2" d="M1444.05,-12C1425.01,-12 1402.29,-12 1380.35,-12"/>
+<polygon fill="#312550" stroke="#312550" points="1380.34,-8.5 1370.34,-12 1380.34,-15.5 1380.34,-8.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilevarconnf90AfferentGraph = svgPanZoom('#sourcefilevarconnf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#AfferentGraph-help-text">Help</a></div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Exceptions.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl_VarConn</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_Constants</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL_Self</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_VarSpecPtrMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_VarSpecMod</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_VarConnPoint</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_VarConnType</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_VarConnVector</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ErrorHandlingMod</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">pFlogger</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">   private</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VarConn</span><span class="w"> </span><span class="c">! wraps VarConnVector (vector of VarConnType)</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="c">! A trivial wrapper to encapsulate management of</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="c">! vector under the hood.  </span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">type </span><span class="n">VarConn</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="c">!!$      private</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VarConnVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">conn_v</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">append</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">checkReq</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">checkUnused</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varIsConnected_IE</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varIsConnected_name</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varIsConnected</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">varIsConnected_IE</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varIsConnected</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">varIsConnected_name</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varIsListed</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">   </span><span class="k">end type </span><span class="n">VarConn</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="k">contains</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="k">   subroutine </span><span class="n">append</span><span class="p">(</span><span class="n">CONN</span><span class="p">,</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">TO_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">        </span><span class="n">FROM_EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">TO_IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w">  </span><span class="p">)</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">VarConn</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CONN</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">             </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SHORT_NAME</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">    </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TO_NAME</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">              </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FROM_EXPORT</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">              </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TO_IMPORT</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">              </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">     </span><span class="c">! Error code:</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableFROM_EXPORT</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableTO_IMPORT</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VarConnType</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_conn</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableTONAME</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="n">usableFROM_EXPORT</span><span class="o">=</span><span class="n">MAPL_ConnUnknown</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="n">usableTO_IMPORT</span><span class="o">=</span><span class="n">MAPL_ConnUnknown</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">TO_NAME</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="k">         </span><span class="n">usableTONAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TO_NAME</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="k">         </span><span class="n">usableTONAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SHORT_NAME</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">FROM_EXPORT</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="k">         </span><span class="n">usableFROM_EXPORT</span><span class="o">=</span><span class="n">FROM_EXPORT</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">TO_IMPORT</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="k">         </span><span class="n">usableTO_IMPORT</span><span class="o">=</span><span class="n">TO_IMPORT</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="c">! Push and then construct.</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">call </span><span class="n">conn</span><span class="p">%</span><span class="n">conn_v</span><span class="p">%</span><span class="n">resize</span><span class="p">(</span><span class="n">conn</span><span class="p">%</span><span class="n">conn_v</span><span class="p">%</span><span class="n">size</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="n">new_conn</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">CONN</span><span class="p">%</span><span class="n">conn_v</span><span class="p">%</span><span class="n">back</span><span class="p">()</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="n">new_conn</span><span class="p">%</span><span class="n">From</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VarConnPoint</span><span class="p">(</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">gc_id</span><span class="o">=</span><span class="n">usableFROM_EXPORT</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="n">new_conn</span><span class="p">%</span><span class="n">To</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">VarConnPoint</span><span class="p">(</span><span class="n">usableTONAME</span><span class="p">,</span><span class="w"> </span><span class="n">gc_id</span><span class="o">=</span><span class="n">usableTO_IMPORT</span><span class="p">)</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">short_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;MAPL_AnyChildImport&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">new_conn</span><span class="p">%</span><span class="n">used</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">append</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">checkReq</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">ImSpecPtr</span><span class="p">,</span><span class="w"> </span><span class="n">ExSpecPtr</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">VarConn</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpecPtr</span><span class="p">),</span><span class="w">     </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">ImSpecPtr</span><span class="p">(:)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpecPtr</span><span class="p">),</span><span class="w">     </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">ExSpecPtr</span><span class="p">(:)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a>
+<a id="ln-86" name="ln-86" href="#ln-86"></a>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VarConnType</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">conn</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">J</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">IMP</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">FI</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">TI</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">FE</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">TE</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">NAME</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">conn_v</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">conn_v</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">        </span><span class="k">do </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">           </span><span class="n">conn</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">           </span><span class="n">FI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">           </span><span class="n">TI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">to</span><span class="p">%</span><span class="n">get_gc_id</span><span class="p">()</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">           </span><span class="n">IMP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">           </span><span class="k">if</span><span class="p">(</span><span class="n">FI</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="k">              </span><span class="n">IMP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FI</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">              </span><span class="n">NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">FROM</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">           </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">TI</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="k">              </span><span class="n">IMP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TI</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">              </span><span class="n">NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">TO</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">           </span><span class="k">end if</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">IMP</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">IMP</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_Self</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">              </span><span class="c">! check if the component has an import spec</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">              </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">ImSpecPtr</span><span class="p">(</span><span class="n">IMP</span><span class="p">)%</span><span class="n">Spec</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="k">                 </span><span class="n">conn</span><span class="p">%</span><span class="n">notRequired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">                 </span><span class="k">cycle</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="k">              end if</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="k">              if</span><span class="p">(</span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">ImSpecPtr</span><span class="p">(</span><span class="n">IMP</span><span class="p">)%</span><span class="n">Spec</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="k">                 </span><span class="n">FE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">from</span><span class="p">%</span><span class="n">get_gc_id</span><span class="p">()</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">                 </span><span class="n">TE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">                 </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">                 </span><span class="k">if</span><span class="p">(</span><span class="n">FE</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="k">                    </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FE</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">                    </span><span class="n">NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">FROM</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">                 </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">TE</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_ConnUnknown</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="k">                    </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TE</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">                    </span><span class="n">NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">TO</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">                 </span><span class="k">end if</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="k">                 if</span><span class="p">(</span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">ExSpecPtr</span><span class="p">(</span><span class="n">J</span><span class="p">)%</span><span class="n">Spec</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="p">)</span><span class="o">/=-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">                    </span><span class="c">!            Export does exist while import does not - we relax the requirement </span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">                    </span><span class="n">conn</span><span class="p">%</span><span class="n">notRequired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">                 </span><span class="k">end if</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="k">              endif</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="k">           end if</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="k">        end do</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="k">      end associate</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">CheckReq</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">checkUnused</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VarConn</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VarConnType</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">conn</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">from_name</span><span class="p">,</span><span class="w"> </span><span class="n">to_name</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">conn_v</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">conn_v</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">        </span><span class="n">checkUnused</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">        </span><span class="k">do </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">           </span><span class="n">conn</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">conn</span><span class="p">%</span><span class="n">notRequired</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="k">           if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">USED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="k">              </span><span class="n">checkUnused</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">              </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL.GENERIC&#39;</span><span class="p">)</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">              </span><span class="n">from_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">FROM</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">              </span><span class="n">to_name</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">TO</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">              </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">error</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">                   </span><span class="s1">&#39;SRC_NAME: &lt;%a~&gt;  DST_NAME: &lt;%a~&gt; is not satisfied&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">                   </span><span class="nb">trim</span><span class="p">(</span><span class="n">from_name</span><span class="p">),</span><span class="nb">trim</span><span class="p">(</span><span class="n">to_name</span><span class="p">))</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">           </span><span class="k">end if</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="k">        end do</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="k">      end associate</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="k">      return</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="k">   end function </span><span class="n">CheckUnused</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">varIsConnected_IE</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">IMPORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">        </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VarConn</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IMPORT_NAME</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPORT_NAME</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">IMPORT</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="k">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPORT</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">     </span><span class="c">! Error code:</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a>
+<a id="ln-183" name="ln-183" href="#ln-183"></a>
+<a id="ln-184" name="ln-184" href="#ln-184"></a>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">TI</span><span class="p">,</span><span class="w"> </span><span class="n">FE</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VarConnType</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">conn</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="n">varIsConnected_IE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">      </span><span class="c">! try to find a match with &quot;TO&quot;</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">conn_v</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">conn_v</span><span class="p">)</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">        </span><span class="k">do </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">           </span><span class="n">conn</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">           </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">TO</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">IMPORT_NAME</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="k">              cycle</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="k">           end if</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="k">           </span><span class="n">TI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">to</span><span class="p">%</span><span class="n">get_gc_id</span><span class="p">()</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">           </span><span class="n">FE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">from</span><span class="p">%</span><span class="n">get_gc_id</span><span class="p">()</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">           </span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">TI</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="k">import</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="k">              cycle</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="k">           end if</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="k">           </span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">FE</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">EXPORT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="k">              cycle</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="k">           end if</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="k">           </span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="k">           </span><span class="n">varIsConnected_IE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">           </span><span class="n">conn</span><span class="p">%</span><span class="n">used</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">EXPORT_NAME</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="k">              </span><span class="n">EXPORT_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">FROM</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">           </span><span class="k">end if</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="k">           </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">        </span><span class="k">end do</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="k">      end associate</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="k">      </span><span class="n">varIsConnected_IE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">   </span><span class="k">end function </span><span class="n">VarIsConnected_IE</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">varIsConnected_name</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">IMPORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VarConn</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IMPORT_NAME</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">import</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="k">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">     </span><span class="c">! Error code:</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a>
+<a id="ln-230" name="ln-230" href="#ln-230"></a>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">TI</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VarConnType</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">conn</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">      </span><span class="n">varIsConnected_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">conn_v</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">conn_v</span><span class="p">)</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">        </span><span class="c">! try to find a match with &quot;TO&quot;</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">        </span><span class="k">do </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">           </span><span class="n">conn</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w">           </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">to</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">IMPORT_NAME</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="k">              cycle</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="k">           end if</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="k">           </span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="k">           </span><span class="n">TI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">to</span><span class="p">%</span><span class="n">get_gc_id</span><span class="p">()</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">TI</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="k">import</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="k">              cycle</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="k">           end if</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="k">           </span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="k">           </span><span class="n">varIsConnected_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">           </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="w">        </span><span class="k">end do</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="k">      end associate</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a>
+<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="k">      </span><span class="n">varIsConnected_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-258" name="ln-258" href="#ln-258"></a>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">   </span><span class="k">end function </span><span class="n">VarIsConnected_Name</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">varIsListed</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VarConn</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">               </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SHORT_NAME</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                         </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">IMPORT</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="k">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">              </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">     </span><span class="c">! Error code:</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a>
+<a id="ln-268" name="ln-268" href="#ln-268"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VarConnType</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">conn</span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">TI</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a>
+<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">conn_v</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">conn_v</span><span class="p">)</span>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">        </span><span class="k">do </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">           </span><span class="n">conn</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">conn_v</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">           </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">FROM</span><span class="p">%</span><span class="n">get_short_name</span><span class="p">()</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="k">              cycle</span>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="k">           end if</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="k">           </span><span class="n">TI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="p">%</span><span class="n">to</span><span class="p">%</span><span class="n">get_gc_id</span><span class="p">()</span>
+<a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">           </span><span class="c">! check for a match</span>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">           </span><span class="k">if</span><span class="p">(</span><span class="n">TI</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">import</span><span class="p">)</span><span class="w">  </span><span class="k">then</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="k">              </span><span class="n">varIsListed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="w">              </span><span class="n">conn</span><span class="p">%</span><span class="n">used</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="w">              </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">           </span><span class="k">end if</span>
+<a id="ln-287" name="ln-287" href="#ln-287"></a><span class="k">        end do</span>
+<a id="ln-288" name="ln-288" href="#ln-288"></a><span class="k">      end associate</span>
+<a id="ln-289" name="ln-289" href="#ln-289"></a>
+<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="k">      </span><span class="n">varIsListed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-291" name="ln-291" href="#ln-291"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-292" name="ln-292" href="#ln-292"></a><span class="w">   </span><span class="k">end function </span><span class="n">VarIsListed</span>
+<a id="ln-293" name="ln-293" href="#ln-293"></a>
+<a id="ln-294" name="ln-294" href="#ln-294"></a>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="k">end module </span><span class="n">mapl_VarConn</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-11T15:55:43.042935             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

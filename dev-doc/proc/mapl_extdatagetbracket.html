@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_ExtDataGetBracket &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_ExtDataGetBracket
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">103 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataGridCompNG.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompng.f90.html'>ExtDataGridCompNG.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcomp2g.html'>MAPL_ExtDataGridComp2G</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_ExtDataGetBracket</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_extdatagetbracket.html#src">MAPL_ExtDataGetBracket</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_ExtDataGetBracket(item, bside, field, bundle, getRL, vcomp, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~63"></span>
+              type(<a href='../type/primaryexport~2.html'>PrimaryExport</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bside"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bside</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~51"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~23"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bundle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-getrl"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>getRL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vcomp~2"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vcomp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1701"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_extdatagetbracket~~CallsGraph Pages: 1 -->
+<svg id="procmapl_extdatagetbracketCallsGraph" width="641pt" height="70pt"
+ viewBox="0.00 0.00 641.00 70.16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph" class="graph" transform="scale(2.68 2.68) rotate(0) translate(4 183.83)">
+<title>proc~~mapl_extdatagetbracket~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-183.83 1712,-183.83 1712,4 -4,4"/>
+<!-- proc~mapl_extdatagetbracket -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node1" class="node">
+<title>proc~mapl_extdatagetbracket</title>
+<polygon fill="none" stroke="black" points="301,-86.83 0,-86.83 0,-62.83 301,-62.83 301,-86.83"/>
+<text text-anchor="middle" x="150.5" y="-72.43" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataGridComp2G::MAPL_ExtDataGetBracket</text>
+</g>
+<!-- proc~get_parameters -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node2" class="node">
+<title>proc~get_parameters</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node2"><a xlink:href=".././proc/get_parameters.html" xlink:title="MAPL_ExtDataBracket::ExtDataBracket%get_parameters">
+<polygon fill="#d9534f" stroke="#d9534f" points="652,-86.83 337,-86.83 337,-62.83 652,-62.83 652,-86.83"/>
+<text text-anchor="middle" x="494.5" y="-72.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataBracket::ExtDataBracket%get_parameters</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdatagetbracket&#45;&gt;proc~get_parameters -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_extdatagetbracket&#45;&gt;proc~get_parameters</title>
+<path fill="none" stroke="#255000" d="M301.01,-74.83C309.54,-74.83 318.13,-74.83 326.72,-74.83"/>
+<polygon fill="#255000" stroke="#255000" points="326.78,-78.33 336.78,-74.83 326.78,-71.33 326.78,-78.33"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="908,-128.83 688,-128.83 688,-104.83 908,-104.83 908,-128.83"/>
+<text text-anchor="middle" x="798" y="-114.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdatagetbracket&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_extdatagetbracket&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M246.7,-86.85C275.66,-90.17 307.6,-93.49 337,-95.83 452.53,-104.99 584.73,-110.51 677.66,-113.58"/>
+<polygon fill="#255000" stroke="#255000" points="677.56,-117.07 687.66,-113.9 677.78,-110.08 677.56,-117.07"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="601.5,-25.83 387.5,-25.83 387.5,-1.83 601.5,-1.83 601.5,-25.83"/>
+<text text-anchor="middle" x="494.5" y="-11.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdatagetbracket&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_extdatagetbracket&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M219.07,-62.78C275.75,-52.67 356.71,-38.23 416.01,-27.65"/>
+<polygon fill="#255000" stroke="#255000" points="416.84,-31.06 426.07,-25.85 415.61,-24.16 416.84,-31.06"/>
+</g>
+<!-- proc~get_parameters&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge5" class="edge">
+<title>proc~get_parameters&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M581.9,-86.86C619.04,-92.04 662.59,-98.1 700.76,-103.42"/>
+<polygon fill="#255000" stroke="#255000" points="700.46,-106.91 710.85,-104.83 701.43,-99.98 700.46,-106.91"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node5"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="906.5,-86.83 689.5,-86.83 689.5,-62.83 906.5,-62.83 906.5,-86.83"/>
+<text text-anchor="middle" x="798" y="-72.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_parameters&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge4" class="edge">
+<title>proc~get_parameters&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M652.43,-74.83C661.38,-74.83 670.3,-74.83 679.06,-74.83"/>
+<polygon fill="#255000" stroke="#255000" points="679.27,-78.33 689.27,-74.83 679.27,-71.33 679.27,-78.33"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node6"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1519,-156.83 1266,-156.83 1266,-132.83 1519,-132.83 1519,-156.83"/>
+<text text-anchor="middle" x="1392.5" y="-142.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025500" d="M908.2,-128.14C920.27,-129.16 932.39,-130.09 944,-130.83 1048.38,-137.49 1166.67,-141.02 1255.41,-142.86"/>
+<polygon fill="#025500" stroke="#025500" points="1255.47,-146.37 1265.54,-143.07 1255.61,-139.37 1255.47,-146.37"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node7"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1507,-56.83 1278,-56.83 1278,-32.83 1507,-32.83 1507,-56.83"/>
+<text text-anchor="middle" x="1392.5" y="-42.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M908.41,-120.19C996.08,-120.92 1121.87,-117.57 1230,-97.83 1273.41,-89.9 1321.21,-73.15 1353.46,-60.59"/>
+<polygon fill="#025500" stroke="#025500" points="1354.93,-63.77 1362.94,-56.84 1352.36,-57.26 1354.93,-63.77"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M601.62,-7.54C744.69,-0.5 1007.21,7.36 1230,-13.83 1264.09,-17.07 1301.69,-24.08 1332.02,-30.61"/>
+<polygon fill="#002505" stroke="#002505" points="1331.5,-34.08 1342.02,-32.8 1333,-27.24 1331.5,-34.08"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node11" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node11"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1223,-46.83 951,-46.83 951,-22.83 1223,-22.83 1223,-46.83"/>
+<text text-anchor="middle" x="1087" y="-32.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M885.11,-62.83C917.88,-58.26 955.43,-53.03 989.13,-48.33"/>
+<polygon fill="#255000" stroke="#255000" points="990.03,-51.74 999.46,-46.89 989.07,-44.8 990.03,-51.74"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node12"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1230,-88.83 944,-88.83 944,-64.83 1230,-64.83 1230,-88.83"/>
+<text text-anchor="middle" x="1087" y="-74.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M906.68,-75.58C915.47,-75.64 924.44,-75.7 933.46,-75.76"/>
+<polygon fill="#255000" stroke="#255000" points="933.64,-79.27 943.66,-75.84 933.69,-72.27 933.64,-79.27"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node8" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1658.5,-137.83 1604.5,-137.83 1604.5,-113.83 1658.5,-113.83 1658.5,-137.83"/>
+<text text-anchor="middle" x="1631.5" y="-123.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge11" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#025500" d="M1519.29,-134.74C1546.83,-132.53 1573.86,-130.37 1594.36,-128.72"/>
+<polygon fill="#025500" stroke="#025500" points="1594.78,-132.2 1604.46,-127.91 1594.22,-125.22 1594.78,-132.2"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node9" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1658.5,-179.83 1604.5,-179.83 1604.5,-155.83 1658.5,-155.83 1658.5,-179.83"/>
+<text text-anchor="middle" x="1631.5" y="-165.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge12" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#025500" d="M1517.21,-156.83C1545.43,-159.57 1573.27,-162.27 1594.28,-164.31"/>
+<polygon fill="#025500" stroke="#025500" points="1594.03,-167.8 1604.32,-165.29 1594.7,-160.84 1594.03,-167.8"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_node10" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CallsGraph_node10"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1708,-56.83 1555,-56.83 1555,-32.83 1708,-32.83 1708,-56.83"/>
+<text text-anchor="middle" x="1631.5" y="-42.43" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#002505" d="M1507.14,-44.83C1519.76,-44.83 1532.46,-44.83 1544.65,-44.83"/>
+<polygon fill="#002505" stroke="#002505" points="1544.77,-48.33 1554.77,-44.83 1544.77,-41.33 1544.77,-48.33"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1223.33,-39.29C1238.1,-39.77 1253.08,-40.27 1267.7,-40.75"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1267.65,-44.25 1277.76,-41.08 1267.88,-37.25 1267.65,-44.25"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M1141.56,-88.83C1193.55,-100.48 1272.47,-118.16 1327.69,-130.53"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1327.19,-134 1337.71,-132.78 1328.72,-127.17 1327.19,-134"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdatagetbracket~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M1201.88,-64.82C1223.46,-62.54 1246.14,-60.15 1268.01,-57.85"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1268.42,-61.32 1278,-56.79 1267.68,-54.36 1268.42,-61.32"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_extdatagetbracketCallsGraph = svgPanZoom('#procmapl_extdatagetbracketCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_extdatagetbracket~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_extdatagetbracketCalledByGraph" width="641pt" height="56pt"
+ viewBox="0.00 0.00 641.00 56.48" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph" class="graph" transform="scale(1.98 1.98) rotate(0) translate(4 108)">
+<title>proc~~mapl_extdatagetbracket~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-108 1267,-108 1267,4 -4,4"/>
+<!-- proc~mapl_extdatagetbracket -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_node1" class="node">
+<title>proc~mapl_extdatagetbracket</title>
+<polygon fill="none" stroke="black" points="1263,-64 962,-64 962,-40 1263,-40 1263,-64"/>
+<text text-anchor="middle" x="1112.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataGridComp2G::MAPL_ExtDataGetBracket</text>
+</g>
+<!-- proc~mapl_extdataflipvertical -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_node2" class="node">
+<title>proc~mapl_extdataflipvertical</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CalledByGraph_node2"><a xlink:href=".././proc/mapl_extdataflipvertical.html" xlink:title="MAPL_ExtDataGridComp2G::MAPL_ExtDataFlipVertical">
+<polygon fill="#d9534f" stroke="#d9534f" points="913,-24 614,-24 614,0 913,0 913,-24"/>
+<text text-anchor="middle" x="763.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::MAPL_ExtDataFlipVertical</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataflipvertical&#45;&gt;proc~mapl_extdatagetbracket -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_extdataflipvertical&#45;&gt;proc~mapl_extdatagetbracket</title>
+<path fill="none" stroke="#255000" d="M868.61,-24C909.09,-28.67 955.61,-34.03 997.03,-38.8"/>
+<polygon fill="#255000" stroke="#255000" points="996.83,-42.3 1007.16,-39.97 997.63,-35.35 996.83,-42.3"/>
+</g>
+<!-- proc~mapl_extdatapopulatebundle -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_node3" class="node">
+<title>proc~mapl_extdatapopulatebundle</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_extdatapopulatebundle.html" xlink:title="MAPL_ExtDataGridComp2G::MAPL_ExtDataPopulateBundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="926,-104 601,-104 601,-80 926,-80 926,-104"/>
+<text text-anchor="middle" x="763.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::MAPL_ExtDataPopulateBundle</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdatapopulatebundle&#45;&gt;proc~mapl_extdatagetbracket -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_extdatapopulatebundle&#45;&gt;proc~mapl_extdatagetbracket</title>
+<path fill="none" stroke="#255000" d="M868.61,-80C909.09,-75.33 955.61,-69.97 997.03,-65.2"/>
+<polygon fill="#255000" stroke="#255000" points="997.63,-68.65 1007.16,-64.03 996.83,-61.7 997.63,-68.65"/>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_node4" class="node">
+<title>proc~mapl_extdataverticalinterpolate</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_extdataverticalinterpolate.html" xlink:title="MAPL_ExtDataGridComp2G::MAPL_ExtDataVerticalInterpolate">
+<polygon fill="#d9534f" stroke="#d9534f" points="565,-64 226,-64 226,-40 565,-40 565,-64"/>
+<text text-anchor="middle" x="395.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::MAPL_ExtDataVerticalInterpolate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdatagetbracket -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdatagetbracket</title>
+<path fill="none" stroke="#255000" d="M565.04,-52C681.86,-52 836.46,-52 951.41,-52"/>
+<polygon fill="#255000" stroke="#255000" points="951.7,-55.5 961.7,-52 951.7,-48.5 951.7,-55.5"/>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdataflipvertical -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdataflipvertical</title>
+<path fill="none" stroke="#255000" d="M506.31,-40C549.19,-35.31 598.49,-29.92 642.31,-25.14"/>
+<polygon fill="#255000" stroke="#255000" points="642.89,-28.59 652.45,-24.03 642.13,-21.63 642.89,-28.59"/>
+</g>
+<!-- proc~run_~3 -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_node5" class="node">
+<title>proc~run_~3</title>
+<g id="a_proc~~mapl_extdatagetbracket~~CalledByGraph_node5"><a xlink:href=".././proc/run_~3.html" xlink:title="MAPL_ExtDataGridComp2G::Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="190,-84 0,-84 0,-60 190,-60 190,-84"/>
+<text text-anchor="middle" x="95" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~3&#45;&gt;proc~mapl_extdatapopulatebundle -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_edge5" class="edge">
+<title>proc~run_~3&#45;&gt;proc~mapl_extdatapopulatebundle</title>
+<path fill="none" stroke="#025500" d="M190.08,-74.82C293.84,-77.94 462.99,-83.01 590.57,-86.84"/>
+<polygon fill="#025500" stroke="#025500" points="590.74,-90.35 600.84,-87.15 590.95,-83.35 590.74,-90.35"/>
+</g>
+<!-- proc~run_~3&#45;&gt;proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~mapl_extdatagetbracket~~CalledByGraph_edge6" class="edge">
+<title>proc~run_~3&#45;&gt;proc~mapl_extdataverticalinterpolate</title>
+<path fill="none" stroke="#002505" d="M190.04,-65.7C198.42,-65.14 207.07,-64.56 215.86,-63.97"/>
+<polygon fill="#002505" stroke="#002505" points="216.1,-67.46 225.84,-63.3 215.63,-60.48 216.1,-67.46"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_extdatagetbracketCalledByGraph = svgPanZoom('#procmapl_extdatagetbracketCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">Bside</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">bundle</span><span class="p">,</span><span class="n">getRL</span><span class="p">,</span><span class="n">vcomp</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">PrimaryExport</span><span class="p">),</span><span class="w">              </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w">                          </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bside</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w">       </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<span class="w">     </span><span class="kt">logical</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">getRL</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vcomp</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">getRL_</span>
+
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">getRL</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">getRL_</span><span class="o">=</span><span class="n">getRL</span>
+<span class="w">     </span><span class="k">else</span>
+<span class="k">        </span><span class="n">getRL_</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">     </span><span class="k">end if</span>
+
+<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">vcomp</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">field</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">Bside</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_ExtDataLeft</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">vcomp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="n">getRL_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary1</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp1</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           else if</span><span class="w"> </span><span class="p">(</span><span class="n">Bside</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_ExtDataLeft</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">vcomp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="n">getRL_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary2</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp2</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           else if</span><span class="w"> </span><span class="p">(</span><span class="n">Bside</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_ExtDataRight</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">vcomp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="n">getRL_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary1</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp1</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           else if</span><span class="w"> </span><span class="p">(</span><span class="n">Bside</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_ExtDataRight</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">vcomp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="n">getRL_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary2</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp2</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           end if</span>
+
+<span class="k">        else if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">bundle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="k">     else</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">field</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">Bside</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_ExtDataLeft</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="n">getRL_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary1</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp1</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           else if</span><span class="w"> </span><span class="p">(</span><span class="n">Bside</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_ExtDataRight</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="n">getRL_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">auxiliary1</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="k">                 call </span><span class="n">item</span><span class="p">%</span><span class="n">modelGridFields</span><span class="p">%</span><span class="n">comp1</span><span class="p">%</span><span class="n">get_parameters</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           end if</span>
+<span class="k">        else if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">bundle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="w">           </span><span class="c">!if (Bside == MAPL_ExtDataLeft) then</span>
+<span class="w">              </span><span class="c">!bundle = item%binterp1</span>
+<span class="w">              </span><span class="c">!_RETURN(ESMF_SUCCESS)</span>
+<span class="w">           </span><span class="c">!else if (Bside == MAPL_ExtDataRight) then</span>
+<span class="w">              </span><span class="c">!bundle = item%binterp2</span>
+<span class="w">              </span><span class="c">!_RETURN(ESMF_SUCCESS)</span>
+<span class="w">           </span><span class="c">!end if</span>
+
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="k">     end if</span>
+<span class="k">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_ExtDataGetBracket</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-11T15:55:43.042935             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
