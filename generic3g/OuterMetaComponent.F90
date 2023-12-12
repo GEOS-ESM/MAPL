@@ -66,17 +66,15 @@ module mapl3g_OuterMetaComponent
       integer :: counter
 
    contains
-      
+
+      procedure :: get_user_component
       procedure :: set_hconfig
       procedure :: get_hconfig
       procedure :: get_registry
       procedure :: get_lgr
 
       procedure :: get_phases
-!!$      procedure :: get_gridcomp
       procedure :: get_user_gridcomp
-      procedure :: get_user_states
-      procedure :: set_user_setServices
       procedure :: set_entry_point
 
       ! Generic methods
@@ -325,7 +323,7 @@ contains
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
       user_gridcomp = wrapper%outer_meta%user_component%get_gridcomp()
-      call free_inner_meta(gridcomp, _RC)
+      call free_inner_meta(user_gridcomp, _RC)
 
       deallocate(wrapper%outer_meta)
 
@@ -343,29 +341,12 @@ contains
 
    end function get_phases
 
-   ! Reexamine the names of the next 2 procedures when there is a
-   ! clearer use case.  Might only be needed from within inner meta.
-!!$   type(ESMF_GridComp) function get_gridcomp(this) result(gridcomp)
-!!$      class(OuterMetaComponent), intent(in) :: this
-!!$
-!!$      gridcomp = this%self_gridcomp
-!!$      
-!!$   end function get_gridcomp
-!!$
    type(ESMF_GridComp) function get_user_gridcomp(this) result(gridcomp)
       class(OuterMetaComponent), intent(in) :: this
 
       gridcomp = this%user_component%get_gridcomp()
       
    end function get_user_gridcomp
-
-   type(MultiState) function get_user_states(this) result(states)
-      class(OuterMetaComponent), intent(in) :: this
-
-      states = this%user_component%get_states()
-      
-   end function get_user_states
-
 
    subroutine set_hconfig(this, hconfig)
       class(OuterMetaComponent), intent(inout) :: this
@@ -382,25 +363,6 @@ contains
       hconfig = this%hconfig
 
    end function get_hconfig
-
-!!$
-!!$
-!!$   subroutine get_yaml_hconfig(this, hconfig)
-!!$      class(OuterMetaComponent), target, intent(inout) :: this
-!!$      class(YAML_Node), pointer :: hconfig
-!!$
-!!$      hconfig => null
-!!$      if (.not. allocated(this%yaml_cfg)) return
-!!$
-!!$      hconfig => this%yaml_cfg
-!!$
-!!$   end subroutine get_yaml_hconfig
-
-   subroutine set_user_setservices(this, user_setservices)
-      class(OuterMetaComponent), intent(inout) :: this
-      class(AbstractUserSetServices), intent(in) :: user_setservices
-      this%user_component%setservices_ = user_setservices
-   end subroutine set_user_setservices
 
 
    ! ESMF initialize methods
@@ -989,5 +951,12 @@ contains
       lgr => this%lgr
 
    end function get_lgr
+
+   function get_user_component(this) result(user_component)
+      type(UserComponent) :: user_component
+      class(OuterMetaComponent), intent(in) :: this
+      user_component = this%user_component
+   end function get_user_component
+
 
 end module mapl3g_OuterMetaComponent

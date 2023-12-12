@@ -618,7 +618,10 @@ contains
       child_name = component_path(:idx-1)
       
       if (child_name == '<user>') then
-         substates = outer_meta%get_user_states()
+         associate (user_component => outer_meta%get_user_component())
+!#           substates = outer_meta%get_user_states()
+           substates = user_component%get_states()
+         end associate
          return
       end if
 
