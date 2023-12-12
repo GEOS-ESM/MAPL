@@ -74,7 +74,6 @@ module mapl3g_OuterMetaComponent
       procedure :: get_lgr
 
       procedure :: get_phases
-      procedure :: get_user_gridcomp
       procedure :: set_entry_point
 
       ! Generic methods
@@ -109,7 +108,6 @@ module mapl3g_OuterMetaComponent
 
       procedure :: set_geom
       procedure :: get_name
-      procedure :: get_user_gridcomp_name
       procedure :: get_gridcomp
       procedure :: is_root
 
@@ -212,7 +210,7 @@ contains
       character(:), allocatable :: user_gc_name
 
       call initialize_phases_map(this%phases_map)
-      user_gc_name = this%get_user_gridcomp_name(_RC)
+      user_gc_name = this%user_component%get_name(_RC)
       this%registry = HierarchicalRegistry(user_gc_name)
 
       this%lgr => logging%get_logger('MAPL.GENERIC')
@@ -340,13 +338,6 @@ contains
       phases => this%phases_map%of(method_flag)
 
    end function get_phases
-
-   type(ESMF_GridComp) function get_user_gridcomp(this) result(gridcomp)
-      class(OuterMetaComponent), intent(in) :: this
-
-      gridcomp = this%user_component%get_gridcomp()
-      
-   end function get_user_gridcomp
 
    subroutine set_hconfig(this, hconfig)
       class(OuterMetaComponent), intent(inout) :: this
@@ -814,21 +805,6 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end function get_name
-
-
-   function get_user_gridcomp_name(this, rc) result(inner_name)
-      character(:), allocatable :: inner_name
-      class(OuterMetaComponent), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=ESMF_MAXSTR) :: buffer
-
-      call ESMF_GridCompGet(this%user_component%get_gridcomp(), name=buffer, _RC)
-      inner_name=trim(buffer)
-
-      _RETURN(ESMF_SUCCESS)
-   end function get_user_gridcomp_name
 
 
    recursive subroutine traverse(this, unusable, pre, post, rc)
