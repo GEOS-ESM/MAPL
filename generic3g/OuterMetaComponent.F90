@@ -194,8 +194,7 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
 
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_component%setservices = set_services
-      outer_meta%user_component%gridcomp = user_gridcomp
+      outer_meta%user_component = UserComponent(user_gridcomp, set_services)
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
@@ -343,11 +342,13 @@ contains
 
       integer :: status
       type(OuterMetaWrapper) :: wrapper
+      type(ESMF_GridComp) :: user_gridcomp
 
       call MAPL_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
-      call free_inner_meta(wrapper%outer_meta%user_component%gridcomp)
+      user_gridcomp = wrapper%outer_meta%user_component%get_gridcomp()
+      call free_inner_meta(gridcomp, _RC)
 
       deallocate(wrapper%outer_meta)
 
@@ -377,7 +378,7 @@ contains
    type(ESMF_GridComp) function get_user_gridcomp(this) result(gridcomp)
       class(OuterMetaComponent), intent(in) :: this
 
-      gridcomp = this%user_component%gridcomp
+      gridcomp = this%user_component%get_gridcomp()
       
    end function get_user_gridcomp
 
@@ -662,15 +663,7 @@ contains
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(init_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
-        associate ( &
-             importState => this%user_component%states%importState, &
-             exportState => this%user_component%states%exportState)
-          
-          call ESMF_GridCompInitialize(this%user_component%gridcomp, &
-               importState=importState, exportState=exportState, &
-               clock=clock, phase=phase, userRC=userRC, _RC)
-          _VERIFY(userRC)
-        end associate
+          call this%user_component%initialize(clock, phase=phase, _RC)
       end associate
 
       _RETURN(ESMF_SUCCESS)
@@ -790,11 +783,9 @@ contains
 
       associate(phase_idx => get_phase_index(this%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found))
         _ASSERT(found, "run phase: <"//phase_name//"> not found.")
-        call ESMF_GridCompRun(this%user_component%gridcomp, &
-             importState=this%user_component%states%importState, &
-             exportState=this%user_component%states%exportState, &
-             clock=clock, phase=phase_idx, userRC=userRC, _RC)
-        _VERIFY(userRC)
+
+        call this%user_component%run(clock, phase=phase_idx, _RC)
+
       end associate
 
       ! TODO:  extensions should depend on phase ...
@@ -826,14 +817,9 @@ contains
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(finalize_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
-        associate ( &
-             importState => this%user_component%states%importState, &
-             exportState => this%user_component%states%exportState)
-          
-          call ESMF_GridCompFinalize(this%user_component%gridcomp, importState=importState, exportState=exportState, &
-               clock=clock, userRC=userRC, _RC)
-          _VERIFY(userRC)
-        end associate
+
+        ! TODO:  Should user finalize be after children finalize?
+        call this%user_component%finalize(clock, _RC)
 
         associate(b => this%children%begin(), e => this%children%end())
           iter = b
@@ -898,7 +884,7 @@ contains
       integer :: status
       character(len=ESMF_MAXSTR) :: buffer
 
-      call ESMF_GridCompGet(this%user_component%gridcomp, name=buffer, _RC)
+      call ESMF_GridCompGet(this%user_component%get_gridcomp(), name=buffer, _RC)
       inner_name=trim(buffer)
 
       _RETURN(ESMF_SUCCESS)
