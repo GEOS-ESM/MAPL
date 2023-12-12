@@ -44,14 +44,14 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
 
-      type(UserComponent) :: user_component
+      type(UserComponent)                         :: user_component
       type(ESMF_HConfig)                          :: hconfig
 
       type(ESMF_Geom), allocatable                :: geom
       type(VerticalGeom), allocatable             :: vertical_geom
+
       logical                                     :: is_root_ = .false.
 
-      type(MethodPhasesMap)                       :: phases_map
       type(InnerMetaComponent), allocatable       :: inner_meta
 
       ! Hierarchy
@@ -209,7 +209,6 @@ contains
       integer :: status
       character(:), allocatable :: user_gc_name
 
-      call initialize_phases_map(this%phases_map)
       user_gc_name = this%user_component%get_name(_RC)
       this%registry = HierarchicalRegistry(user_gc_name)
 
@@ -335,7 +334,7 @@ contains
       class(OuterMetaComponent), target, intent(inout):: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
 
-      phases => this%phases_map%of(method_flag)
+      phases => this%user_component%phases_map%of(method_flag)
 
    end function get_phases
 
@@ -385,7 +384,7 @@ contains
          this%geom = mapl_geom%get_geom()
       end if
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
+      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
       call apply_to_children(this, set_child_geom, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_GEOM, _RC)
 
@@ -421,7 +420,7 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
+      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
 
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
@@ -542,7 +541,7 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
       type(MultiState) :: outer_states, user_states
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
+      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
       user_states = this%user_component%get_states()
       call this%registry%add_to_states(user_states, mode='user', _RC)
       this%state_extensions = this%registry%get_extensions()
@@ -568,7 +567,7 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
+      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_REALIZE, _RC)
 
       call this%registry%allocate(_RC)
@@ -578,28 +577,6 @@ contains
    contains
 
    end subroutine initialize_realize
-
-   subroutine exec_user_init_phase(this, clock, phase_name, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
-      character(*), intent(in) :: phase_name
-      class(KE), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status, userRC
-      type(StringVector), pointer :: init_phases
-      logical :: found
-
-      init_phases => this%phases_map%at(ESMF_METHOD_INITIALIZE, _RC)
-      ! User gridcomp may not have any given phase; not an error condition if not found.
-      associate (phase => get_phase_index(init_phases, phase_name=phase_name, found=found))
-        _RETURN_UNLESS(found)
-          call this%user_component%initialize(clock, phase=phase, _RC)
-      end associate
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine exec_user_init_phase
 
    recursive subroutine apply_to_children_simple(this, clock, phase_idx, rc)
       class(OuterMetaComponent), intent(inout) :: this
@@ -660,7 +637,7 @@ contains
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
+      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -679,10 +656,7 @@ contains
 
       integer :: status, userRC
 
-      if (.not. present(phase_name)) then
-         call exec_user_init_phase(this, clock, phase_name, _RC)
-         _RETURN(ESMF_SUCCESS)
-      end if
+      _ASSERT(present(phase_name),'phase_name is mandatory')
 
       select case (phase_name)
       case ('GENERIC::INIT_GEOM')
@@ -692,7 +666,7 @@ contains
       case ('GENERIC::INIT_USER')
          call this%initialize_user(clock, _RC)
       case default ! custom user phase - does not auto propagate to children
-         call exec_user_init_phase(this, clock, phase_name, _RC)
+         call this%user_component%initialize(clock, phase_name=phase_name, _RC)
       end select
 
       _RETURN(ESMF_SUCCESS)
@@ -712,7 +686,8 @@ contains
       type(StateExtension), pointer :: extension
       logical :: found
 
-      associate(phase_idx => get_phase_index(this%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found))
+!#      associate(phase_idx => get_phase_index(this%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found))
+      associate(phase_idx => get_phase_index(this%user_component%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found))
         _ASSERT(found, "run phase: <"//phase_name//"> not found.")
 
         call this%user_component%run(clock, phase=phase_idx, _RC)
@@ -744,7 +719,8 @@ contains
       type(StringVector), pointer :: finalize_phases
       logical :: found
 
-      finalize_phases => this%phases_map%at(ESMF_METHOD_FINALIZE, _RC)
+!#      finalize_phases => this%phases_map%at(ESMF_METHOD_FINALIZE, _RC)
+      finalize_phases => this%user_component%phases_map%at(ESMF_METHOD_FINALIZE, _RC)
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(finalize_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
