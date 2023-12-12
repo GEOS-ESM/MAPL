@@ -7,7 +7,6 @@ module ESMF_TestMethod_mod
    private
 
    public :: ESMF_TestMethod
-   public :: newESMF_TestMethod
 
    type, extends(ESMF_TestCase) :: ESMF_TestMethod
       procedure(esmfMethod), pointer :: userMethod => null()
@@ -26,10 +25,10 @@ module ESMF_TestMethod_mod
       end subroutine esmfMethod
    end interface
 
-   interface newEsmf_TestMethod
+   interface Esmf_TestMethod
       module procedure newEsmf_TestMethod_basic
       module procedure newEsmf_TestMethod_setUpTearDown
-   end interface newEsmf_TestMethod
+   end interface Esmf_TestMethod
 
 contains
 
