@@ -686,13 +686,7 @@ contains
       type(StateExtension), pointer :: extension
       logical :: found
 
-!#      associate(phase_idx => get_phase_index(this%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found))
-      associate(phase_idx => get_phase_index(this%user_component%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found))
-        _ASSERT(found, "run phase: <"//phase_name//"> not found.")
-
-        call this%user_component%run(clock, phase=phase_idx, _RC)
-
-      end associate
+      call this%user_component%run(clock, phase_name=phase_name, _RC)
 
       ! TODO:  extensions should depend on phase ...
       do i = 1, this%state_extensions%size()
@@ -719,13 +713,16 @@ contains
       type(StringVector), pointer :: finalize_phases
       logical :: found
 
-!#      finalize_phases => this%phases_map%at(ESMF_METHOD_FINALIZE, _RC)
       finalize_phases => this%user_component%phases_map%at(ESMF_METHOD_FINALIZE, _RC)
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(finalize_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
 
         ! TODO:  Should user finalize be after children finalize?
+
+        ! TODO:  Should there be a phase option here?  Probably not
+        ! right as is when things get more complicated.
+
         call this%user_component%finalize(clock, _RC)
 
         associate(b => this%children%begin(), e => this%children%end())

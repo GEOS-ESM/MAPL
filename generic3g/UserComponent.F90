@@ -93,6 +93,8 @@ contains
       type(StringVector), pointer :: init_phases
       logical :: found
 
+      _ASSERT(present(phase_name), 'phase_name is mandatory')
+
       init_phases => this%phases_map%at(ESMF_METHOD_INITIALIZE, _RC)
       associate (phase => get_phase_index(init_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
@@ -111,46 +113,29 @@ contains
 
       _RETURN(_SUCCESS)
      end subroutine initialize
-!#
-!#   recursive subroutine initialize(this, clock, phase, rc)
-!#      class(UserComponent), intent(inout) :: this
-!#      type(ESMF_Clock), intent(inout) :: clock
-!#      integer, optional, intent(in) :: phase
-!#      integer, intent(out) :: rc
-!#
-!#      integer :: status
-!#      integer :: userrc
-!#
-!#        associate ( &
-!#             importState => this%states%importState, &
-!#             exportState => this%states%exportState)
-!#          
-!#          call ESMF_GridCompInitialize(this%gridcomp, &
-!#               importState=importState, exportState=exportState, &
-!#               clock=clock, phase=phase, userRC=userrc, _RC)
-!#          _VERIFY(userRC)
-!#        end associate
-!#
-!#      _RETURN(_SUCCESS)
-!#     end subroutine initialize
 
-   recursive subroutine run(this, clock, phase, rc)
+   recursive subroutine run(this, clock, phase_name, rc)
       class(UserComponent), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
-      integer, optional, intent(in) :: phase
+      character(*), optional, intent(in) :: phase_name
       integer, intent(out) :: rc
 
       integer :: status
       integer :: userrc
+      logical :: found
 
-      associate ( &
-           importState => this%states%importState, &
-           exportState => this%states%exportState)
-        call ESMF_GridCompRun(this%gridcomp, &
-             importState=importState, exportState=exportState, &
-             clock=clock, phase=phase, userrc=userrc, _RC)
-        _VERIFY(userRC)
+      associate(phase_idx => get_phase_index(this%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found) )
+        _ASSERT(found, "run phase: <"//phase_name//"> not found.")
+        
+        associate ( &
+             importState => this%states%importState, &
+             exportState => this%states%exportState)
+          call ESMF_GridCompRun(this%gridcomp, &
+               importState=importState, exportState=exportState, &
+               clock=clock, phase=phase_idx, userrc=userrc, _RC)
+          _VERIFY(userRC)
 
+        end associate
       end associate
 
       _RETURN(_SUCCESS)
