@@ -429,7 +429,7 @@ contains
       integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
       real(ESMF_KIND_R8) :: jx0, jx1
       real(ESMF_KIND_R8) :: x0, x1
-      integer :: khi, klo, k, nstart, max_iter
+      integer :: khi, klo, k, nstart, nend, max_iter
       type(Logger), pointer :: lgr
       logical :: ispresent
 
@@ -574,13 +574,34 @@ contains
               this%index_name_lon, this%index_name_lat, &
               var_name_time=this%var_name_time, time=scanTime, _RC)
 
+         !------------------------------------------------------------         
+         !  QC for obs files:
+         !
+         !  1.  redefine nstart to skip un-defined time value
+         !  2.  Scan_Start_Time =  -9999, -9999, -9999,
+         !      ::  eliminate this row of data
+         !------------------------------------------------------------
 
+         ! ygyu debug
+         !
+         
+         ny=0
          do j=1, nlat
+            if ( scanTime(1,j) > 0.d0 ) 
             this%t_alongtrack(j)= scanTime(1,j)
          enddo
+         if (mapl_am_I_root()) then
+            write(6,'(a)')  'this%t_alongtrack(::50)='
+            write(6,'(5f20.2)')  this%t_alongtrack(::50)
+         end if
+         _FAIL('nail 0')
+
          nstart = 1
+
+
+         
+
          !
-         ! redefine nstart to skip un-defined time value
          ! If the t_alongtrack contains undefined values, use this code
          ! 
          x0 = this%t_alongtrack(1)
@@ -623,18 +644,25 @@ contains
          j1= j0 + sec
          jx0= j0
          jx1= j1
-         call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
-
 
          this%epoch_index(1)= 1
          this%epoch_index(2)= this%cell_across_swath
-         call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-         call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+         nend = this%cell_along_swath
+         call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+         call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
 
-
-         if (jt1==jt2) then
-            _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
-         endif
+         call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
+         call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Epoch]  w.r.t. timeunit ', jx0, jx1)
+         call lgr%debug ('%a %f20.1 %f20.1', 'x0[times(1)] xn[times(N)] w.r.t. timeunit ', &
+              this%t_alongtrack(1), this%t_alongtrack(nend))
+         call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
+         
+         
+! ygyu debug
+!         if (jt1==jt2) then
+!            _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
+         !         endif
+         
          jt1 = jt1 + 1               ! (x1,x2]  design
          this%epoch_index(3)= jt1
          this%epoch_index(4)= jt2
@@ -648,6 +676,7 @@ contains
               this%epoch_index(1), this%epoch_index(2), &
               this%epoch_index(3), this%epoch_index(4))
 
+         _FAIL('nail 1')         
          this%im_world = Xdim
          this%jm_world = Ydim
       end if
