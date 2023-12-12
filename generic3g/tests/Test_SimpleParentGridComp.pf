@@ -348,16 +348,17 @@ contains
    end subroutine test_parent_outer_items_created
 
    subroutine get_child_user_states(states, outer_meta, child_name, rc)
+      use mapl3g_UserComponent
       type(MultiState), intent(out) :: states
       type(OuterMetaComponent), target, intent(in) :: outer_meta
       character(*), intent(in) :: child_name
       integer, intent(out) :: rc
 
-
       integer :: status
       type(ChildComponent) :: child_comp
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: child_meta
+      type(UserComponent) :: user_component
 
       rc = +1
       child_comp = outer_meta%get_child(child_name, rc=status)
@@ -367,11 +368,9 @@ contains
       end if
          
       child_gc = child_comp%get_outer_gridcomp()
-
       child_meta => get_outer_meta(child_gc, rc=status)
-      associate (user_component => child_meta%get_user_component())
-        states = user_component%get_states()
-      end associate
+      user_component = child_meta%get_user_component()
+      states = user_component%get_states()
 
       rc = 0
 
