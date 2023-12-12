@@ -42,25 +42,13 @@ contains
       _ASSERT(associated(geom_mgr), 'uh oh - cannot acces global geom_manager.')
 
       this%component_spec = parse_component_spec(this%hconfig, _RC)
-      call process_user_gridcomp(this, _RC)
+      call this%user_component%setservices(this%self_gridcomp, _RC)
       call process_children(this, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
    contains
 
-      subroutine process_user_gridcomp(this, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         integer, optional, intent(out) :: rc
-         
-         integer :: status
-
-         call attach_inner_meta(this%user_component%gridcomp, this%self_gridcomp, _RC)
-         call this%user_component%setservices%run(this%user_component%gridcomp, _RC)
-
-         _RETURN(ESMF_SUCCESS)
-      end subroutine process_user_gridcomp
-      
       recursive subroutine process_children(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
@@ -138,6 +126,7 @@ contains
 
       integer :: status
       character(:), allocatable :: phase_name_
+      type(ESMF_GridComp) :: user_gridcomp
 
       if (present(phase_name)) then
          phase_name_ = phase_name
@@ -148,7 +137,8 @@ contains
       call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
 
       associate(phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name_))
-        call ESMF_GridCompSetEntryPoint(this%user_component%gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
+        user_gridcomp = this%user_component%get_gridcomp()
+        call ESMF_GridCompSetEntryPoint(user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
       end associate
 
       _RETURN(ESMF_SUCCESS)

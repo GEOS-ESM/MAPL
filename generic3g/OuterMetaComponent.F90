@@ -214,35 +214,12 @@ contains
       character(:), allocatable :: user_gc_name
 
       call initialize_phases_map(this%phases_map)
-      call create_user_states(this, _RC)
       user_gc_name = this%get_user_gridcomp_name(_RC)
       this%registry = HierarchicalRegistry(user_gc_name)
 
       this%lgr => logging%get_logger('MAPL.GENERIC')
 
       _RETURN(_SUCCESS)
-
-   contains
-
-      ! This procedure violates GEOS policy on providing a traceback
-      ! for failure conditions.  But failure in ESMF_StateCreate()
-      ! should be all-but-impossible and the usual error handling
-      ! would induce tedious changes in the design. (Function ->
-      ! Subroutine)
-      subroutine create_user_states(this, rc)
-         type(OuterMetaComponent), intent(inout) :: this
-         integer, optional, intent(out) :: rc
-
-         type(ESMF_State) :: importState, exportState, internalState
-         integer :: status
-
-         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=this%get_name(), _RC)
-         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=this%get_name(), _RC)
-         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, name=this%get_name(), _RC)
-         this%user_component%states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
-
-         _RETURN(_SUCCESS)
-      end subroutine create_user_states
       
    end subroutine init_meta
 
@@ -385,7 +362,7 @@ contains
    type(MultiState) function get_user_states(this) result(states)
       class(OuterMetaComponent), intent(in) :: this
 
-      states = this%user_component%states
+      states = this%user_component%get_states()
       
    end function get_user_states
 
@@ -422,7 +399,7 @@ contains
    subroutine set_user_setservices(this, user_setservices)
       class(OuterMetaComponent), intent(inout) :: this
       class(AbstractUserSetServices), intent(in) :: user_setservices
-      this%user_component%setservices = user_setservices
+      this%user_component%setservices_ = user_setservices
    end subroutine set_user_setservices
 
 
@@ -610,10 +587,11 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
-      type(MultiState) :: outer_states
+      type(MultiState) :: outer_states, user_states
 
       call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
-      call this%registry%add_to_states(this%user_component%states, mode='user', _RC)
+      user_states = this%user_component%get_states()
+      call this%registry%add_to_states(user_states, mode='user', _RC)
       this%state_extensions = this%registry%get_extensions()
       
       outer_states = MultiState(importState=importState, exportState=exportState)
@@ -996,7 +974,10 @@ contains
       type(ESMF_State) :: internal_state
       class(OuterMetaComponent), intent(in) :: this
 
-     internal_state = this%user_component%states%internalState
+      type(MultiState) :: user_states
+
+      user_states = this%user_component%get_states()
+      internal_state = user_states%internalState
 
    end function get_internal_state
 
