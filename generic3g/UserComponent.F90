@@ -9,7 +9,9 @@ module mapl3g_UserComponent
    use mapl3g_UserSetServices
    use mapl3g_MethodPhasesMap
    use mapl3g_InnerMetaComponent
+   use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcerMod
    use gftl2_StringVector
    use esmf
    
@@ -20,12 +22,14 @@ module mapl3g_UserComponent
 
    type :: UserComponent
       private
-      class(AbstractUserSetServices), allocatable :: setservices_
       type(ESMF_GridComp) :: gridcomp
       type(MultiState) :: states
+      class(AbstractUserSetServices), allocatable :: setservices_
       type(MethodPhasesMap), public :: phases_map
    contains
       procedure :: setservices
+      procedure :: set_entry_point
+
       procedure :: initialize
       procedure :: run
       procedure :: finalize
@@ -192,5 +196,36 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end function get_name
+
+   subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
+      class(UserComponent), intent(inout) :: this
+      type(ESMF_Method_Flag), intent(in) :: method_flag
+      procedure(I_Run) :: userProcedure
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: phase_name
+      integer, optional, intent(out) ::rc
+
+      integer :: status
+      character(:), allocatable :: phase_name_
+      type(ESMF_GridComp) :: user_gridcomp
+      logical :: found
+
+      if (present(phase_name)) then
+         phase_name_ = phase_name
+      else
+         phase_name_ = get_default_phase_name(method_flag)
+      end if
+
+      call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
+
+      associate (phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name_, found=found))
+        _ASSERT(found, "run phase: <"//phase_name_//"> not found.")
+        call ESMF_GridCompSetEntryPoint(this%gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
+      end associate
+
+      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine set_entry_point
+
 
 end module mapl3g_UserComponent

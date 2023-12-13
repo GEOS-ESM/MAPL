@@ -115,7 +115,7 @@ contains
          type(OuterMetaComponent), pointer :: child_meta
          type(ESMF_GridComp) :: child_gc
          type(ChildComponent) :: child_comp
-         type(UserComponent) :: user_component
+         type(UserComponent), pointer :: user_component
 
          status = 1
 
@@ -127,7 +127,7 @@ contains
          
          child_gc = child_comp%get_outer_gridcomp()
          child_meta => get_outer_meta(child_gc)
-         user_component = child_meta%get_user_component()
+         user_component => child_meta%get_user_component()
          states = user_component%get_states()
          call states%get_state(state, state_intent, rc=status)
          if (status /= 0) then
@@ -206,7 +206,7 @@ contains
          type(OuterMetaComponent), pointer :: child_meta
          type(ESMF_GridComp) :: child_gc
          type(ChildComponent) :: child_comp
-
+         type(UserComponent), pointer :: user_component
          status = 1
 
          child_comp = outer_meta%get_child(child_name, rc=status)
@@ -217,9 +217,9 @@ contains
          
          child_gc = child_comp%get_outer_gridcomp()
          child_meta => get_outer_meta(child_gc)
-         associate (user_component => child_meta%get_user_component())
-           states = user_component%get_states()
-         end associate
+         user_component => child_meta%get_user_component()
+         states = user_component%get_states()
+
          call states%get_state(state, state_intent, rc=status)
          if (status /= 0) then
             status = 3
@@ -271,11 +271,11 @@ contains
          type(MultiState) :: states
          type(ESMF_State) :: state
          integer :: itemCount
-         type(UserComponent) :: user_component
+         type(UserComponent), pointer :: user_component
 
          status = -1
 
-         user_component = outer_meta%get_user_component()
+         user_component => outer_meta%get_user_component()
          states = user_component%get_states()
          call states%get_state(state, 'import', rc=status)
          if (status /= 0) then
@@ -359,7 +359,7 @@ contains
       type(ChildComponent) :: child_comp
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: child_meta
-      type(UserComponent) :: user_component
+      type(UserComponent), pointer :: user_component
 
       rc = +1
       child_comp = outer_meta%get_child(child_name, rc=status)
@@ -370,7 +370,7 @@ contains
          
       child_gc = child_comp%get_outer_gridcomp()
       child_meta => get_outer_meta(child_gc, rc=status)
-      user_component = child_meta%get_user_component()
+      user_component => child_meta%get_user_component()
       states = user_component%get_states()
 
       rc = 0

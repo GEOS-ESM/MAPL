@@ -74,7 +74,6 @@ module mapl3g_OuterMetaComponent
       procedure :: get_lgr
 
       procedure :: get_phases
-      procedure :: set_entry_point
 
       ! Generic methods
       procedure :: setServices => setservices_
@@ -138,15 +137,6 @@ module mapl3g_OuterMetaComponent
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out) ::rc
       end subroutine
-
-      module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         type(ESMF_Method_Flag), intent(in) :: method_flag
-         procedure(I_Run) :: userProcedure
-         class(KE), optional, intent(in) :: unusable
-         character(len=*), optional, intent(in) :: phase_name
-         integer, optional, intent(out) ::rc
-      end subroutine set_entry_point
 
       module subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
          class(OuterMetaComponent), intent(inout) :: this
@@ -902,9 +892,9 @@ contains
    end function get_lgr
 
    function get_user_component(this) result(user_component)
-      type(UserComponent) :: user_component
-      class(OuterMetaComponent), intent(in) :: this
-      user_component = this%user_component
+      type(UserComponent), pointer :: user_component
+      class(OuterMetaComponent), target, intent(in) :: this
+      user_component => this%user_component
    end function get_user_component
 
 

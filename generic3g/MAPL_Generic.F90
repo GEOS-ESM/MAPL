@@ -19,6 +19,7 @@ module mapl3g_Generic
    use :: mapl3g_InnerMetaComponent, only: InnerMetaComponent
    use :: mapl3g_InnerMetaComponent, only: get_inner_meta
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
+   use :: mapl3g_UserComponent, only: UserComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_ComponentSpec, only: ComponentSpec
    use :: mapl3g_VariableSpec, only: VariableSpec
@@ -251,10 +252,11 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      type(UserComponent), pointer :: user_component
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-
-      call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
+      user_component => outer_meta%get_user_component()
+      call user_component%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

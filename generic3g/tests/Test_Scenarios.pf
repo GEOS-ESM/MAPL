@@ -602,7 +602,7 @@ contains
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: idx
-      type(UserComponent) :: user_component
+      type(UserComponent), pointer :: user_component
 
       rc = 0
 
@@ -619,7 +619,7 @@ contains
       child_name = component_path(:idx-1)
       
       if (child_name == '<user>') then
-         user_component = outer_meta%get_user_component()
+         user_component => outer_meta%get_user_component()
          substates = user_component%get_states()
          return
       end if
