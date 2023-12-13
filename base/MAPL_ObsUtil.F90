@@ -307,7 +307,7 @@ contains
     integer, optional, intent(out) :: rc
 
     integer :: M
-    integer :: i, j, jx, status
+    integer :: i, j, jx, j2, status
     integer :: nlon, nlat
     integer :: ncid, ncid2
     character(len=ESMF_MAXSTR) :: grp1, grp2
@@ -339,9 +339,12 @@ contains
        call lgr%debug('Input filename: %a', trim(filename))
        call lgr%debug('Input file    : nlon, nlat= %i6  %i6', nlon, nlat)
     end do
+    !
+    ! __ output results wo filter
+    !
     Xdim=nlon
     Ydim=jx
-
+    j2=jx
 
     !__ s2. get fields
 
@@ -373,17 +376,23 @@ contains
        Xdim=nlon
        Ydim=jx    
        if (allocated (time)) then
+          deallocate(time)
           allocate (time(Xdim, Ydim))
        end if
        if (allocated (lon)) then
+          deallocate(lon)
           allocate (lon(Xdim, Ydim))
        end if
        if (allocated (lat)) then
+          deallocate(lat)
           allocate (lat(Xdim, Ydim))
        end if
-
+       !
        write(6,'(2x,a,10i10)') 'true  Xdim, Ydim:', Xdim, Ydim
-       write(6,'(2x,a,10i10)') 'false Xdim, Ydim:', nlon, M*nlat
+       write(6,'(2x,a,10i10)') 'false Xdim, Ydim:', nlon, j2
+       !
+
+
        
        !
        ! -- determine true time/lon/lat by filtering T < 0 
@@ -393,8 +402,8 @@ contains
           filename = filenames(i)
           nlon = nlons(i)
           nlat = nlats(i)
-          write(6,'(2x,a,10i6)')  'M, i, nlon, nlat:', M, i, nlon, nlat
-
+          !!write(6,'(2x,a,10i6)')  'M, i, nlon, nlat:', M, i, nlon, nlat
+          !!write(6,'(2x,a)') 'time_loc_r8'
           !
           allocate (time_loc_R8(nlon, nlat))
           call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
@@ -411,9 +420,13 @@ contains
                 jx = jx + 1
                 time(1:nlon,jx) = time_loc_R8(1:nlon,j)
                 lon (1:nlon,jx) = lon_loc (1:nlon,j)
-                lat (1:nlon,jx) = lat_loc (1:nlon,j)                   
+                lat (1:nlon,jx) = lat_loc (1:nlon,j)
              end if
+             !!write(6,'(5f20.2)') time_loc_R8(1,j) 
           end do
+
+          !!write(6,'(2x,a,10i10)') 'end of file id', i
+          !!write(6,*)
 
           deallocate(time_loc_R8)             
           deallocate(lon_loc)
