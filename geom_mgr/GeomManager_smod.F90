@@ -229,20 +229,19 @@ contains
       class(GeomFactory), pointer :: factory
       integer :: i
       integer :: status
-      logical :: supports
-
+      logical :: found
+      
       geom_spec = NULL_GEOM_SPEC ! in case construction fails
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
-         supports = factory%supports(hconfig, _RC)
-         if (.not. supports) cycle
-
-         deallocate(geom_spec)  ! workaround for gfortran 12.3
-         geom_spec = factory%make_spec(hconfig, _RC)
-         _RETURN(_SUCCESS)
+         found = factory%supports(hconfig, _RC)
+         if (found) exit
       end do
+      _ASSERT(found, "No factory found to interpret hconfig")
 
-      _FAIL("No factory found to interpret hconfig")
+      deallocate(geom_spec)  ! workaround for gfortran 12.3
+      geom_spec = factory%make_spec(hconfig, _RC)
+      _RETURN(_SUCCESS)
    end function make_geom_spec_from_hconfig
 
 
