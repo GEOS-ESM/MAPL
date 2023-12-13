@@ -1,13 +1,15 @@
+! vim: set ft=fortran:
 !============================ PROCEDURE INTERFACES =============================
 
    interface
 
-      function ut_get_path_xml(path, status) bind(c, name='ut_get_path_xml') result(path_xml)
-         import :: c_ptr, ut_status, c_char
-         type(c_ptr), intent(in) :: path
-         integer(ut_status), intent(out) :: status
-         type(c_ptr) :: path_xml
-      end function ut_get_path_xml
+!      function ut_get_path_xml(pathptr, status) &
+!         bind(c, name='ut_get_path_xml') result(path)
+!         import :: c_ptr, ut_status, c_char
+!         type(c_ptr), intent(in) :: pathptr
+!         integer(ut_status), intent(out) :: status
+!         character(c_char) :: path(MAXPATHLEN)
+!      end function ut_get_path_xml
 
       ! Get last status
       integer(ut_status) function ut_get_status() &
@@ -70,7 +72,7 @@
       ! Use ut_get_status to check error condition. 
       type(c_ptr) function ut_read_xml(path_ptr) bind(c, name='ut_read_xml')
          import :: c_ptr
-         type(c_ptr), intent(in) :: path_ptr
+         type(c_ptr), value, intent(in) :: path_ptr
       end function ut_read_xml
 
       ! Use ut_get_status to check error condition. 
@@ -100,4 +102,3 @@
    end interface
 
 !========================== END PROCEDURE INTERFACES ===========================
-! vim: set ft=fortran:
