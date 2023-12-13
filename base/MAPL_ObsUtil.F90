@@ -565,7 +565,7 @@ contains
           ncid=ncid2
        endif
     else
-       print*, 'no grp name'
+       !! print*, 'no grp name'
        ncid=ncid2
     endif
     call check_nc_status(nf90_inq_varid(ncid, short_name, varid), _RC)
