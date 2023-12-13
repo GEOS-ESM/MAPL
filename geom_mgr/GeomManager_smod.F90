@@ -12,7 +12,15 @@ submodule (mapl3g_GeomManager) GeomManager_smod
    use pfio_FileMetadataMod
    use esmf
    use gftl2_IntegerVector
+   implicit none
 
+   abstract interface
+      logical function I_FactoryPredicate(factory)
+         import GeomFactory
+         class(GeomFactory), intent(in) :: factory
+      end function I_FactoryPredicate
+   end interface
+      
 contains
    
    module function new_GeomManager() result(mgr)
@@ -195,6 +203,23 @@ contains
       _RETURN(_SUCCESS)
    end function add_mapl_geom
 
+   ! If factory not found, return a null pointer _and_ a nonzero rc.
+   function find_factory(factories, predicate, rc) result(factory)
+      class(GeomFactory), pointer :: factory
+      type(GeomFactoryVector), pointer, intent(in) :: factories ! Force TARGET attr on actual
+      procedure(I_FactoryPredicate) :: predicate
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GeomFactoryVectorIterator) :: iter
+
+      factory => null()
+      iter = find_if(factories%begin(), factories%end(), predicate)
+      _ASSERT(iter /= factories%end(), "No factory found satisfying given predicate.")
+      factory => iter%of()
+
+      _RETURN(_SUCCESS)
+   end function find_factory
 
    module function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
       class(GeomSpec), allocatable :: geom_spec
@@ -203,21 +228,18 @@ contains
       integer, optional, intent(out) :: rc
 
       class(GeomFactory), pointer :: factory
-      integer :: i
       integer :: status
-      logical :: supports
 
       geom_spec = NullGeomSpec()
-      do i = 1, this%factories%size()
-         factory => this%factories%of(i)
-         supports = factory%supports(file_metadata)
-         if (supports) then
-            geom_spec = factory%make_spec(file_metadata, _RC)
-            _RETURN(_SUCCESS)
-         end if
-      end do
-
-      _FAIL("No factory found to interpret metadata")
+      factory => find_factory(this%factories, supports_metadata, _RC)
+      geom_spec = factory%make_spec(file_metadata, _RC)
+      
+      _RETURN(_SUCCESS)
+   contains
+      logical function supports_metadata(factory)
+         class(GeomFactory), intent(in) :: factory
+         supports_metadata = factory%supports(file_metadata)
+      end function supports_metadata
    end function make_geom_spec_from_metadata
 
    module function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
@@ -227,21 +249,19 @@ contains
       integer, optional, intent(out) :: rc
 
       class(GeomFactory), pointer :: factory
-      integer :: i
       integer :: status
-      logical :: found
       
-      geom_spec = NULL_GEOM_SPEC ! in case construction fails
-      do i = 1, this%factories%size()
-         factory => this%factories%of(i)
-         found = factory%supports(hconfig, _RC)
-         if (found) exit
-      end do
-      _ASSERT(found, "No factory found to interpret hconfig")
-
-      deallocate(geom_spec)  ! workaround for gfortran 12.3
+      geom_spec = NullGeomSpec()
+      factory => find_factory(this%factories, supports_hconfig, _RC)
+      deallocate(geom_spec)
       geom_spec = factory%make_spec(hconfig, _RC)
+      
       _RETURN(_SUCCESS)
+   contains
+      logical function supports_hconfig(factory)
+         class(GeomFactory), intent(in) :: factory
+         supports_hconfig = factory%supports(hconfig)
+      end function supports_hconfig
    end function make_geom_spec_from_hconfig
 
 

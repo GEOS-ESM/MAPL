@@ -24,7 +24,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       geom_spec = make_LatLonGeomSpec(hconfig, _RC)
 
       _RETURN(_SUCCESS)
@@ -328,6 +328,7 @@ contains
       call file_metadata%add_variable('lat', v)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function typesafe_make_file_metadata
 
 end submodule LatLonGeomFactory_smod
