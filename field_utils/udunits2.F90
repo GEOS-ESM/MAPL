@@ -3,17 +3,15 @@
 #endif
 #define TRIMALL(S) trim(adjustl(S))
 
-#if defined(LEN_TRIMALL)
-#undef LEN_TRIMALL
+#if defined(MAXPATHLEN)
+#undef MAXPATHLEN
 #endif
-#define LEN_TRIMALL(S) len_trim(adjustl(S))
+#define MAXPATHLEN 1024
 
 module udunits2mod
 
-!   use iso_c_binding, only: c_char, c_int, c_float, c_double, c_null_ptr, &
-!      c_ptr, c_associated, c_null_char
    use iso_c_binding, only: c_ptr, c_loc, c_associated, c_null_ptr, c_null_char, &
-      c_char, c_int, c_float, c_double
+      c_char, c_int, c_float, c_double, c_size_t, c_f_pointer
 
    implicit none
 
@@ -21,8 +19,15 @@ module udunits2mod
 
    public :: MAPL_Udunits_Converter
 
-!================================== INCLUDE ====================================
+!=========================== PARAMETERS (CONSTANTS) ============================
+   character(len=*), parameter :: EMPTY_STRING = ''
+!   integer, parameter :: MAXPATHLEN = 1024
+
+!================================ ENUMERATORS ==================================
    include 'udunits2enumerators.h'
+   integer(ut_encoding), parameter :: UT_ENCODING_DEFAULT = UT_ASCII
+
+!================================ C INTERFACES =================================
    include "udunits2interfaces.h"
 
 !=================================== CWRAP =====================================
@@ -72,13 +77,7 @@ module udunits2mod
       module procedure :: is_null_cwrap
    end interface is_null
 
-   interface get_unit_database_path
-      module procedure :: get_unit_database_path_
-      module procedure :: get_unit_database_path_null
-   end interface get_unit_database_path
-
    type(MAPL_Udunits_System), target :: SYSTEM_INSTANCE
-   integer(ut_encoding) :: UT_ENCODING_DEFAULT = UT_ASCII
 
 !================================= PROCEDURES ==================================
 contains
@@ -190,31 +189,24 @@ contains
    end function initialize
 
    type(c_ptr) function get_ut_system(path)
-      character(len=*), optional, intent(in) :: path
+      character(len=*), intent(in) :: path
+!      type(c_ptr) :: path_pointer
+      character(kind=c_char, len=(len_trim(path)+1)), target :: cpath
+      type(c_ptr) :: cptr
       
-      get_ut_system = ut_read_xml(get_path_pointer(path))
+      cpath = trim(path) // c_null_char
+!      path_pointer = get_path_cptr(path)
+!      if(is_null(path_pointer)) then
+!         write(*, '(A)') 'get_ut_system: path_pointer is NULL.'
+!      else
+!         write(*, '(A)') 'get_ut_system: path_pointer is NOT NULL.'
+!      end if
+!      get_ut_system = ut_read_xml(path_pointer)
+
+      cptr = c_loc(cpath)
+      get_ut_system = ut_read_xml(cptr)
                
    end function get_ut_system
-
-   type(c_ptr) function get_path_pointer(path)
-      character(len=*), optional, intent(in) :: path
-
-      get_path_pointer = c_null_ptr
-
-      if(.not. present(path)) return
-      if(len(path) == 0) return
-      get_path_pointer = get_c_char_ptr(path)
-
-   end function get_path_pointer
-
-   type(c_ptr) function get_c_char_ptr(s)
-      character(len=*), intent(in) :: s
-      character(len=len_trim(adjustl(s))+1), target :: s_
-
-      s_ = trim(adjustl(s)) // c_null_char
-      get_c_char_ptr = c_loc(s_)
-
-   end function get_c_char_ptr
 
    subroutine destroy_ut_unit(ut_unit_ptr)
       type(c_ptr), intent(inout) :: ut_unit_ptr
@@ -233,7 +225,6 @@ contains
       type(c_ptr) :: ut_system_ptr 
       
       ut_system_ptr = this % ptr
-!      if(is_null(this)) return
       if(.not. c_associated(ut_system_ptr)) return
       call ut_free_system(ut_system_ptr)
       call this % set()
@@ -262,27 +253,30 @@ contains
       get_encoding = merge(encoding, UT_ENCODING_DEFAULT, present(encoding))
    end function get_encoding
 
-   type(c_ptr) function get_unit_database_path(path, status)
-      character(len=*), optional, intent(in) :: path
-      integer(c_int), intent(in) :: status
+!   subroutine get_unit_path(pathin, path, status)
+!      character(kind=c_char, len=*), optional, intent(in) :: pathin
+!      character(kind=c_char, len=*), intent(out) :: path
+!      integer(ut_status), optional, intent(out) :: status
+!      integer(ut_status) :: status_
+!      type(c_ptr) :: cptr
+!
+!      write(*, *)
+!      if(present(pathin)) then
+!         write(*, '(A)') 'get_unit_path: pathin in = "' // trim(pathin) // '"'
+!         cptr = get_path_cptr(pathin)
+!      else
+!         write(*, '(A)') 'get_unit_path: no pathin in'
+!         cptr = c_null_ptr
+!      endif
+!      path = ut_get_path_xml(cptr, status_)
+!      if(present(status)) status = status_
+!
+!   end subroutine get_unit_path
 
-      get_unit_database_path = ut_get_path_xml(get_path_pointer(path), status, path)
-
-   end function get_unit_database_path
-
-   subroutine get_string_from_cptr(cptr, string)
-      type(c_ptr), intent(in) :: cptr
-      character(len=*), intent(out) :: string
-      character(c_char) :: ca
-      integer :: n, i
-
-      do i = 1, len(string)
-         
-
-   function make_ut_status_messages() result(messages)
-      character(len=32) :: messages(0:15)
-
-      messages = [ &
+   function get_ut_status_message(utstat) result(message)
+      integer(ut_status), intent(in) :: utstat
+      integer, parameter :: LL = 80
+      character(len=LL), parameter :: messages(16) = [character(len=LL) :: &
          'UT_SUCCESS', & ! Success 
          'UT_BAD_ARG', & ! An argument violates the function's contract 
          'UT_EXISTS', & ! Unit, prefix, or identifier already exists 
@@ -298,23 +292,125 @@ contains
          'UT_OPEN_ARG', & ! Can't open argument-specified unit database 
          'UT_OPEN_ENV', & ! Can't open environment-specified unit database 
          'UT_OPEN_DEFAULT', & ! Can't open installed, default, unit database 
-         'UT_PARSE_ERROR' & ! Error parsing unit specification 
-      ]
+         'UT_PARSE_ERROR' ] ! Error parsing unit specification 
+      character(len=LL) :: message
+      integer :: message_index
 
-    end function make_ut_status_messages
+      message_index = utstat + 1
 
-   function get_ut_status_message(utstat) result(message)
-      integer(ut_status), intent(in) :: utstat
-      character(len=32) :: message
-      character(len=32) :: messages(16)
-      
-      messages = make_ut_status_messages()
-      if(utstat < 0) return
-      if(utstat < size(messages)) then
-         message = messages(utstat + 1)
+      if(message_index < 1 .or. message_index > size(messages)) then
+         message = 'NOT FOUND'
          return
       end if
 
+      message = messages(message_index)
+
+      write(*, '(A)') 'message: "' // trim(message) // '"'
+
    end function get_ut_status_message
 
+   function get_path_environment_variable(status) result(xmlpath)
+      integer, optional, intent(out) :: status
+      character(len=:), allocatable :: xmlpath
+      character(len=MAXPATHLEN) :: rawpath
+      character(len=*), parameter :: VARIABLE_NAME = 'UDUNITS2_XML_PATH'
+      integer, parameter :: SUCCESS = 0
+      integer, parameter :: ZERO_LENGTH = -2
+      ! These are the status codes for get_environment_variable:
+      ! -1: xmlpath is too short to contain value
+      !  0: environment variable does exist
+      !  1: environment variable does not exist
+      ! The status code is passed through, but if the length is 0, ZERO_LENGTH is returned.
+      integer :: length, status_
+
+      call get_environment_variable(name=VARIABLE_NAME, value=rawpath, length=length, status=status_)
+
+      if(status_ == SUCCESS) then
+         if(length == 0) then
+            xmlpath = EMPTY_STRING
+            status_ = ZERO_LENGTH
+         else
+            write(*, *)
+            write(*, '(A)') 'path is: "' // trim(xmlpath) // '"'
+            write(*, '(A,1X,I4)') 'path length =', len_trim(xmlpath)
+         end if
+      end if
+
+      if(status_ /= SUCCESS) xmlpath = EMPTY_STRING
+      if(present(status)) status = status_
+
+   end function get_path_environment_variable
+
+   type(c_ptr) function get_path_cptr(path)
+      character(len=*), intent(in) :: path
+      character, target :: path_target(len_trim(path) + 1)
+
+      if(len_trim(path) > 0) then
+         write(*, '(A)') 'get_path_cptr: path = "' // trim(path) // '"'
+         path_target = transfer(trim(path) // c_null_char, path_target)
+         get_path_cptr = c_loc(path_target)
+         return
+      end if
+      write(*, '(A)') 'get_path_cptr: NO PATH OR EMPTY PATH'
+      get_path_cptr = c_null_ptr
+
+   end function get_path_cptr
+
+   type(c_ptr) function get_path_cptr_old(path)
+      character(len=*), optional, intent(in) :: path
+
+      if(present(path)) then
+         if(len_trim(path) > 0) then
+            write(*, '(A)') 'get_path_cptr_old: path = "' // trim(path) // '"'
+            get_path_cptr_old = get_c_char_ptr(path)
+            return
+         end if
+      end if
+      write(*, '(A)') 'get_path_cptr_old: NO PATH OR EMPTY PATH'
+      get_path_cptr_old = c_null_ptr
+
+   end function get_path_cptr_old
+
+   type(c_ptr) function get_c_char_ptr(s)
+      character(len=*), intent(in) :: s
+      character(len=len_trim(adjustl(s))+1), target :: s_
+
+      s_ = trim(adjustl(s)) // c_null_char
+      get_c_char_ptr = c_loc(s_)
+
+   end function get_c_char_ptr
+
+   subroutine get_fstring(carray, fstring)
+      character(c_char), intent(in) :: carray(*)
+      character(len=*, kind=c_char), intent(out) :: fstring
+      integer :: i
+      character(c_char) :: ch
+      
+      fstring = EMPTY_STRING
+      do i=1, len(fstring)
+         ch = carray(i)
+         if(ch == c_null_char) exit
+         fstring(i:i) = ch
+      end do
+
+   end subroutine get_fstring
+
+   function make_fstring(cptr) result(fstring)
+      interface
+         integer(c_size_t) function strlen(cptr) bind(c, name='strlen')
+            import :: c_ptr, c_size_t
+            type(c_ptr), value :: cptr
+         end function strlen
+      end interface
+      type(c_ptr), intent(in) :: cptr
+      character(len=:), allocatable :: fstring
+      character(len=:), pointer :: fptr
+      integer(c_size_t) :: clen
+
+      clen = strlen(cptr)
+      call c_f_pointer(cptr, fptr)
+      fstring = fptr(1:clen)
+
+   end function make_fstring
+      
 end module udunits2mod
