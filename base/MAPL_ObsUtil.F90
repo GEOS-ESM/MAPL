@@ -298,10 +298,10 @@ contains
     character(len=ESMF_MAXSTR), optional, intent(in) :: var_name_lat
     character(len=ESMF_MAXSTR), optional, intent(in) :: var_name_time    
 
-    real, optional, intent(inout) :: lon(:,:)
-    real, optional, intent(inout) :: lat(:,:)
+    real, allocatable, optional, intent(inout) :: lon(:,:)
+    real, allocatable, optional, intent(inout) :: lat(:,:)
     !!    real(ESMF_KIND_R8), optional, intent(inout) :: time_R8(:,:)
-    real, optional, intent(inout) :: time(:,:)    
+    real, allocatable, optional, intent(inout) :: time(:,:)    
     logical, optional, intent(in)  ::  Tfilter
 
     integer, optional, intent(out) :: rc
@@ -345,12 +345,14 @@ contains
 
     !__ s2. get fields
 
-    if ( present(Tfilter) .AND. Tfilter == .true. ) then
+    if ( present(Tfilter) .AND. Tfilter ) then
        if ( .not. (present(time) .AND. present(lon) .AND. present(lat)) ) then
           _FAIL('when Tfilter present, time/lon/lat must also present')
        end if
-       
+
+       !
        ! -- determine jx
+       !
        jx=0
        do i = 1, M
           filename = filenames(i)
@@ -368,16 +370,31 @@ contains
           end do
           deallocate(time_loc_R8)
        end do
-       allocate (time(Xdim, jx))
-       allocate (lon (Xdim, jx))
-       allocate (lat (Xdim, jx))       
+       Xdim=nlon
+       Ydim=jx    
+       if (allocated (time)) then
+          allocate (time(Xdim, Ydim))
+       end if
+       if (allocated (lon)) then
+          allocate (lon(Xdim, Ydim))
+       end if
+       if (allocated (lat)) then
+          allocate (lat(Xdim, Ydim))
+       end if
+
+       write(6,'(2x,a,10i10)') 'true  Xdim, Ydim:', Xdim, Ydim
+       write(6,'(2x,a,10i10)') 'false Xdim, Ydim:', nlon, M*nlat
        
+       !
        ! -- determine true time/lon/lat by filtering T < 0 
+       !
        jx=0
        do i = 1, M
           filename = filenames(i)
           nlon = nlons(i)
           nlat = nlats(i)
+          write(6,'(2x,a,10i6)')  'M, i, nlon, nlat:', M, i, nlon, nlat
+
           !
           allocate (time_loc_R8(nlon, nlat))
           call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
@@ -393,8 +410,8 @@ contains
              if ( time_loc_R8(1, j) > 0.0 ) then
                 jx = jx + 1
                 time(1:nlon,jx) = time_loc_R8(1:nlon,j)
-                lon (1:nlon,jx) = lon_loc_R8 (1:nlon,j)
-                lat (1:nlon,jx) = lat_loc_R8 (1:nlon,j)                   
+                lon (1:nlon,jx) = lon_loc (1:nlon,j)
+                lat (1:nlon,jx) = lat_loc (1:nlon,j)                   
              end if
           end do
 

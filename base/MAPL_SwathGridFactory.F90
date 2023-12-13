@@ -419,6 +419,8 @@ contains
       
       !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
       real, allocatable :: scanTime(:,:)
+      real, allocatable :: lon_true(:,:)
+      real, allocatable :: lat_true(:,:)      
       integer :: yy, mm, dd, h, m, s, sec, second
       integer :: i, j, L
       integer :: ncid, ncid2, varid
@@ -563,17 +565,6 @@ contains
                  'filenames(i):', trim(this%filenames(i))
          end do
 
-         call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
-              this%index_name_lon, this%index_name_lat, _RC)
-         nlon=nx
-         nlat=ny
-         allocate(scanTime(nlon, nlat))
-         allocate(this%t_alongtrack(nlat))
-
-         call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
-              this%index_name_lon, this%index_name_lat, &
-              var_name_time=this%var_name_time, time=scanTime, _RC)
-
          !------------------------------------------------------------         
          !  QC for obs files:
          !
@@ -582,14 +573,18 @@ contains
          !      ::  eliminate this row of data
          !------------------------------------------------------------
 
-         ! ygyu debug
-         !
+         call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
+              this%index_name_lon, this%index_name_lat, &
+              var_name_lon=this%var_name_lon, &
+              var_name_lat=this%var_name_lat, &
+              var_name_time=this%var_name_time, &
+              lon=lon_true, lat=lat_true, time=scanTime, &
+              Tfilter=.true., _RC)
          
-         ny=0
-         do j=1, nlat
-            if ( scanTime(1,j) > 0.d0 ) 
-            this%t_alongtrack(j)= scanTime(1,j)
-         enddo
+         nlon=nx
+         nlat=ny
+         allocate(this%t_alongtrack(nlat))
+         
          if (mapl_am_I_root()) then
             write(6,'(a)')  'this%t_alongtrack(::50)='
             write(6,'(5f20.2)')  this%t_alongtrack(::50)
@@ -597,9 +592,6 @@ contains
          _FAIL('nail 0')
 
          nstart = 1
-
-
-         
 
          !
          ! If the t_alongtrack contains undefined values, use this code
