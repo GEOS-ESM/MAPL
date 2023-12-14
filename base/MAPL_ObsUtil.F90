@@ -33,10 +33,10 @@ module MAPL_ObsUtilMod
 
   type obs_platform
      character (len=ESMF_MAXSTR) :: name=''
-     character (len=ESMF_MAXSTR) :: nc_index=''
-     character (len=ESMF_MAXSTR) :: nc_lon=''
-     character (len=ESMF_MAXSTR) :: nc_lat=''
-     character (len=ESMF_MAXSTR) :: nc_time=''
+     character (len=ESMF_MAXSTR) :: index_name_x=''
+     character (len=ESMF_MAXSTR) :: var_name_lon=''
+     character (len=ESMF_MAXSTR) :: var_name_lat=''
+     character (len=ESMF_MAXSTR) :: var_name_time=''
      character (len=ESMF_MAXSTR) :: file_name_template=''
      integer :: ngeoval=0
      integer :: nentry_name=0
@@ -62,7 +62,7 @@ contains
     integer, intent(out) :: obsfile_Te_index
     integer, optional, intent(out) :: rc
 
-    type(ESMF_Time) :: T1, Tn
+    type(ESMF_Time) :: T1
     type(ESMF_Time) :: cT1
     type(ESMF_Time) :: Ts, Te
     type(ESMF_TimeInterval) :: dT1, dT2, dTs, dTe
@@ -71,8 +71,14 @@ contains
     integer :: n1, n2
     integer :: status
 
+    !
+    !  o---------o ------------- o -------------o
+    !             obsfile_interval
+    !               x---------------------x--
+    !                       Epoch
+    !
+    
     T1 = obsfile_start_time
-    Tn = obsfile_end_time
 
     cT1 = currTime
     dT1 = currTime - T1
@@ -91,11 +97,13 @@ contains
     Te = T1 + dTe
 
     obsfile_Ts_index = n1
-    if ( dT2_s - n2*dT0_s < 1 ) then
-       obsfile_Te_index = n2 - 1
-    else
-       obsfile_Te_index = n2
-    end if
+    obsfile_Te_index = n2
+    
+!    if ( dT2_s - n2*dT0_s < 1 ) then
+!       obsfile_Te_index = n2 - 1
+!    else
+!       obsfile_Te_index = n2
+!    end if
 
     _RETURN(ESMF_SUCCESS)
 
@@ -210,6 +218,7 @@ contains
     integer :: n1, n2
     integer :: i, j
     integer :: status
+    logical :: EX
 
     !__ s1.  Arithmetic index list based on s,e,interval
     !
@@ -259,8 +268,8 @@ contains
     do i= n1, n2
        test_file = get_filename_from_template_use_index &
             (obsfile_start_time, obsfile_interval, &
-            i, file_template, rc=rc)
-       if (test_file /= '') then
+            i, file_template, EX, rc=rc)
+       if (EX) then
           j=j+1
           filenames(j) = test_file
        end if
@@ -270,7 +279,6 @@ contains
     _ASSERT ( M < size(filenames) , 'code crash, number of files exceeds upper bound')
     _ASSERT (M/=0, 'M is zero, no files found for currTime')
     
-
     _RETURN(_SUCCESS)
 
   end subroutine Find_M_files_for_currTime
@@ -279,7 +287,7 @@ contains
   subroutine read_M_files_4_swath ( filenames, Xdim, Ydim, &
        index_name_lon, index_name_lat,&
        var_name_lon, var_name_lat, var_name_time, &       
-       lon, lat, time, rc )
+       lon, lat, time, Tfilter, rc )
     use pFlogger, only: logging, Logger
     character(len=ESMF_MAXSTR), intent(in) :: filenames(:)
     integer,  intent(out) :: Xdim
@@ -290,15 +298,16 @@ contains
     character(len=ESMF_MAXSTR), optional, intent(in) :: var_name_lat
     character(len=ESMF_MAXSTR), optional, intent(in) :: var_name_time    
 
-    real, optional, intent(inout) :: lon(:,:)
-    real, optional, intent(inout) :: lat(:,:)
+    real, allocatable, optional, intent(inout) :: lon(:,:)
+    real, allocatable, optional, intent(inout) :: lat(:,:)
     !!    real(ESMF_KIND_R8), optional, intent(inout) :: time_R8(:,:)
-    real, optional, intent(inout) :: time(:,:)    
+    real, allocatable, optional, intent(inout) :: time(:,:)    
+    logical, optional, intent(in)  ::  Tfilter
 
     integer, optional, intent(out) :: rc
 
     integer :: M
-    integer :: i, j, jx, status
+    integer :: i, j, jx, j2, status
     integer :: nlon, nlat
     integer :: ncid, ncid2
     character(len=ESMF_MAXSTR) :: grp1, grp2
@@ -330,42 +339,134 @@ contains
        call lgr%debug('Input filename: %a', trim(filename))
        call lgr%debug('Input file    : nlon, nlat= %i6  %i6', nlon, nlat)
     end do
+    !
+    ! __ output results wo filter
+    !
     Xdim=nlon
     Ydim=jx
-
+    j2=jx
 
     !__ s2. get fields
-    jx=0
-    do i = 1, M
-       filename = filenames(i)
-       nlon = nlons(i)
-       nlat = nlats(i)
 
-       if (present(var_name_time).AND.present(time)) then
+    if ( present(Tfilter) .AND. Tfilter ) then
+       if ( .not. (present(time) .AND. present(lon) .AND. present(lat)) ) then
+          _FAIL('when Tfilter present, time/lon/lat must also present')
+       end if
+
+       !
+       ! -- determine jx
+       !
+       jx=0
+       do i = 1, M
+          filename = filenames(i)
+          nlon = nlons(i)
+          nlat = nlats(i)
           allocate (time_loc_R8(nlon, nlat))
           call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
-          time(1:nlon,jx+1:jx+nlat) = time_loc_R8(1:nlon,1:nlat)
+          do j=1, nlat
+             !
+             ! -- filter, e.g., eliminate -9999
+             !
+             if ( time_loc_R8(1, j) > 0.0 ) then
+                jx = jx + 1
+             end if
+          end do
           deallocate(time_loc_R8)
+       end do
+       Xdim=nlon
+       Ydim=jx    
+       if (allocated (time)) then
+          deallocate(time)
+          allocate (time(Xdim, Ydim))
        end if
+       if (allocated (lon)) then
+          deallocate(lon)
+          allocate (lon(Xdim, Ydim))
+       end if
+       if (allocated (lat)) then
+          deallocate(lat)
+          allocate (lat(Xdim, Ydim))
+       end if
+       !
+       write(6,'(2x,a,10i10)') 'true  Xdim, Ydim:', Xdim, Ydim
+       write(6,'(2x,a,10i10)') 'false Xdim, Ydim:', nlon, j2
+       !
 
-       if (present(var_name_lon).AND.present(lon)) then
+
+       
+       !
+       ! -- determine true time/lon/lat by filtering T < 0 
+       !
+       jx=0
+       do i = 1, M
+          filename = filenames(i)
+          nlon = nlons(i)
+          nlat = nlats(i)
+          !!write(6,'(2x,a,10i6)')  'M, i, nlon, nlat:', M, i, nlon, nlat
+          !!write(6,'(2x,a)') 'time_loc_r8'
+          !
+          allocate (time_loc_R8(nlon, nlat))
+          call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
           allocate (lon_loc(nlon, nlat))
           call get_var_from_name_w_group (var_name_lon, lon_loc, filename, _RC)
-          lon(1:nlon,jx+1:jx+nlat) = lon_loc(1:nlon,1:nlat)
-          deallocate(lon_loc)
-       end if
-
-       if (present(var_name_lat).AND.present(lat)) then
           allocate (lat_loc(nlon, nlat))
           call get_var_from_name_w_group (var_name_lat, lat_loc, filename, _RC)
-          lat(1:nlon,jx+1:jx+nlat) = lat_loc(1:nlon,1:nlat)
-          deallocate(lat_loc)
-       end if
+          !
+          do j=1, nlat
+             !
+             ! -- filter, e.g., eliminate -9999
+             !
+             if ( time_loc_R8(1, j) > 0.0 ) then
+                jx = jx + 1
+                time(1:nlon,jx) = time_loc_R8(1:nlon,j)
+                lon (1:nlon,jx) = lon_loc (1:nlon,j)
+                lat (1:nlon,jx) = lat_loc (1:nlon,j)
+             end if
+             !!write(6,'(5f20.2)') time_loc_R8(1,j) 
+          end do
 
-       jx = jx + nlat
+          !!write(6,'(2x,a,10i10)') 'end of file id', i
+          !!write(6,*)
 
-    end do
+          deallocate(time_loc_R8)             
+          deallocate(lon_loc)
+          deallocate(lat_loc)          
+       end do
 
+    else
+
+       jx=0
+       do i = 1, M
+          filename = filenames(i)
+          nlon = nlons(i)
+          nlat = nlats(i)
+
+          if (present(var_name_time).AND.present(time)) then
+             allocate (time_loc_R8(nlon, nlat))
+             call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
+             time(1:nlon,jx+1:jx+nlat) = time_loc_R8(1:nlon,1:nlat)
+             deallocate(time_loc_R8)
+          end if
+
+          if (present(var_name_lon).AND.present(lon)) then
+             allocate (lon_loc(nlon, nlat))
+             call get_var_from_name_w_group (var_name_lon, lon_loc, filename, _RC)
+             lon(1:nlon,jx+1:jx+nlat) = lon_loc(1:nlon,1:nlat)
+             deallocate(lon_loc)
+          end if
+
+          if (present(var_name_lat).AND.present(lat)) then
+             allocate (lat_loc(nlon, nlat))
+             call get_var_from_name_w_group (var_name_lat, lat_loc, filename, _RC)
+             lat(1:nlon,jx+1:jx+nlat) = lat_loc(1:nlon,1:nlat)
+             deallocate(lat_loc)
+          end if
+          
+          jx = jx + nlat
+       end do
+
+    end if
+    
     _RETURN(_SUCCESS)
   end subroutine read_M_files_4_swath
 
@@ -375,7 +476,7 @@ contains
   !           because of (bash ls) command therein
   !
   function get_filename_from_template_use_index (obsfile_start_time, obsfile_interval, &
-       f_index, file_template, rc) result(filename)
+       f_index, file_template, EX, rc) result(filename)
     use Plain_netCDF_Time, only : ESMF_time_to_two_integer
     use MAPL_StringTemplate, only : fill_grads_template    
     character(len=ESMF_MAXSTR) :: filename
@@ -383,6 +484,7 @@ contains
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval
     character(len=*), intent(in) :: file_template
     integer, intent(in) :: f_index
+    logical, intent(out) :: EX
     integer, optional, intent(out) :: rc
 
     integer :: itime(2)
@@ -409,34 +511,12 @@ contains
     call ESMF_time_to_two_integer(time, itime, _RC)
     nymd = itime(1)
     nhms = itime(2)
-    
+
     ! parse time info
     !
-    j= index(file_template, '*')
-    if (j>0) then
-       ! wild char exist
-       !!print*, 'pos of * in template =', j
-       file_template_left = file_template(1:j-1)
-       call fill_grads_template ( filename_left, file_template_left, &
-            experiment_id='', nymd=nymd, nhms=nhms, _RC )
-       filename= trim(filename_left)//trim(file_template(j:))
-    else
-       ! exact file name
-       call fill_grads_template ( filename, file_template, &
-            experiment_id='', nymd=nymd, nhms=nhms, _RC )
-    end if
-
-    ! test on bash
-    !
-    cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
-    CALL execute_command_line(trim(cmd))
-    open(newunit=u, file='zzz_MAPL', status='unknown')
-    read(u, '(a)') filename
-    i=index(trim(filename), 'ls')
-    if (i==1) then
-       filename=''
-    end if
-    close(u)
+    call fill_grads_template ( filename, file_template, &
+         experiment_id='', nymd=nymd, nhms=nhms, _RC )
+    inquire(file= trim(filename), EXIST = EX)
 
     _RETURN(_SUCCESS)
 
@@ -485,7 +565,7 @@ contains
           ncid=ncid2
        endif
     else
-       print*, 'no grp name'
+       !! print*, 'no grp name'
        ncid=ncid2
     endif
     call check_nc_status(nf90_inq_varid(ncid, short_name, varid), _RC)
@@ -577,16 +657,15 @@ contains
   end subroutine sort_four_arrays_by_time
 
 
-
   function copy_platform_nckeys(a, rc)
     type(obs_platform) :: copy_platform_nckeys
     type(obs_platform), intent(in) :: a
     integer, optional, intent(out) :: rc
 
-    copy_platform_nckeys%nc_index = a%nc_index
-    copy_platform_nckeys%nc_lon = a%nc_lon
-    copy_platform_nckeys%nc_lat = a%nc_lat
-    copy_platform_nckeys%nc_time = a%nc_time
+    copy_platform_nckeys%index_name_x = a%index_name_x
+    copy_platform_nckeys%var_name_lon = a%var_name_lon
+    copy_platform_nckeys%var_name_lat = a%var_name_lat
+    copy_platform_nckeys%var_name_time = a%var_name_time
     copy_platform_nckeys%nentry_name = a%nentry_name
     _RETURN(_SUCCESS)
 

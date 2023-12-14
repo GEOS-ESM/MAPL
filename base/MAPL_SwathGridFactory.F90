@@ -217,7 +217,9 @@ contains
 
       real(kind=ESMF_KIND_R8), pointer :: fptr(:,:)
       real, pointer :: centers(:,:)
-      real, allocatable :: centers_full(:,:)
+      real, allocatable :: lon_true(:,:)
+      real, allocatable :: lat_true(:,:)
+      real, allocatable :: time_true(:,:)      
 
       integer :: i, j, k
       integer :: Xdim, Ydim
@@ -253,17 +255,22 @@ contains
 
       ! read longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          allocate( centers_full(Xdim_full, Ydim_full))
+          allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
           call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
                this%index_name_lon, this%index_name_lat, &
-               var_name_lon=this%var_name_lon, lon=centers_full, _RC)
+               var_name_lon=this%var_name_lon, &
+               var_name_lat=this%var_name_lat, &
+               var_name_time=this%var_name_time, &
+               lon=lon_true, lat=lat_true, time=time_true, &
+               Tfilter=.true., _RC)
+
           k=0
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
-             centers(1:Xdim, k) = centers_full(1:Xdim, j)
+             centers(1:Xdim, k) = lon_true(1:Xdim, j)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
-          deallocate (centers_full)
+          deallocate( lon_true, time_true )
        end if
        call MAPL_SyncSharedMemory(_RC)       
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
@@ -273,17 +280,13 @@ contains
        
        ! read latitudes 
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          allocate( centers_full(Xdim_full, Ydim_full))
-          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
-               this%index_name_lon, this%index_name_lat, &
-               var_name_lat=this%var_name_lat, lat=centers_full, _RC)
           k=0
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
-             centers(1:Xdim, k) = centers_full(1:Xdim, j)
+             centers(1:Xdim, k) = lat_true(1:Xdim, j)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
-          deallocate (centers_full)
+          deallocate (lat_true)
        end if
        call MAPL_SyncSharedMemory(_RC)
        call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
@@ -296,7 +299,7 @@ contains
        else
           deallocate(centers)
        end if
-       
+
       _RETURN(_SUCCESS)
    end subroutine add_horz_coordinates_from_file
 
@@ -419,6 +422,8 @@ contains
       
       !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
       real, allocatable :: scanTime(:,:)
+      real, allocatable :: lon_true(:,:)
+      real, allocatable :: lat_true(:,:)      
       integer :: yy, mm, dd, h, m, s, sec, second
       integer :: i, j, L
       integer :: ncid, ncid2, varid
@@ -429,7 +434,7 @@ contains
       integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
       real(ESMF_KIND_R8) :: jx0, jx1
       real(ESMF_KIND_R8) :: x0, x1
-      integer :: khi, klo, k, nstart, max_iter
+      integer :: khi, klo, k, nstart, nend, max_iter
       type(Logger), pointer :: lgr
       logical :: ispresent
 
@@ -559,28 +564,40 @@ contains
          write(6,'(10(2x,a20,2x,i40))') &         
               'M_file:', M_file
          do i=1, M_file
-            write(6,'(10(2x,a20,2x,a))') &
-                 'filenames(i):', trim(this%filenames(i))
+            write(6,'(10(2x,a14,i4,a2,2x,a))') &
+                 'filenames(', i, '):', trim(this%filenames(i))
          end do
 
-         call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
-              this%index_name_lon, this%index_name_lat, _RC)
-         nlon=nx
-         nlat=ny
-         allocate(scanTime(nlon, nlat))
-         allocate(this%t_alongtrack(nlat))
+         !------------------------------------------------------------         
+         !  QC for obs files:
+         !
+         !  1.  redefine nstart to skip un-defined time value
+         !  2.  Scan_Start_Time =  -9999, -9999, -9999,
+         !      ::  eliminate this row of data
+         !------------------------------------------------------------
 
+         allocate(lon_true(0,0), lat_true(0,0), scanTime(0,0))
          call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
               this%index_name_lon, this%index_name_lat, &
-              var_name_time=this%var_name_time, time=scanTime, _RC)
-
-
+              var_name_lon=this%var_name_lon, &
+              var_name_lat=this%var_name_lat, &
+              var_name_time=this%var_name_time, &
+              lon=lon_true, lat=lat_true, time=scanTime, &
+              Tfilter=.true., _RC)
+         
+         nlon=nx
+         nlat=ny
+         allocate(this%t_alongtrack(nlat))
          do j=1, nlat
-            this%t_alongtrack(j)= scanTime(1,j)
-         enddo
+            this%t_alongtrack(j) = scanTime(1,j)
+         end do
+         
+         write(6,'(a)')  'this%t_alongtrack(::50)='
+         write(6,'(5f20.2)')  this%t_alongtrack(::50)
+
+
          nstart = 1
          !
-         ! redefine nstart to skip un-defined time value
          ! If the t_alongtrack contains undefined values, use this code
          ! 
          x0 = this%t_alongtrack(1)
@@ -607,7 +624,7 @@ contains
          this%cell_across_swath = nlon
          this%cell_along_swath = nlat
          deallocate(scanTime)
-!!         write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::100)
+
 
 
          ! P2.
@@ -623,18 +640,23 @@ contains
          j1= j0 + sec
          jx0= j0
          jx1= j1
-         call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
-
 
          this%epoch_index(1)= 1
          this%epoch_index(2)= this%cell_across_swath
-         call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-         call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+         nend = this%cell_along_swath
+         call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+         call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
 
-
+         call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
+         call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Epoch]  w.r.t. timeunit ', jx0, jx1)
+         call lgr%debug ('%a %f20.1 %f20.1', 'x0[times(1)] xn[times(N)] w.r.t. timeunit ', &
+              this%t_alongtrack(1), this%t_alongtrack(nend))
+         call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
+                  
          if (jt1==jt2) then
             _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
          endif
+         
          jt1 = jt1 + 1               ! (x1,x2]  design
          this%epoch_index(3)= jt1
          this%epoch_index(4)= jt2
@@ -651,7 +673,8 @@ contains
          this%im_world = Xdim
          this%jm_world = Ydim
       end if
-      
+
+
       call MPI_bcast(this%M_file, 1, MPI_INTEGER, 0, mpic, ierror)
       do i=1, this%M_file
          call MPI_bcast(this%filenames(i), ESMF_MAXSTR, MPI_CHARACTER, 0, mpic, ierror)
@@ -662,6 +685,7 @@ contains
       call MPI_bcast(this%cell_across_swath, 1, MPI_INTEGER, 0, mpic, ierror)
       call MPI_bcast(this%cell_along_swath, 1, MPI_INTEGER, 0, mpic, ierror)      
       ! donot need to bcast this%along_track (root only)
+
       
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -677,7 +701,6 @@ contains
       endif
       ! ims is set at here
       call this%check_and_fill_consistency(_RC)
-
 
       _RETURN(_SUCCESS)
       
@@ -1392,7 +1415,9 @@ contains
       !! shared mem
       real(kind=ESMF_KIND_R8), pointer :: fptr(:,:)
       real, pointer :: centers(:,:)
-      real, allocatable :: centers_full(:,:)
+      real, allocatable :: lon_true(:,:)
+      real, allocatable :: lat_true(:,:)
+      real, allocatable :: time_true(:,:)
       
       integer :: i, j, k
       integer :: Xdim, Ydim
@@ -1413,19 +1438,22 @@ contains
       call MAPL_SyncSharedMemory(_RC)
 
 
-      ! read Time and set
+      ! read and set Time
       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         allocate( centers_full(Xdim_full, Ydim_full))
+         allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
               this%index_name_lon, this%index_name_lat, &
-              var_name_time=this%var_name_time, time=centers_full, _RC)
-          !!call get_v2d_netcdf(this%grid_file_name, time_name, centers_full, Xdim_full, Ydim_full)
+              var_name_lon=this%var_name_lon, &
+              var_name_lat=this%var_name_lat, &
+              var_name_time=this%var_name_time, &
+              lon=lon_true, lat=lat_true, time=time_true, &
+              Tfilter=.true., _RC)
          k=0
          do j=this%epoch_index(3), this%epoch_index(4)
             k=k+1
-            centers(1:Xdim, k) = centers_full(1:Xdim, j)
+            centers(1:Xdim, k) = time_true(1:Xdim, j)
          enddo
-         deallocate (centers_full)
+         deallocate (lon_true, lat_true, time_true)
       end if
       call MAPL_SyncSharedMemory(_RC)
 

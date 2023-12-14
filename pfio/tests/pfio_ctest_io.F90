@@ -457,7 +457,7 @@ program main
    integer :: rank, npes, ierror, provided,required
    integer :: status, color, key
 
-   class(BaseServer),allocatable :: iserver,oserver
+   class(BaseServer), target, allocatable :: iserver,oserver
    class(AbstractDirectoryService), allocatable, target :: directory_service
 
    type (CommandLineOptions0) :: options
