@@ -87,8 +87,8 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Samplings")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Samplings",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -96,12 +96,13 @@ contains
             ts = ExtDataTimeSample(single_sample,_RC)
             call ext_config%sample_map%insert(trim(hconfig_key),ts)
          enddo
+         call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Collections")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Collections",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -111,12 +112,13 @@ contains
             ds = ExtDataFileStream(single_collection,current_time,_RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
          enddo
+         call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Exports")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Exports",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -140,8 +142,8 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Derived")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Derived",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -162,7 +164,7 @@ contains
 
    function count_rules_for_item(this,item_name,rc) result(number_of_rules)
       integer :: number_of_rules
-      class(ExtDataConfig), intent(in) :: this
+      class(ExtDataConfig), target, intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
 
@@ -187,7 +189,7 @@ contains
 
    function get_time_range(this,item_name,rc) result(time_range)
       type(ESMF_Time), allocatable :: time_range(:)
-      class(ExtDataConfig), intent(in) :: this
+      class(ExtDataConfig), target, intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
 
@@ -265,7 +267,7 @@ contains
    end function sort_rules_by_start
 
    function get_item_type(this,item_name,unusable,rc) result(item_type)
-      class(ExtDataConfig), intent(inout) :: this
+      class(ExtDataConfig), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc

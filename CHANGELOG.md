@@ -24,12 +24,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug broken multi-step file output in History under certain template conditions
 - [#2433] Implemented workarounds for gfortran-13
 - Missing TARGET in GriddedIO - exposed runtime error when using NAG + debug.
 
 ### Removed
 
 ### Deprecated
+
+## [2.42.4] - 2023-12-10
+
+### Changed
+
+- Improved error message for missing labels in GridManager.
+
+### Fixed
+
+- Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
+- Fix for CMake an Apple.  Needs to set `__DARWIN` as an fpp flag.  (Only used by NAG, but ...)
+
+## [2.42.3] - 2023-12-06
+
+### Fixed
+
+- `MAPL_Abort()` was passing an uninitialized integer to `MPI_Abort()` resulting in spurious false successes when running ctest.    Maybe was happening frequently, but CI would be blind to this.
 
 ## [2.42.2] - 2023-12-05
 
