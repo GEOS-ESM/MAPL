@@ -57,11 +57,11 @@ module mapl3g_OuterMetaComponent
       ! Hierarchy
       type(ChildComponentMap)                     :: children
       type(HierarchicalRegistry) :: registry
+      type(ExtensionVector) :: state_extensions
  
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
       type(ComponentSpec)                         :: component_spec
-      type(ExtensionVector) :: state_extensions
 
       integer :: counter
 
