@@ -115,10 +115,13 @@ module mapl3g_LatLonGeomFactory
       end function make_gridded_dims
 
 
-      module function make_file_metadata(this, geom_spec, rc) result(file_metadata)
+      module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcerMod
          type(FileMetadata) :: file_metadata
          class(LatLonGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function make_file_metadata
 

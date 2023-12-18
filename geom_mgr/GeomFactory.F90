@@ -65,15 +65,18 @@ module mapl3g_GeomFactory
          integer, optional, intent(out) :: rc
       end function I_make_geom
 
-      function I_make_file_metadata(this, geom_spec, rc) result(file_metadata)
+      function I_make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
          use mapl3g_GeomSpec
          use pfio_FileMetadataMod
+         use mapl_KeywordEnforcerMod
          import GeomFactory
          implicit none
 
          type(FileMetadata) :: file_metadata
          class(GeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function I_make_file_metadata
 
