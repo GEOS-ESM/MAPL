@@ -11,7 +11,7 @@ MAPL has 10 primary subdirectories for Fortran source code:
 1. **shared** - low level utilities that are used throughout the remainder of MAPL.
 2. **profiler** - time and memory profiling utility
 3. [**pfio**](https://github.com/GEOS-ESM/MAPL/tree/main/pfio) - high-performance client-server I/O layer
-4. **base** (formerly MAPL_Base) - legacy core of MAPL.   This layer will gradually evaporate under further refactoring.
+4. **base** (formerly `MAPL_Base`) - legacy core of MAPL.   This layer will gradually evaporate under further refactoring.
 5. **generic** (under construction) - new home for MAPL extension of ESMF framework.
 6. **oomph** - next gen generic will eventually disappear
 7. **gridcomps** - Cap, [History](https://github.com/GEOS-ESM/MAPL/tree/main/gridcomps/History), and [ExtData](https://github.com/GEOS-ESM/MAPL/tree/main/gridcomps/ExtData2G) gridcomps used by all GEOS configurations.
