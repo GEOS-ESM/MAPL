@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_env v4.24.0 (Baselibs 7.17.0)
 - Update CI to use circleci-tools v2
+- Changed the Python MAPL `__init__.py` file to restore behavior from pre-Python3 transition where we did `from foo import *`.
 
 ### Fixed
 
