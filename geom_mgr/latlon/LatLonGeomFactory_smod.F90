@@ -118,10 +118,10 @@ contains
 
 
    module function create_basic_grid(spec, unusable, rc) result(grid)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
       type(ESMF_Grid) :: grid
       type(LatLonGeomSpec), intent(in) :: spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -167,10 +167,10 @@ contains
 
 
    module subroutine fill_coordinates(spec, grid, unusable, rc)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
       type(LatLonGeomSpec), intent(in) :: spec
       type(ESMF_Grid), intent(inout) :: grid
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status
