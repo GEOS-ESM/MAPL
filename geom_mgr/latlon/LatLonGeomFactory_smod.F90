@@ -11,6 +11,7 @@ submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use pFIO
    use gFTL_StringVector
    use esmf
+   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none
 
 
@@ -118,7 +119,6 @@ contains
 
 
    module function create_basic_grid(spec, unusable, rc) result(grid)
-      use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
       type(ESMF_Grid) :: grid
       type(LatLonGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable
@@ -167,7 +167,6 @@ contains
 
 
    module subroutine fill_coordinates(spec, grid, unusable, rc)
-      use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
       type(LatLonGeomSpec), intent(in) :: spec
       type(ESMF_Grid), intent(inout) :: grid
       class(KE), optional, intent(in) :: unusable
@@ -276,7 +275,7 @@ contains
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
       type(FileMetadata) :: file_metadata
       class(LatLonGeomFactory), intent(in) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
@@ -296,10 +295,9 @@ contains
    end function make_file_metadata
 
    function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
-      use mapl_KeywordEnforcerMod
       type(FileMetadata) :: file_metadata
       type(LatLonGeomSpec), intent(in) :: geom_spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 
