@@ -53,6 +53,7 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
+  use MaskSamplerMod  
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -891,12 +892,16 @@ contains
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
-       if (rc==0) then
-          if (nline > 0) then
-             list(n)%timeseries_output = .true.
-          endif
-       endif
+       if (list(n)%sampler_spec == 'trajectory') then
+          list(n)%timeseries_output = .true.
+       end if
+!!       if (rc==0) then
+!!          if (nline > 0) then
+!!             list(n)%timeseries_output = .true.
+!!          endif
+!!       endif
 
+      
        
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -2401,6 +2406,10 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+          elseif (list(n)%sampler_spec == 'mask') then                
+             list(n)%mask_sampler = MaskSampler(cfg,string,clock,_RC)
+             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             _FAIL('nail 1')
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
