@@ -17,6 +17,8 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ChildComponentMap, only: ChildComponentMapIterator
    use mapl3g_ChildComponentMap, only: operator(/=)
    use mapl3g_AbstractStateItemSpec
+   use mapl3g_ConnectionPt
+   use mapl3g_MatchConnection
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualPtVector
    use mapl3g_ConnectionVector
@@ -103,8 +105,6 @@ module mapl3g_OuterMetaComponent
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
 
-      procedure :: traverse
-
       procedure :: set_geom
       procedure :: get_name
       procedure :: get_gridcomp
@@ -114,6 +114,8 @@ module mapl3g_OuterMetaComponent
       procedure :: get_internal_state
 
       procedure :: set_vertical_geom
+
+      procedure :: connect_all
 
    end type OuterMetaComponent
 
@@ -770,49 +772,6 @@ contains
    end function get_name
 
 
-   recursive subroutine traverse(this, unusable, pre, post, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
-      interface
-         subroutine I_NodeOp(node, rc)
-            import OuterMetaComponent
-            class(OuterMetaComponent), intent(inout) :: node
-            integer, optional, intent(out) :: rc
-         end subroutine I_NodeOp
-      end interface
-      
-      procedure(I_NodeOp), optional :: pre
-      procedure(I_NodeOp), optional :: post
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ChildComponentMapIterator) :: iter
-      type(ChildComponent), pointer :: child
-      class(OuterMetaComponent), pointer :: child_meta
-      type(ESMF_GridComp) :: child_outer_gc
-
-      if (present(pre)) then
-         call pre(this, _RC)
-      end if
-
-      associate (b => this%children%begin(), e => this%children%end())
-        iter = b
-        do while (iter /= e)
-           child => iter%second()
-           child_outer_gc = child%get_outer_gridcomp()
-           child_meta => get_outer_meta(child_outer_gc, _RC)
-           call child_meta%traverse(pre=pre, post=post, _RC)
-           call iter%next()
-        end do
-      end associate
-
-      if (present(post)) then
-         call post(this, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine traverse
-
 
    ! Needed for unit testing purposes.
    
@@ -897,5 +856,35 @@ contains
       user_component => this%user_component
    end function get_user_component
 
+
+   
+   ! ----------
+   ! This is a "magic" connection that attempts to connect each
+   ! unsatisfied import in dst_comp, with a corresponding export in
+   ! the src_comp.  The corresponding export must have the same short
+   ! name, or if the import is a wildcard connection point, the all
+   ! exports with names that match the regexp of the wildcard are
+   ! connected.
+   ! ----------
+   subroutine connect_all(this, src_comp, dst_comp, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      character(*), intent(in) :: src_comp
+      character(*), intent(in) :: dst_comp
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(Connection), allocatable :: conn
+
+      _ASSERT(this%children%count(src_comp) == 1, 'No child component named <'//src_comp//'>.')
+      _ASSERT(this%children%count(dst_comp) == 1, 'No child component named <'//dst_comp//'>.')
+
+      conn = MatchConnection( &
+           ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='^.*$'))  &
+           )
+      call this%component_spec%add_connection(conn)
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_all
 
 end module mapl3g_OuterMetaComponent

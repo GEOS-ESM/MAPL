@@ -76,6 +76,13 @@ module mapl3g_Generic
    public :: MAPL_GridCompSetGeom
    public :: MAPL_GridCompSetVerticalGeom
 
+   ! Connections
+!#   public :: MAPL_AddConnection
+   public :: MAPL_ConnectAll
+
+
+   ! Interfaces
+
    interface MAPL_GridCompSetGeom
       module procedure MAPL_GridCompSetGeom
       module procedure MAPL_GridCompSetGeomGrid
@@ -90,7 +97,6 @@ module mapl3g_Generic
 !!$   end interface MAPL_GetInternalState
 
 
-   ! Interfaces
 
    interface MAPL_add_child
       module procedure :: add_child_by_name
@@ -129,6 +135,11 @@ module mapl3g_Generic
    interface MAPL_GridCompSetEntryPoint
       module procedure gridcomp_set_entry_point
    end interface MAPL_GridCompSetEntryPoint
+
+   interface MAPL_ConnectAll
+      procedure :: gridcomp_connect_all
+   end interface MAPL_ConnectAll
+
 
 contains
 
@@ -538,5 +549,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine MAPL_GridCompSetGeomLocStream
 
+   subroutine gridcomp_connect_all(gridcomp, src_comp, dst_comp, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(*), intent(in) :: src_comp
+      character(*), intent(in) :: dst_comp
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+      call outer_meta%connect_all(src_comp, dst_comp, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_connect_all
 
 end module mapl3g_Generic
