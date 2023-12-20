@@ -389,14 +389,16 @@ CONTAINS
          do j=1,num_rules
             num_primary=num_primary+1
             write(sidx,'(I1)')j
-            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,self%primary%item(num_primary),time,clock,_RC)
+            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,self%primary%item(num_primary),time,clock,rc=status)
+            _ASSERT(status==0, "ExtData multi-rule problem with BASE NAME "//TRIM(current_base_name))
             allocate(self%primary%item(num_primary)%start_end_time(2))
             self%primary%item(num_primary)%start_end_time(1)=time_ranges(j)
             self%primary%item(num_primary)%start_end_time(2)=time_ranges(j+1)
          enddo
       else
          num_primary=num_primary+1
-         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,_RC)
+         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,rc=status)
+         _ASSERT(status==0, "ExtData single-rule problem with BASE NAME "//TRIM(current_base_name))
       end if
       call ESMF_StateGet(Export,current_base_name,state_item_type,_RC)
       if (state_item_type /= ESMF_STATEITEM_NOTFOUND) then
@@ -1763,7 +1765,7 @@ CONTAINS
            exit
         end if
      enddo
-     _ASSERT(found,"no item with that basename found")
+     _ASSERT(found,"ExtData no item with basename '"//TRIM(base_name)//"' found")
 
      item_index = -1
      if (num_rules == 1) then
@@ -1777,7 +1779,7 @@ CONTAINS
            endif
         enddo
      end if
-     _ASSERT(item_index/=-1,"did not find item")
+     _ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
      _RETURN(_SUCCESS)
   end function get_item_index
 
