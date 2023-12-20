@@ -297,7 +297,7 @@ contains
       end if
 
       call ESMF_ConfigGetAttribute(config, label=label, value=grid_type, rc=status)
-      _ASSERT(status==0,'label not found')
+      _ASSERT(status==0,'label ['//label//'] not found')
 
       allocate(factory, source=this%make_factory(trim(grid_type), config, prefix=prefix, rc=status))
       _VERIFY(status)

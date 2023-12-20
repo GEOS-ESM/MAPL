@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.42.2
+  VERSION 2.42.4
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -224,6 +224,9 @@ include(CheckCompilerCapabilities)
 # 2. Below is to workaround https://github.com/pmodels/mpich/issues/6693
 if(SUPPORT_FOR_MPI_IERROR_KEYWORD)
   add_compile_definitions(SUPPORT_FOR_MPI_IERROR_KEYWORD)
+endif()
+if (APPLE)
+  add_compile_definitions("-D__DARWIN")
 endif()
 
 add_subdirectory (pfio)
