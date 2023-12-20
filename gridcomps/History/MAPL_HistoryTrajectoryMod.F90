@@ -76,8 +76,6 @@ module HistoryTrajectoryMod
      procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
      procedure :: destroy_rh_regen_LS
      procedure :: get_x_subset
-     procedure :: get_obsfile_Tbracket_from_epoch
-     procedure :: get_filename_from_template_use_index
 
   end type HistoryTrajectory
 
