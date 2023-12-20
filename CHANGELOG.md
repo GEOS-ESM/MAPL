@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added/modified a few _ASSERT calls in ExtData, to better explain what is wrong in .yaml file
 
 ### Changed
+
 - Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
 - Swath grid step 1: allow for destroying and regenerating swath grid and regenerating regridder route handle, and creating
   allocatable metadata in griddedIO. Modifications are made to GriddedIO.F90, MAPL_AbstractRegridder.F90, and MAPL_EsmfRegridder.F90.
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug broken multi-step file output in History under certain template conditions
 - [#2433] Implemented workarounds for gfortran-13
 - Missing TARGET in GriddedIO - exposed runtime error when using NAG + debug.
+- Allow ExtData2G to be built as SHARED or STATIC
 
 ### Removed
 
