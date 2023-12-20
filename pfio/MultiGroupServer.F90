@@ -440,7 +440,7 @@ contains
      integer, parameter :: stag = 6782
 
      integer :: status
-     type (StringSet) :: FilesBeingWritten
+     type (StringSet), target :: FilesBeingWritten
 
      allocate(this%serverthread_done_msgs(1))
      this%serverthread_done_msgs(:) = .false.
@@ -625,10 +625,10 @@ contains
        integer, pointer :: g_4d(:,:,:,:), l_4d(:,:,:,:), g_5d(:,:,:,:,:), l_5d(:,:,:,:,:)
        integer :: d_rank, request_id
        integer(kind=INT64) :: msize_word, s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
-       type (StringAttributeMap) :: vars_map
+       type (StringAttributeMap), target :: vars_map
        type (StringAttributeMapIterator) :: var_iter
-       type (IntegerMessageMap) :: msg_map
-       type (IntegerMessageMapIterator) :: msg_iter
+       type (IntegerMessageMap), target  :: msg_map
+       type (IntegerMessageMapIterator)  :: msg_iter
 
        class (*), pointer :: x_ptr(:)
        integer , allocatable :: buffer_v(:)

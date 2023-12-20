@@ -72,7 +72,6 @@ contains
 #endif
       character, parameter :: NUL = achar(00)   !! what it says
 
-      _UNUSED_DUMMY(unusable)
       config = ESMF_ConfigCreate(rc=rc)
       config%cptr%buffer(1:1) = EOL
       config%cptr%buffer(2:2) = EOB
@@ -80,6 +79,8 @@ contains
       config%cptr%next_line = 1
       config%cptr%value_begin = 1
 
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function MAPL_ConfigCreate
 
 !------------------------------------------------------------------------------

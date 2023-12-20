@@ -17,17 +17,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
 - Replaced RC=STATUS plus `_VERIFY(RC)` in `Base_Base_implementation.F90` with just `_RC` in line with our new convention.
 - Updated CI to use ESMF 8.6.0 (Baselibs 7.16.0) and updated ESMF required version to 8.6.0
+- Swath grid step 1: allow for destroying and regenerating swath grid and regenerating regridder route handle, and creating
+  allocatable metadata in griddedIO. Modifications are made to GriddedIO.F90, MAPL_AbstractRegridder.F90, and MAPL_EsmfRegridder.F90.
+- Swath grid step 2: add control keywords for swath grid. Allow for filename template with `'*'` and DOY. Allow for missing obs files. Specify index_name_lon/lat, var_name_lon/lat/time, tunit, obs_file_begin/end/interval, Epoch and Epoch_init.
 - Update CI to Baselibs 7.17.0 (for future MAPL3 work) and the BCs v11.3.0 (to fix coupled run)
 - Update `components.yaml`
-  - ESMA_env v4.22.0 (Baselibs 7.15.1)
+  - ESMA_env v4.24.0 (Baselibs 7.17.0)
+- Update CI to use circleci-tools v2
+- Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
 
 ### Fixed
 
+- Fixed bug broken multi-step file output in History under certain template conditions
 - [#2433] Implemented workarounds for gfortran-13
+- Missing TARGET in GriddedIO - exposed runtime error when using NAG + debug.
 
 ### Removed
 
 ### Deprecated
+
+## [2.42.4] - 2023-12-10
+
+### Changed
+
+- Improved error message for missing labels in GridManager.
+
+### Fixed
+
+- Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
+- Fix for CMake an Apple.  Needs to set `__DARWIN` as an fpp flag.  (Only used by NAG, but ...)
+
+## [2.42.3] - 2023-12-06
+
+### Fixed
+
+- `MAPL_Abort()` was passing an uninitialized integer to `MPI_Abort()` resulting in spurious false successes when running ctest.    Maybe was happening frequently, but CI would be blind to this.
+
+## [2.42.2] - 2023-12-05
+
+### Fixed
+
+- Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
 
 ## [2.42.1] - 2023-11-20
 
