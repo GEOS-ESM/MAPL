@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>point_in_polygon &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>point_in_polygon
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">21 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_SphericalGeometry.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sphericalgeometry.f90.html'>MAPL_SphericalGeometry.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sphericalgeometry.html'>MAPL_SphericalGeometry</a></li>
+            <li class="breadcrumb-item active" aria-current="page">point_in_polygon</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/point_in_polygon.html#src">point_in_polygon</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function point_in_polygon(p0, pinside, a1, a2, a3, a4) result(in_poly)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-p0"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>p0</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pinside"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pinside</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a1~2"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a1</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a2"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a2</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a3"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a3</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a4"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a4</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-in_poly"></span>
+          logical
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~point_in_polygon~~CallsGraph Pages: 1 -->
+<svg id="procpoint_in_polygonCallsGraph" width="641pt" height="77pt"
+ viewBox="0.00 0.00 641.00 77.18" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~point_in_polygon~~CallsGraph" class="graph" transform="scale(1.23 1.23) rotate(0) translate(4 91)">
+<title>proc~~point_in_polygon~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-91 785,-91 785,4 -4,4"/>
+<!-- proc~point_in_polygon -->
+<g id="proc~~point_in_polygon~~CallsGraph_node1" class="node">
+<title>proc~point_in_polygon</title>
+<polygon fill="none" stroke="black" points="247,-66 0,-66 0,-42 247,-42 247,-66"/>
+<text text-anchor="middle" x="123.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SphericalGeometry::point_in_polygon</text>
+</g>
+<!-- proc~convert_to_cart -->
+<g id="proc~~point_in_polygon~~CallsGraph_node2" class="node">
+<title>proc~convert_to_cart</title>
+<g id="a_proc~~point_in_polygon~~CallsGraph_node2"><a xlink:href=".././proc/convert_to_cart.html" xlink:title="MAPL_SphericalGeometry::convert_to_cart">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="522,-87 283,-87 283,-63 522,-63 522,-87"/>
+<text text-anchor="middle" x="402.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SphericalGeometry::convert_to_cart</text>
+</a>
+</g>
+</g>
+<!-- proc~point_in_polygon&#45;&gt;proc~convert_to_cart -->
+<g id="proc~~point_in_polygon~~CallsGraph_edge1" class="edge">
+<title>proc~point_in_polygon&#45;&gt;proc~convert_to_cart</title>
+<path fill="none" stroke="#255000" d="M247.21,-63.3C255.73,-63.95 264.34,-64.6 272.9,-65.25"/>
+<polygon fill="#255000" stroke="#255000" points="272.68,-68.74 282.92,-66.01 273.21,-61.76 272.68,-68.74"/>
+</g>
+<!-- proc~lines_intersect -->
+<g id="proc~~point_in_polygon~~CallsGraph_node3" class="node">
+<title>proc~lines_intersect</title>
+<g id="a_proc~~point_in_polygon~~CallsGraph_node3"><a xlink:href=".././proc/lines_intersect.html" xlink:title="MAPL_SphericalGeometry::lines_intersect">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="519,-45 286,-45 286,-21 519,-21 519,-45"/>
+<text text-anchor="middle" x="402.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SphericalGeometry::lines_intersect</text>
+</a>
+</g>
+</g>
+<!-- proc~point_in_polygon&#45;&gt;proc~lines_intersect -->
+<g id="proc~~point_in_polygon~~CallsGraph_edge2" class="edge">
+<title>proc~point_in_polygon&#45;&gt;proc~lines_intersect</title>
+<path fill="none" stroke="#255000" d="M247.21,-44.7C256.66,-43.98 266.22,-43.26 275.7,-42.54"/>
+<polygon fill="#255000" stroke="#255000" points="276.24,-46.01 285.94,-41.76 275.71,-39.03 276.24,-46.01"/>
+</g>
+<!-- proc~cross_prod -->
+<g id="proc~~point_in_polygon~~CallsGraph_node4" class="node">
+<title>proc~cross_prod</title>
+<g id="a_proc~~point_in_polygon~~CallsGraph_node4"><a xlink:href=".././proc/cross_prod.html" xlink:title="MAPL_SphericalGeometry::cross_prod">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="776,-66 563,-66 563,-42 776,-42 776,-66"/>
+<text text-anchor="middle" x="669.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SphericalGeometry::cross_prod</text>
+</a>
+</g>
+</g>
+<!-- proc~lines_intersect&#45;&gt;proc~cross_prod -->
+<g id="proc~~point_in_polygon~~CallsGraph_edge3" class="edge">
+<title>proc~lines_intersect&#45;&gt;proc~cross_prod</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M519.35,-42.18C530.44,-43.06 541.68,-43.95 552.77,-44.83"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="552.66,-48.33 562.9,-45.63 553.21,-41.35 552.66,-48.33"/>
+</g>
+<!-- proc~normal_vect -->
+<g id="proc~~point_in_polygon~~CallsGraph_node5" class="node">
+<title>proc~normal_vect</title>
+<g id="a_proc~~point_in_polygon~~CallsGraph_node5"><a xlink:href=".././proc/normal_vect.html" xlink:title="MAPL_SphericalGeometry::normal_vect">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="781,-24 558,-24 558,0 781,0 781,-24"/>
+<text text-anchor="middle" x="669.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SphericalGeometry::normal_vect</text>
+</a>
+</g>
+</g>
+<!-- proc~lines_intersect&#45;&gt;proc~normal_vect -->
+<g id="proc~~point_in_polygon~~CallsGraph_edge4" class="edge">
+<title>proc~lines_intersect&#45;&gt;proc~normal_vect</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M519.35,-23.82C528.76,-23.07 538.28,-22.32 547.72,-21.57"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="548.24,-25.04 557.93,-20.76 547.68,-18.06 548.24,-25.04"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocpoint_in_polygonCallsGraph = svgPanZoom('#procpoint_in_polygonCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~point_in_polygon~~CalledByGraph Pages: 1 -->
+<svg id="procpoint_in_polygonCalledByGraph" width="641pt" height="18pt"
+ viewBox="0.00 0.00 641.00 18.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~point_in_polygon~~CalledByGraph" class="graph" transform="scale(1.76 1.76) rotate(0) translate(4 28)">
+<title>proc~~point_in_polygon~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 1125,-28 1125,4 -4,4"/>
+<!-- proc~point_in_polygon -->
+<g id="proc~~point_in_polygon~~CalledByGraph_node1" class="node">
+<title>proc~point_in_polygon</title>
+<polygon fill="none" stroke="black" points="1121,-24 874,-24 874,0 1121,0 1121,-24"/>
+<text text-anchor="middle" x="997.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SphericalGeometry::point_in_polygon</text>
+</g>
+<!-- proc~get_points_in_spherical_domain -->
+<g id="proc~~point_in_polygon~~CalledByGraph_node2" class="node">
+<title>proc~get_points_in_spherical_domain</title>
+<g id="a_proc~~point_in_polygon~~CalledByGraph_node2"><a xlink:href=".././proc/get_points_in_spherical_domain.html" xlink:title="MAPL_SphericalGeometry::get_points_in_spherical_domain">
+<polygon fill="#d9534f" stroke="#d9534f" points="838,-24 512,-24 512,0 838,0 838,-24"/>
+<text text-anchor="middle" x="675" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SphericalGeometry::get_points_in_spherical_domain</text>
+</a>
+</g>
+</g>
+<!-- proc~get_points_in_spherical_domain&#45;&gt;proc~point_in_polygon -->
+<g id="proc~~point_in_polygon~~CalledByGraph_edge1" class="edge">
+<title>proc~get_points_in_spherical_domain&#45;&gt;proc~point_in_polygon</title>
+<path fill="none" stroke="#255000" d="M838.13,-12C846.63,-12 855.12,-12 863.51,-12"/>
+<polygon fill="#255000" stroke="#255000" points="863.69,-15.5 873.69,-12 863.69,-8.5 863.69,-15.5"/>
+</g>
+<!-- proc~mapl_gethorzijindex -->
+<g id="proc~~point_in_polygon~~CalledByGraph_node3" class="node">
+<title>proc~mapl_gethorzijindex</title>
+<g id="a_proc~~point_in_polygon~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_gethorzijindex.html" xlink:title="Base_Implementation::MAPL_GetHorzIJIndex">
+<polygon fill="#d9534f" stroke="#d9534f" points="476,-24 228,-24 228,0 476,0 476,-24"/>
+<text text-anchor="middle" x="352" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_GetHorzIJIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;proc~get_points_in_spherical_domain -->
+<g id="proc~~point_in_polygon~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;proc~get_points_in_spherical_domain</title>
+<path fill="none" stroke="#255000" d="M476.19,-12C484.58,-12 493.11,-12 501.68,-12"/>
+<polygon fill="#255000" stroke="#255000" points="501.77,-15.5 511.77,-12 501.77,-8.5 501.77,-15.5"/>
+</g>
+<!-- interface~mapl_gethorzijindex -->
+<g id="proc~~point_in_polygon~~CalledByGraph_node4" class="node">
+<title>interface~mapl_gethorzijindex</title>
+<g id="a_proc~~point_in_polygon~~CalledByGraph_node4"><a xlink:href=".././interface/mapl_gethorzijindex.html" xlink:title="MAPL_Base::MAPL_GetHorzIJIndex">
+<polygon fill="#a7506f" stroke="#a7506f" points="192,-24 0,-24 0,0 192,0 192,-24"/>
+<text text-anchor="middle" x="96" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_GetHorzIJIndex</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gethorzijindex&#45;&gt;proc~mapl_gethorzijindex -->
+<g id="proc~~point_in_polygon~~CalledByGraph_edge3" class="edge">
+<title>interface~mapl_gethorzijindex&#45;&gt;proc~mapl_gethorzijindex</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M192.3,-12C200.6,-12 209.09,-12 217.62,-12"/>
+<polygon fill="#255000" stroke="#255000" points="217.64,-15.5 227.64,-12 217.64,-8.5 217.64,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocpoint_in_polygonCalledByGraph = svgPanZoom('#procpoint_in_polygonCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w"> </span><span class="k">function </span><span class="n">point_in_polygon</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span><span class="n">pinside</span><span class="p">,</span><span class="n">a1</span><span class="p">,</span><span class="n">a2</span><span class="p">,</span><span class="n">a3</span><span class="p">,</span><span class="n">a4</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">in_poly</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p0</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">pinside</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">a1</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">a2</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">a3</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">a4</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">in_poly</span>
+<span class="w"> </span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p1c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">p2c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a1c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a2c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a3c</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">a4c</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">intersect</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="w">    </span><span class="n">p1c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">p0</span><span class="p">)</span>
+<span class="w">    </span><span class="n">p2c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">pinside</span><span class="p">)</span>
+<span class="w">    </span><span class="n">a1c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+<span class="w">    </span><span class="n">a2c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">a2</span><span class="p">)</span>
+<span class="w">    </span><span class="n">a3c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">a3</span><span class="p">)</span>
+<span class="w">    </span><span class="n">a4c</span><span class="o">=</span><span class="n">convert_to_cart</span><span class="p">(</span><span class="n">a4</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">intersect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">p1c</span><span class="p">,</span><span class="n">p2c</span><span class="p">,</span><span class="n">a1c</span><span class="p">,</span><span class="n">a2c</span><span class="p">)</span>
+<span class="w">    </span><span class="n">intersect</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">p1c</span><span class="p">,</span><span class="n">p2c</span><span class="p">,</span><span class="n">a2c</span><span class="p">,</span><span class="n">a3c</span><span class="p">)</span>
+<span class="w">    </span><span class="n">intersect</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">p1c</span><span class="p">,</span><span class="n">p2c</span><span class="p">,</span><span class="n">a3c</span><span class="p">,</span><span class="n">a4c</span><span class="p">)</span>
+<span class="w">    </span><span class="n">intersect</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines_intersect</span><span class="p">(</span><span class="n">p1c</span><span class="p">,</span><span class="n">p2c</span><span class="p">,</span><span class="n">a4c</span><span class="p">,</span><span class="n">a1c</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">mod</span><span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="n">intersect</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">in_poly</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">in_poly</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">    </span><span class="k">end if</span>
+
+
+<span class="k"> end function </span><span class="n">point_in_polygon</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-21T14:39:11.827394             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

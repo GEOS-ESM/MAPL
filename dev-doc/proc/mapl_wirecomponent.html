@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_WireComponent &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_WireComponent
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">209 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_WireComponent</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_wirecomponent.html#src">MAPL_WireComponent</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private recursive subroutine MAPL_WireComponent(GC, RC)  
+</h2>
+    
+
+    <p>The routine <code>MAPL_WireComponent</code> connects the child components, creates the couplers,
+and adds child info to GC&rsquo;s import and export specs.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~83"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~259"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_wirecomponent~~CallsGraph Pages: 1 -->
+<svg id="procmapl_wirecomponentCallsGraph" width="641pt" height="865pt"
+ viewBox="0.00 0.00 641.00 865.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_wirecomponent~~CallsGraph" class="graph" transform="scale(1.06 1.06) rotate(0) translate(4 910)">
+<title>proc~~mapl_wirecomponent~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-910 673,-910 673,4 -4,4"/>
+<!-- proc~mapl_wirecomponent -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node1" class="node">
+<title>proc~mapl_wirecomponent</title>
+<polygon fill="none" stroke="black" points="238,-465 0,-465 0,-441 238,-441 238,-465"/>
+<text text-anchor="middle" x="119" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GenericMod::MAPL_WireComponent</text>
+</g>
+<!-- ESMF_AttributeSet -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeSet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="544,-906 399,-906 399,-882 544,-882 544,-906"/>
+<text text-anchor="middle" x="471.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeSet</text>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;ESMF_AttributeSet -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;ESMF_AttributeSet</title>
+<path fill="none" stroke="#255000" d="M120.17,-465.25C121.68,-522.52 136.27,-765.46 274,-873 305.9,-897.91 350.12,-904.32 388.54,-903.99"/>
+<polygon fill="#255000" stroke="#255000" points="388.77,-907.49 398.68,-903.75 388.6,-900.49 388.77,-907.49"/>
+</g>
+<!-- ESMF_CplCompCreate -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node3" class="node">
+<title>ESMF_CplCompCreate</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="554.5,-864 388.5,-864 388.5,-840 554.5,-840 554.5,-864"/>
+<text text-anchor="middle" x="471.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_CplCompCreate</text>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;ESMF_CplCompCreate -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;ESMF_CplCompCreate</title>
+<path fill="none" stroke="#255000" d="M120.7,-465.12C124.49,-518.7 147.46,-735.76 274,-831 303.32,-853.06 342.43,-860.36 378.04,-861.37"/>
+<polygon fill="#255000" stroke="#255000" points="378.43,-864.88 388.47,-861.5 378.51,-857.88 378.43,-864.88"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node4" class="node">
+<title>ESMF_GridCompGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="548.5,-822 394.5,-822 394.5,-798 548.5,-798 548.5,-822"/>
+<text text-anchor="middle" x="471.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompGet</text>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#255000" d="M121.35,-465.14C127.62,-515.08 158.63,-705.98 274,-789 305.31,-811.53 347.02,-818.32 383.95,-818.85"/>
+<polygon fill="#255000" stroke="#255000" points="384.24,-822.35 394.23,-818.84 384.23,-815.35 384.24,-822.35"/>
+</g>
+<!-- esmf_cplcompsetservices -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node5" class="node">
+<title>esmf_cplcompsetservices</title>
+<polygon fill="#777777" stroke="#777777" points="546,-780 397,-780 397,-756 546,-756 546,-780"/>
+<text text-anchor="middle" x="471.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_cplcompsetservices</text>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;esmf_cplcompsetservices -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;esmf_cplcompsetservices</title>
+<path fill="none" stroke="#255000" d="M122.18,-465.2C131.14,-511.33 169.67,-676.02 274,-747 306.41,-769.05 349.03,-775.6 386.3,-776.09"/>
+<polygon fill="#255000" stroke="#255000" points="386.66,-779.59 396.65,-776.08 386.65,-772.59 386.66,-779.59"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node6" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node6"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="580,-738 363,-738 363,-714 580,-714 580,-738"/>
+<text text-anchor="middle" x="471.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M123.25,-465.2C135.12,-507.09 180.42,-645.76 274,-705 297.3,-719.75 325.34,-727.31 352.85,-730.74"/>
+<polygon fill="#255000" stroke="#255000" points="352.63,-734.23 362.95,-731.82 353.38,-727.27 352.63,-734.23"/>
+</g>
+<!-- interface~mapl_varspecaddreftolist~2 -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node7" class="node">
+<title>interface~mapl_varspecaddreftolist~2</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node7"><a xlink:href=".././interface/mapl_varspecaddreftolist~2.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecAddRefToList">
+<polygon fill="#a7506f" stroke="#a7506f" points="603.5,-696 339.5,-696 339.5,-672 603.5,-672 603.5,-696"/>
+<text text-anchor="middle" x="471.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecAddRefToList</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecaddreftolist~2 -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecaddreftolist~2</title>
+<path fill="none" stroke="#255000" d="M124.72,-465.24C139.83,-502.55 190.93,-615.19 274,-663 290.92,-672.74 310.02,-679.18 329.5,-683.32"/>
+<polygon fill="#255000" stroke="#255000" points="328.91,-686.77 339.39,-685.22 330.24,-679.9 328.91,-686.77"/>
+</g>
+<!-- interface~mapl_varspecget -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node8" class="node">
+<title>interface~mapl_varspecget</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node8"><a xlink:href=".././interface/mapl_varspecget.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="579.5,-654 363.5,-654 363.5,-630 579.5,-630 579.5,-654"/>
+<text text-anchor="middle" x="471.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecget -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecget</title>
+<path fill="none" stroke="#255000" d="M126.73,-465.05C145.32,-497.02 200.89,-584.08 274,-621 298.21,-633.23 326.2,-639.9 353.33,-643.29"/>
+<polygon fill="#255000" stroke="#255000" points="352.95,-646.77 363.28,-644.4 353.73,-639.82 352.95,-646.77"/>
+</g>
+<!-- interface~mapl_varspecgetindex -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node9" class="node">
+<title>interface~mapl_varspecgetindex</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node9"><a xlink:href=".././interface/mapl_varspecgetindex.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecGetIndex">
+<polygon fill="#a7506f" stroke="#a7506f" points="593.5,-612 349.5,-612 349.5,-588 593.5,-588 593.5,-612"/>
+<text text-anchor="middle" x="471.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecGetIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecgetindex -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecgetindex</title>
+<path fill="none" stroke="#255000" d="M130.07,-465.01C152.7,-491.05 210.58,-552.48 274,-579 294.4,-587.53 316.99,-593.1 339.37,-596.65"/>
+<polygon fill="#255000" stroke="#255000" points="338.88,-600.12 349.28,-598.1 339.89,-593.19 338.88,-600.12"/>
+</g>
+<!-- interface~mapl_varspecset -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node10" class="node">
+<title>interface~mapl_varspecset</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node10"><a xlink:href=".././interface/mapl_varspecset.html" xlink:title="MAPL_VarSpecTypeMod::MAPL_VarSpecSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="590.5,-570 352.5,-570 352.5,-546 590.5,-546 590.5,-570"/>
+<text text-anchor="middle" x="471.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecTypeMod::MAPL_VarSpecSet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecset -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecset</title>
+<path fill="none" stroke="#255000" d="M137,-465.23C164.36,-484.2 220.51,-520.28 274,-537 295.61,-543.75 319.13,-548.42 342.15,-551.63"/>
+<polygon fill="#255000" stroke="#255000" points="341.96,-555.13 352.33,-552.96 342.86,-548.19 341.96,-555.13"/>
+</g>
+<!-- interface~write_parallel -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node11" class="node">
+<title>interface~write_parallel</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node11"><a xlink:href=".././interface/write_parallel.html" xlink:title="FileIOSharedMod::WRITE_PARALLEL">
+<polygon fill="#a7506f" stroke="#a7506f" points="572.5,-528 370.5,-528 370.5,-504 572.5,-504 572.5,-528"/>
+<text text-anchor="middle" x="471.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::WRITE_PARALLEL</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;interface~write_parallel -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;interface~write_parallel</title>
+<path fill="none" stroke="#255000" d="M157.58,-465.06C188.52,-474.55 233.7,-487.4 274,-495 301.7,-500.22 331.86,-504.26 360.05,-507.33"/>
+<polygon fill="#255000" stroke="#255000" points="360.02,-510.84 370.33,-508.41 360.76,-503.88 360.02,-510.84"/>
+</g>
+<!-- none~varisconnected -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node12" class="node">
+<title>none~varisconnected</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node12"><a xlink:href=".././type/varconn.html#boundprocedure-varisconnected" xlink:title="mapl_VarConn::VarConn%varIsConnected">
+<polygon fill="#a7506f" stroke="#a7506f" points="589,-486 354,-486 354,-462 589,-462 589,-486"/>
+<text text-anchor="middle" x="471.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_VarConn::VarConn%varIsConnected</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;none~varisconnected -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;none~varisconnected</title>
+<path fill="none" stroke="#255000" d="M238.17,-460.08C272.09,-462.11 309.21,-464.34 343.62,-466.4"/>
+<polygon fill="#255000" stroke="#255000" points="343.54,-469.9 353.73,-467 343.96,-462.91 343.54,-469.9"/>
+</g>
+<!-- proc~get_child_gridcomp -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node13" class="node">
+<title>proc~get_child_gridcomp</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node13"><a xlink:href=".././proc/get_child_gridcomp.html" xlink:title="MAPL_GenericMod::MAPL_MetaComp%get_child_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="633.5,-444 309.5,-444 309.5,-420 633.5,-420 633.5,-444"/>
+<text text-anchor="middle" x="471.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_MetaComp%get_child_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~get_child_gridcomp -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~get_child_gridcomp</title>
+<path fill="none" stroke="#255000" d="M238.17,-445.92C257.82,-444.74 278.53,-443.5 299.17,-442.27"/>
+<polygon fill="#255000" stroke="#255000" points="299.52,-445.75 309.29,-441.66 299.1,-438.76 299.52,-445.75"/>
+</g>
+<!-- proc~get_num_children~2 -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node14" class="node">
+<title>proc~get_num_children~2</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node14"><a xlink:href=".././proc/get_num_children~2.html" xlink:title="mapl_CompositeComponent::CompositeComponent%get_num_children">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="669,-402 274,-402 274,-378 669,-378 669,-402"/>
+<text text-anchor="middle" x="471.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_CompositeComponent::CompositeComponent%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~get_num_children~2 -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~get_num_children~2</title>
+<path fill="none" stroke="#255000" d="M157.58,-440.94C188.52,-431.45 233.7,-418.6 274,-411 289.43,-408.09 305.61,-405.55 321.8,-403.34"/>
+<polygon fill="#255000" stroke="#255000" points="322.42,-406.79 331.87,-402.01 321.5,-399.85 322.42,-406.79"/>
+</g>
+<!-- proc~mapl_connectivityget -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node15" class="node">
+<title>proc~mapl_connectivityget</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node15"><a xlink:href=".././proc/mapl_connectivityget.html" xlink:title="MAPL_GenericMod::MAPL_ConnectivityGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="590,-360 353,-360 353,-336 590,-336 590,-360"/>
+<text text-anchor="middle" x="471.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_ConnectivityGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_connectivityget -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_connectivityget</title>
+<path fill="none" stroke="#255000" d="M137,-440.77C164.36,-421.8 220.51,-385.72 274,-369 295.85,-362.17 319.66,-357.48 342.92,-354.27"/>
+<polygon fill="#255000" stroke="#255000" points="343.38,-357.74 352.84,-352.98 342.48,-350.79 343.38,-357.74"/>
+</g>
+<!-- proc~mapl_cplcompsetvarspecs -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node16" class="node">
+<title>proc~mapl_cplcompsetvarspecs</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node16"><a xlink:href=".././proc/mapl_cplcompsetvarspecs.html" xlink:title="MAPL_GenericCplCompMod::MAPL_CplCompSetVarSpecs">
+<polygon fill="#d9534f" stroke="#d9534f" points="629.5,-318 313.5,-318 313.5,-294 629.5,-294 629.5,-318"/>
+<text text-anchor="middle" x="471.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericCplCompMod::MAPL_CplCompSetVarSpecs</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_cplcompsetvarspecs -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_cplcompsetvarspecs</title>
+<path fill="none" stroke="#255000" d="M130.07,-440.99C152.7,-414.95 210.58,-353.52 274,-327 283.47,-323.04 293.42,-319.71 303.6,-316.94"/>
+<polygon fill="#255000" stroke="#255000" points="304.59,-320.3 313.42,-314.44 302.86,-313.51 304.59,-320.3"/>
+</g>
+<!-- proc~mapl_gridcompgetvarspecs -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node17" class="node">
+<title>proc~mapl_gridcompgetvarspecs</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node17"><a xlink:href=".././proc/mapl_gridcompgetvarspecs.html" xlink:title="MAPL_GenericMod::MAPL_GridCompGetVarSpecs">
+<polygon fill="#d9534f" stroke="#d9534f" points="608.5,-276 334.5,-276 334.5,-252 608.5,-252 608.5,-276"/>
+<text text-anchor="middle" x="471.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GridCompGetVarSpecs</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_gridcompgetvarspecs -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_gridcompgetvarspecs</title>
+<path fill="none" stroke="#255000" d="M126.73,-440.95C145.32,-408.98 200.89,-321.92 274,-285 289.7,-277.07 306.99,-271.48 324.6,-267.6"/>
+<polygon fill="#255000" stroke="#255000" points="325.3,-271.03 334.41,-265.62 323.92,-264.17 325.3,-271.03"/>
+</g>
+<!-- proc~mapl_internalstateretrieve -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node18" class="node">
+<title>proc~mapl_internalstateretrieve</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node18"><a xlink:href=".././proc/mapl_internalstateretrieve.html" xlink:title="MAPL_GenericMod::MAPL_InternalStateRetrieve">
+<polygon fill="#d9534f" stroke="#d9534f" points="604,-234 339,-234 339,-210 604,-210 604,-234"/>
+<text text-anchor="middle" x="471.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_InternalStateRetrieve</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_internalstateretrieve -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_internalstateretrieve</title>
+<path fill="none" stroke="#255000" d="M124.72,-440.76C139.83,-403.45 190.93,-290.81 274,-243 290.79,-233.34 309.73,-226.91 329.06,-222.77"/>
+<polygon fill="#255000" stroke="#255000" points="329.73,-226.21 338.88,-220.87 328.4,-219.34 329.73,-226.21"/>
+</g>
+<!-- proc~mapl_reconnect -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node19" class="node">
+<title>proc~mapl_reconnect</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node19"><a xlink:href=".././proc/mapl_reconnect.html" xlink:title="MAPL_GenericMod::MAPL_Reconnect">
+<polygon fill="#d9534f" stroke="#d9534f" points="575.5,-192 367.5,-192 367.5,-168 575.5,-168 575.5,-192"/>
+<text text-anchor="middle" x="471.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_Reconnect</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_reconnect -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_reconnect</title>
+<path fill="none" stroke="#255000" d="M123.25,-440.8C135.12,-398.91 180.42,-260.24 274,-201 298.51,-185.49 328.25,-177.93 357.11,-174.77"/>
+<polygon fill="#255000" stroke="#255000" points="357.63,-178.23 367.27,-173.82 356.99,-171.26 357.63,-178.23"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node20" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node20"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="581.5,-150 361.5,-150 361.5,-126 581.5,-126 581.5,-150"/>
+<text text-anchor="middle" x="471.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M122.18,-440.8C131.14,-394.67 169.67,-229.98 274,-159 296.61,-143.62 324.19,-135.78 351.46,-132.28"/>
+<polygon fill="#255000" stroke="#255000" points="351.92,-135.75 361.48,-131.18 351.16,-128.79 351.92,-135.75"/>
+</g>
+<!-- proc~mapl_varspecsameprec -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node21" class="node">
+<title>proc~mapl_varspecsameprec</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node21"><a xlink:href=".././proc/mapl_varspecsameprec.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecSamePrec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="596.5,-108 346.5,-108 346.5,-84 596.5,-84 596.5,-108"/>
+<text text-anchor="middle" x="471.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecSamePrec</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_varspecsameprec -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_varspecsameprec</title>
+<path fill="none" stroke="#255000" d="M121.35,-440.86C127.62,-390.92 158.63,-200.02 274,-117 292.25,-103.86 314.04,-96.08 336.36,-91.76"/>
+<polygon fill="#255000" stroke="#255000" points="337.02,-95.2 346.29,-90.07 335.85,-88.3 337.02,-95.2"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node22" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node22"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="578.5,-66 364.5,-66 364.5,-42 578.5,-42 578.5,-66"/>
+<text text-anchor="middle" x="471.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M120.7,-440.88C124.49,-387.3 147.46,-170.24 274,-75 296.93,-57.74 325.85,-49.52 354.4,-46.27"/>
+<polygon fill="#255000" stroke="#255000" points="354.84,-49.75 364.47,-45.32 354.19,-42.78 354.84,-49.75"/>
+</g>
+<!-- proc~varislisted -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_node23" class="node">
+<title>proc~varislisted</title>
+<g id="a_proc~~mapl_wirecomponent~~CallsGraph_node23"><a xlink:href=".././proc/varislisted.html" xlink:title="mapl_VarConn::VarConn%varIsListed">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="576,-24 367,-24 367,0 576,0 576,-24"/>
+<text text-anchor="middle" x="471.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_VarConn::VarConn%varIsListed</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~varislisted -->
+<g id="proc~~mapl_wirecomponent~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~varislisted</title>
+<path fill="none" stroke="#255000" d="M120.17,-440.75C121.68,-383.48 136.27,-140.54 274,-33 297.38,-14.74 327.39,-6.42 356.88,-3.41"/>
+<polygon fill="#255000" stroke="#255000" points="357.17,-6.9 366.85,-2.59 356.6,0.08 357.17,-6.9"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_wirecomponentCallsGraph = svgPanZoom('#procmapl_wirecomponentCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CallsGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_wirecomponent~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_wirecomponentCalledByGraph" width="641pt" height="157pt"
+ viewBox="0.00 0.00 641.00 157.30" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_wirecomponent~~CalledByGraph" class="graph" transform="scale(1.27 1.27) rotate(0) translate(4 196)">
+<title>proc~~mapl_wirecomponent~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 811,-196 811,4 -4,4"/>
+<!-- proc~mapl_wirecomponent -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_node1" class="node">
+<title>proc~mapl_wirecomponent</title>
+<polygon fill="none" stroke="black" points="807,-108 569,-108 569,-84 807,-84 807,-108"/>
+<text text-anchor="middle" x="688" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GenericMod::MAPL_WireComponent</text>
+</g>
+<!-- proc~mapl_genericsetservices -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_node2" class="node">
+<title>proc~mapl_genericsetservices</title>
+<g id="a_proc~~mapl_wirecomponent~~CalledByGraph_node2"><a xlink:href=".././proc/mapl_genericsetservices.html" xlink:title="MAPL_GenericMod::MAPL_GenericSetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="533,-108 277,-108 277,-84 533,-84 533,-108"/>
+<text text-anchor="middle" x="405" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericSetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericsetservices&#45;&gt;proc~mapl_wirecomponent -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_genericsetservices&#45;&gt;proc~mapl_wirecomponent</title>
+<path fill="none" stroke="#255000" d="M533.35,-96C541.71,-96 550.13,-96 558.5,-96"/>
+<polygon fill="#255000" stroke="#255000" points="558.67,-99.5 568.67,-96 558.67,-92.5 558.67,-99.5"/>
+</g>
+<!-- proc~setservices -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_node3" class="node">
+<title>proc~setservices</title>
+<g id="a_proc~~mapl_wirecomponent~~CalledByGraph_node3"><a xlink:href=".././proc/setservices.html" xlink:title="MAPL_OrbGridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="226.5,-192 14.5,-192 14.5,-168 226.5,-168 226.5,-192"/>
+<text text-anchor="middle" x="120.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices&#45;&gt;proc~mapl_genericsetservices -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_edge2" class="edge">
+<title>proc~setservices&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#255000" d="M202.65,-167.94C215.57,-165.39 228.72,-162.42 241,-159 285.77,-146.54 335.31,-126.44 367.89,-112.3"/>
+<polygon fill="#255000" stroke="#255000" points="369.68,-115.34 377.43,-108.12 366.87,-108.93 369.68,-115.34"/>
+</g>
+<!-- proc~setservices~3 -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_node4" class="node">
+<title>proc~setservices~3</title>
+<g id="a_proc~~mapl_wirecomponent~~CalledByGraph_node4"><a xlink:href=".././proc/setservices~3.html" xlink:title="MAPL_HistoryGridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="235.5,-150 5.5,-150 5.5,-126 235.5,-126 235.5,-150"/>
+<text text-anchor="middle" x="120.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~3&#45;&gt;proc~mapl_genericsetservices -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_edge3" class="edge">
+<title>proc~setservices~3&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#255000" d="M202.45,-125.96C237.03,-120.82 277.54,-114.8 313.13,-109.51"/>
+<polygon fill="#255000" stroke="#255000" points="313.66,-112.97 323.04,-108.04 312.63,-106.05 313.66,-112.97"/>
+</g>
+<!-- proc~setservices~4 -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_node5" class="node">
+<title>proc~setservices~4</title>
+<g id="a_proc~~mapl_wirecomponent~~CalledByGraph_node5"><a xlink:href=".././proc/setservices~4.html" xlink:title="MAPL_ExtDataGridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="238,-108 3,-108 3,-84 238,-84 238,-108"/>
+<text text-anchor="middle" x="120.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~4&#45;&gt;proc~mapl_genericsetservices -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_edge4" class="edge">
+<title>proc~setservices~4&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#255000" d="M238.03,-96C247.41,-96 256.94,-96 266.44,-96"/>
+<polygon fill="#255000" stroke="#255000" points="266.73,-99.5 276.73,-96 266.73,-92.5 266.73,-99.5"/>
+</g>
+<!-- proc~setservices~5 -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_node6" class="node">
+<title>proc~setservices~5</title>
+<g id="a_proc~~mapl_wirecomponent~~CalledByGraph_node6"><a xlink:href=".././proc/setservices~5.html" xlink:title="MAPL_ExtDataGridComp2G::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-66 7,-66 7,-42 234,-42 234,-66"/>
+<text text-anchor="middle" x="120.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~5&#45;&gt;proc~mapl_genericsetservices -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_edge5" class="edge">
+<title>proc~setservices~5&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#255000" d="M202.45,-66.04C237.03,-71.18 277.54,-77.2 313.13,-82.49"/>
+<polygon fill="#255000" stroke="#255000" points="312.63,-85.95 323.04,-83.96 313.66,-79.03 312.63,-85.95"/>
+</g>
+<!-- proc~setservices~7 -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_node7" class="node">
+<title>proc~setservices~7</title>
+<g id="a_proc~~mapl_wirecomponent~~CalledByGraph_node7"><a xlink:href=".././proc/setservices~7.html" xlink:title="ExtDataUtRoot_GridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="241,-24 0,-24 0,0 241,0 241,-24"/>
+<text text-anchor="middle" x="120.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataUtRoot_GridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~7&#45;&gt;proc~mapl_genericsetservices -->
+<g id="proc~~mapl_wirecomponent~~CalledByGraph_edge6" class="edge">
+<title>proc~setservices~7&#45;&gt;proc~mapl_genericsetservices</title>
+<path fill="none" stroke="#255000" d="M202.65,-24.06C215.57,-26.61 228.72,-29.58 241,-33 285.77,-45.46 335.31,-65.56 367.89,-79.7"/>
+<polygon fill="#255000" stroke="#255000" points="366.87,-83.07 377.43,-83.88 369.68,-76.66 366.87,-83.07"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_wirecomponentCalledByGraph = svgPanZoom('#procmapl_wirecomponentCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#CalledByGraph-help-text">Help</a></div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">MAPL_WireComponent</span><span class="p">(</span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! !ARGUMENTS:</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">   </span><span class="k">optional</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">      </span><span class="c">! return code</span>
+
+<span class="w">      </span><span class="c">!=============================================================================</span>
+<span class="w">      </span><span class="c">!</span>
+<span class="w">      </span><span class="c">! ErrLog Variables</span>
+
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span>
+
+<span class="w">      </span><span class="c">! Local types</span>
+<span class="w">      </span><span class="c">! -----------</span>
+
+<span class="w">      </span><span class="k">type </span><span class="n">SpecWrapper</span>
+<span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="p">),</span><span class="w">              </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SPEC</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">end type </span><span class="n">SpecWrapper</span>
+
+<span class="w">      </span><span class="c">! Local variables</span>
+<span class="w">      </span><span class="c">! ---------------</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w">              </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_CplComp</span><span class="p">),</span><span class="w">               </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">CCS</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="p">),</span><span class="w">               </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">IMPORT_SPECS</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="p">),</span><span class="w">               </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPORT_SPECS</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="p">),</span><span class="w">               </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">IM_SPECS</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="p">),</span><span class="w">               </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">EX_SPECS</span><span class="p">(:)</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">SpecWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SRCS</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">SpecWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DSTS</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">SRCNAME</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">DSTNAME</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">SHORT_NAME</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">ENAME</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="n">N</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">NC</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="nb">STAT</span>
+<span class="nb">      </span><span class="kt">logical</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">SATISFIED</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">PARENTIMPORT</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_connected</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_Connectivity</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">conn</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">VarConn</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">CONNECT</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">VarConn</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">DONOTCONN</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<span class="w">      </span><span class="c">! Begin</span>
+
+<span class="w">      </span><span class="c">! Get my name and set-up traceback handle</span>
+<span class="w">      </span><span class="c">! ---------------------------------------</span>
+
+<span class="w">      </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;MAPL_WireComponent&#39;</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">comp_name</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">Iam</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Retrieve the pointer to the child components</span>
+<span class="w">      </span><span class="c">! --------------------------------------------</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_InternalStateRetrieve</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">IMPORT_SPECS</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="k">IMPORT</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span>
+<span class="w">      </span><span class="n">EXPORT_SPECS</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">EXPORT</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span>
+
+<span class="w">      </span><span class="c">! First look for import couplings that are satisfied internally</span>
+<span class="w">      </span><span class="c">! -------------------------------------------------------------</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">MAPL_ConnectivityGet</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">connectivityPtr</span><span class="o">=</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">CONNECT</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">CONN</span><span class="p">%</span><span class="n">CONNECT</span>
+<span class="w">      </span><span class="n">DONOTCONN</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">CONN</span><span class="p">%</span><span class="n">DONOTCONN</span>
+
+<span class="w">      </span><span class="n">NC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">SRCS</span><span class="p">(</span><span class="n">NC</span><span class="p">,</span><span class="n">NC</span><span class="p">),</span><span class="w"> </span><span class="n">DSTS</span><span class="p">(</span><span class="n">NC</span><span class="p">,</span><span class="n">NC</span><span class="p">),</span><span class="w"> </span><span class="err">__</span><span class="n">STAT__</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">DO </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="w">         </span><span class="k">DO </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="w">            </span><span class="k">NULLIFY</span><span class="p">(</span><span class="n">SRCS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)%</span><span class="n">SPEC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">NULLIFY</span><span class="p">(</span><span class="n">DSTS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)%</span><span class="n">SPEC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">END DO</span>
+<span class="k">      END DO</span>
+
+<span class="w">      </span><span class="c">! first check if we need to add Exports from children</span>
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span><span class="w">       </span><span class="c">!  Cycle thru children&#39;s imports</span>
+
+<span class="w">         </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_gridcomp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GridCompGetVarSpecs</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="o">=</span><span class="n">EX_SPECS</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            cycle</span>
+<span class="k">         end if</span>
+
+<span class="k">         do </span><span class="n">K</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">is_connected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">%</span><span class="n">varIsConnected</span><span class="p">(</span><span class="n">IMPORT_NAME</span><span class="o">=</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">export</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="o">=</span><span class="n">MAPL_Self</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_connected</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">MAPL_VarSpecAddRefToList</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">EX_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_DuplicateEntry</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">else</span>
+<span class="k">                  </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;ERROR: duplicate entry for &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">short_name</span><span class="p">))</span>
+<span class="w">               </span><span class="k">endif</span>
+<span class="k">            end if</span>
+<span class="k">         end do</span>
+
+<span class="k">      end do</span>
+
+<span class="w">      </span><span class="c">! try to satisfy imports internally</span>
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span><span class="w">       </span><span class="c">!  Cycle thru children&#39;s imports</span>
+
+<span class="w">         </span><span class="c">! check &quot;do not connect&quot; list for</span>
+<span class="w">         </span><span class="n">PARENTIMPORT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">DONOTCONN</span><span class="p">%</span><span class="n">varIsListed</span><span class="p">(</span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="s2">&quot;MAPL_AnyChildImport&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="k">IMPORT</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="n">PARENTIMPORT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">         </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_gridcomp</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GridCompGetVarSpecs</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="k">IMPORT</span><span class="o">=</span><span class="n">IM_SPECS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">IM_SPECS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            cycle</span>
+<span class="k">         end if</span>
+
+<span class="k">         do </span><span class="n">K</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">IM_SPECS</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="nb">STAT</span><span class="o">=</span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! do not connect Friendly bundles</span>
+<span class="cp">#if 0</span>
+<span class="w">            </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="nb">IAND</span><span class="p">(</span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL_BundleItem</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               cycle</span>
+<span class="k">            end if</span>
+<span class="cp">#endif</span>
+
+<span class="w">            </span><span class="c">! check &quot;do not connect&quot; list</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">DONOTCONN</span><span class="p">%</span><span class="n">varIsListed</span><span class="p">(</span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="k">IMPORT</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">cycle</span>
+<span class="k">            end if</span>
+<span class="k">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">!  Cycle thru all exports</span>
+<span class="w">            </span><span class="c">!------------------------</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">SATISFIED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">            </span><span class="k">do </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="w">               </span><span class="k">if</span><span class="p">(</span><span class="n">I</span><span class="o">==</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="w">               </span><span class="c">! then check if this is internally satisfied</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">connect</span><span class="p">%</span><span class="n">varIsConnected</span><span class="p">(</span><span class="n">IMPORT_NAME</span><span class="o">=</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">IMPORT</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="o">=</span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">SATISFIED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                  </span><span class="nb">STAT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ior</span><span class="p">(</span><span class="nb">STAT</span><span class="p">,</span><span class="n">MAPL_CplSATISFIED</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">call </span><span class="n">MAPL_VarSpecSet</span><span class="p">(</span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">exit</span>
+<span class="k">               end if</span>
+<span class="k">            end do</span>
+
+<span class="k">            do </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="w">               </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_gridcomp</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_GridCompGetVarSpecs</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="o">=</span><span class="n">EX_SPECS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! Trying to satisfy I&#39;s imports from J&#39;s exports</span>
+<span class="w">               </span><span class="c">! ----------------------------------------------</span>
+
+
+<span class="w">               </span><span class="c">! then check if this is internally satisfied</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">connect</span><span class="p">%</span><span class="n">varIsConnected</span><span class="p">(</span><span class="n">IMPORT_NAME</span><span class="o">=</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT_NAME</span><span class="o">=</span><span class="n">ENAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">IMPORT</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="o">=</span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="w">                  </span><span class="c">! If a match is found, add it to that coupler&#39;s src and dst specs</span>
+<span class="w">                  </span><span class="c">! ?? Mark the import satisfied and the export needed.</span>
+<span class="w">                  </span><span class="c">! -----------------------------------------------------------------</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">,</span><span class="n">ENAME</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">if</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">else</span>
+<span class="k">                     print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;ERROR: cannot find export &#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">ENAME</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">endif</span>
+<span class="w">                  </span><span class="c">!ALT: currently the function comparing the SPECS assumes SAME names;</span>
+<span class="w">                  </span><span class="c">!     so we temporarily change the SHORT_NAME, and restore the name after comparison</span>
+<span class="w">                  </span><span class="k">call </span><span class="n">MAPL_VarSpecSet</span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">(</span><span class="n">N</span><span class="p">),</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     call </span><span class="n">MAPL_VarSpecSet</span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">(</span><span class="n">N</span><span class="p">),</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="n">ENAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="c">! this a direct connection</span>
+<span class="w">                     </span><span class="c">! SPECS are the same, no additional averaging is needed</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">MAPL_Reconnect</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_gridcomp</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">MAPL_Import</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_gridcomp</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="n">MAPL_Export</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                  </span><span class="k">else</span>
+<span class="k">                     </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">MAPL_VarSpecSamePrec</span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">(</span><span class="n">N</span><span class="p">),</span><span class="w"> </span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">)),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">MAPL_VarSpecSet</span><span class="p">(</span><span class="n">EX_SPECS</span><span class="p">(</span><span class="n">N</span><span class="p">),</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="n">ENAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="c">! coupler is needed</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">MAPL_VarSpecAddRefToList</span><span class="p">(</span><span class="n">DSTS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)%</span><span class="n">SPEC</span><span class="p">,</span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                     </span><span class="k">call </span><span class="n">MAPL_VarSpecAddRefToList</span><span class="p">(</span><span class="n">SRCS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)%</span><span class="n">SPEC</span><span class="p">,</span><span class="n">EX_SPECS</span><span class="p">(</span><span class="n">N</span><span class="p">),</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">end if</span>
+
+<span class="k">               else</span>
+<span class="w">                  </span><span class="c">! Imports that are not internally satisfied have their specs put in the GC&#39;s</span>
+<span class="w">                  </span><span class="c">! import spec to be externally satisfied.  Their status is left unaltered.</span>
+<span class="w">                  </span><span class="c">! --------------------------------------------------------------------------</span>
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">SATISFIED</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">PARENTIMPORT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">iand</span><span class="p">(</span><span class="nb">STAT</span><span class="p">,</span><span class="n">MAPL_CplSATISFIED</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                        cycle</span>
+<span class="k">                     end if</span>
+<span class="k">                     call </span><span class="n">MAPL_VarSpecAddRefToList</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="k">IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_DuplicateEntry</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">else</span>
+
+<span class="k">                        </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="k">IMPORT</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">,</span><span class="w"> </span><span class="n">IM_SPECS</span><span class="p">(</span><span class="n">K</span><span class="p">),</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                        </span><span class="k">if</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                        </span><span class="k">else</span>
+<span class="k">                           </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">                        </span><span class="k">endif</span>
+
+<span class="k">                        call </span><span class="n">MAPL_Reconnect</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL_Import</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_gridcomp</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">MAPL_Import</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">end if</span>
+<span class="k">                  endif</span>
+<span class="k">               end if</span>
+<span class="k">            enddo</span>
+<span class="k">         enddo</span>
+<span class="k">      enddo</span>
+
+<span class="k">      allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">CCS</span><span class="p">(</span><span class="n">NC</span><span class="p">,</span><span class="n">NC</span><span class="p">),</span><span class="nb">STAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">CIM</span><span class="p">(</span><span class="n">NC</span><span class="p">,</span><span class="n">NC</span><span class="p">),</span><span class="nb">STAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">CEX</span><span class="p">(</span><span class="n">NC</span><span class="p">,</span><span class="n">NC</span><span class="p">),</span><span class="nb">STAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">CCcreated</span><span class="p">(</span><span class="n">NC</span><span class="p">,</span><span class="n">NC</span><span class="p">),</span><span class="nb">STAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">STATE</span><span class="p">%</span><span class="n">CCcreated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+
+<span class="w">      </span><span class="n">CCS</span><span class="w">          </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">CCS</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="w">         </span><span class="k">do </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">DSTS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)%</span><span class="n">SPEC</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               if</span><span class="p">(</span><span class="n">I</span><span class="o">/=</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_gridcomp</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">SRCNAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                  </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_gridcomp</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">DSTNAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                  </span><span class="n">CCS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_CplCompCreate</span><span class="w"> </span><span class="p">(</span><span class="w">                        </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">NAME</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">SRCNAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_2_&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">DSTNAME</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                </span><span class="c">!                     LAYOUT     = STATE%GRID%LAYOUT,                   &amp;</span>
+<span class="w">                       </span><span class="n">contextFlag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_CONTEXT_PARENT_VM</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">CONFIG</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">CF</span><span class="p">,</span><span class="w">                  </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                  </span><span class="c">!                STATE%CIM(J,I) = ESMF_StateCreate (     &amp;</span>
+<span class="w">                  </span><span class="c">!                     STATENAME = trim(SRCNAME)//&#39;_2_&#39;//trim(DSTNAME) // &#39;_Imports&#39;, &amp;</span>
+<span class="w">                  </span><span class="c">!                     STATETYPE = ESMF_STATEEXPORT,               &amp;</span>
+<span class="w">                  </span><span class="c">!                     RC=status )</span>
+<span class="w">                  </span><span class="c">!                _VERIFY(status)</span>
+
+<span class="w">                  </span><span class="c">!                STATE%CEX(J,I) = ESMF_StateCreate (     &amp;</span>
+<span class="w">                  </span><span class="c">!                     STATENAME = trim(SRCNAME)//&#39;_2_&#39;//trim(DSTNAME) // &#39;_Exports&#39;, &amp;</span>
+<span class="w">                  </span><span class="c">!                     STATETYPE = ESMF_STATEEXPORT,               &amp;</span>
+<span class="w">                  </span><span class="c">!                     RC=status )</span>
+<span class="w">                  </span><span class="c">!                _VERIFY(status)</span>
+
+<span class="w">                  </span><span class="n">STATE</span><span class="p">%</span><span class="n">CCcreated</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+
+<span class="w">                  </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">CCS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ClockYetToAdvance&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">call </span><span class="n">WRITE_PARALLEL</span><span class="p">(</span><span class="s2">&quot;Coupler needed for &quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">SRCNAME</span><span class="p">)</span><span class="o">//</span><span class="w"> </span><span class="s1">&#39; and &#39;</span><span class="w"> </span><span class="o">//</span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="nb">trim</span><span class="p">(</span><span class="n">DSTNAME</span><span class="p">))</span>
+<span class="w">                  </span><span class="k">call </span><span class="n">ESMF_CplCompSetServices</span><span class="w"> </span><span class="p">(</span><span class="n">CCS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">GenericCplSetServices</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                  </span><span class="k">call </span><span class="n">MAPL_CplCompSetVarSpecs</span><span class="p">(</span><span class="n">CCS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">),</span><span class="n">SRCS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)%</span><span class="n">SPEC</span><span class="p">,</span><span class="n">DSTS</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">I</span><span class="p">)%</span><span class="n">SPEC</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">endif</span>
+<span class="k">            endif</span>
+<span class="k">         enddo</span>
+<span class="k">      enddo</span>
+
+
+<span class="w">      </span><span class="c">! Add my children&#39;s exports specs to mine</span>
+<span class="w">      </span><span class="c">! ---------------------------------------</span>
+
+<span class="w">      </span><span class="c">! currently disabled (they will be explicitly added to the EXPORT as nested)</span>
+<span class="w">      </span><span class="c">!    call MAPL_StateAddExportSpecFrmAll ( STATE, RC=status  )</span>
+<span class="w">      </span><span class="c">!    _VERIFY(status)</span>
+
+
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">SRCS</span><span class="p">,</span><span class="w"> </span><span class="n">DSTS</span><span class="p">,</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Wire my children</span>
+<span class="w">      </span><span class="c">! ---------------------------------------</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="c">!ALT      call MAPL_WireComponent(GCS(I), RC=status)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_WireComponent</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-21T14:39:11.827394             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
