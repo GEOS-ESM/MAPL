@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
 - Station sampler: add support to Global Historical Climatology Network Daily (GHCN-D)
 - Add to trajectory sampler DEFINE_OBS_PLATFORM for reading multiple IODA files. To do this, we add union_platform function for observation.
 - New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool.
