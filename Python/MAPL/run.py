@@ -5,7 +5,7 @@ experiment, whichever is sooner.)
 
 """
 
-from job import Job
+from .job import Job
 
 class Run(Job):
 

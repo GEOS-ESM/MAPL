@@ -2,7 +2,7 @@
 A special class for handling history resources.
 """
 
-from config import *
+from .config import *
 
 class History(Config):
 
@@ -35,15 +35,14 @@ class History(Config):
         *.temkplate resources.
         """
         dict = self.regex('template$')
-        Tmpl = [str.replace("'","").replace(",","") for str in dict.values()]
-        Coll = [ str.split('.')[0].replace(",","")  for str in dict.keys()  ]
+        Tmpl = [str.replace("'","").replace(",","") for str in list(dict.values())]
+        Coll = [ str.split('.')[0].replace(",","")  for str in list(dict.keys())  ]
         Arch = [str.replace("'","").replace(",","") \
-                for str in self.regex('archive$').values()]
+                for str in list(self.regex('archive$').values())]
 
         if len(Tmpl) != len(Arch):
-            raise IOError,\
-            "There are %d template resources but only %d archive resources."\
-            %(len(Tmpl),len(Arch))
+            raise IOError("There are %d template resources but only %d archive resources."\
+            %(len(Tmpl),len(Arch)))
 
         header = '# PESTO resource for History Collections ' + \
                  '(automatically generated - do not edit)'
