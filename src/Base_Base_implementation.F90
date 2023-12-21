@@ -3210,7 +3210,7 @@ contains
        type(ESMF_Grid), intent(inout) :: grid
        logical :: OK
        integer :: I1, I2, J1, J2, j
-       real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
+       real(ESMF_KIND_R8), pointer :: corner_lons(:,:), corner_lats(:,:)
        real(ESMF_KIND_R8) :: accurate_lat, accurate_lon
        real :: tolerance
 
@@ -3218,9 +3218,11 @@ contains
        call MAPL_GridGetInterior(grid,I1,I2,J1,J2)
        OK = .true.
        ! check the edge of face 1 along longitude
-       allocate(corner_lons(I2-I1+2, J2-J1+2))
-       allocate(corner_lats(I2-I1+2, J2-J1+2))
-       call MAPL_GridGetCorners(Grid,corner_lons,corner_lats)
+       call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
+            farrayPtr=corner_lons, rc=status)
+       call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
+            farrayPtr=corner_lats, rc=status)
+
        if ( I1 ==1 .and. J2<=IM_WORLD ) then
           if (J1 == 1) then
             accurate_lon = 1.750d0*MAPL_PI_R8 - shift
@@ -3233,7 +3235,7 @@ contains
             endif
           endif
 
-          do j = J1, J2+1
+          do j = J1+1, J2
              accurate_lat = -alpha + (j-1)*dalpha
              if ( abs(accurate_lat - corner_lats(1,j-J1+1)) > 5.0*tolerance) then
                 print*, "accurate_lat: ", accurate_lat

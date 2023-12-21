@@ -169,7 +169,7 @@ contains
             dx    = Xout(j_out+1)-Xin(j1)
             ff    = ff + dx
             b(j1) = dx
-            b     = b/ff
+            b(:)     = b(:)/ff
          end if
          
        end associate

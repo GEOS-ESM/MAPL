@@ -58,6 +58,8 @@
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
+  use MAPL_EpochSwathMod
+
   use pflogger, only: Logger, logging
   use mpi
 
@@ -142,6 +144,8 @@
   integer, parameter :: MAPL_T2G2G = 3
 
   public HISTORY_ExchangeListWrap
+
+  type(samplerHQ) :: Hsampler
 
 contains
 
@@ -484,7 +488,6 @@ contains
 ! Read User-Supplied History Lists from Config File
 ! -------------------------------------------------
     call ESMF_GridCompGet( gc, config=config, _RC )
-
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expsrc, &
                                    label ='EXPSRC:', default='', _RC )
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expid, &
@@ -577,7 +580,6 @@ contains
           end if
           call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
     enddo
-
     if (nlist == 0) then
        _RETURN(ESMF_SUCCESS)
     end if
@@ -614,13 +616,18 @@ contains
                 call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
                 call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
              end if
-             output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
+
+             if (trim(grid_type)/='Swath') then
+                output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
+             else
+                Hsampler = samplerHQ(clock, config, key, _RC)
+                output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
+             end if
              call IntState%output_grids%set(key, output_grid)
              call iter%next()
           end do
        end block OUTPUT_GRIDS
     end if
-
     if (intstate%version >= 2) then
        call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
        table_end = .false.
@@ -634,7 +641,7 @@ contains
           end if
           call ESMF_ConfigNextLine     ( config,tableEnd=table_end,_RC )
        enddo
-
+       
        field_set_iter = intState%field_sets%begin()
        do while (field_set_iter /= intState%field_sets%end())
           key => field_set_iter%key()
@@ -645,7 +652,6 @@ contains
 
     end if
 
-
     allocate(IntState%Regrid(nlist), _STAT)
     allocate(          Vvarn(nlist), _STAT)
     allocate(INTSTATE%STAMPOFFSET(nlist), _STAT)
@@ -654,17 +660,14 @@ contains
 ! ----------------------------------------------------------------------------
 
     if( MAPL_AM_I_ROOT(vm) ) then
-
        call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
             label="HIST_CF:", default="HIST.rc", _RC )
        unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
-
 !       for each collection
        do n = 1, nlist
          rewind(unitr)
          string = trim( list(n)%collection ) // '.'
          unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
-
          match = .false.
          contLine = .false.
          con3 = .false.
@@ -698,7 +701,12 @@ contains
 
     end if
 
-
+! Overwrite the above process if HISTORY.rc encounters DEFINE_OBS_PLATFORM for OSSE
+! ----------------------------------------------------------------------------
+    if( MAPL_AM_I_ROOT(vm) ) then
+       call regen_rcx_for_obs_platform (config, nlist, list, _RC)
+    end if
+       
     call ESMF_VMbarrier(vm, _RC)
 
 ! Initialize History Lists
@@ -878,6 +886,8 @@ contains
             label=trim(string) // 'sampler_spec:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationSkipLine, default=0, &
+            label=trim(string) // 'station_skip_line:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
@@ -886,8 +896,6 @@ contains
              list(n)%timeseries_output = .true.
           endif
        endif
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
-                                    label=trim(string) // 'recycle_track:', _RC)
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -1379,7 +1387,6 @@ contains
           end if
        enddo
     enddo
-
 ! Get Output Export States
 ! ------------------------
 
@@ -2364,6 +2371,16 @@ ENDDO PARSER
           else
              list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
           end if
+          if (trim(list(n)%output_grid_label)=='SwathGrid') then
+             call list(n)%xsampler%set_param(deflation=list(n)%deflate,_RC)
+             call list(n)%xsampler%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
+             call list(n)%xsampler%set_param(quantize_level=list(n)%quantize_level,_RC)
+             call list(n)%xsampler%set_param(chunking=list(n)%chunkSize,_RC)
+             call list(n)%xsampler%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
+             call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
+             call list(n)%xsampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+          endif
+
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
           call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
           call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
@@ -2371,30 +2388,36 @@ ENDDO PARSER
           call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
           call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
           call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+
           if (list(n)%monthly) then
-               nextMonth = currTime - oneMonth
-               dur = nextMonth - currTime
-               call ESMF_TimeIntervalGet(dur, s=sec, _RC)
+             nextMonth = currTime - oneMonth
+             dur = nextMonth - currTime
+             call ESMF_TimeIntervalGet(dur, s=sec, _RC)
              list(n)%timeInfo = TimeData(clock,tm,sec,IntState%stampoffset(n),funits='days')
           else
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
-             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+             call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           elseif (list(n)%sampler_spec == 'station') then
-             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
+             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-             if (trim(list(n)%output_grid_label)/='') then
+             if (trim(list(n)%output_grid_label)=='SwathGrid') then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
              else
-                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
-             end if
-             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
-             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+                if (trim(list(n)%output_grid_label)/='') then
+                   pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+                   call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                else
+                   call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                end if
+                collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
+                call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+             endif
           end if
        end if
        call ESMF_ConfigDestroy(cfg, _RC)
@@ -3222,7 +3245,15 @@ ENDDO PARSER
     type(ESMF_Time)                :: lastMonth
     type(ESMF_TimeInterval)        :: dur, oneMonth
     integer                        :: sec
+    type (StringGridMap)           :: pt_output_grids
+    character(len=ESMF_MAXSTR)     :: key_grid_label
+    type (ESMF_Grid), pointer      :: pgrid
 
+    integer :: collection_id
+    integer :: create_mode
+    type(StringStringMap) :: global_attributes
+    type(timeData) :: timeinfo_uninit
+    type(ESMF_Grid) :: new_grid
 !   variables for "backwards" mode
     logical                        :: fwd
     logical, allocatable           :: Ignore(:)
@@ -3230,12 +3261,13 @@ ENDDO PARSER
 !   ErrLog vars
     integer                        :: status
     logical                        :: file_exists
+    type(GriddedIOitem) :: item
+
     type(Logger), pointer          :: lgr
 
 !=============================================================================
 
 ! Begin...
-
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
 
@@ -3339,6 +3371,8 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
+      else if (trim(list(n)%output_grid_label)=='SwathGrid') then
+         Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
       endif
@@ -3379,7 +3413,40 @@ ENDDO PARSER
 
    end do
 
+
    if(any(Writing)) call WRITE_PARALLEL("")
+
+
+  ! swath only
+   epoch_swath_grid_case: do n=1,nlist
+      if (trim(list(n)%output_grid_label)=='SwathGrid') then
+         call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
+
+         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+            create_mode = PFIO_NOCLOBBER ! defaut no overwrite
+            if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
+
+            ! add time to items
+            ! true metadata comes here from mGriddedIO%metadata
+            ! the mGriddedIO below only touches metadata, collection_id etc., it is safe.
+            !
+            if (.NOT. list(n)%xsampler%have_initalized) then
+               list(n)%xsampler%have_initalized = .true.
+               global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+            endif
+            item%itemType = ItemTypeScalar
+            item%xname = 'time'
+            call list(n)%items%push_back(item)
+            call Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
+            call list(n)%mGriddedIO%destroy(_RC)
+            call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            call list(n)%items%pop_back()
+
+            collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
+            call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+         endif
+      end if
+   end do epoch_swath_grid_case
 
 ! Write Id and time
 ! -----------------
@@ -3410,21 +3477,9 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
-!         write(6,'(a)') 'bf fill_grads_template'
-!         write(6,'(10a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
-!         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
-!         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
-
-
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
-
-!         write(6,'(a)') 'af fill_grads_template'
-!         write(6,'(a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
-!         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
-!         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
-
 
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'
@@ -3457,7 +3512,7 @@ ENDDO PARSER
             end if
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then
-               if (mapl_am_i_root()) call lgr%debug('%a %a',&
+               call lgr%debug('%a %a',&
                     "Station_data output to new file:",trim(filename(n)))
                call list(n)%station_sampler%close_file_handle(_RC)
                call list(n)%station_sampler%create_file_handle(filename(n),_RC)
@@ -3471,7 +3526,9 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
+                  if (trim(list(n)%output_grid_label)/='SwathGrid') then
+                     call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
+                  endif
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                else
@@ -3490,6 +3547,7 @@ ENDDO PARSER
 !
    enddo OPENLOOP
    call MAPL_TimerOff(GENSTATE,"----IO Create")
+
 
    call MAPL_TimerOn(GENSTATE,"----IO Write")
    call MAPL_TimerOn(GENSTATE,"-----IO Post")
@@ -3542,11 +3600,9 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         if (.not.list(n)%timeseries_output) then
+         if (.not.list(n)%timeseries_output .AND. list(n)%sampler_spec /= 'station') then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
-
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
-
             else
 
                if( INTSTATE%LCTL(n) ) then
@@ -3568,6 +3624,11 @@ ENDDO PARSER
             end if IOTYPE
          end if
 
+         if (list(n)%sampler_spec == 'station') then
+            call ESMF_ClockGet(clock,currTime=current_time,_RC)
+            call list(n)%station_sampler%append_file(current_time,_RC)
+         endif
+
       endif OUTTIME
 
       if( NewSeg(n) .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
@@ -3579,6 +3640,7 @@ ENDDO PARSER
 
    enddo POSTLOOP
 
+
    if (any(writing)) then
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
@@ -3588,6 +3650,23 @@ ENDDO PARSER
 
    call MAPL_TimerOn(GENSTATE,"----IO Write")
    call MAPL_TimerOn(GENSTATE,"-----IO Wait")
+
+
+  ! destroy ogrid/RH/acc_bundle, regenerate them
+  ! swath only
+   epoch_swath_regen_grid: do n=1,nlist
+      if (trim(list(n)%output_grid_label)=='SwathGrid') then
+         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+            key_grid_label = list(n)%output_grid_label
+            call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
+            pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+            call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
+                 vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            if( MAPL_AM_I_ROOT() )  write(6,'(//)')
+         endif
+      end if
+   end do epoch_swath_regen_grid
+
 
    WAITLOOP: do n=1,nlist
 
@@ -3614,10 +3693,6 @@ ENDDO PARSER
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
       end if
-      if (list(n)%sampler_spec == 'station') then
-         call ESMF_ClockGet(clock,currTime=current_time,_RC)
-         call list(n)%station_sampler%append_file(current_time,_RC)
-      endif
 
       if( Writing(n) .and. list(n)%unit < 0) then
 
@@ -5165,6 +5240,310 @@ ENDDO PARSER
      end if
      _RETURN(_SUCCESS)
   end function
+  
+  
+  ! __ read data to object: obs_platform
+  ! __ for each collection: find union fields, write to collection.rcx
+  !
+  subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
+    use  MAPL_scan_pattern_in_file
+    use MAPL_ObsUtilMod, only : obs_platform, union_platform
+    !
+    !  Plan:
+    !- read and write  schema
+    !- extract union of field lines, print out to rc    
+    type(ESMF_Config), intent(inout)       :: config
+    integer, intent(in)                    :: nlist
+    type(HistoryCollection), pointer       :: list(:)
+    integer, intent(inout), optional :: rc
+
+    character(len=ESMF_MAXSTR) :: HIST_CF
+    integer :: n, unitr, unitw
+    logical :: match, contLine, con3
+    integer :: status
+
+    character (len=ESMF_MAXSTR) :: fname
+    character (len=ESMF_MAXSTR) :: marker
+    character (len=ESMF_MAXSTR) :: line, line2
+    character (len=ESMF_MAXSTR) :: string
+    character (len=ESMF_MAXSTR), allocatable :: str_piece(:)  
+    type(obs_platform), allocatable :: PLFS(:)
+    type(obs_platform) :: p1
+    integer :: k, i, j
+    integer :: ios, ngeoval, count, nplf
+    integer :: length_mx
+    integer :: mxseg
+    integer :: nseg
+    integer :: nfield, nplatform
+    integer :: nentry_name
+    logical :: obs_flag
+    integer, allocatable :: map(:)
+    type(Logger), pointer          :: lgr
+
+    lgr => logging%get_logger('HISTORY.sampler')
+
+    !
+    ! -- note: work on HEAD node
+    !
+    call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
+         label="HIST_CF:", default="HIST.rc", _RC )
+    unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
+    
+    call scan_count_match_bgn (unitr, 'PLATFORM.', count, .false.)
+    rewind(unitr)
+    call lgr%debug('%a %i8','count PLATFORM.', count)
+    if (count==0) then
+       rc = 0
+       return
+    endif
+    nplf = count
+    allocate (PLFS(nplf))
+    allocate (map(nplf))
+    
+    ! __ s1. scan get  platform name + nc_index/lat/lon/time
+    do k=1, count
+       call scan_begin(unitr, 'PLATFORM.', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, '.')
+       j=index(line, ':')
+       _ASSERT(i>1 .AND. j>1, 'keyword PLATFORM.X is not found')
+       PLFS(k)%name = line(i+1:j-1)
+       marker=line(1:j)
+
+       call lgr%debug('%a %a', 'marker=', trim(marker))
+       call scan_contain(unitr, marker, .true.)
+       call scan_contain(unitr, 'index:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%nc_index = trim(line(i+1:))
+
+       call scan_contain(unitr, marker, .true.)
+       call scan_contain(unitr, 'longitude:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%nc_lon = trim(line(i+1:))
+       
+       call scan_contain(unitr, marker, .true.)     
+       call scan_contain(unitr, 'latitude:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%nc_lat = trim(line(i+1:))
+
+       call scan_contain(unitr, marker, .true.)     
+       call scan_contain(unitr, 'time:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%nc_time = trim(line(i+1:))
+
+       call scan_contain(unitr, marker, .true.)     
+       call scan_contain(unitr, 'file_name_template:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%file_name_template = trim(line(i+1:))     
+
+       call lgr%debug('%a %a %a %a %a', &
+            trim( PLFS(k)%name ), &
+            trim( PLFS(k)%nc_lon ), &
+            trim( PLFS(k)%nc_lat ), &
+            trim( PLFS(k)%nc_time ), &
+            trim( PLFS(k)%file_name_template ) )
+
+    end do
 
 
+    ! __ s2.1 scan fields: get ngeoval / nentry_name = nword
+    length_mx = ESMF_MAXSTR
+    mxseg = 10 
+    allocate (str_piece(mxseg))
+    rewind(unitr)
+    do k=1, count
+       call scan_begin(unitr, 'PLATFORM.', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, 'PLATFORM.')
+       j=index(line, ':')
+       marker=line(1:j)
+       call scan_begin(unitr, marker, .true.)     
+       call scan_contain(unitr, 'geovals_fields:', .false.)
+       ios=0
+       ngeoval=0
+       do while (ios == 0)
+          read (unitr, '(A)' ) line
+          i=index(line, '::')
+          if (i==0) then
+             ngeoval = ngeoval + 1
+             call  split_string_by_space (line, length_mx, mxseg, &
+                  nseg, str_piece, status)
+          else
+             exit
+          endif
+       enddo
+       PLFS(k)%ngeoval = ngeoval
+       PLFS(k)%nentry_name = nseg
+!!       call lgr%debug('%a %i','ngeoval=', ngeoval)
+
+       allocate ( PLFS(k)%field_name (nseg, ngeoval) )
+       nentry_name = nseg   ! assume the same for each field_name
+    end do
+
+
+    ! __ s2.2 scan fields: get splitted PLFS(k)%field_name
+    rewind(unitr)
+    do k=1, count
+       call scan_begin(unitr, 'PLATFORM.', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, 'PLATFORM.')
+       j=index(line, ':')
+       marker=line(1:j)
+       !
+       call scan_begin(unitr, marker, .true.)     
+       call scan_contain(unitr, 'geovals_fields:', .false.)
+       ios=0
+       ngeoval=0
+       do while (ios == 0)
+          read (unitr, '(A)' ) line
+          i=index(line, '::')
+          if (i==0) then
+             ngeoval = ngeoval + 1
+             call  split_string_by_space (line, length_mx, mxseg, &
+                  nseg, str_piece, status)
+             PLFS(k)%field_name (1:nseg, ngeoval) = str_piece(1:nseg)
+          else
+             exit
+          endif
+       enddo
+    end do
+    deallocate(str_piece)
+    rewind(unitr)
+    
+    !!do k=1, nplf
+    !!   do i=1, ngeoval
+    !!      write(6,*) 'PLFS(k)%field_name (1:nseg, ngeoval)=', PLFS(k)%field_name (1:nseg,i)
+    !!   enddo
+    !!enddo
+    !!write(6,*) 'nlist=', nlist
+
+
+    ! __ s3: Add more entry:  'obs_files:' and 'fields:' to rcx
+    !  for each collection
+    obs_flag=.false.
+    do n = 1, nlist
+       rewind(unitr)
+       string = trim( list(n)%collection ) // '.'
+       unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
+       match = .false.
+       contLine = .false.
+       obs_flag = .false.
+       do while (.true.)
+          read(unitr, '(A)', end=1236) line
+          j = index( adjustl(line), trim(adjustl(string)) )
+          match = (j == 1)
+          if (match) then
+             j = index(line, trim(string)//'fields:')
+             contLine = (j > 0)
+          end if
+          if (match .or. contLine) then
+             write(unitw,'(A)') trim(line)
+          end if
+          if (contLine) then
+             if (adjustl(line) == '::') contLine = .false.
+          end if
+          if ( index(line, trim(string)//'ObsPlatforms:') > 0 ) then
+             obs_flag =.true.
+             line2 = line
+          endif
+       end do
+1236   continue
+
+       if (obs_flag) then
+
+          ! __ write common nc_index,time,lon,lat
+          k=1   ! plat form # 1
+          write(unitw, '(2(2x,a))') trim(string)//'nc_Index:    ', trim(adjustl(PLFS(k)%nc_index))
+          write(unitw, '(2(2x,a))') trim(string)//'nc_Time:     ', trim(adjustl(PLFS(k)%nc_time))
+          write(unitw, '(2(2x,a))') trim(string)//'nc_Longitude:', trim(adjustl(PLFS(k)%nc_lon))
+          write(unitw, '(2(2x,a))') trim(string)//'nc_Latitude: ', trim(adjustl(PLFS(k)%nc_lat))
+          write(unitw, '(/)')
+
+          length_mx = ESMF_MAXSTR
+          mxseg = 100
+          allocate (str_piece(mxseg))
+          i = index(line2, ':')
+          line = adjustl ( line2(i+1:) )
+          call split_string_by_space (line, length_mx, mxseg, &
+               nplatform, str_piece, status)          
+!          write(6,*) 'nplatform=', nplatform
+!          write(6,*) 'str_piece=', str_piece(1:nplatform)
+!          do j=1, nplf
+!             write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
+!          enddo
+
+          !
+          !   a) union the platform
+          !
+          !
+          ! find the index for each str_piece
+          map(:) = -1
+          do i=1, nplatform  ! loc collection
+             do j=1, nplf    ! tot
+                if ( trim(str_piece(i)) == trim( PLFS(j)%name ) ) then
+                   map(i)=j
+                end if
+             end do
+          end do
+          deallocate(str_piece)
+
+          !!write(6,*) 'map(:)=', map(:)
+          do i=1, nplatform
+             k=map(i)
+             if (i==1) then
+                p1 = PLFS(k)
+             else
+                p1 = union_platform(p1, PLFS(k), _RC)
+             end if
+          end do
+
+          nfield = p1%ngeoval
+          nentry_name = p1%nentry_name
+          do j=1, nfield
+             line=''
+             do i=1, nentry_name
+                line = trim(line)//' '//trim(p1%field_name(i,j))
+             enddo
+              if (j==1) then
+                write(unitw, '(10(2x,a))') trim(string)//'fields:', trim(line)
+             else
+                write(unitw, '(12x,a)') trim(line)                
+             end if
+          end do
+          write(unitw,'(a,/)') '::'
+          write(unitw,'(a)') 'geovals.obs_files:     # table start from next line'
+
+          do k=1, nplatform
+             write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
+             do j=1, PLFS(k)%ngeoval
+                line=''
+                do i=1, nentry_name
+                   line = trim(line)//' '//trim(adjustl(PLFS(k)%field_name(i,j)))
+                enddo
+                write(unitw, '(a)') trim(adjustl(line))
+             enddo
+             write(unitw, '(20a)') (('-'), j=1,20)
+          enddo
+          write(unitw,'(a)') '::'
+       end if
+       call free_file(unitw, _RC)
+    end do
+    call free_file(unitr, _RC)
+
+  end subroutine regen_rcx_for_obs_platform
+
+      
 end module MAPL_HistoryGridCompMod
