@@ -435,21 +435,22 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror
+      integer :: ierror, status
       integer :: provided
       integer :: npes_world
 
       _UNUSED_DUMMY(unusable)
 
-      call MPI_Initialized(this%mpi_already_initialized, ierror)
-      _VERIFY(ierror)
+      !call MPI_Initialized(this%mpi_already_initialized, ierror)
+      !_VERIFY(ierror)
+      call  ESMF_InitializePreMPI(_RC)
 
       if (.not. this%mpi_already_initialized) then
-!!$         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
-!!$         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supporte by this MPI.')
-         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
-         _VERIFY(ierror)
-         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
+         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
+         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
+!         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
+!         _VERIFY(ierror)
+!         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
       end if
 
       call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)
