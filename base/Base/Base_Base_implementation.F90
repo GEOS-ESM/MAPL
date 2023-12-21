@@ -338,7 +338,7 @@ contains
           call ESMF_FieldGet(FIELD, farrayPtr=VR8_4D, _RC)
           VR8_4D = INIT_VALUE
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL('only up to 4D are supported')
           end select
        end if
 
