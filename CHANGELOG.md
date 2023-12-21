@@ -24,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_env v4.24.0 (Baselibs 7.17.0)
 - Update CI to use circleci-tools v2
-- Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
 
 ### Fixed
 
