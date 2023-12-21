@@ -21,6 +21,7 @@ module MaskSamplerMod
   use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use pflogger, only: Logger, logging
   implicit none
 
   integer, parameter :: mx_file = 300
@@ -31,13 +32,19 @@ module MaskSamplerMod
      private
      type(ESMF_LocStream)   :: LS_rt        !  obs LS on root
      type(ESMF_LocStream)   :: LS_ds        !  distributed
-     type(ESMF_LocStream)   :: mask_LS_rt   !  output
-     type(ESMF_LocStream)   :: mask_LS_ds
+     !!type(ESMF_LocStream)   :: mask_LS_rt   !  output
+     !!type(ESMF_LocStream)   :: mask_LS_ds
      type(LocStreamFactory) :: locstream_factory
      type(obs_unit),    allocatable :: obs(:)
      type(ESMF_Time),   allocatable :: times(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
+
+     real(kind=ESMF_KIND_R8), allocatable :: lons_ds(:)
+     real(kind=ESMF_KIND_R8), allocatable :: lats_ds(:)     
+
+!     real(kind=REAL64), allocatable :: lons_ds(:)
+!     real(kind=REAL64), allocatable :: lats_ds(:)     
      real(kind=REAL64), allocatable :: times_R8(:)
      integer,           allocatable :: obstype_id(:)
 
@@ -45,6 +52,8 @@ module MaskSamplerMod
      real(kind=REAL64), allocatable :: lons_2d(:,:)
      real(kind=REAL64), allocatable :: lats_2d(:,:)
      real(kind=REAL64), allocatable :: times_R8_2d(:,:)
+
+     integer, allocatable :: mask(:,:)
 
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
@@ -84,8 +93,8 @@ module MaskSamplerMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
      real(kind=ESMF_KIND_R8), allocatable:: t_alongtrack(:)
-     integer                        :: nobs_epoch
-     integer                        :: nobs_epoch_sum
+     integer                        :: nobs_dur
+     integer                        :: nobs_dur_sum
      type(ESMF_Time)                :: obsfile_start_time   ! user specify
      type(ESMF_Time)                :: obsfile_end_time
      type(ESMF_TimeInterval)        :: obsfile_interval

@@ -2409,7 +2409,6 @@ ENDDO PARSER
           elseif (list(n)%sampler_spec == 'mask') then                
              list(n)%mask_sampler = MaskSampler(cfg,string,clock,_RC)
              call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
-             _FAIL('nail 1')
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3381,6 +3380,8 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
+      else if (list(n)%sampler_spec == 'mask') then
+         Writing(n) = ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm )
       else if (trim(list(n)%output_grid_label)=='SwathGrid') then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
@@ -3520,6 +3521,13 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
+         elseif (list(n)%sampler_spec == 'mask') then
+            write(6,*) 'nail:  empty mask  metadata file_handle'
+!            if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
+!               call list(n)%trajectory%create_file_handle(filename(n),_RC)
+!               list(n)%currentFile = filename(n)
+!               list(n)%unit = -1
+!            end if
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
@@ -3610,7 +3618,9 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         if (.not.list(n)%timeseries_output .AND. list(n)%sampler_spec /= 'station') then
+         if (.not.list(n)%timeseries_output .AND. &
+              list(n)%sampler_spec /= 'station' .AND. &
+              list(n)%sampler_spec /= 'mask') then              
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
             else
@@ -3701,6 +3711,14 @@ ENDDO PARSER
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%close_file_handle(_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+         end if
+      elseif (list(n)%sampler_spec == 'mask') then
+         call list(n)%mask_sampler%regrid_accumulate(_RC)
+         _FAIL('nail 1')
+         if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
+!            call list(n)%mask_sampler%append_file(current_time,_RC)
+!            call list(n)%mask_sampler%close_file_handle(_RC)
+!            call list(n)%mask_sampler%destroy_rh_regen_LS (_RC)         
          end if
       end if
 
