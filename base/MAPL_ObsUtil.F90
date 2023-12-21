@@ -6,8 +6,43 @@ module MAPL_ObsUtilMod
   use Plain_netCDF_Time
   use netCDF
   use MAPL_CommsMod, only : MAPL_AM_I_ROOT
+  use pFIO_FileMetadataMod, only : FileMetadata
+  use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
+  integer, parameter :: mx_ngeoval = 60
+!!  private
+
+  public :: obs_unit
+  type :: obs_unit
+     integer :: nobs_epoch
+     integer :: ngeoval
+     logical :: export_all_geoval
+     type(FileMetadata), allocatable :: metadata
+     type(NetCDF4_FileFormatter), allocatable :: file_handle
+     character(len=ESMF_MAXSTR) :: name
+     character(len=ESMF_MAXSTR) :: obsFile_output
+     character(len=ESMF_MAXSTR) :: input_template
+     character(len=ESMF_MAXSTR) :: geoval_name(mx_ngeoval)
+     real(kind=REAL64), allocatable :: lons(:)
+     real(kind=REAL64), allocatable :: lats(:)
+     real(kind=REAL64), allocatable :: times_R8(:)
+     real(kind=REAL32), allocatable :: p2d(:)
+     real(kind=REAL32), allocatable :: p3d(:,:)
+  end type obs_unit
+
+  type obs_platform
+     character (len=ESMF_MAXSTR) :: name=''
+     character (len=ESMF_MAXSTR) :: nc_index=''
+     character (len=ESMF_MAXSTR) :: nc_lon=''
+     character (len=ESMF_MAXSTR) :: nc_lat=''
+     character (len=ESMF_MAXSTR) :: nc_time=''
+     character (len=ESMF_MAXSTR) :: file_name_template=''
+     integer :: ngeoval=0
+     integer :: nentry_name=0
+     character (len=ESMF_MAXSTR), allocatable :: field_name(:,:)
+     !character (len=ESMF_MAXSTR), allocatable :: field_name(:)
+  end type obs_platform
 
   interface sort_multi_arrays_by_time
      module procedure sort_three_arrays_by_time
@@ -90,7 +125,6 @@ contains
     _RETURN(ESMF_SUCCESS)
 
   end function get_filename_from_template
-
 
 
   subroutine time_real_to_ESMF (times_R8_1d, times_esmf_1d, datetime_units, rc)
@@ -359,6 +393,7 @@ contains
     type(ESMF_TimeInterval) :: dT
     type(ESMF_Time) :: time
     integer :: i, j, u
+    logical :: EX
 
     character(len=ESMF_MAXSTR) :: file_template_left
     character(len=ESMF_MAXSTR) :: file_template_right
@@ -376,32 +411,12 @@ contains
     nymd = itime(1)
     nhms = itime(2)
 
-
-       j= index(file_template, '*')
-       if (j>0) then
-          ! wild char exist
-          !!print*, 'pos of * in template =', j
-          file_template_left = file_template(1:j-1)
-          call fill_grads_template ( filename_left, file_template_left, &
-               experiment_id='', nymd=nymd, nhms=nhms, _RC )
-          filename= trim(filename_left)//trim(file_template(j:))
-          cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
-          CALL execute_command_line(trim(cmd))
-          open(newunit=u, file='zzz_MAPL', status='unknown')
-          read(u, '(a)') filename
-          i=index(trim(filename), 'ls')
-          if (i==1) then
-             filename=''
-          end if
-          !       cmd="rm -f ./zzz_MAPL"
-          !       CALL execute_command_line(trim(cmd))
-          close(u)
-       else
-          ! exact file name
-          call fill_grads_template ( filename, file_template, &
-               experiment_id='', nymd=nymd, nhms=nhms, _RC )
-       end if
-
+    ! parse time info
+    !
+    call fill_grads_template ( filename, file_template, &
+         experiment_id='', nymd=nymd, nhms=nhms, _RC )
+    inquire(file= trim(filename), EXIST = EX)
+    if(.not.EX) filename=''
 
     _RETURN(_SUCCESS)
 
@@ -540,5 +555,70 @@ contains
     enddo
     _RETURN(_SUCCESS)
   end subroutine sort_four_arrays_by_time
+
+
+
+  function copy_platform_nckeys(a, rc)
+    type(obs_platform) :: copy_platform_nckeys
+    type(obs_platform), intent(in) :: a
+    integer, optional, intent(out) :: rc
+
+    copy_platform_nckeys%nc_index = a%nc_index
+    copy_platform_nckeys%nc_lon = a%nc_lon
+    copy_platform_nckeys%nc_lat = a%nc_lat
+    copy_platform_nckeys%nc_time = a%nc_time
+    copy_platform_nckeys%nentry_name = a%nentry_name
+    _RETURN(_SUCCESS)
+
+  end function copy_platform_nckeys
+
+
+  function union_platform(a, b, rc)
+    type(obs_platform) :: union_platform
+    type(obs_platform), intent(in)  :: a
+    type(obs_platform), intent(in)  :: b
+    integer, optional, intent(out) :: rc
+
+    character (len=ESMF_MAXSTR), allocatable :: field_name_loc(:,:)
+    integer :: nfield, nentry_name
+    integer, allocatable :: tag(:)
+    integer :: i, j, k
+    integer :: status
+
+    union_platform = copy_platform_nckeys(a, _RC)
+    nfield = a%ngeoval + b%ngeoval
+    allocate (tag(b%ngeoval))
+
+    tag(:)=1    ! true
+    k=nfield
+    do j=1, b%ngeoval
+       do i=1, a%ngeoval
+          if ( trim(b%field_name(1,j)) == trim(a%field_name(1,i)) ) then
+             tag(j)=0
+          endif
+       enddo
+       if (tag(j)==0) k=k-1
+    enddo
+    union_platform%ngeoval=k
+    nfield=k
+    nentry_name=union_platform%nentry_name
+    if ( allocated (union_platform%field_name) ) deallocate(union_platform%field_name)
+    allocate(union_platform%field_name(nentry_name, nfield))
+    do i=1, a%ngeoval
+       union_platform%field_name(:,i) = a%field_name(:,i)
+    enddo
+    if (nfield>a%ngeoval) then
+       k = a%ngeoval
+       do j=1, b%ngeoval
+          if (tag(j)==1) then
+             k = k + 1
+             union_platform%field_name(:,k) = b%field_name(:,j)
+          end if
+       enddo
+    end if
+    _RETURN(_SUCCESS)
+
+  end function union_platform
+
 
 end module MAPL_ObsUtilMod
