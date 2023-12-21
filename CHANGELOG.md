@@ -53,6 +53,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.43.0] - 2023-12-21
+
+### Added
+
 - Station sampler: add support to Global Historical Climatology Network Daily (GHCN-D)
 - Add to trajectory sampler DEFINE_OBS_PLATFORM for reading multiple IODA files. To do this, we add union_platform function for observation.
 - New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool.
@@ -80,10 +92,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
 - Fix for CMake an Apple.  Needs to set `__DARWIN` as an fpp flag.  (Only used by NAG, but ...)
 - Allow ExtData2G to be built as SHARED or STATIC
-
-### Removed
-
-### Deprecated
 
 ## [2.42.4] - 2023-12-10
 
