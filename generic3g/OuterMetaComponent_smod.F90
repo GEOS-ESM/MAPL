@@ -23,44 +23,31 @@ contains
    ! Generic SetServices order of operations:
    !
    ! 1) Parse any generic aspects of the hconfig.
-   ! 2) Create inner user gridcomp and call its setservices.
-   ! 3) Process children
-   ! 4) Process specs
+   ! 2) Create inner (user) gridcomp and call its setservices.
+   ! 3) Add children
    !
    ! Note that specs are processed depth first, but that this may
    ! reverse when step (3) is moved to a new generic initialization phase.
    !=========================================================================
    
-   recursive module subroutine SetServices_(this, rc)
+   recursive module subroutine SetServices_(this, user_setservices, rc)
       use mapl3g_GenericGridComp, only: generic_setservices => setservices
+      class(AbstractUserSetServices), intent(in) :: user_setservices
       class(OuterMetaComponent), intent(inout) :: this
       integer, intent(out) :: rc
 
       integer :: status
-      type(GeomManager), pointer :: geom_mgr
-
-      geom_mgr => get_geom_manager()
-      _ASSERT(associated(geom_mgr), 'uh oh - cannot acces global geom_manager.')
+      type(ESMF_GridComp) :: user_gridcomp
 
       this%component_spec = parse_component_spec(this%hconfig, _RC)
-      call this%user_component%setservices(this%self_gridcomp, _RC)
-      call process_children(this, _RC)
+      user_gridcomp = this%user_component%get_gridcomp()
+      call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
+      call user_setservices%run(user_gridcomp, _RC)
+      call add_children(this, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
    contains
-
-      recursive subroutine process_children(this, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-
-         call add_children(this, _RC)
-         call run_children_setservices(this, _RC)
-
-         _RETURN(_SUCCESS)
-      end subroutine process_children
 
       recursive subroutine add_children(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -117,6 +104,7 @@ contains
    end subroutine SetServices_
 
    module subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
+      use mapl3g_GenericGridComp, only: generic_setservices => setservices
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
@@ -131,6 +119,7 @@ contains
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
       child_gc = create_grid_comp(child_name, setservices, hconfig, _RC)
+      call ESMF_GridCompSetServices(child_gc, generic_setservices, _RC)
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=child_name, _RC)
       exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=child_name,  _RC)
       child_comp = ComponentHandler(child_gc, MultiState(importState=importState, exportState=exportState))

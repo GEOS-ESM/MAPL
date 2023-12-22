@@ -135,7 +135,8 @@ module mapl3g_OuterMetaComponent
    ! Submodule interfaces
    interface
 
-      recursive module subroutine SetServices_(this, rc)
+      recursive module subroutine SetServices_(this, user_setservices, rc)
+         class(AbstractUserSetservices), intent(in) :: user_setservices
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out) ::rc
       end subroutine
