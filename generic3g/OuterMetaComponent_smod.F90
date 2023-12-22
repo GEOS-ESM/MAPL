@@ -23,8 +23,8 @@ contains
    ! Generic SetServices order of operations:
    !
    ! 1) Parse any generic aspects of the hconfig.
-   ! 2) Create inner (user) gridcomp and call its setservices.
-   ! 3) Add children
+   ! 2) Add children from config
+   ! 3) Create inner (user) gridcomp and call its setservices.
    !
    ! Note that specs are processed depth first, but that this may
    ! reverse when step (3) is moved to a new generic initialization phase.
@@ -42,8 +42,8 @@ contains
       this%component_spec = parse_component_spec(this%hconfig, _RC)
       user_gridcomp = this%user_component%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
-      call user_setservices%run(user_gridcomp, _RC)
       call add_children(this, _RC)
+      call user_setservices%run(user_gridcomp, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
