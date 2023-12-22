@@ -1,12 +1,12 @@
-module mapl3g_ChildComponent
+module mapl3g_ComponentHandler
    use mapl3g_MultiState
    use :: esmf
    implicit none
    private
 
-   public :: ChildComponent
+   public :: ComponentHandler
 
-   type :: ChildComponent
+   type :: ComponentHandler
       private
       type(ESMF_GridComp) :: gridcomp
       type(MultiState) :: states
@@ -21,17 +21,17 @@ module mapl3g_ChildComponent
       procedure :: get_states
       procedure :: get_outer_gridcomp
 
-   end type ChildComponent
+   end type ComponentHandler
 
-   interface ChildComponent
-      module procedure new_ChildComponent
-   end interface ChildComponent
+   interface ComponentHandler
+      module procedure new_ComponentHandler
+   end interface ComponentHandler
 
    interface
 
       module recursive subroutine initialize_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ChildComponent), intent(inout) :: this
+         class(ComponentHandler), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -42,7 +42,7 @@ module mapl3g_ChildComponent
       ! on OuterMetaComponent.
       module subroutine run_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ChildComponent), intent(inout) :: this
+         class(ComponentHandler), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -51,7 +51,7 @@ module mapl3g_ChildComponent
 
       module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ChildComponent), intent(inout) :: this
+         class(ComponentHandler), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -61,28 +61,28 @@ module mapl3g_ChildComponent
       module function get_states(this) result(states)
          use mapl3g_MultiState
          type(MultiState) :: states
-         class(ChildComponent), intent(in) :: this
+         class(ComponentHandler), intent(in) :: this
       end function get_states
 
    end interface
 
 contains
 
-   function new_ChildComponent(gridcomp, states) result(child)
-      type(ChildComponent) :: child
+   function new_ComponentHandler(gridcomp, states) result(child)
+      type(ComponentHandler) :: child
       type(ESMF_GridComp), intent(in) :: gridcomp
       type(MultiState), intent(in) :: states
 
       child%gridcomp = gridcomp
       child%states = states
 
-   end function new_ChildComponent
+   end function new_ComponentHandler
 
    function get_outer_gridcomp(this) result(gridcomp)
       use esmf, only: ESMF_GridComp
       type(ESMF_GridComp) :: gridcomp
-      class(ChildComponent), intent(in) :: this
+      class(ComponentHandler), intent(in) :: this
       gridcomp = this%gridcomp
    end function get_outer_gridcomp
 
-end module mapl3g_ChildComponent
+end module mapl3g_ComponentHandler

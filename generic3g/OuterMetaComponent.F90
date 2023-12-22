@@ -9,13 +9,13 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VariableSpecVector
    use mapl3g_ComponentSpec
    use mapl3g_GenericPhases
-   use mapl3g_ChildComponent
+   use mapl3g_ComponentHandler
    use mapl3g_Validation, only: is_valid_name
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
-   use mapl3g_ChildComponentMap, only: ChildComponentMap
-   use mapl3g_ChildComponentMap, only: ChildComponentMapIterator
-   use mapl3g_ChildComponentMap, only: operator(/=)
+   use mapl3g_ComponentHandlerMap, only: ComponentHandlerMap
+   use mapl3g_ComponentHandlerMap, only: ComponentHandlerMapIterator
+   use mapl3g_ComponentHandlerMap, only: operator(/=)
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPt
    use mapl3g_MatchConnection
@@ -57,7 +57,7 @@ module mapl3g_OuterMetaComponent
       type(InnerMetaComponent), allocatable       :: inner_meta
 
       ! Hierarchy
-      type(ChildComponentMap)                     :: children
+      type(ComponentHandlerMap)                     :: children
       type(HierarchicalRegistry) :: registry
       type(ExtensionVector) :: state_extensions
  
@@ -212,13 +212,13 @@ contains
 
    ! Deep copy of shallow ESMF objects - be careful using result
    ! TODO: Maybe this should return a POINTER
-   type(ChildComponent) function get_child_by_name(this, child_name, rc) result(child_component)
+   type(ComponentHandler) function get_child_by_name(this, child_name, rc) result(child_component)
       class(OuterMetaComponent), intent(in) :: this
       character(len=*), intent(in) :: child_name
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponent), pointer :: child_ptr
+      type(ComponentHandler), pointer :: child_ptr
 
       child_ptr => this%children%at(child_name, rc=status)
       _ASSERT(associated(child_ptr), 'Child not found: <'//child_name//'>.')
@@ -237,7 +237,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponent) :: child
+      type(ComponentHandler) :: child
       logical :: found
       integer :: phase_idx
 
@@ -262,7 +262,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponentMapIterator) :: iter
+      type(ComponentHandlerMapIterator) :: iter
 
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
@@ -577,8 +577,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponentMapIterator) :: iter
-      type(ChildComponent), pointer :: child
+      type(ComponentHandlerMapIterator) :: iter
+      type(ComponentHandler), pointer :: child
 
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
@@ -600,8 +600,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponentMapIterator) :: iter
-      type(ChildComponent), pointer :: child
+      type(ComponentHandlerMapIterator) :: iter
+      type(ComponentHandler), pointer :: child
       type(OuterMetaComponent), pointer :: child_meta
       type(ESMF_GridComp) :: child_outer_gc
 
@@ -698,8 +698,8 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(ChildComponent), pointer :: child
-      type(ChildComponentMapIterator) :: iter
+      type(ComponentHandler), pointer :: child
+      type(ComponentHandlerMapIterator) :: iter
       integer :: status, userRC
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
       type(StringVector), pointer :: finalize_phases

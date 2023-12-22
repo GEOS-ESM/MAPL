@@ -133,9 +133,9 @@ module mapl3g_HierarchicalRegistry
    ! Submodule implementations
    interface
       module function new_HierarchicalRegistry_children(children, rc) result(registry)
-         use mapl3g_ChildComponentMap
+         use mapl3g_ComponentHandlerMap
          type(HierarchicalRegistry) :: registry
-         type(ChildComponentMap), intent(in) :: children
+         type(ComponentHandlerMap), intent(in) :: children
          integer, optional, intent(out) :: rc
       end function
    end interface

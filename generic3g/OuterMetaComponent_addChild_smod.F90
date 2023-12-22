@@ -3,7 +3,7 @@
 submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_addChild_smod
    use mapl_keywordenforcer, only: KE => KeywordEnforcer
    use mapl3g_GenericGridComp
-   use mapl3g_ChildComponent
+   use mapl3g_ComponentHandler
    use mapl3g_Validation
    use esmf
    implicit none
@@ -20,14 +20,14 @@ contains
       integer :: status
       type(ESMF_GridComp) :: child_gc
       type(ESMF_State) :: importState, exportState
-      type(ChildComponent) :: child_comp
+      type(ComponentHandler) :: child_comp
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
       child_gc = create_grid_comp(child_name, setservices, hconfig, _RC)
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=child_name, _RC)
       exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=child_name,  _RC)
-      child_comp = ChildComponent(child_gc, MultiState(importState=importState, exportState=exportState))
+      child_comp = ComponentHandler(child_gc, MultiState(importState=importState, exportState=exportState))
 
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
       call this%children%insert(child_name, child_comp)

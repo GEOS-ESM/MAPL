@@ -17,9 +17,9 @@ set(srcs
   UserSetServices.F90
   MethodPhasesMap.F90
 
-  ChildComponent.F90
-  ChildComponent_run_smod.F90
-  ChildComponentMap.F90
+  ComponentHandler.F90
+  ComponentHandler_smod.F90
+  ComponentHandlerMap.F90
 #  GenericCouplerComponent.F90
 #  CouplerComponentVector.F90
 

@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule(mapl3g_ChildComponent) ChildComponent_run_smod
+submodule(mapl3g_ComponentHandler) ComponentHandler_run_smod
    use :: mapl_ErrorHandling
    use :: mapl3g_OuterMetaComponent
    use :: mapl3g_MethodPhasesMapUtils
@@ -12,7 +12,7 @@ contains
    module subroutine run_self(this, clock, unusable, phase_idx, rc)
       use mapl3g_OuterMetaComponent, only: get_outer_meta
       use mapl3g_OuterMetaComponent, only: OuterMetaComponent
-      class(ChildComponent), intent(inout) :: this
+      class(ComponentHandler), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
@@ -44,7 +44,7 @@ contains
       use mapl3g_OuterMetaComponent, only: get_outer_meta
       use mapl3g_OuterMetaComponent, only: OuterMetaComponent
       use mapl3g_GenericGridComp
-      class(ChildComponent), intent(inout) :: this
+      class(ComponentHandler), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
@@ -73,7 +73,7 @@ contains
    module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
       use mapl3g_OuterMetaComponent, only: get_outer_meta
       use mapl3g_OuterMetaComponent, only: OuterMetaComponent
-      class(ChildComponent), intent(inout) :: this
+      class(ComponentHandler), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
@@ -100,9 +100,9 @@ contains
 
    module function get_states(this) result(states)
       type(MultiState) :: states
-      class(ChildComponent), intent(in) :: this
+      class(ComponentHandler), intent(in) :: this
 
       states = this%states
    end function get_states
 
-end submodule ChildComponent_run_smod
+end submodule ComponentHandler_run_smod

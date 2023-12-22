@@ -4,7 +4,7 @@ module Test_SimpleParentGridComp
    use mapl3g_UserSetServices
    use mapl3g_GenericGridComp, only: create_grid_comp
    use mapl3g_GenericGridComp, only: setServices
-   use mapl3g_ChildComponent
+   use mapl3g_ComponentHandler
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use mapl3g_MultiState
@@ -114,7 +114,7 @@ contains
          integer :: i
          type(OuterMetaComponent), pointer :: child_meta
          type(ESMF_GridComp) :: child_gc
-         type(ChildComponent) :: child_comp
+         type(ComponentHandler) :: child_comp
          type(UserComponent), pointer :: user_component
 
          status = 1
@@ -205,7 +205,7 @@ contains
          integer :: i
          type(OuterMetaComponent), pointer :: child_meta
          type(ESMF_GridComp) :: child_gc
-         type(ChildComponent) :: child_comp
+         type(ComponentHandler) :: child_comp
          type(UserComponent), pointer :: user_component
          status = 1
 
@@ -356,7 +356,7 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      type(ChildComponent) :: child_comp
+      type(ComponentHandler) :: child_comp
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: child_meta
       type(UserComponent), pointer :: user_component
@@ -456,7 +456,7 @@ contains
 
          type(MultiState) :: states
          type(ESMF_State) :: state
-         type(ChildComponent) :: child_comp
+         type(ComponentHandler) :: child_comp
          type(ESMF_FieldStatus_Flag) :: field_status
 
          rc = -1

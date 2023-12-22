@@ -12,7 +12,7 @@ module Test_Scenarios
    use mapl3g_GenericPhases
    use mapl3g_MultiState
    use mapl3g_OuterMetaComponent
-   use mapl3g_ChildComponent
+   use mapl3g_ComponentHandler
    use mapl3g_GenericGridComp, generic_setservices => setservices
    use mapl3g_UserSetServices
    use mapl3g_ESMF_Utilities
@@ -598,7 +598,7 @@ contains
 
       integer :: status
       character(:), allocatable :: child_name
-      type(ChildComponent) :: child
+      type(ComponentHandler) :: child
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: idx

@@ -96,9 +96,9 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ChildComponent), pointer :: child_comp
+         type(ComponentHandler), pointer :: child_comp
          type(ESMF_GridComp) :: child_outer_gc
-         type(ChildComponentMapIterator) :: iter
+         type(ComponentHandlerMapIterator) :: iter
 
           associate ( e => this%children%ftn_end() )
             iter = this%children%ftn_begin()
