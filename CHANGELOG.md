@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
+
 ### Changed
 
 - Updated ESMF required version to 8.6.0
