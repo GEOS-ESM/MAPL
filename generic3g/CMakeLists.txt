@@ -26,8 +26,7 @@ set(srcs
   MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
-  OuterMetaComponent_setservices_smod.F90
-  OuterMetaComponent_addChild_smod.F90
+  OuterMetaComponent_smod.F90
   GenericPhases.F90
   GenericGridComp.F90
 
