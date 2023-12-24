@@ -42,22 +42,25 @@ module mapl3g_UserComponent
 
 contains
 
-   function new_UserComponent(gridcomp) result(user_component)
+   function new_UserComponent(gridcomp, states) result(user_component)
       type(UserComponent) :: user_component
       type(ESMF_GridComp), intent(in) :: gridcomp
+      type(MultiState) :: states
 
       user_component%gridcomp = gridcomp
-
       ! Technically ESMF_StateCreate can fail which violates the unspoken rule that
       ! constructors cannot "fail".  The probability of this seems small,
       ! and a workaround can wait for that to be happen.  (TLC Dec 2023)
-      associate ( &
-        importState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT), &
-        exportState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT), &
-        internalState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL))
+      user_component%states = states
 
-        user_component%states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
-      end associate
+
+!#      associate ( &
+!#        importState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT), &
+!#        exportState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT), &
+!#        internalState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL))
+!#
+!#        user_component%states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
+!#      end associate
       
    end function new_UserComponent
 

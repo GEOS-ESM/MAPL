@@ -184,7 +184,7 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
 
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_component = UserComponent(user_gridcomp)
+      outer_meta%user_component = UserComponent(user_gridcomp, MultiState())
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
