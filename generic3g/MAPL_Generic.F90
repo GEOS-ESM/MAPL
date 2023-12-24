@@ -267,7 +267,8 @@ contains
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       user_component => outer_meta%get_user_component()
-      call user_component%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
+      call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
+!#      call user_component%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

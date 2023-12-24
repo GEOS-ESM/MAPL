@@ -45,8 +45,8 @@ module mapl3g_OuterMetaComponent
       private
       
       type(ESMF_GridComp)                         :: self_gridcomp
-
       type(UserComponent)                         :: user_component
+      type(MethodPhasesMap)                       :: user_phases_map
       type(ESMF_HConfig)                          :: hconfig
 
       type(ESMF_Geom), allocatable                :: geom
@@ -105,6 +105,7 @@ module mapl3g_OuterMetaComponent
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
 
+      procedure :: set_entry_point
       procedure :: set_geom
       procedure :: get_name
       procedure :: get_gridcomp
@@ -188,6 +189,7 @@ contains
 
       counter = counter + 1
       outer_meta%counter = counter
+      call initialize_phases_map(outer_meta%user_phases_map)
 
    end function new_outer_meta
 
@@ -327,7 +329,7 @@ contains
       class(OuterMetaComponent), target, intent(inout):: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
 
-      phases => this%user_component%phases_map%of(method_flag)
+      phases => this%user_phases_map%of(method_flag)
 
    end function get_phases
 
@@ -370,6 +372,9 @@ contains
       type(MaplGeom), pointer :: mapl_geom
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM'
       type(GeomManager), pointer :: geom_mgr
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
       if (this%component_spec%has_geom_hconfig()) then
          geom_mgr => get_geom_manager()
@@ -377,7 +382,12 @@ contains
          this%geom = mapl_geom%get_geom()
       end if
 
-      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+      end if
+
       call apply_to_children(this, set_child_geom, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_GEOM, _RC)
 
@@ -412,8 +422,15 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+      end if
 
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
@@ -533,8 +550,16 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
       type(MultiState) :: outer_states, user_states
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+      end if
+
       user_states = this%user_component%get_states()
       call this%registry%add_to_states(user_states, mode='user', _RC)
       this%state_extensions = this%registry%get_extensions()
@@ -559,10 +584,17 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+      end if
+
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_REALIZE, _RC)
-
       call this%registry%allocate(_RC)
       
       _RETURN(ESMF_SUCCESS)
@@ -590,6 +622,7 @@ contains
         end do
       end associate
 
+      _RETURN(_SUCCESS)
    end subroutine apply_to_children_simple
 
    ! This procedure should not be invoked recursively - it is not for traversing the tree,
@@ -617,6 +650,7 @@ contains
         end do
       end associate
 
+      _RETURN(_SUCCESS)
    end subroutine apply_to_children_custom
 
    recursive subroutine initialize_user(this, clock, unusable, rc)
@@ -629,8 +663,16 @@ contains
       integer :: status
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call this%user_component%initialize(clock, phase_name=PHASE_NAME, _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+      end if
+
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -648,6 +690,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
       _ASSERT(present(phase_name),'phase_name is mandatory')
 
@@ -659,7 +704,13 @@ contains
       case ('GENERIC::INIT_USER')
          call this%initialize_user(clock, _RC)
       case default ! custom user phase - does not auto propagate to children
-         call this%user_component%initialize(clock, phase_name=phase_name, _RC)
+
+         initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+         phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+         if (found) then
+            call this%user_component%initialize(clock, phase_idx=phase, _RC)
+         end if
+
       end select
 
       _RETURN(ESMF_SUCCESS)
@@ -677,9 +728,17 @@ contains
       integer :: status, userRC, i
       integer :: phase_idx
       type(StateExtension), pointer :: extension
+      type(StringVector), pointer :: run_phases
       logical :: found
+      integer :: phase
 
-      call this%user_component%run(clock, phase_name=phase_name, _RC)
+      run_phases => this%get_phases(ESMF_METHOD_RUN)
+      phase = get_phase_index(run_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%run(clock, phase_idx=phase, _RC)
+      end if
+
+!#      call this%user_component%run(clock, phase_name=phase_name, _RC)
 
       ! TODO:  extensions should depend on phase ...
       do i = 1, this%state_extensions%size()
@@ -706,7 +765,7 @@ contains
       type(StringVector), pointer :: finalize_phases
       logical :: found
 
-      finalize_phases => this%user_component%phases_map%at(ESMF_METHOD_FINALIZE, _RC)
+      finalize_phases => this%user_phases_map%at(ESMF_METHOD_FINALIZE, _RC)
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(finalize_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
@@ -887,5 +946,35 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine connect_all
+
+   subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_Method_Flag), intent(in) :: method_flag
+      procedure(I_Run) :: userProcedure
+      class(KE), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: phase_name
+      integer, optional, intent(out) ::rc
+
+      integer :: status
+      character(:), allocatable :: phase_name_
+      type(ESMF_GridComp) :: user_gridcomp
+      logical :: found
+
+      if (present(phase_name)) then
+         phase_name_ = phase_name
+      else
+         phase_name_ = get_default_phase_name(method_flag)
+      end if
+      call add_phase(this%user_phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
+
+      associate (phase_idx => get_phase_index(this%user_phases_map%of(method_flag), phase_name=phase_name_, found=found))
+        _ASSERT(found, "run phase: <"//phase_name_//"> not found.")
+        user_gridcomp = this%user_component%get_gridcomp()
+        call ESMF_GridCompSetEntryPoint(user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
+      end associate
+
+      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine set_entry_point
 
 end module mapl3g_OuterMetaComponent

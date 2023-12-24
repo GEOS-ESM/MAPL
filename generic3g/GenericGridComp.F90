@@ -137,7 +137,7 @@ contains
       integer :: status
       integer :: phase
       type(OuterMetaComponent), pointer :: outer_meta
-      
+
       outer_meta => get_outer_meta(gridcomp, _RC)
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
@@ -180,6 +180,7 @@ contains
 
       phases => outer_meta%get_phases(ESMF_METHOD_RUN)
       phase_name => phases%of(phase)
+   
       call outer_meta%run(clock, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
