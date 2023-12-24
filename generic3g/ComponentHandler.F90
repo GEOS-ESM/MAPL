@@ -44,7 +44,7 @@ module mapl3g_ComponentHandler
 
       ! run_self() is implemented in submodule to avoid circular dependency
       ! on OuterMetaComponent.
-      module subroutine run_self(this, clock, unusable, phase_idx, rc)
+      module recursive subroutine run_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
          class(ComponentHandler), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
@@ -53,7 +53,7 @@ module mapl3g_ComponentHandler
          integer, optional, intent(out) :: rc
       end subroutine
 
-      module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
+      module recursive subroutine finalize_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
          class(ComponentHandler), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock

@@ -9,7 +9,7 @@ submodule(mapl3g_ComponentHandler) ComponentHandler_run_smod
 
 contains
 
-   module subroutine run_self(this, clock, unusable, phase_idx, rc)
+   module recursive subroutine run_self(this, clock, unusable, phase_idx, rc)
       class(ComponentHandler), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -58,7 +58,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_self
 
-   module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
+   module recursive subroutine finalize_self(this, clock, unusable, phase_idx, rc)
       class(ComponentHandler), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable

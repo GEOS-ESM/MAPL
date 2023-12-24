@@ -77,7 +77,7 @@ contains
 
 
    
-   type(ESMF_GridComp) function create_grid_comp_primary( &
+   recursive type(ESMF_GridComp) function create_grid_comp_primary( &
         name, set_services, config, unusable, petlist, rc) result(gridcomp)
       use :: mapl3g_UserSetServices, only: AbstractUserSetServices
 

@@ -44,14 +44,12 @@ module mapl3g_OuterMetaComponent
       private
       
       type(ESMF_GridComp)                         :: self_gridcomp
-      type(ComponentHandler)                         :: user_component
+      type(ComponentHandler)                      :: user_component
       type(MethodPhasesMap)                       :: user_phases_map
       type(ESMF_HConfig)                          :: hconfig
 
       type(ESMF_Geom), allocatable                :: geom
       type(VerticalGeom), allocatable             :: vertical_geom
-
-      logical                                     :: is_root_ = .false.
 
       type(InnerMetaComponent), allocatable       :: inner_meta
 
@@ -108,7 +106,6 @@ module mapl3g_OuterMetaComponent
       procedure :: set_geom
       procedure :: get_name
       procedure :: get_gridcomp
-      procedure :: is_root
 
       procedure :: get_component_spec
       procedure :: get_internal_state
@@ -141,7 +138,7 @@ module mapl3g_OuterMetaComponent
          integer, intent(out) ::rc
       end subroutine
 
-      module subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
+      module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: child_name
          class(AbstractUserSetServices), intent(in) :: setservices
@@ -849,12 +846,6 @@ contains
 !!$
 !!$      _RETURN(_SUCCESS)
 !!$   end subroutine validate_user_short_name
-
-
-   pure logical function is_root(this)
-      class(OuterMetaComponent), intent(in) :: this
-      is_root = this%is_root_
-   end function is_root
 
 
    subroutine set_geom(this, geom)

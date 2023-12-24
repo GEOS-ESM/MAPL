@@ -103,7 +103,7 @@ contains
 
    end subroutine SetServices_
 
-   module subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
+   module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
       use mapl3g_GenericGridComp, only: generic_setservices => setservices
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
