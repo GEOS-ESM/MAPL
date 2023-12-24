@@ -24,11 +24,7 @@ module mapl3g_UserComponent
       private
       type(ESMF_GridComp) :: gridcomp
       type(MultiState) :: states
-      class(AbstractUserSetServices), allocatable :: setservices_
-!#      type(MethodPhasesMap), public :: phases_map
    contains
-      procedure :: setservices
-!#      procedure :: set_entry_point
 
       procedure :: initialize
       procedure :: run
@@ -46,13 +42,11 @@ module mapl3g_UserComponent
 
 contains
 
-   function new_UserComponent(gridcomp, setservices) result(user_component)
+   function new_UserComponent(gridcomp) result(user_component)
       type(UserComponent) :: user_component
       type(ESMF_GridComp), intent(in) :: gridcomp
-      class(AbstractUserSetServices), intent(in) :: setservices
 
       user_component%gridcomp = gridcomp
-      user_component%setservices_ = setservices
 
       ! Technically ESMF_StateCreate can fail which violates the unspoken rule that
       ! constructors cannot "fail".  The probability of this seems small,
@@ -65,24 +59,7 @@ contains
         user_component%states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
       end associate
       
-!#      call initialize_phases_map(user_component%phases_map)
-
    end function new_UserComponent
-
-   ! `host_gridcomp` is the MAPL generic gridcomp that wraps the user
-   ! component.
-   subroutine setservices(this, host_gridcomp, rc)
-      class(UserComponent), intent(inout) :: this
-      type(ESMF_Gridcomp), intent(in) :: host_gridcomp
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      call attach_inner_meta(this%gridcomp, host_gridcomp, _RC)
-      call this%setservices_%run(this%gridcomp, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine setservices
 
 
    recursive subroutine initialize(this, clock, phase_idx, rc)
@@ -93,13 +70,6 @@ contains
 
       integer :: status
       integer :: userrc
-!#      integer :: phase
-!#      type(StringVector), pointer :: init_phases
-!#      logical :: found
-!#
-!#      init_phases => this%phases_map%at(ESMF_METHOD_INITIALIZE, _RC)
-!#      associate (phase => get_phase_index(init_phases, phase_name=phase_name, found=found))
-!#        _RETURN_UNLESS(found)
 
         associate ( &
              importState => this%states%importState, &
@@ -110,8 +80,6 @@ contains
                clock=clock, phase=phase_idx, userRC=userrc, _RC)
           _VERIFY(userRC)
         end associate
-
-!#      end associate
 
       _RETURN(_SUCCESS)
      end subroutine initialize
@@ -124,12 +92,6 @@ contains
 
       integer :: status
       integer :: userrc
-!#      logical :: found
-!#
-!#      
-!#      associate(phase_idx => get_phase_index(this%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found) )
-!#        _ASSERT(found, "run phase: <"//phase_name//"> not found.")
-!#        
         associate ( &
              importState => this%states%importState, &
              exportState => this%states%exportState)
@@ -139,7 +101,6 @@ contains
           _VERIFY(userRC)
 
         end associate
-!#      end associate
 
       _RETURN(_SUCCESS)
    end subroutine run
@@ -195,36 +156,5 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end function get_name
-
-!#   subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
-!#      class(UserComponent), intent(inout) :: this
-!#      type(ESMF_Method_Flag), intent(in) :: method_flag
-!#      procedure(I_Run) :: userProcedure
-!#      class(KeywordEnforcer), optional, intent(in) :: unusable
-!#      character(len=*), optional, intent(in) :: phase_name
-!#      integer, optional, intent(out) ::rc
-!#
-!#      integer :: status
-!#      character(:), allocatable :: phase_name_
-!#      type(ESMF_GridComp) :: user_gridcomp
-!#      logical :: found
-!#
-!#      if (present(phase_name)) then
-!#         phase_name_ = phase_name
-!#      else
-!#         phase_name_ = get_default_phase_name(method_flag)
-!#      end if
-!#
-!#      call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
-!#
-!#      associate (phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name_, found=found))
-!#        _ASSERT(found, "run phase: <"//phase_name_//"> not found.")
-!#        call ESMF_GridCompSetEntryPoint(this%gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
-!#      end associate
-!#
-!#      _RETURN(ESMF_SUCCESS)
-!#      _UNUSED_DUMMY(unusable)
-!#   end subroutine set_entry_point
-!#
 
 end module mapl3g_UserComponent

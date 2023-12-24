@@ -184,7 +184,7 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
 
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_component = UserComponent(user_gridcomp, set_services)
+      outer_meta%user_component = UserComponent(user_gridcomp)
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
@@ -643,7 +643,7 @@ contains
         iter = b
         do while (iter /= e)
            child => iter%second()
-           child_outer_gc = child%get_outer_gridcomp()
+           child_outer_gc = child%get_gridcomp()
            child_meta => get_outer_meta(child_outer_gc, _RC)
            call oper(this, child_meta, _RC)
            call iter%next()

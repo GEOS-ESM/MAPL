@@ -93,7 +93,7 @@ contains
             do while (iter /= e)
                call iter%next()
                child_comp => iter%second()
-               child_outer_gc = child_comp%get_outer_gridcomp()
+               child_outer_gc = child_comp%get_gridcomp()
                call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _RC)
             end do
          end associate

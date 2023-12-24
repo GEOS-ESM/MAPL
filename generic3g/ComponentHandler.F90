@@ -19,7 +19,7 @@ module mapl3g_ComponentHandler
       generic :: finalize => finalize_self
 
       procedure :: get_states
-      procedure :: get_outer_gridcomp
+      procedure :: get_gridcomp
 
    end type ComponentHandler
 
@@ -78,11 +78,11 @@ contains
 
    end function new_ComponentHandler
 
-   function get_outer_gridcomp(this) result(gridcomp)
+   function get_gridcomp(this) result(gridcomp)
       use esmf, only: ESMF_GridComp
       type(ESMF_GridComp) :: gridcomp
       class(ComponentHandler), intent(in) :: this
       gridcomp = this%gridcomp
-   end function get_outer_gridcomp
+   end function get_gridcomp
 
 end module mapl3g_ComponentHandler
