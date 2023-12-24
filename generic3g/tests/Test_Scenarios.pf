@@ -161,8 +161,6 @@ contains
         outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, _RC)
         call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
-!#        grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
-!#        call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
         vertical_geom = VerticalGeom(4)
         call MAPL_GridCompSetVerticalGeom(outer_gc,vertical_geom,_RC)
 
@@ -199,10 +197,10 @@ contains
 
       integer :: status
 
-!!$      call ESMF_GridCompDestroy(this%outer_gc, _RC)
+!#      call ESMF_GridCompDestroy(this%outer_gc, _RC)
 
-!!$      call ESMF_StateDestroy(this%outer_states%importState,_RC)
-!!$      call ESMF_StateDestroy(this%outer_states%exportState, _RC)
+!#      call ESMF_StateDestroy(this%outer_states%importState,_RC)
+!#      call ESMF_StateDestroy(this%outer_states%exportState, _RC)
       
    end subroutine teardown
 

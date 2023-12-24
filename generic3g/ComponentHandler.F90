@@ -1,5 +1,8 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_ComponentHandler
    use mapl3g_MultiState
+   use mapl_ErrorHandlingMod
    use :: esmf
    implicit none
    private
@@ -20,6 +23,7 @@ module mapl3g_ComponentHandler
 
       procedure :: get_states
       procedure :: get_gridcomp
+      procedure :: get_name
 
    end type ComponentHandler
 
@@ -84,5 +88,19 @@ contains
       class(ComponentHandler), intent(in) :: this
       gridcomp = this%gridcomp
    end function get_gridcomp
+
+   function get_name(this, rc) result(name)
+      character(:), allocatable :: name
+      class(ComponentHandler), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=ESMF_MAXSTR) :: buffer
+
+      call ESMF_GridCompGet(this%gridcomp, name=buffer, _RC)
+      name = trim(buffer)
+
+      _RETURN(ESMF_SUCCESS)
+   end function get_name
 
 end module mapl3g_ComponentHandler
