@@ -35,10 +35,24 @@ contains
       type(ESMF_State), optional, intent(in) :: exportState
       type(ESMF_State), optional, intent(in) :: internalState
 
-      if (present(importState)) multi_state%importState = importState
-      if (present(exportState)) multi_state%exportState = exportState
-      if (present(internalState)) multi_state%internalState = internalState
+      multi_state%importState = get_state(importState)
+      multi_state%exportState = get_state(exportState)
+      multi_state%internalState = get_state(internalState)
 
+   contains
+
+      function get_state(state) result(new_state)
+         type(ESMF_State) :: new_state
+         type(ESMF_State), optional, intent(in) :: state
+
+         if (present(state)) then
+            new_state = state
+            return
+         end if
+         new_state = ESMF_StateCreate()
+
+      end function get_state
+ 
    end function newMultiState_user
 
 
