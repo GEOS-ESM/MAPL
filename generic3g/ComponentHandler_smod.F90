@@ -10,8 +10,6 @@ submodule(mapl3g_ComponentHandler) ComponentHandler_run_smod
 contains
 
    module subroutine run_self(this, clock, unusable, phase_idx, rc)
-      use mapl3g_OuterMetaComponent, only: get_outer_meta
-      use mapl3g_OuterMetaComponent, only: OuterMetaComponent
       class(ComponentHandler), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -19,10 +17,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      integer :: phase
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      outer_meta => get_outer_meta(this%gridcomp, _RC)
 
       associate ( &
            importState => this%states%importState, &
@@ -41,9 +35,6 @@ contains
    end subroutine run_self
 
    recursive module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
-      use mapl3g_OuterMetaComponent, only: get_outer_meta
-      use mapl3g_OuterMetaComponent, only: OuterMetaComponent
-      use mapl3g_GenericGridComp
       class(ComponentHandler), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -51,9 +42,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      outer_meta => get_outer_meta(this%gridcomp, _RC)
 
       associate ( &
            importState => this%states%importState, &
@@ -71,8 +59,6 @@ contains
    end subroutine initialize_self
 
    module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
-      use mapl3g_OuterMetaComponent, only: get_outer_meta
-      use mapl3g_OuterMetaComponent, only: OuterMetaComponent
       class(ComponentHandler), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -80,9 +66,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      outer_meta => get_outer_meta(this%gridcomp, _RC)
 
       associate ( &
            importState => this%states%importState, &

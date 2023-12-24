@@ -26,9 +26,13 @@ module mapl3g_UserComponent
       type(MultiState) :: states
    contains
 
-      procedure :: initialize
-      procedure :: run
-      procedure :: finalize
+      procedure, private :: initialize_self
+      procedure :: run_self
+      procedure :: finalize_self
+
+      generic :: initialize => initialize_self
+      generic :: run => run_self
+      generic :: finalize => finalize_self
 
       ! Accessors
       procedure :: get_gridcomp
@@ -40,6 +44,44 @@ module mapl3g_UserComponent
       procedure :: new_UserComponent
    end interface UserComponent
 
+   interface
+
+      module recursive subroutine initialize_self(this, clock, unusable, phase_idx, rc)
+         use :: MaplShared, only: KeywordEnforcer
+         class(UserComponent), intent(inout) :: this
+         type(ESMF_Clock), intent(inout) :: clock
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: phase_idx
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_self
+
+
+      module subroutine run_self(this, clock, unusable, phase_idx, rc)
+         use :: MaplShared, only: KeywordEnforcer
+         class(UserComponent), intent(inout) :: this
+         type(ESMF_Clock), intent(inout) :: clock
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: phase_idx
+         integer, optional, intent(out) :: rc
+      end subroutine run_self
+
+      module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
+         use :: MaplShared, only: KeywordEnforcer
+         class(UserComponent), intent(inout) :: this
+         type(ESMF_Clock), intent(inout) :: clock
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: phase_idx
+         integer, optional, intent(out) :: rc
+      end subroutine finalize_self
+
+
+      module function get_states(this) result(states)
+         use mapl3g_MultiState
+         type(MultiState) :: states
+         class(UserComponent), intent(in) :: this
+      end function get_states
+
+   end interface
 contains
 
    function new_UserComponent(gridcomp, states) result(user_component)
@@ -53,82 +95,9 @@ contains
       ! and a workaround can wait for that to be happen.  (TLC Dec 2023)
       user_component%states = states
 
-
-!#      associate ( &
-!#        importState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT), &
-!#        exportState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT), &
-!#        internalState => ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL))
-!#
-!#        user_component%states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
-!#      end associate
       
    end function new_UserComponent
 
-
-   recursive subroutine initialize(this, clock, phase_idx, rc)
-      class(UserComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
-      integer, intent(in) :: phase_idx
-      integer, intent(out) :: rc
-
-      integer :: status
-      integer :: userrc
-
-        associate ( &
-             importState => this%states%importState, &
-             exportState => this%states%exportState)
-          
-          call ESMF_GridCompInitialize(this%gridcomp, &
-               importState=importState, exportState=exportState, &
-               clock=clock, phase=phase_idx, userRC=userrc, _RC)
-          _VERIFY(userRC)
-        end associate
-
-      _RETURN(_SUCCESS)
-     end subroutine initialize
-
-   recursive subroutine run(this, clock, phase_idx, rc)
-      class(UserComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
-      integer, optional, intent(in) :: phase_idx
-      integer, intent(out) :: rc
-
-      integer :: status
-      integer :: userrc
-        associate ( &
-             importState => this%states%importState, &
-             exportState => this%states%exportState)
-          call ESMF_GridCompRun(this%gridcomp, &
-               importState=importState, exportState=exportState, &
-               clock=clock, phase=phase_idx, userrc=userrc, _RC)
-          _VERIFY(userRC)
-
-        end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine run
-
-   recursive subroutine finalize(this, clock, phase, rc)
-      class(UserComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
-      integer, optional, intent(in) :: phase
-      integer, intent(out) :: rc
-
-      integer :: status
-      integer :: userrc
-
-      associate ( &
-           importState => this%states%importState, &
-           exportState => this%states%exportState)
-        call ESMF_GridCompFinalize(this%gridcomp, &
-             importState=importState, exportState=exportState, &
-             clock=clock, phase=phase, userrc=userrc, _RC)
-        _VERIFY(userRC)
-
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine finalize
 
    ! Accessors
    
@@ -139,12 +108,6 @@ contains
       gridcomp = this%gridcomp
    end function get_gridcomp
 
-   function get_states(this) result(states)
-      type(MultiState) :: states
-      class(UserComponent), intent(in) :: this
-
-      states = this%states
-   end function get_states
 
    function get_name(this, rc) result(name)
       character(:), allocatable :: name

@@ -89,6 +89,7 @@ contains
       gridcomp = this%gridcomp
    end function get_gridcomp
 
+
    function get_name(this, rc) result(name)
       character(:), allocatable :: name
       class(ComponentHandler), intent(in) :: this
