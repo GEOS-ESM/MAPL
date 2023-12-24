@@ -9,7 +9,6 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VariableSpecVector
    use mapl3g_ComponentSpec
    use mapl3g_GenericPhases
-   use mapl3g_ComponentHandler
    use mapl3g_Validation, only: is_valid_name
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
@@ -26,7 +25,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_StateExtension
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
-   use mapl3g_UserComponent
+   use mapl3g_ComponentHandler
    use mapl_ErrorHandling
    use mapl3g_VerticalGeom
    use gFTL2_StringVector
@@ -45,7 +44,7 @@ module mapl3g_OuterMetaComponent
       private
       
       type(ESMF_GridComp)                         :: self_gridcomp
-      type(UserComponent)                         :: user_component
+      type(ComponentHandler)                         :: user_component
       type(MethodPhasesMap)                       :: user_phases_map
       type(ESMF_HConfig)                          :: hconfig
 
@@ -184,7 +183,7 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
 
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_component = UserComponent(user_gridcomp, MultiState())
+      outer_meta%user_component = ComponentHandler(user_gridcomp, MultiState())
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
@@ -911,7 +910,7 @@ contains
    end function get_lgr
 
    function get_user_component(this) result(user_component)
-      type(UserComponent), pointer :: user_component
+      type(ComponentHandler), pointer :: user_component
       class(OuterMetaComponent), target, intent(in) :: this
       user_component => this%user_component
    end function get_user_component

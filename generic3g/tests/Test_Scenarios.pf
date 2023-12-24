@@ -587,7 +587,7 @@ contains
 
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)
-      use mapl3g_UserComponent
+      use mapl3g_ComponentHandler
       type(ESMF_GridComp), target, intent(inout) :: gc
       type(MultiState), intent(in) :: states
       character(*), intent(in) :: component_path
@@ -600,7 +600,7 @@ contains
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: idx
-      type(UserComponent), pointer :: user_component
+      type(ComponentHandler), pointer :: user_component
 
       rc = 0
 

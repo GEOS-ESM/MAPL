@@ -19,10 +19,10 @@ module mapl3g_Generic
    use :: mapl3g_InnerMetaComponent, only: InnerMetaComponent
    use :: mapl3g_InnerMetaComponent, only: get_inner_meta
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
-   use :: mapl3g_UserComponent, only: UserComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_ComponentSpec, only: ComponentSpec
    use :: mapl3g_VariableSpec, only: VariableSpec
+   use :: mapl3g_ComponentHandler, only: ComponentHandler
    use :: mapl3g_UngriddedDimsSpec, only: UngriddedDimsSpec
    use :: mapl3g_Validation, only: is_valid_name
    use :: mapl3g_ESMF_Interfaces, only: I_Run
@@ -263,7 +263,7 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(UserComponent), pointer :: user_component
+      type(ComponentHandler), pointer :: user_component
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       user_component => outer_meta%get_user_component()

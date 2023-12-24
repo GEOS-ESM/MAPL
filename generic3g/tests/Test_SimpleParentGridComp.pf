@@ -8,7 +8,7 @@ module Test_SimpleParentGridComp
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use mapl3g_MultiState
-   use mapl3g_UserComponent
+   use mapl3g_ComponentHandler
    use mapl3g_VerticalGeom
    use mapl_KeywordEnforcer
    use esmf
@@ -115,7 +115,7 @@ contains
          type(OuterMetaComponent), pointer :: child_meta
          type(ESMF_GridComp) :: child_gc
          type(ComponentHandler) :: child_comp
-         type(UserComponent), pointer :: user_component
+         type(ComponentHandler), pointer :: user_component
 
          status = 1
 
@@ -206,7 +206,7 @@ contains
          type(OuterMetaComponent), pointer :: child_meta
          type(ESMF_GridComp) :: child_gc
          type(ComponentHandler) :: child_comp
-         type(UserComponent), pointer :: user_component
+         type(ComponentHandler), pointer :: user_component
          status = 1
 
          child_comp = outer_meta%get_child(child_name, rc=status)
@@ -271,7 +271,7 @@ contains
          type(MultiState) :: states
          type(ESMF_State) :: state
          integer :: itemCount
-         type(UserComponent), pointer :: user_component
+         type(ComponentHandler), pointer :: user_component
 
          status = -1
 
@@ -349,7 +349,7 @@ contains
    end subroutine test_parent_outer_items_created
 
    subroutine get_child_user_states(states, outer_meta, child_name, rc)
-      use mapl3g_UserComponent
+      use mapl3g_ComponentHandler
       type(MultiState), intent(out) :: states
       type(OuterMetaComponent), target, intent(in) :: outer_meta
       character(*), intent(in) :: child_name
@@ -359,7 +359,7 @@ contains
       type(ComponentHandler) :: child_comp
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: child_meta
-      type(UserComponent), pointer :: user_component
+      type(ComponentHandler), pointer :: user_component
 
       rc = +1
       child_comp = outer_meta%get_child(child_name, rc=status)
