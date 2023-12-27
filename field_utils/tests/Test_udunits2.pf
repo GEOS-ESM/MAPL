@@ -1,263 +1,294 @@
-#if defined XML_PATH
-#undef XML_PATH
-#endif
-
+! Verify no memory leaks - free all
 #if defined(MAXPATHLEN)
 #undef MAXPATHLEN
 #endif
 #define MAXPATHLEN 1024
-
-! This needs to be set to a path to the xml unit database for testing.
-!#define XML_PATH 
-
 module Test_udunits2
 
    use funit
    use udunits2mod
-   ! The instances from iso_c_binding are not explicitly included in an include
-   ! statement, to verify that the use statement for the module being tested
-   ! is correct.
    use iso_c_binding, only: c_ptr, c_null_ptr, c_double, c_float, c_associated
 
    implicit none
 
-!   include 'udunits2enumerators.h'
-!   include "udunits2interfaces.h"
-
-   integer(ut_encoding) :: encoding = UT_ASCII
-   type(c_ptr) :: ut_system_ptr, unit1, unit2
-!   integer, parameter :: MAXPATHLEN = 1024
+   integer(ut_encoding), parameter :: ENCODING = UT_ASCII
    character(len=*), parameter :: KM = 'km'
    character(len=*), parameter :: M = 'm'
    character(len=*), parameter :: S = 's'
 
-   character(kind=c_char, len=:), allocatable :: path_environment
-
 contains
 
 !   @Test
-!   subroutine test_get_unit_database_path()
-!      character(len=MAXPATHLEN) :: path
-!      character(len=MAXPATHLEN) :: actual_path
-!      integer(ut_status) :: status, expected_status
-!      integer :: expected, actual
-!      character(len=:), allocatable :: message
-!
-!      expected_status = UT_OPEN_ENV
-!      expected = expected_status
-!      call get_unit_database_path(actual_path, status=status)
-!      actual = status
-!   !   if(actual /= expected) message = get_ut_status_message(status) // ' /= ' // get_ut_status_message(expected_status)
-!      @assertEqual(actual, expected, 'status codes do not match')
-!      @assertTrue(len_trim(actual_path) > 0, 'zero length path: ' // trim(path))
-!
-!   end subroutine test_get_unit_database_path
-
-!   @Test
-!   subroutine test_initialize()
-!      type(c_ptr) :: ptr
-
-!      ptr = initialize()
-!      @assertEqual(ptr, c_null_ptr, 'initialize returned the C null pointer (no path).')
-
-!#if defined XML_PATH
-!      ptr = initialize(XML_PATH)
-!      @assertTrue(c_associated(ptr), 'initialize returned the C null pointer (path).')
-!#endif
-
-!   end subroutine test_initialize
-   
-   !@Test
    subroutine test_get_converter()
       type(MAPL_Udunits_Converter) :: conv
+      type(c_ptr) :: utsystem, cvconverter
+      integer(ut_status) :: utstatus
 
-      conv = get_converter(KM, M, encoding=encoding)
-      @assertTrue(c_associated(conv % ptr), 'get_converter returned the C null pointer.')
+      conv = get_converter(KM, M, encoding=ENCODING)
+      cvconverter = conv % cptr()
+      @assertTrue(c_associated(cvconverter), 'get_converter returned the C null pointer.')
+      call conv % destroy()
+      call destroy_all()
 
-   end subroutine test_get_converter
+  end subroutine test_get_converter
 
-   !@Test
+!   @Test
+   subroutine test_initialize_ut_system()
+      type(c_ptr) :: utsystem
+      integer(ut_status) :: utstatus
+
+      call initialize_ut_system(rc=utstatus)
+
+      if(utstatus == UT_SUCCESS) then
+         utsystem = get_system_cptr()
+         @assertTrue(c_associated(utsystem), 'system cptr is null (no path).')
+      else
+         @assertEqual(UT_SUCCESS, utstatus, 'Failed to initialize')
+      end if
+      call destroy_all()
+
+   end subroutine test_initialize_ut_system
+   
+!   @Test
    subroutine test_get_converter_noencoding()
       type(MAPL_Udunits_Converter) :: conv
+      type(c_ptr) :: utsystem
+      integer(ut_status) :: utstatus
 
       conv = get_converter(KM, M)
-      @assertTrue(c_associated(conv % ptr), 'get_converter returned the C null pointer.')
+      @assertTrue(c_associated(conv % cptr()), 'get_converter returned the C null pointer.')
+      if(c_associated(conv % cptr())) call cv_free(conv % cptr())
+      utsystem = get_system_cptr()
+      if(c_associated(utsystem)) call ut_free_system(utsystem)
 
    end subroutine test_get_converter_noencoding
 
-!   @Test
-   subroutine test_get_path_environment_variable()
-      integer :: status
-      character(len=MAXPATHLEN) :: xmlpath
-
-      xmlpath = get_path_environment_variable(status)
-      @assertTrue(status == 0, 'Non-zero status for get_environment variable')
-      if(status /= 0) then
-         @assertFalse(status == -1, 'local "value" variable is too short.')
-         @assertFalse(status == 1, 'environment variable does not exist')
-         @assertFalse(status == -2, 'zero length value')
-         @assertFalse(status > 2, 'processor-dependent status')
-         @assertFalse(status == 2, 'unrecognized status')
-         @assertFalse(status < -2, 'invalid status')
-      end if
-      
-      @assertTrue(len(trim(xmlpath)) < MAXPATHLEN, 'Trimmed path length too long')
-   end subroutine test_get_path_environment_variable
-
-   !@Test
-!   subroutine test_get_ut_system()
-!      type(c_ptr) :: ptr
-!      logical :: destroyed
-!
-!      ptr = get_ut_system(trim(path_environment))
-!      ptr = get_ut_system()
-!      @assertTrue(c_associated(ptr), 'get_ut_system returned the C null pointer (no path).')
-!      call ut_free_system(ptr)
-!
-!#if defined XML_PATH
-!      ptr = get_ut_system(XML_PATH)
-!      @assertTrue(c_associated(ptr), 'get_ut_system returned the C null pointer (path).')
-!      call ut_free_system(ptr)
-!#endif
-
-!   end subroutine test_get_ut_system
-
-   !@Test
-   subroutine test_are_convertible()
-!      type(c_ptr) :: unit1, unit2, ut_system_ptr
-!      
-!      ut_system_ptr = ut_read_xml(trim(path_environment))
-!      unit1 = ut_parse(ut_system_ptr, 'km', encoding)
-!      unit2 = ut_parse(ut_system_ptr, 'm', encoding)
-!      @assertTrue(are_convertible(unit1, unit2), 'Units are convertible.')
-!
-   end subroutine test_are_convertible
-
-   !@Test
-   subroutine test_are_not_convertible()
-!      type(c_ptr) :: unit1, unit2, ut_system_ptr
-!
-!      ut_system_ptr = ut_read_xml(trim(path_environment))
-!      unit1 = ut_parse(ut_system_ptr, 'km', encoding)
-!      unit2 = ut_parse(ut_system_ptr, 's', encoding)
-!      @assertFalse(are_convertible(unit1, unit2), 'Units are not convertible.')
-!
-   end subroutine test_are_not_convertible
-
    @Test
-   subroutine test_ut_read_xml()
-      integer(ut_status) :: ustat
-      type(c_ptr) :: utsys
+   subroutine test_read_xml_nopath()
       integer :: status
-      character(len=1), target :: c
-      c = c_null_char
-      
-      utsys = ut_read_xml(c_loc(c))
-!      ustat = ut_get_status()
-!      @assertEqual(ustat, UT_SUCCESS, 'Failed to get ut_system')
-!      @assertTrue(c_associated(utsys), 'Unsuccessful ut_read_xml')
-!      call ut_free_system(utsys)
-      @assertTrue(.TRUE.)
+      type(c_ptr) :: utsystem
 
-   end subroutine test_ut_read_xml
+      call read_xml(utsystem=utsystem, rc=status)
+      if(.not. c_associated(utsystem)) then
+         @assertFalse(status == UT_OS, 'Operating system error')
+         @assertFalse(status == UT_PARSE_ERROR, 'Database file could not be parsed.')
+         @assertFalse(status == UT_OPEN_ARG, 'Non-null path could not be opened.')
+         @assertFalse(status == UT_OPEN_ENV, 'Environment variable is set but could not open.')
+         @assertFalse(status == UT_OPEN_DEFAULT, 'Default database could not be opened.')
+      end if
 
-   !@Test
-!   subroutine test_ut_parse()
-!      type(c_ptr) :: utsys
-!      character(c_char), parameter :: string = 'kilogram'
-!      integer(ut_encoding) :: encoding
-!      type(c_ptr) :: path = c_null_ptr
-!      type(c_ptr) :: unit0
-!      integer(ut_status) :: ustat
-!
-!      utsys = ut_read_xml(trim(path_environment))
-!      unit0 = ut_parse(utsys, string, encoding)
-!      ustat = ut_get_status()
-!      @assertEqual(ustat, UT_SUCCESS, 'Unsuccessful')
-!      
-!   end subroutine test_ut_parse
+      call free_ut_system(utsystem)
 
-   !@Test
+   end subroutine test_read_xml_nopath
+
+!    @Test
    subroutine test_convert_double()
       real(c_double), parameter :: FROM = 1.0
       real(c_double), parameter :: EXPECTED = 1000.0
-      real(c_double) :: ACTUAL
+      real(c_double) :: actual
       type(MAPL_Udunits_Converter) :: conv
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
       conv = get_converter(FROM_STRING, TO_STRING)
-      ACTUAL = conv % convert_double(FROM)
-      @assertEqual(ACTUAL, EXPECTED, 'Actual does not equal expected.')
+      actual = conv % convert_double(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
 
    end subroutine test_convert_double
 
-   !@Test
+!   @Test
    subroutine test_convert_float()
       real(c_float), parameter :: FROM = 1.0
       real(c_float), parameter :: EXPECTED = 1000.0
-      real(c_float) :: ACTUAL
+      real(c_float) :: actual
       type(MAPL_Udunits_Converter) :: conv
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
       conv = get_converter(FROM_STRING, TO_STRING)
-      ACTUAL = conv % convert_float(FROM)
-      @assertEqual(ACTUAL, EXPECTED, 'Actual does not equal expected.')
+      actual = conv % convert_float(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
 
    end subroutine test_convert_float
 
-   !@Test
+!   @Test
    subroutine test_convert_doubles()
       real(c_double), parameter :: FROM(3) = [1.0, 2.0, 3.0]
       real(c_double), parameter :: EXPECTED(3) = 1000.0 * FROM
-      real(c_double) :: ACTUAL(size(EXPECTED))
+      real(c_double) :: actual(size(EXPECTED))
       type(MAPL_Udunits_Converter) :: conv
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
       conv = get_converter(FROM_STRING, TO_STRING)
-      call conv % convert_doubles(FROM, ACTUAL)
-      @assertEqual(ACTUAL, EXPECTED, 'Actual does not equal expected.')
+      call conv % convert_doubles(FROM, actual)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
 
    end subroutine test_convert_doubles
 
-   !@Test
+!   @Test
    subroutine test_convert_floats()
       real(c_float), parameter :: FROM(3) = [1.0, 2.0, 3.0]
       real(c_float), parameter :: EXPECTED(3) = 1000.0 * FROM
-      real(c_float) :: ACTUAL(size(EXPECTED))
+      real(c_float) :: actual(size(EXPECTED))
       type(MAPL_Udunits_Converter) :: conv
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
       conv = get_converter(FROM_STRING, TO_STRING)
-      call conv % convert_floats(FROM, ACTUAL)
-      @assertEqual(ACTUAL, EXPECTED, 'Actual does not equal expected.')
+      call conv % convert_floats(FROM, actual)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
 
    end subroutine test_convert_floats
 
-   !@Test
-   subroutine test_destroy_all()
-      @assertTrue(.FALSE., 'Test not implemented')
-   end subroutine test_destroy_all
-
-   !@Test
+   @Test
    subroutine test_destroy_system()
-      @assertTrue(.FALSE., 'Test not implemented')
+      type(MAPL_Udunits_System) :: system
+      type(c_ptr) :: utsystem, utsystem1
+      integer(ut_status) :: status
+
+      call read_xml(utsystem=utsystem)
+      @assertTrue(c_associated(utsystem), 'Create failed.')
+      if(c_associated(utsystem)) then
+         call system % set(utsystem)
+         call system % destroy()
+         utsystem1 = get_system_cptr()
+         @assertFalse(c_associated(utsystem1), 'Destroy failed.')
+         if(c_associated(utsystem1)) call ut_free_system(utsystem1)
+      end if
+
    end subroutine test_destroy_system
 
-   !@Test
+!   @Test
    subroutine test_destroy_converter()
-      @assertTrue(.FALSE., 'Test not implemented')
+      type(MAPL_Udunits_Converter) :: converter
+      type(c_ptr) :: utsystem, utunit1, utunit2, cvconverter
+      integer(ut_status) :: status
+
+      call read_xml(utsystem=utsystem, rc=status)
+      utunit1 = ut_parse(utsystem, KM // c_null_char, ENCODING)
+      utunit2 = ut_parse(utsystem, M // c_null_char, ENCODING)
+      cvconverter = ut_get_converter(utunit1, utunit2) 
+      call converter % set(cvconverter)
+      call converter % destroy()
+      @assertFalse(c_associated(converter % cptr()), 'ptr is not null')
+
+      call free_ut_unit(utunit1)
+      call free_ut_unit(utunit2)
+      call free_ut_system(utsystem)
+
    end subroutine test_destroy_converter
 
-   !@Test
-   subroutine test_destroy_ut_unit()
-      @assertTrue(.FALSE., 'Test not implemented')
-   end subroutine test_destroy_ut_unit
-
    @Test
+   subroutine test_cstring()
+      character(len=*), parameter :: s = 'FOO_BAR'
+      character(kind=c_char, len=80) :: cchs
+      character(kind=kind(cchs)) :: cc
+      integer :: n
+
+      cchs = cstring(s)
+      @assertEqual(kind((cchs)), c_char, 'Wrong kind')
+      n = len_trim(cchs)
+      @assertEqual(n, len(s)+1, 'cstring is incorrect length.')
+      cc = cchs(n:n)
+      @assertEqual(cc, c_null_char, 'Final character is not null.')
+      @assertEqual(cchs(1:(n-1)), s, 'Initial characters do not match.')
+
+   end subroutine test_cstring
+
+!   @Test
+   subroutine test_ut_get_converter()
+      type(c_ptr) :: converter, utsystem, utunit1, utunit2
+      integer(ut_status) :: status
+
+      utsystem = ut_read_xml_cptr(c_null_ptr)
+      utunit1 = ut_parse(utsystem, KM // c_null_char, ENCODING)
+      utunit2 = ut_parse(utsystem, M // c_null_char, ENCODING)
+      converter = ut_get_converter(utunit1, utunit2) 
+      status = ut_get_status()
+      if(c_associated(converter)) then
+         call cv_free(converter)
+      else
+         @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
+         @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
+         @assertFalse(status == UT_MEANINGLESS, 'Conversion between units is not possible.')
+         @assertFalse(status == UT_OS, 'Operating system failure.')
+      end if
+      
+      call free_ut_unit(utunit1)
+      call free_ut_unit(utunit2)
+      call free_ut_system(utsystem)
+
+   end subroutine test_ut_get_converter
+
+!   @Test
+   subroutine test_are_convertible()
+      integer :: status
+      logical :: convertible
+      type(c_ptr) :: utsystem, utunit1, utunit2
+
+      utsystem = ut_read_xml_cptr(c_null_ptr)
+      utunit1 = ut_parse(utsystem, 'km' // c_null_char, ENCODING)
+      utunit2 = ut_parse(utsystem, 'm' // c_null_char, ENCODING)
+      convertible = are_convertible(utunit1, utunit2, rc=status)
+      if(.not. convertible) then
+         @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
+         @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
+      end if
+
+      call free_ut_unit(utunit1)
+      call free_ut_unit(utunit2)
+      call free_ut_system(utsystem)
+
+   end subroutine test_are_convertible
+
+!   @Test
+   subroutine test_are_not_convertible()
+      integer :: status
+      logical :: convertible
+      type(c_ptr) :: utsystem, utunit1, utunit2
+
+      utsystem = ut_read_xml_cptr(c_null_ptr)
+      utunit1 = ut_parse(utsystem, 'km' // c_null_char, ENCODING)
+      utunit2 = ut_parse(utsystem, 's' // c_null_char, ENCODING)
+      convertible = are_convertible(utunit1, utunit2, rc=status)
+      @assertFalse(convertible, 'Units are not convertible.')
+      if(.not. convertible) then
+         @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
+         @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
+         @assertTrue(status == UT_SUCCESS, 'Units are not convertible.')
+      end if
+
+      call free_ut_unit(utunit1)
+      call free_ut_unit(utunit2)
+      call free_ut_system(utsystem)
+
+   end subroutine test_are_not_convertible
+
+!   @Test
+   subroutine test_get_unit()
+      integer(ut_status) :: status
+      type(c_ptr) :: utsystem, utunit
+
+      utsystem = ut_read_xml_cptr(c_null_ptr)
+      call get_unit(utsystem, 'km', ENCODING, utunit)
+      @assertTrue(c_associated(utunit), 'null pointer')
+
+      call free_ut_system(utsystem)
+      call free_ut_unit(utunit)
+
+   end subroutine test_get_unit
+
+   @Before
+   subroutine set_up()
+   end subroutine set_up
+
+   @After
+   subroutine tear_down()
+   end subroutine tear_down
+
+!=================================== UNUSED ====================================
+!   @Test
    subroutine test_get_ut_status_message()
       integer(ut_status) :: status_code
       character(len=80) :: message
@@ -290,64 +321,157 @@ contains
    end subroutine test_get_ut_status_message
 
 !   @Test
-   subroutine test_get_c_char_ptr()
-      character(len=*), parameter :: S = '/dev/null'
-      type(c_ptr) :: cptr
+   subroutine test_get_path_cptr()
+      type(c_ptr) :: ptr_
+      character(len=*), parameter :: s = 'FOO_BAR'
 
-      cptr = get_c_char_ptr(S)
-      @assertFalse(is_null(cptr), 'pointer should not be null')
+      ptr_ = get_path_cptr()
+      @assertFalse(c_associated(ptr_), 'Non-null pointer returned.')
 
-   end subroutine test_get_c_char_ptr
+   end subroutine test_get_path_cptr
 
-   subroutine make_integer_string(n, s)
-      integer, intent(in) :: n
-      character(len=*), intent(inout) :: s
-      character(len=*), parameter :: FMT_ = '(I32)'
-      integer :: ios
+   !@Test
+   subroutine test_char_cptr()
+      character(kind=c_char, len=*), parameter :: scalar = 'FOO_BAR'
 
-      if(len(s) >= 32) then
-         write(s, fmt=FMT_, iostat=ios) n
-         if(ios == 0) then
-            s = adjustl(s)
-         else
-            s = EMPTY_STRING
-         end if
-         return
+      @assertTrue(c_associated(char_cptr(scalar)), 'Unable to get c_char ptr')
+
+   end subroutine test_char_cptr
+
+!   @Test
+!   subroutine test_get_unit_database_path()
+!      character(len=MAXPATHLEN) :: path
+!      character(len=MAXPATHLEN) :: actual_path
+!      integer(ut_status) :: status, expected_status
+!      integer :: expected, actual
+!      character(len=:), allocatable :: message
+!
+!      expected_status = UT_OPEN_ENV
+!      expected = expected_status
+!      call get_unit_database_path(actual_path, status=status)
+!      actual = status
+!   !   if(actual /= expected) message = get_ut_status_message(status) // ' /= ' // get_ut_status_message(expected_status)
+!      @assertEqual(actual, expected, 'status codes do not match')
+!      @assertTrue(len_trim(actual_path) > 0, 'zero length path: ' // trim(path))
+!
+!   end subroutine test_get_unit_database_path
+
+!   @Test
+   subroutine test_get_path_environment_variable()
+      integer :: status
+      character(len=MAXPATHLEN) :: xmlpath
+
+      xmlpath = get_path_environment_variable(status)
+      @assertTrue(status == 0, 'Non-zero status for get_environment variable')
+      if(status /= 0) then
+         @assertFalse(status == -1, 'local "value" variable is too short.')
+         @assertFalse(status == 1, 'environment variable does not exist')
+         @assertFalse(status == -2, 'zero length value')
+         @assertFalse(status > 2, 'processor-dependent status')
+         @assertFalse(status == 2, 'unrecognized status')
+         @assertFalse(status < -2, 'invalid status')
       end if
-
-      s = EMPTY_STRING
       
-   end subroutine make_integer_string
+      @assertTrue(len(trim(xmlpath)) < MAXPATHLEN, 'Trimmed path length too long')
+   end subroutine test_get_path_environment_variable
 
-   @Before
-   subroutine set_up()
-      integer(ut_status) :: status
+   !@Test
+!   subroutine test_get_path_xml_null()
+!      type(c_ptr) :: xmlpath
+!      character(kind=c_char) :: xmlpath(MAXPATHLEN)
+!      integer :: status
+!
+!      call get_path_xml_null(xmlpath, rc = status)
+!      @assertEqual(UT_SUCCESS, status, 'Not successful')
+!
+!   end subroutine test_get_path_xml_null
+      
+!   @Test
+   subroutine test_ut_get_path_xml()
+      integer(ut_status) :: utstatus
+      character(kind=c_char, len=MAXPATHLEN) :: xmlpath
+      logical :: xmlpath_found
+!      type(c_ptr) :: xmlpath
+!      call ut_get_path_xml(c_null_ptr, utstatus, xmlpath)
+!      @assertTrue(len_trim(xmlpath) > 0, 'Empty xmlpath')
+!      xmlpath_found = (utstatus == UT_OPEN_ENV .or. utstatus == UT_OPEN_DEFAULT)
+!      @assertTrue(xmlpath_found, 'Path not obtained from environment or default')
+!      @assertEqual(0, utstatus)
+   end subroutine test_ut_get_path_xml
 
-      if(.not. allocated(path_environment)) &
-         path_environment = get_path_environment_variable(status)
+!   @Test
+!   subroutine test_ut_read_xml_get_path()
+!      integer(ut_status) :: utstat
+!      type(c_ptr) :: utsys, pathptr
+!      character(kind=c_char, len=MAXPATHLEN) :: path
+!      logical :: successful
+!      character(80) :: status_message
+!
+!      pathptr = ut_get_path_xml(c_null_ptr, utstat)
+!      @assertTrue(len_trim(path) > 0, 'Empty path')
+!      utsys = ut_read_xml(trim(path) // c_null_char)
+!      successful = c_associated(utsys)
+!      if(.not. successful) then
+!         utstat = ut_get_status()
+!         status_message = get_ut_status_message(utstat)
+!         @assertTrue(successful, 'Failed to get system with path: "' // trim(path) // '", status_message: ' // trim(status_message))
+!      end if
+!      !@assertTrue(successful, 'Null system')
+!      @assertEqual(0, utstat, 'Not success')
+!      if(successful) call ut_free_system(utsys)
+!
+!   end subroutine test_ut_read_xml_get_path
 
-      encoding = UT_ASCII
-      call SYSTEM_INSTANCE % set()
-      ut_system_ptr = c_null_ptr
-      unit1 = c_null_ptr
-      unit2 = c_null_ptr
+!   @Test
+!   subroutine test_ut_read_xml()
+!      integer(ut_status) :: utstat
+!      integer(I32) :: ierrno_value
+!      character(len=80) :: message, ierrno_string
+!      integer :: ios
+!      type(c_ptr) :: utsys
+!      logical :: successful
+!
+!      utsys = ut_read_xml_cptr(c_null_ptr)
+!      utstat = ut_get_status()
+!      successful = c_associated(utsys)
+!      @assertTrue(successful, 'Null system')
+!      @assertEqual(0, utstat, 'Not success')
+!      if(successful) call ut_free_system(utsys)
+      !call ut_free_system(utsys)
+!      ierrno_value = 0
+!      !sysptr = ut_read_xml_cptr(c_null_ptr)
+!      utstat = ut_get_status()
+!      @assertFalse(utstat == UT_OPEN_ARG, 'File not found (path)')
+!      @assertFalse(utstat == UT_OPEN_ENV, 'File not found (environment variable)')
+!      @assertFalse(utstat == UT_OPEN_DEFAULT, 'File not found (default)')
+!      @assertFalse(utstat == UT_OS, 'Operating system error')
+!      if(utstat == UT_OS) then
+!         ierrno_value = ierrno()
+!         write(ierrno_string, fmt='(I32)', iostat=ios) ierrno_value
+!         if(ios == 0) then
+!            write(message, fmt='(A)', iostat=ios) 'ierrno = ' // trim(adjustl(ierrno_string))
+!            if(ios == 0) call write_message(trim(message))
+!         end if
+!      end if
+!      @assertFalse(utstat == UT_PARSE_ERROR, 'Database file could not be parsed')
+!      @assertEqual(UT_SUCCESS, utstat, 'Failed to get ut_system') 
+!      @assertTrue(c_associated(sysptr), 'Unsuccessful ut_read_xml')
 
-   end subroutine set_up
+!   end subroutine test_ut_read_xml
 
-   @After
-   subroutine tear_down()
+   !@Test
+   subroutine test_ut_parse()
+      type(c_ptr) :: utsys
+      character(kind=c_char, len=*), parameter :: string = 'kilogram'
+      type(c_ptr) :: unit0
+      integer(ut_status) :: ustat
 
-      encoding = UT_ASCII
-      !call destroy_all()
-
-      if(allocated(path_environment)) deallocate(path_environment)
-      if(c_associated(unit1)) call ut_free(unit1)
-      if(c_associated(unit2)) call ut_free(unit2)
-      if(c_associated(ut_system_ptr)) call ut_free_system(ut_system_ptr)
-!      if(.not. is_null(ut_system_ptr)) call ut_free_system(ut_system_ptr)
-!      if(.not. is_null(unit1)) call ut_free(unit1)
-!      if(.not. is_null(unit2)) call ut_free(unit2)
-
-   end subroutine tear_down
+      !utsys = ut_read_xml_cptr(c_null_ptr)
+      unit0 = ut_parse(utsys, trim(string) // c_null_char, ENCODING)
+      ustat = ut_get_status()
+      @assertTrue(c_associated(unit0), 'null pointer')
+      @assertEqual(UT_SUCCESS, ustat, 'Unsuccessful')
+      
+   end subroutine test_ut_parse
 
 end module Test_udunits2
