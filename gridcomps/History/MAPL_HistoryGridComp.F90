@@ -5278,6 +5278,7 @@ ENDDO PARSER
     integer :: length_mx
     integer :: mxseg
     integer :: nseg
+    integer :: nseg_ub    
     integer :: nfield, nplatform
     integer :: nentry_name
     logical :: obs_flag
@@ -5378,6 +5379,7 @@ ENDDO PARSER
        call scan_contain(unitr, 'geovals_fields:', .false.)
        ios=0
        ngeoval=0
+       nseg_ub=0
        do while (ios == 0)
           read (unitr, '(A)' ) line
           i=index(line, '::')
@@ -5385,15 +5387,17 @@ ENDDO PARSER
              ngeoval = ngeoval + 1
              call  split_string_by_space (line, length_mx, mxseg, &
                   nseg, str_piece, status)
+             nseg_ub = max(nseg_ub, nseg)
           else
              exit
           endif
        enddo
        PLFS(k)%ngeoval = ngeoval
-       PLFS(k)%nentry_name = nseg
+       PLFS(k)%nentry_name = nseg_ub
 !!       call lgr%debug('%a %i','ngeoval=', ngeoval)
-       allocate ( PLFS(k)%field_name (nseg, ngeoval) )
-       nentry_name = nseg   ! assume the same for each field_name
+       allocate ( PLFS(k)%field_name (nseg_ub, ngeoval) )
+       PLFS(k)%field_name = ''
+!!       nentry_name = nseg_ub   ! assume the same for each field_name
     end do
 
 

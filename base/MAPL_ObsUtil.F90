@@ -363,6 +363,8 @@ contains
           nlat = nlats(i)
           allocate (time_loc_R8(nlon, nlat))
           call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
+          write(6,*) 'af ith, filename', i, trim(filename)
+
           do j=1, nlat
              !
              ! -- filter, e.g., eliminate -9999
@@ -565,10 +567,12 @@ contains
           ncid=ncid2
        endif
     else
-       !! print*, 'no grp name'
+       print*, 'no grp name'
        ncid=ncid2
     endif
     call check_nc_status(nf90_inq_varid(ncid, short_name, varid), _RC)
+    write(6,*) 'ncid, short_name, varid', ncid, trim(short_name), varid
+
     call check_nc_status(nf90_get_var(ncid, varid, var2d), _RC)
 !!    call check_nc_status(nf90_close(ncid), _RC)
 

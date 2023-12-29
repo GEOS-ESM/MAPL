@@ -408,7 +408,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               end if
               call MAPL_FieldBundleAdd(new_bundle,dst_field,_RC)
            else if (item%itemType == ItemTypeVector) then
-              _FAIL("ItemTypeVector not yet supported")
+!!              _FAIL("ItemTypeVector not yet supported")
            end if
            call iter%next()
         enddo
