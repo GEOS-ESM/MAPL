@@ -390,8 +390,8 @@ contains
           allocate (lat(Xdim, Ydim))
        end if
        !
-       write(6,'(2x,a,10i10)') 'true  Xdim, Ydim:', Xdim, Ydim
-       write(6,'(2x,a,10i10)') 'false Xdim, Ydim:', nlon, j2
+       !!write(6,'(2x,a,10i10)') 'true  Xdim, Ydim:', Xdim, Ydim
+       !!write(6,'(2x,a,10i10)') 'false Xdim, Ydim:', nlon, j2
        !
 
 
@@ -574,7 +574,7 @@ contains
 !!    write(6,*) 'ncid, short_name, varid', ncid, trim(short_name), varid
 
     call check_nc_status(nf90_get_var(ncid, varid, var2d), _RC)
-!!    call check_nc_status(nf90_close(ncid), _RC)
+    call check_nc_status(nf90_close(ncid), _RC)
 
     _RETURN(_SUCCESS)
 
