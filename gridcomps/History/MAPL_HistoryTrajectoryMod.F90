@@ -40,7 +40,7 @@ module HistoryTrajectoryMod
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime
-     type(ESMF_TimeInterval)  :: epoch_frequency
+     type(ESMF_TimeInterval), public  :: epoch_frequency
 
      integer                        :: nobs_type
 !     character(len=ESMF_MAXSTR)     :: nc_index

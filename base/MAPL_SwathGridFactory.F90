@@ -563,10 +563,10 @@ contains
          this%M_file = M_file
          write(6,'(10(2x,a20,2x,i40))') &         
               'M_file:', M_file
-         !!do i=1, M_file
-         !!   write(6,'(10(2x,a14,i4,a2,2x,a))') &
-         !!        'filenames(', i, '):', trim(this%filenames(i))
-         !!end do
+         do i=1, M_file
+            write(6,'(10(2x,a14,i4,a2,2x,a))') &
+                 'filenames(', i, '):', trim(this%filenames(i))
+         end do
 
          !------------------------------------------------------------         
          !  QC for obs files:

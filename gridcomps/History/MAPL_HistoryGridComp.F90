@@ -1636,6 +1636,9 @@ ENDDO PARSER
        else
           sec = MAPL_nsecf(list(n)%frequency) / 2
        endif
+       if (trim(list(n)%output_grid_label)=='SwathGrid') then
+          call ESMF_TimeIntervalGet(Hsampler%Frequency_epoch, s=sec, _RC)
+       end if
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
     end do
 
@@ -2401,6 +2404,7 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3517,7 +3521,7 @@ ENDDO PARSER
                     "Station_data output to new file:",trim(filename(n)))
                call list(n)%station_sampler%close_file_handle(_RC)
                call list(n)%station_sampler%create_file_handle(filename(n),_RC)
-               list(n)%currentFile = filename(n)
+               !! list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
          else

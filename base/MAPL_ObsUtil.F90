@@ -534,7 +534,7 @@ contains
     integer :: i, j
     character(len=ESMF_MAXSTR) :: grp1, grp2
     character(len=ESMF_MAXSTR) :: short_name    
-    integer :: ncid, ncid2, varid
+    integer :: ncid, ncid1, ncid2, ncid_final, varid
     logical :: found_group
     integer :: status
 
@@ -559,21 +559,28 @@ contains
        short_name=var_name
     endif
 
-    call check_nc_status(nf90_open(filename, NF90_NOWRITE, ncid2), _RC)
+
+    ! ncid
+    ! ncid1:  grp1
+    ! ncid2:  grp2
+    !
+    call check_nc_status(nf90_open(filename, NF90_NOWRITE, ncid), _RC)
+    ncid_final = ncid
     if ( found_group ) then
-       call check_nc_status(nf90_inq_ncid(ncid2, grp1, ncid), _RC)
+       call check_nc_status(nf90_inq_ncid(ncid, grp1, ncid1), _RC)
+       ncid_final = ncid1
        if (j>0) then
-          call check_nc_status(nf90_inq_ncid(ncid, grp2, ncid2), _RC)
-          ncid=ncid2
+          call check_nc_status(nf90_inq_ncid(ncid1, grp2, ncid2), _RC)
+          ncid_final = ncid2
        endif
     else
 !!       print*, 'no grp name'
-       ncid=ncid2
     endif
-    call check_nc_status(nf90_inq_varid(ncid, short_name, varid), _RC)
+    
+    call check_nc_status(nf90_inq_varid(ncid_final, short_name, varid), _RC)
 !!    write(6,*) 'ncid, short_name, varid', ncid, trim(short_name), varid
+    call check_nc_status(nf90_get_var(ncid_final, varid, var2d), _RC)
 
-    call check_nc_status(nf90_get_var(ncid, varid, var2d), _RC)
     call check_nc_status(nf90_close(ncid), _RC)
 
     _RETURN(_SUCCESS)

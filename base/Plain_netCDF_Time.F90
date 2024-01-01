@@ -245,9 +245,6 @@ contains
     integer, intent(out), optional :: rc
 
     _ASSERT(status == nf90_noerr, 'netCDF error: '//trim(nf90_strerror(status)))
-!    if (status /= nf90_noerr) then
-!       _FAIL('netCDF error: '//trim(nf90_strerror(status)))
-!    end if
     _RETURN(_SUCCESS)
 
   end subroutine check_nc_status
