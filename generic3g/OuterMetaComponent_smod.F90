@@ -84,9 +84,9 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ComponentHandler), pointer :: child_comp
+         type(ComponentDriver), pointer :: child_comp
          type(ESMF_GridComp) :: child_outer_gc
-         type(ComponentHandlerMapIterator) :: iter
+         type(ComponentDriverMapIterator) :: iter
 
           associate ( e => this%children%ftn_end() )
             iter = this%children%ftn_begin()
@@ -114,7 +114,7 @@ contains
       integer :: status
       type(ESMF_GridComp) :: child_gc
       type(ESMF_State) :: importState, exportState
-      type(ComponentHandler) :: child_comp
+      type(ComponentDriver) :: child_comp
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
@@ -122,7 +122,7 @@ contains
       call ESMF_GridCompSetServices(child_gc, generic_setservices, _RC)
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=child_name, _RC)
       exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=child_name,  _RC)
-      child_comp = ComponentHandler(child_gc, MultiState(importState=importState, exportState=exportState))
+      child_comp = ComponentDriver(child_gc, MultiState(importState=importState, exportState=exportState))
 
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
       call this%children%insert(child_name, child_comp)

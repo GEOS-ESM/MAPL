@@ -1,15 +1,15 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_ComponentHandler
+module mapl3g_ComponentDriver
    use mapl3g_MultiState
    use mapl_ErrorHandlingMod
    use :: esmf
    implicit none
    private
 
-   public :: ComponentHandler
+   public :: ComponentDriver
 
-   type :: ComponentHandler
+   type :: ComponentDriver
       private
       type(ESMF_GridComp) :: gridcomp
       type(MultiState) :: states
@@ -25,17 +25,17 @@ module mapl3g_ComponentHandler
       procedure :: get_gridcomp
       procedure :: get_name
 
-   end type ComponentHandler
+   end type ComponentDriver
 
-   interface ComponentHandler
-      module procedure new_ComponentHandler
-   end interface ComponentHandler
+   interface ComponentDriver
+      module procedure new_ComponentDriver
+   end interface ComponentDriver
 
    interface
 
       module recursive subroutine initialize_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ComponentHandler), intent(inout) :: this
+         class(ComponentDriver), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -46,7 +46,7 @@ module mapl3g_ComponentHandler
       ! on OuterMetaComponent.
       module recursive subroutine run_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ComponentHandler), intent(inout) :: this
+         class(ComponentDriver), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -55,7 +55,7 @@ module mapl3g_ComponentHandler
 
       module recursive subroutine finalize_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ComponentHandler), intent(inout) :: this
+         class(ComponentDriver), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -65,34 +65,34 @@ module mapl3g_ComponentHandler
       module function get_states(this) result(states)
          use mapl3g_MultiState
          type(MultiState) :: states
-         class(ComponentHandler), intent(in) :: this
+         class(ComponentDriver), intent(in) :: this
       end function get_states
 
    end interface
 
 contains
 
-   function new_ComponentHandler(gridcomp, states) result(child)
-      type(ComponentHandler) :: child
+   function new_ComponentDriver(gridcomp, states) result(child)
+      type(ComponentDriver) :: child
       type(ESMF_GridComp), intent(in) :: gridcomp
       type(MultiState), intent(in) :: states
 
       child%gridcomp = gridcomp
       child%states = states
 
-   end function new_ComponentHandler
+   end function new_ComponentDriver
 
    function get_gridcomp(this) result(gridcomp)
       use esmf, only: ESMF_GridComp
       type(ESMF_GridComp) :: gridcomp
-      class(ComponentHandler), intent(in) :: this
+      class(ComponentDriver), intent(in) :: this
       gridcomp = this%gridcomp
    end function get_gridcomp
 
 
    function get_name(this, rc) result(name)
       character(:), allocatable :: name
-      class(ComponentHandler), intent(in) :: this
+      class(ComponentDriver), intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -104,4 +104,4 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function get_name
 
-end module mapl3g_ComponentHandler
+end module mapl3g_ComponentDriver

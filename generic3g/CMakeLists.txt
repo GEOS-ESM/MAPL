@@ -17,9 +17,9 @@ set(srcs
   UserSetServices.F90
   MethodPhasesMap.F90
 
-  ComponentHandler.F90
-  ComponentHandler_smod.F90
-  ComponentHandlerMap.F90
+  ComponentDriver.F90
+  ComponentDriver_smod.F90
+  ComponentDriverMap.F90
 #  GenericCouplerComponent.F90
 #  CouplerComponentVector.F90
 
@@ -62,6 +62,7 @@ add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(actions)
+add_subdirectory(couplers)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

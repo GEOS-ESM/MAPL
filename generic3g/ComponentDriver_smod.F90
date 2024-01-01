@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule(mapl3g_ComponentHandler) ComponentHandler_run_smod
+submodule(mapl3g_ComponentDriver) ComponentDriver_run_smod
    use :: mapl_ErrorHandling
    use :: mapl3g_OuterMetaComponent
    use :: mapl3g_MethodPhasesMapUtils
@@ -10,7 +10,7 @@ submodule(mapl3g_ComponentHandler) ComponentHandler_run_smod
 contains
 
    module recursive subroutine run_self(this, clock, unusable, phase_idx, rc)
-      class(ComponentHandler), intent(inout) :: this
+      class(ComponentDriver), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
@@ -35,7 +35,7 @@ contains
    end subroutine run_self
 
    recursive module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
-      class(ComponentHandler), intent(inout) :: this
+      class(ComponentDriver), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
@@ -59,7 +59,7 @@ contains
    end subroutine initialize_self
 
    module recursive subroutine finalize_self(this, clock, unusable, phase_idx, rc)
-      class(ComponentHandler), intent(inout) :: this
+      class(ComponentDriver), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
@@ -83,9 +83,9 @@ contains
 
    module function get_states(this) result(states)
       type(MultiState) :: states
-      class(ComponentHandler), intent(in) :: this
+      class(ComponentDriver), intent(in) :: this
 
       states = this%states
    end function get_states
 
-end submodule ComponentHandler_run_smod
+end submodule ComponentDriver_run_smod
