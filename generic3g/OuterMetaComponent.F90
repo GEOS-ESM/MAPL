@@ -179,8 +179,10 @@ contains
       class(AbstractUserSetServices), intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: hconfig
 
+      type(ESMF_Clock) :: clock_tmp
+      
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_component = ComponentDriver(user_gridcomp, MultiState())
+      outer_meta%user_component = ComponentDriver(user_gridcomp, MultiState(), clock_tmp)
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
@@ -227,10 +229,9 @@ contains
       _RETURN(_SUCCESS)
    end function get_child_by_name
 
-   subroutine run_child_by_name(this, child_name, clock, unusable, phase_name, rc)
+   subroutine run_child_by_name(this, child_name, unusable, phase_name, rc)
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
-      type(ESMF_Clock), intent(inout) :: clock
       class(KE), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
@@ -248,14 +249,13 @@ contains
          _ASSERT(found, "run phase: <"//phase_name//"> not found.")
       end if
 
-      call child%run(clock, phase_idx=phase_idx, _RC)
+      call child%run(phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
 
-   subroutine run_children_(this, clock, unusable, phase_name, rc)
+   subroutine run_children_(this, unusable, phase_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
       class(KE), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
@@ -266,7 +266,7 @@ contains
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
         do while (iter /= e)
-           call this%run_child(iter%first(), clock, phase_name=phase_name, _RC)
+           call this%run_child(iter%first(), phase_name=phase_name, _RC)
            call iter%next()
         end do
       end associate
@@ -381,11 +381,11 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+         call this%user_component%initialize(phase_idx=phase, _RC)
       end if
 
       call apply_to_children(this, set_child_geom, _RC)
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_GEOM, _RC)
+      call apply_to_children(this, phase_idx=GENERIC_INIT_GEOM, _RC)
 
       _RETURN(ESMF_SUCCESS)
    contains
@@ -425,12 +425,12 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+         call this%user_component%initialize(phase_idx=phase, _RC)
       end if
 
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
+      call apply_to_children(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
 
       call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
@@ -553,7 +553,7 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+         call this%user_component%initialize(phase_idx=phase, _RC)
       end if
 
       user_states = this%user_component%get_states()
@@ -563,7 +563,7 @@ contains
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
 
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
+      call apply_to_children(this, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
       
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -587,10 +587,10 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+         call this%user_component%initialize(phase_idx=phase, _RC)
       end if
 
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_REALIZE, _RC)
+      call apply_to_children(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
       call this%registry%allocate(_RC)
       
       _RETURN(ESMF_SUCCESS)
@@ -599,9 +599,8 @@ contains
 
    end subroutine initialize_realize
 
-   recursive subroutine apply_to_children_simple(this, clock, phase_idx, rc)
+   recursive subroutine apply_to_children_simple(this, phase_idx, rc)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
       integer :: phase_idx
       integer, optional, intent(out) :: rc
 
@@ -613,7 +612,7 @@ contains
         iter = b
         do while (iter /= e)
            child => iter%second()
-           call child%initialize(clock, phase_idx=phase_idx, _RC)
+           call child%initialize(phase_idx=phase_idx, _RC)
            call iter%next()
         end do
       end associate
@@ -651,9 +650,9 @@ contains
 
    recursive subroutine initialize_user(this, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_Clock) :: clock
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
-      type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -666,10 +665,10 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(clock, phase_idx=phase, _RC)
+         call this%user_component%initialize(phase_idx=phase, _RC)
       end if
 
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_USER, _RC)
+      call apply_to_children(this, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -704,7 +703,7 @@ contains
          initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
          phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
          if (found) then
-            call this%user_component%initialize(clock, phase_idx=phase, _RC)
+            call this%user_component%initialize(phase_idx=phase, _RC)
          end if
 
       end select
@@ -731,7 +730,7 @@ contains
       run_phases => this%get_phases(ESMF_METHOD_RUN)
       phase = get_phase_index(run_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%run(clock, phase_idx=phase, _RC)
+         call this%user_component%run(phase_idx=phase, _RC)
       end if
 
 !#      call this%user_component%run(clock, phase_name=phase_name, _RC)
@@ -771,13 +770,13 @@ contains
         ! TODO:  Should there be a phase option here?  Probably not
         ! right as is when things get more complicated.
 
-        call this%user_component%finalize(clock, _RC)
+        call this%user_component%finalize(_RC)
 
         associate(b => this%children%begin(), e => this%children%end())
           iter = b
           do while (iter /= e)
              child => iter%second()
-             call child%finalize(clock, phase_idx=GENERIC_FINALIZE_USER, _RC)
+             call child%finalize(phase_idx=GENERIC_FINALIZE_USER, _RC)
              call iter%next()
           end do
         end associate

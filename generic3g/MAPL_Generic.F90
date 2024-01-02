@@ -184,10 +184,9 @@ contains
    ! In this procedure, gridcomp is actually an _outer_ gridcomp.   The intent is that
    ! an inner gridcomp will call this on its child which is a wrapped user comp.
 
-   subroutine run_child_by_name(gridcomp, child_name, clock, unusable, phase_name, rc)
+   subroutine run_child_by_name(gridcomp, child_name, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
-      type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
@@ -196,16 +195,15 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%run_child(child_name, clock, phase_name=phase_name, _RC)
+      call outer_meta%run_child(child_name, phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine run_child_by_name
 
 
-   subroutine run_children(gridcomp, clock, unusable, phase_name, rc)
+   subroutine run_children(gridcomp, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), intent(in) :: phase_name
       integer, optional, intent(out) :: rc
@@ -214,7 +212,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%run_children(clock, phase_name=phase_name, _RC)
+      call outer_meta%run_children(phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

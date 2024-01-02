@@ -9,9 +9,8 @@ submodule(mapl3g_ComponentDriver) ComponentDriver_run_smod
 
 contains
 
-   module recursive subroutine run_self(this, clock, unusable, phase_idx, rc)
+   module recursive subroutine run(this, unusable, phase_idx, rc)
       class(ComponentDriver), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
@@ -25,18 +24,17 @@ contains
         call ESMF_GridCompRun(this%gridcomp, &
              importState=importState, &
              exportState=exportState, &
-             clock=clock, &
+             clock=this%clock, &
              phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
       end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine run_self
+   end subroutine run
 
-   recursive module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
+   recursive module subroutine initialize(this, unusable, phase_idx, rc)
       class(ComponentDriver), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
@@ -48,7 +46,7 @@ contains
            exportState => this%states%exportState)
 
         call ESMF_GridCompInitialize(this%gridcomp, &
-             importState=importState, exportState=exportState, clock=clock, &
+             importState=importState, exportState=exportState, clock=this%clock, &
              phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
 
@@ -56,11 +54,10 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine initialize_self
+   end subroutine initialize
 
-   module recursive subroutine finalize_self(this, clock, unusable, phase_idx, rc)
+   module recursive subroutine finalize(this, unusable, phase_idx, rc)
       class(ComponentDriver), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
@@ -72,14 +69,24 @@ contains
            exportState => this%states%exportState)
 
         call ESMF_GridCompFinalize(this%gridcomp, &
-             importState=importState, exportState=exportState, clock=clock, &
+             importState=importState, exportState=exportState, clock=this%clock, &
              phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
       end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine finalize_self
+   end subroutine finalize
+
+   module subroutine advance(this, rc)
+      class(ComponentDriver), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      call ESMF_ClockAdvance(this%clock, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine advance
 
    module function get_states(this) result(states)
       type(MultiState) :: states
