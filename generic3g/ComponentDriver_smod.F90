@@ -88,6 +88,14 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advance
 
+   module function get_clock(this) result(clock)
+      type(ESMF_Clock) :: clock
+      class(ComponentDriver), intent(in) :: this
+
+      clock = this%clock
+   end function get_clock
+
+
    module function get_states(this) result(states)
       type(MultiState) :: states
       class(ComponentDriver), intent(in) :: this

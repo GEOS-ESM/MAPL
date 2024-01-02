@@ -182,7 +182,7 @@ contains
       type(ESMF_Clock) :: clock_tmp
       
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_component = ComponentDriver(user_gridcomp, MultiState(), clock_tmp)
+      outer_meta%user_component = ComponentDriver(user_gridcomp, clock_tmp)
       outer_meta%hconfig = hconfig
 
       counter = counter + 1

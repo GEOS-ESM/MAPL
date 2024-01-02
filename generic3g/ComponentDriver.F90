@@ -20,6 +20,7 @@ module mapl3g_ComponentDriver
       procedure :: finalize
       procedure :: advance
 
+      procedure :: get_clock
       procedure :: get_states
       procedure :: get_gridcomp
       procedure :: get_name
@@ -63,6 +64,12 @@ module mapl3g_ComponentDriver
          integer, optional, intent(out) :: rc
       end subroutine advance
 
+      module function get_clock(this) result(clock)
+         use esmf, only: ESMF_Clock
+         type(ESMF_Clock) :: clock
+         class(ComponentDriver), intent(in) :: this
+      end function get_clock
+
       module function get_states(this) result(states)
          use mapl3g_MultiState
          type(MultiState) :: states
@@ -73,15 +80,19 @@ module mapl3g_ComponentDriver
 
 contains
 
-   function new_ComponentDriver(gridcomp, states, clock) result(child)
+   function new_ComponentDriver(gridcomp, clock, states) result(child)
       type(ComponentDriver) :: child
       type(ESMF_GridComp), intent(in) :: gridcomp
-      type(MultiState), intent(in) :: states
       type(ESMF_Clock), intent(in) :: clock
+      type(MultiState), optional, intent(in) :: states
 
       child%gridcomp = gridcomp
-      child%states = states
       child%clock = clock
+      if (present(states)) then
+         child%states = states
+      else
+         child%states = MultiState()
+      end if
 
    end function new_ComponentDriver
 
