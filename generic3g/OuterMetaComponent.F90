@@ -88,6 +88,7 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize_realize
 
       procedure :: run
+!#      procedure :: run_clock_advance
       procedure :: finalize
       procedure :: read_restart
       procedure :: write_restart
@@ -264,11 +265,11 @@ contains
       integer :: status
       type(ComponentDriverMapIterator) :: iter
 
-      associate(b => this%children%begin(), e => this%children%end())
-        iter = b
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
         do while (iter /= e)
-           call this%run_child(iter%first(), phase_name=phase_name, _RC)
            call iter%next()
+           call this%run_child(iter%first(), phase_name=phase_name, _RC)
         end do
       end associate
 
@@ -626,7 +627,7 @@ contains
    end subroutine initialize_realize
 
    recursive subroutine apply_to_children_simple(this, phase_idx, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       integer :: phase_idx
       integer, optional, intent(out) :: rc
 
@@ -634,12 +635,12 @@ contains
       type(ComponentDriverMapIterator) :: iter
       type(ComponentDriver), pointer :: child
 
-      associate(b => this%children%begin(), e => this%children%end())
-        iter = b
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
         do while (iter /= e)
+           call iter%next()
            child => iter%second()
            call child%initialize(phase_idx=phase_idx, _RC)
-           call iter%next()
         end do
       end associate
 
@@ -754,12 +755,10 @@ contains
       integer :: phase
 
       run_phases => this%get_phases(ESMF_METHOD_RUN)
-      phase = get_phase_index(run_phases, PHASE_NAME, found=found)
+      phase = get_phase_index(run_phases, phase_name, found=found)
       if (found) then
          call this%user_component%run(phase_idx=phase, _RC)
       end if
-
-!#      call this%user_component%run(clock, phase_name=phase_name, _RC)
 
       ! TODO:  extensions should depend on phase ...
       do i = 1, this%state_extensions%size()
@@ -769,6 +768,41 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run
+
+   ! TODO: Not sure how this should actually work.  One option is that
+   ! all gridcomp drivers advance their clock in one sweep of the
+   ! hierarchy.  This will unfortunately advance the clock too often
+   ! for components that run less frequently.  An alternative is that
+   ! parent components must advace the clock of their children, which
+   ! is fine except that existing GEOS gridcomps do not do this, and
+   ! it will be the source of subtle runtime errors.  Yet another
+   ! option would be to designate a specific run phase as the "advance
+   ! clock" phase during set services.  (Default with one phase will
+   ! also be the advance clock phase.)  Then OuterMetaComponent can be
+   ! responsible and only do it when that child's run phase happens
+   ! (alarm is ringing)
+   
+
+!#   recursive subroutine run_clock_advance(this, clock, unusable, rc)
+!#      class(OuterMetaComponent), intent(inout) :: this
+!#      type(ESMF_Clock) :: clock
+!#      ! optional arguments
+!#      class(KE), optional, intent(in) :: unusable
+!#      integer, optional, intent(out) :: rc
+!#
+!#      integer :: status, userRC, i
+!#      integer :: phase_idx
+!#      type(StateExtension), pointer :: extension
+!#      type(StringVector), pointer :: run_phases
+!#      logical :: found
+!#      integer :: phase
+!#
+!#      if (found) then
+!#         call this%user_component%clock_advance(_RC)
+!#      end if
+!#
+!#      _RETURN(ESMF_SUCCESS)
+!#   end subroutine run_clock_advance
 
    recursive subroutine finalize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this

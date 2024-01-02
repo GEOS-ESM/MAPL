@@ -28,6 +28,7 @@ module mapl3g_GenericPhases
    end enum
 
    integer, parameter :: GENERIC_INIT_PHASE_SEQUENCE(*) = [ &
+        GENERIC_INIT_CLOCK, &
         GENERIC_INIT_GEOM, &
         GENERIC_INIT_ADVERTISE, &
         GENERIC_INIT_POST_ADVERTISE, &
