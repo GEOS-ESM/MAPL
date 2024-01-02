@@ -58,6 +58,7 @@ contains
          end associate
 
          ! Mandatory generic initialize phases
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_CLOCK, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GEOM, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_POST_ADVERTISE, _RC)
@@ -124,7 +125,6 @@ contains
    end function create_grid_comp_primary
 
 
-
    ! Generic initialize phases are always executed.  User component can specify
    ! additional pre-action for each phase.
    recursive subroutine initialize(gridcomp, importState, exportState, clock, rc)
@@ -141,6 +141,8 @@ contains
       outer_meta => get_outer_meta(gridcomp, _RC)
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
+      case (GENERIC_INIT_CLOCK)
+         call outer_meta%initialize_clock(clock, _RC)
       case (GENERIC_INIT_GEOM)
          call outer_meta%initialize_geom(clock, _RC)
       case (GENERIC_INIT_ADVERTISE)

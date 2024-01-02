@@ -83,7 +83,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      call ESMF_ClockAdvance(this%clock, _RC)
+!#      call ESMF_ClockAdvance(this%clock, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advance
@@ -94,6 +94,13 @@ contains
 
       clock = this%clock
    end function get_clock
+
+   module subroutine set_clock(this, clock)
+      class(ComponentDriver), intent(inout) :: this
+      type(ESMF_Clock), intent(in) :: clock
+
+      this%clock = clock
+   end subroutine set_clock
 
 
    module function get_states(this) result(states)

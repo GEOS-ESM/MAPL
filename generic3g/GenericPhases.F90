@@ -4,6 +4,7 @@ module mapl3g_GenericPhases
    
    ! Named constants
    public :: GENERIC_INIT_PHASE_SEQUENCE
+   public :: GENERIC_INIT_CLOCK
    public :: GENERIC_INIT_GEOM
    public :: GENERIC_INIT_ADVERTISE
    public :: GENERIC_INIT_POST_ADVERTISE
@@ -14,6 +15,7 @@ module mapl3g_GenericPhases
    enum, bind(c)
       !!!! IMPORTANT: USER phase must be "1" !!!!
       enumerator :: GENERIC_INIT_USER = 1
+      enumerator :: GENERIC_INIT_CLOCK
       enumerator :: GENERIC_INIT_GEOM
       enumerator :: GENERIC_INIT_ADVERTISE
       enumerator :: GENERIC_INIT_POST_ADVERTISE

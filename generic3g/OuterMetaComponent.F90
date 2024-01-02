@@ -81,6 +81,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: initialize ! init by phase name
       procedure :: initialize_user
+      procedure :: initialize_clock
       procedure :: initialize_geom
       procedure :: initialize_advertise
       procedure :: initialize_post_advertise
@@ -347,6 +348,31 @@ contains
 
 
    ! ESMF initialize methods
+
+   !-------
+   ! initialize_geom():
+   !
+   ! Note that setting the clock is really an operation on component
+   ! drivers.  Thus, the structure here is a bit different than for
+   ! other initialize phases which act at the component level (and
+   ! hence the OuterMetaComponent level).
+   !-------
+   recursive subroutine initialize_clock(this, clock, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      type(ESMF_Clock), optional :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_CLOCK'
+
+      call this%user_component%set_clock(clock) ! comp _driver_
+      call apply_to_children(this, phase_idx=GENERIC_INIT_CLOCK, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine initialize_clock
 
    !----------
    ! The procedure initialize_geom() is responsible for passing grid
