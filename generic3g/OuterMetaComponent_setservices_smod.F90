@@ -42,25 +42,13 @@ contains
       _ASSERT(associated(geom_mgr), 'uh oh - cannot acces global geom_manager.')
 
       this%component_spec = parse_component_spec(this%hconfig, _RC)
-      call process_user_gridcomp(this, _RC)
+      call this%user_component%setservices(this%self_gridcomp, _RC)
       call process_children(this, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
    contains
 
-      subroutine process_user_gridcomp(this, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         integer, optional, intent(out) :: rc
-         
-         integer :: status
-
-         call attach_inner_meta(this%user_gridcomp, this%self_gridcomp, _RC)
-         call this%user_setServices%run(this%user_gridcomp, _RC)
-
-         _RETURN(ESMF_SUCCESS)
-      end subroutine process_user_gridcomp
-      
       recursive subroutine process_children(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
@@ -127,32 +115,5 @@ contains
 
    end subroutine SetServices_
 
-
-   module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Method_Flag), intent(in) :: method_flag
-      procedure(I_Run) :: userProcedure
-      class(KE), optional, intent(in) :: unusable
-      character(len=*), optional, intent(in) :: phase_name
-      integer, optional, intent(out) ::rc
-
-      integer :: status
-      character(:), allocatable :: phase_name_
-
-      if (present(phase_name)) then
-         phase_name_ = phase_name
-      else
-         phase_name_ = get_default_phase_name(method_flag)
-      end if
-
-      call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
-
-      associate(phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name_))
-        call ESMF_GridCompSetEntryPoint(this%user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
-      end associate
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine set_entry_point
 
 end submodule OuterMetaComponent_setservices_smod

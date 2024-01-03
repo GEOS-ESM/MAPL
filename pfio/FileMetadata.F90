@@ -74,7 +74,7 @@ module pFIO_FileMetadataMod
 
    interface FileMetadata
       module procedure new_FileMetadata
-   end interface
+   end interface FileMetadata
 
 contains
 
@@ -86,8 +86,6 @@ contains
      type (StringVariableMap), optional, intent(in) :: variables
      type (StringVector), optional, intent(in) :: order
 
-
- 
      fmd%dimensions = StringIntegerMap()
      if (present(dimensions)) fmd%dimensions = dimensions
 

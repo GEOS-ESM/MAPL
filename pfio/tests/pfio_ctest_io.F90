@@ -261,7 +261,7 @@ contains
             _VERIFY(status)
          enddo
 
-         call test_formatter%create('test_in.nc4', rc=status)
+         call test_formatter%create('test_in.nc4', mode=pFIO_CLOBBER, rc=status)
          _VERIFY(status)
          call test_formatter%write(test_metadata, rc=status)
          _VERIFY(status)
@@ -457,7 +457,7 @@ program main
    integer :: rank, npes, ierror, provided,required
    integer :: status, color, key
 
-   class(BaseServer),allocatable :: iserver,oserver
+   class(BaseServer), target, allocatable :: iserver,oserver
    class(AbstractDirectoryService), allocatable, target :: directory_service
 
    type (CommandLineOptions0) :: options

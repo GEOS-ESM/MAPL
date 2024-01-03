@@ -224,7 +224,6 @@ contains
      components: do i = 1, ESMF_HConfigGetSize(this%expectations)
 
          comp_expectations = ESMF_HConfigCreateAt(this%expectations,index=i,_RC)
-
          comp_path = ESMF_HConfigAsString(comp_expectations,keyString='component',_RC)
          call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
 
@@ -590,6 +589,7 @@ contains
 
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)
+      use mapl3g_UserComponent
       type(ESMF_GridComp), target, intent(inout) :: gc
       type(MultiState), intent(in) :: states
       character(*), intent(in) :: component_path
@@ -602,6 +602,7 @@ contains
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: idx
+      type(UserComponent), pointer :: user_component
 
       rc = 0
 
@@ -618,7 +619,8 @@ contains
       child_name = component_path(:idx-1)
       
       if (child_name == '<user>') then
-         substates = outer_meta%get_user_states()
+         user_component => outer_meta%get_user_component()
+         substates = user_component%get_states()
          return
       end if
 
