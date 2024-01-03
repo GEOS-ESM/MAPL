@@ -206,7 +206,7 @@ contains
       if(conv % is_set()) then
          status = UT_SUCCESS
       else
-         status = _FAILURE
+         status = UT_FAILURE
       end if
 
       if(present(rc)) rc = status
