@@ -6,11 +6,15 @@
 module Test_udunits2
 
    use funit
+!   use udunits2mod, only: Converter => MAPL_UDUNITS_Converter, get_converter => Get_MAPL_UDUNITS_Converter
    use udunits2mod
    use iso_c_binding, only: c_ptr, c_null_ptr, c_double, c_float, c_associated
 
    implicit none
 
+!   include "udunits2enumerators.h"
+!   include "udunits2interfaces.h"
+   
    integer(ut_encoding), parameter :: ENCODING = UT_ASCII
    character(len=*), parameter :: KM = 'km'
    character(len=*), parameter :: M = 'm'
@@ -73,12 +77,12 @@ contains
       type(SystemWrapper) :: system_wrapper
       type(UnitWrapper) :: unit1
       type(UnitWrapper) :: unit2
-      type(Converter) :: conv
+      type(MAPL_UDUNITS_Converter) :: conv
       
       system_wrapper = SystemWrapper()
       unit1 = UnitWrapper(system_wrapper, KM)
       unit2 = UnitWrapper(system_wrapper, M)
-      conv = Converter(unit1, unit2) 
+      conv = MAPL_UDUNITS_Converter(unit1, unit2) 
       @assertTrue(conv % is_set(), 'cv_converter is not set')
       
       call unit1 % shutdown()
@@ -90,11 +94,11 @@ contains
 
    @Test
    subroutine test_get_converter()
-      type(Converter) :: conv
+      type(MAPL_UDUNITS_Converter) :: conv
       type(c_ptr) :: utsystem, cvconverter, cptr
       integer(ut_status) :: status
 
-      call get_converter(conv, KM, M, encoding=ENCODING, rc=status)
+      call Get_MAPL_UDUNITS_Converter(conv, KM, M, encoding=ENCODING, rc=status)
       @assertEqual(UT_SUCCESS, status, 'return code is not UT_SUCCESS')
       @assertTrue(conv % is_set(), 'cv_converter is not set')
       cptr = conv % get()
@@ -104,37 +108,6 @@ contains
       call shutdown_system_instance()
       
   end subroutine test_get_converter
-
-!   @Test
-!   subroutine test_initialize_ut_system()
-!      type(c_ptr) :: utsystem
-!      integer(ut_status) :: utstatus
-!
-!      call initialize_ut_system(rc=utstatus)
-!
-!      if(utstatus == UT_SUCCESS) then
-!         utsystem = get_system_cptr()
-!         @assertTrue(c_associated(utsystem), 'system cptr is null (no path).')
-!      else
-!         @assertEqual(UT_SUCCESS, utstatus, 'Failed to initialize')
-!      end if
-!      call destroy_all()
-!
-!   end subroutine test_initialize_ut_system
-   
-!   @Test
-!   subroutine test_get_converter_noencoding()
-!      type(Converter) :: conv
-!      type(c_ptr) :: utsystem
-!      integer(ut_status) :: utstatus
-!
-!      conv = get_converter(KM, M)
-!      @assertTrue(c_associated(conv % cptr()), 'get_converter returned the C null pointer.')
-!      if(c_associated(conv % cptr())) call cv_free(conv % cptr())
-!      utsystem = get_system_cptr()
-!      if(c_associated(utsystem)) call ut_free_system(utsystem)
-!
-!   end subroutine test_get_converter_noencoding
 
    @Test
    subroutine test_read_xml_nopath()
@@ -159,12 +132,12 @@ contains
       real(c_double), parameter :: FROM = 1.0
       real(c_double), parameter :: EXPECTED = 1000.0
       real(c_double) :: actual
-      type(Converter) :: conv
+      type(MAPL_UDUNITS_Converter) :: conv
       integer(ut_status) :: status
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
-      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      call Get_MAPL_UDUNITS_Converter(conv, FROM_STRING, TO_STRING, rc=status)
       actual = conv % convert_double(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv % shutdown()
@@ -177,12 +150,12 @@ contains
       real(c_float), parameter :: FROM = 1.0
       real(c_float), parameter :: EXPECTED = 1000.0
       real(c_float) :: actual
-      type(Converter) :: conv
+      type(MAPL_UDUNITS_Converter) :: conv
       integer(ut_status) :: status
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
-      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      call Get_MAPL_UDUNITS_Converter(conv, FROM_STRING, TO_STRING, rc=status)
       actual = conv % convert_float(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv % shutdown()
@@ -195,12 +168,12 @@ contains
       real(c_double), parameter :: FROM(3) = [1.0, 2.0, 3.0]
       real(c_double), parameter :: EXPECTED(3) = 1000.0 * FROM
       real(c_double) :: actual(size(EXPECTED))
-      type(Converter) :: conv
+      type(MAPL_UDUNITS_Converter) :: conv
       integer(ut_status) :: status
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
-      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      call Get_MAPL_UDUNITS_Converter(conv, FROM_STRING, TO_STRING, rc=status)
       call conv % convert_doubles(FROM, actual)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv % shutdown()
@@ -213,12 +186,12 @@ contains
       real(c_float), parameter :: FROM(3) = [1.0, 2.0, 3.0]
       real(c_float), parameter :: EXPECTED(3) = 1000.0 * FROM
       real(c_float) :: actual(size(EXPECTED))
-      type(Converter) :: conv
+      type(MAPL_UDUNITS_Converter) :: conv
       integer(ut_status) :: status
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
-      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      call Get_MAPL_UDUNITS_Converter(conv, FROM_STRING, TO_STRING, rc=status)
       call conv % convert_floats(FROM, actual)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv % shutdown()
@@ -242,31 +215,6 @@ contains
       @assertEqual(cchs(1:(n-1)), s, 'Initial characters do not match.')
 
    end subroutine test_cstring
-
-!   @Test
-   subroutine test_ut_get_converter()
-      type(c_ptr) :: converter, utsystem, utunit1, utunit2
-      integer(ut_status) :: status
-
-      utsystem = ut_read_xml_cptr(c_null_ptr)
-      utunit1 = ut_parse(utsystem, KM // c_null_char, ENCODING)
-      utunit2 = ut_parse(utsystem, M // c_null_char, ENCODING)
-      converter = ut_get_converter(utunit1, utunit2) 
-      status = ut_get_status()
-      if(c_associated(converter)) then
-         call cv_free(converter)
-      else
-         @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
-         @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
-         @assertFalse(status == UT_MEANINGLESS, 'Conversion between units is not possible.')
-         @assertFalse(status == UT_OS, 'Operating system failure.')
-      end if
-      
-      call ut_free(utunit1)
-      call ut_free(utunit2)
-      call ut_free_system(utsystem)
-
-   end subroutine test_ut_get_converter
 
    @Test
    subroutine test_are_convertible()
