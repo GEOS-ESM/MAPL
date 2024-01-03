@@ -24,7 +24,8 @@
        UT_OPEN_ARG, & ! Can't open argument-specified unit database 
        UT_OPEN_ENV, & ! Can't open environment-specified unit database 
        UT_OPEN_DEFAULT, & ! Can't open installed, default, unit database 
-       UT_PARSE_ERROR ! Error parsing unit specification 
+       UT_PARSE_ERROR, & ! Error parsing unit specification 
+       UT_SYSTEM_SET = -1 ! ut_system is already set.
    end enum
    integer, parameter :: ut_status = kind(ENUM_TYPE)
 !============================== END - UT_STATUS ================================
