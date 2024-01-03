@@ -405,6 +405,7 @@ contains
 
 !   variables for counting table
     integer :: nline, ncol
+    integer :: swath_count
 
     type(HistoryCollection) :: collection
     character(len=ESMF_MAXSTR) :: cFileOrder
@@ -601,6 +602,8 @@ contains
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
           enddo
 
+
+          swath_count = 0
           iter = IntState%output_grids%begin()
           do while (iter /= IntState%output_grids%end())
              key => iter%key()
@@ -620,14 +623,24 @@ contains
              if (trim(grid_type)/='Swath') then
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
              else
-                Hsampler = samplerHQ(clock, config, key, _RC)
+                swath_count = swath_count + 1
+                !
+                ! Hsampler use the first config to setup epoch
+                !
+                if (swath_count == 1) then
+                   Hsampler = samplerHQ(clock, key, config, _RC)
+                else
+                   call Hsampler%config_accumulate(key, config, _RC)
+                end if
                 output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
+                if( MAPL_AM_I_ROOT() )  write(6,*) 'af Hsampler%create_grid,key= ', trim(key)
              end if
              call IntState%output_grids%set(key, output_grid)
              call iter%next()
           end do
        end block OUTPUT_GRIDS
     end if
+
     if (intstate%version >= 2) then
        call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
        table_end = .false.
@@ -1636,7 +1649,7 @@ ENDDO PARSER
        else
           sec = MAPL_nsecf(list(n)%frequency) / 2
        endif
-       if (trim(list(n)%output_grid_label)=='SwathGrid') then
+       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
           call ESMF_TimeIntervalGet(Hsampler%Frequency_epoch, s=sec, _RC)
        end if
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
@@ -2375,7 +2388,7 @@ ENDDO PARSER
           else
              list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
           end if
-          if (trim(list(n)%output_grid_label)=='SwathGrid') then
+          if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
              call list(n)%xsampler%set_param(deflation=list(n)%deflate,_RC)
              call list(n)%xsampler%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
              call list(n)%xsampler%set_param(quantize_level=list(n)%quantize_level,_RC)
@@ -2410,7 +2423,8 @@ ENDDO PARSER
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-             if (trim(list(n)%output_grid_label)=='SwathGrid') then
+!             if (trim(list(n)%output_grid_label)=='SwathGrid') then
+             if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                 call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
              else
@@ -3376,7 +3390,8 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
-      else if (trim(list(n)%output_grid_label)=='SwathGrid') then
+!!      else if (trim(list(n)%output_grid_label)=='SwathGrid') then
+      else if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
@@ -3424,7 +3439,8 @@ ENDDO PARSER
 
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
-      if (trim(list(n)%output_grid_label)=='SwathGrid') then
+!      if (trim(list(n)%output_grid_label)=='SwathGrid') then
+      if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
 
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
@@ -3442,7 +3458,7 @@ ENDDO PARSER
             item%itemType = ItemTypeScalar
             item%xname = 'time'
             call list(n)%items%push_back(item)
-            call Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
+            call Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, list(n)%xsampler%output_grid, _RC)
             call list(n)%mGriddedIO%destroy(_RC)
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
             call list(n)%items%pop_back()
@@ -3531,7 +3547,8 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  if (trim(list(n)%output_grid_label)/='SwathGrid') then
+!                  if (trim(list(n)%output_grid_label)/='SwathGrid') then
+                  if (index(trim(list(n)%output_grid_label), 'SwathGrid') == 0) then
                      call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
                   endif
                   list(n)%currentFile = filename(n)
@@ -3660,13 +3677,18 @@ ENDDO PARSER
   ! destroy ogrid/RH/acc_bundle, regenerate them
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
-      if (trim(list(n)%output_grid_label)=='SwathGrid') then
+      !!if (trim(list(n)%output_grid_label)=='SwathGrid') then
+      if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+
             key_grid_label = list(n)%output_grid_label
             call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
+
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
             call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
                  vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            if( MAPL_AM_I_ROOT() ) &
+                 write(6,*) 'list n, ', n,  'af Hsampler%destroy_rh_regen_ogrid'
             if( MAPL_AM_I_ROOT() )  write(6,'(//)')
          endif
       end if
