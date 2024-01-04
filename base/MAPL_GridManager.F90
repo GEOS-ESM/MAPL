@@ -416,10 +416,13 @@ contains
       type(Integer64GridFactoryMapIterator) :: iter
 
       call ESMF_AttributeGet(grid, factory_id_attribute, id, _RC)
+      write(6,*) 'in subroutine destroy_grid, id=', id
+
       factory => this%factories%at(id)
       call factory%destroy(_RC)
       iter = this%factories%find(id)
       call this%factories%erase(iter)
+
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

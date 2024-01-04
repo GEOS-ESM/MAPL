@@ -641,6 +641,27 @@ contains
        end block OUTPUT_GRIDS
     end if
 
+    ! ygyu test IntState%output_grids
+
+    OUTPUT_GRIDS2: block
+      type (ESMF_Grid) :: output_grid
+      type (StringGridMapIterator) :: iter
+      integer :: nl, id
+      character(len=60) :: grid_type
+      
+
+      iter = IntState%output_grids%begin()
+      do while (iter /= IntState%output_grids%end())
+         key => iter%key()
+         output_grid =  IntState%output_grids%at(key)
+         !call ESMF_AttributeGet(grid, factory_id_attribute, id, _RC)
+         call ESMF_AttributeGet(output_grid, 'MAPL_grid_factory_id', id, _RC)
+         write(6, '(2x,a,2x,a,2x,i10)') 'key, id', trim(key), id
+         call iter%next()
+      end do
+    end block OUTPUT_GRIDS2
+    _FAIL('nail 1')
+
     if (intstate%version >= 2) then
        call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
        table_end = .false.

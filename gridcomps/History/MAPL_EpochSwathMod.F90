@@ -280,7 +280,7 @@ contains
 
   subroutine destroy_rh_regen_ogrid (this, key_grid_label, output_grids, sp, rc)
     implicit none
-    class(samplerHQ) :: this
+    class(samplerHQ), target :: this
     class(sampler) :: sp
     type (StringGridMap), target, intent(inout) :: output_grids
     character(len=*), intent(in)  :: key_grid_label
