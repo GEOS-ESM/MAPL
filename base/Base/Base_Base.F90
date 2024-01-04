@@ -641,12 +641,6 @@ module MAPL_Base
      end subroutine MAPL_FieldAttSetI4
      ! ========================================
 
-     module subroutine MAPL_FieldDestroy(Field,RC)
-        type(ESMF_Field),          intent(INOUT) :: Field
-        integer, optional,         intent(OUT  ) :: RC
-     end subroutine MAPL_FieldDestroy
-     ! ========================================
-
      module subroutine MAPL_FieldBundleDestroy(Bundle,RC)
        use ESMF, only: ESMF_FieldBundle
        type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
