@@ -418,7 +418,6 @@ contains
       character(len=ESMF_MAXSTR) :: tunit, grp1, grp2
       character(len=ESMF_MAXSTR) :: filename, STR1, tmp      
       character(len=ESMF_MAXSTR) :: symd, shms
-
       
       !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
       real, allocatable :: scanTime(:,:)
@@ -438,7 +437,7 @@ contains
       type(Logger), pointer :: lgr
       logical :: ispresent
 
-      type(ESMF_TimeInterval) :: Toff
+      type(ESMF_TimeInterval) :: Toff, obs_time_span
       
       _UNUSED_DUMMY(unusable)
       lgr => logging%get_logger('HISTORY.sampler')
@@ -449,7 +448,6 @@ contains
       !   output:  this%epoch_index,  nx, ny
       !
       !   Read in specs, crop epoch_index based on scanTime
-      !
 
       
       !__ s1. read in file spec.
@@ -463,41 +461,54 @@ contains
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
 
+      if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
+         call ESMF_TimeSet(currTime, timeString=tmp, _RC)
+      else
+         read(tmp,'(i4,5i2)') yy,mm,dd,h,m,s
+         call ESMF_Timeset(currTime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+      endif
+      second = hms_2_s(this%Epoch)
+      call ESMF_TimeIntervalSet(this%epoch_frequency, s=second, _RC)
 
-      call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-           label= prefix// 'obs_file_begin:', _RC)
       
+      call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+           label= prefix// 'obs_file_begin:', _RC)      
+      _ASSERT (trim(STR1)/='', 'obs_file_begin missing, critical for data with 5 min interval!'
       if (trim(STR1)=='') then
-         _FAIL('obs_file_begin missing, code crash')
+         this%obsfile_start_time = currTime
+         call ESMF_TimeGet(currTime, timestring=STR1, _RC)
+         if (mapl_am_I_root()) then
+            write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
+         endif
       else
          call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
+         if (mapl_am_I_root()) then
+            write(6,105) 'obs_file_begin provided: ', trim(STR1)
+         end if
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label=prefix // 'obs_file_end:', _RC)
-
       if (trim(STR1)=='') then
-         _FAIL('obs_file_end missing, code crash')
+         call ESMF_TimeIntervalSet(obs_time_span, d=100, _RC)
+         this%obsfile_end_time = this%obsfile_start_time + obs_time_span
+         call ESMF_TimeGet(this%obsfile_end_time, timestring=STR1, _RC)
+         if (mapl_am_I_root()) then
+            write(6,105) 'obs_file_end   missing, default = begin+100D:', trim(STR1)
+         endif
       else
          call ESMF_TimeSet(this%obsfile_end_time, timestring=STR1, _RC)
+         if (mapl_am_I_root()) then
+            write(6,105) 'obs_file_end provided:', trim(STR1)
+         end if
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_interval:', _RC)
       _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
+      if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
+      if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
 
-
-!      if (mapl_am_I_root()) then
-!         write(6,'(//2x, a)')  'SWATH initialize_from_config_with_prefix'
-!         print*, 'obs_file_begin: str1=', trim(STR1)
-!         write(6,105) 'obs_file_begin provided: ', trim(STR1)
-!         print*, 'obs_file_end: str1=', trim(STR1)
-!         write(6,105) 'obs_file_end provided:', trim(STR1)
-!         write(6,105) 'obs_file_interval:', trim(STR1)
-!         write(6,106) 'Epoch (hhmmss)   :', this%epoch
-!      end if
-
-      
       i= index( trim(STR1), ' ' )
       if (i>0) then
          symd=STR1(1:i-1)
@@ -507,23 +518,6 @@ contains
          shms=trim(STR1)
       endif
       call convert_twostring_2_esmfinterval (symd, shms,  this%obsfile_interval, _RC)      
-      
-      second = hms_2_s(this%Epoch)
-      call ESMF_TimeIntervalSet(this%epoch_frequency, s=second, _RC)      
-
-      if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
-         call ESMF_TimeSet(currTime, timeString=tmp, _RC)
-      else
-         read(tmp,'(i4,5i2)') yy,mm,dd,h,m,s
-         call ESMF_Timeset(currTime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
-      endif
-      
-      call lgr%debug(' %a  %a', 'input_template =', trim(this%input_template))
-      !!write(6,'(2x,a,/,4i8,/,5(2x,a))') 'nx,ny,lm,epoch -- filename,tmp', &
-      !!     this%nx,this%ny,this%lm,this%epoch,&
-      !!     trim(filename),trim(tmp)
-      !!print*, 'ck: Epoch_init:', trim(tmp)
-
 
       call ESMF_ConfigGetAttribute(config, value=this%index_name_lon, default="", &
            label=prefix // 'index_name_lon:', _RC)
@@ -538,7 +532,8 @@ contains
       call ESMF_ConfigGetAttribute(config, this%tunit, default="", &
            label=prefix//'tunit:',  _RC)      
 
-     
+      call lgr%debug(' %a  %a', 'input_template =', trim(this%input_template))
+
 
       !__ s2. find obsFile even if missing on disk and get array: this%t_alongtrack(:)
       !
