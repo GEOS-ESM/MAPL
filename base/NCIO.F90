@@ -3985,9 +3985,11 @@ module NCIOMod
           type(ESMF_HConfig) :: hconfig
           character(len=4) :: resolution
           character(len=3) :: writers
-          character(len=128) :: yaml_content
+          character(len=:), allocatable :: yaml_content
 
-          write(resolution,'(I4)')jm_world
+          _ASSERT(jm_world < 10**5, 'Format not wide enough')
+          write(resolution,'(I5)')jm_world
+          _ASSERT(num_writers < 10**3, 'Format not wide enough')
           write(writers,'(I3)')num_writers
           yaml_content = "{j_size: "//trim(resolution)//", num_files: "//trim(writers)//"}" 
           hconfig = ESMF_HConfigCreate(content=yaml_content,_RC)
