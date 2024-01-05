@@ -1,26 +1,19 @@
-! vim: set ft=fortran:
-!============================ PROCEDURE INTERFACES =============================
+module udunits2interfaces
+
+   implicit none
 
    interface
 
-      type(c_ptr) function ut_get_path_xml(path, status) bind(c, name='ut_get_path_xml')
-         import :: ut_status, c_ptr, c_char
-         character(kind=c_char), intent(inout) :: path(*)
-         integer(ut_status), intent(out) :: status
-      end function ut_get_path_xml
       type(c_ptr) function ut_read_xml_cptr(path) bind(c, name='ut_read_xml')
          import :: c_ptr
          type(c_ptr), value :: path
       end function ut_read_xml_cptr
+
       type(c_ptr) function ut_read_xml(path) bind(c, name='ut_read_xml')
          import :: c_ptr, c_char
          character(kind=c_char), intent(in) :: path(*)
       end function ut_read_xml
 
-      integer(c_size_t) function strlen(string) bind(c, name='strlen')
-         import :: c_char, c_size_t
-         character(kind=c_char), intent(in) :: string(*)
-      end function strlen
       integer(ut_status) function ut_get_status() bind(c, name='ut_get_status')
          import :: ut_status
       end function ut_get_status
@@ -103,4 +96,4 @@
          
    end interface
 
-!========================== END PROCEDURE INTERFACES ===========================
+end module udunits2interfaces

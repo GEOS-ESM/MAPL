@@ -1,4 +1,3 @@
-! Verify no memory leaks - free all
 #if defined(MAXPATHLEN)
 #undef MAXPATHLEN
 #endif
@@ -6,7 +5,7 @@
 module Test_udunits2
 
    use funit
-!   use udunits2mod, only: Converter => MAPL_UDUNITS_Converter, get_converter => Get_MAPL_UDUNITS_Converter
+!   use udunits2mod, only: Converter, get_converter, initialize, finalize
    use udunits2mod
    use iso_c_binding, only: c_ptr, c_null_ptr, c_double, c_float, c_associated
 
@@ -77,12 +76,12 @@ contains
       type(SystemWrapper) :: system_wrapper
       type(UnitWrapper) :: unit1
       type(UnitWrapper) :: unit2
-      type(MAPL_UDUNITS_Converter) :: conv
+      type(Converter) :: conv
       
       system_wrapper = SystemWrapper()
       unit1 = UnitWrapper(system_wrapper, KM)
       unit2 = UnitWrapper(system_wrapper, M)
-      conv = MAPL_UDUNITS_Converter(unit1, unit2) 
+      conv = Converter(unit1, unit2) 
       @assertTrue(conv % is_set(), 'cv_converter is not set')
       
       call unit1 % shutdown()
@@ -94,11 +93,11 @@ contains
 
    @Test
    subroutine test_get_converter()
-      type(MAPL_UDUNITS_Converter) :: conv
+      type(Converter) :: conv
       type(c_ptr) :: utsystem, cvconverter, cptr
       integer(ut_status) :: status
 
-      call Get_MAPL_UDUNITS_Converter(conv, KM, M, encoding=ENCODING, rc=status)
+      call get_converter(conv, KM, M, encoding=ENCODING, rc=status)
       @assertEqual(UT_SUCCESS, status, 'return code is not UT_SUCCESS')
       @assertTrue(conv % is_set(), 'cv_converter is not set')
       cptr = conv % get()
@@ -132,12 +131,12 @@ contains
       real(c_double), parameter :: FROM = 1.0
       real(c_double), parameter :: EXPECTED = 1000.0
       real(c_double) :: actual
-      type(MAPL_UDUNITS_Converter) :: conv
+      type(Converter) :: conv
       integer(ut_status) :: status
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
-      call Get_MAPL_UDUNITS_Converter(conv, FROM_STRING, TO_STRING, rc=status)
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
       actual = conv % convert_double(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv % shutdown()
@@ -150,12 +149,12 @@ contains
       real(c_float), parameter :: FROM = 1.0
       real(c_float), parameter :: EXPECTED = 1000.0
       real(c_float) :: actual
-      type(MAPL_UDUNITS_Converter) :: conv
+      type(Converter) :: conv
       integer(ut_status) :: status
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
-      call Get_MAPL_UDUNITS_Converter(conv, FROM_STRING, TO_STRING, rc=status)
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
       actual = conv % convert_float(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv % shutdown()
@@ -168,12 +167,12 @@ contains
       real(c_double), parameter :: FROM(3) = [1.0, 2.0, 3.0]
       real(c_double), parameter :: EXPECTED(3) = 1000.0 * FROM
       real(c_double) :: actual(size(EXPECTED))
-      type(MAPL_UDUNITS_Converter) :: conv
+      type(Converter) :: conv
       integer(ut_status) :: status
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
-      call Get_MAPL_UDUNITS_Converter(conv, FROM_STRING, TO_STRING, rc=status)
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
       call conv % convert_doubles(FROM, actual)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv % shutdown()
@@ -186,12 +185,12 @@ contains
       real(c_float), parameter :: FROM(3) = [1.0, 2.0, 3.0]
       real(c_float), parameter :: EXPECTED(3) = 1000.0 * FROM
       real(c_float) :: actual(size(EXPECTED))
-      type(MAPL_UDUNITS_Converter) :: conv
+      type(Converter) :: conv
       integer(ut_status) :: status
       character(len=*), parameter :: FROM_STRING = KM
       character(len=*), parameter :: TO_STRING = M
 
-      call Get_MAPL_UDUNITS_Converter(conv, FROM_STRING, TO_STRING, rc=status)
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
       call conv % convert_floats(FROM, actual)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
       call conv % shutdown()
