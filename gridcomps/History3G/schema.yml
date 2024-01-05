@@ -2,14 +2,13 @@ version: 2
 experiment:
   id: MAPL-v3
   source: GEOSgcm-v10.22.0
-  description:  >
+  description: >
     long string across
     many lines"
 
 active_collections:
   - geosgcm_prog
   - geosgcm_surf
-
 
 horizontal_grids:
   geom_1:
@@ -28,7 +27,7 @@ horizontal_grids:
     class: masked
   geom_6:
     class: cubed-sphere
-    
+
 vertical_grids:
   vert_1:
     ref_var: T
@@ -39,30 +38,27 @@ time_specs:
   daily_avg21:
     mode: ??? # time-averaged, instantaneous
     frequency: P24H
-    offset:    21H
+    offset: 21H
   monthly:
     mode: ??? # time-averaged, instantaneous
     frequency: P1M
-    offset:    0H
-    
+    offset: 0H
+
 variable_sets:
   dyn:
-    ...
+    something
   rad:
-    ...
-
-
+    something
 
 collections:
   geosgcm_prog:
     horizontal_grid: geom_1
     vertical_grid: vgrid_1
     time_handling: daily_avg21
-    template: %e.%c.%y4%m2%d2_%h2%n2z.nc4
-    archive: %c/Y%y4
+    template: "%e.%c.%y4%m2%d2_%h2%n2z.nc4"
+    archive: "%c/Y%y4"
     file_format: netcdf # default
     regrid_method: conservative # default bilinear
-    
     fields:
       - {name: AGCM::PHIS, alias: phis, other: ...}
       - [DYN, [U,V], [u,v]] # vector (with alias)
@@ -75,24 +71,8 @@ collections:
       - DYN.%
       - [[DYN::U,DYN::V], [u,v]]
       - [DYN::uv, [u,v]]
-      
-      
-  coll_2:
-    geom: geom_2
-    variables: dyn
-
-  
-collections:
-  coll_1:
-    geom: geom_1
-    template: 
-      - {PHIS, AGCM}
-      - {SLP, DYN}
-      - {[U,V], DYN}
-      - {PS, DYN}
-      ...
 
   coll_2:
     geom: geom_2
     variables: dyn
-    
+
