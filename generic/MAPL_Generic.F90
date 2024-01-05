@@ -1540,6 +1540,7 @@ contains
                   if (MAPL_AM_I_Root(VM)) then
                      call ESMF_StatePrint(Import)
                   end if
+                  _RETURN(ESMF_FAILURE)
                end if
             endif
          end if
@@ -1945,14 +1946,12 @@ contains
         write(phase_, '(i1)') phase
 
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, .false., _RC)
-
+             FILETYPE, STATE, .false., state%grid%write_restart_by_oserver, _RC)
         call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, .false., oClients = o_Clients, _RC)
-
+             FILETYPE, STATE, .false., state%grid%write_restart_by_oserver, _RC)
         call MAPL_GetResource(STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, hdr/=0, oClients = o_Clients, _RC)
+             FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, _RC)
      end if
      _RETURN(_SUCCESS)
    end subroutine capture
@@ -2333,7 +2332,7 @@ contains
             _VERIFY(status)
             internal_state => state%get_internal_state()
             call MAPL_ESMFStateWriteToFile(internal_state,CLOCK,FILENAME, &
-                 FILETYPE, STATE, hdr/=0, oClients = o_Clients, RC=status)
+                 FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
 
@@ -2357,7 +2356,7 @@ contains
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(IMPORT,CLOCK,FILENAME, &
-                 FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
+                 FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
 
@@ -2412,7 +2411,7 @@ contains
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(EXPORT,CLOCK,FILENAME, &
-                 FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
+                 FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
          _RETURN(_SUCCESS)
@@ -2698,7 +2697,7 @@ contains
          end if
          call MAPL_ESMFStateWriteToFile(IMPORT, CLOCK, &
               STATE%RECORD%IMP_FNAME, &
-              FILETYPE, STATE, .FALSE., oClients = o_Clients, &
+              FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -2715,7 +2714,7 @@ contains
          internal_state => STATE%get_internal_state()
          call MAPL_ESMFStateWriteToFile(internal_state, CLOCK, &
               STATE%RECORD%INT_FNAME, &
-              FILETYPE, STATE, hdr/=0, oClients = o_Clients, &
+              FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -5663,14 +5662,14 @@ contains
    !=============================================================================
    !=============================================================================
 
-   subroutine MAPL_ESMFStateWriteToFile(STATE,CLOCK,FILENAME,FILETYPE,MPL,HDR, oClients,RC)
+   subroutine MAPL_ESMFStateWriteToFile(STATE,CLOCK,FILENAME,FILETYPE,MPL,HDR, write_with_oserver,RC)
       type(ESMF_State),                 intent(INOUT) :: STATE
       type(ESMF_Clock),                 intent(IN   ) :: CLOCK
       character(len=*),                 intent(IN   ) :: FILENAME
       character(LEN=*),                 intent(INout) :: FILETYPE
       type(MAPL_MetaComp),              intent(INOUT) :: MPL
       logical,                          intent(IN   ) :: HDR
-      type (ClientManager), optional,   intent(inout) :: oClients
+      logical, optional,                intent(in   ) :: write_with_oserver
       integer, optional,                intent(  OUT) :: RC
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ESMFStateWriteToFile"
@@ -5691,7 +5690,10 @@ contains
       integer                               :: attr
       character(len=MPI_MAX_INFO_VAL )      :: romio_cb_write
       logical                               :: nwrgt1
-      logical :: empty
+      logical :: empty, local_write_with_oserver
+
+      local_write_with_oserver=.false.
+      if (present(write_with_oserver)) local_write_with_oserver = write_with_oserver
 
       ! Check if state is empty. If "yes", simply return
       empty = MAPL_IsStateEmpty(state, _RC)
@@ -5871,8 +5873,11 @@ contains
          endif
       elseif(filetype=='pnc4') then
 
-         call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, oClients=oClients, RC=status)
-         _VERIFY(status)
+         if (local_write_with_oserver) then
+            call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, oClients=o_clients, _RC)
+         else
+            call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, _RC)
+         end if
 
       elseif(UNIT/=0) then
 
@@ -10340,7 +10345,7 @@ contains
          end if
          call MAPL_ESMFStateWriteToFile(IMPORT, CLOCK, &
               STATE%initial_state%IMP_FNAME, &
-              CFILETYPE, STATE, .FALSE., oClients = o_Clients, &
+              CFILETYPE, STATE, .FALSE.,  write_with_oserver = state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -10356,7 +10361,7 @@ contains
          internal_state => STATE%get_internal_state()
          call MAPL_ESMFStateWriteToFile(internal_state, CLOCK, &
               STATE%initial_state%INT_FNAME, &
-              CFILETYPE, STATE, hdr/=0, oClients = o_Clients, &
+              CFILETYPE, STATE, hdr/=0, write_with_oserver = state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if

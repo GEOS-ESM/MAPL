@@ -10,10 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer wit the base checkpoint name being a control file that tells how many files were written to. On reading if this control file is provided as the restart file name, it will automatically trigger reading the individual files
 
+- Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
+
 ### Changed
 
-- Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
-- Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
+- Updated ESMF required version to 8.6.0
+- Allocate gridded fields to use the pinflag option needed for the Single System Image  (SSI) capability.
+- Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
+- Replaced RC=STATUS plus `_VERIFY(RC)` in `Base_Base_implementation.F90` with just `_RC` in line with our new convention.
 
 ### Fixed
 
@@ -21,6 +25,101 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 - The write-by-face option for checkpoint/restart has been depreciated. This has been replaced by a more generic file-per-writer option
+
+## [2.43.0] - 2023-12-21
+
+### Added
+
+- Station sampler: add support to Global Historical Climatology Network Daily (GHCN-D)
+- Add to trajectory sampler DEFINE_OBS_PLATFORM for reading multiple IODA files. To do this, we add union_platform function for observation.
+- New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool.
+- Added/modified a few _ASSERT calls in ExtData, to better explain what is wrong in .yaml file
+
+### Changed
+
+- Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
+- Swath grid step 1: allow for destroying and regenerating swath grid and regenerating regridder route handle, and creating
+  allocatable metadata in griddedIO. Modifications are made to GriddedIO.F90, MAPL_AbstractRegridder.F90, and MAPL_EsmfRegridder.F90.
+- Swath grid step 2: add control keywords for swath grid. Allow for filename template with DOY. Allow for missing obs files. User needs to specify index_name_lon/lat, var_name_lon/lat/time, tunit, obs_file_begin/end/interval, Epoch and Epoch_init.
+- Update CI to Baselibs 7.17.0 (for future MAPL3 work) and the BCs v11.3.0 (to fix coupled run)
+- Update `components.yaml`
+  - ESMA_env v4.24.0 (Baselibs 7.17.0)
+- Update CI to use circleci-tools v2
+- Changed the Python MAPL `__init__.py` file to restore behavior from pre-Python3 transition where we did `from foo import *`. Also fix up other Python2 code to Python3.
+
+### Fixed
+
+- Fixed bug broken multi-step file output in History under certain template conditions
+- [#2433] Implemented workarounds for gfortran-13
+- Missing TARGET in GriddedIO - exposed runtime error when using NAG + debug.
+- Allow ExtData2G to be built as SHARED or STATIC
+
+## [2.42.4] - 2023-12-10
+
+### Changed
+
+- Improved error message for missing labels in GridManager.
+
+### Fixed
+
+- Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
+- Fix for CMake an Apple.  Needs to set `__DARWIN` as an fpp flag.  (Only used by NAG, but ...)
+
+## [2.42.3] - 2023-12-06
+
+### Fixed
+
+- `MAPL_Abort()` was passing an uninitialized integer to `MPI_Abort()` resulting in spurious false successes when running ctest.    Maybe was happening frequently, but CI would be blind to this.
+
+## [2.42.2] - 2023-12-05
+
+### Fixed
+
+- Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
+
+## [2.42.1] - 2023-11-20
+
+### Fixed
+
+- Inserted missing USE statement for `C_PTR` in FieldPointerUtilities.F90
+
+## [2.42.0] - 2023-10-27
+
+### Added
+
+- Various workarounds for building MAPL with MPICH
+  - Non-support for `C_PTR` in `MPI_Alloc_Mem` ((MPICH Issue #6691)[https://github.com/pmodels/mpich/issues/6691])
+  - Non-support for `ierror` keyword arguments with `use mpi` ((MPICH Issue #6693)[https://github.com/pmodels/mpich/issues/6693])
+- Add new benchmark to simulation writing a cubed-sphere file using various tunable strategies
+
+### Changed
+
+- Modified fpp macro `_UNUSED_DUMMY(x)` to use ASSOCIATE instead of PRINT. With this change it can be used in PURE procedures.
+- Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
+- Extend unit tests for FileSystemUtilities.
+- Updated handling of NetCDF time values
+- Update `components.yaml`
+  - ESMA_cmake v3.36.0 (Support for SLES15 at NCCS, support for Intel 2021.10)
+  - ESMA_env v4.20.5 (Support for SLES15 at NCCS)
+
+### Fixed
+
+- Introduced workaround for Intel 2021.10 bug in generic layer.
+- Updated write_by_oserver logic so that the decision to write by the oserver is based on whether the output server client is passed in
+- Updated CI GEOSadas build to use special branch (as stock ADAS at the moment is too far behind GEOSgcm main)
+- Fix incorrect History print during runtime
+
+## [2.41.2] - 2023-10-27
+
+### Fixed
+
+- Fixed missing initialize of pFlogger in a pfio test.  Not clear why this was not failing for other compilers - detected with ifort 2021.10.0.
+
+## [2.41.1] - 2023-10-04
+
+### Fixed
+
+- Adding missing check on the return status when reading import checkpoint in MAPL\_GenericInitialize
 
 ## [2.41.0] - 2023-09-22
 
@@ -156,6 +255,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Suppress some common warnings with Intel Debug
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
 - Update CI to use BCs v11.1.0 and Baselibs 7.14.0
+- Update MAPL_NetCDF public subroutine returns and support for real time
 - Updates to support building MAPL with spack instead of Baselibs
   - Add `FindESMF.cmake` file to `cmake` directory (as it can't easily be found via spack)
   - Move `CMAKE_MODULE_PATH` append statement up to find `FindESMF.cmake` before we `find_package(ESMF)`

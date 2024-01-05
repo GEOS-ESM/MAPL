@@ -87,7 +87,6 @@ contains
        lat_name=trim(key_lat)
        call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
-       call check_nc_status(nf90_close(ncid), _RC)
     endif
 
     if(present(key_time)) then
@@ -142,7 +141,7 @@ contains
     endif
     attr = str(1:i+5)//trim(str2)
     deallocate(str)
-    call check_nc_status(nf90_close(ncid), _RC)
+    call check_nc_status(nf90_close(ncid2), _RC)
 
     _RETURN(_SUCCESS)
 
@@ -217,7 +216,6 @@ contains
     integer, optional, intent(out) :: rc
     integer :: status
     integer :: ncid, varid, ncid2
-    integer :: iret
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     if(present(group_name)) then
@@ -226,8 +224,11 @@ contains
     end if
     call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
-    call check_nc_status(nf90_close(ncid), _RC)
-
+    if(present(group_name)) then
+       call check_nc_status(nf90_close(ncid2), _RC)
+    else
+       call check_nc_status(nf90_close(ncid), _RC)
+    end if
     _RETURN(_SUCCESS)
 
   end subroutine get_v1d_netcdf_R8
@@ -447,10 +448,10 @@ contains
     integer :: i, nmax
 
     LB=1; UB=size(xa,1)
-    if(present(n_LB)) LB=n_LB
-    if(present(n_UB)) UB=n_UB
+    if(present(n_LB)) LB=max(LB, n_LB)
+    if(present(n_UB)) UB=min(UB, n_UB)
     klo=LB; khi=UB; dk=1
-
+    
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
        khi= LB
@@ -513,3 +514,203 @@ contains
   end subroutine convert_twostring_2_esmfinterval
 
 end module Plain_NetCDF_Time
+
+
+module MAPL_scan_pattern_in_file
+
+!  procedure :: matchbgn
+!  procedure :: matches
+!  procedure :: scan_begin
+!  procedure :: scan_contain
+!  generic :: scan_count_matchbgn
+!  generic :: go_last_pattern
+
+contains
+  subroutine scan_begin (iunps, substring, rew)
+    implicit none
+    ! unit of input
+    integer, intent(in) :: iunps
+    ! Label to be matched
+    character (len=*), intent(in) :: substring
+    logical, intent(in) :: rew
+    ! String read from file
+    character (len=100) :: line
+    ! Flag if .true. rewind the file
+    !logical, external :: matchbgn
+!    logical :: matchbgn
+    integer :: ios
+    !
+    ios = 0
+    if (rew) rewind (iunps)
+    do while (ios==0)
+       read (iunps, '(a100)', iostat = ios) line
+       if (matchbgn (trim(line), trim(substring)) ) return
+    enddo
+    return
+  end subroutine scan_begin
+
+
+  subroutine scan_contain (iunps, stop_string, rew)
+    !---------------------------------------------------------------------
+    !
+    implicit none
+    integer, intent(in) :: iunps
+    character (len=*), intent(in) :: stop_string
+    logical, intent(in) :: rew            ! if rewind
+    character (len=100) :: line
+!!    logical :: matches          ! function name
+    integer :: ios
+    !
+    ios = 0
+    if (rew) rewind (iunps)
+    do while (ios==0)
+       read (iunps, '(a100)', iostat = ios) line
+       if (matches (trim(line), trim(stop_string)) ) return
+    enddo
+    return
+  end subroutine scan_contain
+
+
+
+  subroutine scan_count_match_bgn (iunps, string, count, rew)
+    !---------------------------------------------------------------------
+    !
+    implicit none
+    integer, intent(in) :: iunps
+    character (len=*), intent(in) :: string
+    integer, intent(out) :: count
+    logical, intent(in) :: rew            ! if rewind
+    character (len=100) :: line
+!!    logical :: matches          ! function name
+    integer :: ios
+    !
+    ios = 0
+    count = 0
+    if (rew) rewind (iunps)
+    do while (ios==0)
+       read (iunps, '(a100)', iostat = ios) line
+       if (matchbgn (line, string) ) then
+          count = count + 1
+       endif
+    enddo
+    return
+  end subroutine scan_count_match_bgn
+
+
+  subroutine go_last_patn (iunps, substring, outline, rew)
+    !---------------------------------------------------------------------
+    !
+    implicit none
+    integer, intent(in) :: iunps
+    logical, intent(in) :: rew
+    character (len=*), intent(in) :: substring
+    character (len=150), intent(out) :: outline   ! fixed
+    character (len=150) :: line
+    integer :: ios, nr, mx
+
+    if (rew) rewind (iunps)
+    ios=0
+    nr=0
+    do while (ios==0)
+       read (iunps, '(a150)', iostat = ios, err = 300) line
+       if (index(line, substring).ge.1 ) then
+          nr=nr+1
+          !        write (6,*) 'nr', nr
+       endif
+    enddo
+
+    rewind (iunps)
+    ios=0
+    mx=0
+    do while (ios==0)
+       read (iunps, '(a150)', iostat = ios, err = 300) line
+       if (index(line, substring).ge.1 ) then
+          mx=mx+1
+          if (mx.eq.nr) then
+             outline=line
+             return
+          endif
+       endif
+    enddo
+300 continue
+  end subroutine go_last_patn
+
+
+  function matchbgn ( string, substring )
+    ! only begin with
+    ! string:  main-str
+    ! substring:  sub-str
+    IMPLICIT NONE
+    CHARACTER (LEN=*), INTENT(IN) :: string, substring
+    LOGICAL                       :: matchbgn
+    if (index(string, substring).eq.1) then
+       matchbgn = .TRUE.
+    else
+       matchbgn = .FALSE.
+    endif
+    return
+  end function matchbgn
+
+
+  !-----------------------------------------------------------------------
+  function matches( string, substring )
+    !-----------------------------------------------------------------------
+    !
+    ! ... .TRUE. if string is contained in substring, .FALSE. otherwise
+    !
+    IMPLICIT NONE
+    !
+    CHARACTER (LEN=*), INTENT(IN) :: string, substring
+    LOGICAL                       :: matches
+    INTEGER                       :: l
+
+    l=index (string, substring)
+    if (l.ge.1) then
+       matches = .TRUE.
+    else
+       matches = .FALSE.
+    endif
+    RETURN
+  end function matches
+
+  
+  subroutine split_string_by_space (string_in, length_mx, &
+       mxseg, nseg, str_piece, jstatus)
+    integer,           intent (in) :: length_mx
+    character (len=length_mx), intent (in) :: string_in
+    integer,           intent (in) :: mxseg
+    integer,           intent (out):: nseg
+    character (len=length_mx), intent (out):: str_piece(mxseg)
+    integer,           intent (out):: jstatus
+    character (len=length_mx) :: string
+    character (len=1) :: mark
+    integer :: ios
+    integer :: wc
+    !
+    !  "xxxx  yy zz   uu   vv"
+    !
+    ! split by space ''
+    mark=' '
+    wc=0
+    ios=0
+    string = trim( adjustl(string_in) )
+    do while (ios==0)
+       i = index (string, mark)
+       !!print*, 'index=', i
+       if (i > 1) then
+          wc = wc + 1
+          str_piece(wc)=trim(adjustl(string(1:i)))
+          !!write(6,*) 'str_piece(wc)=', trim(str_piece(wc))
+          string = trim(adjustl(string(i:)))
+       else
+          ios=1
+       end if
+       if (LEN_TRIM(adjustl(string)) == 0) ios=1
+    end do
+    nseg=wc
+    return
+  end subroutine split_string_by_space
+
+
+
+end module MAPL_scan_pattern_in_file
