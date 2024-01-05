@@ -59,6 +59,7 @@ module MAPL_MemUtilsMod
   public MAPL_MemUtilsFree
   public MAPL_MemCommited
   public MAPL_MemUsed
+  public MAPL_MemReport
 
 #ifdef _CRAY
   public :: hplen
@@ -766,5 +767,33 @@ subroutine get_unit ( iunit )
 
   return
 end subroutine get_unit
+
+subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
+   integer, intent(in) :: comm
+   character(len=*), intent(in) :: file_name
+   integer, intent(in) :: line
+   character(len=*), intent(in), optional :: decorator
+   integer, intent(out), optional :: rc
+
+    real :: mem_total,mem_used,percent_used
+    real :: committed_total,committed,percent_committed
+    integer :: rank,status
+    character(len=:), allocatable :: extra_message
+
+#ifdef sysDarwin
+    RETURN_(ESMF_SUCCESS)
+#endif
+    call MPI_Barrier(comm,status)
+    if (present(decorator)) then
+       extra_message = decorator
+    else
+       extra_message = ""
+    end if
+    call MAPL_MemUsed(mem_total,mem_used,percent_used)
+    call MAPL_MemCommited(committed_total,committed,percent_committed)
+    call MPI_Comm_Rank(comm,rank,status)
+    if (rank == 0) write(*,'("Mem report ",A20," ",A30," ",i7," ",f5.1,"% : ",f5.1,"% Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
+
+end subroutine
 
 end module MAPL_MemUtilsMod
