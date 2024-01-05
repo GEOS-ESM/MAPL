@@ -1,0 +1,36 @@
+clock:
+  dt: PT900S
+  begin: 1891-03-01T00:00:00
+  end: 2999-03-02T21:00:00
+#  end:    29990302T210000 variant time
+
+JOB_SGMT: P1H
+DURATION: P1H
+
+HISTORY_CONFIG: HISTORY.yaml
+EXTDATA_CONFIG: EXTDATA.yaml
+
+mapl:
+  children:
+    GCM:
+      dso: libgcm_gc
+      config_file: GCM.yaml
+
+# Global services
+esmf:
+  logKindFlag: ESMF_LOGKIND_MULTI_ON_ERROR
+
+pflogger:
+  config_file: pflogger.yaml
+
+servers:
+  mit:
+    num_nodes: 4
+    dso: libmit
+    procedure_name: init_comm # pass comm with model + MIT resources
+
+  pfio:
+    num_nodes: 9
+
+  model:
+    num_nodes: any
