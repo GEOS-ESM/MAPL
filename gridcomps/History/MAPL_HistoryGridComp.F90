@@ -2422,7 +2422,7 @@ ENDDO PARSER
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-                call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,_RC)
+                call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,Hsampler%tunit,ogrid=pgrid,vdata=list(n)%vdata,_RC)
              else
                 if (trim(list(n)%output_grid_label)/='') then
                    pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
@@ -3676,8 +3676,8 @@ ENDDO PARSER
             call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
 
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-            call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
-                 vdata=list(n)%vdata,_RC)
+            call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,Hsampler%tunit, &
+                 ogrid=pgrid,vdata=list(n)%vdata,_RC)
             if( MAPL_AM_I_ROOT() )  write(6,'(//)')
          endif
       end if

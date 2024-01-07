@@ -168,6 +168,7 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
+      
       grid = this%create_basic_grid(_RC)
       call this%add_horz_coordinates_from_file(grid,_RC)
       _RETURN(_SUCCESS)
@@ -473,18 +474,25 @@ contains
       
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_begin:', _RC)      
-      _ASSERT (trim(STR1)/='', 'obs_file_begin missing, critical for data with 5 min interval!'
-      if (trim(STR1)=='') then
-         this%obsfile_start_time = currTime
-         call ESMF_TimeGet(currTime, timestring=STR1, _RC)
-         if (mapl_am_I_root()) then
-            write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
-         endif
-      else
-         call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
-         if (mapl_am_I_root()) then
-            write(6,105) 'obs_file_begin provided: ', trim(STR1)
-         end if
+      _ASSERT (trim(STR1)/='', 'obs_file_begin missing, critical for data with 5 min interval!')
+      call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
+      !!disable using currTime as obsfile_start_time
+      !!if (trim(STR1)=='') then
+      !!   this%obsfile_start_time = currTime
+      !!   call ESMF_TimeGet(currTime, timestring=STR1, _RC)
+      !!   if (mapl_am_I_root()) then
+      !!      write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
+      !!   endif
+      !!else
+      !!   call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
+      !!   if (mapl_am_I_root()) then
+      !!      write(6,105) 'obs_file_begin provided: ', trim(STR1)
+      !!   end if
+      !!end if
+
+      
+      if (mapl_am_I_root()) then
+         write(6,105) 'obs_file_begin provided: ', trim(STR1)
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
