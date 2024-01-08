@@ -1014,8 +1014,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            endif
 
            if (this%nobs_epoch_sum==0) then
-              rc=0
-              return
+              _RETURN(ESMF_SUCCESS)
            endif
            
            call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
@@ -1025,6 +1024,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call this%get_x_subset(timeset, x_subset, _RC)
            is=x_subset(1)
            ie=x_subset(2)
+           !! write(6,'(2x,a,4i10)') 'in regrid_accumulate is, ie=', is, ie
 
            if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
               call this%vdata%setup_eta_to_pressure(_RC)
