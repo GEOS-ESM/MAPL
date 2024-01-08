@@ -3983,7 +3983,7 @@ module NCIOMod
           integer, intent(out), optional :: rc
           integer :: status
           type(ESMF_HConfig) :: hconfig
-          character(len=4) :: resolution
+          character(len=5) :: resolution
           character(len=3) :: writers
           character(len=:), allocatable :: yaml_content
 
