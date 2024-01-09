@@ -651,7 +651,7 @@ contains
           end if
           call ESMF_ConfigNextLine     ( config,tableEnd=table_end,_RC )
        enddo
-       
+
        field_set_iter = intState%field_sets%begin()
        do while (field_set_iter /= intState%field_sets%end())
           key => field_set_iter%key()
@@ -716,7 +716,7 @@ contains
     if( MAPL_AM_I_ROOT(vm) ) then
        call regen_rcx_for_obs_platform (config, nlist, list, _RC)
     end if
-       
+
     call ESMF_VMbarrier(vm, _RC)
 
 ! Initialize History Lists
@@ -907,7 +907,7 @@ contains
           endif
        endif
 
-       
+
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
        call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &
@@ -3530,7 +3530,7 @@ ENDDO PARSER
                     "Station_data output to new file:",trim(filename(n)))
                call list(n)%station_sampler%close_file_handle(_RC)
                call list(n)%station_sampler%create_file_handle(filename(n),_RC)
-               !! list(n)%currentFile = filename(n)
+               list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
          else
@@ -5256,8 +5256,8 @@ ENDDO PARSER
      end if
      _RETURN(_SUCCESS)
   end function
-  
-  
+
+
   ! __ read data to object: obs_platform
   ! __ for each collection: find union fields, write to collection.rcx
   ! __ note: this subroutine is called by MPI root only
@@ -5268,7 +5268,7 @@ ENDDO PARSER
     !
     !  Plan:
     !- read and write  schema
-    !- extract union of field lines, print out to rc    
+    !- extract union of field lines, print out to rc
     integer, parameter :: ESMF_MAXSTR2 = 2*ESMF_MAXSTR
     type(ESMF_Config), intent(inout)       :: config
     integer, intent(in)                    :: nlist
@@ -5277,7 +5277,7 @@ ENDDO PARSER
 
     character(len=ESMF_MAXSTR) :: HIST_CF
     integer :: n, unitr, unitw
-    logical :: match, contLine
+    logical :: match, contLine, con
     integer :: status
 
     character (len=ESMF_MAXSTR) :: marker
@@ -5291,7 +5291,7 @@ ENDDO PARSER
     integer :: length_mx
     integer :: mxseg
     integer :: nseg
-    integer :: nseg_ub    
+    integer :: nseg_ub
     integer :: nfield, nplatform
     integer :: nentry_name
     logical :: obs_flag
@@ -5305,7 +5305,7 @@ ENDDO PARSER
     call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
-    
+
     call scan_count_match_bgn (unitr, 'PLATFORM.', count, .false.)
     rewind(unitr)
     call lgr%debug('%a %i8','count PLATFORM.', count)
@@ -5320,7 +5320,7 @@ ENDDO PARSER
     ! __ global set for call split_string by space
     length_mx = ESMF_MAXSTR2
     mxseg = 100
-    
+
     ! __ s1. scan get  platform name + index_name_x  var_name_lat/lon/time
     do k=1, count
        call scan_begin(unitr, 'PLATFORM.', .false.)
@@ -5346,27 +5346,27 @@ ENDDO PARSER
        read(unitr, '(a)') line
        i=index(line, ':')
        PLFS(k)%var_name_lon = trim(line(i+1:))
-       
-       call scan_contain(unitr, marker, .true.)     
+
+       call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'var_name_lat:', .false.)
        backspace(unitr)
        read(unitr, '(a)') line
        i=index(line, ':')
        PLFS(k)%var_name_lat = trim(line(i+1:))
 
-       call scan_contain(unitr, marker, .true.)     
+       call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'var_name_time:', .false.)
        backspace(unitr)
        read(unitr, '(a)') line
        i=index(line, ':')
        PLFS(k)%var_name_time = trim(line(i+1:))
 
-       call scan_contain(unitr, marker, .true.)     
+       call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'file_name_template:', .false.)
        backspace(unitr)
        read(unitr, '(a)') line
        i=index(line, ':')
-       PLFS(k)%file_name_template = trim(line(i+1:))     
+       PLFS(k)%file_name_template = trim(line(i+1:))
 
        call lgr%debug('%a %a %a %a %a', &
             trim( PLFS(k)%name ), &
@@ -5388,15 +5388,15 @@ ENDDO PARSER
        i=index(line, 'PLATFORM.')
        j=index(line, ':')
        marker=line(1:j)
-       call scan_begin(unitr, marker, .true.)     
+       call scan_begin(unitr, marker, .true.)
        call scan_contain(unitr, 'geovals_fields:', .false.)
        ios=0
        ngeoval=0
        nseg_ub=0
        do while (ios == 0)
           read (unitr, '(A)' ) line
-          i=index(line, '::')
-          if (i==0) then
+          con = .not.(adjustl(trim(line))=='::')
+          if (con) then
              ngeoval = ngeoval + 1
              call  split_string_by_space (line, length_mx, mxseg, &
                   nseg, str_piece, status)
@@ -5424,15 +5424,15 @@ ENDDO PARSER
        j=index(line, ':')
        marker=line(1:j)
        !
-       call scan_begin(unitr, marker, .true.)     
+       call scan_begin(unitr, marker, .true.)
        call scan_contain(unitr, 'geovals_fields:', .false.)
        ios=0
        ngeoval=0
        do while (ios == 0)
           read (unitr, '(A)', iostat = ios) line
           !! write(6,*) 'k in count, line', k, trim(line)
-          i=index(line, '::')
-          if (i==0) then
+          con = .not.(adjustl(trim(line))=='::')
+          if (con) then
              ngeoval = ngeoval + 1
              call  split_string_by_space (line, length_mx, mxseg, &
                   nseg, str_piece, status)
@@ -5446,10 +5446,10 @@ ENDDO PARSER
     end do
     deallocate(str_piece)
     rewind(unitr)
-    
+
     !!do k=1, nplf
     !!   do i=1, ngeoval
-    !!      write(6,*) 'PLFS(k)%field_name (1:nseg, ngeoval)=', PLFS(k)%field_name (1:nseg,1)          
+    !!      write(6,*) 'PLFS(k)%field_name (1:nseg, ngeoval)=', PLFS(k)%field_name (1:nseg,1)
     !!   enddo
     !!enddo
     !!write(6,*) 'nlist=', nlist
@@ -5483,7 +5483,7 @@ ENDDO PARSER
              obs_flag =.true.
              line2 = line
              write(6,*) 'first line for ObsPlatforms:=', trim(line)
-          
+
           endif
        end do
 1236   continue
@@ -5495,7 +5495,7 @@ ENDDO PARSER
           line = adjustl ( line2(i+1:) )
           write(6,*) 'line for obsplatforms=', trim(line)
           call split_string_by_space (line, length_mx, mxseg, &
-               nplatform, str_piece, status)          
+               nplatform, str_piece, status)
 
 
           write(6,*) 'split string,  nplatform=', nplatform
@@ -5504,7 +5504,7 @@ ENDDO PARSER
           !!do j=1, nplf
           !!   write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
           !!enddo
-          
+
 
           !
           !   a) union the platform
@@ -5521,7 +5521,7 @@ ENDDO PARSER
           end do
           deallocate(str_piece)
           !! write(6,*) 'collection n=',n, 'map(:)=', map(:)
-          
+
           ! __ write common nc_index,time,lon,lat
           k=map(1)   ! plat form # 1
           write(unitw, '(2(2x,a))') trim(string)//'index_name_x:    ', trim(adjustl(PLFS(k)%index_name_x))
@@ -5548,14 +5548,14 @@ ENDDO PARSER
               if (j==1) then
                 write(unitw, '(10(2x,a))') trim(string)//'fields:', trim(line)
              else
-                write(unitw, '(12x,a)') trim(line)                
+                write(unitw, '(12x,a)') trim(line)
              end if
           end do
           write(unitw,'(a,/)') '::'
           write(unitw,'(a)') trim(string)//'obs_files:     # table start from next line'
 
 
-          write(6,*) 'nplatform', nplatform          
+          write(6,*) 'nplatform', nplatform
           do i2=1, nplatform
              k=map(i2)
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
@@ -5577,5 +5577,5 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
   end subroutine regen_rcx_for_obs_platform
 
-      
+
 end module MAPL_HistoryGridCompMod
