@@ -8,6 +8,9 @@ set(srcs
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
   udunits2.F90
+  udunits2interfaces.F90
+  udunits2encoding.F90
+  udunits2status.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90

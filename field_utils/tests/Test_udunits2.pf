@@ -1,19 +1,21 @@
-#if defined(MAXPATHLEN)
-#undef MAXPATHLEN
+#ifdef FULLTEST
+#undef FULLTEST
 #endif
-#define MAXPATHLEN 1024
+
+! Normally, udunits2mod private procedures are not tested.
+! To test private procedures, uncomment the #define FULLTEST line,
+! which is the last line of this comment block, and comment out the global 
+! private attribute in udunits2mod.
+!#define FULLTEST
+
 module Test_udunits2
 
    use funit
-!   use udunits2mod, only: Converter, get_converter, initialize, finalize
-   use udunits2mod
+   use udunits2mod, finalize_udunits_system => finalize, initialize_udunits_system => initialize
    use iso_c_binding, only: c_ptr, c_null_ptr, c_double, c_float, c_associated
 
    implicit none
 
-!   include "udunits2enumerators.h"
-!   include "udunits2interfaces.h"
-   
    integer(ut_encoding), parameter :: ENCODING = UT_ASCII
    character(len=*), parameter :: KM = 'km'
    character(len=*), parameter :: M = 'm'
@@ -22,31 +24,140 @@ module Test_udunits2
 contains
 
    @Test
-   subroutine test_construct_system_no_path()
-      type(SystemWrapper) :: wrapper
+   subroutine test_get_converter()
+      type(Converter) :: conv
+      type(c_ptr) :: cptr
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      @assertFalse(conv % is_free(), 'cv_converter is not set')
+      cptr = conv % cptr()
+      @assertTrue(c_associated(cptr), 'c_ptr is not associated')
       
-      wrapper = SystemWrapper()
-      @assertTrue(wrapper % is_set(), 'ut_system is not set')
-      call ut_free_system(wrapper % get())
+      call conv % free()
+      call finalize_udunits_system()
+      
+  end subroutine test_get_converter
+
+   @Test
+   subroutine test_convert_double()
+      real(c_double), parameter :: FROM = 1.0
+      real(c_double), parameter :: EXPECTED = 1000.0
+      real(c_double) :: actual
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      call conv % convert(FROM, actual, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Converter failed')
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv % free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_double
+
+   @Test
+   subroutine test_convert_float()
+      real(c_float), parameter :: FROM = 1.0
+      real(c_float), parameter :: EXPECTED = 1000.0
+      real(c_float) :: actual
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      call conv % convert(FROM, actual, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Converter failed')
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv % free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_float
+
+   @Test
+   subroutine test_convert_doubles()
+      real(c_double), parameter :: FROM(3) = [1.0, 2.0, 3.0]
+      real(c_double), parameter :: EXPECTED(3) = 1000.0 * FROM
+      real(c_double) :: actual(size(EXPECTED))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      call conv % convert(FROM, actual, status)
+      @assertEqual(UT_SUCCESS, status, 'Converter failed')
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv % free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_doubles
+
+   @Test
+   subroutine test_convert_floats()
+      real(c_float), parameter :: FROM(3) = [1.0, 2.0, 3.0]
+      real(c_float), parameter :: EXPECTED(3) = 1000.0 * FROM
+      real(c_float) :: actual(size(EXPECTED))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      call conv % convert(FROM, actual, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Converter failed')
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv % free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_floats
+
+#if defined(FULLTEST)
+
+   @Test
+   subroutine test_construct_system_no_path()
+      type(UDSystem) :: wrapper
+      
+      wrapper = UDSystem()
+      @assertFalse(wrapper % is_free(), 'ut_system is not set')
+      call ut_free_system(wrapper % cptr())
 
    end subroutine test_construct_system_no_path
 
    @Test
    subroutine test_cptr_wrapper()
-      type(SystemWrapper) :: wrapper
+      type(UDSystem) :: wrapper
       type(c_ptr) :: cptr
       logical :: cassoc
 
-      wrapper = SystemWrapper()
-      cptr = wrapper % get()
+      wrapper = UDSystem()
+      cptr = wrapper % cptr()
       cassoc = c_associated(cptr)
       @assertTrue(cassoc, 'Did not get c_ptr')
       if(cassoc) then
-         @assertTrue(wrapper % is_set(), 'c_ptr should be set.')
-         call wrapper % shutdown()
-         cptr = wrapper % get()
+         @assertFalse(wrapper % is_free(), 'c_ptr should be set.')
+         call wrapper % free()
+         cptr = wrapper % cptr()
          @assertFalse(c_associated(cptr), 'c_ptr should not be associated')
-         @assertFalse(wrapper % is_set(), 'c_ptr should not be set')
+         @assertTrue(wrapper % is_free(), 'c_ptr should not be set')
       end if
       if(c_associated(cptr)) call ut_free_system(cptr)
 
@@ -54,59 +165,39 @@ contains
 
    @Test
    subroutine test_construct_unit()
-      type(SystemWrapper) :: system_wrapper
-      type(UnitWrapper) :: unit1
-      type(UnitWrapper) :: unit2
-      
-      system_wrapper = SystemWrapper()
-      unit1 = UnitWrapper(system_wrapper, KM)
-      @assertTrue(unit1 % is_set(), 'ut_unit is not set (default encoding)')
-      call unit1 % shutdown()
+      type(UDUnit) :: unit1
+      integer(ut_status) :: status
+         
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      unit1 = UDUnit(KM)
+      @assertFalse(unit1 % is_free(), 'ut_unit is not set (default encoding)')
 
-      unit2 = UnitWrapper(system_wrapper, KM, ENCODING)
-      @assertTrue(unit2 % is_set(), 'ut_unit is not set')
-      call unit2 % shutdown()
-      
-      call ut_free_system(system_wrapper % get())
+      call unit1 % free()
+      call finalize_udunits_system()
       
    end subroutine test_construct_unit
 
    @Test
    subroutine test_construct_converter()
-      type(SystemWrapper) :: system_wrapper
-      type(UnitWrapper) :: unit1
-      type(UnitWrapper) :: unit2
+      type(UDUnit) :: unit1
+      type(UDUnit) :: unit2
       type(Converter) :: conv
-      
-      system_wrapper = SystemWrapper()
-      unit1 = UnitWrapper(system_wrapper, KM)
-      unit2 = UnitWrapper(system_wrapper, M)
-      conv = Converter(unit1, unit2) 
-      @assertTrue(conv % is_set(), 'cv_converter is not set')
-      
-      call unit1 % shutdown()
-      call unit2 % shutdown()
-      call conv % shutdown()
-      call ut_free_system(system_wrapper % get())
-      
-   end subroutine test_construct_converter
-
-   @Test
-   subroutine test_get_converter()
-      type(Converter) :: conv
-      type(c_ptr) :: utsystem, cvconverter, cptr
       integer(ut_status) :: status
+      
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      unit1 = UDUnit(KM)
+      unit2 = UDUnit(M)
+      conv = Converter(unit1, unit2) 
+      @assertFalse(conv % is_free(), 'cv_converter is not set')
+      
+      call unit1 % free()
+      call unit2 % free()
+      call conv % free()
+      call finalize_udunits_system()
 
-      call get_converter(conv, KM, M, encoding=ENCODING, rc=status)
-      @assertEqual(UT_SUCCESS, status, 'return code is not UT_SUCCESS')
-      @assertTrue(conv % is_set(), 'cv_converter is not set')
-      cptr = conv % get()
-      @assertTrue(c_associated(cptr), 'c_ptr is no associated')
-      
-      call conv % shutdown()
-      call shutdown_system_instance()
-      
-  end subroutine test_get_converter
+   end subroutine test_construct_converter
 
    @Test
    subroutine test_read_xml_nopath()
@@ -127,78 +218,6 @@ contains
    end subroutine test_read_xml_nopath
 
    @Test
-   subroutine test_convert_double()
-      real(c_double), parameter :: FROM = 1.0
-      real(c_double), parameter :: EXPECTED = 1000.0
-      real(c_double) :: actual
-      type(Converter) :: conv
-      integer(ut_status) :: status
-      character(len=*), parameter :: FROM_STRING = KM
-      character(len=*), parameter :: TO_STRING = M
-
-      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
-      actual = conv % convert_double(FROM)
-      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
-      call conv % shutdown()
-      call shutdown_system_instance()
-
-   end subroutine test_convert_double
-
-   @Test
-   subroutine test_convert_float()
-      real(c_float), parameter :: FROM = 1.0
-      real(c_float), parameter :: EXPECTED = 1000.0
-      real(c_float) :: actual
-      type(Converter) :: conv
-      integer(ut_status) :: status
-      character(len=*), parameter :: FROM_STRING = KM
-      character(len=*), parameter :: TO_STRING = M
-
-      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
-      actual = conv % convert_float(FROM)
-      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
-      call conv % shutdown()
-      call shutdown_system_instance()
-
-   end subroutine test_convert_float
-
-   @Test
-   subroutine test_convert_doubles()
-      real(c_double), parameter :: FROM(3) = [1.0, 2.0, 3.0]
-      real(c_double), parameter :: EXPECTED(3) = 1000.0 * FROM
-      real(c_double) :: actual(size(EXPECTED))
-      type(Converter) :: conv
-      integer(ut_status) :: status
-      character(len=*), parameter :: FROM_STRING = KM
-      character(len=*), parameter :: TO_STRING = M
-
-      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
-      call conv % convert_doubles(FROM, actual)
-      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
-      call conv % shutdown()
-      call shutdown_system_instance()
-
-   end subroutine test_convert_doubles
-
-   @Test
-   subroutine test_convert_floats()
-      real(c_float), parameter :: FROM(3) = [1.0, 2.0, 3.0]
-      real(c_float), parameter :: EXPECTED(3) = 1000.0 * FROM
-      real(c_float) :: actual(size(EXPECTED))
-      type(Converter) :: conv
-      integer(ut_status) :: status
-      character(len=*), parameter :: FROM_STRING = KM
-      character(len=*), parameter :: TO_STRING = M
-
-      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
-      call conv % convert_floats(FROM, actual)
-      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
-      call conv % shutdown()
-      call shutdown_system_instance()
-
-   end subroutine test_convert_floats
-
-   @Test
    subroutine test_cstring()
       character(len=*), parameter :: s = 'FOO_BAR'
       character(kind=c_char, len=80) :: cchs
@@ -217,39 +236,39 @@ contains
 
    @Test
    subroutine test_are_convertible()
-      type(SystemWrapper) :: system_wrapper
-      type(UnitWrapper) :: unit1
-      type(UnitWrapper) :: unit2
+      type(UDUnit) :: unit1
+      type(UDUnit) :: unit2
       integer(ut_status) :: status
       logical :: convertible
 
-      system_wrapper = SystemWrapper()
-      unit1 = UnitWrapper(system_wrapper, KM)
-      unit2 = UnitWrapper(system_wrapper, M)
-      call are_convertible(unit1, unit2, convertible, rc=status)
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      unit1 = UDUnit(KM)
+      unit2 = UDUnit(M)
+      convertible = are_convertible(unit1, unit2, rc=status)
       if(.not. convertible) then
          @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
          @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
       end if
 
-      call unit1 % shutdown()
-      call unit2 % shutdown()
-      call system_wrapper % shutdown()
+      call unit1 % free()
+      call unit2 % free()
+      call finalize_udunits_system()
 
    end subroutine test_are_convertible
 
    @Test
    subroutine test_are_not_convertible()
-      type(SystemWrapper) :: system_wrapper
-      type(UnitWrapper) :: unit1
-      type(UnitWrapper) :: unit2
+      type(UDUnit) :: unit1
+      type(UDUnit) :: unit2
       integer(ut_status) :: status
       logical :: convertible
 
-      system_wrapper = SystemWrapper()
-      unit1 = UnitWrapper(system_wrapper, KM)
-      unit2 = UnitWrapper(system_wrapper, S)
-      call are_convertible(unit1, unit2, convertible, rc=status)
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      unit1 = UDUnit(KM)
+      unit2 = UDUnit(S)
+      convertible = are_convertible(unit1, unit2, rc=status)
       @assertFalse(convertible, 'Units are not convertible.')
       if(.not. convertible) then
          @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
@@ -257,10 +276,12 @@ contains
          @assertTrue(status == UT_SUCCESS, 'Units are not convertible.')
       end if
 
-      call unit1 % shutdown()
-      call unit2 % shutdown()
-      call system_wrapper % shutdown()
+      call unit1 % free()
+      call unit2 % free()
+      call finalize_udunits_system()
 
    end subroutine test_are_not_convertible
+
+#endif
 
 end module Test_udunits2

@@ -1,35 +1,54 @@
 module udunits2interfaces
 
+   use iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_double
+   use udunits2status
+   use udunits2encoding
+
    implicit none
 
    interface
 
+      ! Procedures that return type(c_ptr) return a C null pointer on failure.
+      ! However, checking for the C null pointer IS NOT a good check for status.
+      ! ut_get_status is a better check, where UT_SUCCESS indicates success.
+
+      ! Return type(c_ptr) to ut_system units database specified by path
+      ! Use ut_get_status to check error condition. 
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       type(c_ptr) function ut_read_xml_cptr(path) bind(c, name='ut_read_xml')
          import :: c_ptr
          type(c_ptr), value :: path
       end function ut_read_xml_cptr
 
+      ! Return type(c_ptr) to default ut_system units database (from environment variable or library default)
+      ! Use ut_get_status to check error condition. 
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       type(c_ptr) function ut_read_xml(path) bind(c, name='ut_read_xml')
          import :: c_ptr, c_char
          character(kind=c_char), intent(in) :: path(*)
       end function ut_read_xml
 
+      ! Get status code
       integer(ut_status) function ut_get_status() bind(c, name='ut_get_status')
          import :: ut_status
       end function ut_get_status
       
       ! Return non-zero value if unit1 can be converted to unit2, otherwise 0
       ! Use ut_get_status to check error condition. 
-      ! UT_SUCCESS indicates that the function ran successfully,
-      ! not that the units are convertible
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       integer(c_int) function ut_are_convertible(unit1, unit2) &
          bind(c, name='ut_are_convertible')
          import :: c_int, c_ptr
          type(c_ptr), value, intent(in) :: unit1, unit2
       end function ut_are_convertible
 
-      ! Return pointer wrapper for converter, NULL if error.
+      ! Return type(c_ptr) to cv_converter
       ! Use ut_get_status to check error condition. 
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       type(c_ptr) function ut_get_converter(from, to) &
          bind(c, name='ut_get_converter')
          import :: c_ptr
@@ -37,6 +56,9 @@ module udunits2interfaces
       end function ut_get_converter
 
       ! Use converter to convert value_
+      ! Use ut_get_status to check error condition. 
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       real(c_float) function cv_convert_float(converter, value_) bind(c)
          import :: c_ptr, c_float
          type(c_ptr), value, intent(in) :: converter
@@ -44,6 +66,9 @@ module udunits2interfaces
       end function cv_convert_float
 
       ! Use converter to convert value_
+      ! Use ut_get_status to check error condition. 
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       real(c_double) function cv_convert_double(converter, value_) bind(c)
          import :: c_ptr, c_double
          type(c_ptr), value, intent(in) :: converter
@@ -51,6 +76,9 @@ module udunits2interfaces
       end function cv_convert_double
 
       ! Use converter to convert in_ and put it in out_.
+      ! Use ut_get_status to check error condition. 
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       subroutine cv_convert_doubles(converter, in_, count_, out_) &
          bind(c, name='cv_convert_doubles')
          import :: c_double, c_int, c_ptr
@@ -61,6 +89,9 @@ module udunits2interfaces
       end subroutine cv_convert_doubles
 
       ! Use converter to convert in_ and put it in out_.
+      ! Use ut_get_status to check error condition. 
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       subroutine cv_convert_floats(converter, in_, count_, out_) &
          bind(c, name='cv_convert_floats')
          import :: c_ptr, c_float, c_int
@@ -70,6 +101,9 @@ module udunits2interfaces
          real(c_float), intent(out) :: out_(count_)
       end subroutine cv_convert_floats
 
+      ! Return type(c_ptr) to ut_unit
+      ! UT_SUCCESS indicates that the function ran successfully.
+      ! Other ut_status codes indicate cause of failure.
       ! Use ut_get_status to check error condition. 
       type(c_ptr) function ut_parse(system, string, encoding) &
          bind(c, name='ut_parse')
@@ -79,21 +113,29 @@ module udunits2interfaces
          integer(ut_encoding), value, intent(in) :: encoding
       end function ut_parse
 
+      ! Free memory for ut_system
       subroutine ut_free_system(system) bind(c, name='ut_free_system')
          import :: c_ptr
          type(c_ptr), value :: system
       end subroutine ut_free_system
 
+      ! Free memory for ut_unit
       subroutine ut_free(unit) bind(c, name='ut_free')
          import :: c_ptr
          type(c_ptr), value :: unit
       end subroutine ut_free
 
+      ! Free memory for cv_converter
       subroutine cv_free(conv) bind(c, name='cv_free')
          import :: c_ptr
          type(c_ptr), value :: conv
       end subroutine cv_free
          
+      subroutine FreeUT_Sub(ud_ptr)
+         import :: c_ptr
+         type(c_ptr), intent(in) :: ud_ptr
+      end subroutine FreeUT_Sub
+
    end interface
 
 end module udunits2interfaces
