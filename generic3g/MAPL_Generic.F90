@@ -19,10 +19,10 @@ module mapl3g_Generic
    use :: mapl3g_InnerMetaComponent, only: InnerMetaComponent
    use :: mapl3g_InnerMetaComponent, only: get_inner_meta
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
-   use :: mapl3g_UserComponent, only: UserComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_ComponentSpec, only: ComponentSpec
    use :: mapl3g_VariableSpec, only: VariableSpec
+   use :: mapl3g_ComponentDriver, only: ComponentDriver
    use :: mapl3g_UngriddedDimsSpec, only: UngriddedDimsSpec
    use :: mapl3g_Validation, only: is_valid_name
    use :: mapl3g_ESMF_Interfaces, only: I_Run
@@ -76,6 +76,13 @@ module mapl3g_Generic
    public :: MAPL_GridCompSetGeom
    public :: MAPL_GridCompSetVerticalGeom
 
+   ! Connections
+!#   public :: MAPL_AddConnection
+   public :: MAPL_ConnectAll
+
+
+   ! Interfaces
+
    interface MAPL_GridCompSetGeom
       module procedure MAPL_GridCompSetGeom
       module procedure MAPL_GridCompSetGeomGrid
@@ -90,7 +97,6 @@ module mapl3g_Generic
 !!$   end interface MAPL_GetInternalState
 
 
-   ! Interfaces
 
    interface MAPL_add_child
       module procedure :: add_child_by_name
@@ -129,6 +135,11 @@ module mapl3g_Generic
    interface MAPL_GridCompSetEntryPoint
       module procedure gridcomp_set_entry_point
    end interface MAPL_GridCompSetEntryPoint
+
+   interface MAPL_ConnectAll
+      procedure :: gridcomp_connect_all
+   end interface MAPL_ConnectAll
+
 
 contains
 
@@ -173,10 +184,9 @@ contains
    ! In this procedure, gridcomp is actually an _outer_ gridcomp.   The intent is that
    ! an inner gridcomp will call this on its child which is a wrapped user comp.
 
-   subroutine run_child_by_name(gridcomp, child_name, clock, unusable, phase_name, rc)
+   subroutine run_child_by_name(gridcomp, child_name, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
-      type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
@@ -185,16 +195,15 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%run_child(child_name, clock, phase_name=phase_name, _RC)
+      call outer_meta%run_child(child_name, phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine run_child_by_name
 
 
-   subroutine run_children(gridcomp, clock, unusable, phase_name, rc)
+   subroutine run_children(gridcomp, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), intent(in) :: phase_name
       integer, optional, intent(out) :: rc
@@ -203,7 +212,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%run_children(clock, phase_name=phase_name, _RC)
+      call outer_meta%run_children(phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -252,11 +261,12 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(UserComponent), pointer :: user_component
+      type(ComponentDriver), pointer :: user_component
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       user_component => outer_meta%get_user_component()
-      call user_component%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
+      call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
+!#      call user_component%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -538,5 +548,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine MAPL_GridCompSetGeomLocStream
 
+   subroutine gridcomp_connect_all(gridcomp, src_comp, dst_comp, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(*), intent(in) :: src_comp
+      character(*), intent(in) :: dst_comp
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+      call outer_meta%connect_all(src_comp, dst_comp, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_connect_all
 
 end module mapl3g_Generic

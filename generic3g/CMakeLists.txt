@@ -17,22 +17,20 @@ set(srcs
   UserSetServices.F90
   MethodPhasesMap.F90
 
-  ChildComponent.F90
-  ChildComponent_run_smod.F90
-  ChildComponentMap.F90
+  ComponentDriver.F90
+  ComponentDriver_smod.F90
+  ComponentDriverMap.F90
 #  GenericCouplerComponent.F90
 #  CouplerComponentVector.F90
 
   MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
-  OuterMetaComponent_setservices_smod.F90
-  OuterMetaComponent_addChild_smod.F90
+  OuterMetaComponent_smod.F90
   GenericPhases.F90
   GenericGridComp.F90
 
   MAPL_Generic.F90
-  UserComponent.F90
   Validation.F90
 
   VerticalGeom.F90
@@ -64,6 +62,7 @@ add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(actions)
+add_subdirectory(couplers)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

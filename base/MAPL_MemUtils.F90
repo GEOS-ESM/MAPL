@@ -781,7 +781,7 @@ subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
     character(len=:), allocatable :: extra_message
 
 #ifdef sysDarwin
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 #endif
     call MPI_Barrier(comm,status)
     if (present(decorator)) then

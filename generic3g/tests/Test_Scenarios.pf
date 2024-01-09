@@ -12,7 +12,7 @@ module Test_Scenarios
    use mapl3g_GenericPhases
    use mapl3g_MultiState
    use mapl3g_OuterMetaComponent
-   use mapl3g_ChildComponent
+   use mapl3g_ComponentDriver
    use mapl3g_GenericGridComp, generic_setservices => setservices
    use mapl3g_UserSetServices
    use mapl3g_ESMF_Utilities
@@ -161,8 +161,6 @@ contains
         outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, _RC)
         call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
-!#        grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
-!#        call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
         vertical_geom = VerticalGeom(4)
         call MAPL_GridCompSetVerticalGeom(outer_gc,vertical_geom,_RC)
 
@@ -199,10 +197,10 @@ contains
 
       integer :: status
 
-!!$      call ESMF_GridCompDestroy(this%outer_gc, _RC)
+!#      call ESMF_GridCompDestroy(this%outer_gc, _RC)
 
-!!$      call ESMF_StateDestroy(this%outer_states%importState,_RC)
-!!$      call ESMF_StateDestroy(this%outer_states%exportState, _RC)
+!#      call ESMF_StateDestroy(this%outer_states%importState,_RC)
+!#      call ESMF_StateDestroy(this%outer_states%exportState, _RC)
       
    end subroutine teardown
 
@@ -589,7 +587,7 @@ contains
 
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)
-      use mapl3g_UserComponent
+      use mapl3g_ComponentDriver
       type(ESMF_GridComp), target, intent(inout) :: gc
       type(MultiState), intent(in) :: states
       character(*), intent(in) :: component_path
@@ -598,11 +596,11 @@ contains
 
       integer :: status
       character(:), allocatable :: child_name
-      type(ChildComponent) :: child
+      type(ComponentDriver) :: child
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: idx
-      type(UserComponent), pointer :: user_component
+      type(ComponentDriver), pointer :: user_component
 
       rc = 0
 
@@ -627,7 +625,7 @@ contains
       ! Otherwise drill down 1 level.
       child = outer_meta%get_child(child_name, _RC)
 
-      child_gc = child%get_outer_gridcomp()
+      child_gc = child%get_gridcomp()
 
       call get_substates(child_gc, child%get_states(), component_path(idx+1:), &
            substates, _RC)

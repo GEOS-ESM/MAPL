@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule(mapl3g_ChildComponent) ChildComponent_run_smod
+submodule(mapl3g_ComponentDriver) ComponentDriver_run_smod
    use :: mapl_ErrorHandling
    use :: mapl3g_OuterMetaComponent
    use :: mapl3g_MethodPhasesMapUtils
@@ -9,20 +9,13 @@ submodule(mapl3g_ChildComponent) ChildComponent_run_smod
 
 contains
 
-   module subroutine run_self(this, clock, unusable, phase_idx, rc)
-      use mapl3g_OuterMetaComponent, only: get_outer_meta
-      use mapl3g_OuterMetaComponent, only: OuterMetaComponent
-      class(ChildComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
+   module recursive subroutine run(this, unusable, phase_idx, rc)
+      class(ComponentDriver), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      integer :: phase
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      outer_meta => get_outer_meta(this%gridcomp, _RC)
 
       associate ( &
            importState => this%states%importState, &
@@ -31,36 +24,29 @@ contains
         call ESMF_GridCompRun(this%gridcomp, &
              importState=importState, &
              exportState=exportState, &
-             clock=clock, &
+             clock=this%clock, &
              phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
       end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine run_self
+   end subroutine run
 
-   recursive module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
-      use mapl3g_OuterMetaComponent, only: get_outer_meta
-      use mapl3g_OuterMetaComponent, only: OuterMetaComponent
-      use mapl3g_GenericGridComp
-      class(ChildComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
+   recursive module subroutine initialize(this, unusable, phase_idx, rc)
+      class(ComponentDriver), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      outer_meta => get_outer_meta(this%gridcomp, _RC)
 
       associate ( &
            importState => this%states%importState, &
            exportState => this%states%exportState)
 
         call ESMF_GridCompInitialize(this%gridcomp, &
-             importState=importState, exportState=exportState, clock=clock, &
+             importState=importState, exportState=exportState, clock=this%clock, &
              phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
 
@@ -68,41 +54,60 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine initialize_self
+   end subroutine initialize
 
-   module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
-      use mapl3g_OuterMetaComponent, only: get_outer_meta
-      use mapl3g_OuterMetaComponent, only: OuterMetaComponent
-      class(ChildComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
+   module recursive subroutine finalize(this, unusable, phase_idx, rc)
+      class(ComponentDriver), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      outer_meta => get_outer_meta(this%gridcomp, _RC)
 
       associate ( &
            importState => this%states%importState, &
            exportState => this%states%exportState)
 
         call ESMF_GridCompFinalize(this%gridcomp, &
-             importState=importState, exportState=exportState, clock=clock, &
+             importState=importState, exportState=exportState, clock=this%clock, &
              phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
       end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine finalize_self
+   end subroutine finalize
+
+   module subroutine advance(this, rc)
+      class(ComponentDriver), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+!#      call ESMF_ClockAdvance(this%clock, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine advance
+
+   module function get_clock(this) result(clock)
+      type(ESMF_Clock) :: clock
+      class(ComponentDriver), intent(in) :: this
+
+      clock = this%clock
+   end function get_clock
+
+   module subroutine set_clock(this, clock)
+      class(ComponentDriver), intent(inout) :: this
+      type(ESMF_Clock), intent(in) :: clock
+
+      this%clock = clock
+   end subroutine set_clock
+
 
    module function get_states(this) result(states)
       type(MultiState) :: states
-      class(ChildComponent), intent(in) :: this
+      class(ComponentDriver), intent(in) :: this
 
       states = this%states
    end function get_states
 
-end submodule ChildComponent_run_smod
+end submodule ComponentDriver_run_smod
