@@ -168,9 +168,14 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
-      
+
+      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
       grid = this%create_basic_grid(_RC)
+      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
+
       call this%add_horz_coordinates_from_file(grid,_RC)
+      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
+      
       _RETURN(_SUCCESS)
    end function make_new_grid
 
@@ -233,8 +238,14 @@ contains
       integer :: i_1, i_n, j_1, j_n  ! regional array bounds
       type(Logger), pointer :: lgr
 
+      ! debug
+      type(ESMF_VM) :: vm
+      integer :: mypet, petcount
+
       _UNUSED_DUMMY(unusable)
 
+      call ESMF_VMGetGlobal(vm,_RC)
+      call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
 
       Xdim=this%im_world
       Ydim=this%jm_world
@@ -245,7 +256,6 @@ contains
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
-
 !      if (mapl_am_I_root()) then
 !         write(6,'(2x,a,10i8)')  &
 !              'ck: Xdim, Ydim, Xdim_full, Ydim_full', Xdim, Ydim, Xdim_full, Ydim_full
@@ -253,9 +263,11 @@ contains
 !              'ck: i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
 !      end if
 
-
       ! read longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+
+          write(6,'(2x,a,2x,i10)')  'add_horz_coord: MAPL_AmNodeRoot:  mypet=', mypet
+
           allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
           call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
                this%index_name_lon, this%index_name_lat, &
@@ -273,12 +285,13 @@ contains
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate( lon_true, time_true )
        end if
+
        call MAPL_SyncSharedMemory(_RC)       
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
 
-       
+!!       _FAIL ('nail -1')
        ! read latitudes 
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           k=0
