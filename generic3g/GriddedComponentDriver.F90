@@ -89,6 +89,18 @@ module mapl3g_GriddedComponentDriver
          type(ESMF_Clock), intent(in) :: clock
       end subroutine set_clock
 
+      recursive module subroutine run_export_couplers(this, unusable, phase_idx, rc)
+         class(GriddedComponentDriver), intent(inout) :: this
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: phase_idx
+         integer, optional, intent(out) :: rc
+      end subroutine run_export_couplers
+
+      recursive module subroutine run_import_couplers(this, rc)
+         class(GriddedComponentDriver), intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine run_import_couplers
+
    end interface
 
 contains
@@ -145,46 +157,5 @@ contains
       call this%import_couplers%push_back(driver)
    end subroutine add_import_coupler
 
-   subroutine run_export_couplers(this, unusable, phase_idx, rc)
-      class(GriddedComponentDriver), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: phase_idx
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentDriverVectorIterator) :: iter
-      class(ComponentDriver), pointer :: driver
-
-      associate (e => this%export_couplers%ftn_end() )
-        iter = this%export_couplers%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           driver => iter%of()
-           call driver%run(_RC)
-        end do
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine run_export_couplers
-
-   subroutine run_import_couplers(this, rc)
-      class(GriddedComponentDriver), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentDriverVectorIterator) :: iter
-      class(ComponentDriver), pointer :: driver
-
-      associate (e => this%import_couplers%ftn_end() )
-        iter = this%import_couplers%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           driver => iter%of()
-           call driver%run(_RC)
-        end do
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine run_import_couplers
 
 end module mapl3g_GriddedComponentDriver
