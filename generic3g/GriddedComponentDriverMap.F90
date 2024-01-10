@@ -1,18 +1,19 @@
-module mapl3g_ComponentDriverMap
-   use mapl3g_ComponentDriver
+module mapl3g_GriddedComponentDriverMap
+   use mapl3g_GriddedComponentDriver
 
 #define Key __CHARACTER_DEFERRED
-#define T ComponentDriver
-#define OrderedMap ComponentDriverMap
-#define OrderedMapIterator ComponentDriverMapIterator
-#define Pair ComponentDriverPair
+#define T GriddedComponentDriver
+#define OrderedMap GriddedComponentDriverMap
+#define OrderedMapIterator GriddedComponentDriverMapIterator
+#define Pair GriddedComponentDriverPair
 
 #include "ordered_map/template.inc"
 
 #undef Pair
 #undef OrderedMapIterator
 #undef OrderedMap
+#undef T_polymorphic
 #undef T
 #undef Key
 
-end module mapl3g_ComponentDriverMap
+end module mapl3g_GriddedComponentDriverMap

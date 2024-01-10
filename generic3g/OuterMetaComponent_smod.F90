@@ -84,9 +84,9 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ComponentDriver), pointer :: child_comp
+         type(GriddedComponentDriver), pointer :: child_comp
          type(ESMF_GridComp) :: child_outer_gc
-         type(ComponentDriverMapIterator) :: iter
+         type(GriddedComponentDriverMapIterator) :: iter
 
           associate ( e => this%children%ftn_end() )
             iter = this%children%ftn_begin()
@@ -113,14 +113,14 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: child_gc
-      type(ComponentDriver) :: child_comp
+      type(GriddedComponentDriver) :: child_comp
       type(ESMF_Clock) :: clock_tmp
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
       child_gc = create_grid_comp(child_name, setservices, hconfig, _RC)
       call ESMF_GridCompSetServices(child_gc, generic_setservices, _RC)
-      child_comp = ComponentDriver(child_gc, clock_tmp)
+      child_comp = GriddedComponentDriver(child_gc, clock_tmp)
 
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
       call this%children%insert(child_name, child_comp)

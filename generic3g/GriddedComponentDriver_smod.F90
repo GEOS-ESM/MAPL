@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule(mapl3g_ComponentDriver) ComponentDriver_run_smod
+submodule(mapl3g_GriddedComponentDriver) GriddedComponentDriver_run_smod
    use :: mapl_ErrorHandling
    use :: mapl3g_OuterMetaComponent
    use :: mapl3g_MethodPhasesMapUtils
@@ -10,7 +10,7 @@ submodule(mapl3g_ComponentDriver) ComponentDriver_run_smod
 contains
 
    module recursive subroutine run(this, unusable, phase_idx, rc)
-      class(ComponentDriver), intent(inout) :: this
+      class(GriddedComponentDriver), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
@@ -34,7 +34,7 @@ contains
    end subroutine run
 
    recursive module subroutine initialize(this, unusable, phase_idx, rc)
-      class(ComponentDriver), intent(inout) :: this
+      class(GriddedComponentDriver), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
@@ -57,7 +57,7 @@ contains
    end subroutine initialize
 
    module recursive subroutine finalize(this, unusable, phase_idx, rc)
-      class(ComponentDriver), intent(inout) :: this
+      class(GriddedComponentDriver), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
@@ -78,25 +78,16 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine finalize
 
-   module subroutine advance(this, rc)
-      class(ComponentDriver), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-!#      call ESMF_ClockAdvance(this%clock, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine advance
 
    module function get_clock(this) result(clock)
       type(ESMF_Clock) :: clock
-      class(ComponentDriver), intent(in) :: this
+      class(GriddedComponentDriver), intent(in) :: this
 
       clock = this%clock
    end function get_clock
 
    module subroutine set_clock(this, clock)
-      class(ComponentDriver), intent(inout) :: this
+      class(GriddedComponentDriver), intent(inout) :: this
       type(ESMF_Clock), intent(in) :: clock
 
       this%clock = clock
@@ -105,9 +96,9 @@ contains
 
    module function get_states(this) result(states)
       type(MultiState) :: states
-      class(ComponentDriver), intent(in) :: this
+      class(GriddedComponentDriver), intent(in) :: this
 
       states = this%states
    end function get_states
 
-end submodule ComponentDriver_run_smod
+end submodule GriddedComponentDriver_run_smod

@@ -22,7 +22,7 @@ module mapl3g_Generic
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_ComponentSpec, only: ComponentSpec
    use :: mapl3g_VariableSpec, only: VariableSpec
-   use :: mapl3g_ComponentDriver, only: ComponentDriver
+   use :: mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
    use :: mapl3g_UngriddedDimsSpec, only: UngriddedDimsSpec
    use :: mapl3g_Validation, only: is_valid_name
    use :: mapl3g_ESMF_Interfaces, only: I_Run
@@ -261,7 +261,7 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ComponentDriver), pointer :: user_component
+      type(GriddedComponentDriver), pointer :: user_component
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       user_component => outer_meta%get_user_component()

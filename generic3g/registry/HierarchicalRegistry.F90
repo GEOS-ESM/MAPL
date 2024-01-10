@@ -133,9 +133,9 @@ module mapl3g_HierarchicalRegistry
    ! Submodule implementations
    interface
       module function new_HierarchicalRegistry_children(children, rc) result(registry)
-         use mapl3g_ComponentDriverMap
+         use mapl3g_GriddedComponentDriverMap
          type(HierarchicalRegistry) :: registry
-         type(ComponentDriverMap), intent(in) :: children
+         type(GriddedComponentDriverMap), intent(in) :: children
          integer, optional, intent(out) :: rc
       end function
    end interface

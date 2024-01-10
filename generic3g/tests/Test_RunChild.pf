@@ -1,7 +1,7 @@
 module Test_RunChild
    use mapl3g_GenericGridComp
    use mapl3g_Generic
-   use mapl3g_ComponentDriver
+   use mapl3g_GriddedComponentDriver
    use mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices
    use mapl_ErrorHandling
@@ -22,7 +22,7 @@ contains
       integer, intent(out) :: rc
 
       type(ESMF_HConfig) :: config
-      type(ComponentDriver) :: user_comp
+      type(GriddedComponentDriver) :: user_comp
       integer :: status
 
       config = ESMF_HConfigCreate(content='{}', rc=status)

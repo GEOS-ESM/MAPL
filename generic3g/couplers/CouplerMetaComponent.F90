@@ -2,6 +2,7 @@
 
 module mapl3g_CouplerMetaComponent
    use mapl3g_ComponentDriver, only: ComponentDriver
+   use mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
    use mapl3g_ComponentDriverVector, only: ComponentDriverVector
    use mapl3g_ExtensionAction
    use mapl_ErrorHandlingMod
@@ -27,7 +28,7 @@ module mapl3g_CouplerMetaComponent
    type :: CouplerMetaComponent
       private
       class(ExtensionAction), allocatable :: action
-      type(ComponentDriver), pointer :: source => null()
+      type(GriddedComponentDriver), pointer :: source => null()
       type(ComponentDriverVector) :: consumers
       logical :: stale = .true.
    contains
@@ -72,7 +73,7 @@ contains
    function new_CouplerMetaComponent(action, source) result (this)
       type(CouplerMetaComponent) :: this
       class(ExtensionAction), intent(in) :: action
-      type(ComponentDriver), pointer, optional, intent(in) :: source
+      type(GriddedComponentDriver), pointer, optional, intent(in) :: source
 
       this%action = action
       if (present(source)) this%source => source
@@ -133,7 +134,7 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      type(ComponentDriver), pointer :: consumer
+      class(ComponentDriver), pointer :: consumer
       integer :: i
 
       do i = 1, this%consumers%size()
@@ -167,7 +168,7 @@ contains
 
       
    function add_consumer(this) result(consumer)
-      type(ComponentDriver), pointer :: consumer
+      class(ComponentDriver), pointer :: consumer
       class(CouplerMetaComponent), target, intent(inout) :: this
 
       call this%consumers%resize(this%consumers%size() + 1)
@@ -176,7 +177,7 @@ contains
 
    subroutine set_source(this, source)
       class(CouplerMetaComponent), target, intent(inout) :: this
-      type(ComponentDriver), pointer, intent(in) :: source
+      type(GriddedComponentDriver), pointer, intent(in) :: source
 
       this%source => source
    end subroutine set_source

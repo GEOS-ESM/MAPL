@@ -1,15 +1,16 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_ComponentDriver
+module mapl3g_GriddedComponentDriver
    use mapl3g_MultiState
+   use mapl3g_ComponentDriver
    use mapl_ErrorHandlingMod
    use :: esmf
    implicit none
    private
 
-   public :: ComponentDriver
+   public :: GriddedComponentDriver
 
-   type :: ComponentDriver
+   type, extends(ComponentDriver) :: GriddedComponentDriver
       private
       type(ESMF_GridComp) :: gridcomp
       type(MultiState) :: states
@@ -18,7 +19,6 @@ module mapl3g_ComponentDriver
       procedure :: run
       procedure :: initialize
       procedure :: finalize
-      procedure :: advance
 
       ! Accessors
       procedure :: get_clock
@@ -26,18 +26,17 @@ module mapl3g_ComponentDriver
       procedure :: get_states
       procedure :: get_gridcomp
       procedure :: get_name
+   end type GriddedComponentDriver
 
-   end type ComponentDriver
-
-   interface ComponentDriver
-      module procedure new_ComponentDriver
-   end interface ComponentDriver
+   interface GriddedComponentDriver
+      module procedure new_GriddedComponentDriver
+   end interface GriddedComponentDriver
 
    interface
 
       module recursive subroutine initialize(this, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ComponentDriver), intent(inout) :: this
+         class(GriddedComponentDriver), intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
@@ -47,7 +46,7 @@ module mapl3g_ComponentDriver
       ! on OuterMetaComponent.
       module recursive subroutine run(this, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ComponentDriver), intent(inout) :: this
+         class(GriddedComponentDriver), intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
@@ -55,33 +54,28 @@ module mapl3g_ComponentDriver
 
       module recursive subroutine finalize(this, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
-         class(ComponentDriver), intent(inout) :: this
+         class(GriddedComponentDriver), intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine finalize
 
-      module subroutine advance(this, rc)
-         class(ComponentDriver), intent(inout) :: this
-         integer, optional, intent(out) :: rc
-      end subroutine advance
-
 
       module function get_states(this) result(states)
          use mapl3g_MultiState
          type(MultiState) :: states
-         class(ComponentDriver), intent(in) :: this
+         class(GriddedComponentDriver), intent(in) :: this
       end function get_states
 
       module function get_clock(this) result(clock)
          use esmf, only: ESMF_Clock
          type(ESMF_Clock) :: clock
-         class(ComponentDriver), intent(in) :: this
+         class(GriddedComponentDriver), intent(in) :: this
       end function get_clock
 
       module subroutine set_clock(this, clock)
          use esmf, only: ESMF_Clock
-         class(ComponentDriver), intent(inout) :: this
+         class(GriddedComponentDriver), intent(inout) :: this
          type(ESMF_Clock), intent(in) :: clock
       end subroutine set_clock
 
@@ -89,8 +83,8 @@ module mapl3g_ComponentDriver
 
 contains
 
-   function new_ComponentDriver(gridcomp, clock, states) result(child)
-      type(ComponentDriver) :: child
+   function new_GriddedComponentDriver(gridcomp, clock, states) result(child)
+      type(GriddedComponentDriver) :: child
       type(ESMF_GridComp), intent(in) :: gridcomp
       type(ESMF_Clock), optional, intent(in) :: clock
       type(MultiState), optional, intent(in) :: states
@@ -105,19 +99,19 @@ contains
       end if
       child%states = MultiState()
 
-   end function new_ComponentDriver
+   end function new_GriddedComponentDriver
 
 
    function get_gridcomp(this) result(gridcomp)
       use esmf, only: ESMF_GridComp
       type(ESMF_GridComp) :: gridcomp
-      class(ComponentDriver), intent(in) :: this
+      class(GriddedComponentDriver), intent(in) :: this
       gridcomp = this%gridcomp
    end function get_gridcomp
 
    function get_name(this, rc) result(name)
       character(:), allocatable :: name
-      class(ComponentDriver), intent(in) :: this
+      class(GriddedComponentDriver), intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -129,4 +123,4 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function get_name
 
-end module mapl3g_ComponentDriver
+end module mapl3g_GriddedComponentDriver

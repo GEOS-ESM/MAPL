@@ -18,10 +18,10 @@ set(srcs
   MethodPhasesMap.F90
 
   ComponentDriver.F90
-  ComponentDriver_smod.F90
-  ComponentDriverMap.F90
-#  GenericCouplerComponent.F90
-#  CouplerComponentVector.F90
+  ComponentDriverVector.F90
+  GriddedComponentDriver.F90
+  GriddedComponentDriver_smod.F90
+  GriddedComponentDriverMap.F90
 
   MultiState.F90
   InnerMetaComponent.F90
