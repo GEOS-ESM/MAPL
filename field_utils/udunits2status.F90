@@ -19,8 +19,7 @@ module udunits2status
        UT_OPEN_ARG, & ! Can't open argument-specified unit database
        UT_OPEN_ENV, & ! Can't open environment-specified unit database
        UT_OPEN_DEFAULT, & ! Can't open installed, default, unit database
-       UT_PARSE_ERROR, & ! Error parsing unit specification
-       UT_FAILURE = UT_SUCCESS - 1
+       UT_PARSE_ERROR ! Error parsing unit specification
    end enum
    integer, parameter :: ut_status = kind(UT_SUCCESS)
 

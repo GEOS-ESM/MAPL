@@ -6,6 +6,13 @@ module udunits2interfaces
 
    implicit none
 
+   public :: ut_get_status, ut_parse
+   public :: ut_read_xml_cptr, ut_read_xml
+   public :: ut_get_converter, ut_are_convertible
+   public :: cv_convert_double, cv_convert_float
+   public :: cv_convert_doubles, cv_convert_floats
+   public :: ut_free, ut_free_system, cv_free
+
    interface
 
       ! Procedures that return type(c_ptr) return a C null pointer on failure.
@@ -34,7 +41,7 @@ module udunits2interfaces
       integer(ut_status) function ut_get_status() bind(c, name='ut_get_status')
          import :: ut_status
       end function ut_get_status
-      
+
       ! Return non-zero value if unit1 can be converted to unit2, otherwise 0
       ! Use ut_get_status to check error condition. 
       ! UT_SUCCESS indicates that the function ran successfully.
@@ -130,11 +137,6 @@ module udunits2interfaces
          import :: c_ptr
          type(c_ptr), value :: conv
       end subroutine cv_free
-         
-      subroutine FreeUT_Sub(ud_ptr)
-         import :: c_ptr
-         type(c_ptr), intent(in) :: ud_ptr
-      end subroutine FreeUT_Sub
 
    end interface
 

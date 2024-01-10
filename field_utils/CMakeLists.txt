@@ -7,6 +7,7 @@ set(srcs
   FieldUtilities.F90
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
+  FieldUnits.F90
   udunits2.F90
   udunits2interfaces.F90
   udunits2encoding.F90

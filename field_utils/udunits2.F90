@@ -4,6 +4,8 @@ module udunits2mod
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double
    use udunits2interfaces
+   use udunits2encoding
+   use udunits2status
    use MAPL_ExceptionHandling
 
    implicit none
@@ -16,8 +18,7 @@ module udunits2mod
 ! Normally, only the procedures and derived type above are public.
 ! The private line following this block enforces that. For full testing,
 ! comment the private line.
-!   private
-!wdb fixme deleteme Need to make ut_status and ut_encoding visible.
+   private
 
 !================================ CPTRWRAPPER ==================================
    type, abstract :: CptrWrapper
@@ -48,7 +49,8 @@ module udunits2mod
       procedure, private, pass(this) :: convert_float
       procedure, private, pass(this) :: convert_doubles
       procedure, private, pass(this) :: convert_floats
-      generic :: convert => convert_double, convert_doubles, convert_float, convert_floats
+      generic :: convert => convert_double, convert_float
+      generic :: convert_array => convert_doubles, convert_floats
    end type Converter
 
    interface Converter
@@ -119,7 +121,7 @@ contains
       type(c_ptr) :: utsystem
       integer(ut_status) :: status
 
-      call read_xml(path, utsystem, rc = status)
+      call read_xml(path, utsystem, status)
       
       if(success(status)) then
          instance % cptr_ = utsystem
@@ -177,7 +179,7 @@ contains
       integer(ut_status) :: status
 
       conv = get_converter_function(from, to)
-      status = merge(UT_FAILURE, UT_SUCCESS, conv % is_free())
+      status = merge(_FAILURE, UT_SUCCESS, conv % is_free())
       _RETURN(status)
 
    end subroutine get_converter
@@ -205,67 +207,47 @@ contains
 
    end function get_converter_function
 
-   impure elemental subroutine convert_double(this, from, to, rc)
+   impure elemental function convert_double(this, from) result(to)
       class(Converter), intent(in) :: this
       real(c_double), intent(in) :: from
-      real(c_double), intent(out) :: to
-      integer, optional, intent(out) :: rc
-      integer :: status = 0
-      type(c_ptr) :: cv_converter
+      real(c_double) :: to
 
-      _ASSERT(.not. this % is_free(), 'Converter is not set.')
       to = cv_convert_double(this % cptr(), from)
-      _RETURN(status)
 
-   end subroutine convert_double
+   end function convert_double
 
-   impure elemental subroutine convert_float(this, from, to, rc)
+   impure elemental function convert_float(this, from) result(to)
       class(Converter), intent(in) :: this
       real(c_float), intent(in) :: from
-      real(c_float), intent(out) :: to
-      integer, optional, intent(out) :: rc
-      integer :: status = 0
-      type(c_ptr) :: cv_converter
+      real(c_float) :: to
 
-      _ASSERT(.not. this % is_free(), 'Converter is not set.')
       to = cv_convert_float(this % cptr(), from)
-      _RETURN(status)
 
-   end subroutine convert_float
+   end function convert_float
 
-   subroutine convert_doubles(this, from, to, rc)
+   subroutine convert_doubles(this, from, to)
       class(Converter), intent(in) :: this
       real(c_double), intent(in) :: from(:)
       real(c_double), intent(out) :: to(:)
-      integer, optional, intent(out) :: rc
-      integer :: status = 0
-      type(c_ptr) :: cv_converter
 
-      _ASSERT(.not. this % is_free(), 'Converter is not set.')
       call cv_convert_doubles(this % cptr(), from, size(from), to)
-      _RETURN(status)
 
    end subroutine convert_doubles
 
-   subroutine convert_floats(this, from, to, rc)
+   subroutine convert_floats(this, from, to)
       class(Converter), intent(in) :: this
       real(c_float), intent(in) :: from(:)
       real(c_float), intent(out) :: to(:)
-      integer, optional, intent(out) :: rc
-      integer :: status = 0
-      type(c_ptr) :: cv_converter
 
-      _ASSERT(.not. this % is_free(), 'Converter is not set.')
       call cv_convert_floats(this % cptr(), from, size(from), to)
-      _RETURN(status)
 
    end subroutine convert_floats
 
-   subroutine read_xml(path, utsystem, rc)
+   subroutine read_xml(path, utsystem, status)
       character(len=*), optional, intent(in) :: path
       character(kind=c_char, len=:), allocatable :: cchar_path
       type(c_ptr), intent(out) :: utsystem
-      integer(ut_status), intent(out) :: rc
+      integer(ut_status), intent(out) :: status
 
       if(present(path)) then
          cchar_path = cstring(path)
@@ -273,7 +255,7 @@ contains
       else
          utsystem = ut_read_xml_cptr(c_null_ptr)
       end if
-      rc = ut_get_status()
+      status = ut_get_status()
 
    end subroutine read_xml
 
@@ -281,12 +263,16 @@ contains
       character(len=*), optional, intent(in) :: path
       integer(ut_encoding), optional, intent(in) :: encoding
       integer, optional, intent(out) :: rc
-      integer(ut_status) :: status
+      integer :: status
 
-      if(.not. instance_is_uninitialized()) return
-      call initialize_system(SYSTEM_INSTANCE, path, encoding) 
-      status = merge(UT_FAILURE, UT_SUCCESS, SYSTEM_INSTANCE % is_free())
-      _RETURN(status)
+      _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
+      call initialize_system(SYSTEM_INSTANCE, path, encoding, rc=status)
+      if(status /= _SUCCESS) then
+         call finalize()
+         _FAIL('Failed to initialize UDUNITS')
+      end if
+      _ASSERT(.not. SYSTEM_INSTANCE % is_free(), 'UDUNITS is not initialized.')
+      _RETURN(_SUCCESS)
 
    end subroutine initialize
 
@@ -295,10 +281,10 @@ contains
       character(len=*), optional, intent(in) :: path
       integer(ut_encoding), optional, intent(in) :: encoding
       integer, optional, intent(out) :: rc
-      integer(ut_status) :: status
+      integer :: status
       type(c_ptr) :: utsystem
 
-      _ASSERT(system % is_free(), 'udunits system is already initialized')
+      _ASSERT(system % is_free(), 'UDUNITS system is already initialized.')
       system = UDSystem(path, encoding)
       _RETURN(_SUCCESS)
 
@@ -342,17 +328,21 @@ contains
 
    end subroutine finalize
 
-   function are_convertible(unit1, unit2, rc) result(convertible)
+   logical function are_convertible(unit1, unit2, rc)
       type(UDUnit), intent(in) :: unit1, unit2
       integer, optional, intent(out) :: rc
       integer :: status
+      integer(ut_status) :: utstatus
       logical :: convertible
       integer(c_int), parameter :: ZERO = 0_c_int
       
       convertible = (ut_are_convertible(unit1 % cptr(), unit2 % cptr())  /= ZERO)
-      status = ut_get_status()
-      convertible = convertible .and. success(status)
-      _RETURN(status)
+      utstatus = ut_get_status()
+      
+      if(convertible) are_convertible = success(utstatus)
+      status = merge(_SUCCESS, utstatus, convertible)
+
+      if(present(rc)) rc = status
 
    end function are_convertible
 
@@ -363,14 +353,5 @@ contains
       cs = adjustl(trim(s)) // c_null_char
 
    end function cstring
-
-   subroutine free_ut_var(ut_ptr, free_procedure)
-      import :: FreeUT_Sub
-      type(c_ptr), intent(in) :: ut_ptr
-      procedure(FreeUT_Sub) :: free_procedure
-
-      if(c_associated(ut_ptr)) call free_procedure(ut_ptr)
-
-   end subroutine free_ut_var
 
 end module udunits2mod
