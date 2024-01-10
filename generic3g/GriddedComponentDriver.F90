@@ -3,7 +3,9 @@
 module mapl3g_GriddedComponentDriver
    use mapl3g_MultiState
    use mapl3g_ComponentDriver
+   use mapl3g_ComponentDriverVector
    use mapl_ErrorHandlingMod
+   use mapl_KeywordEnforcer
    use :: esmf
    implicit none
    private
@@ -15,6 +17,8 @@ module mapl3g_GriddedComponentDriver
       type(ESMF_GridComp) :: gridcomp
       type(MultiState) :: states
       type(ESMF_Clock) :: clock
+      type(ComponentDriverVector) :: export_couplers
+      type(ComponentDriverVector) :: import_couplers
    contains
       procedure :: run
       procedure :: initialize
@@ -26,6 +30,12 @@ module mapl3g_GriddedComponentDriver
       procedure :: get_states
       procedure :: get_gridcomp
       procedure :: get_name
+
+      ! Couplers
+      procedure :: run_export_couplers
+      procedure :: run_import_couplers
+      procedure :: add_export_coupler
+      procedure :: add_import_coupler
    end type GriddedComponentDriver
 
    interface GriddedComponentDriver
@@ -122,5 +132,59 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end function get_name
+
+   subroutine add_export_coupler(this, driver)
+      class(GriddedComponentDriver), intent(inout) :: this
+      type(GriddedComponentDriver), intent(in) :: driver
+      call this%export_couplers%push_back(driver)
+   end subroutine add_export_coupler
+
+   subroutine add_import_coupler(this, driver)
+      class(GriddedComponentDriver), intent(inout) :: this
+      type(GriddedComponentDriver), intent(in) :: driver
+      call this%import_couplers%push_back(driver)
+   end subroutine add_import_coupler
+
+   subroutine run_export_couplers(this, unusable, phase_idx, rc)
+      class(GriddedComponentDriver), intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: phase_idx
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentDriverVectorIterator) :: iter
+      class(ComponentDriver), pointer :: driver
+
+      associate (e => this%export_couplers%ftn_end() )
+        iter = this%export_couplers%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           driver => iter%of()
+           call driver%run(_RC)
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine run_export_couplers
+
+   subroutine run_import_couplers(this, rc)
+      class(GriddedComponentDriver), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentDriverVectorIterator) :: iter
+      class(ComponentDriver), pointer :: driver
+
+      associate (e => this%import_couplers%ftn_end() )
+        iter = this%import_couplers%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           driver => iter%of()
+           call driver%run(_RC)
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine run_import_couplers
 
 end module mapl3g_GriddedComponentDriver

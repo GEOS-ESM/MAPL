@@ -17,6 +17,7 @@ contains
 
       integer :: status, userRC
 
+      call this%run_import_couplers(_RC)
       associate ( &
            importState => this%states%importState, &
            exportState => this%states%exportState)
@@ -28,6 +29,7 @@ contains
              phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
       end associate
+      call this%run_export_couplers(phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
