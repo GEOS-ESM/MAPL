@@ -11,7 +11,7 @@ module ExtData_DriverGridCompMod
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
   use mpi
-
+! use MAPL_ShmemMod
   implicit none
   private
 
@@ -145,6 +145,9 @@ contains
     class(BaseProfiler), pointer :: t_p
     logical :: use_extdata2g
 
+    integer :: useShmem
+
+
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
@@ -168,6 +171,7 @@ contains
 
     cap%AmIRoot = AmIRoot_
 
+
     !  Open the CAP's configuration from CAP.rc
     !------------------------------------------
 
@@ -175,6 +179,7 @@ contains
     _VERIFY(status)
     call ESMF_ConfigLoadFile(cap%config, cap%configFile, rc = status)
     _VERIFY(status)
+
 
     !  CAP's MAPL MetaComp
     !---------------------
@@ -184,6 +189,13 @@ contains
 
     call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
     _VERIFY(status)
+
+    call MAPL_GetResource(MAPLOBJ, useShmem,  label = 'USE_SHMEM:',  default = 0, rc = status)
+    if (useShmem /= 0) then
+       call MAPL_InitializeShmem (rc = status)
+       _VERIFY(status)
+    end if
+
 
     call ESMF_ConfigGetAttribute(cap%config,cap%run_fbf,label="RUN_FBF:",default=.false.)
     call ESMF_ConfigGetAttribute(cap%config,cap%run_hist,label="RUN_HISTORY:",default=.true.)
@@ -484,6 +496,8 @@ contains
     call ESMF_ConfigDestroy(cap%config, rc = status)
     _VERIFY(status)
 
+    call MAPL_FinalizeSHMEM (rc = status)
+    _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize_gc
 
