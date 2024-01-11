@@ -1,3 +1,4 @@
+
 !#include "MAPL_Exceptions.h"
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
@@ -551,7 +552,8 @@ CONTAINS
                      if (trim(thisLine) == "%%") then
                         inBlock = .false.
                      else
-
+                        call lgr%debug('Reading this data container: %a', trim(thisLine))
+                        print*, 'Reading this line: ', trim(thisLine)
                         totalPrimaryEntries = totalPrimaryEntries + 1
                         ! name entry
                         primary%item(totalPrimaryEntries)%name = trim(thisLine)
