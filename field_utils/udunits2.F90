@@ -266,6 +266,7 @@ contains
       integer :: status
 
       _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
+      call disable_ut_error_message_handler()
       call initialize_system(SYSTEM_INSTANCE, path, encoding, rc=status)
       if(status /= _SUCCESS) then
          call finalize()
@@ -353,5 +354,15 @@ contains
       cs = adjustl(trim(s)) // c_null_char
 
    end function cstring
+
+   subroutine disable_ut_error_message_handler(is_set)
+      logical, optional, intent(out) :: is_set
+      logical, save :: handler_set = .FALSE.
+
+      if(.not. handler_set) call ut_set_ignore_error_message_handler()
+      handler_set = .TRUE.
+      if(present(is_set)) is_set = handler_set
+
+   end subroutine disable_ut_error_message_handler
 
 end module udunits2mod
