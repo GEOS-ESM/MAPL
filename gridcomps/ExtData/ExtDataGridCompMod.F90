@@ -553,7 +553,6 @@ CONTAINS
                         inBlock = .false.
                      else
                         call lgr%debug('Reading this data container: %a', trim(thisLine))
-                        print*, 'Reading this line: ', trim(thisLine)
                         totalPrimaryEntries = totalPrimaryEntries + 1
                         ! name entry
                         primary%item(totalPrimaryEntries)%name = trim(thisLine)
