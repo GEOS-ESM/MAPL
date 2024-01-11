@@ -92,7 +92,9 @@ contains
       
       _RETURN_IF(this%is_up_to_date())
 
+!#      call this%propagate_attributes(_RC)
       call this%update_source(_RC)
+      
 !#      call this%action%update(_RC)
       call this%set_up_to_date()
 

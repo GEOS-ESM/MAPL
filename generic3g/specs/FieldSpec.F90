@@ -21,6 +21,7 @@ module mapl3g_FieldSpec
    use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use gftl2_StringVector
    use esmf
    use nuopc
 
@@ -38,6 +39,7 @@ module mapl3g_FieldSpec
       type(VerticalDimSpec) :: vertical_dim
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDimsSpec) :: ungridded_dims
+      type(StringVector) :: attributes
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -98,7 +100,7 @@ contains
 
    function new_FieldSpec_geom(geom, vertical_geom, vertical_dim, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        default_value) result(field_spec)
+        attributes, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       type(ESMF_Geom), intent(in) :: geom
@@ -110,6 +112,9 @@ contains
       character(*), intent(in) :: standard_name
       character(*), intent(in) :: long_name
       character(*), intent(in) :: units
+      type(StringVector), intent(in) :: attributes
+
+      ! optional args last
       real, optional, intent(in) :: default_value
 
       field_spec%geom = geom
@@ -122,6 +127,7 @@ contains
       field_spec%long_name = long_name
       field_spec%units = units
 
+      field_spec%attributes=attributes
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
@@ -359,7 +365,8 @@ contains
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
 !#              can_convert_units(this, src_spec) &
-              this%ungridded_dims == src_spec%ungridded_dims & !, &
+              this%ungridded_dims == src_spec%ungridded_dims, & 
+              this%attributes == src_spec%attributes & !, &
 !#              this%units == src_spec%units & ! units are required for fields
               ])
       class default

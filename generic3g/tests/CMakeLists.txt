@@ -15,6 +15,7 @@ set (test_srcs
 
   Test_AddFieldSpec.pf
   Test_ComponentSpecParser.pf
+  Test_FieldSpec.pf
 
   Test_ConnectionPt.pf
   Test_FieldDictionary.pf
