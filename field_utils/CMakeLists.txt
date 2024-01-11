@@ -13,6 +13,9 @@ set(srcs
   udunits2encoding.F90
   udunits2status.F90
   )
+
+# To use extended udunits2 procedures, udunits2.c must be built and linked.
+
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
 #  PROPERTY COMPILE_FLAGS ${MISMATCH})

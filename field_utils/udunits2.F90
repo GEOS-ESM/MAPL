@@ -1,3 +1,8 @@
+#if defined(DISABLE_ERROR_MSGS)
+#undef DISABLE_ERROR_MSGS
+#endif
+!#define DISABLE_ERROR_MSGS
+
 #include "MAPL_Generic.h"
 module udunits2mod
 
@@ -266,7 +271,11 @@ contains
       integer :: status
 
       _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
+
+#if defined(DISABLE_ERROR_MSGS)
       call disable_ut_error_message_handler()
+#endif
+
       call initialize_system(SYSTEM_INSTANCE, path, encoding, rc=status)
       if(status /= _SUCCESS) then
          call finalize()
@@ -359,9 +368,13 @@ contains
       logical, optional, intent(out) :: is_set
       logical, save :: handler_set = .FALSE.
 
+#if defined(DISABLE_ERROR_MSGS)
       if(.not. handler_set) call ut_set_ignore_error_message_handler()
       handler_set = .TRUE.
       if(present(is_set)) is_set = handler_set
+#else
+      is_set = .FALSE.
+#endif
 
    end subroutine disable_ut_error_message_handler
 
