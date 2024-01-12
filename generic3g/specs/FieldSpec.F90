@@ -366,13 +366,33 @@ contains
               this%vertical_dim == src_spec%vertical_dim, &
 !#              can_convert_units(this, src_spec) &
               this%ungridded_dims == src_spec%ungridded_dims, & 
-              this%attributes == src_spec%attributes & !, &
+              includes(this%attributes, src_spec%attributes) & !, &
 !#              this%units == src_spec%units & ! units are required for fields
               ])
       class default
          can_connect_to = .false.
       end select
+   contains
 
+      logical function includes(mandatory, provided)
+         type(StringVector), target, intent(in) :: mandatory
+         type(StringVector), target, intent(in) :: provided
+
+         integer :: i, j
+         character(:), pointer :: attribute_name
+
+         m: do i = 1, mandatory%size()
+            attribute_name => mandatory%of(i)
+            p: do j = 1, provided%size()
+               if (attribute_name == provided%of(j)) cycle m
+            end do p
+            ! ith not found
+            includes = .false.
+            return
+         end do m
+
+         includes = .true.
+      end function includes
    end function can_connect_to
 
 

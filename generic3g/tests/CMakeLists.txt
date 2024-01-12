@@ -48,3 +48,6 @@ add_dependencies(build-tests MAPL.generic3g.tests)
 
 file(COPY scenarios DESTINATION .)
 
+ecbuild_add_executable (TARGET info_demo.x SOURCES info_demo.F90 DEPENDS esmf)
+target_link_libraries (info_demo.x PRIVATE esmf)
+target_include_directories (info_demo.x PRIVATE esmf)
