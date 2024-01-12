@@ -297,13 +297,10 @@ contains
     character(len=ESMF_MAXSTR), optional, intent(in) :: var_name_lon
     character(len=ESMF_MAXSTR), optional, intent(in) :: var_name_lat
     character(len=ESMF_MAXSTR), optional, intent(in) :: var_name_time
-
-    real, allocatable, optional, intent(inout) :: lon(:,:)
-    real, allocatable, optional, intent(inout) :: lat(:,:)
-    !!    real(ESMF_KIND_R8), optional, intent(inout) :: time_R8(:,:)
-    real, allocatable, optional, intent(inout) :: time(:,:)
+    real(ESMF_KIND_R8), allocatable, optional, intent(inout) :: lon(:,:)
+    real(ESMF_KIND_R8), allocatable, optional, intent(inout) :: lat(:,:)
+    real(ESMF_KIND_R8), allocatable, optional, intent(inout) :: time(:,:)    
     logical, optional, intent(in)  ::  Tfilter
-
     integer, optional, intent(out) :: rc
 
     integer :: M
@@ -393,7 +390,6 @@ contains
        !!write(6,'(2x,a,10i10)') 'true  Xdim, Ydim:', Xdim, Ydim
        !!write(6,'(2x,a,10i10)') 'false Xdim, Ydim:', nlon, j2
        !
-
 
 
        !

@@ -222,11 +222,11 @@ contains
       integer :: status
 
       real(kind=ESMF_KIND_R8), pointer :: fptr(:,:)
-      real, pointer :: centers(:,:)
-      real, allocatable :: lon_true(:,:)
-      real, allocatable :: lat_true(:,:)
-      real, allocatable :: time_true(:,:)
-      real(kind=ESMF_KIND_R8), allocatable :: X1d(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_true(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lat_true(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: time_true(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: arr_lon(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: arr_lat(:,:)      
       
       integer :: i, j, k
       integer :: Xdim, Ydim
@@ -242,33 +242,78 @@ contains
       ! debug
       type(ESMF_VM) :: vm
       integer :: mypet, petcount
-
-      integer :: rank0
-      integer :: src, dst
       integer :: nsize, count
-      integer :: nshared_pet
-      real, allocatable :: arr(:,:), arr_lon(:,:), arr_lat(:,:)
-      
-      integer, allocatable:: array1(:), array2(:), array3(:)
+      integer :: mpic
       
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_VMGetGlobal(vm,_RC)
-      call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
-
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
+      
       Xdim=this%im_world
       Ydim=this%jm_world
-      Xdim_full=this%cell_across_swath
-      Ydim_full=this%cell_along_swath
-
+      count = Xdim * Ydim
+      
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-      call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)      
-      call MAPL_SyncSharedMemory(_RC)
-
       call MAPL_AllocateShared(arr_lon,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_AllocateShared(arr_lat,[Xdim,Ydim],transroot=.true.,_RC)      
+      call MAPL_SyncSharedMemory(_RC)
 
-!!      mmapl_am_I_root() is element in set (rootscomm)
+      if (mapl_am_i_root()) then
+         allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
+         call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
+              this%index_name_lon, this%index_name_lat, &
+              var_name_lon=this%var_name_lon, &
+              var_name_lat=this%var_name_lat, &
+              var_name_time=this%var_name_time, &
+              lon=lon_true, lat=lat_true, time=time_true, &
+              Tfilter=.true., _RC)
+         k=0
+         do j=this%epoch_index(3), this%epoch_index(4)
+            k=k+1
+            arr_lon(1:Xdim, k) = lon_true(1:Xdim, j)
+            arr_lat(1:Xdim, k) = lat_true(1:Xdim, j)             
+         enddo
+         arr_lon=arr_lon*MAPL_DEGREES_TO_RADIANS_R8
+         arr_lat=arr_lat*MAPL_DEGREES_TO_RADIANS_R8
+         deallocate( lon_true, lat_true, time_true )
+
+         write(6,*) 'in root'
+         write(6,'(11x,100f10.1)')  arr_lon(::5,189)
+      end if
+      call MPI_Barrier(mpic, status)      
+      call MAPL_SyncSharedMemory(_RC)
+
+      call MAPL_BcastShared (VM, data=arr_lon, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
+      call MAPL_BcastShared (VM, data=arr_lat, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)      
+      
+!      call MAPL_BroadcastToNodes (arr_lon, count, MAPL_ROOT, _RC)
+!      call MAPL_SyncSharedMemory(_RC)
+!      call MAPL_BroadcastToNodes (arr_lat, count, MAPL_ROOT, _RC)       
+!      call MAPL_SyncSharedMemory(_RC)
+
+      write(6,'(2x,a,2x,i5,4x,100f10.1)')  'PET', mypet, arr_lon(::5,189)      
+      call MPI_Barrier(mpic, status)
+
+
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
+      fptr=real(arr_lon(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
+      call MAPL_SyncSharedMemory(_RC)
+
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, &
+           farrayPtr=fptr, rc=status)
+      fptr=real(arr_lat(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
+
+      if(MAPL_ShmInitialized) then
+         call MAPL_DeAllocNodeArray(arr_lon,_RC)
+         call MAPL_DeAllocNodeArray(arr_lat,_RC)          
+      else
+         deallocate(arr_lon)
+         deallocate(arr_lat)          
+      end if
+
 !      if (mapl_am_I_root()) then
 !         write(6,'(2x,a,10i8)')  &
 !              'ck: Xdim, Ydim, Xdim_full, Ydim_full', Xdim, Ydim, Xdim_full, Ydim_full
@@ -276,138 +321,13 @@ contains
 !              'ck: i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
 !      end if
 
-      !
-      ! array3(1:nshared_pet) is the pet for shared headnode excluding mapl_am_i_root()
-      ! s1. read NC from root/rank0
-      ! s2. MPI send and recv  true_lon / true_lat via X1d
-      ! s3. pass X1d to Shmem [centers]
-      !
-      
-      nsize = petCount
-      allocate (array1(nsize))
-      allocate (array2(nsize))
-      
-      array1(:) = 0
-      src = 0
-      dst = 0
-      
-      if (mapl_am_i_root()) then
-         rank0 = mypet
-         src = 1
-      end if
-      
+      write(6,*) 'MAPL_AmNodeRoot, MAPL_ShmInitialized=', MAPL_AmNodeRoot, MAPL_ShmInitialized
       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         if (mypet/=rank0) then
-            array1(mypet+1) = mypet+1    ! raise index to [1, N]
-            dst = 1
-         end if
+         write(6,'(2x,a,2x,i10)')  'add_horz_coord: MAPL_AmNodeRoot:  mypet=', mypet
       end if
-
-      call ESMF_VMAllReduce(vm, sendData=array1, recvData=array2, count=nsize, &
-           reduceflag=ESMF_REDUCE_SUM, rc=rc)
-      write(6, '(2x,a,2x,i5,2x,a,2x,10i10)')  'mypet, array2', mypet, ':', array2
       
-      j=0
-      do i=1, nsize
-         if ( array2(i) > 0 ) then
-            j=j+1
-         end if
-      end do
-      allocate (array3(j))
-      nshared_pet = j
-
-      j=0
-      do i=1, nsize
-         if ( array2(i) > 0 ) then
-            j=j+1
-            array3(j) = array2(i) - 1     ! downshift value to mypet
-         end if
-      end do
-
-      if (src==1 .OR. dst==1) then
-         allocate( arr_lon(Xdim, Ydim) )
-         allocate( arr_lat(Xdim, Ydim) )
-         allocate( X1d( Xdim * Ydim ) )
-         allocate( Y1d( Xdim * Ydim ) )         
-      end if
-
-      if (mypet==rank0) then
-          allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
-          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
-               this%index_name_lon, this%index_name_lat, &
-               var_name_lon=this%var_name_lon, &
-               var_name_lat=this%var_name_lat, &
-               var_name_time=this%var_name_time, &
-               lon=lon_true, lat=lat_true, time=time_true, &
-               Tfilter=.true., _RC)
-          k=0
-          do j=this%epoch_index(3), this%epoch_index(4)
-             k=k+1
-             arr_lon(1:Xdim, k) = lon_true(1:Xdim, j)
-             arr_lat(1:Xdim, k) = lat_true(1:Xdim, j)             
-          enddo
-          arr_lon=arr_lon*MAPL_DEGREES_TO_RADIANS_R8
-          arr_lat=arr_lat*MAPL_DEGREES_TO_RADIANS_R8
-          k=0
-          do j=1, Ydim
-             do i=1, Xdim
-                X1d(k) = arr_lon(i,j)
-                Y1d(k) = arr_lat(i,j)                
-             end do
-          end do
-          deallocate( lon_true, time_true )
-          !
-       end if
-
-       
-              
-       if (nshared_pet > 0) then
-          count = Xdim * Ydim
-          if (src==1) then
-             do j=1, nshared_pet
-                call ESMF_VMSend(vm, sendData=X1d, count=count, dstPet=array3(j), rc=rc)
-                call ESMF_VMSend(vm, sendData=Y1d, count=count, dstPet=array3(j), rc=rc)                
-             end do
-          end if
-          if (dst==1) then
-             call ESMF_VMRecv(vm, recvData=arr_lon, count=count, srcPet=rank0, rc=rc)
-             call ESMF_VMRecv(vm, recvData=arr_lat, count=count, srcPet=rank0, rc=rc)             
-          end if
-       end if
-
-      
-      ! read longitudes
-       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          write(6,'(2x,a,2x,i10)')  'add_horz_coord: MAPL_AmNodeRoot:  mypet=', mypet
-          centers = arr_lon
-       end if
-
-
-!! mpi_barrier for each core within node       
-       call MAPL_SyncSharedMemory(_RC)
-       
-       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
-       fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
-
-!!       _FAIL ('nail -1')
-       ! read latitudes
-       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          centers = arr_lat
-       end if
-       call MAPL_SyncSharedMemory(_RC)
-       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, &
-          farrayPtr=fptr, rc=status)
-       fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
-
-       if(MAPL_ShmInitialized) then
-          call MAPL_DeAllocNodeArray(centers,_RC)
-       else
-          deallocate(centers)
-       end if
-
       _RETURN(_SUCCESS)
+
    end subroutine add_horz_coordinates_from_file
 
 
@@ -526,10 +446,9 @@ contains
       character(len=ESMF_MAXSTR) :: filename, STR1, tmp
       character(len=ESMF_MAXSTR) :: symd, shms
 
-      !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
-      real, allocatable :: scanTime(:,:)
-      real, allocatable :: lon_true(:,:)
-      real, allocatable :: lat_true(:,:)
+      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
+      real(ESMF_KIND_R8), allocatable :: lon_true(:,:)
+      real(ESMF_KIND_R8), allocatable :: lat_true(:,:)
       integer :: yy, mm, dd, h, m, s, sec, second
       integer :: i, j, L
       integer :: ncid, ncid2, varid
@@ -1522,36 +1441,35 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      integer :: i_1, i_n, j_1, j_n ! regional array bounds
-
-      !! shared mem
       real(kind=ESMF_KIND_R8), pointer :: fptr(:,:)
-      real, pointer :: centers(:,:)
-      real, allocatable :: lon_true(:,:)
-      real, allocatable :: lat_true(:,:)
-      real, allocatable :: time_true(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: centers(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_true(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lat_true(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: time_true(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: arr_time(:,:)
 
       integer :: i, j, k
-      integer :: Xdim, Ydim
-      integer :: Xdim_full, Ydim_full
+      integer :: Xdim, Ydim, count
       integer :: nx, ny
-      integer :: IM_WORLD, JM_WORLD
+      integer :: i_1, i_n, j_1, j_n ! regional array bounds
 
+      ! debug
+      type(ESMF_VM) :: vm
+      integer :: mypet, petcount
+      integer :: mpic      
 
-      !- shared mem case in MPI
-      !
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
+      
       Xdim=this%im_world
       Ydim=this%jm_world
-      Xdim_full=this%cell_across_swath
-      Ydim_full=this%cell_along_swath
+      count=Xdim*Ydim
 
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-      call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
+      call MAPL_AllocateShared(arr_time,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
-
-      ! read and set Time
-      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+      if (mapl_am_i_root()) then
          allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
               this%index_name_lon, this%index_name_lat, &
@@ -1563,20 +1481,67 @@ contains
          k=0
          do j=this%epoch_index(3), this%epoch_index(4)
             k=k+1
-            centers(1:Xdim, k) = time_true(1:Xdim, j)
+            arr_time(1:Xdim, k) = time_true(1:Xdim, j)
          enddo
-         deallocate (lon_true, lat_true, time_true)
+         deallocate( lon_true, lat_true, time_true )
+
+         write(6,*) 'in root, time'
+         write(6,'(11x,100E12.5)')  arr_time(::5,189)
       end if
       call MAPL_SyncSharedMemory(_RC)
 
+      call MAPL_BcastShared (VM, data=arr_time, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
+
+      write(6,'(2x,a,2x,i5,4x,100E12.5)')  'PET, time', mypet, arr_time(::5,189)
+      call MPI_Barrier(mpic, status)
+
       !(Xdim, Ydim)
-      obs_time = centers(i_1:i_n,j_1:j_n)
+      obs_time = arr_time(i_1:i_n,j_1:j_n)
 
       if(MAPL_ShmInitialized) then
-         call MAPL_DeAllocNodeArray(centers,_RC)
+         call MAPL_DeAllocNodeArray(arr_time,_RC)
       else
-         deallocate(centers)
+         deallocate(arr_time)
       end if
+
+      
+!      !- shared mem case in MPI
+!      !
+!      Xdim=this%im_world
+!      Ydim=this%jm_world
+!
+!      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
+!      call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
+!      call MAPL_SyncSharedMemory(_RC)
+!
+!      ! read and set Time
+!
+!      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+!         allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
+!         call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
+!              this%index_name_lon, this%index_name_lat, &
+!              var_name_lon=this%var_name_lon, &
+!              var_name_lat=this%var_name_lat, &
+!              var_name_time=this%var_name_time, &
+!              lon=lon_true, lat=lat_true, time=time_true, &
+!              Tfilter=.true., _RC)
+!         k=0
+!         do j=this%epoch_index(3), this%epoch_index(4)
+!            k=k+1
+!            centers(1:Xdim, k) = time_true(1:Xdim, j)
+!         enddo
+!         deallocate (lon_true, lat_true, time_true)
+!      end if
+!      call MAPL_SyncSharedMemory(_RC)
+!
+!      !(Xdim, Ydim)
+!      obs_time = centers(i_1:i_n,j_1:j_n)
+!
+!      if(MAPL_ShmInitialized) then
+!         call MAPL_DeAllocNodeArray(centers,_RC)
+!      else
+!         deallocate(centers)
+!      end if
 
       _RETURN(_SUCCESS)
     end subroutine get_obs_time

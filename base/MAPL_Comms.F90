@@ -116,6 +116,7 @@ module MAPL_CommsMod
   interface MAPL_BcastShared
      module procedure MAPL_BcastShared_1DR4
      module procedure MAPL_BcastShared_2DR4
+     module procedure MAPL_BcastShared_2DR8     
   end interface
 
   interface MAPL_CommsScatterV
@@ -1117,6 +1118,39 @@ module MAPL_CommsMod
 
   end subroutine MAPL_BcastShared_2DR4
 
+
+  subroutine MAPL_BcastShared_2DR8(VM, Data, N, Root, RootOnly, rc)
+    type(ESMF_VM) :: VM
+    real(kind=REAL64),  pointer,  intent(INOUT) :: Data(:,:)
+    integer,           intent(IN   ) :: N
+    integer, optional, intent(IN   ) :: Root
+    logical,           intent(IN   ) :: RootOnly
+    integer, optional, intent(  OUT) :: rc
+
+
+    integer :: status
+
+
+
+    if(.not.MAPL_ShmInitialized) then
+       if (RootOnly) then
+          _RETURN(ESMF_SUCCESS)
+       end if
+       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
+       _RETURN(STATUS)
+    else
+       call MAPL_SyncSharedMemory(RC=STATUS)
+       _VERIFY(STATUS)
+       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, rc=status)
+       _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(RC=STATUS)
+       _VERIFY(STATUS)
+    endif
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_BcastShared_2DR8
+  
 ! Rank 0
 !---------------------------
 #define RANK_ 0
