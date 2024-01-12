@@ -11,6 +11,14 @@
 #   define EXTERNL extern
 #endif
 
+/*
+ * Modified exert from the udunits2.h file used by udunits2
+ * which is required for ut_set_ignore_error_message_handler
+ */
+
+/*
+ * type of error message handler
+*/ 
 typedef int (*ut_error_message_handler)(const char* fmt, va_list args);
 
 /*
@@ -43,6 +51,6 @@ ut_ignore(
     va_list		args);
 
 /*
- * Sets error message handler ot ut_ignore
+ * Sets error message handler to ut_ignore
  */
 EXTERNL ut_error_message_handler ut_set_ignore_error_message_handler();

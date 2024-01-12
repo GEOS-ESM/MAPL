@@ -1,3 +1,5 @@
+! Status values for udunits2 procedures
+! The values are the same as the udunits2 utStatus C enum
 module udunits2status
 
    implicit none

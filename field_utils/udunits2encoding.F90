@@ -1,3 +1,5 @@
+! Flags for encodings for unit names and symbols
+! The values are the same as the udunits2 utEncoding C enum
 module udunits2encoding
 
    implicit none

@@ -24,15 +24,16 @@
 ! For a given FieldUnitsConverter, GetFieldUnitsConverter and conv % convert
 ! cannot be called before InitializeFieldUnits or after FinalizeFieldUnits
 ! and conv % convert cannot be called before calling GetFieldUnitsConverter for conv.
-
 #include "MAPL_Generic.h"
+#include "unused_dummy.h"
 module FieldUnits
 
    use udunits2mod, FieldUnitsConverter => Converter, &
       initialize_udunits => initialize, finalize_udunits => finalize
    use udunits2encoding
-   use ESMF
    use MAPL_ExceptionHandling
+   use MaplShared
+   use ESMF
 
    implicit none
 
@@ -59,18 +60,23 @@ contains
       
    end subroutine InitializeFieldUnits
 
+   ! Get converter to convert quantities from one unit to a different unit
    ! from_identifier and to_identifier are strings for unit names or symbols
    ! in the udunits2 database.
-   subroutine GetFieldUnitsConverter(from_identifier, to_identifier, conv, rc)
+   subroutine GetFieldUnitsConverter(from_identifier, to_identifier, conv, unusable, rc)
       character(len=*), intent(in) :: from_identifier, to_identifier
       type(FieldUnitsConverter), intent(out) :: conv
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
 
+      _UNUSED_DUMMY(unusable)
       call get_converter(conv, from_identifier, to_identifier, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine GetFieldUnitsConverter
 
+   ! Free up memory for units system
    subroutine FinalizeFieldUnits()
 
       call finalize_udunits()
