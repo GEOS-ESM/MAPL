@@ -2610,8 +2610,9 @@ contains
   end subroutine MAPL_FieldAttSetI4
   ! ========================================
 
-  module subroutine MAPL_FieldBundleDestroy(Bundle,RC)
+  module subroutine MAPL_FieldBundleDestroy(Bundle,noGarbage,RC)
     type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
+    logical, optional,         intent(IN   ) :: noGarbage
     integer, optional,         intent(OUT  ) :: RC
 
     integer                               :: I
@@ -2635,6 +2636,7 @@ contains
           call MAPL_FieldDestroy(FIELD, RC=status)
           _VERIFY(STATUS)
        end do
+       call ESMF_FieldBundleDestroy(Bundle, noGarbage=noGarbage, _RC)
     end if
 
     _RETURN(ESMF_SUCCESS)

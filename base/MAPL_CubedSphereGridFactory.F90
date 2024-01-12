@@ -604,8 +604,7 @@ contains
       ptr=0.0
       call ESMF_FieldHaloStore(field,this%rh,rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(field,rc=status)
-      _VERIFY(status)
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
 
    end subroutine halo_init
 
@@ -916,8 +915,7 @@ contains
       call ESMF_FieldHalo(field,this%rh,rc=status)
       _VERIFY(status)
       array = ptr
-      call ESMF_FieldDestroy(field,rc=status)
-      _VERIFY(status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.,_RC)
 
       _RETURN(_SUCCESS)
 
