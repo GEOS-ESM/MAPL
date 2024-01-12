@@ -427,6 +427,19 @@ contains
 
     else
 
+       if (allocated (time)) then
+          deallocate(time)
+          allocate (time(Xdim, Ydim))
+       end if
+       if (allocated (lon)) then
+          deallocate(lon)
+          allocate (lon(Xdim, Ydim))
+       end if
+       if (allocated (lat)) then
+          deallocate(lat)
+          allocate (lat(Xdim, Ydim))
+       end if
+       
        jx=0
        do i = 1, M
           filename = filenames(i)
@@ -434,24 +447,13 @@ contains
           nlat = nlats(i)
 
           if (present(var_name_time).AND.present(time)) then
-             allocate (time_loc_R8(nlon, nlat))
-             call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
-             time(1:nlon,jx+1:jx+nlat) = time_loc_R8(1:nlon,1:nlat)
-             deallocate(time_loc_R8)
+             call get_var_from_name_w_group (var_name_time, time(1:nlon,jx+1:jx+nlat), filename, _RC)
           end if
-
           if (present(var_name_lon).AND.present(lon)) then
-             allocate (lon_loc(nlon, nlat))
-             call get_var_from_name_w_group (var_name_lon, lon_loc, filename, _RC)
-             lon(1:nlon,jx+1:jx+nlat) = lon_loc(1:nlon,1:nlat)
-             deallocate(lon_loc)
+             call get_var_from_name_w_group (var_name_lon, lon(1:nlon,jx+1:jx+nlat), filename, _RC)
           end if
-
           if (present(var_name_lat).AND.present(lat)) then
-             allocate (lat_loc(nlon, nlat))
-             call get_var_from_name_w_group (var_name_lat, lat_loc, filename, _RC)
-             lat(1:nlon,jx+1:jx+nlat) = lat_loc(1:nlon,1:nlat)
-             deallocate(lat_loc)
+             call get_var_from_name_w_group (var_name_lat, lat(1:nlon,jx+1:jx+nlat), filename, _RC)
           end if
 
           jx = jx + nlat
