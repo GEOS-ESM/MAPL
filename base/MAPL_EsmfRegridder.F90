@@ -12,6 +12,7 @@ module MAPL_EsmfRegridderMod
    use MAPL_GridManagerMod
    use MAPL_BaseMod, only: MAPL_undef, MAPL_GridHasDE
    use MAPL_RegridderSpecRouteHandleMap
+   use MAPL_ConstantsMod
    implicit none
    private
 
@@ -138,7 +139,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -193,7 +194,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -245,7 +246,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
@@ -328,7 +329,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -411,7 +412,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -492,7 +493,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
@@ -581,7 +582,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -675,7 +676,7 @@ contains
      if (hasDE) then
         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
         _VERIFY(status)
-        p_dst = 0
+        p_dst = MAPL_UNDEF
      end if
 
      call this%do_regrid(src_field, dst_field, rc=status)
@@ -765,7 +766,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
@@ -881,7 +882,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -990,7 +991,7 @@ contains
      if (hasDE) then
         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
         _VERIFY(status)
-        p_dst = 0
+        p_dst = MAPL_UNDEF
      end if
 
      call this%do_regrid(src_field, dst_field, rc=status)
@@ -1107,7 +1108,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true.,rc=status)
@@ -1433,7 +1434,7 @@ contains
      real(ESMF_KIND_R8), pointer :: factorList(:)
      type(ESMF_RouteHandle) :: dummy_rh
      type(ESMF_UnmappedAction_Flag) :: unmappedaction
-     logical :: global, isPresent
+     logical :: global, isPresent, has_mask
      type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
      type(ESMF_RouteHandle) :: route_handle, transpose_route_handle
     
@@ -1482,6 +1483,8 @@ contains
               dst_dummy_r8 = 0
            end if
         end if
+        call ESMF_GridGetItem(spec%grid_out,itemflag=ESMF_GRIDITEM_MASK, &
+             staggerloc=ESMF_STAGGERLOC_CENTER, isPresent = has_mask, _RC)
 
         counter = counter + 1
 
@@ -1493,16 +1496,25 @@ contains
         end if
         select case (spec%regrid_method)
         case (REGRID_METHOD_BILINEAR, REGRID_METHOD_BILINEAR_MONOTONIC)
-
-           call ESMF_FieldRegridStore(src_field, dst_field, &
-                & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
-                & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
-                & srcTermProcessing = srcTermProcessing, &
-                & factorList=factorList, factorIndexList=factorIndexList, &
-                & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
-           _VERIFY(status)
+           if (has_mask) then
+              call ESMF_FieldRegridStore(src_field, dst_field, &
+                   & dstMaskValues = [MAPL_MASK_OUT], &
+                   & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
+                   & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
+                   & srcTermProcessing = srcTermProcessing, &
+                   & factorList=factorList, factorIndexList=factorIndexList, &
+                   & routehandle=route_handle, unmappedaction=unmappedaction, _RC)
+           else
+              call ESMF_FieldRegridStore(src_field, dst_field, &
+                   & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
+                   & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
+                   & srcTermProcessing = srcTermProcessing, &
+                   & factorList=factorList, factorIndexList=factorIndexList, &
+                   & routehandle=route_handle, unmappedaction=unmappedaction, _RC)
+           end if
         case (REGRID_METHOD_PATCH)
 
+           _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_PATCH, &
                 & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
@@ -1512,6 +1524,7 @@ contains
            _VERIFY(status)
         case (REGRID_METHOD_CONSERVE_2ND)
 
+           _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_CONSERVE_2ND, &
                 & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
@@ -1520,6 +1533,7 @@ contains
                 & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
            _VERIFY(status)
         case (REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_MONOTONIC, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
+           _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
                 & srcTermProcessing = srcTermProcessing, &
@@ -1527,6 +1541,7 @@ contains
                 & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
            _VERIFY(status)
         case (REGRID_METHOD_NEAREST_STOD)
+           _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_NEAREST_STOD, &
                 & factorList=factorList, factorIndexList=factorIndexList, &
