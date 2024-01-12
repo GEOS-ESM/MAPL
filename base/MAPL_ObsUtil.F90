@@ -99,12 +99,6 @@ contains
     obsfile_Ts_index = n1
     obsfile_Te_index = n2
 
-!    if ( dT2_s - n2*dT0_s < 1 ) then
-!       obsfile_Te_index = n2 - 1
-!    else
-!       obsfile_Te_index = n2
-!    end if
-
     _RETURN(ESMF_SUCCESS)
 
   end subroutine get_obsfile_Tbracket_from_epoch
@@ -218,7 +212,7 @@ contains
     integer :: n1, n2
     integer :: i, j
     integer :: status
-    logical :: EX
+    logical :: exist
 
     !__ s1.  Arithmetic index list based on s,e,interval
     !
@@ -268,8 +262,8 @@ contains
     do i= n1, n2
        test_file = get_filename_from_template_use_index &
             (obsfile_start_time, obsfile_interval, &
-            i, file_template, EX, rc=rc)
-       if (EX) then
+            i, file_template, exist, rc=rc)
+       if (exist) then
           j=j+1
           filenames(j) = test_file
        end if
@@ -474,7 +468,7 @@ contains
   !           because of (bash ls) command therein
   !
   function get_filename_from_template_use_index (obsfile_start_time, obsfile_interval, &
-       f_index, file_template, EX, rc) result(filename)
+       f_index, file_template, exist, rc) result(filename)
     use Plain_netCDF_Time, only : ESMF_time_to_two_integer
     use MAPL_StringTemplate, only : fill_grads_template
     character(len=ESMF_MAXSTR) :: filename
@@ -482,7 +476,7 @@ contains
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval
     character(len=*), intent(in) :: file_template
     integer, intent(in) :: f_index
-    logical, intent(out) :: EX
+    logical, intent(out) :: exist
     integer, optional, intent(out) :: rc
 
     integer :: itime(2)
@@ -514,7 +508,7 @@ contains
     !
     call fill_grads_template ( filename, file_template, &
          experiment_id='', nymd=nymd, nhms=nhms, _RC )
-    inquire(file= trim(filename), EXIST = EX)
+    inquire(file= trim(filename), EXIST = exist)
 
     _RETURN(_SUCCESS)
 

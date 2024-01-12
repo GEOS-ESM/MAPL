@@ -1132,15 +1132,11 @@ module MAPL_CommsMod
        if (RootOnly) then
           _RETURN(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
-       _RETURN(STATUS)
+       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
     else
-       call MAPL_SyncSharedMemory(RC=STATUS)
-       _VERIFY(STATUS)
-       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, rc=status)
-       _VERIFY(STATUS)
-       call MAPL_SyncSharedMemory(RC=STATUS)
-       _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(_RC)
+       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
+       call MAPL_SyncSharedMemory(_RC)
     endif
 
     _RETURN(ESMF_SUCCESS)
