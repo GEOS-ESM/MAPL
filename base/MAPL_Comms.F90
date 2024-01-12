@@ -1126,11 +1126,7 @@ module MAPL_CommsMod
     integer, optional, intent(IN   ) :: Root
     logical,           intent(IN   ) :: RootOnly
     integer, optional, intent(  OUT) :: rc
-
-
     integer :: status
-
-
 
     if(.not.MAPL_ShmInitialized) then
        if (RootOnly) then

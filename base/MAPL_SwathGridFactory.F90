@@ -289,7 +289,6 @@ contains
 !      write(6,'(2x,a,2x,i5,4x,100f10.1)')  'PET', mypet, arr_lon(::5,189)      
 !      call MPI_Barrier(mpic, status)
 
-
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
       fptr=real(arr_lon(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)

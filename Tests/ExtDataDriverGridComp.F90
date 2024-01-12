@@ -11,7 +11,7 @@ module ExtData_DriverGridCompMod
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
   use mpi
-! use MAPL_ShmemMod
+
   implicit none
   private
 
@@ -144,9 +144,7 @@ contains
     type(ExtData_DriverGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
     logical :: use_extdata2g
-
     integer :: useShmem
-
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -171,7 +169,6 @@ contains
 
     cap%AmIRoot = AmIRoot_
 
-
     !  Open the CAP's configuration from CAP.rc
     !------------------------------------------
 
@@ -195,7 +192,6 @@ contains
        call MAPL_InitializeShmem (rc = status)
        _VERIFY(status)
     end if
-
 
     call ESMF_ConfigGetAttribute(cap%config,cap%run_fbf,label="RUN_FBF:",default=.false.)
     call ESMF_ConfigGetAttribute(cap%config,cap%run_hist,label="RUN_HISTORY:",default=.true.)
