@@ -138,8 +138,9 @@ module udunits2interfaces
          type(c_ptr), value :: conv
       end subroutine cv_free
 
+      ! Set udunits error handler to ut_ignore (do nothing)
       subroutine ut_set_ignore_error_message_handler() &
-            bind(c, name='ut_set_error_message_handler_to_ignore')
+            bind(c, name='ut_set_ignore_error_message_handler')
       end subroutine ut_set_ignore_error_message_handler
 
    end interface

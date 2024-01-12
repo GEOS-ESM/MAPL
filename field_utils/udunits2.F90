@@ -1,8 +1,3 @@
-#if defined(DISABLE_ERROR_MSGS)
-#undef DISABLE_ERROR_MSGS
-#endif
-!#define DISABLE_ERROR_MSGS
-
 #include "MAPL_Generic.h"
 module udunits2mod
 
@@ -26,6 +21,9 @@ module udunits2mod
    private
 
 !================================ CPTRWRAPPER ==================================
+! Base class to wrap type(c_ptr) instances used for udunits2 objects that cannot 
+! interface directly to fortran. Each extended class must provide a subroutine
+! to free the space associated with cptr_
    type, abstract :: CptrWrapper
       private
       type(c_ptr) :: cptr_ = c_null_ptr
@@ -46,6 +44,7 @@ module udunits2mod
    end interface
 
 !================================= CONVERTER ===================================
+! Converter object to hold convert functions for an (order) pair of units
    type, extends(CptrWrapper) :: Converter
       private
    contains
@@ -63,6 +62,7 @@ module udunits2mod
    end interface Converter
 
 !=============================== UDSYSTEM =================================
+! udunits2 unit system: encoding is the encoding for unit names and symbols.
    type, extends(CptrWrapper) :: UDSystem
       private
       integer(ut_encoding) :: encoding = UT_ASCII
@@ -75,6 +75,7 @@ module udunits2mod
    end interface UDSystem
 
 !=================================== UDUNIT ====================================
+! measurement unit in udunits2 system
    type, extends(CptrWrapper) :: UDUnit
    contains
       procedure, public, pass(this) :: free_space => free_ut_unit
@@ -85,10 +86,12 @@ module udunits2mod
    end interface UDUnit
 
 !============================= INSTANCE VARIABLES ==============================
+! Single instance of units system. There is one system in use, only.
    type(UDSystem), private :: SYSTEM_INSTANCE
 
 contains
 
+   ! Check the status for the last udunits2 call
    logical function success(utstatus)
       integer(ut_status) :: utstatus
 
@@ -110,6 +113,7 @@ contains
 
    end function is_free
 
+   ! Free up space pointed to by cptr_ and set cptr_ to c_null_ptr
    subroutine free(this)
       class(CptrWrapper), intent(inout) :: this
 
@@ -126,6 +130,7 @@ contains
       type(c_ptr) :: utsystem
       integer(ut_status) :: status
 
+      ! Read in unit system from path
       call read_xml(path, utsystem, status)
       
       if(success(status)) then
@@ -134,6 +139,7 @@ contains
          return
       end if
          
+      ! Free space in the case of failure
       if(c_associated(utsystem)) call ut_free_system(utsystem)
 
    end function construct_system
@@ -144,6 +150,7 @@ contains
       character(kind=c_char, len=:), allocatable :: cchar_identifier
       type(c_ptr) :: utunit1
 
+      ! Unit system must be initialized (instantiated).
       if(instance_is_uninitialized()) return
 
       cchar_identifier = cstring(identifier)
@@ -152,6 +159,7 @@ contains
       if(success(ut_get_status())) then
          instance % cptr_ = utunit1
       else
+         ! Free space in the case of failure
          if(c_associated(utunit1)) call ut_free(utunit1)
       end if
 
@@ -164,6 +172,7 @@ contains
       type(c_ptr) :: cvconverter1
       logical :: convertible
 
+      ! Must supply units that are initialized and convertible
       if(from_unit % is_free() .or. to_unit % is_free()) return
       if(.not. are_convertible(from_unit, to_unit)) return
 
@@ -172,11 +181,13 @@ contains
       if(success(ut_get_status())) then
          conv % cptr_ = cvconverter1
       else
+         ! Free space in the case of failure
          if(c_associated(cvconverter1)) call cv_free(cvconverter1)
       end if
 
    end function construct_converter
 
+   ! Get Converter object based on unit names or symbols
    subroutine get_converter(conv, from, to, rc)
       type(Converter), intent(inout) :: conv
       character(len=*), intent(in) :: from, to
@@ -189,14 +200,17 @@ contains
 
    end subroutine get_converter
 
+   ! Get converter object
    function get_converter_function(from, to) result(conv)
       type(Converter) :: conv
       character(len=*), intent(in) :: from, to
       type(UDUnit) :: from_unit
       type(UDUnit) :: to_unit
 
+      ! Unit system must be initialized (instantiated).
       if(instance_is_uninitialized()) return
 
+      ! Get units based on strings. Free space on fail.
       from_unit = UDUnit(from)
       if(from_unit % is_free()) return
       to_unit = UDUnit(to)
@@ -272,9 +286,7 @@ contains
 
       _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
 
-#if defined(DISABLE_ERROR_MSGS)
       call disable_ut_error_message_handler()
-#endif
 
       call initialize_system(SYSTEM_INSTANCE, path, encoding, rc=status)
       if(status /= _SUCCESS) then
@@ -368,14 +380,9 @@ contains
       logical, optional, intent(out) :: is_set
       logical, save :: handler_set = .FALSE.
 
-#if defined(DISABLE_ERROR_MSGS)
       if(.not. handler_set) call ut_set_ignore_error_message_handler()
       handler_set = .TRUE.
       if(present(is_set)) is_set = handler_set
-#else
-      is_set = .FALSE.
-#endif
-
    end subroutine disable_ut_error_message_handler
 
 end module udunits2mod
