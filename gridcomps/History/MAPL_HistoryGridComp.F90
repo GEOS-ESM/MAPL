@@ -631,9 +631,6 @@ contains
                 end if
                 call Hsampler%config_accumulate(key, config, _RC)
                 output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
-                if (mapl_am_i_root()) write(6,*) 'nail af Hsampler%create_grid'
-
-
              end if
              call IntState%output_grids%set(key, output_grid)
              call iter%next()

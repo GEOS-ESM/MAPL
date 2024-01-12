@@ -169,12 +169,11 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
+      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
       grid = this%create_basic_grid(_RC)
-      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
-
+      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
       call this%add_horz_coordinates_from_file(grid,_RC)
-      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
+      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
 
       _RETURN(_SUCCESS)
    end function make_new_grid
@@ -247,8 +246,8 @@ contains
       
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_VMGetCurrent(vm,_RC)
-      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
+!!      call ESMF_VMGetCurrent(vm,_RC)
+!!      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
       
       Xdim=this%im_world
       Ydim=this%jm_world
@@ -278,22 +277,17 @@ contains
          arr_lat=arr_lat*MAPL_DEGREES_TO_RADIANS_R8
          deallocate( lon_true, lat_true, time_true )
 
-         write(6,*) 'in root'
-         write(6,'(11x,100f10.1)')  arr_lon(::5,189)
+!         write(6,*) 'in root'
+!         write(6,'(11x,100f10.1)')  arr_lon(::5,189)
       end if
-      call MPI_Barrier(mpic, status)      
+!      call MPI_Barrier(mpic, status)      
       call MAPL_SyncSharedMemory(_RC)
 
       call MAPL_BcastShared (VM, data=arr_lon, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
       call MAPL_BcastShared (VM, data=arr_lat, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)      
       
-!      call MAPL_BroadcastToNodes (arr_lon, count, MAPL_ROOT, _RC)
-!      call MAPL_SyncSharedMemory(_RC)
-!      call MAPL_BroadcastToNodes (arr_lat, count, MAPL_ROOT, _RC)       
-!      call MAPL_SyncSharedMemory(_RC)
-
-      write(6,'(2x,a,2x,i5,4x,100f10.1)')  'PET', mypet, arr_lon(::5,189)      
-      call MPI_Barrier(mpic, status)
+!      write(6,'(2x,a,2x,i5,4x,100f10.1)')  'PET', mypet, arr_lon(::5,189)      
+!      call MPI_Barrier(mpic, status)
 
 
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
@@ -316,15 +310,15 @@ contains
 
 !      if (mapl_am_I_root()) then
 !         write(6,'(2x,a,10i8)')  &
-!              'ck: Xdim, Ydim, Xdim_full, Ydim_full', Xdim, Ydim, Xdim_full, Ydim_full
+!              'ck: Xdim, Ydim', Xdim, Ydim
 !         write(6,'(2x,a,10i8)')  &
 !              'ck: i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
 !      end if
 
-      write(6,*) 'MAPL_AmNodeRoot, MAPL_ShmInitialized=', MAPL_AmNodeRoot, MAPL_ShmInitialized
-      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         write(6,'(2x,a,2x,i10)')  'add_horz_coord: MAPL_AmNodeRoot:  mypet=', mypet
-      end if
+!      write(6,*) 'MAPL_AmNodeRoot, MAPL_ShmInitialized=', MAPL_AmNodeRoot, MAPL_ShmInitialized
+!      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+!         write(6,'(2x,a,2x,i10)')  'add_horz_coord: MAPL_AmNodeRoot:  mypet=', mypet
+!      end if
       
       _RETURN(_SUCCESS)
 
@@ -1485,15 +1479,15 @@ contains
          enddo
          deallocate( lon_true, lat_true, time_true )
 
-         write(6,*) 'in root, time'
-         write(6,'(11x,100E12.5)')  arr_time(::5,189)
+!         write(6,*) 'in root, time'
+!         write(6,'(11x,100E12.5)')  arr_time(::5,189)
       end if
       call MAPL_SyncSharedMemory(_RC)
 
       call MAPL_BcastShared (VM, data=arr_time, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
 
-      write(6,'(2x,a,2x,i5,4x,100E12.5)')  'PET, time', mypet, arr_time(::5,189)
-      call MPI_Barrier(mpic, status)
+!      write(6,'(2x,a,2x,i5,4x,100E12.5)')  'PET, time', mypet, arr_time(::5,189)
+!      call MPI_Barrier(mpic, status)
 
       !(Xdim, Ydim)
       obs_time = arr_time(i_1:i_n,j_1:j_n)
@@ -1502,46 +1496,7 @@ contains
          call MAPL_DeAllocNodeArray(arr_time,_RC)
       else
          deallocate(arr_time)
-      end if
-
-      
-!      !- shared mem case in MPI
-!      !
-!      Xdim=this%im_world
-!      Ydim=this%jm_world
-!
-!      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-!      call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
-!      call MAPL_SyncSharedMemory(_RC)
-!
-!      ! read and set Time
-!
-!      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-!         allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
-!         call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
-!              this%index_name_lon, this%index_name_lat, &
-!              var_name_lon=this%var_name_lon, &
-!              var_name_lat=this%var_name_lat, &
-!              var_name_time=this%var_name_time, &
-!              lon=lon_true, lat=lat_true, time=time_true, &
-!              Tfilter=.true., _RC)
-!         k=0
-!         do j=this%epoch_index(3), this%epoch_index(4)
-!            k=k+1
-!            centers(1:Xdim, k) = time_true(1:Xdim, j)
-!         enddo
-!         deallocate (lon_true, lat_true, time_true)
-!      end if
-!      call MAPL_SyncSharedMemory(_RC)
-!
-!      !(Xdim, Ydim)
-!      obs_time = centers(i_1:i_n,j_1:j_n)
-!
-!      if(MAPL_ShmInitialized) then
-!         call MAPL_DeAllocNodeArray(centers,_RC)
-!      else
-!         deallocate(centers)
-!      end if
+      end if      
 
       _RETURN(_SUCCESS)
     end subroutine get_obs_time
