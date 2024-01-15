@@ -1,5 +1,5 @@
 #include "MAPL_Generic.h"
-
+#include "MAPL_private_state.h"
 module mapl3g_CapGridComp
    use :: generic3g, only: MAPL_GridCompSetEntryPoint
    use :: generic3g, only: MAPL_ResourceGet
