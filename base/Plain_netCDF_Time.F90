@@ -238,32 +238,77 @@ contains
   end subroutine get_v1d_netcdf_R8
 
 
-  subroutine get_v1d_netcdf_R8_w_offset(filename, name, array, Xdim, group_name, rc)
+  subroutine get_v1d_netcdf_R8_complete(filename, varname, array, att_name, att_value, group_name, rc)
     use netcdf
     implicit none
-    character(len=*), intent(in) :: name, filename
-    character(len=*), optional, intent(in) :: group_name
-    integer, intent(in) :: Xdim
-    real(REAL64), dimension(Xdim), intent(out) :: array
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: varname
+    real(REAL64), intent(inout) :: array(:)
+    character(len=*), optional, intent(in) :: att_name
+    real(REAL64), optional, intent(out) :: att_value
+    character(len=*), optional, intent(out) :: group_name    
     integer, optional, intent(out) :: rc
-    integer :: status
-    integer :: ncid, varid, ncid2
 
+    integer :: status, iret
+    integer :: ncid, ncid_grp, ncid_sv
+    integer :: varid    
+    real(REAL32) :: scale_factor, add_offset
+    
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    ncid_sv = ncid
     if(present(group_name)) then
-       ncid2= ncid
-       call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+       ! mod
+       ncid = ncid_grp
     end if
-    call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
+    call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
-    if(present(group_name)) then
-       call check_nc_status(nf90_close(ncid2), _RC)
-    else
-       call check_nc_status(nf90_close(ncid), _RC)
+
+    iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
+    if(iret .eq. 0) array = array * scale_factor
+    !
+    iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
+    if(iret .eq. 0) array = array + add_offset
+
+    if(present(att_name)) then
+       call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
     end if
+    
+    call check_nc_status(nf90_close(ncid_sv), _RC)
+
     _RETURN(_SUCCESS)
 
-  end subroutine   
+  end subroutine get_v1d_netcdf_R8_complete
+
+
+  subroutine get_att1d_netcdf(filename, varname, att_name, att_value, group_name, rc)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: varname
+    character(len=*), intent(in) :: att_name
+    real(REAL64), intent(out) :: att_value
+    character(len=*), optional, intent(out) :: group_name    
+    integer, optional, intent(out) :: rc
+    integer :: status
+    integer :: ncid, ncid_grp, ncid_sv
+    integer :: varid    
+    
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    ncid_sv = ncid
+    if(present(group_name)) then
+       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+       ! overwrite
+       ncid = ncid_grp
+    end if
+    call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
+    call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
+    call check_nc_status(nf90_close(ncid_sv), _RC)
+
+    _RETURN(_SUCCESS)
+
+  end subroutine get_att1d_netcdf
+  
 
   subroutine check_nc_status(status, rc)
     use netcdf

@@ -11,7 +11,14 @@ module MAPL_ObsUtilMod
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   integer, parameter :: mx_ngeoval = 60
-!!  private
+  ! GRS80 by Moritz
+  real(REAL64) :: a=6378137.d0
+  real(REAL64) :: b=6356752.31414d0
+  real(REAL64) :: H=42164160.d0
+  ! GOES-R
+  real(REAL64) :: lambda0_SatE=-1.308996939d0   ! -75 deg    Satellite East
+  real(REAL64) :: lambda0_SatW=-2.39110107523d0 ! -137 deg   Satellite West
+  real(REAL64) :: lambda0_SatT=-1.56206968053d0 ! -89.5 deg  Satellite Test
 
   public :: obs_unit
   type :: obs_unit
@@ -722,5 +729,63 @@ contains
 
   end function union_platform
 
+
+  ! From GOES-R SERIES PRODUCT DEFINITION AND USERS’ GUIDE
+  !
+  subroutine ABI_XY_2_lonlat (x, y, lambda0, lon, lat, outRange)
+    implicit none
+    real(REAL64), intent(in) :: x, y
+    real(REAL64), intent(in) :: lambda0
+    real(REAL64), intent(out):: lon, lat
+    integer,intent(out):: outRange
+    real(REAL64) :: a0, b0, c0, rs, Sx, Sy, Sz, t
+
+    a0 =  sin(x)*sin(x) + cos(x)*cos(x)*( cos(y)*cos(y) + (a/b)*(a/b)*sin(y)*sin(y) )
+    b0 = -2.d0 * H * cos(x) * cos(y)
+    c0 =  H*H - a*a
+    rs =  ( -b0 - sqrt(b0*b0 - 4.d0*a0*c0) ) / (2.d0*a0)
+    Sx =  rs * cos(x) * cos(y)
+    Sy = -rs * sin(x)
+    Sz =  rs * cos(x) * sin(y)    
+    lon = lambda0 - atan (Sy/(H - Sx))
+    lat = atan ( (a/b)**2.d0 * Sz / sqrt ((H -Sx)**2.d0 + Sy*Sy) )
+
+    t = H*(H-Sx) - ( Sy*Sy + (a/b)**2.d0 *Sz*Sz )
+    if (t < 0) then
+       outRange = 1
+    else
+       outRange = 0
+    end if
+
+  end subroutine ABI_XY_2_lonlat
+
+
+  subroutine lonlat_2_ABI_XY (lon, lat, lambda0, x, y, outRange)
+    implicit none
+    real(REAL64), intent(in) :: lon, lat
+    real(REAL64), intent(in) :: lambda0
+    real(REAL64), intent(out):: x, y
+    integer,intent(out):: outRange
+    real(REAL64) :: theta_c
+    real(REAL64) :: e2, rc, Sx, Sy, Sz, t
+
+    theta_c = atan( (b/a)**2.d0 * tan(lat) )
+    e2 = 1.d0 - (b/a)**2.d0       ! (a^2-b^2)/a^2
+    rc = b / sqrt( 1.d0 - e2 * cos(theta_c)**2.d0 )
+    Sx = H - rc * cos(theta_c) * cos( lon - lambda0 )
+    Sy =   - rc * cos(theta_c) * sin( lon - lambda0 )
+    Sz =     rc * sin(theta_c)
+    x  = - asin ( Sy / sqrt (Sx*Sx + Sy*Sy + Sz*Sz) )
+    y  =   atan ( Sz / Sx )
+
+    t = H*(H-Sx) - ( Sy*Sy + (a/b)**2.d0 *Sz*Sz )
+    if (t < 0) then
+       outRange = 1
+    else
+       outRange = 0
+    end if
+
+  end subroutine lonlat_2_ABI_XY
+    
 
 end module MAPL_ObsUtilMod
