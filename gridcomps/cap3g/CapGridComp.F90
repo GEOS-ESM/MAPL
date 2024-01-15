@@ -1,5 +1,4 @@
 #include "MAPL_Generic.h"
-#include "MAPL_private_state.h"
 module mapl3g_CapGridComp
    use :: generic3g, only: MAPL_GridCompSetEntryPoint
    use :: generic3g, only: MAPL_ResourceGet
@@ -31,6 +30,8 @@ module mapl3g_CapGridComp
       character(:), allocatable :: root_name
    end type CapGridComp
 
+   character(*), parameter :: PRIVATE_STATE = "CapGridComp"
+
 contains
    
    subroutine setServices(gridcomp, rc)
@@ -47,7 +48,7 @@ contains
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
-      _SET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, "CapGridComp", cap)
+      _SET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
       ! Get Names of children
 
@@ -73,8 +74,8 @@ contains
       ! - determine run frequencey and offset (save as alarm)
 
 
-      _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, "CapGridComp", cap)
-      
+  _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
+
       !------------------
       ! Connections:
       !------------------
@@ -99,7 +100,7 @@ contains
       integer :: status
       type(CapGridComp), pointer :: cap
 
-      _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, "CapGridComp", cap)
+!#      _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, "CapGridComp", cap)
 
       call MAPL_run_child(gridcomp, cap%extdata_name, _RC)
       call MAPL_run_child(gridcomp, cap%root_name, _RC)
