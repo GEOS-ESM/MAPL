@@ -234,6 +234,33 @@ contains
   end subroutine get_v1d_netcdf_R8
 
 
+  subroutine get_v1d_netcdf_R8_w_offset(filename, name, array, Xdim, group_name, rc)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: name, filename
+    character(len=*), optional, intent(in) :: group_name
+    integer, intent(in) :: Xdim
+    real(REAL64), dimension(Xdim), intent(out) :: array
+    integer, optional, intent(out) :: rc
+    integer :: status
+    integer :: ncid, varid, ncid2
+
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    if(present(group_name)) then
+       ncid2= ncid
+       call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+    end if
+    call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
+    call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
+    if(present(group_name)) then
+       call check_nc_status(nf90_close(ncid2), _RC)
+    else
+       call check_nc_status(nf90_close(ncid), _RC)
+    end if
+    _RETURN(_SUCCESS)
+
+  end subroutine   
+
   subroutine check_nc_status(status, rc)
     use netcdf
     implicit none
