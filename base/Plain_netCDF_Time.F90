@@ -117,7 +117,11 @@ contains
     character(len=100) :: str2
 
     call check_nc_status(nf90_open(fileName, NF90_NOWRITE, ncid2), _RC)
-    call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+    if (group_name/='') then
+       call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
+    else
+       ncid = ncid2
+    end if
     call check_nc_status(nf90_inq_varid(ncid, var_name, varid), _RC)
     call check_nc_status(nf90_inquire_attribute(ncid, varid, attr_name, xtype, len=len), _RC)
     c_ncid= ncid
@@ -268,7 +272,6 @@ contains
     integer, intent(out), optional :: rc
 
     _ASSERT(status == nf90_noerr, 'netCDF error: '//trim(nf90_strerror(status)))
-
     _RETURN(_SUCCESS)
 
   end subroutine check_nc_status
@@ -314,9 +317,19 @@ contains
     type(ESMF_Time) :: time0
     type(ESMF_TimeInterval) :: dt
 
+    character(len=ESMF_MAXSTR) :: STR1
+
+
     n=0
     call parse_timeunit(tunit, n, time0, dt, _RC)
     dt = time - time0
+
+!    ! test
+!    write(6, '(2x,a,2x,a)') 'tunit=', trim(tunit)
+!    call ESMF_TimeGet(time, timestring=STR1, _RC)
+!    write(6, '(2x,a,2x,a)') 'time=', trim(STR1)
+!    call ESMF_TimeGet(time0, timestring=STR1, _RC)
+!    write(6, '(2x,a,2x,a)') 'time0=', trim(STR1)
 
     ! assume unit is second
     !
@@ -327,6 +340,10 @@ contains
   end subroutine time_esmf_2_nc_int
 
 
+  !
+  ! n sec after tunit
+  ! t0 = since [ xxxx-xx-xx ]
+  ! dt = n sec
   subroutine parse_timeunit_i4(tunit, n, t0, dt, rc)
     use ESMF
     implicit none
@@ -356,7 +373,7 @@ contains
     isec=n
 
     gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', _RC)
-    call ESMF_timeSet(t0, yy=y,mm=m,dd=m,h=hour,m=min,s=sec,&
+    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,&
          calendar=gregorianCalendar, _RC)
     call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s=isec, _RC)
 
@@ -390,11 +407,14 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
+!    write(6,*) 'y, c1, m, c1, d',  y, c1, m, c1, d
+!    write(6,*) 'hour, c1, min, c1, sec', hour, c1, min, c1, sec
+
     _ASSERT(trim(s_unit) == 'seconds', "s_unit /= 'seconds' is not handled")
     isec=n
 
     gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', _RC)
-    call ESMF_timeSet(t0, yy=y,mm=m,dd=m,h=hour,m=min,s=sec,&
+    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,&
          calendar=gregorianCalendar, _RC)
     call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s_i8=isec, _RC)
 
@@ -478,7 +498,7 @@ contains
     if(present(n_LB)) LB=max(LB, n_LB)
     if(present(n_UB)) UB=min(UB, n_UB)
     klo=LB; khi=UB; dk=1
-    
+
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
        khi= LB
@@ -700,7 +720,7 @@ contains
     RETURN
   end function matches
 
-  
+
   subroutine split_string_by_space (string_in, length_mx, &
        mxseg, nseg, str_piece, jstatus)
     integer,           intent (in) :: length_mx
