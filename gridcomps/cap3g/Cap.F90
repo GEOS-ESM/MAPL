@@ -18,19 +18,15 @@
 
 module mapl3g_Cap
    use mapl3g_CapGridComp, only: cap_setservices => setServices
+   use generic3g
    use mapl3g_GenericPhases
    use mapl_KeywordEnforcerMod
+   use mapl_ErrorHandling
    use esmf
    implicit none
    private
 
-   public :: run
    public :: MAPL_run_driver
-
-   interface run
-      procedure :: run_cap
-      procedure :: run_driver
-   end interface run
 
 contains
 
@@ -45,7 +41,7 @@ contains
 
       driver = make_driver(hconfig, _RC)
 
-      call initialize_phases(driver, GENERIC_INIT_PHASE_SEQUENCE, _RC)
+!#      call initialize_phases(driver, GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, _RC)
       call driver%finalize(_RC)
 
@@ -55,34 +51,37 @@ contains
    function make_driver(hconfig, rc) result(driver)
       type(GriddedComponentDriver) :: driver
       type(ESMF_HConfig), intent(inout) :: hconfig
+      integer, optional, intent(out) :: rc
 
       type(ESMF_GridComp) :: cap_gridcomp
       type(ESMF_Clock) :: clock
+      character(:), allocatable :: cap_name
       integer :: status
-      
+
+      cap_name = ESMF_HConfigAsString(hconfig, keystring='cap_name', _RC)
       clock = create_clock(hconfig, _RC)
-      cap_gridcomp = create_grid_comp(cap_name, cap_setservices, hconfig, _RC)
-      driver = GriddedComponentDriver(cap_gridcomp, clock=clock, _RC)
+      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), hconfig, _RC)
+      driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
 
       _RETURN(_SUCCESS)
    end function make_driver
 
-   function create_clock(config, rc) result(clock)
+   function create_clock(hconfig, rc) result(clock)
       type(ESMF_Clock) :: clock
-      type(ESMF_HConfig), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Time) :: startTime, endTime
+      type(ESMF_Time) :: startTime, stopTime
       type(ESMF_TimeInterval) :: timeStep
       type(ESMF_HConfig) :: clock_config
       
       clock_config = ESMF_HConfigCreateAt(hconfig, keystring='clock', _RC)
 
       call set_time(startTime, 'start', clock_config, _RC)
-      call set_time(endTime, 'end', clock_config, _RC)
+      call set_time(stopTime, 'stop', clock_config, _RC)
       call set_time_interval(timeStep, 'dt', clock_config, _RC)
-      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, endTime=endTime, _RC)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, stopTime=stopTime, _RC)
       
       _RETURN(_SUCCESS)
    end function create_clock
@@ -97,10 +96,10 @@ contains
       character(:), allocatable :: iso_duration
       
       iso_duration = ESMF_HConfigAsString(hconfig, keystring=key, _RC)
-      call ESMF_TimeIntervalSet(interval, timeString=iso_duration, _RC)
+!#      call ESMF_TimeIntervalSet(interval, timeString=iso_duration, _RC)
       
       _RETURN(_SUCCESS)
-   end subroutine set_time
+   end subroutine set_time_interval
 
    subroutine set_time(time, key, hconfig, rc)
       type(ESMF_Time), intent(out) :: time
@@ -118,19 +117,24 @@ contains
    end subroutine set_time
 
    subroutine integrate(driver, rc)
+      type(GriddedComponentDriver), intent(inout) :: driver
+      integer, optional, intent(out) :: rc
 
+      integer :: status
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: currTime, stopTime
+      
       clock = driver%get_clock()
-      time = ESMF_ClockGet(clock, time=time, _RC)
-      end_time = ...
-      do while(time < end_time)
+      call ESMF_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
+
+      do while (currTime < stopTime)
          call driver%run(_RC)
-         call driver%clock_advance(_RC)
+         call ESMF_ClockAdvance(clock, _RC)
+         call ESMF_ClockGet(clock, currTime=currTime, _RC)
       end do
+
+      _RETURN(_SUCCESS)
       
    end subroutine integrate
 
-
- 
-
-     
 end module mapl3g_Cap

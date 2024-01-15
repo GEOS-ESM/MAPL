@@ -31,11 +31,16 @@ module mapl3g_Generic
    use :: mapl3g_HierarchicalRegistry
    use mapl_InternalConstantsMod
    use :: esmf, only: ESMF_GridComp
+   use :: esmf, only: ESMF_GridCompGet
    use :: esmf, only: ESMF_Geom, ESMF_GeomCreate
    use :: esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
    use :: esmf, only: ESMF_Clock
+   use :: esmf, only: ESMF_Config
+   use :: esmf, only: ESMF_ConfigGet
    use :: esmf, only: ESMF_HConfig
+   use :: esmf, only: ESMF_HConfigIsDefined
+   use :: esmf, only: ESMF_HConfigAsString
    use :: esmf, only: ESMF_SUCCESS
    use :: esmf, only: ESMF_Method_Flag
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
@@ -53,6 +58,7 @@ module mapl3g_Generic
    public :: get_outer_meta_from_inner_gc
 
    public :: MAPL_Get
+   public :: MAPL_GridCompGet
    public :: MAPL_GridCompSetEntryPoint
    public :: MAPL_add_child
    public :: MAPL_run_child
@@ -65,10 +71,9 @@ module mapl3g_Generic
    public :: MAPL_AddExportSpec
    public :: MAPL_AddInternalSpec
 !!$
-!!$   public :: MAPL_GetResource
+    public :: MAPL_ResourceGet
 
    ! Accessors
-!!$   public :: MAPL_GetConfig
 !!$   public :: MAPL_GetOrbit
 !!$   public :: MAPL_GetCoordinates
 !!$   public :: MAPL_GetLayout
@@ -90,6 +95,10 @@ module mapl3g_Generic
       module procedure MAPL_GridCompSetGeomXgrid
       module procedure MAPL_GridCompSetGeomLocStream
    end interface MAPL_GridCompSetGeom
+
+   interface MAPL_GridCompGet
+      procedure :: gridcomp_get_hconfig
+   end interface MAPL_GridCompGet
 
 
 !!$   interface MAPL_GetInternalState
@@ -141,6 +150,9 @@ module mapl3g_Generic
    end interface MAPL_ConnectAll
 
 
+   interface MAPL_ResourceGet
+      procedure :: hconfig_get_string
+   end interface MAPL_ResourceGet
 contains
 
    subroutine MAPL_Get(gridcomp, hconfig, registry, lgr, rc)
@@ -562,5 +574,42 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_connect_all
+
+   subroutine gridcomp_get_hconfig(gridcomp, hconfig, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_HConfig), intent(out) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Config) :: config
+      
+      call ESMF_GridCompGet(gridcomp, config=config, _RC)
+      call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
+      
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_get_hconfig
+
+   subroutine hconfig_get_string(hconfig, keystring, value, default, rc)
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      character(*), intent(in) :: keystring
+      character(:), allocatable :: value
+      character(*), optional, intent(in) :: default
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_key
+      
+      has_key = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
+      if (has_key) then
+         value = ESMF_HConfigAsSTring(hconfig, keystring=keystring, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      _ASSERT(present(default), 'Keystring <'//keystring//'> not found in hconfig')
+      value = default
+      
+      _RETURN(_SUCCESS)
+   end subroutine hconfig_get_string
 
 end module mapl3g_Generic

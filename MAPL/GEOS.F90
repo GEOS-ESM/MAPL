@@ -2,7 +2,7 @@
 #define I_AM_MAIN
 
 program geos
-   use mapl
+   use mapl3g
    use esmf
    implicit none
 

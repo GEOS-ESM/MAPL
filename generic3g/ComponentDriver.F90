@@ -44,7 +44,7 @@ contains
          integer :: i
 
          do i = 1, size(phases)
-            call this % initialize(phases(i), _RC)
+            call this % initialize(phase_idx=phases(i), _RC)
          end do
          
          _RETURN(_SUCCESS)
