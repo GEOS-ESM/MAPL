@@ -3,7 +3,6 @@
 submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use esmf
    use gFTL2_StringVector
-   use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl3g_ComponentSpecParser
    use mapl3g_HierarchicalRegistry
    use mapl3g_ChildSpec
