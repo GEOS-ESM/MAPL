@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Explictly `use` some `iso_c_binding` types previously pulled in through ESMF. This is fixed in future ESMF versions (8.7+) and so
+  we anticipate this here
+
 ### Removed
 
 ### Deprecated

@@ -25,6 +25,7 @@ module Plain_netCDF_Time
   !   use MAPL_CommsMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use, intrinsic :: iso_c_binding, only: C_INT
   implicit none
   public
 
@@ -451,7 +452,7 @@ contains
     if(present(n_LB)) LB=max(LB, n_LB)
     if(present(n_UB)) UB=min(UB, n_UB)
     klo=LB; khi=UB; dk=1
-    
+
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
        khi= LB
@@ -673,7 +674,7 @@ contains
     RETURN
   end function matches
 
-  
+
   subroutine split_string_by_space (string_in, length_mx, &
        mxseg, nseg, str_piece, jstatus)
     integer,           intent (in) :: length_mx
