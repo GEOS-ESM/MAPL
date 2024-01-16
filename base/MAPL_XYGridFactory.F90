@@ -909,7 +909,7 @@ contains
 
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
          staggerloc=ESMF_STAGGERLOC_CENTER, &
-         farrayPtr=fptr, rc=status)
+         farrayPtr=fptr, _RC)
       local_has_undef = 0
       if (any(fptr == MAPL_UNDEF)) local_has_undef = 1
       call ESMF_VMGetCurrent(vm,_RC)
