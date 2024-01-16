@@ -1,21 +1,5 @@
 #include "MAPL_Generic.h"
 
-
-! Responsibilities:
-!  - Initialize MAPL "global" features
-!      - **server**  (ignore in 1st pass)
-!      - profiler (ignore in 1st pass)
-!      - pflogger (ignore in 1st pass)
-!      - ??? establish gregorian calendar
-!  - Determine basic clock
-!      - start, stop, dt
-
-!  - Construct component driver for CapGridComp ! SEPARATE
-!    - possibly allow other "root" here?
-!  - Exercise driver through the init phases. ! SEPARATE
-!  - Loop over time ! SEPARATE
-!    - call run phase of capgridcomp
-
 module mapl3g_Cap
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use generic3g
@@ -33,7 +17,7 @@ contains
 
    subroutine MAPL_run_driver(hconfig, unusable, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
-      class(KeywordEnforcer), intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(GriddedComponentDriver) :: driver
@@ -41,7 +25,7 @@ contains
 
       driver = make_driver(hconfig, _RC)
 
-!#      call initialize_phases(driver, GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, _RC)
       call driver%finalize(_RC)
 
@@ -72,8 +56,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Time) :: startTime, stopTime
-      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_Time) :: startTime, stopTime, end_of_segment
+      type(ESMF_TimeInterval) :: timeStep, segment_duration
       type(ESMF_HConfig) :: clock_config
       
       clock_config = ESMF_HConfigCreateAt(hconfig, keystring='clock', _RC)
@@ -81,6 +65,10 @@ contains
       call set_time(startTime, 'start', clock_config, _RC)
       call set_time(stopTime, 'stop', clock_config, _RC)
       call set_time_interval(timeStep, 'dt', clock_config, _RC)
+      call set_time_interval(segment_duration, 'segment_duration', clock_config, _RC)
+
+      end_of_segment = startTime + segment_duration
+      if (end_of_segment < stopTime) stopTime = end_of_segment
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, stopTime=stopTime, _RC)
       
       _RETURN(_SUCCESS)

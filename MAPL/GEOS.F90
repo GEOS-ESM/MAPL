@@ -26,9 +26,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-!#      call MAPL_initialize(hconfig, _RC)
-!#      call MAPL_run_driver(hconfig, _RC)
-!#      call MAPL_finalize(_RC)
+      !call MAPL_initialize(hconfig, _RC)
+      call MAPL_run_driver(hconfig, _RC)
+      !call MAPL_finalize(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_geos

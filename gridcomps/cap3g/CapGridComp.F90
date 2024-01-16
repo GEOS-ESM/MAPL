@@ -41,10 +41,8 @@ contains
       integer :: status
       type(CapGridComp), pointer :: cap
       type(ESMF_HConfig) :: hconfig
-      character(:), allocatable :: extdata, history
 
       ! Set entry points
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name='GENERIC::INIT_USER', _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
@@ -57,25 +55,6 @@ contains
       call MAPL_ResourceGet(hconfig, keystring='history_name', value=cap%history_name, default='HIST', _RC)
       call MAPL_ResourceGet(hconfig, keystring='root_name', value=cap%root_name, _RC)
 
-      _RETURN(_SUCCESS)
-   end subroutine setServices
-
-   subroutine init(gridcomp, importState, exportState, clock, rc)
-      type(ESMF_GridComp)   :: gridcomp
-      type(ESMF_State)      :: importState
-      type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
-      integer, intent(out)  :: rc
-
-      integer :: status
-      type(CapGridComp), pointer :: cap
-
-      ! To Do:
-      ! - determine run frequencey and offset (save as alarm)
-
-
-  _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
-
       !------------------
       ! Connections:
       !------------------
@@ -85,10 +64,9 @@ contains
       !------------------
       call MAPL_ConnectAll(gridcomp, src_comp=cap%extdata_name, dst_comp=cap%root_name, _RC)
       call MAPL_ConnectAll(gridcomp, src_comp=cap%root_name, dst_comp=cap%history_name, _RC)
-      
-      _RETURN(_SUCCESS)
-   end subroutine init
 
+      _RETURN(_SUCCESS)
+   end subroutine setServices
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
@@ -100,7 +78,7 @@ contains
       integer :: status
       type(CapGridComp), pointer :: cap
 
-!#      _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, "CapGridComp", cap)
+      _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
       call MAPL_run_child(gridcomp, cap%extdata_name, _RC)
       call MAPL_run_child(gridcomp, cap%root_name, _RC)
