@@ -109,10 +109,10 @@ contains
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDimsSpec), intent(in) :: ungridded_dims
 
-      character(*), intent(in) :: standard_name
-      character(*), intent(in) :: long_name
-      character(*), intent(in) :: units
-      type(StringVector), intent(in) :: attributes
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: long_name
+      type(StringVector), optional, intent(in) :: attributes
 
       ! optional args last
       real, optional, intent(in) :: default_value
@@ -123,11 +123,11 @@ contains
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
 
-      field_spec%standard_name = standard_name
-      field_spec%long_name = long_name
-      field_spec%units = units
+      if (present(standard_name)) field_spec%standard_name = standard_name
+      if (present(long_name)) field_spec%long_name = long_name
+      if (present(units)) field_spec%units = units
 
-      field_spec%attributes=attributes
+      if (present(attributes)) field_spec%attributes = attributes
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
@@ -366,8 +366,8 @@ contains
               this%vertical_dim == src_spec%vertical_dim, &
 !#              can_convert_units(this, src_spec) &
               this%ungridded_dims == src_spec%ungridded_dims, & 
-              includes(this%attributes, src_spec%attributes) & !, &
-!#              this%units == src_spec%units & ! units are required for fields
+              includes(this%attributes, src_spec%attributes),  &
+              match(this%units, src_spec%units) &
               ])
       class default
          can_connect_to = .false.

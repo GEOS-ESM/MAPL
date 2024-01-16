@@ -103,4 +103,56 @@ contains
 
    end subroutine test_multiple_attribute
 
+   @test
+   ! Verify that framework detects when an export spec does not
+   ! provide mandatory attributes specified by import spec.
+   subroutine test_mismatched_units()
+      type(FieldSpec) :: import_spec
+      type(FieldSpec) :: export_spec
+      type(ESMF_Geom) :: geom
+
+      import_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='barn')
+
+      export_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='m2')
+
+      @assert_that(import_spec%can_connect_to(export_spec), is(false()))
+
+   end subroutine test_mismatched_units
+
+   @test
+   ! Verify that framework detects when an export spec does not
+   ! provide mandatory attributes specified by import spec.
+   subroutine test_matched_units()
+      type(FieldSpec) :: import_spec
+      type(FieldSpec) :: export_spec
+      type(ESMF_Geom) :: geom
+
+      import_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='barn')
+
+      export_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='barn')
+
+      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+      
+   end subroutine test_matched_units
+
 end module Test_FieldSpec
