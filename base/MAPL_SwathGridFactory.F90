@@ -480,6 +480,9 @@ contains
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
 
+      write(6,'(2x,a,100i10)') 'nail 2, nx,ny,im,jm,lm',&
+           this%nx,this%ny,this%im_world,this%jm_world,this%lm      
+
       call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
       
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
