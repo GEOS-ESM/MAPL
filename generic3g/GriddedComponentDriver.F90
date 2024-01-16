@@ -5,6 +5,7 @@ module mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl_ErrorHandlingMod
+   use :: MaplShared, only: KeywordEnforcer
    use :: esmf
    implicit none
    private
@@ -44,7 +45,6 @@ module mapl3g_GriddedComponentDriver
    interface
 
       module recursive subroutine initialize(this, unusable, phase_idx, rc)
-         use :: MaplShared, only: KeywordEnforcer
          class(GriddedComponentDriver), intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -54,7 +54,6 @@ module mapl3g_GriddedComponentDriver
       ! run_self() is implemented in submodule to avoid circular dependency
       ! on OuterMetaComponent.
       module recursive subroutine run(this, unusable, phase_idx, rc)
-         use :: MaplShared, only: KeywordEnforcer
          class(GriddedComponentDriver), intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -62,7 +61,6 @@ module mapl3g_GriddedComponentDriver
       end subroutine
 
       module recursive subroutine finalize(this, unusable, phase_idx, rc)
-         use :: MaplShared, only: KeywordEnforcer
          class(GriddedComponentDriver), intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
@@ -89,7 +87,6 @@ module mapl3g_GriddedComponentDriver
       end subroutine set_clock
 
       recursive module subroutine run_export_couplers(this, unusable, phase_idx, rc)
-         use :: MaplShared, only: KeywordEnforcer
          class(GriddedComponentDriver), intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
