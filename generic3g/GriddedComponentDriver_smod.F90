@@ -59,7 +59,6 @@ contains
    end subroutine initialize
 
    module recursive subroutine finalize(this, unusable, phase_idx, rc)
-      use MAPL_Shared, only: 
       class(GriddedComponentDriver), intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
