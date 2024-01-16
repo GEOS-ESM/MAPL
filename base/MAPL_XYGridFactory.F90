@@ -914,9 +914,7 @@ contains
       if (any(fptr == MAPL_UNDEF)) local_has_undef = 1
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMAllFullReduce(vm, [local_has_undef], has_undef, 1, ESMF_REDUCE_MAX, _RC) 
-      if (has_undef == 0) then
-         _RETURN(_SUCCESS)
-      end if
+_RETURN_IF(has_undef == 0)    
 
       call ESMF_GridAddItem(grid,staggerLoc=ESMF_STAGGERLOC_CENTER, itemflag=ESMF_GRIDITEM_MASK,_RC)
       call ESMF_GridGetItem(grid,localDE=0,staggerLoc=ESMF_STAGGERLOC_CENTER, &
