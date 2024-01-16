@@ -297,15 +297,26 @@ contains
 
       integer :: status
       type(FieldSpec) :: field_spec
-      type(VariableSpec) :: tmp_spec
 
-      tmp_spec = this
-      tmp_spec%itemtype = MAPL_STATEITEM_FIELD
-
-      field_spec = tmp_spec%make_FieldSpec(geom, vertical_geom, _RC)
+      field_spec = new_FieldSpec_geom(geom=geom, vertical_geom=vertical_geom, &
+           vertical_dim=this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+           attributes=this%attributes, default_value=this%default_value)
       wildcard_spec = WildCardSpec(field_spec)
 
       _RETURN(_SUCCESS)
+   contains
+
+      logical function valid(this) result(is_valid)
+         class(VariableSpec), intent(in) :: this
+         
+         is_valid = .false. ! unless
+         if (allocated(this%standard_name)) return
+         if (allocated(this%units)) return ! maybe this can be relaxed - match only thisgs that have same units?
+         if (this%attributes%size() > 0) return
+         if (allocated(this%default_value)) return
+         is_valid = .true.
+         
+      end function valid
    end function make_WildcardSpec
 
 end module mapl3g_VariableSpec
