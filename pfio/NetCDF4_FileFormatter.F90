@@ -19,12 +19,12 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_StringAttributeMapMod
    use pfio_NetCDF_Supplement
    use netcdf
+   use mpi
    implicit none
    private
 
    public :: NetCDF4_FileFormatter
 
-   include 'mpif.h'
    type :: NetCDF4_FileFormatter
 !$$      private
       character(len=:), allocatable :: origin_file
@@ -496,10 +496,12 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-         var_name => var_iter%key()
-         var => var_iter%value()
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
+         var => var_iter%second()
          const_value_ptr => var%get_const_value()
          if ( .not. const_value_ptr%is_empty()) then
             shp = const_value_ptr%get_shape()
@@ -522,7 +524,6 @@ contains
                _VERIFY(status)
             end select
          end if
-         call var_iter%next()
       enddo
 
       _UNUSED_DUMMY(unusable)
@@ -549,9 +550,11 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-         var_name => var_iter%key()
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => cf%get_coordinate_variable(trim(var_name),rc=status)
          _VERIFY(status)
          if (associated(var))  then ! is a coordinate variable
@@ -573,7 +576,6 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next()
 
       enddo
 
@@ -678,12 +680,12 @@ contains
       integer:: status
 
       !$omp critical
-      status=nf90_redef(this%ncid) 
+      status=nf90_redef(this%ncid)
       !$omp end critical
       _VERIFY(status)
       call this%def_variables(cf, varname=varname, _RC)
       !$omp critical
-      status=nf90_enddef(this%ncid) 
+      status=nf90_enddef(this%ncid)
       !$omp end critical
       _VERIFY(status)
       _RETURN(_SUCCESS)
@@ -718,11 +720,7 @@ contains
       class (Variable), pointer :: var
       integer :: varid
 
-      type (StringIntegerMap), pointer :: all_dims
-
-
       vars => cf%get_variables()
-      all_dims => cf%get_dimensions()
 
       order = cf%get_order()
       var_iter = order%begin()

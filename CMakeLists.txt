@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.40.3
+  VERSION 2.43.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -148,7 +148,7 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET esmf)
-    find_package(ESMF 8.5.0 MODULE REQUIRED)
+    find_package(ESMF 8.6.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     # NOTE: This looks odd because some versions of FindESMF.cmake out in the
@@ -167,8 +167,8 @@ else ()
   # This is an ESMF version test when using Baselibs which doesn't use the
   # same find_package internally in ESMA_cmake as used above (with a version
   # number) so this lets us at least trap use of old Baselibs here.
-  if (ESMF_VERSION VERSION_LESS 8.5.0)
-    message(FATAL_ERROR "ESMF must be at least 8.5.0")
+  if (ESMF_VERSION VERSION_LESS 8.6.0)
+    message(FATAL_ERROR "ESMF must be at least 8.6.0")
   endif ()
 endif ()
 
@@ -207,9 +207,27 @@ endif ()
 
 add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 
+# Support for automated code generation
+include(mapl_acg)
+include(mapl_create_stub_component)
+add_subdirectory (Apps)
+
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
 add_subdirectory (MAPL_cfio MAPL_cfio_r8)
+
+# This tests for various capabilities of the compiler
+# We mainly use it for MPICH issues
+include(CheckCompilerCapabilities)
+
+# 1. The first workaround is in pfio for https://github.com/pmodels/mpich/issues/6691
+# 2. Below is to workaround https://github.com/pmodels/mpich/issues/6693
+if(SUPPORT_FOR_MPI_IERROR_KEYWORD)
+  add_compile_definitions(SUPPORT_FOR_MPI_IERROR_KEYWORD)
+endif()
+if (APPLE)
+  add_compile_definitions("-D__DARWIN")
+endif()
 
 add_subdirectory (pfio)
 add_subdirectory (profiler)
@@ -224,7 +242,8 @@ add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
 if (BUILD_WITH_FARGPARSE)
-   add_subdirectory (tutorial)
+   add_subdirectory (docs)
+   add_subdirectory (benchmarks)
 endif()
 
 add_subdirectory (geom_mgr)
@@ -238,7 +257,6 @@ endif ()
 # Support for automated code generation
 include(mapl_acg)
 include(mapl_create_stub_component)
-add_subdirectory (Apps)
 
 add_subdirectory (Tests)
 

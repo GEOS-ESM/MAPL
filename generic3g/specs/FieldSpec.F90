@@ -12,13 +12,16 @@ module mapl3g_FieldSpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
-   use mapl3g_CopyAction
    use mapl3g_VerticalGeom
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
    use mapl3g_SequenceAction
+   use mapl3g_CopyAction
+   use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use gftl2_StringVector
    use esmf
    use nuopc
 
@@ -36,15 +39,16 @@ module mapl3g_FieldSpec
       type(VerticalDimSpec) :: vertical_dim
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDimsSpec) :: ungridded_dims
+      type(StringVector) :: attributes
 
       ! Metadata
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
       character(:), allocatable :: units
       ! TBD
-!!$      type(FrequencySpec) :: freq_spec
-!!$      class(AbstractFrequencySpec), allocatable :: freq_spec
-!!$      integer :: halo_width = 0
+!#      type(FrequencySpec) :: freq_spec
+!#      class(AbstractFrequencySpec), allocatable :: freq_spec
+!#      integer :: halo_width = 0
 
       type(ESMF_Field) :: payload
       real, allocatable :: default_value
@@ -70,23 +74,23 @@ module mapl3g_FieldSpec
 
    interface FieldSpec
       module procedure new_FieldSpec_geom
-!!$      module procedure new_FieldSpec_defaults
+!#      module procedure new_FieldSpec_defaults
    end interface FieldSpec
 
    interface match
-!!$      procedure :: match_geom
+      procedure :: match_geom
       procedure :: match_typekind
       procedure :: match_string
    end interface match
 
    interface get_cost
-!!$      procedure :: get_cost_geom
+      procedure :: get_cost_geom
       procedure :: get_cost_typekind
       procedure :: get_cost_string
    end interface get_cost
 
    interface update_item
-!!$      procedure update_item_geom
+      procedure update_item_geom
       procedure update_item_typekind
       procedure update_item_string
    end interface update_item
@@ -96,7 +100,7 @@ contains
 
    function new_FieldSpec_geom(geom, vertical_geom, vertical_dim, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        default_value) result(field_spec)
+        attributes, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       type(ESMF_Geom), intent(in) :: geom
@@ -108,6 +112,9 @@ contains
       character(*), intent(in) :: standard_name
       character(*), intent(in) :: long_name
       character(*), intent(in) :: units
+      type(StringVector), intent(in) :: attributes
+
+      ! optional args last
       real, optional, intent(in) :: default_value
 
       field_spec%geom = geom
@@ -120,21 +127,22 @@ contains
       field_spec%long_name = long_name
       field_spec%units = units
 
+      field_spec%attributes=attributes
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
 
 
-!!$   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
-!!$      type(FieldSpec) :: field_spec
-!!$      type(ExtraDimsSpec), intent(in) :: ungridded_dims
-!!$      type(ESMF_Geom), intent(in) :: geom
-!!$      character(*), intent(in) :: units
-!!$      
-!!$      field_spec = FieldSpec(ungridded_dims, ESMF_TYPEKIND_R4, geom, units)
-!!$      
-!!$   end function new_FieldSpec_defaults
-!!$
+!#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
+!#      type(FieldSpec) :: field_spec
+!#      type(ExtraDimsSpec), intent(in) :: ungridded_dims
+!#      type(ESMF_Geom), intent(in) :: geom
+!#      character(*), intent(in) :: units
+!#      
+!#      field_spec = FieldSpec(ungridded_dims, ESMF_TYPEKIND_R4, geom, units)
+!#      
+!#   end function new_FieldSpec_defaults
+!#
 
    subroutine create(this, dependency_specs, rc)
       class(FieldSpec), intent(inout) :: this
@@ -356,14 +364,35 @@ contains
          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
-!!$              can_convert_units(this, src_spec) &
-              this%ungridded_dims == src_spec%ungridded_dims & !, &
-!!$              this%units == src_spec%units & ! units are required for fields
+!#              can_convert_units(this, src_spec) &
+              this%ungridded_dims == src_spec%ungridded_dims, & 
+              includes(this%attributes, src_spec%attributes) & !, &
+!#              this%units == src_spec%units & ! units are required for fields
               ])
       class default
          can_connect_to = .false.
       end select
+   contains
 
+      logical function includes(mandatory, provided)
+         type(StringVector), target, intent(in) :: mandatory
+         type(StringVector), target, intent(in) :: provided
+
+         integer :: i, j
+         character(:), pointer :: attribute_name
+
+         m: do i = 1, mandatory%size()
+            attribute_name => mandatory%of(i)
+            p: do j = 1, provided%size()
+               if (attribute_name == provided%of(j)) cycle m
+            end do p
+            ! ith not found
+            includes = .false.
+            return
+         end do m
+
+         includes = .true.
+      end function includes
    end function can_connect_to
 
 
@@ -440,9 +469,9 @@ contains
       cost = 0
       select type (src_spec)
       type is (FieldSpec)
-!!$         cost = cost + get_cost(this%geom, src_spec%geom)
+         cost = cost + get_cost(this%geom, src_spec%geom)
          cost = cost + get_cost(this%typekind, src_spec%typekind)
-!!$         cost = cost + get_cost(this%units, src_spec%units)
+!#         cost = cost + get_cost(this%units, src_spec%units)
       class default
          _FAIL('Cannot extend to this StateItemSpec subclass.')
       end select
@@ -478,11 +507,11 @@ contains
       logical :: found
 
       extension = this
-!!$      if (update_item(extension%geom, src_spec%geom)) return
+      if (update_item(extension%geom, src_spec%geom)) return
       if (update_item(extension%typekind, src_spec%typekind)) then
          return
       end if
-!!$      if (update_item(extension%units, src_spec%units)) return
+!#      if (update_item(extension%units, src_spec%units)) return
 
     end function make_extension_safely
 
@@ -501,10 +530,11 @@ contains
       select type (dst_spec)
       type is (FieldSpec)
 
-!!$         if (this%geom /= dst_spec%geom) then
-!!$            action = RegridAction(this%payload, spec%payload)
-!!$            _RETURN(_SUCCESS)
-!!$         end if
+         if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
+            deallocate(action)
+            action = RegridAction(this%geom, this%payload, dst_spec%geom, dst_spec%payload)
+            _RETURN(_SUCCESS)
+         end if
 
          if (this%typekind /= dst_spec%typekind) then
             deallocate(action)
@@ -512,10 +542,10 @@ contains
             _RETURN(_SUCCESS)
          end if
          
-!!$         if (this%units /= dst_spec%units) then
-!!$            action = ChangeUnitsAction(this%payload, dst_spec%payload)
-!!$            _RETURN(_SUCCESS)
-!!$         end if
+!#         if (this%units /= dst_spec%units) then
+!#            action = ChangeUnitsAction(this%payload, dst_spec%payload)
+!#            _RETURN(_SUCCESS)
+!#         end if
          
       class default
          action = NullAction()
@@ -525,16 +555,19 @@ contains
       _RETURN(_SUCCESS)
    end function make_action
 
-!!$   logical function match_geom(a, b) result(match)
-!!$      type(ESMF_Geom), allocatable, intent(in) :: a, b
-!!$      match = .true.
-!!$      if (allocated(a) .and. allocated(b)) then
-!!$         call ESMF_GeomGet(a, geomtype=geomtype_a, _RC)
-!!$         call ESMF_GeomGet(b, geomtype=geomtype_b, _RC)
-!!$         match = (a == b)
-!!$      end if
-!!$      _RETURN(_SUCCESS)
-!!$   end function match_geom
+   logical function match_geom(a, b) result(match)
+      type(ESMF_Geom), allocatable, intent(in) :: a, b
+
+      integer :: status
+
+      match = .false.
+
+      if (allocated(a) .and. allocated(b)) then
+         match = MAPL_SameGeom(a, b)
+      end if
+
+
+   end function match_geom
 
    logical function match_typekind(a, b) result(match)
       type(ESMF_TypeKind_Flag), intent(in) :: a, b
@@ -555,11 +588,11 @@ contains
       end if
    end function match_string
 
-!!$   integer function get_cost_geom(a, b) result(cost)
-!!$      type(ESMF_GEOM), allocatable, intent(in) :: a, b
-!!$      cost = 0
-!!$      if (.not. match(a, b)) cost = 1
-!!$   end function get_cost_geom
+   integer function get_cost_geom(a, b) result(cost)
+      type(ESMF_GEOM), allocatable, intent(in) :: a, b
+      cost = 0
+      if (.not. match(a, b)) cost = 1
+   end function get_cost_geom
 
    integer function get_cost_typekind(a, b) result(cost)
       type(ESMF_TypeKind_Flag), intent(in) :: a, b
@@ -573,16 +606,16 @@ contains
       if (.not. match(a,b)) cost = 1
    end function get_cost_string
 
-!!$   logical function update_item_geom(a, b)
-!!$      type(ESMF_GEOM), allocatable, intent(inout) :: a
-!!$      type(ESMF_GEOM), allocatable, intent(in) :: b
-!!$
-!!$      update_item_geom = .false.
-!!$      if (.not. match(a, b)) then
-!!$         a = b
-!!$         update_item_geom = .true.
-!!$      end if
-!!$   end function update_item_geom
+   logical function update_item_geom(a, b)
+      type(ESMF_GEOM), allocatable, intent(inout) :: a
+      type(ESMF_GEOM), allocatable, intent(in) :: b
+
+      update_item_geom = .false.
+      if (.not. match(a, b)) then
+         a = b
+         update_item_geom = .true.
+      end if
+   end function update_item_geom
 
    logical function update_item_typekind(a, b)
       type(ESMF_TypeKind_Flag), intent(inout) :: a

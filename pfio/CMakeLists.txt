@@ -119,13 +119,6 @@ endif ()
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 
-# We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
-# interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
-if (DUSTY)
-  set_property( SOURCE DirectoryService.F90 MultiCommServer.F90 MultiGroupServer.F90 MultiLayerServer.F90 pfio_writer.F90
-                PROPERTY COMPILE_FLAGS ${DUSTY})
-endif ()
-
 target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
@@ -139,6 +132,10 @@ set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${t
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
+
+if (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+  target_compile_definitions(${this} PRIVATE SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+endif ()
 
 ecbuild_add_executable (
    TARGET pfio_open_close.x
@@ -186,6 +183,6 @@ endif ()
 
 
 # Unit testing
-#if (PFUNIT_FOUND)
-  #add_subdirectory(tests EXCLUDE_FROM_ALL)
-#endif ()
+if (PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()

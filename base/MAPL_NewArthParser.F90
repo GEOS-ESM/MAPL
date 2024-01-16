@@ -637,7 +637,7 @@ CONTAINS
     CHARACTER (LEN=*),               INTENT(in) :: str       ! String
     INTEGER,                        INTENT(out) :: ibegin, & ! Start position of variable name
                                                    inext     ! Position of character after name
-    INTEGER                                     :: j,ib,in,lstr
+    INTEGER                                     :: ib,in,lstr
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     lstr = LEN_TRIM(str)
     IF (lstr > 0) THEN

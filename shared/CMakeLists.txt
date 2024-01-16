@@ -2,7 +2,7 @@ esma_set_this (OVERRIDE MAPL.shared)
 
 set (srcs
     hash.c
-    hinterp.F
+    hinterp.F90
     MAPL_DirPath.F90
     ErrorHandling.F90
     MAPL_Hash.F90
@@ -28,6 +28,7 @@ set (srcs
     DownBit.F90
     ShaveMantissa.c
     MAPL_Sleep.F90
+    MAPL_CF_Time.F90
 # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90

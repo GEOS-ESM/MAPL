@@ -2,7 +2,6 @@
 #include "unused_dummy.H"
 
 module pFIO_ShmemReferenceMod
-   use, intrinsic :: iso_c_binding, only: c_ptr
    use, intrinsic :: iso_fortran_env, only: INT64
    use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
@@ -73,7 +72,7 @@ contains
 
       if(allocated(buffer)) deallocate(buffer)
       allocate(buffer(this%get_length()))
-      
+
       call this%serialize_base(tmp_buff, rc=status)
       _VERIFY(status)
       n = this%get_length_base()
@@ -103,7 +102,7 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end subroutine deserialize
-      
+
    subroutine allocate(this, rc)
       class (ShmemReference), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -111,22 +110,36 @@ contains
       integer(kind=MPI_ADDRESS_KIND) :: windowsize
       integer :: disp_unit,ierr, InNode_Rank
       integer(kind=MPI_ADDRESS_KIND) :: n_bytes
+#if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+      integer(kind=MPI_ADDRESS_KIND) :: baseaddr
+#endif
 
       n_bytes =  this%msize_word * 4_MPI_ADDRESS_KIND
 
       call MPI_Comm_rank(this%InNode_Comm,InNode_Rank,ierr)
 
       disp_unit  = 1
-      windowsize = 0_MPI_ADDRESS_KIND  
+      windowsize = 0_MPI_ADDRESS_KIND
       if (InNode_Rank == 0) windowsize = n_bytes
-   
+
+#if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       call MPI_Win_allocate_shared(windowsize, disp_unit, MPI_INFO_NULL, this%InNode_Comm, &
                this%base_address, this%win, ierr)
+#else
+      call MPI_Win_allocate_shared(windowsize, disp_unit, MPI_INFO_NULL, this%InNode_Comm, &
+               baseaddr, this%win, ierr)
+      this%base_address = transfer(baseaddr, this%base_address)
+#endif
 
       if (InNode_Rank /= 0)  then
+#if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
           call MPI_Win_shared_query(this%win, 0, windowsize, disp_unit, this%base_address,ierr)
+#else
+          call MPI_Win_shared_query(this%win, 0, windowsize, disp_unit, baseaddr,ierr)
+          this%base_address = transfer(baseaddr, this%base_address)
+#endif
       endif
-     
+
       this%shmem_allocated = .true.
       _RETURN(_SUCCESS)
    end subroutine allocate

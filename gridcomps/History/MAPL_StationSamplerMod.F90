@@ -24,6 +24,7 @@ module StationSamplerMod
      integer                  :: nstation
      integer, allocatable :: station_id(:)
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
+     character(len=ESMF_MAXSTR), allocatable :: station_fullname(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: elevs(:)
@@ -49,36 +50,51 @@ module StationSamplerMod
 
 contains
 
-  function new_StationSampler_readfile (filename,rc) result(sampler)
+  function new_StationSampler_readfile (filename,nskip_line, rc) result(sampler)
     use pflogger, only             :  Logger, logging
     implicit none
     type(StationSampler)           :: sampler
     character(len=*), intent(in)   :: filename
+    integer, optional, intent(in) :: nskip_line
     integer, optional, intent(out) :: rc
 
-    character(len=40) :: str, sdmy, shms
     integer :: unit, ios, nstation, status
-    integer :: i, j, id, ncount
-    real    :: x, y, z
+    integer :: i, j, k, ncount
     logical :: con1, con2
     character (len=1)     :: CH1
     character (len=5)     :: seq
-    character (len=100)   :: line
+    character (len=100)   :: line, line2
+    integer               :: nskip
     type(Logger), pointer :: lgr
 
     !__ 1. read from station_id_file: static
     !      plain text format:
-    !      [name,lat,lon,elev] or [id,name,lat,lon,elev]
+    !      ["name,lat,lon,elev"] or ["id,name,lat,lon,elev"]
+    !      ["name_short lat lon elev name_full"]
     !
+
     open(newunit=unit, file=trim(filename), form='formatted', &
          access='sequential', status='old', _IOSTAT)
     ios=0
     nstation=0
+    nskip=0
+    if (present(nskip_line)) then
+       nskip=nskip_line
+    end if
+    if (nskip>0) then
+       do i=1, nskip
+          read(unit, *)
+       end do
+    end if
     read(unit, '(a100)', IOSTAT=ios) line
     call count_substring(line, ',', ncount)
-    con1= ncount.GE.3 .AND. ncount.LE.4
+    con1= (ncount>=2 .AND. ncount<=4).OR.(ncount==0)
     _ASSERT(con1, 'string sequence in Aeronet file not supported')
-    if (ncount==3) then
+    if (ncount==0) then
+       seq='AFFFA'
+    elseif (ncount==2) then
+       seq='AFF'
+    elseif (ncount==3) then
        seq='AFFF'
     elseif (ncount==4) then
        CH1=line(1:1)
@@ -96,6 +112,11 @@ contains
     end if
 
     rewind(unit)
+    if (nskip>0) then
+       do i=1, nskip
+          read(unit, *)
+       end do
+    end if
     ios=0
     do while (ios==0)
        read(unit, '(a100)', IOSTAT=ios) line
@@ -104,10 +125,17 @@ contains
     sampler%nstation=nstation
     allocate(sampler%station_id(nstation))
     allocate(sampler%station_name(nstation))
+    allocate(sampler%station_fullname(nstation))
     allocate(sampler%lons(nstation))
     allocate(sampler%lats(nstation))
     allocate(sampler%elevs(nstation))
+
     rewind(unit)
+    if (nskip>0) then
+       do i=1, nskip
+          read(unit, *)
+       end do
+    end if
     do i=1, nstation
        if(seq=='IAFFF') then
           read(unit, *) &
@@ -121,12 +149,41 @@ contains
                sampler%station_id(i), &
                sampler%lats(i), &
                sampler%lons(i)
-       elseif(trim(seq)=='AFFF') then
+       elseif(trim(seq)=='AFF' .OR. trim(seq)=='AFFF') then
           read(unit, *) &
                sampler%station_name(i), &
                sampler%lats(i), &
                sampler%lons(i)
-               sampler%station_id(i)=i
+          sampler%station_id(i)=i
+       elseif(trim(seq)=='AFFFA') then
+       ! Ex: 'ZI000067991 -22.2170   30.0000  457.0 BEITBRIDGE 67991'
+          read(unit, *) &
+               sampler%station_name(i), &
+               sampler%lats(i), &
+               sampler%lons(i)
+          sampler%station_id(i)=i
+          backspace(unit)
+          read(unit, '(a100)', IOSTAT=ios) line
+          j=index(line, '.', BACK=.true.)
+          line2=line(j+1:)
+          k=len(line2)
+          line=''
+          do j=1, k
+             CH1=line2(j:j)
+             con1= (CH1>='a'.AND.CH1<='z').OR.(CH1>='A'.AND.CH1<='Z')
+             if (con1) exit
+          enddo
+          read(line2(j:k), '(a100)') line
+          line2=trim(line)
+          k=len(line2)
+          line=''
+          do j=1, k
+             CH1=line2(j:j)
+             con1= (CH1>='0' .AND. CH1<='9')
+             if (con1) exit
+          enddo
+          if (j>k) j=k
+          sampler%station_fullname(i) = trim(line2(1:j-1))
        end if
     end do
     close(unit)
@@ -151,6 +208,7 @@ contains
     _RETURN(_SUCCESS)
   end function new_StationSampler_readfile
 
+
   subroutine add_metadata_route_handle (this,bundle,timeInfo,vdata,rc)
     class(StationSampler),  intent(inout)       :: this
     type(ESMF_FieldBundle), intent(in)          :: bundle
@@ -160,10 +218,8 @@ contains
 
     type(variable)   :: v
     type(ESMF_Grid)  :: grid
-    type(ESMF_Clock) :: clock
     type(ESMF_Field) :: field
     integer          :: fieldCount
-    integer          :: fieldCount_max = 1000
     integer          :: field_rank
     integer          :: nstation
     logical          :: is_present
@@ -212,6 +268,7 @@ contains
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
 
+
     !__ 2. filemetadata: extract field from bundle, add_variable
     !
     call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
@@ -251,13 +308,16 @@ contains
     end do
     deallocate (fieldNameList)
 
+
     !__ 3. locstream route handle
     !
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     this%regridder = LocStreamRegridder(grid,this%esmf_ls,_RC)
 
+
     _RETURN(_SUCCESS)
   end subroutine add_metadata_route_handle
+
 
   subroutine append_file(this,current_time,rc)
     class(StationSampler), intent(inout) :: this
@@ -268,14 +328,13 @@ contains
     integer :: fieldCount
     integer :: ub(1), lb(1)
     type(ESMF_Field) :: src_field,dst_field
-    real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
     real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
     real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
     real(kind=REAL32), allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: xname
     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
-    integer :: i, id, iobs, ix, rank
+    integer :: i, rank
     integer :: nx, nz
 
     this%obs_written=this%obs_written+1
@@ -383,7 +442,7 @@ contains
     type(ESMF_Time), intent(in) :: current_time
     integer, optional, intent(out) :: rc
     real(ESMF_KIND_R8), allocatable :: rtimes(:)
-    integer :: i,status
+    integer :: status
     type(ESMF_TimeInterval) :: tint
     type(ESMF_Time) :: file_start_time
     character(len=ESMF_MAXSTR) :: tunit
@@ -510,7 +569,7 @@ contains
     character (len=*), intent(in) :: str
     character (len=*), intent(in) :: t
     integer, intent(out) :: ncount
-    integer :: i, j, k, lt
+    integer :: i, k, lt
     ncount=0
     k=1
     lt = len(t) - 1

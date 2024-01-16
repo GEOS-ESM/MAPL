@@ -44,6 +44,7 @@ contains
       call ESMF_InfoGetFromHost(geom, info, _RC)
       call ESMF_InfoGet(info, ID_INFO_KEY, id, default=NOT_FOUND, _RC)
       if (present(isPresent)) isPresent = (id /= NOT_FOUND)
+
       
       _RETURN(_SUCCESS)
    end function MAPL_GeomGetId

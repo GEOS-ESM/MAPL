@@ -16,12 +16,12 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.14.0
-bcs_version: &bcs_version v11.1.0
+baselibs_version: &baselibs_version v7.17.0
+bcs_version: &bcs_version v11.3.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@1
+  ci: geos-esm/circleci-tools@2
 
 workflows:
   build-and-test:
@@ -35,7 +35,7 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
-              cmake_generator: ['Unix Makefiles']
+              cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -61,7 +61,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran]
-              cmake_generator: ['Unix Makefiles']
+              cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -226,7 +226,7 @@ workflows:
     when:
       equal: [ "release", << pipeline.parameters.GHA_Event >> ]
     jobs:
-      - ci/publish-docker:
+      - ci/publish_docker:
           filters:
             tags:
               only: /^v.*$/
@@ -243,7 +243,7 @@ workflows:
           compiler_version: 2022.1.0
           image_name: geos-env
           tag_build_arg_name: *tag_build_arg_name
-      - ci/publish-docker:
+      - ci/publish_docker:
           filters:
             tags:
               only: /^v.*$/
@@ -255,7 +255,7 @@ workflows:
           baselibs_version: *baselibs_version
           container_name: mapl
           mpi_name: openmpi
-          mpi_version: 4.1.4
+          mpi_version: 5.0.0
           compiler_name: gcc
           compiler_version: 12.1.0
           image_name: geos-env-mkl

@@ -28,6 +28,7 @@
 !
    USE ESMF
    use gFTL_StringVector
+   use pfio_StringVectorUtilMod
    use gFTL_IntegerVector
    use MAPL_BaseMod
    use MAPL_CommsMod
@@ -52,6 +53,7 @@
    use MAPL_DataCollectionManagerMod
    use MAPL_FileMetadataUtilsMod
    use pFIO_ClientManagerMod, only : i_Clients
+   use pFIO_VariableMod
    use MAPL_GriddedIOItemMod
    use MAPL_GriddedIOItemVectorMod
    use MAPL_ExtDataConfig
@@ -230,9 +232,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout) :: GC      !! Grid Component
    type(ESMF_State), intent(inout)    :: IMPORT  !! Import State
    type(ESMF_State), intent(inout)    :: EXPORT  !! Export State
-   integer, intent(out)               :: rc      !! Error return code:   
-                                                 !!  0 - all is well      
-                                                 !!  1 -   
+   integer, intent(out)               :: rc      !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 
 !-------------------------------------------------------------------------
 
@@ -256,12 +258,12 @@ CONTAINS
    integer           :: idx
    type(MAPL_MetaComp),pointer :: MAPLSTATE
 
-   type(ExtDataOldTypesCreator),target :: config_yaml
+   type(ExtDataOldTypesCreator), target :: config_yaml
    character(len=ESMF_MAXSTR) :: new_rc_file
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
    integer :: item_type
-   type(StringVector) :: unsatisfied_imports,extra_variables_needed
+   type(StringVector), target :: unsatisfied_imports,extra_variables_needed
    type(StringVectorIterator) :: siter
    character(len=:), pointer :: current_base_name,extra_var
    character(len=:), allocatable :: primary_var_name,derived_var_name
@@ -308,7 +310,7 @@ CONTAINS
        _RETURN(ESMF_SUCCESS)
     end if
 
-    config_yaml = ExtDataOldTypesCreator(new_rc_file,time,_RC)
+    call new_ExtDataOldTypesCreator(config_yaml, new_rc_file, time, _RC)
 
     allocate(ITEMNAMES(ITEMCOUNT), STAT=STATUS)
     _VERIFY(STATUS)
@@ -387,14 +389,16 @@ CONTAINS
          do j=1,num_rules
             num_primary=num_primary+1
             write(sidx,'(I1)')j
-            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,self%primary%item(num_primary),time,clock,_RC)
+            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,self%primary%item(num_primary),time,clock,rc=status)
+            _ASSERT(status==0, "ExtData multi-rule problem with BASE NAME "//TRIM(current_base_name))
             allocate(self%primary%item(num_primary)%start_end_time(2))
             self%primary%item(num_primary)%start_end_time(1)=time_ranges(j)
             self%primary%item(num_primary)%start_end_time(2)=time_ranges(j+1)
          enddo
       else
          num_primary=num_primary+1
-         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,_RC)
+         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,rc=status)
+         _ASSERT(status==0, "ExtData single-rule problem with BASE NAME "//TRIM(current_base_name))
       end if
       call ESMF_StateGet(Export,current_base_name,state_item_type,_RC)
       if (state_item_type /= ESMF_STATEITEM_NOTFOUND) then
@@ -481,9 +485,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, intent(out) ::  rc                   !! Error return code:   
-                                                 !!  0 - all is well   
-                                                 !!  1 -   
+   integer, intent(out) ::  rc                   !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 
 !-------------------------------------------------------------------------
 
@@ -598,7 +602,7 @@ CONTAINS
 
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IoBundles%end())
-      io_bundle => bundle_iter%get()
+      io_bundle => bundle_iter%of()
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       file_Processed = io_bundle%file_name
@@ -639,7 +643,7 @@ CONTAINS
 
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IOBundles%end())
-      io_bundle => bundle_iter%get()
+      io_bundle => bundle_iter%of()
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       item => self%primary%item(entry_num)
@@ -721,9 +725,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, intent(out) ::  rc                   !! Error return code:   
-                                                 !!  0 - all is well   
-                                                 !!  1 -   
+   integer, intent(out) ::  rc                   !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 
 !-------------------------------------------------------------------------
 
@@ -1346,7 +1350,7 @@ CONTAINS
 
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
-        io_bundle => bundle_iter%get()
+        io_bundle => bundle_iter%of()
         call io_bundle%make_io(_RC)
         call bundle_iter%next()
      enddo
@@ -1365,7 +1369,7 @@ CONTAINS
 
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
-        io_bundle => bundle_iter%get()
+        io_bundle => bundle_iter%of()
         call io_bundle%clean(_RC)
         call bundle_iter%next
      enddo
@@ -1448,8 +1452,8 @@ CONTAINS
 
 
   subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,rc)
-     type(IOBundleNGVector), intent(inout) :: IOBundles
-     type(primaryExport), intent(inout)        :: item
+     type(IOBundleNGVector), target, intent(inout) :: IOBundles
+     type(primaryExport), target, intent(inout)  :: item
      integer, intent(in)                    :: entry_num
      integer, intent(out), optional         :: rc
 
@@ -1746,7 +1750,6 @@ CONTAINS
      character(len=*),intent(in) :: base_name
      integer, optional, intent(out) :: rc
 
-     integer :: status
      character(len=:), pointer :: cname
      integer :: i
      integer, pointer :: num_rules,i_start
@@ -1762,7 +1765,7 @@ CONTAINS
            exit
         end if
      enddo
-     _ASSERT(found,"no item with that basename found")
+     _ASSERT(found,"ExtData no item with basename '"//TRIM(base_name)//"' found")
 
      item_index = -1
      if (num_rules == 1) then
@@ -1776,7 +1779,7 @@ CONTAINS
            endif
         enddo
      end if
-     _ASSERT(item_index/=-1,"did not find item")
+     _ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
      _RETURN(_SUCCESS)
   end function get_item_index
 

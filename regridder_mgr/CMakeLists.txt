@@ -38,6 +38,6 @@ target_include_directories (${this} PUBLIC
 target_link_libraries (${this} PUBLIC esmf)
 
 if (PFUNIT_FOUND)
-#  add_subdirectory(tests EXCLUDE_FROM_ALL)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 

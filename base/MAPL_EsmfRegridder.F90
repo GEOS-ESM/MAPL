@@ -10,7 +10,7 @@ module MAPL_EsmfRegridderMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridManagerMod
-   use MAPL_BaseMod, only: MAPL_undef, MAPL_GridGet, MAPL_GridHasDE
+   use MAPL_BaseMod, only: MAPL_undef, MAPL_GridHasDE
    use MAPL_RegridderSpecRouteHandleMap
    implicit none
    private
@@ -53,6 +53,8 @@ module MAPL_EsmfRegridderMod
       procedure :: do_regrid
       procedure :: create_route_handle
       procedure :: select_route_handle
+      procedure :: destroy
+      procedure :: destroy_route_handle
  
    end type EsmfRegridder
 
@@ -441,8 +443,6 @@ contains
       type (ESMF_Field) :: src_field, dst_field
 
       integer :: km,kin,kout
-      integer :: im_src, jm_src
-      integer :: im_dst, jm_dst
       logical :: hasDE
       type(ESMF_VM) :: vm
 
@@ -452,12 +452,6 @@ contains
 
       km = size(q_in,3)
       _ASSERT(km == size(q_out,3),'inconsistent array shape')
-
-      im_src = size(q_in,1)
-      jm_src = size(q_in,2)
-
-      im_dst = size(q_out,1)
-      jm_dst = size(q_out,2)
 
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
@@ -1367,7 +1361,6 @@ contains
    subroutine initialize_subclass(this, unusable, rc)
      use MAPL_KeywordEnforcerMod
      use MAPL_RegridderSpec
-     use MAPL_BaseMod, only: MAPL_grid_interior
      class (EsmfRegridder), intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc
@@ -1611,5 +1604,55 @@ contains
      _RETURN(_SUCCESS)
 
    end function select_route_handle
+
+   subroutine destroy(this, rc)
+      class(EsmfRegridder), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call this%destroy_route_handle(ESMF_TYPEKIND_R4, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+
+   subroutine destroy_route_handle(this, kind, rc)
+      class(EsmfRegridder), intent(inout) :: this
+      type(ESMF_TypeKind_Flag), intent(in) :: kind
+      integer, optional, intent(out) :: rc
+
+     type (RegridderSpec) :: spec
+     type(ESMF_RouteHandle) :: dummy_rh
+     type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
+     type(ESMF_RouteHandle) :: route_handle
+     type(RegridderSpecRouteHandleMapIterator) :: iter
+     integer :: status
+
+     if (kind == ESMF_TYPEKIND_R4) then
+        route_handles => route_handles_r4
+        transpose_route_handles => transpose_route_handles_r4
+     else if(kind == ESMF_TYPEKIND_R8) then
+        route_handles => route_handles_r8
+        transpose_route_handles => transpose_route_handles_r8
+     else
+        _FAIL('unsupported type kind (must be R4 or R8)')
+     end if
+
+     spec = this%get_spec()
+
+     _ASSERT(route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+     route_handle = route_handles%at(spec)
+     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.,_RC)
+     iter = route_handles%find(spec)
+     call route_handles%erase(iter)
+
+     _ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+     route_handle = transpose_route_handles%at(spec)
+     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true., _RC)
+     iter = transpose_route_handles%find(spec)
+     call transpose_route_handles%erase(iter)
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy_route_handle
 
 end module MAPL_EsmfRegridderMod

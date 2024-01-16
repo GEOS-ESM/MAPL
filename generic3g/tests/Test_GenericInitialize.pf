@@ -10,6 +10,7 @@ module Test_GenericInitialize
    use mapl3g_StateSpec
    use mapl3g_FieldSpec
    use mapl3g_VerticalGeom
+   use gftl2_stringvector
    implicit none
 contains
 
@@ -27,7 +28,8 @@ contains
       type(VerticalGeom) :: vertical_geom
       type(VerticalDimSpec) :: vertical_dim_spec
 
-      field_spec = FieldSpec(geom, vertical_geom, vertical_dim_spec, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown')
+      field_spec = FieldSpec(geom, vertical_geom, vertical_dim_spec, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), &
+           '', '', 'unknown', StringVector())
       field = builder%make_field('A', field_spec, rc=status)
       @assert_that(status, is(0))
 

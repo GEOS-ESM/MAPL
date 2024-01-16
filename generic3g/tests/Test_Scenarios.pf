@@ -12,7 +12,7 @@ module Test_Scenarios
    use mapl3g_GenericPhases
    use mapl3g_MultiState
    use mapl3g_OuterMetaComponent
-   use mapl3g_ChildComponent
+   use mapl3g_GriddedComponentDriver
    use mapl3g_GenericGridComp, generic_setservices => setservices
    use mapl3g_UserSetServices
    use mapl3g_ESMF_Utilities
@@ -131,7 +131,8 @@ contains
               ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), & 
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem),  &
-              ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem) &
+              ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('regrid',                  'cap.yaml',      check_name, check_stateitem) &
 
       ]
       end function add_params
@@ -160,8 +161,6 @@ contains
         outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, _RC)
         call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
-        grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
-        call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
         vertical_geom = VerticalGeom(4)
         call MAPL_GridCompSetVerticalGeom(outer_gc,vertical_geom,_RC)
 
@@ -198,10 +197,10 @@ contains
 
       integer :: status
 
-!!$      call ESMF_GridCompDestroy(this%outer_gc, _RC)
+!#      call ESMF_GridCompDestroy(this%outer_gc, _RC)
 
-!!$      call ESMF_StateDestroy(this%outer_states%importState,_RC)
-!!$      call ESMF_StateDestroy(this%outer_states%exportState, _RC)
+!#      call ESMF_StateDestroy(this%outer_states%importState,_RC)
+!#      call ESMF_StateDestroy(this%outer_states%exportState, _RC)
       
    end subroutine teardown
 
@@ -223,7 +222,6 @@ contains
      components: do i = 1, ESMF_HConfigGetSize(this%expectations)
 
          comp_expectations = ESMF_HConfigCreateAt(this%expectations,index=i,_RC)
-
          comp_path = ESMF_HConfigAsString(comp_expectations,keyString='component',_RC)
          call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
 
@@ -589,6 +587,7 @@ contains
 
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)
+      use mapl3g_GriddedComponentDriver
       type(ESMF_GridComp), target, intent(inout) :: gc
       type(MultiState), intent(in) :: states
       character(*), intent(in) :: component_path
@@ -597,10 +596,11 @@ contains
 
       integer :: status
       character(:), allocatable :: child_name
-      type(ChildComponent) :: child
+      type(GriddedComponentDriver) :: child
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: idx
+      type(GriddedComponentDriver), pointer :: user_component
 
       rc = 0
 
@@ -617,14 +617,15 @@ contains
       child_name = component_path(:idx-1)
       
       if (child_name == '<user>') then
-         substates = outer_meta%get_user_states()
+         user_component => outer_meta%get_user_component()
+         substates = user_component%get_states()
          return
       end if
 
       ! Otherwise drill down 1 level.
       child = outer_meta%get_child(child_name, _RC)
 
-      child_gc = child%get_outer_gridcomp()
+      child_gc = child%get_gridcomp()
 
       call get_substates(child_gc, child%get_states(), component_path(idx+1:), &
            substates, _RC)

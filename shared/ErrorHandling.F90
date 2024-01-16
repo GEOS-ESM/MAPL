@@ -58,12 +58,12 @@ module mapl_ErrorHandling
       module procedure MAPL_VRFY
       module procedure MAPL_VRFYt
    end interface MAPL_VRFY
-   
+
    interface MAPL_ASRT
       module procedure MAPL_ASRT
       module procedure MAPL_ASRTt
    end interface MAPL_ASRT
-   
+
    interface MAPL_RTRN
       module procedure MAPL_RTRN
       module procedure MAPL_RTRNt
@@ -100,7 +100,7 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc ! Not present in MAIN
       character(:), allocatable :: message
-      
+
       fail = .not. condition
 
       if (fail) then
@@ -135,10 +135,10 @@ contains
          !$omp end critical (MAPL_ErrorHandling3)
          if (present(rc)) rc = status
       end if
-      
+
    end function MAPL_Verify
 
-   subroutine MAPL_Return(status, filename, line, rc) 
+   subroutine MAPL_Return(status, filename, line, rc)
       integer, intent(in) :: status
       character(*), intent(in) :: filename
       integer, intent(in) :: line
@@ -157,8 +157,8 @@ contains
          !$omp end critical (MAPL_ErrorHandling4)
       end if
       ! Regardless of error:
-      if (present(rc)) rc = status 
-      
+      if (present(rc)) rc = status
+
    end subroutine MAPL_Return
 
    subroutine MAPL_Deprecated(file_name, module_name, procedure_name, rc)
@@ -191,11 +191,11 @@ contains
 
       FAIL_ON_DEPRECATED = flag_
    end subroutine MAPL_SetFailOnDeprecated
-      
+
 
    logical function MAPL_RTRN(A,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
 
@@ -208,7 +208,7 @@ contains
 
    logical function MAPL_VRFY(A,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_VRFY = A/=0
@@ -224,7 +224,7 @@ contains
 
    logical function MAPL_ASRT(A,iam,line,rc)
       logical,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_ASRT = .not.A
@@ -236,11 +236,11 @@ contains
             RC=1
           endif
         endif
-   end function MAPL_ASRT   
+   end function MAPL_ASRT
 
    logical function MAPL_ASRTt(A,text,iam,line,rc)
       logical,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam,text
+      character(len=*),  intent(IN ) :: iam,text
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_ASRTt =   MAPL_ASRT(A,iam,line,rc)
@@ -251,7 +251,7 @@ contains
 
    logical function MAPL_RTRNt(A,text,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: text,iam
+      character(len=*),  intent(IN ) :: text,iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
 
@@ -268,7 +268,7 @@ contains
 
    logical function MAPL_VRFYt(A,text,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam,text
+      character(len=*),  intent(IN ) :: iam,text
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_VRFYt =  MAPL_VRFY(A,iam,line,rc)
@@ -277,9 +277,9 @@ contains
         !$omp end critical (MAPL_ErrorHandling10)
    end function MAPL_VRFYT
 
-   subroutine MAPL_abort
+   subroutine MAPL_abort()
       integer :: status
-      integer :: error_code
+      integer :: error_code = -1
       call MPI_Abort(MPI_COMM_WORLD,error_code,status)
   end subroutine MAPL_abort
 

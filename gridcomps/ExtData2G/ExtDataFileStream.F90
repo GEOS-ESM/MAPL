@@ -10,6 +10,7 @@ module MAPL_ExtDataFileStream
    use MAPL_DataCollectionManagerMod
    use MAPL_FileMetadataUtilsMod
    use MAPL_StringTemplate
+   use pfio_FileMetadataMod
    implicit none
    private
 
@@ -187,6 +188,9 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+
+      _UNUSED_DUMMY(metadata_out)
+      _UNUSED_DUMMY(time)
 
    end subroutine detect_metadata
 

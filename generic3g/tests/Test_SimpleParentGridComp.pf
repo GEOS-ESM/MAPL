@@ -4,10 +4,11 @@ module Test_SimpleParentGridComp
    use mapl3g_UserSetServices
    use mapl3g_GenericGridComp, only: create_grid_comp
    use mapl3g_GenericGridComp, only: setServices
-   use mapl3g_ChildComponent
+   use mapl3g_GriddedComponentDriver
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use mapl3g_MultiState
+   use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalGeom
    use mapl_KeywordEnforcer
    use esmf
@@ -22,6 +23,8 @@ contains
    ! This macro should only be used as safety for "unexpected" exceptions.
 #define _VERIFY(status) if(status /= 0) then; rc=status;print*,'ERROR AT: ',__FILE__,__LINE__, status; return; endif
 #define _RC rc=status); _VERIFY(status
+#define _HERE print*,__FILE__,__LINE__
+
    subroutine setup(outer_gc, states, rc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
       type(MultiState), intent(out) :: states
@@ -111,7 +114,8 @@ contains
          integer :: i
          type(OuterMetaComponent), pointer :: child_meta
          type(ESMF_GridComp) :: child_gc
-         type(ChildComponent) :: child_comp
+         type(GriddedComponentDriver) :: child_comp
+         type(GriddedComponentDriver), pointer :: user_component
 
          status = 1
 
@@ -121,9 +125,10 @@ contains
             return
          end if
          
-         child_gc = child_comp%get_outer_gridcomp()
+         child_gc = child_comp%get_gridcomp()
          child_meta => get_outer_meta(child_gc)
-         states = child_meta%get_user_states()
+         user_component => child_meta%get_user_component()
+         states = user_component%get_states()
          call states%get_state(state, state_intent, rc=status)
          if (status /= 0) then
             status = 3
@@ -169,8 +174,6 @@ contains
       @assert_that(status, is(0))
       call get_field(f, states, state_intent='export', field_name='E_A1', rc=status)
       @assert_that(status, is(0))
-!!$      call get_field(f, states, state_intent='export', field_name='E_A1', rc=status)
-!!$      @assert_that(status, is(not(0)))
       call get_field(f, states, state_intent='internal', field_name='Z_A1', rc=status)
      @assert_that(status, is(0))
       
@@ -202,8 +205,8 @@ contains
          integer :: i
          type(OuterMetaComponent), pointer :: child_meta
          type(ESMF_GridComp) :: child_gc
-         type(ChildComponent) :: child_comp
-
+         type(GriddedComponentDriver) :: child_comp
+         type(GriddedComponentDriver), pointer :: user_component
          status = 1
 
          child_comp = outer_meta%get_child(child_name, rc=status)
@@ -212,9 +215,11 @@ contains
             return
          end if
          
-         child_gc = child_comp%get_outer_gridcomp()
+         child_gc = child_comp%get_gridcomp()
          child_meta => get_outer_meta(child_gc)
-         states = child_meta%get_user_states()
+         user_component => child_meta%get_user_component()
+         states = user_component%get_states()
+
          call states%get_state(state, state_intent, rc=status)
          if (status /= 0) then
             status = 3
@@ -266,10 +271,12 @@ contains
          type(MultiState) :: states
          type(ESMF_State) :: state
          integer :: itemCount
+         type(GriddedComponentDriver), pointer :: user_component
 
          status = -1
 
-         states = outer_meta%get_user_states()
+         user_component => outer_meta%get_user_component()
+         states = user_component%get_states()
          call states%get_state(state, 'import', rc=status)
          if (status /= 0) then
             status = -2
@@ -342,16 +349,17 @@ contains
    end subroutine test_parent_outer_items_created
 
    subroutine get_child_user_states(states, outer_meta, child_name, rc)
+      use mapl3g_GriddedComponentDriver
       type(MultiState), intent(out) :: states
       type(OuterMetaComponent), target, intent(in) :: outer_meta
       character(*), intent(in) :: child_name
       integer, intent(out) :: rc
 
-
       integer :: status
-      type(ChildComponent) :: child_comp
+      type(GriddedComponentDriver) :: child_comp
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: child_meta
+      type(GriddedComponentDriver), pointer :: user_component
 
       rc = +1
       child_comp = outer_meta%get_child(child_name, rc=status)
@@ -360,10 +368,10 @@ contains
          return
       end if
          
-      child_gc = child_comp%get_outer_gridcomp()
-
+      child_gc = child_comp%get_gridcomp()
       child_meta => get_outer_meta(child_gc, rc=status)
-      states = child_meta%get_user_states()
+      user_component => child_meta%get_user_component()
+      states = user_component%get_states()
 
       rc = 0
 
@@ -448,7 +456,7 @@ contains
 
          type(MultiState) :: states
          type(ESMF_State) :: state
-         type(ChildComponent) :: child_comp
+         type(GriddedComponentDriver) :: child_comp
          type(ESMF_FieldStatus_Flag) :: field_status
 
          rc = -1
@@ -481,14 +489,11 @@ contains
       type(ESMF_GridComp) :: outer_gc
 
       type(ESMF_Field) :: f
-!!$      type(OuterMetaComponent), pointer :: outer_meta
 
       type(MultiState) :: states
 
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
-!!$      outer_meta => get_outer_meta(outer_gc, rc=status)
-!!$      @assert_that(status, is(0))
 
       ! Child A import is unsatisfied, so it should propagate up
       call ESMF_StateGet(states%importState, 'child_A/I_A1', f, rc=status)

@@ -19,7 +19,7 @@ module SupportMod
    use MAPL_StringRouteHandleMapMod
    use gFTL_StringVector
    use gFTL_StringIntegerMap
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    use mpi
    implicit none
    public
@@ -287,9 +287,11 @@ contains
          associate ( ll => this%cfio_lat_lon, cs => this%cfio_cubed_sphere )
 
          variables => cs%get_variables()
-         var_iter = variables%begin()
-         do while (var_iter /= variables%end())
-            var_name => var_iter%key()
+         var_iter = variables%ftn_begin()
+         do while (var_iter /= variables%ftn_end())
+            call var_iter%next()
+
+            var_name => var_iter%first()
             select case (var_name)
                ! CS specific variables
             case ('nf', 'ncontact', 'cubed_sphere', &
@@ -301,7 +303,7 @@ contains
 
                if (keep_var(var_name, this%requested_variables)) then
 
-                  cs_variable => var_iter%value()
+                  cs_variable => var_iter%second()
 
                   cs_var_dimensions => cs_variable%get_dimensions()
                   ll_var_dimensions = make_dim_string(cs_var_dimensions)
@@ -323,7 +325,6 @@ contains
 
             end select
 
-            call var_iter%next()
          end do
 
          end associate
@@ -427,9 +428,11 @@ contains
          class (*), pointer :: a
 
          north_component = '' ! unless
-         var_iter = vars%begin()
-         do while (var_iter /= vars%end())
-            var => var_iter%value()
+         var_iter = vars%ftn_begin()
+         do while (var_iter /= vars%ftn_end())
+            call var_iter%next()
+
+            var => var_iter%second()
             attrs => var%get_attributes()
             attr => attrs%at('long_name')
 
@@ -447,11 +450,10 @@ contains
                if (idx /= 0) then
                   trial = trial(1:idx-1) // 'east' // trial(idx+5:)
                   if (trial == long_name) then ! success
-                     north_component = var_iter%key()
+                     north_component = var_iter%first()
                   end if
                end if
             end if
-            call var_iter%next()
          end do
 
       end function find_north_component
@@ -459,8 +461,6 @@ contains
       logical function keep_var(var_name, requested_vars)
          character(len=*), intent(in) :: var_name
          type (StringVector), intent(in) :: requested_vars
-
-         integer :: idx
 
          if (requested_vars%size() == 0) then
             keep_var = .true.
@@ -705,7 +705,7 @@ contains
       logical :: is_east_vector_component
       integer :: idx
       character(len=:), allocatable :: north_component
-      integer :: c0, c1,crate
+      integer(kind=INT64) :: c0, c1,crate
 
       associate (cs_fmtr => this%formatter_cubed_sphere, ll_fmtr => this%formatter_lat_lon)
       call cs_fmtr%open(this%in_file, mode=pFIO_READ, rc=status)
@@ -783,9 +783,11 @@ contains
         call ESMF_VMBarrier(global, rc=status)
       end block
       variables => this%cfio_cubed_sphere%get_variables()
-      var_iter = variables%begin()
-      do while (var_iter /= variables%end())
-         var_name => var_iter%key()
+      var_iter = variables%ftn_begin()
+      do while (var_iter /= variables%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
 
          select case (var_name)
          case ('nf', 'ncontact', 'cubed_sphere', &
@@ -799,7 +801,7 @@ contains
                print*, 'var = ', var_name
             end if
 
-            var => var_iter%value()
+            var => var_iter%second()
             missing_attr => var%get_attribute('missing_value')
             missing_ptr => missing_attr%get_values()
 
@@ -841,7 +843,6 @@ contains
             end if
 
             if (.not. (is_scalar .or. is_east_vector_component)) then
-               call var_iter%next()
                cycle
             end if
 
@@ -934,8 +935,7 @@ contains
                end do
             end do
          end select
-         call var_iter%next()
-      end do
+       end do
 
 
       call ll_fmtr%close()
@@ -951,8 +951,6 @@ contains
       integer, optional, intent(out) :: rc
       type (ESMF_VM) :: vm_global
       integer :: status
-
-      include 'mpif.h'
 
 !$$      if (local_pet == 0) then
          call this%formatter_lat_lon%create_par(this%out_file, comm=MPI_COMM_WORLD, rc=status)
@@ -1027,7 +1025,7 @@ contains
       end if
 
       nPetPerTile = pet_count/n_tiles
-      nx = nint(sqrt(float(nPetPerTile*this%Xdim)/this%Xdim))
+      nx = nint(sqrt(real(nPetPerTile*this%Xdim)/this%Xdim))
       nx = max(nx,1)
       do while( mod(nPetPerTile,nx).NE.0)
          nx = nx - 1
@@ -1108,6 +1106,7 @@ contains
       integer, allocatable :: jms(:)
       integer, allocatable :: ims(:)
       integer :: np
+      integer :: npx
 
       np = floor(sqrt(real(pet_count)))
       do npx = np, 1, -1
@@ -1194,7 +1193,7 @@ program main
    use pFIO
    implicit none
 
-   integer :: c00, c0, c1, crate
+   integer(kind=INT64) :: c00, c0, c1, crate
 
    integer :: status
    type (RegridSupport) :: regridder

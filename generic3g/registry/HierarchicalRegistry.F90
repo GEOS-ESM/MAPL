@@ -130,16 +130,6 @@ module mapl3g_HierarchicalRegistry
       end subroutine I_connect
    end interface
 
-   ! Submodule implementations
-   interface
-      module function new_HierarchicalRegistry_children(children, rc) result(registry)
-         use mapl3g_ChildComponentMap
-         type(HierarchicalRegistry) :: registry
-         type(ChildComponentMap), intent(in) :: children
-         integer, optional, intent(out) :: rc
-      end function
-   end interface
-
    character(*), parameter :: SELF = "<self>"
 
 contains

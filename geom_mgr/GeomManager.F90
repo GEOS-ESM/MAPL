@@ -8,7 +8,6 @@ module mapl3g_GeomManager
    use mapl3g_GeomFactoryVector
    use mapl3g_GeomSpecVector
    use mapl3g_IntegerMaplGeomMap
-   use mapl3g_GeomUtilities, only: MAPL_GeomSetId
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod
    use esmf
@@ -18,6 +17,7 @@ module mapl3g_GeomManager
 
    public :: GeomManager
    public :: geom_manager ! singleton
+   public :: get_geom_manager
 
    type GeomManager
       private
@@ -35,10 +35,13 @@ module mapl3g_GeomManager
       ! a unique label.  This allows other classes to support
       ! time-varying geoms by detecting when the ID has changed.
       integer :: id_counter = 0
+
    contains
 
       ! Public API
       ! ----------
+      procedure :: initialize
+      procedure :: add_factory
       procedure :: get_mapl_geom_from_hconfig
       procedure :: get_mapl_geom_from_metadata
       procedure :: get_mapl_geom_from_spec
@@ -58,6 +61,7 @@ module mapl3g_GeomManager
       generic :: make_geom_spec => &
            make_geom_spec_from_hconfig, &
            make_geom_spec_from_metadata
+
       procedure :: make_mapl_geom_from_spec
       generic :: make_mapl_geom => make_mapl_geom_from_spec
 
@@ -68,13 +72,25 @@ module mapl3g_GeomManager
    integer, parameter :: MAX_ID = 10000
 
    ! Singleton - must be initialized in mapl_init()
-   type(GeomManager) :: geom_manager
+   type(GeomManager), target, protected :: geom_manager
+
+   interface GeomManager
+      procedure new_GeomManager
+   end interface GeomManager
 
    interface
       module function new_GeomManager() result(mgr)
          type(GeomManager) :: mgr
       end function new_GeomManager
 
+      module subroutine initialize(this)
+         class(GeomManager), intent(inout) :: this
+      end subroutine
+
+      module subroutine add_factory(this, factory)
+         class(GeomManager), intent(inout) :: this
+         class(GeomFactory), intent(in) :: factory
+      end subroutine add_factory
 
       module subroutine delete_mapl_geom(this, geom_spec, rc)
          class(GeomManager), intent(inout) :: this
@@ -153,4 +169,19 @@ module mapl3g_GeomManager
          integer, optional, intent(out) :: rc
       end function get_geom_from_id
    end interface
+
+contains
+   
+   function get_geom_manager() result(geom_mgr)
+      type(GeomManager), pointer :: geom_mgr
+      logical :: init = .false.
+
+      if (.not. init) then
+         call geom_manager%initialize()
+         init = .true.
+      end if
+
+      geom_mgr => geom_manager
+   end function get_geom_manager
+
 end module mapl3g_GeomManager

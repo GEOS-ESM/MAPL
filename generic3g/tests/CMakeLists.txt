@@ -11,11 +11,11 @@ set (test_srcs
  
   Test_SimpleLeafGridComp.pf
   Test_SimpleParentGridComp.pf
-  Test_Traverse.pf
   Test_RunChild.pf
 
   Test_AddFieldSpec.pf
   Test_ComponentSpecParser.pf
+  Test_FieldSpec.pf
 
   Test_ConnectionPt.pf
   Test_FieldDictionary.pf

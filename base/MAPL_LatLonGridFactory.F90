@@ -1083,8 +1083,6 @@ contains
          character(len=*) :: label
          integer, optional, intent(out) :: rc
 
-         integer :: i
-         integer :: n
          integer :: status
          logical :: isPresent
 
@@ -1879,8 +1877,6 @@ contains
       integer :: status
       integer :: global_dim(3), i1,j1,in,jn
 
-      _UNUSED_DUMMY(this)
-
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
       _VERIFY(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
@@ -1890,6 +1886,8 @@ contains
 
       _RETURN(_SUCCESS)
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metadata)
    end subroutine generate_file_bounds
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
@@ -1916,8 +1914,8 @@ contains
       type(ArrayReference) :: ref
       class(LatLonGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
-      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
+      _UNUSED_DUMMY(this)
    end function generate_file_reference2D
 
    function generate_file_reference3D(this,fpointer,metaData) result(ref)
@@ -1926,8 +1924,10 @@ contains
       class(LatLonGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
       type(FileMetaData), intent(in), optional :: metaData
-      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metaData)
    end function generate_file_reference3D
 
 

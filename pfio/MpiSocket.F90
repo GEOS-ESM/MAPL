@@ -3,7 +3,6 @@
 
 module pFIO_MpiSocketMod
    use iso_c_binding
-   use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: INT64
    use MAPL_ExceptionHandling
    use pFIO_AbstractSocketMod
@@ -173,7 +172,7 @@ contains
 
    function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
-      class (MpiSocket), intent(inout) :: this
+      class (MpiSocket), target, intent(inout) :: this
       integer, intent(in) :: request_id
       class (AbstractDataReference), intent(in) :: local_reference
       integer, optional, intent(out) :: rc
@@ -197,14 +196,12 @@ contains
    end function get
 
    subroutine wait(this, rc)
-      class (MpiRequestHandle), intent(inout) :: this
+      class (MpiRequestHandle), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: ierror
       integer :: status(MPI_STATUS_SIZE)
-      integer :: save_request
 
-      save_request = this%mpi_request
       call MPI_Wait(this%mpi_request, status, ierror)
       _VERIFY(ierror)
       _RETURN(_SUCCESS)

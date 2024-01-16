@@ -16,6 +16,8 @@ module mapl3g_RegridderManager
    private
 
    public :: RegridderManager
+   public :: regridder_manager ! singleton
+   public :: get_regridder_manager
 
    type :: RegridderManager
       private
@@ -30,6 +32,12 @@ module mapl3g_RegridderManager
       procedure :: add_regridder
       procedure :: delete_regridder
    end type RegridderManager
+
+   interface RegridderManager
+      procedure new_RegridderManager
+   end interface RegridderManager
+
+   type(RegridderManager), target, protected :: regridder_manager
 
 contains
 
@@ -99,7 +107,6 @@ contains
 
       associate (b => this%specs%begin(), e => this%specs%end())
         associate (iter => find(b, e, spec))
-
           if (iter /= e) then
              regriddr => this%regridders%of((iter-b+1))
              _RETURN(_SUCCESS)
@@ -129,6 +136,7 @@ contains
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
          if (factory%supports(spec%get_param())) then
+            deallocate(regriddr) ! workaround for gfortran 12.3
             regriddr = factory%make_regridder(spec, _RC)
             _RETURN(_SUCCESS)
          end if
@@ -137,5 +145,18 @@ contains
       _FAIL('No factory found to make regridder for spec.')
    end function make_regridder
 
+   function get_regridder_manager() result(regridder_mgr)
+      type(RegridderManager), pointer :: regridder_mgr
+      logical :: init = .false.
+
+      if (.not. init) then
+         regridder_manager = RegridderManager()
+         init = .true.
+      end if
+
+      regridder_mgr => regridder_manager
+         
+
+   end function get_regridder_manager
 
 end module mapl3g_RegridderManager

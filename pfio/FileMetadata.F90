@@ -20,7 +20,7 @@ module pFIO_FileMetadataMod
    implicit none
    private
 
-   public :: FileMetadata 
+   public :: FileMetadata
    public :: FileMetadata_deserialize
 
    type :: FileMetadata
@@ -67,11 +67,14 @@ module pFIO_FileMetadataMod
       procedure :: get_source_file
       procedure :: set_source_file
 
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
+
    end type FileMetadata
 
    interface FileMetadata
       module procedure new_FileMetadata
-   end interface
+   end interface FileMetadata
 
 contains
 
@@ -83,8 +86,6 @@ contains
      type (StringVariableMap), optional, intent(in) :: variables
      type (StringVector), optional, intent(in) :: order
 
-     _UNUSED_DUMMY(unusable)
-     
      fmd%dimensions = StringIntegerMap()
      if (present(dimensions)) fmd%dimensions = dimensions
 
@@ -97,7 +98,8 @@ contains
      fmd%order = StringVector()
      if (present(order)) fmd%order = order
 
-   end function
+     _UNUSED_DUMMY(unusable)
+  end function
 
    function get_dimensions(this) result(dimensions)
       type (StringIntegerMap), pointer :: dimensions
@@ -125,7 +127,7 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%dimensions%insert(dim_name, extent)
-      _RETURN(_SUCCESS)      
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_dimension
 
@@ -138,9 +140,9 @@ contains
       integer, optional, intent(out) :: rc
 
       call this%dimensions%set(dim_name, extent)
-      _RETURN(_SUCCESS)      
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      
+
    end subroutine modify_dimension
 
    function has_dimension(this, dim_name, unusable, rc) result(isPresent)
@@ -156,7 +158,7 @@ contains
       isPresent = (iter /=this%dimensions%end())
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      
+
    end function has_dimension
 
    integer function get_dimension(this, dim_name, unusable, rc) result(extent)
@@ -167,6 +169,7 @@ contains
 
       type (StringIntegerMapIterator) :: iter
 
+
       iter = this%dimensions%find(dim_name)
 
       if (iter /= this%dimensions%end()) then
@@ -175,9 +178,8 @@ contains
       else
          extent = 0
          if (present(rc)) rc=pFIO_DIMENSION_NOT_FOUND
-         !_FAIL( 'FileMetadata::get_dimension() - no such dimension <'//dim_name//'>.')
       end if
-      
+
       _UNUSED_DUMMY(unusable)
    end function get_dimension
 
@@ -228,7 +230,7 @@ contains
       character(len=*), intent(in) :: attr_name
 
       has_attribute = this%global_var%is_attribute_present(attr_name)
-      
+
    end function has_attribute
 
 
@@ -249,7 +251,10 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      var => this%variables%at(var_name)
+      integer :: status
+
+      var => this%variables%at(var_name, _RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_variable
@@ -261,9 +266,8 @@ contains
       integer, optional, intent(out) :: rc
       class (Variable), pointer :: var
 
-      has = .false.
-      var => this%variables%at(var_name)
-      if (associated(var)) has = .true.
+      has = (this%variables%count(var_name) > 0)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function has_variable
@@ -280,10 +284,9 @@ contains
       integer, optional, intent(out) :: rc
 
       class (Variable), pointer :: tmp
-      
+      integer :: status
 
-      tmp => this%variables%at(var_name)
-
+      tmp => this%variables%at(var_name, _RC)
       _ASSERT(associated(tmp),'can not find '//trim(var_name))
 
       select type (tmp)
@@ -295,28 +298,28 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      
+
    end function get_coordinate_variable
 
-   logical function is_coordinate_variable(this, var_name, unusable, rc) 
+   logical function is_coordinate_variable(this, var_name, unusable, rc)
       class (FileMetadata),target, intent(in) :: this
       character(*), intent(in) :: var_name
-
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       class (Variable), pointer :: tmp
-      
-      tmp => this%variables%at(var_name)
+      integer :: status
 
+      tmp => this%variables%at(var_name, _RC)
       _ASSERT(associated(tmp), 'can not find the varaible '//trim(var_name))
+
       select type (tmp)
       class is (CoordinateVariable)
          is_coordinate_variable = .true.
       class default
          is_coordinate_variable = .false.
       end select
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function is_coordinate_variable
@@ -343,7 +346,7 @@ contains
    end function get_order
 
    subroutine set_order(this, newOrder, unusable, rc)
-      class (FileMetadata), target, intent(inout) :: this 
+      class (FileMetadata), target, intent(inout) :: this
       type (StringVector), intent(in) :: newOrder
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -365,7 +368,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine set_order
-      
+
 
    subroutine add_variable(this, var_name, var, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
@@ -405,13 +408,13 @@ contains
       call this%order%push_back(var_name)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      
+
    end subroutine add_variable
-   
+
    subroutine modify_variable(this, var_name, var, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
       character(len=*), intent(in) :: var_name
-      class (Variable), intent(in) :: var
+      class (Variable), target, intent(in) :: var
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -430,12 +433,10 @@ contains
          _ASSERT( associated(dim_this), "FileMetadata:: modify_variable() - undefined dimension " // dim_name )
          call iter%next()
       end do
-
       call this%variables%set(var_name, var)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      
    end subroutine modify_variable
 
    subroutine remove_variable(this, var_name, unusable, rc)
@@ -456,11 +457,11 @@ contains
          call viter%next()
       enddo
       miter = this%variables%find(var_name)
-      call  this%variables%erase(miter)
+      miter = this%variables%erase(miter)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      
+
    end subroutine remove_variable
 
    subroutine add_var_attribute_0d(this, var_name, attr_name, value, unusable, rc)
@@ -472,14 +473,14 @@ contains
       integer, optional, intent(out) :: rc
 
       class (Variable), pointer :: var
+      integer :: status
 
-
-      var => this%get_variable(var_name)
+      var => this%get_variable(var_name, _RC)
       call var%add_attribute(attr_name, value)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      
+
    end subroutine add_var_attribute_0d
 
    subroutine add_var_attribute_1d(this, var_name, attr_name, values, unusable, rc)
@@ -487,14 +488,13 @@ contains
       character(len=*), intent(in) :: var_name
       character(len=*), intent(in) :: attr_name
       class (*), intent(in) :: values(:)
-
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       class (Variable), pointer :: var
+      integer :: status
 
-
-      var => this%get_variable(var_name)
+      var => this%get_variable(var_name, _RC)
       call var%add_attribute(attr_name, values)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -512,7 +512,7 @@ contains
       type (StringAttributeMapIterator) :: att_iter
       type (Variable), pointer  :: var
       type (Attribute), pointer :: att
-      character(len=:), pointer :: name      
+      character(len=:), pointer :: name
       integer :: extent
 
       ! merge dims
@@ -523,8 +523,8 @@ contains
         extent = dim_iter%value()
         call this%add_dimension(name, extent)
         call dim_iter%next()
-      end do      
-      
+      end do
+
       ! merge attribute
       atts => meta%get_attributes()
       att_iter = atts%begin()
@@ -532,18 +532,19 @@ contains
         name => att_iter%key()
         att => att_iter%value()
         call this%add_attribute(name, att)
-        call att_iter%next() 
-      enddo 
+        call att_iter%next()
+      enddo
 
       ! merge variables
       vars => meta%get_variables()
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-        name => var_iter%key()
-        var  => var_iter%value()
-        call this%add_variable(name, var)
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
         call var_iter%next()
-      end do      
+
+        name => var_iter%first()
+        var  => var_iter%second()
+        call this%add_variable(name, var)
+      end do
 
       _RETURN(_SUCCESS)
    end subroutine merge
@@ -571,7 +572,7 @@ contains
 
          equal = a%dimensions%size() == b%dimensions%size()
          if (.not. equal) return
-         
+
          iter = a%dimensions%begin()
          do while (iter /= a%dimensions%end())
 
@@ -593,14 +594,10 @@ contains
          class (FileMetadata), target, intent(in) :: a
          class (FileMetadata), target, intent(in) :: b
 
-         type (StringAttributeMapIterator) :: iter
-         type (Attribute), pointer :: attr_a, attr_b
-         character(len=:), pointer :: attr_name
-
          equal = (a%global_var == b%global_var)
 
       end function same_attributes
-      
+
       logical function same_variables(a, b) result(equal)
          class (FileMetadata), target, intent(in) :: a
          class (FileMetadata), target, intent(in) :: b
@@ -608,28 +605,29 @@ contains
          type (StringVariableMapIterator) :: iter
          class (Variable), pointer :: var_a, var_b
          character(len=:), pointer :: var_name
+         integer :: status
 
          equal = a%variables%size() == b%variables%size()
          if (.not. equal) return
 
-         iter = a%variables%begin()
-         do while (iter /= a%variables%end())
-            
-            var_name => iter%key()
-            var_b => b%variables%at(var_name)
-            
+         iter = a%variables%ftn_begin()
+         do while (iter /= a%variables%ftn_end())
+            call iter%next()
+
+            var_name => iter%first()
+            var_b => b%variables%at(var_name, rc=status)
+
             equal = (associated(var_b))
             if (.not. equal) return
-            
-            var_a => iter%value()
+
+            var_a => iter%second()
             equal = (var_a == var_b)
             if (.not. equal) return
-            
-            call iter%next()
+
          end do
 
       end function same_variables
-      
+
    end function equal
 
    logical function not_equal(a, b)
@@ -643,11 +641,11 @@ contains
       class (FileMetadata), intent(in) :: this
       integer,allocatable,intent(inout) :: buffer(:)
       integer, optional, intent(out) :: rc
-      integer :: length 
+      integer :: length
       integer, allocatable :: tmp_buffer(:)
 
       if(allocated(buffer)) deallocate(buffer)
-            
+
       call StringIntegerMap_serialize(this%dimensions, tmp_buffer)
       buffer = [tmp_buffer]
       call this%global_var%serialize(tmp_buffer)
@@ -659,6 +657,7 @@ contains
 
       length = serialize_buffer_length(length) + size(buffer)
       buffer = [serialize_intrinsic(length),buffer]
+
       _RETURN(_SUCCESS)
    end subroutine
 
@@ -672,7 +671,7 @@ contains
       call deserialize(fmd, buffer, rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
-  
+
    contains
 
       subroutine deserialize(this, buffer, rc)
@@ -680,11 +679,11 @@ contains
          integer, intent(in) :: buffer(:)
          integer, optional, intent(out) :: rc
          integer :: n,length
-         integer :: status 
+         integer :: status
          n = 1
          call deserialize_intrinsic(buffer(n:),length)
          _ASSERT(length <= size(buffer), "length does not match")
-   
+
          length = serialize_buffer_length(length)
          n = n+length
          call StringIntegerMap_deserialize(buffer(n:),this%dimensions, status)
@@ -696,7 +695,7 @@ contains
          _VERIFY(status)
          n = n + length
          call StringVariableMap_deserialize(buffer(n:), this%variables, status)
-   
+
          call deserialize_intrinsic(buffer(n:),length)
          n = n + length
          call StringVector_deserialize(buffer(n:), this%order, status)
@@ -725,5 +724,96 @@ contains
       source_file=this%source_file
       _RETURN(_SUCCESS)
    end function
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(FileMetadata), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      call write_dims(this%dimensions, unit, iotype, v_list, iostat, iomsg)
+      if (iostat /= 0) return
+      call write_variables(this%variables, unit, iotype, v_list, iostat, iomsg)
+      if (iostat /= 0) return
+
+      _UNUSED_DUMMY(v_list)
+   end subroutine write_formatted
+
+   subroutine write_dims(dimensions, unit, iotype, v_list, iostat, iomsg)
+      type(StringIntegerMap), target, intent(in) :: dimensions
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      type(StringIntegerMapIterator) :: iter
+
+      iostat = 0
+      write(unit,'(a,/)')'dimensions:'
+      associate (e => dimensions%end())
+        iter = dimensions%begin()
+        do while (iter /= e)
+           write(unit, '(T8,a,1x,a,1x,i0,/)', iostat=iostat, iomsg=iomsg) iter%key(), "=" , iter%value()
+           if (iostat /= 0) return
+           call iter%next()
+        end do
+      end associate
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
+   end subroutine write_dims
+
+   subroutine write_variables(variables, unit, iotype, v_list, iostat, iomsg)
+      type(StringVariableMap), target, intent(in) :: variables
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      type(StringVariableMapIterator) :: var_iter
+      character(:), allocatable :: type_name, dims_str
+      class(Variable), pointer :: var
+      type(StringVector), pointer :: dims
+      character(:), pointer :: var_name
+      integer :: i
+
+      iostat = 0
+      write(unit,'(a,/)')'variables:'
+      associate (e => variables%ftn_end())
+        var_iter = variables%ftn_begin()
+        do while (var_iter /= e)
+           call var_iter%next()
+
+           var_name => var_iter%first()
+           var => var_iter%second()
+           dims => var%get_dimensions()
+
+           select case (var%get_type())
+           case (pFIO_REAL32)
+              type_name = 'float'
+           case (pFIO_REAL64)
+              type_name = 'double'
+           case default
+              type_name = '<unknown>'
+           end select
+
+           dims_str = "(" // dims%of(1)
+           do i = 2, dims%size()
+              dims_str = dims_str // ", " // dims%of(i)
+           end do
+           dims_str = dims_str // ")"
+
+           write(unit, '(T8,a,1x,a,a,/)', iostat=iostat, iomsg=iomsg) type_name, var_name, dims_str
+           if (iostat /= 0) return
+        end do
+      end associate
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
+   end subroutine write_variables
 
 end module pFIO_FileMetadataMod

@@ -144,14 +144,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(kind=R8), allocatable :: lon_centers(:)
-      real(kind=R8), allocatable :: lat_centers(:)
-      real(kind=R8), allocatable :: lon_corners(:)
-      real(kind=R8), allocatable :: lat_corners(:)
-      integer :: im_world, jm_world
-      integer :: nx_ny(2)
-      integer, allocatable :: lon_distribution(:)
-      integer, allocatable :: lat_distribution(:)
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
       type(LatLonDecomposition) :: decomposition
@@ -159,8 +151,9 @@ contains
       lon_axis = make_LonAxis(file_metadata, _RC)
       lat_axis = make_LatAxis(file_metadata, _RC)
 
-      decomposition = make_LatLonDecomposition([im_world, jm_world], _RC)
-
+      associate (im_world => lon_axis%get_extent(), jm_world => lat_axis%get_extent())
+        decomposition = make_LatLonDecomposition([im_world, jm_world], _RC)
+      end associate
       spec = LatLonGeomSpec(lon_axis, lat_axis, decomposition)
       
       _RETURN(_SUCCESS)
@@ -206,8 +199,15 @@ contains
       integer :: status
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
-      
-      supports = .false.
+      character(:), allocatable :: geom_schema
+
+      ! Mandatory entry: "class: latlon"
+      supports = ESMF_HConfigIsDefined(hconfig, keystring='schema', _RC)
+      _RETURN_UNLESS(supports)
+
+      call MAPL_GetResource(geom_schema, hconfig, 'schema', _RC)
+      supports = (geom_schema == 'latlon')
+      _RETURN_UNLESS(supports)
       
       supports = lon_axis%supports(hconfig, _RC)
       _RETURN_UNLESS(supports)

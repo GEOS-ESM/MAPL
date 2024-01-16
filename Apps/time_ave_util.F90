@@ -1483,7 +1483,7 @@ contains
             if (isum == 0) then
                qz(j)=undef
             else
-               qz(j)=qsum/float(isum)
+               qz(j)=qsum/real(isum)
             end if
          enddo
 

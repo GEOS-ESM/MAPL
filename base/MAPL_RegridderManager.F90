@@ -171,8 +171,8 @@ contains
 
          type (RegridderVectorIterator) :: iter
 
-         iter = this%regridders%begin()
-         do while (iter /= this%regridders%end())
+         iter = vector%begin()
+         do while (iter /= vector%end())
             match => iter%get()
             if (match%get_spec() == spec) return
            call iter%next()
@@ -201,7 +201,7 @@ contains
          grid_type = trim(buffer)
 
          _RETURN(_SUCCESS)
-
+         _UNUSED_DUMMY(unusable)
       end function get_grid_type
 
    end function make_regridder_from_grids

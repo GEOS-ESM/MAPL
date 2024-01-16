@@ -1,37 +1,32 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_OuterMetaComponent
+   use mapl3g_geom_mgr
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
    use mapl3g_StateItem
-   use mapl3g_UngriddedDimsSpec
-   use mapl3g_InvalidSpec
-   use mapl3g_FieldSpec
    use mapl3g_MultiState
-!!$   use mapl3g_BundleSpec
-   use mapl3g_StateSpec
-   use mapl3g_VirtualConnectionPt
    use mapl3g_VariableSpecVector
    use mapl3g_ComponentSpec
    use mapl3g_GenericPhases
-   use mapl3g_ChildComponent
    use mapl3g_Validation, only: is_valid_name
-!!$   use mapl3g_CouplerComponentVector
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
-   use mapl3g_ChildComponentMap, only: ChildComponentMap
-   use mapl3g_ChildComponentMap, only: ChildComponentMapIterator
-   use mapl3g_ChildComponentMap, only: operator(/=)
    use mapl3g_AbstractStateItemSpec
+   use mapl3g_ConnectionPt
+   use mapl3g_MatchConnection
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualPtVector
-   use mapl3g_ConnectionPt
    use mapl3g_ConnectionVector
    use mapl3g_HierarchicalRegistry
-   use mapl3g_ExtensionAction
    use mapl3g_StateExtension
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
+   use mapl3g_ComponentDriver
+   use mapl3g_GriddedComponentDriver
+   use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
+   use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMapIterator
+   use mapl3g_GriddedComponentDriverMap, only: operator(/=)
    use mapl_ErrorHandling
    use mapl3g_VerticalGeom
    use gFTL2_StringVector
@@ -50,40 +45,35 @@ module mapl3g_OuterMetaComponent
       private
       
       type(ESMF_GridComp)                         :: self_gridcomp
-      class(AbstractUserSetServices), allocatable :: user_setservices
+      type(GriddedComponentDriver)                :: user_component
+      type(MethodPhasesMap)                       :: user_phases_map
+      type(ESMF_HConfig)                          :: hconfig
+
       type(ESMF_Geom), allocatable                :: geom
       type(VerticalGeom), allocatable             :: vertical_geom
-      type(MultiState)                            :: user_states
-      type(ESMF_HConfig)                          :: hconfig
-      type(ChildComponentMap)                     :: children
-      logical                                     :: is_root_ = .false.
 
-      type(ESMF_GridComp)                         :: user_gridcomp
-      type(MethodPhasesMap)                       :: phases_map
       type(InnerMetaComponent), allocatable       :: inner_meta
 
+      ! Hierarchy
+      type(GriddedComponentDriverMap)             :: children
+      type(HierarchicalRegistry) :: registry
+      type(ExtensionVector) :: state_extensions
+ 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
       type(ComponentSpec)                         :: component_spec
-      type(OuterMetaComponent), pointer           :: parent_private_state
-      type(HierarchicalRegistry) :: registry
-      type(ExtensionVector) :: state_extensions
 
       integer :: counter
 
    contains
-      
+
+      procedure :: get_user_component
       procedure :: set_hconfig
       procedure :: get_hconfig
       procedure :: get_registry
       procedure :: get_lgr
 
       procedure :: get_phases
-!!$      procedure :: get_gridcomp
-      procedure :: get_user_gridcomp
-      procedure :: get_user_states
-      procedure :: set_user_setServices
-      procedure :: set_entry_point
 
       ! Generic methods
       procedure :: setServices => setservices_
@@ -92,12 +82,14 @@ module mapl3g_OuterMetaComponent
 
       procedure :: initialize ! init by phase name
       procedure :: initialize_user
+      procedure :: initialize_clock
       procedure :: initialize_geom
       procedure :: initialize_advertise
       procedure :: initialize_post_advertise
       procedure :: initialize_realize
 
       procedure :: run
+!#      procedure :: run_clock_advance
       procedure :: finalize
       procedure :: read_restart
       procedure :: write_restart
@@ -113,18 +105,17 @@ module mapl3g_OuterMetaComponent
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
 
-      procedure :: traverse
-
+      procedure :: set_entry_point
       procedure :: set_geom
       procedure :: get_name
-      procedure :: get_user_gridcomp_name
       procedure :: get_gridcomp
-      procedure :: is_root
 
       procedure :: get_component_spec
       procedure :: get_internal_state
 
       procedure :: set_vertical_geom
+
+      procedure :: connect_all
 
    end type OuterMetaComponent
 
@@ -137,28 +128,20 @@ module mapl3g_OuterMetaComponent
       module procedure :: get_outer_meta_from_outer_gc
    end interface get_outer_meta
 
-   character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "OuterMetaComponent Private State"
+   character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "MAPL::OuterMetaComponent::private"
 
 
 
    ! Submodule interfaces
    interface
 
-      recursive module subroutine SetServices_(this, rc)
+      recursive module subroutine SetServices_(this, user_setservices, rc)
+         class(AbstractUserSetservices), intent(in) :: user_setservices
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out) ::rc
       end subroutine
 
-      module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         type(ESMF_Method_Flag), intent(in) :: method_flag
-         procedure(I_Run) :: userProcedure
-         class(KE), optional, intent(in) :: unusable
-         character(len=*), optional, intent(in) :: phase_name
-         integer, optional, intent(out) ::rc
-      end subroutine set_entry_point
-
-      module subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
+      module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: child_name
          class(AbstractUserSetServices), intent(in) :: setservices
@@ -199,13 +182,15 @@ contains
       class(AbstractUserSetServices), intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: hconfig
 
+      type(ESMF_Clock) :: clock_tmp
+      
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_setservices = set_services
-      outer_meta%user_gridcomp = user_gridcomp
+      outer_meta%user_component = GriddedComponentDriver(user_gridcomp, clock_tmp)
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
       outer_meta%counter = counter
+      call initialize_phases_map(outer_meta%user_phases_map)
 
    end function new_outer_meta
 
@@ -220,47 +205,24 @@ contains
       integer :: status
       character(:), allocatable :: user_gc_name
 
-      call initialize_phases_map(this%phases_map)
-      call create_user_states(this, _RC)
-      user_gc_name = this%get_user_gridcomp_name(_RC)
+      user_gc_name = this%user_component%get_name(_RC)
       this%registry = HierarchicalRegistry(user_gc_name)
 
       this%lgr => logging%get_logger('MAPL.GENERIC')
 
       _RETURN(_SUCCESS)
-
-   contains
-
-      ! This procedure violates GEOS policy on providing a traceback
-      ! for failure conditions.  But failure in ESMF_StateCreate()
-      ! should be all-but-impossible and the usual error handling
-      ! would induce tedious changes in the design. (Function ->
-      ! Subroutine)
-      subroutine create_user_states(this, rc)
-         type(OuterMetaComponent), intent(inout) :: this
-         integer, optional, intent(out) :: rc
-
-         type(ESMF_State) :: importState, exportState, internalState
-         integer :: status
-
-         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=this%get_name(), _RC)
-         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=this%get_name(), _RC)
-         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, name=this%get_name(), _RC)
-         this%user_states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
-         _RETURN(_SUCCESS)
-      end subroutine create_user_states
       
    end subroutine init_meta
 
    ! Deep copy of shallow ESMF objects - be careful using result
    ! TODO: Maybe this should return a POINTER
-   type(ChildComponent) function get_child_by_name(this, child_name, rc) result(child_component)
+   type(GriddedComponentDriver) function get_child_by_name(this, child_name, rc) result(child_component)
       class(OuterMetaComponent), intent(in) :: this
       character(len=*), intent(in) :: child_name
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponent), pointer :: child_ptr
+      class(GriddedComponentDriver), pointer :: child_ptr
 
       child_ptr => this%children%at(child_name, rc=status)
       _ASSERT(associated(child_ptr), 'Child not found: <'//child_name//'>.')
@@ -270,16 +232,15 @@ contains
       _RETURN(_SUCCESS)
    end function get_child_by_name
 
-   subroutine run_child_by_name(this, child_name, clock, unusable, phase_name, rc)
+   subroutine run_child_by_name(this, child_name, unusable, phase_name, rc)
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
-      type(ESMF_Clock), intent(inout) :: clock
       class(KE), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponent) :: child
+      type(GriddedComponentDriver) :: child
       logical :: found
       integer :: phase_idx
 
@@ -291,26 +252,25 @@ contains
          _ASSERT(found, "run phase: <"//phase_name//"> not found.")
       end if
 
-      call child%run(clock, phase_idx=phase_idx, _RC)
+      call child%run(phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
 
-   subroutine run_children_(this, clock, unusable, phase_name, rc)
+   subroutine run_children_(this, unusable, phase_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
       class(KE), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponentMapIterator) :: iter
+      type(GriddedComponentDriverMapIterator) :: iter
 
-      associate(b => this%children%begin(), e => this%children%end())
-        iter = b
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
         do while (iter /= e)
-           call this%run_child(iter%first(), clock, phase_name=phase_name, _RC)
            call iter%next()
+           call this%run_child(iter%first(), phase_name=phase_name, _RC)
         end do
       end associate
 
@@ -348,11 +308,13 @@ contains
 
       integer :: status
       type(OuterMetaWrapper) :: wrapper
+      type(ESMF_GridComp) :: user_gridcomp
 
       call MAPL_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
-      call free_inner_meta(wrapper%outer_meta%user_gridcomp)
+      user_gridcomp = wrapper%outer_meta%user_component%get_gridcomp()
+      call free_inner_meta(user_gridcomp, _RC)
 
       deallocate(wrapper%outer_meta)
 
@@ -366,33 +328,9 @@ contains
       class(OuterMetaComponent), target, intent(inout):: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
 
-      phases => this%phases_map%of(method_flag)
+      phases => this%user_phases_map%of(method_flag)
 
    end function get_phases
-
-   ! Reexamine the names of the next 2 procedures when there is a
-   ! clearer use case.  Might only be needed from within inner meta.
-!!$   type(ESMF_GridComp) function get_gridcomp(this) result(gridcomp)
-!!$      class(OuterMetaComponent), intent(in) :: this
-!!$
-!!$      gridcomp = this%self_gridcomp
-!!$      
-!!$   end function get_gridcomp
-!!$
-   type(ESMF_GridComp) function get_user_gridcomp(this) result(gridcomp)
-      class(OuterMetaComponent), intent(in) :: this
-
-      gridcomp = this%user_gridcomp
-      
-   end function get_user_gridcomp
-
-   type(MultiState) function get_user_states(this) result(states)
-      class(OuterMetaComponent), intent(in) :: this
-
-      states = this%user_states
-      
-   end function get_user_states
-
 
    subroutine set_hconfig(this, hconfig)
       class(OuterMetaComponent), intent(inout) :: this
@@ -410,31 +348,43 @@ contains
 
    end function get_hconfig
 
-!!$
-!!$
-!!$   subroutine get_yaml_hconfig(this, hconfig)
-!!$      class(OuterMetaComponent), target, intent(inout) :: this
-!!$      class(YAML_Node), pointer :: hconfig
-!!$
-!!$      hconfig => null
-!!$      if (.not. allocated(this%yaml_cfg)) return
-!!$
-!!$      hconfig => this%yaml_cfg
-!!$
-!!$   end subroutine get_yaml_hconfig
-
-   subroutine set_user_setservices(this, user_setservices)
-      class(OuterMetaComponent), intent(inout) :: this
-      class(AbstractUserSetServices), intent(in) :: user_setservices
-      this%user_setServices = user_setservices
-   end subroutine set_user_setservices
-
 
    ! ESMF initialize methods
 
-   ! initialize_geom() is responsible for passing grid down to
-   ! children.  User component can insert a different grid using
-   ! GENERIC_INIT_GRID phase in their component.
+   !-------
+   ! initialize_geom():
+   !
+   ! Note that setting the clock is really an operation on component
+   ! drivers.  Thus, the structure here is a bit different than for
+   ! other initialize phases which act at the component level (and
+   ! hence the OuterMetaComponent level).
+   !-------
+   recursive subroutine initialize_clock(this, clock, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      type(ESMF_Clock), optional :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_CLOCK'
+
+      call this%user_component%set_clock(clock) ! comp _driver_
+      call apply_to_children(this, phase_idx=GENERIC_INIT_CLOCK, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine initialize_clock
+
+   !----------
+   ! The procedure initialize_geom() is responsible for passing grid
+   ! down to children.  The parent geom can be overridden by a
+   ! component by:
+   !   - providing a geom spec in the generic section of its config
+   !     file, or
+   !   - specifying an INIT_GEOM phase
+   ! If both are specified, the INIT_GEOM overrides the config spec.
+   ! ---------
    recursive subroutine initialize_geom(this, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
@@ -443,11 +393,27 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GRID'
+      type(MaplGeom), pointer :: mapl_geom
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM'
+      type(GeomManager), pointer :: geom_mgr
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
+      if (this%component_spec%has_geom_hconfig()) then
+         geom_mgr => get_geom_manager()
+         mapl_geom => geom_mgr%get_mapl_geom(this%component_spec%geom_hconfig, _RC)
+         this%geom = mapl_geom%get_geom()
+      end if
+
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(phase_idx=phase, _RC)
+      end if
+
       call apply_to_children(this, set_child_geom, _RC)
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_GRID, _RC)
+      call apply_to_children(this, phase_idx=GENERIC_INIT_GEOM, _RC)
 
       _RETURN(ESMF_SUCCESS)
    contains
@@ -480,12 +446,19 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(phase_idx=phase, _RC)
+      end if
 
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
+      call apply_to_children(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
 
       call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
@@ -515,6 +488,9 @@ contains
          type(VariableSpecVectorIterator) :: iter
          type(VariableSpec), pointer :: var_spec
 
+         if (this%component_spec%var_specs%size() > 0) then
+            _ASSERT(allocated(this%geom),'Component must define a geom to advertise variables.')
+         end if
          associate (e => this%component_spec%var_specs%end())
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
@@ -568,7 +544,6 @@ contains
 
      subroutine process_connections(this, rc)
         use mapl3g_VirtualConnectionPt
-        use mapl3g_ConnectionPt
         class(OuterMetaComponent), intent(inout) :: this
         integer, optional, intent(out) :: rc
 
@@ -598,16 +573,25 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
-      type(MultiState) :: outer_states
+      type(MultiState) :: outer_states, user_states
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
-      call this%registry%add_to_states(this%user_states, mode='user', _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(phase_idx=phase, _RC)
+      end if
+
+      user_states = this%user_component%get_states()
+      call this%registry%add_to_states(user_states, mode='user', _RC)
       this%state_extensions = this%registry%get_extensions()
       
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
 
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
+      call apply_to_children(this, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
       
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -624,10 +608,17 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_REALIZE, _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(phase_idx=phase, _RC)
+      end if
 
+      call apply_to_children(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
       call this%registry%allocate(_RC)
       
       _RETURN(ESMF_SUCCESS)
@@ -636,55 +627,25 @@ contains
 
    end subroutine initialize_realize
 
-   subroutine exec_user_init_phase(this, clock, phase_name, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
-      character(*), intent(in) :: phase_name
-      class(KE), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status, userRC
-      type(StringVector), pointer :: init_phases
-      logical :: found
-
-      init_phases => this%phases_map%at(ESMF_METHOD_INITIALIZE, _RC)
-      ! User gridcomp may not have any given phase; not an error condition if not found.
-      associate (phase => get_phase_index(init_phases, phase_name=phase_name, found=found))
-        _RETURN_UNLESS(found)
-        associate ( &
-             importState => this%user_states%importState, &
-             exportState => this%user_states%exportState)
-          
-          call ESMF_GridCompInitialize(this%user_gridcomp, &
-               importState=importState, exportState=exportState, &
-               clock=clock, phase=phase, userRC=userRC, _RC)
-          _VERIFY(userRC)
-        end associate
-      end associate
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine exec_user_init_phase
-
-   recursive subroutine apply_to_children_simple(this, clock, phase_idx, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Clock), intent(inout) :: clock
+   recursive subroutine apply_to_children_simple(this, phase_idx, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
       integer :: phase_idx
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponentMapIterator) :: iter
-      type(ChildComponent), pointer :: child
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
 
-      associate(b => this%children%begin(), e => this%children%end())
-        iter = b
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
         do while (iter /= e)
-           child => iter%second()
-           call child%initialize(clock, phase_idx=phase_idx, _RC)
            call iter%next()
+           child => iter%second()
+           call child%initialize(phase_idx=phase_idx, _RC)
         end do
       end associate
 
+      _RETURN(_SUCCESS)
    end subroutine apply_to_children_simple
 
    ! This procedure should not be invoked recursively - it is not for traversing the tree,
@@ -696,8 +657,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponentMapIterator) :: iter
-      type(ChildComponent), pointer :: child
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
       type(OuterMetaComponent), pointer :: child_meta
       type(ESMF_GridComp) :: child_outer_gc
 
@@ -705,28 +666,37 @@ contains
         iter = b
         do while (iter /= e)
            child => iter%second()
-           child_outer_gc = child%get_outer_gridcomp()
+           child_outer_gc = child%get_gridcomp()
            child_meta => get_outer_meta(child_outer_gc, _RC)
            call oper(this, child_meta, _RC)
            call iter%next()
         end do
       end associate
 
+      _RETURN(_SUCCESS)
    end subroutine apply_to_children_custom
 
    recursive subroutine initialize_user(this, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_Clock) :: clock
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
-      type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_USER, _RC)
+      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+      if (found) then
+         call this%user_component%initialize(phase_idx=phase, _RC)
+      end if
+
+      call apply_to_children(this, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -743,21 +713,27 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
+      type(StringVector), pointer :: initialize_phases
+      logical :: found
+      integer :: phase
 
-      if (.not. present(phase_name)) then
-         call exec_user_init_phase(this, clock, phase_name, _RC)
-         _RETURN(ESMF_SUCCESS)
-      end if
+      _ASSERT(present(phase_name),'phase_name is mandatory')
 
       select case (phase_name)
-      case ('GENERIC::INIT_GRID')
+      case ('GENERIC::INIT_GEOM')
          call this%initialize_geom(clock, _RC)
       case ('GENERIC::INIT_ADVERTISE')
          call this%initialize_advertise(clock, _RC)
       case ('GENERIC::INIT_USER')
          call this%initialize_user(clock, _RC)
       case default ! custom user phase - does not auto propagate to children
-         call exec_user_init_phase(this, clock, phase_name, _RC)
+
+         initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
+         phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
+         if (found) then
+            call this%user_component%initialize(phase_idx=phase, _RC)
+         end if
+
       end select
 
       _RETURN(ESMF_SUCCESS)
@@ -775,15 +751,15 @@ contains
       integer :: status, userRC, i
       integer :: phase_idx
       type(StateExtension), pointer :: extension
+      type(StringVector), pointer :: run_phases
       logical :: found
+      integer :: phase
 
-      associate(phase_idx => get_phase_index(this%phases_map%of(ESMF_METHOD_RUN), phase_name=phase_name, found=found))
-        _ASSERT(found, "run phase: <"//phase_name//"> not found.")
-        call ESMF_GridCompRun(this%user_gridcomp, &
-             importState=this%user_states%importState, exportState=this%user_states%exportState, &
-             clock=clock, phase=phase_idx, userRC=userRC, _RC)
-        _VERIFY(userRC)
-      end associate
+      run_phases => this%get_phases(ESMF_METHOD_RUN)
+      phase = get_phase_index(run_phases, phase_name, found=found)
+      if (found) then
+         call this%user_component%run(phase_idx=phase, _RC)
+      end if
 
       ! TODO:  extensions should depend on phase ...
       do i = 1, this%state_extensions%size()
@@ -794,6 +770,41 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run
 
+   ! TODO: Not sure how this should actually work.  One option is that
+   ! all gridcomp drivers advance their clock in one sweep of the
+   ! hierarchy.  This will unfortunately advance the clock too often
+   ! for components that run less frequently.  An alternative is that
+   ! parent components must advace the clock of their children, which
+   ! is fine except that existing GEOS gridcomps do not do this, and
+   ! it will be the source of subtle runtime errors.  Yet another
+   ! option would be to designate a specific run phase as the "advance
+   ! clock" phase during set services.  (Default with one phase will
+   ! also be the advance clock phase.)  Then OuterMetaComponent can be
+   ! responsible and only do it when that child's run phase happens
+   ! (alarm is ringing)
+   
+
+!#   recursive subroutine run_clock_advance(this, clock, unusable, rc)
+!#      class(OuterMetaComponent), intent(inout) :: this
+!#      type(ESMF_Clock) :: clock
+!#      ! optional arguments
+!#      class(KE), optional, intent(in) :: unusable
+!#      integer, optional, intent(out) :: rc
+!#
+!#      integer :: status, userRC, i
+!#      integer :: phase_idx
+!#      type(StateExtension), pointer :: extension
+!#      type(StringVector), pointer :: run_phases
+!#      logical :: found
+!#      integer :: phase
+!#
+!#      if (found) then
+!#         call this%user_component%clock_advance(_RC)
+!#      end if
+!#
+!#      _RETURN(ESMF_SUCCESS)
+!#   end subroutine run_clock_advance
+
    recursive subroutine finalize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_State) :: importState
@@ -803,31 +814,30 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(ChildComponent), pointer :: child
-      type(ChildComponentMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
+      type(GriddedComponentDriverMapIterator) :: iter
       integer :: status, userRC
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
       type(StringVector), pointer :: finalize_phases
       logical :: found
 
-      finalize_phases => this%phases_map%at(ESMF_METHOD_FINALIZE, _RC)
+      finalize_phases => this%user_phases_map%at(ESMF_METHOD_FINALIZE, _RC)
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(finalize_phases, phase_name=phase_name, found=found))
         _RETURN_UNLESS(found)
-        associate ( &
-             importState => this%user_states%importState, &
-             exportState => this%user_states%exportState)
-          
-          call ESMF_GridCompFinalize(this%user_gridcomp, importState=importState, exportState=exportState, &
-               clock=clock, userRC=userRC, _RC)
-          _VERIFY(userRC)
-        end associate
+
+        ! TODO:  Should user finalize be after children finalize?
+
+        ! TODO:  Should there be a phase option here?  Probably not
+        ! right as is when things get more complicated.
+
+        call this%user_component%finalize(_RC)
 
         associate(b => this%children%begin(), e => this%children%end())
           iter = b
           do while (iter /= e)
              child => iter%second()
-             call child%finalize(clock, phase_idx=GENERIC_FINALIZE_USER, _RC)
+             call child%finalize(phase_idx=GENERIC_FINALIZE_USER, _RC)
              call iter%next()
           end do
         end associate
@@ -878,64 +888,6 @@ contains
    end function get_name
 
 
-   function get_user_gridcomp_name(this, rc) result(inner_name)
-      character(:), allocatable :: inner_name
-      class(OuterMetaComponent), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=ESMF_MAXSTR) :: buffer
-
-      call ESMF_GridCompGet(this%user_gridcomp, name=buffer, _RC)
-      inner_name=trim(buffer)
-
-      _RETURN(ESMF_SUCCESS)
-   end function get_user_gridcomp_name
-
-
-   recursive subroutine traverse(this, unusable, pre, post, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
-      interface
-         subroutine I_NodeOp(node, rc)
-            import OuterMetaComponent
-            class(OuterMetaComponent), intent(inout) :: node
-            integer, optional, intent(out) :: rc
-         end subroutine I_NodeOp
-      end interface
-      
-      procedure(I_NodeOp), optional :: pre
-      procedure(I_NodeOp), optional :: post
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ChildComponentMapIterator) :: iter
-      type(ChildComponent), pointer :: child
-      class(OuterMetaComponent), pointer :: child_meta
-      type(ESMF_GridComp) :: child_outer_gc
-
-      if (present(pre)) then
-         call pre(this, _RC)
-      end if
-
-      associate (b => this%children%begin(), e => this%children%end())
-        iter = b
-        do while (iter /= e)
-           child => iter%second()
-           child_outer_gc = child%get_outer_gridcomp()
-           child_meta => get_outer_meta(child_outer_gc, _RC)
-           call child_meta%traverse(pre=pre, post=post, _RC)
-           call iter%next()
-        end do
-      end associate
-
-      if (present(post)) then
-         call post(this, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine traverse
-
 
    ! Needed for unit testing purposes.
    
@@ -954,12 +906,6 @@ contains
 !!$
 !!$      _RETURN(_SUCCESS)
 !!$   end subroutine validate_user_short_name
-
-
-   pure logical function is_root(this)
-      class(OuterMetaComponent), intent(in) :: this
-      is_root = this%is_root_
-   end function is_root
 
 
    subroutine set_geom(this, geom)
@@ -998,7 +944,10 @@ contains
       type(ESMF_State) :: internal_state
       class(OuterMetaComponent), intent(in) :: this
 
-      internal_state = this%user_states%internalState
+      type(MultiState) :: user_states
+
+      user_states = this%user_component%get_states()
+      internal_state = user_states%internalState
 
    end function get_internal_state
 
@@ -1010,5 +959,72 @@ contains
       lgr => this%lgr
 
    end function get_lgr
+
+   function get_user_component(this) result(user_component)
+      type(GriddedComponentDriver), pointer :: user_component
+      class(OuterMetaComponent), target, intent(in) :: this
+      user_component => this%user_component
+   end function get_user_component
+
+
+   
+   ! ----------
+   ! This is a "magic" connection that attempts to connect each
+   ! unsatisfied import in dst_comp, with a corresponding export in
+   ! the src_comp.  The corresponding export must have the same short
+   ! name, or if the import is a wildcard connection point, the all
+   ! exports with names that match the regexp of the wildcard are
+   ! connected.
+   ! ----------
+   subroutine connect_all(this, src_comp, dst_comp, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      character(*), intent(in) :: src_comp
+      character(*), intent(in) :: dst_comp
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(Connection), allocatable :: conn
+
+      _ASSERT(this%children%count(src_comp) == 1, 'No child component named <'//src_comp//'>.')
+      _ASSERT(this%children%count(dst_comp) == 1, 'No child component named <'//dst_comp//'>.')
+
+      conn = MatchConnection( &
+           ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='^.*$'))  &
+           )
+      call this%component_spec%add_connection(conn)
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_all
+
+   subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_Method_Flag), intent(in) :: method_flag
+      procedure(I_Run) :: userProcedure
+      class(KE), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: phase_name
+      integer, optional, intent(out) ::rc
+
+      integer :: status
+      character(:), allocatable :: phase_name_
+      type(ESMF_GridComp) :: user_gridcomp
+      logical :: found
+
+      if (present(phase_name)) then
+         phase_name_ = phase_name
+      else
+         phase_name_ = get_default_phase_name(method_flag)
+      end if
+      call add_phase(this%user_phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
+
+      associate (phase_idx => get_phase_index(this%user_phases_map%of(method_flag), phase_name=phase_name_, found=found))
+        _ASSERT(found, "run phase: <"//phase_name_//"> not found.")
+        user_gridcomp = this%user_component%get_gridcomp()
+        call ESMF_GridCompSetEntryPoint(user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
+      end associate
+
+      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine set_entry_point
 
 end module mapl3g_OuterMetaComponent

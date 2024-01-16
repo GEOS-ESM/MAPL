@@ -17,17 +17,16 @@ set(srcs
   UserSetServices.F90
   MethodPhasesMap.F90
 
-  ChildComponent.F90
-  ChildComponent_run_smod.F90
-  ChildComponentMap.F90
-#  GenericCouplerComponent.F90
-#  CouplerComponentVector.F90
+  ComponentDriver.F90
+  ComponentDriverVector.F90
+  GriddedComponentDriver.F90
+  GriddedComponentDriver_smod.F90
+  GriddedComponentDriverMap.F90
 
   MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
-  OuterMetaComponent_setservices_smod.F90
-  OuterMetaComponent_addChild_smod.F90
+  OuterMetaComponent_smod.F90
   GenericPhases.F90
   GenericGridComp.F90
 
@@ -56,13 +55,14 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.shared MAPL.profiler MAPL.base YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(actions)
+add_subdirectory(couplers)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

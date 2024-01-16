@@ -1,6 +1,7 @@
 module Test_RunChild
    use mapl3g_GenericGridComp
    use mapl3g_Generic
+   use mapl3g_GriddedComponentDriver
    use mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices
    use mapl_ErrorHandling
@@ -21,6 +22,7 @@ contains
       integer, intent(out) :: rc
 
       type(ESMF_HConfig) :: config
+      type(GriddedComponentDriver) :: user_comp
       integer :: status
 
       config = ESMF_HConfigCreate(content='{}', rc=status)
@@ -44,7 +46,8 @@ contains
       call ESMF_GridCompSetServices(parent_gc, setServices, rc=status)
       @assert_that(status, is(0))
 
-      user_gc = parent_meta%get_user_gridcomp()
+      user_comp = parent_meta%get_user_component()
+      user_gc = user_comp%get_gridcomp()
 
       call ESMF_HConfigDestroy(config, rc=status)
       @assert_that(status, is(0))
@@ -71,7 +74,7 @@ contains
 
       call setup(this, rc=status)
       @assert_that(status, is(0))
-      call MAPL_run_child(user_gc, child_name='child_1', clock=clock, rc=status)
+      call MAPL_run_child(user_gc, child_name='child_1', rc=status)
       @assert_that(status, is(0))
       @assertEqual("wasRun_child_1", log)
 
@@ -89,7 +92,7 @@ contains
       call setup(this, rc=status)
       @assert_that(status, is(0))
 
-      call MAPL_run_child(user_gc, child_name='child_1', clock=clock, phase_name='extra', rc=status)
+      call MAPL_run_child(user_gc, child_name='child_1', phase_name='extra', rc=status)
       @assert_that(status, is(0))
       @assertEqual("wasRun_extra_child_1", log)
 

@@ -117,12 +117,12 @@ contains
       counter = 0
 
       vars => file_metadata%get_variables(_RC)
-      associate ( e => vars%end() )
-        iter = vars%begin()
+      associate ( e => vars%ftn_end() )
+        iter = vars%ftn_begin()
         do while (iter /= e)
+           call iter%next()
 
-!#           var => iter%second()
-           var => iter%value()
+           var => iter%second()
            has_units = var%is_attribute_present('units', _RC)
            if (.not. has_units) cycle
 
@@ -139,9 +139,9 @@ contains
            _ASSERT(counter == 1, 'Too many variables match requested units: ' // units)
            dim_name = dims%of(1)
            
-           call iter%next()
         end do
       end associate
+      _ASSERT(found, "No variable found with units: " // units//".")
 
       _RETURN(_SUCCESS)
    end function get_dim_name

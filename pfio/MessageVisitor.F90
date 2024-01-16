@@ -21,7 +21,7 @@ module pFIO_MessageVisitorMod
    use pFIO_HandShakeMessageMod
    use pFIO_ModifyMetadataMessageMod
    use pFIO_ReplaceMetadataMessageMod
-   use pFIO_AbstractRequestHandleMod 
+   use pFIO_AbstractRequestHandleMod
    implicit none
    private
 
@@ -48,7 +48,7 @@ module pFIO_MessageVisitorMod
       procedure :: handle_ModifyMetadata
       procedure :: handle_ReplaceMetadata
       procedure :: handle_HandShake
-      
+
       generic :: handle_cmd => handle_Done
       generic :: handle_cmd => handle_Done_prefetch
       generic :: handle_cmd => handle_Done_collective_prefetch
@@ -71,8 +71,8 @@ module pFIO_MessageVisitorMod
 contains
 
    recursive subroutine handle(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
-      class (AbstractMessage), intent(in) :: message
+      class (MessageVisitor), target, intent(inout) :: this
+      class (AbstractMessage), target, intent(in) :: message
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -90,11 +90,9 @@ contains
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (StageDoneMessage)
-        call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
-      type is (CollectiveStageDoneMessage)
-        call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+         call this%handle_cmd(cmd,_RC)
+       type is (CollectiveStageDoneMessage)
+          call this%handle_cmd(cmd,_RC)
       type is (AddExtCollectionMessage)
         call this%handle_AddExtCollection(cmd,rc=status)
         _VERIFY(status)
@@ -129,7 +127,7 @@ contains
       type is (DummyMessage)
         ! WY notes: self hand_shake: if iserver or oserver is with app"
         ! the dummy is from server to client
-        ! if the serverthread sends the dummy directly to clientthread, it will not go through here. 
+        ! if the serverthread sends the dummy directly to clientthread, it will not go through here.
         _VERIFY(0)
       class default
          _FAIL( 'unsupported subclass')

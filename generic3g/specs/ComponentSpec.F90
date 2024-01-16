@@ -15,11 +15,13 @@ module mapl3g_ComponentSpec
    public :: ComponentSpec
 
    type :: ComponentSpec
-!!$      private
+      !!$      private
+      type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
       type(VariableSpecVector) :: var_specs
       type(ConnectionVector) :: connections
       type(ChildSpecMap) :: children
    contains
+      procedure :: has_geom_hconfig
       procedure :: add_var_spec
       procedure :: add_connection
    end type ComponentSpec
@@ -39,6 +41,10 @@ contains
       if (present(connections)) spec%connections = connections
    end function new_ComponentSpec
 
+   logical function has_geom_hconfig(this)
+      class(ComponentSpec), intent(in) :: this
+      has_geom_hconfig = allocated(this%geom_hconfig)
+   end function has_geom_hconfig
 
    subroutine add_var_spec(this, var_spec)
       class(ComponentSpec), intent(inout) :: this

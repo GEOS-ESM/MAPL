@@ -27,7 +27,7 @@ module mapl3g_RegridderFactory
          use mapl3g_Regridder
          import :: RegridderFactory
          class(Regridder), allocatable :: regriddr
-         class(RegridderFactory), intent(in) :: this
+         class(RegridderFactory), intent(inout) :: this
          type(RegridderSpec), intent(in) :: spec
          integer, optional, intent(out) :: rc
       end function I_make_regridder_typesafe

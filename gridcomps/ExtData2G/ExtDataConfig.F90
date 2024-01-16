@@ -87,8 +87,8 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Samplings")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Samplings",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -96,12 +96,13 @@ contains
             ts = ExtDataTimeSample(single_sample,_RC)
             call ext_config%sample_map%insert(trim(hconfig_key),ts)
          enddo
+         call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Collections")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Collections",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -111,12 +112,13 @@ contains
             ds = ExtDataFileStream(single_collection,current_time,_RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
          enddo
+         call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Exports")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Exports",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -140,8 +142,8 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Derived")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Derived",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -162,7 +164,7 @@ contains
 
    function count_rules_for_item(this,item_name,rc) result(number_of_rules)
       integer :: number_of_rules
-      class(ExtDataConfig), intent(in) :: this
+      class(ExtDataConfig), target, intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
 
@@ -187,13 +189,13 @@ contains
 
    function get_time_range(this,item_name,rc) result(time_range)
       type(ESMF_Time), allocatable :: time_range(:)
-      class(ExtDataConfig), intent(in) :: this
+      class(ExtDataConfig), target, intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
 
       type(ExtDataRuleMapIterator) :: rule_iterator
       character(len=:), pointer :: key
-      type(StringVector) :: start_times
+      type(StringVector), target :: start_times
       integer :: num_rules
       type(ExtDataRule), pointer :: rule
       integer :: i,status,idx
@@ -265,7 +267,7 @@ contains
    end function sort_rules_by_start
 
    function get_item_type(this,item_name,unusable,rc) result(item_type)
-      class(ExtDataConfig), intent(inout) :: this
+      class(ExtDataConfig), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -316,7 +318,7 @@ contains
    end function get_item_type
 
    subroutine add_new_rule(this,key,export_rule,multi_rule,rc)
-      class(ExtDataConfig), intent(inout) :: this
+      class(ExtDataConfig), target, intent(inout) :: this
       character(len=*), intent(in) :: key
       type(ESMF_HConfig), intent(in) :: export_rule
       logical, optional, intent(in) :: multi_rule
@@ -358,7 +360,7 @@ contains
 
    function get_extra_derived_items(this,primary_items,derived_items,rc) result(needed_vars)
       type(StringVector) :: needed_vars
-      class(ExtDataConfig), intent(inout) :: this
+      class(ExtDataConfig), target, intent(inout) :: this
       type(StringVector), intent(in) :: primary_items
       type(StringVector), intent(in) :: derived_items
       integer, intent(out), optional :: rc
@@ -366,7 +368,7 @@ contains
       integer :: status
       type(StringVectorIterator) :: string_iter
       type(ExtDataDerived), pointer :: derived_item
-      type(StringVector) :: variables_in_expression
+      type(StringVector), target :: variables_in_expression
       character(len=:), pointer :: sval,derived_name
       logical :: in_primary,found_rule
       integer :: i
@@ -401,7 +403,7 @@ contains
 
    function has_rule_for(this,base_name,rc) result(found_rule)
       logical :: found_rule
-      class(ExtDataConfig), intent(inout) :: This
+      class(ExtDataConfig), target, intent(inout) :: This
       character(len=*), intent(in) :: base_name
       integer, optional, intent(out) :: rc
 

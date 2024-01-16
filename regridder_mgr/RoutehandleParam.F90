@@ -32,6 +32,7 @@ module mapl3g_RoutehandleParam
       integer, allocatable :: extrapNumLevels
       type(ESMF_UnmappedAction_Flag) :: unmappedaction
       logical :: ignoreDegenerate
+!#      integer :: srcTermProcessing
    end type RoutehandleParam
 
 
@@ -59,7 +60,7 @@ contains
         regridmethod, polemethod, regridPoleNPnts, &
         linetype, normtype, &
         extrapmethod, extrapNumSrcPnts, extrapDistExponent, extrapNumLevels, &
-        unmappedaction, ignoreDegenerate) result(param)
+        unmappedaction, ignoreDegenerate, srcTermProcessing) result(param)
       type(RoutehandleParam) :: param
 
       integer, optional, intent(in) :: srcMaskValues(:)
@@ -75,6 +76,7 @@ contains
       integer, optional, intent(in) :: extrapNumLevels
       type(ESMF_UnmappedAction_Flag), optional, intent(in) :: unmappedaction
       logical, optional, intent(in) :: ignoreDegenerate
+      integer, optional, intent(in) :: srcTermProcessing
 
       if (present(srcMaskValues)) param%srcMaskValues = srcMaskValues
       if (present(dstMaskValues)) param%dstMaskValues = dstMaskValues
@@ -104,6 +106,7 @@ contains
       if (present(extrapNumLevels)) param%extrapNumLevels = extrapNumLevels
       if (present(unmappedaction)) param%unmappedaction = unmappedaction
       if (present(ignoreDegenerate)) param%ignoreDegenerate = ignoreDegenerate
+!#      if (present(srcTermProcessing)) param%srcTermProcessing = srcTermProcessing
 
    contains
 
@@ -149,11 +152,15 @@ contains
       type(ESMF_Field) :: field_in
       type(ESMF_Field) :: field_out
 
+      integer :: srcTermProcessing=0
+
       field_in = ESMF_FieldEmptyCreate(name='tmp', _RC)
       call ESMF_FieldEmptySet(field_in, geom_in, _RC)
+      call ESMF_FieldEmptyComplete(field_in, typekind=ESMF_TypeKind_R4, _RC)
       
       field_out = ESMF_FieldEmptyCreate(name='tmp', _RC)
-      call ESMF_FieldEmptySet(field_in, geom_out, _RC)
+      call ESMF_FieldEmptySet(field_out, geom_out, _RC)
+      call ESMF_FieldEmptyComplete(field_out, typekind=ESMF_TypeKind_R4, _RC)
 
       call ESMF_FieldRegridStore(field_in, field_out, &
            srcMaskValues=param%srcMaskValues, &
@@ -169,6 +176,7 @@ contains
            extrapNumLevels=param%extrapNumLevels, &
            unmappedaction=param%unmappedaction, &
            ignoreDegenerate=param%ignoreDegenerate, &
+           srcTermProcessing=srcTermProcessing, &
            routehandle=routehandle, &
            _RC)
 
@@ -186,6 +194,7 @@ contains
 
       eq = same_mask_values(a%srcMaskValues, b%srcMaskValues)
       if (.not. eq) return
+
       eq = same_mask_values(a%dstMaskValues, b%dstMaskValues)
       if (.not. eq) return
 
@@ -221,7 +230,7 @@ contains
 
       eq = a%ignoreDegenerate .eqv. b%ignoreDegenerate
       if (.not. eq) return
-      
+
    contains
 
       logical function same_mask_values(a, b) result(eq)
@@ -246,6 +255,10 @@ contains
 
          eq = .false.
          if (allocated(a) .neqv. allocated(b)) return
+
+         eq = .true.
+         if (.not. allocated(a)) return
+
          eq = (a == b)
 
       end function same_scalar_int

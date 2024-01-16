@@ -84,13 +84,13 @@ contains
       integer :: lineCount, columnCount,i,rank
       character(len=ESMF_MAXSTR) :: ctemp
       character(len=:), pointer :: cname
-      type(StringVector) :: cases
+      type(StringVector), target :: cases
       type(StringVectorIterator) :: iter  
       type(SplitCommunicator) :: split_comm
 
       CommCap = MPI_COMM_WORLD
 
-      call this%initialize_io_clients_servers(commCap, rc = status); _VERIFY(status)
+      call this%initialize_io_clients_servers(commCap, _RC)
       call this%cap_server%get_splitcomm(split_comm)
       select case(split_comm%get_name())
       case('model')
@@ -169,8 +169,6 @@ contains
   
      integer :: status
 
-     _UNUSED_DUMMY(unusable)
-
      call this%cap_server%initialize(comm, &
          application_size=this%cap_options%npes_model, &
          nodes_input_server=this%cap_options%nodes_input_server, &
@@ -182,9 +180,10 @@ contains
          isolate_nodes = this%cap_options%isolate_nodes, &
          fast_oclient  = this%cap_options%fast_oclient, &
          with_profiler = this%cap_options%with_io_profiler, &
-         rc=status) 
-     _VERIFY(status)
+         _RC)
+
      _RETURN(_SUCCESS)
+     _UNUSED_DUMMY(unusable)
 
    end subroutine initialize_io_clients_servers
 

@@ -1,7 +1,6 @@
 module mapl3g_CoordinateAxis
    use mapl_RangeMod
    use esmf, only: ESMF_KIND_R8
-   use esmf, only: ESMF_HConfig
    use pfio
    implicit none
    private

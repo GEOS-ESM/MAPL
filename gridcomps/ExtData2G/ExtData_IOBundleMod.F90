@@ -61,7 +61,7 @@ contains
     character(len=*), intent(in) :: template
     integer, intent(in) :: metadata_coll_id
     integer, intent(in) :: server_coll_id
-    type(GriddedIOItemVector) :: items
+    type(GriddedIOItemVector), target :: items
     logical, intent(in) :: on_tiles
     integer, optional, intent(out) :: rc
 
@@ -96,7 +96,7 @@ contains
 
 
   subroutine make_io(this, rc)
-    class (ExtDataNG_IOBundle), intent(inout) :: this
+    class (ExtDataNG_IOBundle), target, intent(inout) :: this
     integer, optional, intent(out) :: rc
 
      if (this%on_tiles) then
@@ -109,7 +109,6 @@ contains
      end if
 
      _RETURN(ESMF_SUCCESS)
-
    end subroutine make_io
 
    subroutine assign(to,from)

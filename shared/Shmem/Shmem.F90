@@ -7,11 +7,10 @@ module MAPL_Shmem
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
   use MAPL_Constants
-  use MPI
+  use mpi
 
   implicit none
   private
-
 
   public :: MAPL_GetNodeInfo
   public :: MAPL_CoresPerNodeGet
@@ -30,7 +29,7 @@ module MAPL_Shmem
 
   public :: MAPL_GetNewRank
 
-  character*30 :: Iam="MAPL_ShmemMod in line "
+  character(len=30) :: Iam="MAPL_ShmemMod in line "
 
   integer(c_int), parameter :: IPC_CREAT = 512
   integer(c_int), parameter :: IPC_RMID  = 0
@@ -98,11 +97,6 @@ module MAPL_Shmem
        integer (c_int), value :: cmd
        type (c_ptr),    value :: buf
      end function shmctl
-
-     subroutine perror(s) bind(c,name="perror")
-       use, intrinsic :: ISO_C_BINDING
-       character(c_char), intent(in) :: s(*)
-     end subroutine perror
 
   end interface
 
@@ -181,7 +175,7 @@ module MAPL_Shmem
      end subroutine MAPL_FinalizeShmem
 
      module subroutine MAPL_DeAllocNodeArray_1DL4(Ptr,rc)
-       logical,  pointer              :: Ptr(:)
+       logical, pointer :: Ptr(:)
        integer, optional, intent(OUT) :: rc
 
      end subroutine MAPL_DeAllocNodeArray_1DL4

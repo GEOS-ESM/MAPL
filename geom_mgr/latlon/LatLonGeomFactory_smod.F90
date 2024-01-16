@@ -11,6 +11,8 @@ submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use pFIO
    use gFTL_StringVector
    use esmf
+   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   implicit none
 
 
 contains
@@ -88,7 +90,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Grid) :: grid
 
       select type (geom_spec)
       type is (LatLonGeomSpec)
@@ -110,9 +111,7 @@ contains
       type(ESMF_Grid) :: grid
 
       grid = create_basic_grid(spec, _RC)
-      _HERE
       call fill_coordinates(spec, grid, _RC)
-      _HERE
       geom = ESMF_GeomCreate(grid=grid, _RC)
 
       _RETURN(_SUCCESS)
@@ -120,10 +119,9 @@ contains
 
 
    module function create_basic_grid(spec, unusable, rc) result(grid)
-      use mapl_KeywordEnforcer
       type(ESMF_Grid) :: grid
       type(LatLonGeomSpec), intent(in) :: spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -162,18 +160,16 @@ contains
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, _RC)
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
-
+      
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function create_basic_grid
 
 
    module subroutine fill_coordinates(spec, grid, unusable, rc)
-      use MAPL_BaseMod, only: MAPL_grid_interior
-      use mapl_KeywordEnforcer
       type(LatLonGeomSpec), intent(in) :: spec
       type(ESMF_Grid), intent(inout) :: grid
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -190,7 +186,7 @@ contains
       lon_axis = spec%get_lon_axis()
       lat_axis = spec%get_lat_axis()
       decomp = spec%get_decomposition()
-      
+
       nx = size(decomp%get_lon_distribution())
       ny = size(decomp%get_lat_distribution())
       call get_ranks(nx, ny, ix, iy, _RC)
@@ -263,8 +259,6 @@ contains
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       gridded_dims = StringVector()
       select type (geom_spec)
       type is (LatLonGeomSpec)
@@ -278,9 +272,11 @@ contains
    end function make_gridded_dims
 
 
-   module function make_file_metadata(this, geom_spec, rc) result(file_metadata)
+   module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
       type(FileMetadata) :: file_metadata
       class(LatLonGeomFactory), intent(in) :: this
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: chunksizes(:)
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
 
@@ -290,19 +286,21 @@ contains
 
       select type (geom_spec)
       type is (LatLonGeomSpec)
-         file_metadata = typesafe_make_file_metadata(geom_spec, rc)
+         file_metadata = typesafe_make_file_metadata(geom_spec, chunksizes=chunksizes, _RC)
       class default
          _FAIL('geom_spec is not of dynamic type LatLonGeomSpec.')
       end select
 
+      _RETURN(_SUCCESS)
    end function make_file_metadata
 
-   function typesafe_make_file_metadata(geom_spec, rc) result(file_metadata)
+   function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
       type(FileMetadata) :: file_metadata
       type(LatLonGeomSpec), intent(in) :: geom_spec
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
       type(Variable) :: v
@@ -314,20 +312,21 @@ contains
       call file_metadata%add_dimension('lat', lat_axis%get_extent())
 
       ! Coordinate variables
-      v = Variable(type=PFIO_REAL64, dimensions='lon')
+      v = Variable(type=PFIO_REAL64, dimensions='lon', chunksizes=chunksizes)
       call v%add_attribute('long_name', 'longitude')
       call v%add_attribute('units', 'degrees_east')
       call v%add_const_value(UnlimitedEntity(lon_axis%get_centers()))
       
       call file_metadata%add_variable('lon', v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='lat')
+      v = Variable(type=PFIO_REAL64, dimensions='lat', chunksizes=chunksizes)
       call v%add_attribute('long_name', 'latitude')
       call v%add_attribute('units', 'degrees_north')
       call v%add_const_value(UnlimitedEntity(lat_axis%get_centers()))
       call file_metadata%add_variable('lat', v)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function typesafe_make_file_metadata
 
 end submodule LatLonGeomFactory_smod

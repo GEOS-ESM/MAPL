@@ -22,7 +22,7 @@ module mapl3g_EsmfRegridder
       type(ESMF_Region_Flag) :: zeroregion
       type(ESMF_TermOrder_Flag) :: termorder
       logical :: checkflag
-      type(DynamicMask), allocatable :: dyn_mask
+      type(DynamicMask) :: dyn_mask
    contains
       procedure :: equal_to
       procedure :: get_routehandle_param
@@ -58,7 +58,8 @@ contains
 
       param%routehandle_param = RoutehandleParam(regridmethod=regridmethod)
       param = EsmfRegridderParam(RoutehandleParam(regridmethod=regridmethod), &
-           zeroregion=zeroregion, termorder=termorder, checkflag=checkflag, dyn_mask=dyn_mask)
+           zeroregion=zeroregion, termorder=termorder, checkflag=checkflag, &
+           dyn_mask=dyn_mask)
       
    end function new_EsmfRegridderParam_simple
 
@@ -122,23 +123,130 @@ contains
 
    subroutine regrid_scalar_safe(routehandle, param, f_in, f_out, rc)
       type(ESMF_Routehandle), intent(inout) :: routehandle
-      type(EsmfRegridderParam), intent(in) :: param
+      ! TODO: The TARGET attribute on the next line really should not
+      ! be necessary, but apparently is at least with NAG 7.138.  The
+      ! corresponding dummy arg in the ESMF call below has the TARGET
+      ! attribute, and passing in an unallocated non TARGET actual, is
+      ! apparently not being treated as a non present argument.
+      type(EsmfRegridderParam), target, intent(in) :: param
       type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, optional, intent(out) :: rc
       
       integer :: status
+      logical :: has_ungridded_dims
+      logical :: has_dynamic_mask
+      integer :: ub(ESMF_MAXDIM)
+      type(ESMF_TypeKind_Flag) :: typekind
+      type(ESMF_DynamicMask), allocatable :: mask
+
+      call ESMF_FieldGet(f_in, ungriddedUBound=ub, typekind=typekind, _RC)
+      has_ungridded_dims = any(ub > 1)
+
+      if (typekind == ESMF_TYPEKIND_R4) then
+         has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r4)
+         if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r4
+      elseif (typekind == ESMF_TYPEKIND_R8) then
+         has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r8)
+         if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r8
+      end if
+
+      if (has_dynamic_mask .and. has_ungridded_dims) then
+         call regrid_ungridded(routehandle, mask, param, f_in, f_out, n=product(max(ub,1)), _RC)
+         _RETURN(_SUCCESS)
+      end if
 
       call ESMF_FieldRegrid(f_in, f_out, &
            routehandle=routehandle, &
-           dynamicMask=param%dyn_mask%esmf_mask, &
            termorderflag=param%termorder, &
            zeroregion=param%zeroregion, &
            checkflag=param%checkflag, &
+           dynamicMask=mask, &
            _RC)
 
       _RETURN(_SUCCESS)
    end subroutine regrid_scalar_safe
 
+   subroutine regrid_ungridded(routehandle, mask, param, f_in, f_out, n, rc)
+      type(ESMF_Routehandle), intent(inout) :: routehandle
+      type(ESMF_DynamicMask), intent(in) :: mask
+      type(EsmfRegridderParam), target, intent(in) :: param
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, intent(in) :: n
+      integer, optional, intent(out) :: rc 
+
+      integer :: status
+      integer :: k
+      type(ESMF_Field) :: f_tmp_in, f_tmp_out
+
+      do k = 1, n
+
+         f_tmp_in = get_slice(f_in, k, _RC)
+         f_tmp_out = get_slice(f_out, k, _RC)
+
+         ! Can only call this if esmf_mask is allocated.
+         call ESMF_FieldRegrid(f_tmp_in, f_tmp_out, &
+              routehandle=routehandle, &
+              termorderflag=param%termorder, &
+              zeroregion=param%zeroregion, &
+              checkflag=param%checkflag, &
+              dynamicMask=mask, &
+              _RC)
+
+         call ESMF_FieldDestroy(f_tmp_in, nogarbage=.true., _RC)
+         call ESMF_FieldDestroy(f_tmp_out, nogarbage=.true.,  _RC)
+         
+      end do
+      
+      _RETURN(_SUCCESS)
+
+   contains
+
+      function get_slice(f, k, rc) result(f_slice)
+         type(ESMF_Field) :: f_slice
+         type(ESMF_Field), intent(inout) :: f
+         integer, intent(in) :: k
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         real(kind=ESMF_KIND_R4), pointer :: x(:,:,:)
+         real(kind=ESMF_KIND_R4), pointer :: x_slice(:,:)
+         type(ESMF_Geom) :: geom
+         type(ESMF_GeomType_Flag) :: geomtype
+         type(ESMF_Grid) :: grid
+         type(ESMF_Mesh) :: mesh
+         type(ESMF_XGrid) :: xgrid
+         type(ESMF_LocStream) :: locstream
+
+         call ESMF_FieldGet(f, farrayptr=x, _RC)
+         call ESMF_FieldGet(f, geomtype=geomtype, _RC)
+
+         if (geomtype == ESMF_GEOMTYPE_GRID) then
+            call ESMF_FieldGet(f, grid=grid, _RC)
+            geom = ESMF_GeomCreate(grid, _RC)
+         elseif (geomtype == ESMF_GEOMTYPE_MESH) then
+            call ESMF_FieldGet(f, mesh=mesh, _RC)
+            geom = ESMF_GeomCreate(mesh, _RC)
+         elseif (geomtype == ESMF_GEOMTYPE_XGRID) then
+            call ESMF_FieldGet(f, xgrid=xgrid, _RC)
+            geom = ESMF_GeomCreate(xgrid, _RC)
+         elseif (geomtype == ESMF_GEOMTYPE_LOCSTREAM) then
+            call ESMF_FieldGet(f, locstream=locstream, _RC)
+            geom = ESMF_GeomCreate(locstream, _RC)
+         else
+            _FAIL('Invalid geometry type.')
+         end if
+
+         x_slice => x(:,:,k)
+         f_slice = ESMF_FieldCreate(geom, &
+              datacopyflag=ESMF_DATACOPY_REFERENCE, &
+              farrayptr=x_slice, _RC)
+
+         call ESMF_GeomDestroy(geom, _RC)
+         
+         _RETURN(_SUCCESS)
+      end function get_slice
+
+   end subroutine regrid_ungridded
 
    logical function equal_to(this, other)
       class(EsmfRegridderParam), intent(in) :: this
@@ -153,7 +261,6 @@ contains
          if (.not. this%termorder == q%termorder) return
          if (this%checkflag .neqv. q%checkflag) return
          
-         if (allocated(this%dyn_mask) .neqv. allocated(q%dyn_mask)) return
          if (this%dyn_mask /= q%dyn_mask) return
       class default
          return
