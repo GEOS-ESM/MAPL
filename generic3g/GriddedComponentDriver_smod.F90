@@ -11,7 +11,7 @@ contains
 
    module recursive subroutine run(this, unusable, phase_idx, rc)
       class(GriddedComponentDriver), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
@@ -37,7 +37,7 @@ contains
 
    recursive module subroutine initialize(this, unusable, phase_idx, rc)
       class(GriddedComponentDriver), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
@@ -59,8 +59,9 @@ contains
    end subroutine initialize
 
    module recursive subroutine finalize(this, unusable, phase_idx, rc)
+      use MAPL_Shared, only: 
       class(GriddedComponentDriver), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
@@ -125,7 +126,7 @@ contains
 
    recursive module subroutine run_export_couplers(this, unusable, phase_idx, rc)
       class(GriddedComponentDriver), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 

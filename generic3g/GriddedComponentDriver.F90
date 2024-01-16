@@ -5,7 +5,7 @@ module mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl_ErrorHandlingMod
-   use :: MaplShared, only: KeywordEnforcer
+   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    use :: esmf
    implicit none
    private
@@ -46,7 +46,7 @@ module mapl3g_GriddedComponentDriver
 
       module recursive subroutine initialize(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), intent(inout) :: this
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine initialize
@@ -55,21 +55,20 @@ module mapl3g_GriddedComponentDriver
       ! on OuterMetaComponent.
       module recursive subroutine run(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), intent(inout) :: this
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine
 
       module recursive subroutine finalize(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), intent(inout) :: this
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine finalize
 
 
       module function get_states(this) result(states)
-         use mapl3g_MultiState
          type(MultiState) :: states
          class(GriddedComponentDriver), intent(in) :: this
       end function get_states
@@ -88,7 +87,7 @@ module mapl3g_GriddedComponentDriver
 
       recursive module subroutine run_export_couplers(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), intent(inout) :: this
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine run_export_couplers
