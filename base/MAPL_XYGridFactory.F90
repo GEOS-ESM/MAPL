@@ -51,7 +51,7 @@ module MAPL_XYGridFactoryMod
 
       integer :: xdim_true
       integer :: ydim_true
-      integer :: factor = 10
+      integer :: thin_factor
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
@@ -147,19 +147,13 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      write(6,'(2x,a)') 'bf create_basic_grid'
       grid = this%create_basic_grid(_RC)
-      write(6,'(2x,a)') 'bf add_horz_coordinates_from_file'
-
       if ( index(trim(adjustl(this%grid_name)), 'ABI') == 0 ) then
          call this%add_horz_coordinates_from_file(grid, _RC)
       else
          call this%add_horz_coordinates_from_ABIfile(grid, _RC)         
       end if
       call this%add_mask(grid,_RC)
-
-      write(6,'(2x,a)') 'af add_mask'
-
 
       _RETURN(_SUCCESS)
 
@@ -395,14 +389,10 @@ contains
        Ydim = DIMS(2)
        npoints = Xdim * Ydim
 
-       !
-       !-  read lon/lat
-       !
        call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
        call MAPL_AllocateShared(arr_lon,[Xdim, Ydim],transroot=.true.,_RC)
         call MAPL_AllocateShared(arr_lat,[Xdim, Ydim],transroot=.true.,_RC)
        call MAPL_SyncSharedMemory(_RC)
-       write(6,*) 'grid_name', trim(adjustl(this%grid_name))
        
        fn = this%grid_file_name
        key_x = this%var_name_x
@@ -414,30 +404,25 @@ contains
           allocate (y(this%Ydim_true))
           call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
           call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
-          !write(6, 101) 'x=', x(::100)
-          !write(6, 101) 'y=', y(::100)   
           call get_att_real_netcdf(fn, key_p, key_p_att, lambda0_deg, _RC)
           lambda0=lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
+          !write(6, 101) 'x=', x(::100)
+          !write(6, 101) 'y=', y(::100)   
           !write(6, 101) 'lambda0=', lambda0
-          !call test_conversion
           
           do i = 1, Xdim
              do j= 1, Ydim
-                x0 = x( i * this%factor )
-                y0 = y( j * this%factor )                
+                x0 = x( i * this%thin_factor )
+                y0 = y( j * this%thin_factor )                
                 call ABI_XY_2_lonlat (x0, y0, lambda0, arr_lon(i,j), arr_lat(i,j))
-                if (  mod(i,200)==1 .AND. mod(j,200)==1) then
-                   write(6,111) 'x,y,lon,lat', x(i), y(j), arr_lon(i,j), arr_lat(i,j)
-                   !! write(6,121) 'mask       ', mask(i,j)
-                end if
              end do
           end do
        end if
        call MAPL_SyncSharedMemory(_RC)
 
        call ESMF_VMGetCurrent(vm, _RC)
-       call MAPL_BcastShared (VM, data=arr_lon, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
-       call MAPL_BcastShared (VM, data=arr_lat, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
+       call MAPL_BcastShared (vm, data=arr_lon, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
+       call MAPL_BcastShared (vm, data=arr_lat, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
        
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
@@ -457,7 +442,6 @@ contains
       end if
        
        _RETURN(_SUCCESS)
-       include '/Users/yyu11/sftp/myformat.inc'
 
     end subroutine add_horz_coordinates_from_ABIfile
    
@@ -532,8 +516,9 @@ contains
       call ESMF_ConfigGetAttribute(config, this%index_name_y, label=prefix//'index_name_y:', default="y", _RC)
       call ESMF_ConfigGetAttribute(config, this%var_name_x,   label=prefix//'var_name_x:',   default="x", _RC)
       call ESMF_ConfigGetAttribute(config, this%var_name_y,   label=prefix//'var_name_y:',   default="y", _RC)
-      call ESMF_ConfigGetAttribute(config, this%var_name_proj,label=prefix//'var_name_proj:',   default="", _RC)
-      call ESMF_ConfigGetAttribute(config, this%att_name_proj,label=prefix//'att_name_proj:',   default="", _RC)      
+      call ESMF_ConfigGetAttribute(config, this%var_name_proj,label=prefix//'var_name_proj:',default="",  _RC)
+      call ESMF_ConfigGetAttribute(config, this%att_name_proj,label=prefix//'att_name_proj:',default="",  _RC)
+      call ESMF_ConfigGetAttribute(config, this%thin_factor,  label=prefix//'thin_factor:',  default=1,   _RC)            
 
       if (mapl_am_i_root()) then
          call get_ncfile_dimension(this%grid_file_name, nlon=n1, nlat=n2, &
@@ -543,24 +528,17 @@ contains
       end if
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMBroadcast (vm, arr, 2, 0, _RC)
-
-      !  thin obs data manually
+      !
+      ! use thin_factor to reduce regridding matrix size
+      !
       this%xdim_true = arr(1)
-      this%ydim_true = arr(1)
-
-      this%im_world = arr(1) / this%factor
-      this%jm_world = arr(2) / this%factor
-
-      write(6,'(2x,a,100i10)') 'nail 2, nx,ny,im,jm,lm',&
-           this%nx,this%ny,this%im_world,this%jm_world,this%lm      
-      write(6,'(2x,a,10(2x,a))') 'var_name_proj, var_name_proj', &
-           trim(this%var_name_proj), trim(this%att_name_proj)
+      this%ydim_true = arr(2)
+      this%im_world  = arr(1) / this%thin_factor
+      this%jm_world  = arr(2) / this%thin_factor
       
       call this%check_and_fill_consistency(rc=status)
 
       _RETURN(_SUCCESS)
-
-      include '/Users/yyu11/sftp/myformat.inc'
 
     contains
 
@@ -1057,22 +1035,19 @@ contains
       integer :: has_undef, local_has_undef
 
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-         staggerloc=ESMF_STAGGERLOC_CENTER, &
-         farrayPtr=fptr, _RC)
+         staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
       local_has_undef = 0
       if (any(fptr == MAPL_UNDEF)) local_has_undef = 1
 
-!      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-!         staggerloc=ESMF_STAGGERLOC_CENTER, &
-!         farrayPtr=fptr, _RC)
-!      local_has_undef = 0
-!      if (any(fptr == MAPL_UNDEF)) local_has_undef = 1
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+         staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
+      if (any(fptr == MAPL_UNDEF)) local_has_undef = local_has_undef + 1
 
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMAllFullReduce(vm, [local_has_undef], has_undef, 1, ESMF_REDUCE_MAX, _RC) 
-_RETURN_IF(has_undef == 0)    
+      _RETURN_IF(has_undef == 0)    
 
-      call ESMF_GridAddItem(grid,staggerLoc=ESMF_STAGGERLOC_CENTER, itemflag=ESMF_GRIDITEM_MASK,_RC)
+      call ESMF_GridAddItem(grid,staggerLoc=ESMF_STAGGERLOC_CENTER,itemflag=ESMF_GRIDITEM_MASK,_RC)
       call ESMF_GridGetItem(grid,localDE=0,staggerLoc=ESMF_STAGGERLOC_CENTER, &
           itemflag=ESMF_GRIDITEM_MASK,farrayPtr=mask,_RC)
 
@@ -1081,6 +1056,5 @@ _RETURN_IF(has_undef == 0)
 
       _RETURN(_SUCCESS)
     end subroutine add_mask
-
 
 end module MAPL_XYGridFactoryMod
