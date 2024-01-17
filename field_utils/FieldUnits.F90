@@ -26,7 +26,7 @@
 ! and conv % convert cannot be called before calling GetFieldUnitsConverter for conv.
 
 #include "MAPL_Generic.h"
-module FieldUnits
+module mapl_FieldUnits
 
    use udunits2mod, FieldUnitsConverter => Converter, &
       initialize_udunits => initialize, finalize_udunits => finalize
