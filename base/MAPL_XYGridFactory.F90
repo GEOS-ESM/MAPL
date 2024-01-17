@@ -366,8 +366,10 @@ contains
       integer :: status
 
       integer :: i_1,i_n,j_1,j_n, ncid, varid
+      integer :: i, j
       real(REAL64), pointer :: arr_lon(:,:)
       real(REAL64), pointer :: arr_lat(:,:)
+      integer,      pointer :: mask(:,:)      
       real(REAL64), allocatable :: x(:)
       real(REAL64), allocatable :: y(:)      
       real(REAL64) :: lambda0_deg, lambda0
@@ -396,6 +398,7 @@ contains
        call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
        call MAPL_AllocateShared(arr_lon,[Xdim, Ydim],transroot=.true.,_RC)
        call MAPL_AllocateShared(arr_lat,[Xdim, Ydim],transroot=.true.,_RC)
+       call MAPL_AllocateShared(mask,   [Xdim, Ydim],transroot=.true.,_RC)       
        call MAPL_SyncSharedMemory(_RC)
        write(6,*) 'grid_name', trim(adjustl(this%grid_name))
        
@@ -420,7 +423,13 @@ contains
           lambda0=lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
           write(6, 101) 'lambda0=', lambda0
 
-          
+          do i = 1, Xdim
+             do j= 1, Ydim
+                call ABI_XY_2_lonlat (x(i), y(j), lambda0, arr_lon(i,j), arr_lat(i,j), mask(i,j))
+                write(6,101) 'x,y,lon,lat', x(i), y(j), arr_lon(i,j), arr_lat(i,j)
+                write(6,121) 'mask       ', mask(i,j)
+             end do
+          end do
           
           ! ...
 
