@@ -8,6 +8,8 @@ module MAPL_XYGridFactoryMod
    use MAPL_ExceptionHandling
    use MAPL_ShmemMod
    use MAPL_Constants
+   use MAPL_CommsMod
+   use MAPL_BaseMod
    use ESMF
    use pFIO
    use NetCDF
@@ -65,6 +67,7 @@ module MAPL_XYGridFactoryMod
       procedure :: decomps_are_equal
       procedure :: physical_params_are_equal
       procedure :: file_has_corners
+      procedure :: add_mask
    end type XYGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_XYGridFactory::'
@@ -138,8 +141,8 @@ contains
       grid = this%create_basic_grid(rc=status)
       _VERIFY(status)
 
-      call this%add_horz_coordinates_from_file(grid, rc=status)
-      _VERIFY(status)
+      call this%add_horz_coordinates_from_file(grid, _RC)
+      call this%add_mask(grid,_RC)
 
       _RETURN(_SUCCESS)
 
@@ -215,7 +218,6 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-
        lon_center_name = "lons"
        lat_center_name = "lats"
        lon_corner_name = "corner_lons"
@@ -253,7 +255,7 @@ contains
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,centers)
           _VERIFY(status)
-          centers=centers*MAPL_DEGREES_TO_RADIANS_R8
+          where(centers /= MAPL_UNDEF) centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
 
@@ -269,7 +271,7 @@ contains
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,centers)
           _VERIFY(status)
-           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
+          where(centers /= MAPL_UNDEF) centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
 
@@ -296,7 +298,7 @@ contains
              _VERIFY(status)
              status = nf90_get_var(ncid,varid,corners)
              _VERIFY(status)
-             corners=corners*MAPL_DEGREES_TO_RADIANS_R8
+             where(corners /= MAPL_UNDEF) corners=corners*MAPL_DEGREES_TO_RADIANS_R8
           end if
           call MAPL_SyncSharedMemory(_RC)
 
@@ -312,7 +314,7 @@ contains
              _VERIFY(status)
              status = nf90_get_var(ncid,varid,corners)
              _VERIFY(status)
-             corners=corners*MAPL_DEGREES_TO_RADIANS_R8
+             where(corners /= MAPL_UNDEF) corners=corners*MAPL_DEGREES_TO_RADIANS_R8
           end if
           call MAPL_SyncSharedMemory(_RC)
 
@@ -890,6 +892,36 @@ contains
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMBroadcast(vm,log_array,1,0,_RC)
       this%has_corners = (1 == log_array(1))
+
+      _RETURN(_SUCCESS)
+   end subroutine
+
+   subroutine add_mask(this,grid,rc)
+      class(XYGridFactory), intent(in) :: this
+      type(ESMF_Grid), intent(inout) :: grid
+      integer, intent(out), optional :: rc
+
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(ESMF_KIND_R8), pointer :: fptr(:,:)
+      integer :: i,j,status
+      type(ESMF_VM) :: vm
+      integer :: has_undef, local_has_undef
+
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+         staggerloc=ESMF_STAGGERLOC_CENTER, &
+         farrayPtr=fptr, _RC)
+      local_has_undef = 0
+      if (any(fptr == MAPL_UNDEF)) local_has_undef = 1
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMAllFullReduce(vm, [local_has_undef], has_undef, 1, ESMF_REDUCE_MAX, _RC) 
+_RETURN_IF(has_undef == 0)    
+
+      call ESMF_GridAddItem(grid,staggerLoc=ESMF_STAGGERLOC_CENTER, itemflag=ESMF_GRIDITEM_MASK,_RC)
+      call ESMF_GridGetItem(grid,localDE=0,staggerLoc=ESMF_STAGGERLOC_CENTER, &
+          itemflag=ESMF_GRIDITEM_MASK,farrayPtr=mask,_RC)
+
+      mask = MAPL_MASK_IN
+      where(fptr==MAPL_UNDEF) mask = MAPL_MASK_OUT
 
       _RETURN(_SUCCESS)
    end subroutine
