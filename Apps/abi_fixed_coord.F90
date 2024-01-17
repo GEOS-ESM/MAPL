@@ -38,7 +38,7 @@ program  ABI_fixed_coord
 
    var_name_proj='goes_imager_projection'
    att_name_proj='longitude_of_projection_origin'
-   call get_att1d_netcdf( fn, var_name_proj, att_name_proj, lambda0_deg, _RC)
+   call get_att_real_netcdf( fn, var_name_proj, att_name_proj, lambda0_deg, _RC)
    lambda0 = lambda0_deg/180.d0*4.d0*atan(1.d0)
 
    write(6, 101) 'lambda0=', lambda0   

@@ -52,6 +52,7 @@ module MAPL_XYGridFactoryMod
       procedure :: make_new_grid
       procedure :: create_basic_grid
       procedure :: add_horz_coordinates_from_file
+      procedure :: add_horz_coordinates_from_ABIfile      
       procedure :: init_halo
       procedure :: halo
 
@@ -362,13 +363,9 @@ contains
       type (ESMF_Grid), intent(inout) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'add_horz_coordinates'
 
       integer :: i_1,i_n,j_1,j_n, ncid, varid
-      integer :: ic_1,ic_n,jc_1,jc_n ! regional corner bounds
-      real, pointer :: centers(:,:), corners(:,:) 
       real(REAL64), pointer :: arr_lon(:,:)
       real(REAL64), pointer :: arr_lat(:,:)
       real(REAL64), allocatable :: x(:)
@@ -380,27 +377,25 @@ contains
       integer :: COUNTS(3), DIMS(3)
       integer :: Xdim, Ydim, npoints
       character(len=:), allocatable :: lon_center_name, lat_center_name, lon_corner_name, lat_corner_name
-      character(len=ESMF_MAXSTR) :: fn
-      character(len=ESMF_MAXSTR) :: key_x, key_y, key_p, key_p_att, unit
+      character(len=ESMF_MAXSTR) :: fn, key_x, key_y, key_p, key_p_att, unit
 
+      type(ESMF_VM) :: vm
       _UNUSED_DUMMY(unusable)
 
       lon_center_name = this%var_name_x
       lat_center_name = this%var_name_y
-      lon_corner_name = "corner_"//trim(lon_center_name)
-      lat_corner_name = "corner_"//trim(lat_center_name)
       
        call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, globalCellCountPerDim=DIMS, _RC)
        Xdim = DIMS(1)
        Ydim = DIMS(2)
        npoints = Xdim * Ydim
 
-
+       !
        !-  read lon/lat
        !
        call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
-       call MAPL_AllocateShared(arr_lon,[IM_WORLD,JM_WORLD],transroot=.true.,_RC)
-       call MAPL_AllocateShared(arr_lat,[IM_WORLD,JM_WORLD],transroot=.true.,_RC)
+       call MAPL_AllocateShared(arr_lon,[Xdim, Ydim],transroot=.true.,_RC)
+       call MAPL_AllocateShared(arr_lat,[Xdim, Ydim],transroot=.true.,_RC)
        call MAPL_SyncSharedMemory(_RC)
        write(6,*) 'grid_name', trim(adjustl(this%grid_name))
        
@@ -420,77 +415,30 @@ contains
              arr_lat=arr_lat*MAPL_DEGREES_TO_RADIANS_R8
           end if
           write(6, 101) 'x=', x
-          write(6, 101) 'y=', y
+          write(6, 101) 'y=', y          
+          call get_att_real_netcdf(fn, key_p, key_p_att, lambda0_deg, _RC)
+          lambda0=lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
+          write(6, 101) 'lambda0=', lambda0
+
           
+          
+          ! ...
+
           !
           ! add mask
           !
-
-             write(6,*) 'in ABI'
-             call get_att_real_netcdf( fn, key_p, key_p_att, lambda0_deg, _RC)
-             lambda0=lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
-
-
-          ! ...
 
           !         write(6,*) 'in root'
           !         write(6,'(11x,100f10.1)')  arr_lon(::5,189)
        end if
        call MAPL_SyncSharedMemory(_RC)
 
+       call ESMF_VMGetCurrent(vm, _RC)
+       call ESMF_VMbarrier(vm, _RC)
 
-       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_open(this%grid_file_name,NF90_NOWRITE,ncid)
-          _VERIFY(status)
-       end if
-
-       call MAPL_AllocateShared(centers,[im_world,jm_world],transroot=.true.,_RC)
-
-       call MAPL_SyncSharedMemory(_RC)
-
-       ! do longitudes
-       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,lon_center_name,varid)
-          _VERIFY(status)
-          status = nf90_get_var(ncid,varid,centers)
-          _VERIFY(status)
-          where(centers /= MAPL_UNDEF) centers=centers*MAPL_DEGREES_TO_RADIANS_R8
-       end if
-       call MAPL_SyncSharedMemory(_RC)
-
-       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, &
-          farrayPtr=fptr, rc=status)
-       fptr=centers(i_1:i_n,j_1:j_n)
-
-
-       ! do latitudes
-
-       call MAPL_SyncSharedMemory(_RC)
-       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,lat_center_name,varid)
-          _VERIFY(status)
-          status = nf90_get_var(ncid,varid,centers)
-          _VERIFY(status)
-          where(centers /= MAPL_UNDEF) centers=centers*MAPL_DEGREES_TO_RADIANS_R8
-       end if
-       call MAPL_SyncSharedMemory(_RC)
-
-       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, &
-          farrayPtr=fptr, rc=status)
-       fptr=centers(i_1:i_n,j_1:j_n)
-
-       call MAPL_SyncSharedMemory(_RC)
-       if(MAPL_ShmInitialized) then
-          call MAPL_DeAllocNodeArray(centers,_RC)
-       else
-          deallocate(centers)
-       end if
-
-
-      _RETURN(_SUCCESS)
-      include '/Users/yyu11/sftp/myformat.inc'
+       
+       _RETURN(_SUCCESS)
+       include '/Users/yyu11/sftp/myformat.inc'
 
     end subroutine add_horz_coordinates_from_ABIfile
    
