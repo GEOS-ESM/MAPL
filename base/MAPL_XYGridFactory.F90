@@ -51,7 +51,7 @@ module MAPL_XYGridFactoryMod
 
       integer :: xdim_true
       integer :: ydim_true
-      integer :: factor      
+      integer :: factor = 10
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
@@ -371,8 +371,6 @@ contains
       integer :: i, j
       real(REAL64), pointer :: arr_lon(:,:)
       real(REAL64), pointer :: arr_lat(:,:)
-      integer,      pointer :: mask2d(:,:)
-      integer,      pointer :: mask(:,:)            
       real(REAL64), allocatable :: x(:)
       real(REAL64), allocatable :: y(:)      
       real(REAL64) :: lambda0_deg, lambda0
@@ -403,7 +401,6 @@ contains
        call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
        call MAPL_AllocateShared(arr_lon,[Xdim, Ydim],transroot=.true.,_RC)
         call MAPL_AllocateShared(arr_lat,[Xdim, Ydim],transroot=.true.,_RC)
-!!       call MAPL_AllocateShared(mask,   [Xdim, Ydim],transroot=.true.,_RC)       
        call MAPL_SyncSharedMemory(_RC)
        write(6,*) 'grid_name', trim(adjustl(this%grid_name))
        
@@ -413,8 +410,8 @@ contains
        key_p = this%var_name_proj
        key_p_att = this%att_name_proj              
        if (mapl_am_i_root()) then
-          allocate (x(Xdim))
-          allocate (y(Ydim))          
+          allocate (x(this%Xdim_true))
+          allocate (y(this%Ydim_true))
           call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
           call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
           !write(6, 101) 'x=', x(::100)
@@ -426,8 +423,9 @@ contains
           
           do i = 1, Xdim
              do j= 1, Ydim
-                !call ABI_XY_2_lonlat (x(i), y(j), lambda0, arr_lon(i,j), arr_lat(i,j), mask(i,j))
-                call ABI_XY_2_lonlat (x(i), y(j), lambda0, arr_lon(i,j), arr_lat(i,j))
+                x0 = x( i * this%factor )
+                y0 = y( j * this%factor )                
+                call ABI_XY_2_lonlat (x0, y0, lambda0, arr_lon(i,j), arr_lat(i,j))
                 if (  mod(i,200)==1 .AND. mod(j,200)==1) then
                    write(6,111) 'x,y,lon,lat', x(i), y(j), arr_lon(i,j), arr_lat(i,j)
                    !! write(6,121) 'mask       ', mask(i,j)
@@ -440,7 +438,6 @@ contains
        call ESMF_VMGetCurrent(vm, _RC)
        call MAPL_BcastShared (VM, data=arr_lon, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
        call MAPL_BcastShared (VM, data=arr_lat, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
-       !!call MAPL_BcastShared (VM, data=mask,    N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
        
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
@@ -448,27 +445,16 @@ contains
       call MAPL_SyncSharedMemory(_RC)
 
       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, &
-           farrayPtr=fptr, rc=status)
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
       fptr = arr_lat(i_1:i_n,j_1:j_n)
-
-      !!call ESMF_GridAddItem(grid,staggerLoc=ESMF_STAGGERLOC_CENTER, itemflag=ESMF_GRIDITEM_MASK,_RC)
-      !!call ESMF_GridGetItem(grid,localDE=0,staggerLoc=ESMF_STAGGERLOC_CENTER, &
-      !!    itemflag=ESMF_GRIDITEM_MASK,farrayPtr=mask2d,_RC)
-      !!mask2d = mask(i_1:i_n,j_1:j_n)
-
 
       if(MAPL_ShmInitialized) then
          call MAPL_DeAllocNodeArray(arr_lon,_RC)
          call MAPL_DeAllocNodeArray(arr_lat,_RC)
-!         call MAPL_DeAllocNodeArray(mask,_RC)         
       else
          deallocate(arr_lon)
          deallocate(arr_lat)
-!         deallocate(mask)         
       end if
-
-
        
        _RETURN(_SUCCESS)
        include '/Users/yyu11/sftp/myformat.inc'
@@ -557,9 +543,10 @@ contains
       end if
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMBroadcast (vm, arr, 2, 0, _RC)
+
+      !  thin obs data manually
       this%xdim_true = arr(1)
       this%ydim_true = arr(1)
-      this%factor = 100
 
       this%im_world = arr(1) / this%factor
       this%jm_world = arr(2) / this%factor
@@ -568,7 +555,6 @@ contains
            this%nx,this%ny,this%im_world,this%jm_world,this%lm      
       write(6,'(2x,a,10(2x,a))') 'var_name_proj, var_name_proj', &
            trim(this%var_name_proj), trim(this%att_name_proj)
-
       
       call this%check_and_fill_consistency(rc=status)
 
