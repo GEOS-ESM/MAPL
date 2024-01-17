@@ -5,6 +5,7 @@ module MAPL_ObsUtilMod
   use ESMF
   use Plain_netCDF_Time
   use netCDF
+  use MAPL_BaseMod, only: MAPL_UNDEF
   use MAPL_CommsMod, only : MAPL_AM_I_ROOT
   use pFIO_FileMetadataMod, only : FileMetadata
   use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
@@ -12,9 +13,9 @@ module MAPL_ObsUtilMod
   implicit none
   integer, parameter :: mx_ngeoval = 60
   ! GRS80 by Moritz
-  real(REAL64) :: a=6378137.d0
-  real(REAL64) :: b=6356752.31414d0
-  real(REAL64) :: H=42164160.d0
+  real(REAL64) :: r_eq=6378137.d0
+  real(REAL64) :: r_pol=6356752.31414d0
+  real(REAL64) :: H_sat=42164160.d0
   ! GOES-R
   real(REAL64) :: lambda0_SatE=-1.308996939d0   ! -75 deg    Satellite East
   real(REAL64) :: lambda0_SatW=-2.39110107523d0 ! -137 deg   Satellite West
@@ -732,42 +733,61 @@ contains
 
   ! From GOES-R SERIES PRODUCT DEFINITION AND USERS’ GUIDE
   !
-  subroutine ABI_XY_2_lonlat (x, y, lambda0, lon, lat, outRange)
+  subroutine ABI_XY_2_lonlat (x, y, lambda0, lon, lat, mask)
     implicit none
     real(REAL64), intent(in) :: x, y
     real(REAL64), intent(in) :: lambda0
     real(REAL64), intent(out):: lon, lat
-    integer,intent(out):: outRange
+    integer, optional, intent(out):: mask
     real(REAL64) :: a0, b0, c0, rs, Sx, Sy, Sz, t
+    real(REAL64) :: a, b, H
+    real(REAL64) :: delta    
+    
+    a=r_eq; b=r_pol; H=H_sat
 
+    if (present(mask)) mask=0
     a0 =  sin(x)*sin(x) + cos(x)*cos(x)*( cos(y)*cos(y) + (a/b)*(a/b)*sin(y)*sin(y) )
     b0 = -2.d0 * H * cos(x) * cos(y)
     c0 =  H*H - a*a
+    delta = b0*b0 - 4.d0*a0*c0
+    if (delta < 0.d0) then
+       ! lon = -999.d0
+       ! lat = -999.d0
+       lon = MAPL_UNDEF
+       lat = MAPL_UNDEF       
+       return
+    end if
     rs =  ( -b0 - sqrt(b0*b0 - 4.d0*a0*c0) ) / (2.d0*a0)
     Sx =  rs * cos(x) * cos(y)
     Sy = -rs * sin(x)
-    Sz =  rs * cos(x) * sin(y)    
+    Sz =  rs * cos(x) * sin(y)
     lon = lambda0 - atan (Sy/(H - Sx))
     lat = atan ( (a/b)**2.d0 * Sz / sqrt ((H -Sx)**2.d0 + Sy*Sy) )
 
     t = H*(H-Sx) - ( Sy*Sy + (a/b)**2.d0 *Sz*Sz )
     if (t < 0) then
-       outRange = 1
+       lon = MAPL_UNDEF
+       lat = MAPL_UNDEF
+       if (present(mask)) mask=0
     else
-       outRange = 0
+       if (present(mask)) mask=1
     end if
 
   end subroutine ABI_XY_2_lonlat
 
-
-  subroutine lonlat_2_ABI_XY (lon, lat, lambda0, x, y, outRange)
+  
+  subroutine lonlat_2_ABI_XY (lon, lat, lambda0, x, y, mask)
     implicit none
     real(REAL64), intent(in) :: lon, lat
     real(REAL64), intent(in) :: lambda0
     real(REAL64), intent(out):: x, y
-    integer,intent(out):: outRange
+    integer, intent(out):: mask
     real(REAL64) :: theta_c
     real(REAL64) :: e2, rc, Sx, Sy, Sz, t
+    real(REAL64) :: a, b, H
+    real*8 :: delta
+    
+    a=r_eq; b=r_pol; H=H_sat
 
     theta_c = atan( (b/a)**2.d0 * tan(lat) )
     e2 = 1.d0 - (b/a)**2.d0       ! (a^2-b^2)/a^2
@@ -780,12 +800,44 @@ contains
 
     t = H*(H-Sx) - ( Sy*Sy + (a/b)**2.d0 *Sz*Sz )
     if (t < 0) then
-       outRange = 1
+       mask = 1
     else
-       outRange = 0
+       mask = 0
     end if
 
   end subroutine lonlat_2_ABI_XY
     
+
+  subroutine test_conversion
+    implicit none
+    real*8 :: x0 = -0.024052d0
+    real*8 :: y0 =  0.095340d0
+    real*8 :: lam, the
+    real*8 :: lon, lat
+    integer :: mask
+    real*8 :: xnew, ynew
+
+    lam = -1.478135612d0
+    the =  0.590726971d0
+
+    call ABI_XY_2_lonlat (x0, y0, lambda0_SatE, lon, lat, mask)
+    write(6, 111) 'x,y 2 ll'
+    write(6, 111) 'x,y=', x0, y0
+    write(6, 111) 'lon,lat=', lon, lat
+    write(6, 121) 'mask=', mask
+    write(6, 111) 'errror lon,lat=', lon - lam, lat-the
+
+    call lonlat_2_ABI_XY (lam, the, lambda0_SatE, xnew, ynew, mask)
+    write(6, 111) 'll 2 xy'
+    write(6, 111) 'lon,lat=', lam, the
+    write(6, 111) 'x,y=', xnew, ynew
+    write(6, 121) 'mask=', mask
+    write(6, 111) 'errror lon,lat=', xnew -x0, ynew-y0
+
+101   format (2x, a,10(2x,f15.8))
+111   format (2x, a,20(2x,f25.11))
+121   format (2x, a,10(2x,i8))
+
+  end subroutine test_conversion  
 
 end module MAPL_ObsUtilMod

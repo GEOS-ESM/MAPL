@@ -246,7 +246,7 @@ contains
       
       _UNUSED_DUMMY(unusable)
 
-!!      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGetCurrent(vm,_RC)
 !!      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
       
       Xdim=this%im_world

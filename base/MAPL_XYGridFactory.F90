@@ -14,7 +14,8 @@ module MAPL_XYGridFactoryMod
    use pFIO
    use NetCDF
    !   use Plain_netCDF_Time, only : get_ncfile_dimension
-      use Plain_netCDF_Time
+   use Plain_netCDF_Time
+   use MAPL_ObsUtilMod, only : ABI_XY_2_lonlat, test_conversion
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -48,6 +49,9 @@ module MAPL_XYGridFactoryMod
       character(len=ESMF_MAXSTR) :: var_name_proj
       character(len=ESMF_MAXSTR) :: att_name_proj   
 
+      integer :: xdim_true
+      integer :: ydim_true
+      integer :: factor      
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
@@ -149,15 +153,14 @@ contains
 
       if ( index(trim(adjustl(this%grid_name)), 'ABI') == 0 ) then
          call this%add_horz_coordinates_from_file(grid, _RC)
-         call this%add_mask(grid,_RC)
       else
          call this%add_horz_coordinates_from_ABIfile(grid, _RC)         
       end if
-
-      
-      _FAIL('nail -2')
+      call this%add_mask(grid,_RC)
 
       write(6,'(2x,a)') 'af add_mask'
+
+
       _RETURN(_SUCCESS)
 
    end function make_new_grid
@@ -199,9 +202,8 @@ contains
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
       end if
 
-!! why? Ben
-!!      call ESMF_AttributeSet(grid, 'GridType', 'XY', _RC)
-      call ESMF_AttributeSet(grid, 'GridType', 'latlon', _RC)
+      call ESMF_AttributeSet(grid, 'GridType', 'XY', _RC)
+
       _RETURN(_SUCCESS)
    end function create_basic_grid
 
@@ -369,10 +371,13 @@ contains
       integer :: i, j
       real(REAL64), pointer :: arr_lon(:,:)
       real(REAL64), pointer :: arr_lat(:,:)
-      integer,      pointer :: mask(:,:)      
+      integer,      pointer :: mask2d(:,:)
+      integer,      pointer :: mask(:,:)            
       real(REAL64), allocatable :: x(:)
       real(REAL64), allocatable :: y(:)      
       real(REAL64) :: lambda0_deg, lambda0
+      real(REAL64) :: x0, y0, lon, lat
+      integer :: outRange
       
       real(ESMF_KIND_R8), pointer :: fptr(:,:)
 
@@ -397,8 +402,8 @@ contains
        !
        call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
        call MAPL_AllocateShared(arr_lon,[Xdim, Ydim],transroot=.true.,_RC)
-       call MAPL_AllocateShared(arr_lat,[Xdim, Ydim],transroot=.true.,_RC)
-       call MAPL_AllocateShared(mask,   [Xdim, Ydim],transroot=.true.,_RC)       
+        call MAPL_AllocateShared(arr_lat,[Xdim, Ydim],transroot=.true.,_RC)
+!!       call MAPL_AllocateShared(mask,   [Xdim, Ydim],transroot=.true.,_RC)       
        call MAPL_SyncSharedMemory(_RC)
        write(6,*) 'grid_name', trim(adjustl(this%grid_name))
        
@@ -412,38 +417,57 @@ contains
           allocate (y(Ydim))          
           call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
           call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
-          call get_att_char_netcdf( fn, key_x, 'units', unit, _RC)
-          if ( index(unit, 'rad') == 0 ) then
-             arr_lon=arr_lon*MAPL_DEGREES_TO_RADIANS_R8
-             arr_lat=arr_lat*MAPL_DEGREES_TO_RADIANS_R8
-          end if
-          write(6, 101) 'x=', x
-          write(6, 101) 'y=', y          
+          !write(6, 101) 'x=', x(::100)
+          !write(6, 101) 'y=', y(::100)   
           call get_att_real_netcdf(fn, key_p, key_p_att, lambda0_deg, _RC)
           lambda0=lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
-          write(6, 101) 'lambda0=', lambda0
-
+          !write(6, 101) 'lambda0=', lambda0
+          !call test_conversion
+          
           do i = 1, Xdim
              do j= 1, Ydim
-                call ABI_XY_2_lonlat (x(i), y(j), lambda0, arr_lon(i,j), arr_lat(i,j), mask(i,j))
-                write(6,101) 'x,y,lon,lat', x(i), y(j), arr_lon(i,j), arr_lat(i,j)
-                write(6,121) 'mask       ', mask(i,j)
+                !call ABI_XY_2_lonlat (x(i), y(j), lambda0, arr_lon(i,j), arr_lat(i,j), mask(i,j))
+                call ABI_XY_2_lonlat (x(i), y(j), lambda0, arr_lon(i,j), arr_lat(i,j))
+                if (  mod(i,200)==1 .AND. mod(j,200)==1) then
+                   write(6,111) 'x,y,lon,lat', x(i), y(j), arr_lon(i,j), arr_lat(i,j)
+                   !! write(6,121) 'mask       ', mask(i,j)
+                end if
              end do
           end do
-          
-          ! ...
-
-          !
-          ! add mask
-          !
-
-          !         write(6,*) 'in root'
-          !         write(6,'(11x,100f10.1)')  arr_lon(::5,189)
        end if
        call MAPL_SyncSharedMemory(_RC)
 
        call ESMF_VMGetCurrent(vm, _RC)
-       call ESMF_VMbarrier(vm, _RC)
+       call MAPL_BcastShared (VM, data=arr_lon, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
+       call MAPL_BcastShared (VM, data=arr_lat, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
+       !!call MAPL_BcastShared (VM, data=mask,    N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
+       
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
+      fptr = arr_lon(i_1:i_n,j_1:j_n)
+      call MAPL_SyncSharedMemory(_RC)
+
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, &
+           farrayPtr=fptr, rc=status)
+      fptr = arr_lat(i_1:i_n,j_1:j_n)
+
+      !!call ESMF_GridAddItem(grid,staggerLoc=ESMF_STAGGERLOC_CENTER, itemflag=ESMF_GRIDITEM_MASK,_RC)
+      !!call ESMF_GridGetItem(grid,localDE=0,staggerLoc=ESMF_STAGGERLOC_CENTER, &
+      !!    itemflag=ESMF_GRIDITEM_MASK,farrayPtr=mask2d,_RC)
+      !!mask2d = mask(i_1:i_n,j_1:j_n)
+
+
+      if(MAPL_ShmInitialized) then
+         call MAPL_DeAllocNodeArray(arr_lon,_RC)
+         call MAPL_DeAllocNodeArray(arr_lat,_RC)
+!         call MAPL_DeAllocNodeArray(mask,_RC)         
+      else
+         deallocate(arr_lon)
+         deallocate(arr_lat)
+!         deallocate(mask)         
+      end if
+
 
        
        _RETURN(_SUCCESS)
@@ -533,8 +557,12 @@ contains
       end if
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMBroadcast (vm, arr, 2, 0, _RC)
-      this%im_world = arr(1)
-      this%jm_world = arr(2)
+      this%xdim_true = arr(1)
+      this%ydim_true = arr(1)
+      this%factor = 100
+
+      this%im_world = arr(1) / this%factor
+      this%jm_world = arr(2) / this%factor
 
       write(6,'(2x,a,100i10)') 'nail 2, nx,ny,im,jm,lm',&
            this%nx,this%ny,this%im_world,this%jm_world,this%lm      
@@ -1047,6 +1075,13 @@ contains
          farrayPtr=fptr, _RC)
       local_has_undef = 0
       if (any(fptr == MAPL_UNDEF)) local_has_undef = 1
+
+!      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+!         staggerloc=ESMF_STAGGERLOC_CENTER, &
+!         farrayPtr=fptr, _RC)
+!      local_has_undef = 0
+!      if (any(fptr == MAPL_UNDEF)) local_has_undef = 1
+
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMAllFullReduce(vm, [local_has_undef], has_undef, 1, ESMF_REDUCE_MAX, _RC) 
 _RETURN_IF(has_undef == 0)    
@@ -1059,7 +1094,7 @@ _RETURN_IF(has_undef == 0)
       where(fptr==MAPL_UNDEF) mask = MAPL_MASK_OUT
 
       _RETURN(_SUCCESS)
-   end subroutine
+    end subroutine add_mask
 
 
 end module MAPL_XYGridFactoryMod
