@@ -155,6 +155,7 @@ module MAPL_Shmem
      module procedure MAPL_AllocateShared_1DI4
      module procedure MAPL_AllocateShared_1DR4
      module procedure MAPL_AllocateShared_1DR8
+     module procedure MAPL_AllocateShared_2DI4
      module procedure MAPL_AllocateShared_2DR4
      module procedure MAPL_AllocateShared_2DR8
   end interface MAPL_AllocateShared
@@ -394,6 +395,14 @@ module MAPL_Shmem
        integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_AllocateShared_1DR8
 
+     module subroutine MAPL_AllocateShared_2DI4(Ptr, Shp, lbd, TransRoot, rc)
+       integer, pointer,  intent(INOUT) :: Ptr(:,:)
+       integer,           intent(IN   ) :: Shp(2)
+       integer, optional, intent(IN   ) :: lbd(2)
+       logical,           intent(IN   ) :: TransRoot
+       integer, optional, intent(  OUT) :: rc
+     end subroutine MAPL_AllocateShared_2DI4
+
      module subroutine MAPL_AllocateShared_2DR4(Ptr, Shp, lbd, TransRoot, rc)
        real,    pointer,  intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
@@ -401,7 +410,7 @@ module MAPL_Shmem
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_AllocateShared_2DR4
-
+     
      module subroutine MAPL_AllocateShared_2DR8(Ptr, Shp, lbd, TransRoot, rc)
        real(KIND=REAL64), pointer, intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)

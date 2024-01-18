@@ -28,8 +28,6 @@ module Plain_netCDF_Time
   implicit none
   public
 
-  integer, parameter :: NUM_DIM = 2
-
   interface convert_time_nc2esmf
      procedure :: time_nc_int_2_esmf
   end interface convert_time_nc2esmf
@@ -238,6 +236,106 @@ contains
   end subroutine get_v1d_netcdf_R8
 
 
+  subroutine get_v1d_netcdf_R8_complete(filename, varname, array, att_name, att_value, group_name, rc)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: varname
+    real(REAL64), intent(inout) :: array(:)
+    character(len=*), optional, intent(in) :: att_name
+    real(REAL64), optional, intent(out) :: att_value
+    character(len=*), optional, intent(out) :: group_name    
+    integer, optional, intent(out) :: rc
+
+    integer :: status, iret
+    integer :: ncid, ncid_grp, ncid_sv
+    integer :: varid    
+    real(REAL32) :: scale_factor, add_offset
+    
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    ncid_sv = ncid
+    if(present(group_name)) then
+       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+       ! mod
+       ncid = ncid_grp
+    end if
+    call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
+    call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
+
+    iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
+    if(iret .eq. 0) array = array * scale_factor
+    !
+    iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
+    if(iret .eq. 0) array = array + add_offset
+
+    if(present(att_name)) then
+       call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
+    end if
+    
+    call check_nc_status(nf90_close(ncid_sv), _RC)
+
+    _RETURN(_SUCCESS)
+
+  end subroutine get_v1d_netcdf_R8_complete
+
+
+  subroutine get_att_real_netcdf(filename, varname, att_name, att_value, group_name, rc)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: varname
+    character(len=*), intent(in) :: att_name
+    real(REAL64), intent(out) :: att_value
+    character(len=*), optional, intent(out) :: group_name    
+    integer, optional, intent(out) :: rc
+    integer :: status
+    integer :: ncid, ncid_grp, ncid_sv
+    integer :: varid    
+    
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    ncid_sv = ncid
+    if(present(group_name)) then
+       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+       ! overwrite
+       ncid = ncid_grp
+    end if
+    call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
+    call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
+    call check_nc_status(nf90_close(ncid_sv), _RC)
+
+    _RETURN(_SUCCESS)
+
+  end subroutine get_att_real_netcdf
+  
+  subroutine get_att_char_netcdf(filename, varname, att_name, att_value, group_name, rc)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: varname
+    character(len=*), intent(in) :: att_name
+    character(len=*), intent(out) :: att_value
+    character(len=*), optional, intent(out) :: group_name    
+    integer, optional, intent(out) :: rc
+    integer :: status
+    integer :: ncid, ncid_grp, ncid_sv
+    integer :: varid    
+    
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    ncid_sv = ncid
+    if(present(group_name)) then
+       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+       ! overwrite
+       ncid = ncid_grp
+    end if
+    call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
+    call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
+    call check_nc_status(nf90_close(ncid_sv), _RC)
+
+    _RETURN(_SUCCESS)
+
+  end subroutine get_att_char_netcdf
+  
+
   subroutine check_nc_status(status, rc)
     use netcdf
     implicit none
@@ -245,9 +343,6 @@ contains
     integer, intent(out), optional :: rc
 
     _ASSERT(status == nf90_noerr, 'netCDF error: '//trim(nf90_strerror(status)))
-!    if (status /= nf90_noerr) then
-!       _FAIL('netCDF error: '//trim(nf90_strerror(status)))
-!    end if
     _RETURN(_SUCCESS)
 
   end subroutine check_nc_status
@@ -295,13 +390,13 @@ contains
 
     character(len=ESMF_MAXSTR) :: STR1
 
-    
+
     n=0
     call parse_timeunit(tunit, n, time0, dt, _RC)
     dt = time - time0
 
 !    ! test
-!    write(6, '(2x,a,2x,a)') 'tunit=', trim(tunit)    
+!    write(6, '(2x,a,2x,a)') 'tunit=', trim(tunit)
 !    call ESMF_TimeGet(time, timestring=STR1, _RC)
 !    write(6, '(2x,a,2x,a)') 'time=', trim(STR1)
 !    call ESMF_TimeGet(time0, timestring=STR1, _RC)
@@ -385,7 +480,7 @@ contains
 
 !    write(6,*) 'y, c1, m, c1, d',  y, c1, m, c1, d
 !    write(6,*) 'hour, c1, min, c1, sec', hour, c1, min, c1, sec
-    
+
     _ASSERT(trim(s_unit) == 'seconds', "s_unit /= 'seconds' is not handled")
     isec=n
 
@@ -474,7 +569,7 @@ contains
     if(present(n_LB)) LB=max(LB, n_LB)
     if(present(n_UB)) UB=min(UB, n_UB)
     klo=LB; khi=UB; dk=1
-    
+
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
        khi= LB
@@ -696,7 +791,7 @@ contains
     RETURN
   end function matches
 
-  
+
   subroutine split_string_by_space (string_in, length_mx, &
        mxseg, nseg, str_piece, jstatus)
     integer,           intent (in) :: length_mx
