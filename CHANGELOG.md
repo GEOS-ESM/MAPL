@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
+- Added capability in XY grid factory to add a mask to the grid any points are missing needed for geostationary input data
+- Added capability in the MAPL ESMF regridding wrapper to apply a destination mask if the destination grid contains a mask
 
 ### Changed
 
@@ -19,9 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced RC=STATUS plus `_VERIFY(RC)` in `Base_Base_implementation.F90` with just `_RC` in line with our new convention.
 - Updated CI to use Open MPI 5.0.0 for GNU
 - Enable Ninja for CI builds of MAPL
+- Removed use of `ESMF_HAS_ACHAR_BUG` CMake option and code use in `MAPL_Config.F90`. Testing has shown that with ESMF 8.6 (which is
+  now required), NAG no longer needs this workaround.
 - Fix field utils issue - add npes argument to test subroutine decorators.
 
 ### Fixed
+
+- Explictly `use` some `iso_c_binding` types previously pulled in through ESMF. This is fixed in future ESMF versions (8.7+) and so
+  we anticipate this here
+- Add explicit `Fortran_MODULE_DIRECTORY` to `CMakeLists.txt` in benchmarks to avoid race condition in Ninja builds
 
 ### Removed
 
