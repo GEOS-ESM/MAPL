@@ -24,9 +24,8 @@ orbs:
   ci: geos-esm/circleci-tools@2
 
 workflows:
-  build-and-test:
+  build-and-test-MAPL:
     jobs:
-
       # Builds MAPL in a "default" way - Intel
       - ci/build:
           name: build-and-test-MAPL-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
@@ -86,6 +85,29 @@ workflows:
           run_unit_tests: true
           ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
 
+      # Run MAPL Tutorials
+      - ci/run_mapl_tutorial:
+          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              #compiler: [gfortran, ifort]
+              compiler: [ifort]
+              tutorial_name:
+                - hello_world
+                - parent_no_children
+                - parent_one_child_import_via_extdata
+                - parent_one_child_no_imports
+                - parent_two_siblings_connect_import_export
+          # We will only run the tutorials with GNU make. No need to double up
+          # as Ninja is a build test only
+          requires:
+            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
+          baselibs_version: *baselibs_version
+
+  build-and-run-GEOSgcm:
+    jobs:
       # Build GEOSgcm -- ifort
       - ci/build:
           name: build-GEOSgcm-on-<< matrix.compiler >>
@@ -118,38 +140,6 @@ workflows:
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
-      # Build GEOSldas on ifort
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: release/MAPL-v3
-          checkout_mapl3_release_branch: true
-          checkout_mapl_branch: true
-
-      # Build GEOSldas on gfortran
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: release/MAPL-v3
-          checkout_mapl3_release_branch: true
-          checkout_mapl_branch: true
-
       # Run GCM (1 hour, no ExtData)
       - ci/run_gcm:
           name: run-GCM-on-<< matrix.compiler >>
@@ -180,26 +170,38 @@ workflows:
           gcm_ocean_type: MOM6
           change_layout: false
 
-      # Run MAPL Tutorials
-      - ci/run_mapl_tutorial:
-          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+  build-GEOSldas:
+    jobs:
+      # Build GEOSldas on ifort
+      - ci/build:
+          name: build-GEOSldas-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              #compiler: [gfortran, ifort]
               compiler: [ifort]
-              tutorial_name:
-                - hello_world
-                - parent_no_children
-                - parent_one_child_import_via_extdata
-                - parent_one_child_no_imports
-                - parent_two_siblings_connect_import_export
-          # We will only run the tutorials with GNU make. No need to double up
-          # as Ninja is a build test only
-          requires:
-            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+          repo: GEOSldas
+          mepodevelop: false
+          checkout_fixture: true
+          fixture_branch: release/MAPL-v3
+          checkout_mapl3_release_branch: true
+          checkout_mapl_branch: true
+
+      # Build GEOSldas on gfortran
+      - ci/build:
+          name: build-GEOSldas-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran]
+          baselibs_version: *baselibs_version
+          repo: GEOSldas
+          mepodevelop: false
+          fixture_branch: release/MAPL-v3
+          checkout_mapl3_release_branch: true
+          checkout_mapl_branch: true
 
   build-GEOSadas:
     jobs:
