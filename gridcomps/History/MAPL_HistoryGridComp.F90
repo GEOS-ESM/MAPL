@@ -5423,15 +5423,12 @@ ENDDO PARSER
        nseg_ub=0
        do while (ios == 0)
           read (unitr, '(A)' ) line
-          con = .not.(adjustl(trim(line))=='::')
-          if (con) then
-             ngeoval = ngeoval + 1
-             call  split_string_by_space (line, length_mx, mxseg, &
-                  nseg, str_piece, status)
-             nseg_ub = max(nseg_ub, nseg)
-          else
-             exit
-          endif
+          con = (adjustl(trim(line))=='::')
+          if (con) exit
+          ngeoval = ngeoval + 1
+          call  split_string_by_space (line, length_mx, mxseg, &
+               nseg, str_piece, status)
+          nseg_ub = max(nseg_ub, nseg)
        enddo
        PLFS(k)%ngeoval = ngeoval
        PLFS(k)%nentry_name = nseg_ub

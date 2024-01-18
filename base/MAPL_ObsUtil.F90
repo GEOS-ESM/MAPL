@@ -425,9 +425,6 @@ contains
              !!write(6,'(5f20.2)') time_loc_R8(1,j)
           end do
 
-          !!write(6,'(2x,a,10i10)') 'end of file id', i
-          !!write(6,*)
-
           deallocate(time_loc_R8)
           deallocate(lon_loc)
           deallocate(lat_loc)

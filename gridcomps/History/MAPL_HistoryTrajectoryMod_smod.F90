@@ -1224,21 +1224,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            x_subset(1) = index1+1
            x_subset(2) = index2
 
-!           if (index1<lb) then
-!              if (index2<lb) then
-!                 x_subset(2) = index2
-!              elseif (index2>=ub) then
-!                 x_subset(2) = ub
-!              else
-!                 x_subset(2) = index2
-!              endif
-!           elseif (index1>=ub) then
-!              x_subset(1) = 0
-!              x_subset(2) = 0
-!           else
-!              x_subset(2) = index2
-!           endif
-!
 !!           write(6,'(2x,a,2x,2i10)')  'mod vers. get_x_subset, LB,UB=', x_subset(1:2)
            _RETURN(_SUCCESS)
          end procedure get_x_subset
