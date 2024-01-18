@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced RC=STATUS plus `_VERIFY(RC)` in `Base_Base_implementation.F90` with just `_RC` in line with our new convention.
 - Updated CI to use Open MPI 5.0.0 for GNU
 - Enable Ninja for CI builds of MAPL
+- Removed use of `ESMF_HAS_ACHAR_BUG` CMake option and code use in `MAPL_Config.F90`. Testing has shown that with ESMF 8.6 (which is
+  now required), NAG no longer needs this workaround.
 
 ### Fixed
 
