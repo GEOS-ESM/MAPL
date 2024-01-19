@@ -145,6 +145,7 @@ contains
     type(ExtData_DriverGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
     logical :: use_extdata2g
+    integer :: useShmem
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -177,6 +178,7 @@ contains
     call ESMF_ConfigLoadFile(cap%config, cap%configFile, rc = status)
     _VERIFY(status)
 
+
     !  CAP's MAPL MetaComp
     !---------------------
 
@@ -185,6 +187,11 @@ contains
 
     call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
     _VERIFY(status)
+
+    call MAPL_GetResource(MAPLOBJ, useShmem,  label = 'USE_SHMEM:',  default = 0, _RC)
+    if (useShmem /= 0) then
+       call MAPL_InitializeShmem (_RC)
+    end if
 
     call ESMF_ConfigGetAttribute(cap%config,cap%run_fbf,label="RUN_FBF:",default=.false.)
     call ESMF_ConfigGetAttribute(cap%config,cap%run_hist,label="RUN_HISTORY:",default=.true.)
@@ -484,6 +491,8 @@ contains
     _VERIFY(status)
     call ESMF_ConfigDestroy(cap%config, rc = status)
     _VERIFY(status)
+
+    call MAPL_FinalizeSHMEM (_RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize_gc
