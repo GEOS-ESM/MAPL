@@ -12,9 +12,6 @@ module mapl3g_OuterMetaComponent
    use mapl3g_Validation, only: is_valid_name
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
-   use mapl3g_ComponentDriverMap, only: ComponentDriverMap
-   use mapl3g_ComponentDriverMap, only: ComponentDriverMapIterator
-   use mapl3g_ComponentDriverMap, only: operator(/=)
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPt
    use mapl3g_MatchConnection
@@ -26,6 +23,10 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_ComponentDriver
+   use mapl3g_GriddedComponentDriver
+   use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
+   use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMapIterator
+   use mapl3g_GriddedComponentDriverMap, only: operator(/=)
    use mapl_ErrorHandling
    use mapl3g_VerticalGeom
    use gFTL2_StringVector
@@ -44,7 +45,7 @@ module mapl3g_OuterMetaComponent
       private
       
       type(ESMF_GridComp)                         :: self_gridcomp
-      type(ComponentDriver)                      :: user_component
+      type(GriddedComponentDriver)                :: user_component
       type(MethodPhasesMap)                       :: user_phases_map
       type(ESMF_HConfig)                          :: hconfig
 
@@ -54,7 +55,7 @@ module mapl3g_OuterMetaComponent
       type(InnerMetaComponent), allocatable       :: inner_meta
 
       ! Hierarchy
-      type(ComponentDriverMap)                     :: children
+      type(GriddedComponentDriverMap)             :: children
       type(HierarchicalRegistry) :: registry
       type(ExtensionVector) :: state_extensions
  
@@ -184,7 +185,7 @@ contains
       type(ESMF_Clock) :: clock_tmp
       
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_component = ComponentDriver(user_gridcomp, clock_tmp)
+      outer_meta%user_component = GriddedComponentDriver(user_gridcomp, clock_tmp)
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
@@ -215,13 +216,13 @@ contains
 
    ! Deep copy of shallow ESMF objects - be careful using result
    ! TODO: Maybe this should return a POINTER
-   type(ComponentDriver) function get_child_by_name(this, child_name, rc) result(child_component)
+   type(GriddedComponentDriver) function get_child_by_name(this, child_name, rc) result(child_component)
       class(OuterMetaComponent), intent(in) :: this
       character(len=*), intent(in) :: child_name
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ComponentDriver), pointer :: child_ptr
+      class(GriddedComponentDriver), pointer :: child_ptr
 
       child_ptr => this%children%at(child_name, rc=status)
       _ASSERT(associated(child_ptr), 'Child not found: <'//child_name//'>.')
@@ -239,7 +240,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ComponentDriver) :: child
+      type(GriddedComponentDriver) :: child
       logical :: found
       integer :: phase_idx
 
@@ -263,7 +264,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriverMapIterator) :: iter
 
       associate(e => this%children%ftn_end())
         iter = this%children%ftn_begin()
@@ -632,8 +633,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ComponentDriverMapIterator) :: iter
-      type(ComponentDriver), pointer :: child
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
 
       associate(e => this%children%ftn_end())
         iter = this%children%ftn_begin()
@@ -656,8 +657,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ComponentDriverMapIterator) :: iter
-      type(ComponentDriver), pointer :: child
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
       type(OuterMetaComponent), pointer :: child_meta
       type(ESMF_GridComp) :: child_outer_gc
 
@@ -813,8 +814,8 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(ComponentDriver), pointer :: child
-      type(ComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
+      type(GriddedComponentDriverMapIterator) :: iter
       integer :: status, userRC
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
       type(StringVector), pointer :: finalize_phases
@@ -960,7 +961,7 @@ contains
    end function get_lgr
 
    function get_user_component(this) result(user_component)
-      type(ComponentDriver), pointer :: user_component
+      type(GriddedComponentDriver), pointer :: user_component
       class(OuterMetaComponent), target, intent(in) :: this
       user_component => this%user_component
    end function get_user_component
