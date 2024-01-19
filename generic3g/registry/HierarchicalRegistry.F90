@@ -434,7 +434,6 @@ contains
 
       call this%add_item_spec(v_pt, extension, extension_pt, _RC)
 
-!!$      action = spec%make_action(extension, _RC)
       call this%add_state_extension(extension_pt, spec, extension, _RC)
 
       _RETURN(_SUCCESS)

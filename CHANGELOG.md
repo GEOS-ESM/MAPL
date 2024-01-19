@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 	reasonable results.  Should nicely complement other tools that
 	measure HWM.
 - Replace ESMF_Attribute calls with ESMF_Info calls in MAPL_FieldCopyAttribute
+- Convert values in ESMF\_Field with compatible units using udunits2.
 
 ### Changed
 
@@ -52,8 +53,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
+- Modify swath sampler to handle two Epoch swath grids
+- Handle regrid accumulate for time step (1 sec) during which no obs exists
+- Use IntState%stampoffset(n) to adjust filenames for an epoch time
+- parse "GOCART::CO2" from 'geovals_fields' entry in PLATFORM
+- Add call MAPL_InitializeShmem to ExtDataDriverGridComp.F90
+- Read swath data on root, call MAPL_CommsBcast [which sends data to Shmem (when Shmem initialized) or to MAPL_comm otherwise]. This approach avoids race in reading nc files [e.g. 37 files for 3 hr swath data]
+
 
 - Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
+- Added capability in XY grid factory to add a mask to the grid any points are missing needed for geostationary input data
+- Added capability in the MAPL ESMF regridding wrapper to apply a destination mask if the destination grid contains a mask
 
 ### Changed
 
@@ -63,8 +74,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced RC=STATUS plus `_VERIFY(RC)` in `Base_Base_implementation.F90` with just `_RC` in line with our new convention.
 - Updated CI to use Open MPI 5.0.0 for GNU
 - Enable Ninja for CI builds of MAPL
+- Removed use of `ESMF_HAS_ACHAR_BUG` CMake option and code use in `MAPL_Config.F90`. Testing has shown that with ESMF 8.6 (which is
+  now required), NAG no longer needs this workaround.
+- Refactor the CircleCI workflows for more flexibility
+- Fix field utils issue - add npes argument to test subroutine decorators.
 
 ### Fixed
+
+- Restore missing submodule interfaces
+- Explictly `use` some `iso_c_binding` types previously pulled in through ESMF. This is fixed in future ESMF versions (8.7+) and so
+  we anticipate this here
+- Add explicit `Fortran_MODULE_DIRECTORY` to `CMakeLists.txt` in benchmarks to avoid race condition in Ninja builds
 
 ### Removed
 

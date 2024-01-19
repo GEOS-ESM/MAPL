@@ -16,7 +16,6 @@ module mapl3g_FieldSpec
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
-   use mapl3g_SequenceAction
    use mapl3g_CopyAction
    use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
@@ -58,6 +57,7 @@ module mapl3g_FieldSpec
       procedure :: destroy
       procedure :: allocate
       procedure :: get_dependencies
+      procedure :: get_payload
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -109,10 +109,10 @@ contains
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDimsSpec), intent(in) :: ungridded_dims
 
-      character(*), intent(in) :: standard_name
-      character(*), intent(in) :: long_name
-      character(*), intent(in) :: units
-      type(StringVector), intent(in) :: attributes
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: long_name
+      type(StringVector), optional, intent(in) :: attributes
 
       ! optional args last
       real, optional, intent(in) :: default_value
@@ -123,11 +123,11 @@ contains
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
 
-      field_spec%standard_name = standard_name
-      field_spec%long_name = long_name
-      field_spec%units = units
+      if (present(standard_name)) field_spec%standard_name = standard_name
+      if (present(long_name)) field_spec%long_name = long_name
+      if (present(units)) field_spec%units = units
 
-      field_spec%attributes=attributes
+      if (present(attributes)) field_spec%attributes = attributes
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
@@ -198,7 +198,7 @@ contains
 
       integer :: status
 
-      call ESMF_FieldDestroy(this%payload, _RC)
+      call ESMF_FieldDestroy(this%payload, nogarbage=.true., _RC)
       call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
@@ -366,8 +366,8 @@ contains
               this%vertical_dim == src_spec%vertical_dim, &
 !#              can_convert_units(this, src_spec) &
               this%ungridded_dims == src_spec%ungridded_dims, & 
-              includes(this%attributes, src_spec%attributes) & !, &
-!#              this%units == src_spec%units & ! units are required for fields
+              includes(this%attributes, src_spec%attributes),  &
+              match(this%units, src_spec%units) &
               ])
       class default
          can_connect_to = .false.
@@ -421,7 +421,6 @@ contains
 
       type(ESMF_Field) :: alias
       integer :: status
-      type(ESMF_FieldStatus_Flag) :: fstatus
       type(ESMF_State) :: state, substate
       character(:), allocatable :: short_name
 
@@ -548,7 +547,6 @@ contains
 !#         end if
          
       class default
-         action = NullAction()
          _FAIL('Dst spec is incompatible with FieldSpec.')
       end select
 
@@ -638,5 +636,11 @@ contains
          update_item_string = .true.
       end if
    end function update_item_string
-   
+
+   function get_payload(this) result(payload)
+      type(ESMF_Field) :: payload
+      class(FieldSpec), intent(in) :: this
+      payload = this%payload
+   end function get_payload
+
 end module mapl3g_FieldSpec

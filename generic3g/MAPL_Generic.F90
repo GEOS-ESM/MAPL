@@ -50,7 +50,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
-   use :: pflogger
+   use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    implicit none
@@ -58,12 +58,11 @@ module mapl3g_Generic
 
    public :: get_outer_meta_from_inner_gc
 
-   public :: MAPL_Get
    public :: MAPL_GridCompGet
    public :: MAPL_GridCompSetEntryPoint
-   public :: MAPL_add_child
-   public :: MAPL_run_child
-   public :: MAPL_run_children
+   public :: MAPL_AddChild
+   public :: MAPL_RunChild
+   public :: MAPL_RunChildren
 
 !!$   public :: MAPL_GetInternalState
 
@@ -98,7 +97,7 @@ module mapl3g_Generic
    end interface MAPL_GridCompSetGeom
 
    interface MAPL_GridCompGet
-      procedure :: gridcomp_get_hconfig
+      procedure :: gridcomp_get
    end interface MAPL_GridCompGet
 
 
@@ -108,17 +107,17 @@ module mapl3g_Generic
 
 
 
-   interface MAPL_add_child
+   interface MAPL_AddChild
       module procedure :: add_child_by_name
-   end interface MAPL_add_child
+   end interface MAPL_AddChild
 
-   interface MAPL_run_child
+   interface MAPL_RunChild
       module procedure :: run_child_by_name
-   end interface MAPL_run_child
+   end interface MAPL_RunChild
 
-   interface MAPL_run_children
+   interface MAPL_RunChildren
       module procedure :: run_children
-   end interface MAPL_run_children
+   end interface MAPL_RunChildren
 
    interface MAPL_AddSpec
       procedure :: add_spec_basic
@@ -137,11 +136,6 @@ module mapl3g_Generic
       module procedure :: add_internal_spec
    end interface MAPL_AddInternalSpec
 
-!!$   interface MAPL_Get
-!!$      module procedure :: get
-!!$   end interface MAPL_Get
-
-
    interface MAPL_GridCompSetEntryPoint
       module procedure gridcomp_set_entry_point
    end interface MAPL_GridCompSetEntryPoint
@@ -158,11 +152,17 @@ module mapl3g_Generic
 
 contains
 
-   subroutine MAPL_Get(gridcomp, hconfig, registry, lgr, rc)
+   subroutine gridcomp_get(gridcomp, unusable, &
+        hconfig, &
+        registry, &
+        logger, &
+        rc)
+
       type(ESMF_GridComp), intent(inout) :: gridcomp
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Hconfig), optional, intent(out) :: hconfig
       type(HierarchicalRegistry), optional, pointer, intent(out) :: registry
-      class(Logger), optional, pointer, intent(out) :: lgr
+      class(Logger_t), optional, pointer, intent(out) :: logger
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -172,10 +172,10 @@ contains
 
       if (present(hconfig)) hconfig = outer_meta%get_hconfig()
       if (present(registry)) registry => outer_meta%get_registry()
-      if (present(lgr)) lgr => outer_meta%get_lgr()
+      if (present(logger)) logger => outer_meta%get_lgr()
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_Get
+   end subroutine gridcomp_get
 
    subroutine add_child_by_name(gridcomp, child_name, setservices, config, rc)
       use mapl3g_UserSetServices

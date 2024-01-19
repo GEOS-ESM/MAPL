@@ -84,11 +84,6 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 
-# Workaround for bizarre switch in ESMF
-if (ESMF_HAS_ACHAR_BUG)
-  set_source_files_properties(MAPL_Config.F90  PROPERTIES COMPILE_DEFINITIONS ESMF_HAS_ACHAR_BUG)
-endif()
-      
 if(DISABLE_GLOBAL_NAME_WARNING)
   target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
 endif()
