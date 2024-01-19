@@ -168,8 +168,13 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
+
+      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
       grid = this%create_basic_grid(_RC)
+      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
       call this%add_horz_coordinates_from_file(grid,_RC)
+      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
+
       _RETURN(_SUCCESS)
    end function make_new_grid
 
@@ -218,8 +223,11 @@ contains
       integer :: status
 
       real(kind=ESMF_KIND_R8), pointer :: fptr(:,:)
-      real, pointer :: centers(:,:)
-      real, allocatable :: centers_full(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_true(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lat_true(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: time_true(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: arr_lon(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: arr_lat(:,:)
 
       integer :: i, j, k
       integer :: Xdim, Ydim
@@ -232,74 +240,89 @@ contains
       integer :: i_1, i_n, j_1, j_n  ! regional array bounds
       type(Logger), pointer :: lgr
 
+      ! debug
+      type(ESMF_VM) :: vm
+      integer :: mypet, petcount
+      integer :: nsize, count
+      integer :: mpic
+
       _UNUSED_DUMMY(unusable)
 
+!!      call ESMF_VMGetCurrent(vm,_RC)
+!!      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
 
       Xdim=this%im_world
       Ydim=this%jm_world
-      Xdim_full=this%cell_across_swath
-      Ydim_full=this%cell_along_swath
+      count = Xdim * Ydim
 
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-      call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
+      call MAPL_AllocateShared(arr_lon,[Xdim,Ydim],transroot=.true.,_RC)
+      call MAPL_AllocateShared(arr_lat,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
+      if (mapl_am_i_root()) then
+         allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
+         call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
+              this%index_name_lon, this%index_name_lat, &
+              var_name_lon=this%var_name_lon, &
+              var_name_lat=this%var_name_lat, &
+              var_name_time=this%var_name_time, &
+              lon=lon_true, lat=lat_true, time=time_true, &
+              Tfilter=.true., _RC)
+         k=0
+         do j=this%epoch_index(3), this%epoch_index(4)
+            k=k+1
+            arr_lon(1:Xdim, k) = lon_true(1:Xdim, j)
+            arr_lat(1:Xdim, k) = lat_true(1:Xdim, j)
+         enddo
+         arr_lon=arr_lon*MAPL_DEGREES_TO_RADIANS_R8
+         arr_lat=arr_lat*MAPL_DEGREES_TO_RADIANS_R8
+         deallocate( lon_true, lat_true, time_true )
+
+!         write(6,*) 'in root'
+!         write(6,'(11x,100f10.1)')  arr_lon(::5,189)
+      end if
+!      call MPI_Barrier(mpic, status)
+      call MAPL_SyncSharedMemory(_RC)
+
+      call MAPL_BcastShared (VM, data=arr_lon, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
+      call MAPL_BcastShared (VM, data=arr_lat, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
+
+!      write(6,'(2x,a,2x,i5,4x,100f10.1)')  'PET', mypet, arr_lon(::5,189)
+!      call MPI_Barrier(mpic, status)
+
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
+      fptr=real(arr_lon(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
+      call MAPL_SyncSharedMemory(_RC)
+
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, &
+           farrayPtr=fptr, rc=status)
+      fptr=real(arr_lat(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
+
+      if(MAPL_ShmInitialized) then
+         call MAPL_DeAllocNodeArray(arr_lon,_RC)
+         call MAPL_DeAllocNodeArray(arr_lat,_RC)
+      else
+         deallocate(arr_lon)
+         deallocate(arr_lat)
+      end if
 
 !      if (mapl_am_I_root()) then
 !         write(6,'(2x,a,10i8)')  &
-!              'ck: Xdim, Ydim, Xdim_full, Ydim_full', Xdim, Ydim, Xdim_full, Ydim_full
+!              'ck: Xdim, Ydim', Xdim, Ydim
 !         write(6,'(2x,a,10i8)')  &
 !              'ck: i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
 !      end if
 
-
-      ! read longitudes
-       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          allocate( centers_full(Xdim_full, Ydim_full))
-          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
-               this%index_name_lon, this%index_name_lat, &
-               var_name_lon=this%var_name_lon, lon=centers_full, _RC)
-          k=0
-          do j=this%epoch_index(3), this%epoch_index(4)
-             k=k+1
-             centers(1:Xdim, k) = centers_full(1:Xdim, j)
-          enddo
-          centers=centers*MAPL_DEGREES_TO_RADIANS_R8
-          deallocate (centers_full)
-       end if
-       call MAPL_SyncSharedMemory(_RC)
-       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
-       fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
-
-
-       ! read latitudes
-       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          allocate( centers_full(Xdim_full, Ydim_full))
-          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
-               this%index_name_lon, this%index_name_lat, &
-               var_name_lat=this%var_name_lat, lat=centers_full, _RC)
-          k=0
-          do j=this%epoch_index(3), this%epoch_index(4)
-             k=k+1
-             centers(1:Xdim, k) = centers_full(1:Xdim, j)
-          enddo
-          centers=centers*MAPL_DEGREES_TO_RADIANS_R8
-          deallocate (centers_full)
-       end if
-       call MAPL_SyncSharedMemory(_RC)
-       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, &
-          farrayPtr=fptr, rc=status)
-       fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
-
-       if(MAPL_ShmInitialized) then
-          call MAPL_DeAllocNodeArray(centers,_RC)
-       else
-          deallocate(centers)
-       end if
+!      write(6,*) 'MAPL_AmNodeRoot, MAPL_ShmInitialized=', MAPL_AmNodeRoot, MAPL_ShmInitialized
+!      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+!         write(6,'(2x,a,2x,i10)')  'add_horz_coord: MAPL_AmNodeRoot:  mypet=', mypet
+!      end if
 
       _RETURN(_SUCCESS)
+
    end subroutine add_horz_coordinates_from_file
 
 
@@ -418,9 +441,9 @@ contains
       character(len=ESMF_MAXSTR) :: filename, STR1, tmp
       character(len=ESMF_MAXSTR) :: symd, shms
 
-
-      !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
-      real, allocatable :: scanTime(:,:)
+      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
+      real(ESMF_KIND_R8), allocatable :: lon_true(:,:)
+      real(ESMF_KIND_R8), allocatable :: lat_true(:,:)
       integer :: yy, mm, dd, h, m, s, sec, second
       integer :: i, j, L
       integer :: ncid, ncid2, varid
@@ -431,11 +454,11 @@ contains
       integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
       real(ESMF_KIND_R8) :: jx0, jx1
       real(ESMF_KIND_R8) :: x0, x1
-      integer :: khi, klo, k, nstart, max_iter
+      integer :: khi, klo, k, nstart, nend, max_iter
       type(Logger), pointer :: lgr
       logical :: ispresent
 
-      type(ESMF_TimeInterval) :: Toff
+      type(ESMF_TimeInterval) :: Toff, obs_time_span
 
       _UNUSED_DUMMY(unusable)
       lgr => logging%get_logger('HISTORY.sampler')
@@ -446,7 +469,6 @@ contains
       !   output:  this%epoch_index,  nx, ny
       !
       !   Read in specs, crop epoch_index based on scanTime
-      !
 
 
       !__ s1. read in file spec.
@@ -460,40 +482,62 @@ contains
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
 
+      call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
+
+      if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
+         call ESMF_TimeSet(currTime, timeString=tmp, _RC)
+      else
+         read(tmp,'(i4,5i2)') yy,mm,dd,h,m,s
+         call ESMF_Timeset(currTime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+      endif
+      second = hms_2_s(this%Epoch)
+      call ESMF_TimeIntervalSet(this%epoch_frequency, s=second, _RC)
+
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_begin:', _RC)
+      _ASSERT (trim(STR1)/='', 'obs_file_begin missing, critical for data with 5 min interval!')
+      call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
+      !!disable using currTime as obsfile_start_time
+      !!if (trim(STR1)=='') then
+      !!   this%obsfile_start_time = currTime
+      !!   call ESMF_TimeGet(currTime, timestring=STR1, _RC)
+      !!   if (mapl_am_I_root()) then
+      !!      write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
+      !!   endif
+      !!else
+      !!   call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
+      !!   if (mapl_am_I_root()) then
+      !!      write(6,105) 'obs_file_begin provided: ', trim(STR1)
+      !!   end if
+      !!end if
 
-      if (trim(STR1)=='') then
-         _FAIL('obs_file_begin missing, code crash')
-      else
-         call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
+
+      if (mapl_am_I_root()) then
+         write(6,105) 'obs_file_begin provided: ', trim(STR1)
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label=prefix // 'obs_file_end:', _RC)
-
       if (trim(STR1)=='') then
-         _FAIL('obs_file_end missing, code crash')
+         call ESMF_TimeIntervalSet(obs_time_span, d=100, _RC)
+         this%obsfile_end_time = this%obsfile_start_time + obs_time_span
+         call ESMF_TimeGet(this%obsfile_end_time, timestring=STR1, _RC)
+         if (mapl_am_I_root()) then
+            write(6,105) 'obs_file_end   missing, default = begin+100D:', trim(STR1)
+         endif
       else
          call ESMF_TimeSet(this%obsfile_end_time, timestring=STR1, _RC)
+         if (mapl_am_I_root()) then
+            write(6,105) 'obs_file_end provided:', trim(STR1)
+         end if
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_interval:', _RC)
       _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
-
-
-!      if (mapl_am_I_root()) then
-!         write(6,'(//2x, a)')  'SWATH initialize_from_config_with_prefix'
-!         print*, 'obs_file_begin: str1=', trim(STR1)
-!         write(6,105) 'obs_file_begin provided: ', trim(STR1)
-!         print*, 'obs_file_end: str1=', trim(STR1)
-!         write(6,105) 'obs_file_end provided:', trim(STR1)
-!         write(6,105) 'obs_file_interval:', trim(STR1)
-!         write(6,106) 'Epoch (hhmmss)   :', this%epoch
-!      end if
-
+      if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
+      if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
 
       i= index( trim(STR1), ' ' )
       if (i>0) then
@@ -504,23 +548,6 @@ contains
          shms=trim(STR1)
       endif
       call convert_twostring_2_esmfinterval (symd, shms,  this%obsfile_interval, _RC)
-
-      second = hms_2_s(this%Epoch)
-      call ESMF_TimeIntervalSet(this%epoch_frequency, s=second, _RC)
-
-      if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
-         call ESMF_TimeSet(currTime, timeString=tmp, _RC)
-      else
-         read(tmp,'(i4,5i2)') yy,mm,dd,h,m,s
-         call ESMF_Timeset(currTime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
-      endif
-
-      call lgr%debug(' %a  %a', 'input_template =', trim(this%input_template))
-      !!write(6,'(2x,a,/,4i8,/,5(2x,a))') 'nx,ny,lm,epoch -- filename,tmp', &
-      !!     this%nx,this%ny,this%lm,this%epoch,&
-      !!     trim(filename),trim(tmp)
-      !!print*, 'ck: Epoch_init:', trim(tmp)
-
 
       call ESMF_ConfigGetAttribute(config, value=this%index_name_lon, default="", &
            label=prefix // 'index_name_lon:', _RC)
@@ -535,6 +562,7 @@ contains
       call ESMF_ConfigGetAttribute(config, this%tunit, default="", &
            label=prefix//'tunit:',  _RC)
 
+      call lgr%debug(' %a  %a', 'input_template =', trim(this%input_template))
 
 
       !__ s2. find obsFile even if missing on disk and get array: this%t_alongtrack(:)
@@ -561,28 +589,40 @@ contains
          write(6,'(10(2x,a20,2x,i40))') &
               'M_file:', M_file
          do i=1, M_file
-            write(6,'(10(2x,a20,2x,a))') &
-                 'filenames(i):', trim(this%filenames(i))
+            write(6,'(10(2x,a14,i4,a2,2x,a))') &
+                 'filenames(', i, '):', trim(this%filenames(i))
          end do
 
-         call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
-              this%index_name_lon, this%index_name_lat, _RC)
-         nlon=nx
-         nlat=ny
-         allocate(scanTime(nlon, nlat))
-         allocate(this%t_alongtrack(nlat))
+         !------------------------------------------------------------
+         !  QC for obs files:
+         !
+         !  1.  redefine nstart to skip un-defined time value
+         !  2.  Scan_Start_Time =  -9999, -9999, -9999,
+         !      ::  eliminate this row of data
+         !------------------------------------------------------------
 
+         allocate(lon_true(0,0), lat_true(0,0), scanTime(0,0))
          call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
               this%index_name_lon, this%index_name_lat, &
-              var_name_time=this%var_name_time, time=scanTime, _RC)
+              var_name_lon=this%var_name_lon, &
+              var_name_lat=this%var_name_lat, &
+              var_name_time=this%var_name_time, &
+              lon=lon_true, lat=lat_true, time=scanTime, &
+              Tfilter=.true., _RC)
 
-
+         nlon=nx
+         nlat=ny
+         allocate(this%t_alongtrack(nlat))
          do j=1, nlat
-            this%t_alongtrack(j)= scanTime(1,j)
-         enddo
+            this%t_alongtrack(j) = scanTime(1,j)
+         end do
+
+         !!write(6,'(a)')  'this%t_alongtrack(::50)='
+         !!write(6,'(5f20.2)')  this%t_alongtrack(::50)
+
+
          nstart = 1
          !
-         ! redefine nstart to skip un-defined time value
          ! If the t_alongtrack contains undefined values, use this code
          !
          x0 = this%t_alongtrack(1)
@@ -609,7 +649,7 @@ contains
          this%cell_across_swath = nlon
          this%cell_along_swath = nlat
          deallocate(scanTime)
-!!         write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::100)
+
 
 
          ! P2.
@@ -625,21 +665,27 @@ contains
          j1= j0 + sec
          jx0= j0
          jx1= j1
-         call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
-
 
          this%epoch_index(1)= 1
          this%epoch_index(2)= this%cell_across_swath
-         call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-         call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+         nend = this%cell_along_swath
+         call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+         call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
 
+         call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
+         call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Epoch]  w.r.t. timeunit ', jx0, jx1)
+         call lgr%debug ('%a %f20.1 %f20.1', 'x0[times(1)] xn[times(N)] w.r.t. timeunit ', &
+              this%t_alongtrack(1), this%t_alongtrack(nend))
+         call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
 
          if (jt1==jt2) then
             _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
          endif
+
          jt1 = jt1 + 1               ! (x1,x2]  design
          this%epoch_index(3)= jt1
          this%epoch_index(4)= jt2
+         _ASSERT( jt1 < jt2, 'Swath grid fail : epoch_index(3) > epoch_index(4)')
          Xdim = this%cell_across_swath
          Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
 
@@ -654,6 +700,7 @@ contains
          this%jm_world = Ydim
       end if
 
+
       call MPI_bcast(this%M_file, 1, MPI_INTEGER, 0, mpic, ierror)
       do i=1, this%M_file
          call MPI_bcast(this%filenames(i), ESMF_MAXSTR, MPI_CHARACTER, 0, mpic, ierror)
@@ -664,6 +711,7 @@ contains
       call MPI_bcast(this%cell_across_swath, 1, MPI_INTEGER, 0, mpic, ierror)
       call MPI_bcast(this%cell_along_swath, 1, MPI_INTEGER, 0, mpic, ierror)
       ! donot need to bcast this%along_track (root only)
+
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -679,7 +727,6 @@ contains
       endif
       ! ims is set at here
       call this%check_and_fill_consistency(_RC)
-
 
       _RETURN(_SUCCESS)
 
@@ -1389,55 +1436,67 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      integer :: i_1, i_n, j_1, j_n ! regional array bounds
-
-      !! shared mem
       real(kind=ESMF_KIND_R8), pointer :: fptr(:,:)
-      real, pointer :: centers(:,:)
-      real, allocatable :: centers_full(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: centers(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_true(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lat_true(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: time_true(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: arr_time(:,:)
 
       integer :: i, j, k
-      integer :: Xdim, Ydim
-      integer :: Xdim_full, Ydim_full
+      integer :: Xdim, Ydim, count
       integer :: nx, ny
-      integer :: IM_WORLD, JM_WORLD
+      integer :: i_1, i_n, j_1, j_n ! regional array bounds
 
+      ! debug
+      type(ESMF_VM) :: vm
+      integer :: mypet, petcount
+      integer :: mpic
 
-      !- shared mem case in MPI
-      !
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
+
       Xdim=this%im_world
       Ydim=this%jm_world
-      Xdim_full=this%cell_across_swath
-      Ydim_full=this%cell_along_swath
+      count=Xdim*Ydim
 
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-      call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
+      call MAPL_AllocateShared(arr_time,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
-
-      ! read Time and set
-      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         allocate( centers_full(Xdim_full, Ydim_full))
+      if (mapl_am_i_root()) then
+         allocate( lon_true(0,0), lat_true(0,0), time_true(0,0) )
          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
               this%index_name_lon, this%index_name_lat, &
-              var_name_time=this%var_name_time, time=centers_full, _RC)
-          !!call get_v2d_netcdf(this%grid_file_name, time_name, centers_full, Xdim_full, Ydim_full)
+              var_name_lon=this%var_name_lon, &
+              var_name_lat=this%var_name_lat, &
+              var_name_time=this%var_name_time, &
+              lon=lon_true, lat=lat_true, time=time_true, &
+              Tfilter=.true., _RC)
          k=0
          do j=this%epoch_index(3), this%epoch_index(4)
             k=k+1
-            centers(1:Xdim, k) = centers_full(1:Xdim, j)
+            arr_time(1:Xdim, k) = time_true(1:Xdim, j)
          enddo
-         deallocate (centers_full)
+         deallocate( lon_true, lat_true, time_true )
+
+!         write(6,*) 'in root, time'
+!         write(6,'(11x,100E12.5)')  arr_time(::5,189)
       end if
       call MAPL_SyncSharedMemory(_RC)
 
+      call MAPL_BcastShared (VM, data=arr_time, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
+
+!      write(6,'(2x,a,2x,i5,4x,100E12.5)')  'PET, time', mypet, arr_time(::5,189)
+!      call MPI_Barrier(mpic, status)
+
       !(Xdim, Ydim)
-      obs_time = centers(i_1:i_n,j_1:j_n)
+      obs_time = arr_time(i_1:i_n,j_1:j_n)
 
       if(MAPL_ShmInitialized) then
-         call MAPL_DeAllocNodeArray(centers,_RC)
+         call MAPL_DeAllocNodeArray(arr_time,_RC)
       else
-         deallocate(centers)
+         deallocate(arr_time)
       end if
 
       _RETURN(_SUCCESS)
