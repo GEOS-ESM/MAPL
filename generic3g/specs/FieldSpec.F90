@@ -16,7 +16,6 @@ module mapl3g_FieldSpec
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
-   use mapl3g_SequenceAction
    use mapl3g_CopyAction
    use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
@@ -548,7 +547,6 @@ contains
 !#         end if
          
       class default
-         action = NullAction()
          _FAIL('Dst spec is incompatible with FieldSpec.')
       end select
 

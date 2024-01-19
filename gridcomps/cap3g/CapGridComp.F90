@@ -30,6 +30,7 @@ module mapl3g_CapGridComp
       character(:), allocatable :: root_name
    end type CapGridComp
 
+   character(*), parameter :: PRIVATE_STATE = 'CapGridComp'
     
 contains
    

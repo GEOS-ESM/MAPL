@@ -13,14 +13,11 @@ module mapl3g_BracketSpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
+   use mapl3g_BundleAction
    use mapl3g_VerticalGeom
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
-   use mapl3g_SequenceAction
-   use mapl3g_CopyAction
-   use mapl3g_RegridAction
-   use mapl3g_geom_mgr, only: MAPL_SameGeom
    use gftl2_StringVector
    use esmf
    use nuopc
@@ -62,9 +59,10 @@ module mapl3g_BracketSpec
 contains
 
    function new_BracketSpec_geom(field_spec, bracket_size) result(bracket_spec)
+      
       type(BracketSpec) :: bracket_spec
       type(FieldSpec), optional, intent(in) :: field_spec
-      integer, intent(in) :: bracket_size
+      integer, optional, intent(in) :: bracket_size
 
       bracket_spec%reference_spec = field_spec
       if (present(bracket_size)) bracket_spec%bracket_size = bracket_size
@@ -97,9 +95,9 @@ contains
 
       do i = 1, this%bracket_size
          call this%field_specs(i)%allocate(_RC)
-         field = this%field_specs%get_payload()
+         field = this%field_specs(i)%get_payload()
          alias = ESMF_NamedAlias(field, name=int_to_string(i), _RC)
-         call ESMF_FieldBundleAdd(this%payload, alias, _RC)
+         call ESMF_FieldBundleAdd(this%payload, [alias], multiflag=.true., _RC)
       end do
 
       _RETURN(ESMF_SUCCESS)
@@ -122,7 +120,7 @@ contains
 
       integer :: status
 
-      call destroy_component_fields(this%payload, _RC)
+      call destroy_component_fields(this, _RC)
       call ESMF_FieldBundleDestroy(this%payload, nogarbage=.true., _RC)
       call this%set_created(.false.)
 
@@ -169,7 +167,7 @@ contains
       class is (BracketSpec)
          can_connect_to = all ([ &
               this%reference_spec%can_connect_to(src_spec%reference_spec), &
-              match(this%bracket_size, src_spec%bracket_size) & ! allow for mirroring
+              match_integer(this%bracket_size, src_spec%bracket_size) & ! allow for mirroring
               ])
       class default
          can_connect_to = .false.
@@ -198,6 +196,7 @@ contains
 
       integer :: status
       integer :: i
+      type(StateItemSpecPtr) :: dependency_specs(0)
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
 
@@ -212,7 +211,7 @@ contains
            src_spec%field_specs = [(src_spec%reference_spec, i=1,n)]
            
            do i = 1, this%bracket_size
-              call src_spec%field_specs(i)%create(_RC)
+              call src_spec%field_specs(i)%create(dependency_specs, _RC)
               call this%field_specs(i)%connect_to(src_spec%field_specs(i), actual_pt, _RC)
            end do
          end associate
@@ -284,7 +283,12 @@ contains
 
       integer :: status
 
-      cost = this%reference_spec%extension_cost(src_spec%reference_spec, _RC)
+      select type (src_spec)
+      type is (BracketSpec)
+         cost = this%reference_spec%extension_cost(src_spec%reference_spec, _RC)
+      class default
+         _FAIL('Cannot extend BracketSpec with non BracketSpec.')
+      end select
 
       _RETURN(_SUCCESS)
    end function extension_cost
@@ -319,37 +323,28 @@ contains
       integer :: status
       class(ExtensionAction), allocatable :: subaction
       integer :: i
+      type(BundleAction) :: bundle_action
 
-      action = BundleAction()
+      action = NullAction() ! default
 
-      do i = 1, this%bracket_size
-         subaction = this%field_specs(i)%make_action(dst_spec%field_specs(i), _RC)
-         call action%add_action(subaction)
-      end do
+      select type (dst_spec)
+      type is (BracketSpec)
+         _ASSERT(this%bracket_size == dst_spec%bracket_size, 'bracket size mismatch')
+         bundle_action = BundleAction()
+         do i = 1, this%bracket_size
+            subaction = this%field_specs(i)%make_action(dst_spec%field_specs(i), _RC)
+            call bundle_action%add_action(subaction)
+         end do
+!##ifdef __GFORTRAN__
+!#         deallocate(action)
+!##endif
+         action = bundle_action
+      class default
+         _FAIL('Dst_spec is incompatible with BracketSpec.')
+      end select
 
       _RETURN(_SUCCESS)
    end function make_action
 
-  logical function update_item_geom(a, b)
-      type(ESMF_GEOM), allocatable, intent(inout) :: a
-      type(ESMF_GEOM), allocatable, intent(in) :: b
-
-      update_item_geom = .false.
-      if (.not. match(a, b)) then
-         a = b
-         update_item_geom = .true.
-      end if
-   end function update_item_geom
-
-   logical function update_item_typekind(a, b)
-      type(ESMF_TypeKind_Flag), intent(inout) :: a
-      type(ESMF_TypeKind_Flag), intent(in) :: b
-
-      update_item_typekind = .false.
-      if (.not. match(a, b)) then
-         a = b
-         update_item_typekind = .true.
-      end if
-   end function update_item_typekind
 
 end module mapl3g_BracketSpec

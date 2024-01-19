@@ -52,6 +52,7 @@ module mapl3g_VariableSpec
    contains
       procedure :: make_virtualPt
       procedure :: make_ItemSpec
+      procedure :: make_BracketSpec
       procedure :: make_FieldSpec
       procedure :: make_ServiceSpec
       procedure :: make_WildcardSpec
@@ -213,6 +214,68 @@ contains
    end function make_ItemSpec
 
    
+   function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
+      type(BracketSpec) :: bracket_spec
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_Geom), intent(in) :: geom
+      type(VerticalGeom), intent(in) :: vertical_geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+      type(FieldSpec) :: field_spec
+
+      if (.not. valid(this)) then
+         _RETURN(_FAILURE)
+      end if
+
+      units = get_units(this, _RC)
+
+      field_spec = FieldSpec(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+           standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
+
+      
+      bracket_spec = BracketSpec(field_spec, this%bracket_size)
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      logical function valid(this) result(is_valid)
+         class(VariableSpec), intent(in) :: this
+
+         is_valid = .false. ! unless
+
+         if (.not. this%itemtype == MAPL_STATEITEM_BRACKET) return
+         if (.not. allocated(this%standard_name)) return
+         if (.not. allocated(this%bracket_size)) return
+
+         is_valid = .true.
+
+      end function valid
+
+      function get_units(this, rc) result(units)
+         character(:), allocatable :: units
+         class(VariableSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+
+         character(len=ESMF_MAXSTR) :: canonical_units
+         integer :: status
+
+         if (allocated(this%units)) then ! user override of canonical
+            units = this%units
+            _RETURN(_SUCCESS)
+         end if
+
+         call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
+         _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
+         units = trim(canonical_units)
+
+         _RETURN(_SUCCESS)
+      end function get_units
+
+   end function make_BracketSpec
+
    function make_FieldSpec(this, geom, vertical_geom, rc) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
@@ -229,7 +292,7 @@ contains
 
       units = get_units(this, _RC)
 
-      field_spec = new_FieldSpec_geom(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+      field_spec = FieldSpec(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
            standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
 
       _RETURN(_SUCCESS)
@@ -328,64 +391,5 @@ contains
          
       end function valid
    end function make_WildcardSpec
-
-   function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
-      type(BracketSpec) :: bracket_spec
-      class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), intent(in) :: geom
-      type(VerticalGeom), intent(in) :: vertical_geom
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: units
-
-      if (.not. valid(this)) then
-         _RETURN(_FAILURE)
-      end if
-
-      units = get_units(this, _RC)
-
-      
-      bracket_spec = new_BracketSpet_geom(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
-           standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value, bracket_size=this%bracket_size)
-
-      _RETURN(_SUCCESS)
-
-   contains
-
-      logical function valid(this) result(is_valid)
-         class(VariableSpec), intent(in) :: this
-
-         is_valid = .false. ! unless
-
-         if (.not. this%itemtype == MAPL_STATEITEM_BRACKET) return
-         if (.not. allocated(this%standard_name)) return
-         if (.not. allocated(this%bracket_size)) return
-
-         is_valid = .true.
-
-      end function valid
-
-      function get_units(this, rc) result(units)
-         character(:), allocatable :: units
-         class(VariableSpec), intent(in) :: this
-         integer, optional, intent(out) :: rc
-
-         character(len=ESMF_MAXSTR) :: canonical_units
-         integer :: status
-
-         if (allocated(this%units)) then ! user override of canonical
-            units = this%units
-            _RETURN(_SUCCESS)
-         end if
-
-         call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
-         _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
-         units = trim(canonical_units)
-
-         _RETURN(_SUCCESS)
-      end function get_units
-
-   end function make_BracketSpec
 
  end module mapl3g_VariableSpec
