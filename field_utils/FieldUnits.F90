@@ -28,9 +28,9 @@
 #include "unused_dummy.H"
 module mapl_FieldUnits
 
-   use udunits2mod, FieldUnitsConverter => Converter, &
+   use mapl_udunits2mod, FieldUnitsConverter => Converter, &
       initialize_udunits => initialize, finalize_udunits => finalize
-   use udunits2encoding
+   use mapl_udunits2encoding
    use MAPL_ExceptionHandling
    use MaplShared
    use ESMF

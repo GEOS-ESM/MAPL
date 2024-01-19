@@ -1,11 +1,11 @@
 #include "MAPL_Generic.h"
-module udunits2mod
+module mapl_udunits2mod
 
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double
-   use udunits2interfaces
-   use udunits2encoding
-   use udunits2status
+   use mapl_udunits2interfaces
+   use mapl_udunits2encoding
+   use mapl_udunits2status
    use MAPL_ExceptionHandling
 
    implicit none
@@ -400,4 +400,4 @@ contains
       if(present(is_set)) is_set = handler_set
    end subroutine disable_ut_error_message_handler
 
-end module udunits2mod
+end module mapl_udunits2mod

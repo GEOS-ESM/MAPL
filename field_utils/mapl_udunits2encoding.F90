@@ -1,6 +1,6 @@
 ! Flags for encodings for unit names and symbols
 ! The values are the same as the udunits2 utEncoding C enum
-module udunits2encoding
+module mapl_udunits2encoding
 
    implicit none
 
@@ -13,4 +13,4 @@ module udunits2encoding
    end enum
    integer, parameter :: ut_encoding = kind(UT_ENCODING_DEFAULT)
 
-end module udunits2encoding
+end module mapl_udunits2encoding

@@ -8,11 +8,11 @@ set(srcs
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
   FieldUnits.F90
-  udunits2.c
-  udunits2.F90
-  udunits2interfaces.F90
-  udunits2encoding.F90
-  udunits2status.F90
+  mapl_udunits2cfunc.c
+  mapl_udunits2.F90
+  mapl_udunits2interfaces.F90
+  mapl_udunits2encoding.F90
+  mapl_udunits2status.F90
   )
 
 # To use extended udunits2 procedures, udunits2.c must be built and linked.

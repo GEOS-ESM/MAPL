@@ -1,8 +1,8 @@
-module udunits2interfaces
+module mapl_udunits2interfaces
 
    use iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_double
-   use udunits2status
-   use udunits2encoding
+   use mapl_udunits2status
+   use mapl_udunits2encoding
 
    implicit none
 
@@ -145,4 +145,4 @@ module udunits2interfaces
 
    end interface
 
-end module udunits2interfaces
+end module mapl_udunits2interfaces

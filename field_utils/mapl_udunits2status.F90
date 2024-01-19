@@ -1,6 +1,6 @@
 ! Status values for udunits2 procedures
 ! The values are the same as the udunits2 utStatus C enum
-module udunits2status
+module mapl_udunits2status
 
    implicit none
 
@@ -25,4 +25,4 @@ module udunits2status
    end enum
    integer, parameter :: ut_status = kind(UT_SUCCESS)
 
-end module udunits2status
+end module mapl_udunits2status
