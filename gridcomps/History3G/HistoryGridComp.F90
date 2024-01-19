@@ -19,21 +19,23 @@ module mapl3g_HistoryGridComp
 
       type(HistoryGridComp), pointer :: history_gridcomp
       type(ESMF_HConfig) :: hconfig
+      logical :: has_active_collections
+      character(*), parameter :: PRIVATE_STATE = "HistoryGridComp"
 
       ! Set entry points
 !#      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name=GENERIC_INIT_USER)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
-      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, "HistoryGridComp", history_gridcomp)
+      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history_gridcomp)
 
       ! Determine collections
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
-      has_collections = ESMF_HConfigIsDefined(hconfig, keyString='collections', _RC)
-      _RETURN_UNLESS(has_collections)
+      has_active_collections = ESMF_HConfigIsDefined(hconfig, keyString='active_collections', _RC)
+      _RETURN_UNLESS(has_active_collections)
 
-      collections_config = ESMF_HConfigCreateAt(hconfig, keystring='collections', _RC)
+      collections_config = ESMF_HConfigCreateAt(hconfig, keystring='active_collections', _RC)
       num_collections = ESMF_HConfigSize(collections_config, _RC)
       _RETURN_UNLESS(num_collections > 0)
 

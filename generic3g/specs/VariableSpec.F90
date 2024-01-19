@@ -40,8 +40,8 @@ module mapl3g_VariableSpec
       type(StringVector), allocatable :: service_items
       character(:), allocatable :: units
       character(:), allocatable :: substate
-
       real, allocatable :: default_value
+      type(StringVector) :: attributes
 
       ! Geometry
       type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
@@ -67,7 +67,7 @@ contains
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
-        service_items) result(var_spec)
+        service_items, attributes) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -83,6 +83,7 @@ contains
       type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
       type(UngriddedDimsSpec), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
+      type(StringVector), optional, intent(in) :: attributes
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -101,6 +102,7 @@ contains
       _SET_OPTIONAL(default_value)
       _SET_OPTIONAL(vertical_dim_spec)
       _SET_OPTIONAL(ungridded_dims)
+      _SET_OPTIONAL(attributes)
 
    end function new_VariableSpec
 
@@ -218,7 +220,7 @@ contains
       units = get_units(this, _RC)
 
       field_spec = new_FieldSpec_geom(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
-           standard_name=this%standard_name, long_name=' ', units=units, default_value=this%default_value)
+           standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
 
       _RETURN(_SUCCESS)
 
@@ -295,15 +297,26 @@ contains
 
       integer :: status
       type(FieldSpec) :: field_spec
-      type(VariableSpec) :: tmp_spec
 
-      tmp_spec = this
-      tmp_spec%itemtype = MAPL_STATEITEM_FIELD
-
-      field_spec = tmp_spec%make_FieldSpec(geom, vertical_geom, _RC)
+      field_spec = new_FieldSpec_geom(geom=geom, vertical_geom=vertical_geom, &
+           vertical_dim=this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+           attributes=this%attributes, default_value=this%default_value)
       wildcard_spec = WildCardSpec(field_spec)
 
       _RETURN(_SUCCESS)
+   contains
+
+      logical function valid(this) result(is_valid)
+         class(VariableSpec), intent(in) :: this
+         
+         is_valid = .false. ! unless
+         if (allocated(this%standard_name)) return
+         if (allocated(this%units)) return ! maybe this can be relaxed - match only thisgs that have same units?
+         if (this%attributes%size() > 0) return
+         if (allocated(this%default_value)) return
+         is_valid = .true.
+         
+      end function valid
    end function make_WildcardSpec
 
 end module mapl3g_VariableSpec

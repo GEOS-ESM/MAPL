@@ -1,75 +1,123 @@
-#include "Generic.h"
+#include "MAPL_Generic.h"
 
 module mapl3g_GenericCoupler
+   use mapl3g_CouplerMetaComponent
+   use mapl3g_ExtensionAction
+   use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandlingMod
+   use esmf
    implicit none
    private
 
    public :: setServices
-   public :: make_coupler
+
+   character(*), parameter :: COUPLER_PRIVATE_STATE = 'MAPL::CouplerMetaComponent::private'
 
 contains
 
-   function make_coupler(observed, rc) result(gridcomp)
-      type(Observable) :: observed
+   function make_coupler(action, source, rc) result(coupler_gridcomp)
+      type(ESMF_GridComp) :: coupler_gridcomp
+      class(ExtensionAction), intent(in) :: action
+      type(GriddedComponentDriver), pointer, optional, intent(in) :: source
+      integer, optional, intent(out) :: rc
 
-      type(BidirectionalObserver), pointer :: observer
+      integer :: status
+      type(CouplerMetaComponent), pointer :: coupler_meta
 
-      gridcomp = ESMF_GridCompCreate(...)
-      observer = BidirectionalObserver(observed)
-      _SET_PRIVATE_STATE(gridcomp, observer, ...)
+      coupler_gridcomp = ESMF_GridCompCreate(name='coupler', _RC)
+      call attach_coupler_meta(coupler_gridcomp, _RC)
+      coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
+
+      coupler_meta = CouplerMetaComponent(action, source)
 
       _RETURN(_SUCCESS)
    end function make_coupler
    
    subroutine setServices(gridcomp, rc)
+      type(ESMF_GridComp) :: gridcomp
+      integer, intent(out) :: rc
+
+      integer :: status
+      
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, initialize, phase=GENERIC_COUPLER_INITIALIZE, _RC)
+
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, update, phase=GENERIC_COUPLER_UPDATE, _RC)
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, invalidate, phase=GENERIC_COUPLER_INVALIDATE, _RC)
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, clock_advance, phase=GENERIC_COUPLER_CLOCK_ADVANCE, _RC)
+
+      _RETURN(_SUCCESS)
    end subroutine setServices
 
-   subroutine update_self(gridcomp, clock, import, export, ...)
 
-      observer => ...
-      call observer%udpate_self(_RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine update_self
-
-   subroutine update_imports(this, rc)
-      class(GenericCoupler), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
+   subroutine initialize(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gridcomp
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+      
       integer :: status
-      integer :: i
+      type(CouplerMetaComponent), pointer :: meta
 
-      observer => ...
-      call observer%update_imports(_RC)
+      meta => get_coupler_meta(gridcomp, _RC)
+!#      call meta%initialize(importState, exportState, clock, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine notify_dependencies
+   end subroutine initialize
 
-   subroutine invalidate_exports(this, rc)
-      class(GenericCoupler), intent(inout) :: this
-      integer, optional, intent(out) :: rc
 
+   subroutine update(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gridcomp
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+      
       integer :: status
+      type(CouplerMetaComponent), pointer :: meta
 
-      observer => ...
-      call observer%invalidate_exports(_RC)
+      meta => get_coupler_meta(gridcomp, _RC)
+      call meta%update(importState, exportState, clock, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine notify_subscribers
+   end subroutine update
+
+   
+   subroutine invalidate(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gridcomp
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+      
+      integer :: status
+      type(CouplerMetaComponent), pointer :: meta
+
+      meta => get_coupler_meta(gridcomp, _RC)
+      call meta%invalidate(importstate, exportState, clock, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine invalidate
 
 
-   subroutine add_dependency(this, dependency)
-      class(GenericCoupler), intent(inout) :: this
-      class(BidirectionalObserver), pointer, intent(in) :: dependency
-      call this%dependencies%push_back(BidirectionObserverPtr(dependency))
-   end subroutine add_dependency
+   subroutine clock_advance(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gridcomp
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+      
+      integer :: status
+      type(CouplerMetaComponent), pointer :: coupler_meta
+      
+      coupler_meta => get_coupler_meta(gridcomp)
+      call coupler_meta%clock_advance(importState, exportState, clock, _RC)
 
+      ! TBD: is this where it belongs?
+      call ESMF_ClockAdvance(clock, _RC)
+     
+      _RETURN(_SUCCESS)
+   end subroutine clock_advance
 
-   subroutine add_subscriber(this, subscriber)
-      class(GenericCoupler), intent(inout) :: this
-      class(BidirectionalObserver), pointer, intent(in) :: subscriber
-      call this%subscribers%push_back(BidirectionObserverPtr(subscriber))
-   end subroutine add_subscriber
 
 end module mapl3g_GenericCoupler

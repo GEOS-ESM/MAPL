@@ -1,20 +1,26 @@
 clock:
   dt: PT900S
-  begin: 1891-03-01T00:00:00
-  end: 2999-03-02T21:00:00
-#  end:    29990302T210000 variant time
+  start: 1891-03-01T00:00:00
+  stop: 2999-03-02T21:00:00
+  segment_duration: P1H
 
-JOB_SGMT: P1H
-DURATION: P1H
+num_segments: 1 # segments per batch submission
 
-HISTORY_CONFIG: HISTORY.yaml
-EXTDATA_CONFIG: EXTDATA.yaml
+extdata_name: EXTDATA
+history_name: HIST
+root_name: GCM
 
 mapl:
   children:
     GCM:
       dso: libgcm_gc
       config_file: GCM.yaml
+    EXTDATA:
+      dso: libextdata_gc
+      config_file: extdata.yaml
+    HIST:
+      dso: libhistory_gc
+      config_file: history.yaml
 
 # Global services
 esmf:

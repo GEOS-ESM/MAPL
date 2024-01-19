@@ -21,6 +21,7 @@ module mapl3g_FieldSpec
    use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use gftl2_StringVector
    use esmf
    use nuopc
 
@@ -38,6 +39,7 @@ module mapl3g_FieldSpec
       type(VerticalDimSpec) :: vertical_dim
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDimsSpec) :: ungridded_dims
+      type(StringVector) :: attributes
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -98,7 +100,7 @@ contains
 
    function new_FieldSpec_geom(geom, vertical_geom, vertical_dim, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        default_value) result(field_spec)
+        attributes, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       type(ESMF_Geom), intent(in) :: geom
@@ -107,9 +109,12 @@ contains
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDimsSpec), intent(in) :: ungridded_dims
 
-      character(*), intent(in) :: standard_name
-      character(*), intent(in) :: long_name
-      character(*), intent(in) :: units
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: long_name
+      type(StringVector), optional, intent(in) :: attributes
+
+      ! optional args last
       real, optional, intent(in) :: default_value
 
       field_spec%geom = geom
@@ -118,10 +123,11 @@ contains
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
 
-      field_spec%standard_name = standard_name
-      field_spec%long_name = long_name
-      field_spec%units = units
+      if (present(standard_name)) field_spec%standard_name = standard_name
+      if (present(long_name)) field_spec%long_name = long_name
+      if (present(units)) field_spec%units = units
 
+      if (present(attributes)) field_spec%attributes = attributes
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
@@ -359,13 +365,34 @@ contains
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
 !#              can_convert_units(this, src_spec) &
-              this%ungridded_dims == src_spec%ungridded_dims & !, &
-!#              this%units == src_spec%units & ! units are required for fields
+              this%ungridded_dims == src_spec%ungridded_dims, & 
+              includes(this%attributes, src_spec%attributes),  &
+              match(this%units, src_spec%units) &
               ])
       class default
          can_connect_to = .false.
       end select
+   contains
 
+      logical function includes(mandatory, provided)
+         type(StringVector), target, intent(in) :: mandatory
+         type(StringVector), target, intent(in) :: provided
+
+         integer :: i, j
+         character(:), pointer :: attribute_name
+
+         m: do i = 1, mandatory%size()
+            attribute_name => mandatory%of(i)
+            p: do j = 1, provided%size()
+               if (attribute_name == provided%of(j)) cycle m
+            end do p
+            ! ith not found
+            includes = .false.
+            return
+         end do m
+
+         includes = .true.
+      end function includes
    end function can_connect_to
 
 

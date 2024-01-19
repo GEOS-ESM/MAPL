@@ -1,3 +1,4 @@
 target_sources(MAPL.generic3g PRIVATE
-  Observer.F90
+  CouplerMetaComponent.F90
+  GenericCoupler.F90
   )
