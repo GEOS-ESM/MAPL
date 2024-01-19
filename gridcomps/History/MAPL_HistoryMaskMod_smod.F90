@@ -97,13 +97,12 @@ contains
             shms=trim(STR1)
          endif
          call convert_twostring_2_esmfinterval (symd, shms,  mask%obsfile_interval, _RC)
-         mask%is_valid = .true.
 
-         ! __ s1. overall print
+         mask%is_valid = .true.
          call ESMF_ConfigGetAttribute(config, mask%input_template, &
               label=trim(string)//'obs_files:', default='unknown.txt', _RC)
 
-         ! __ s2. metadata and file_handle
+         ! __  metadata and file_handle
          allocate (mask%metadata)
          if (mapl_am_i_root()) then
             allocate (mask%file_handle)
@@ -236,9 +235,9 @@ contains
          real(kind=REAL64), allocatable :: times_R8_full(:)
          integer,           allocatable :: obstype_id_full(:)
 
-         real, allocatable :: lon_true(:,:)
-         real, allocatable :: lat_true(:,:)
-         real, allocatable :: scanTime(:,:)         
+         real(kind=ESMF_KIND_R8), allocatable :: lon_true(:,:)
+         real(kind=ESMF_KIND_R8), allocatable :: lat_true(:,:)
+         real(kind=ESMF_KIND_R8), allocatable :: scanTime(:,:)         
          
          real(ESMF_KIND_R8), pointer :: ptAT(:)
          type(ESMF_routehandle) :: RH
@@ -300,7 +299,6 @@ contains
             !    --  redefine nstart to skip un-defined time value
             !    --  Scan_Start_Time =  -9999, -9999, -9999,
             !        ::  eliminate this row of data
-            !
 
             allocate(lon_true(0,0), lat_true(0,0), scanTime(0,0))
             call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
