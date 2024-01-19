@@ -13,8 +13,13 @@ module Test_FieldArithmetic
 
    implicit none
 
+   real(kind=ESMF_KIND_R4), parameter :: ADD_R4 = 100.0
+   real(kind=ESMF_KIND_R8), parameter :: ADD_R8 = 100.0
+
 contains
 
+   ! Making the fields should be done in the tests themselves so because
+   ! of the npes argument.
    @Before
    subroutine set_up_data()
       implicit none
@@ -51,16 +56,18 @@ contains
 
    end subroutine set_up_data
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldAddR4()
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
       integer :: status, rc
+      real(kind=ESMF_KIND_R4), allocatable :: y4array(:,:)
 
-      x = XR4
-      y = YR4
+      allocate(y4array, source=R4_ARRAY_DEFAULT)
+      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', _RC)
+      y = mk_r4field(y4array, 'YR4', _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
       call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
 
@@ -70,9 +77,13 @@ contains
       result_array = 5.0
       call FieldAdd(y, x, y, _RC)
       @assertEqual(y_ptr, result_array)
+
    end subroutine test_FieldAddR4
 
-   @Test
+   ! Rather than use the fields created in setup, make the fields
+   ! in this subroutine to make sure that the npes match the
+   ! regDecomp.
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldAddR4_missing
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
@@ -93,16 +104,18 @@ contains
       @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR4_missing
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldAddR8()
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:,:), y_ptr(:,:)
       real(kind=ESMF_KIND_R8), allocatable :: result_array(:,:)
       integer :: status, rc
+      real(kind=ESMF_KIND_R8), allocatable :: y8array(:,:)
 
-      x = XR8
-      y = YR8
+      allocate(y8array, source=R8_ARRAY_DEFAULT)
+      x = mk_r8field(R8_ARRAY_DEFAULT, 'XR8', _RC)
+      y = mk_r8field(y8array, 'YR8', _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
       call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
 
@@ -114,7 +127,7 @@ contains
       @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR8
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldPowR4()
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
@@ -133,7 +146,7 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR4
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldPowR8()
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:,:)
@@ -152,7 +165,7 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR8
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldSinR4()
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
@@ -169,7 +182,7 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldSinR4
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldNegR4()
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
