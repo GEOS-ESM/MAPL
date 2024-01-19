@@ -8,60 +8,56 @@ module Test_FieldArithmetic
    use MAPL_FieldUtilities
    use MAPL_FieldPointerUtilities
    use ESMF
-   use funit
+   use pfunit
    use MAPL_ExceptionHandling
 
    implicit none
 
    real(kind=ESMF_KIND_R4), parameter :: ADD_R4 = 100.0
    real(kind=ESMF_KIND_R8), parameter :: ADD_R8 = 100.0
+   real(kind=ESMF_KIND_R4), allocatable :: y4array(:,:)
+   real(kind=ESMF_KIND_R8), allocatable :: y8array(:,:)
 
 contains
 
    ! Making the fields should be done in the tests themselves so because
    ! of the npes argument.
    @Before
-   subroutine set_up_data()
+   subroutine set_up_data(this)
       implicit none
 
+      class(MPITestMethod), intent(inout) :: this
       integer :: status, rc
-
-      real(kind=ESMF_KIND_R4), parameter :: ADD_R4 = 100.0
-      real(kind=ESMF_KIND_R8), parameter :: ADD_R8 = 100.0
-      real(kind=ESMF_KIND_R4), allocatable :: y4array(:,:)
-      real(kind=ESMF_KIND_R8), allocatable :: y8array(:,:)
 
       allocate(y4array, source=R4_ARRAY_DEFAULT)
       allocate(y8array, source=R8_ARRAY_DEFAULT)
       y4array = y4array + ADD_R4
       y8array = y8array + ADD_R8
-      XR4 = mk_field(R4_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4', _RC)
-      YR4 = mk_field(y4array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4', _RC)
-      XR8 = mk_field(R8_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
-      YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
-      call ESMF_AttributeSet(xr4,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(xr8,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(yr4,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(yr8,name="missing_value",value=undef,_RC)
 
    end subroutine set_up_data
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldAddR4()
+   @After
+   subroutine tear_down(this)
+      implicit none
+
+      class(MPITestMethod), intent(inout) :: this
+
+      if(allocated(y4array)) deallocate(y4array)
+      if(allocated(y8array)) deallocate(y8array)
+
+   end subroutine tear_down
+         
+   @Test(npes=[4])
+   subroutine test_FieldAddR4(this)
+      class(MPITestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
       integer :: status, rc
-      real(kind=ESMF_KIND_R4), allocatable :: y4array(:,:)
 
-      allocate(y4array, source=R4_ARRAY_DEFAULT)
-      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', _RC)
-      y = mk_r4field(y4array, 'YR4', _RC)
+      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', set_missing_value=.TRUE., _RC)
+      y = mk_r4field(y4array, 'YR4', set_missing_value=.TRUE., _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
       call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
 
@@ -77,37 +73,37 @@ contains
    ! Rather than use the fields created in setup, make the fields
    ! in this subroutine to make sure that the npes match the
    ! regDecomp.
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldAddR4_missing
+   @Test(npes=[4])
+   subroutine test_FieldAddR4_missing(this)
+      class(MPITestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
       integer :: status, rc
 
-      x = XR4
-      y = YR4
+      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', set_missing_value=.TRUE., _RC)
+      y = mk_r4field(y4array, 'YR4', set_missing_value=.TRUE., _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
       call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
 
-      x_ptr = reshape(source=[2.0,2.0,2.0,undef],shape=[2,2])
-      y_ptr = reshape(source=[undef,3.0,3.0,undef],shape=[2,2])
+      x_ptr = reshape(source=[2.0,2.0,2.0,UNDEF],shape=[2,2])
+      y_ptr = reshape(source=[UNDEF,3.0,3.0,UNDEF],shape=[2,2])
       result_array = x_ptr
-      result_array = reshape(source=[undef,5.0,5.0,undef],shape=[2,2])
+      result_array = reshape(source=[UNDEF,5.0,5.0,UNDEF],shape=[2,2])
       call FieldAdd(y, x, y, _RC)
       @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR4_missing
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldAddR8()
+   @Test(npes=[4])
+   subroutine test_FieldAddR8(this)
+      class(MPITestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:,:), y_ptr(:,:)
       real(kind=ESMF_KIND_R8), allocatable :: result_array(:,:)
       integer :: status, rc
-      real(kind=ESMF_KIND_R8), allocatable :: y8array(:,:)
 
-      allocate(y8array, source=R8_ARRAY_DEFAULT)
       x = mk_r8field(R8_ARRAY_DEFAULT, 'XR8', _RC)
       y = mk_r8field(y8array, 'YR8', _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
@@ -121,15 +117,16 @@ contains
       @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldPowR4()
+   @Test(npes=[4])
+   subroutine test_FieldPowR4(this)
+      class(MPITestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
       integer :: status, rc
       real :: expo
 
-      x = XR4
+      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', set_missing_value=.TRUE., _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
 
       x_ptr = 2.0
@@ -140,15 +137,16 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR4
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldPowR8()
+   @Test(npes=[4])
+   subroutine test_FieldPowR8(this)
+      class(MPITestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:,:)
       real(kind=ESMF_KIND_R8), allocatable :: result_array(:,:)
       integer :: status, rc
       real :: expo
 
-      x = XR8
+      x = mk_r8field(R8_ARRAY_DEFAULT, 'XR8', _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
 
       x_ptr = 2.d0
@@ -159,14 +157,15 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldSinR4()
+   @Test(npes=[4])
+   subroutine test_FieldSinR4(this)
+      class(MPITestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
       integer :: status, rc
 
-      x = XR4
+      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', set_missing_value=.TRUE., _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
 
       x_ptr = 2.0
@@ -176,14 +175,15 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldSinR4
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldNegR4()
+   @Test(npes=[4])
+   subroutine test_FieldNegR4(this)
+      class(MPITestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
       integer :: status, rc
 
-      x = XR4
+      x = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', set_missing_value=.TRUE., _RC)
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
 
       x_ptr = 2.0

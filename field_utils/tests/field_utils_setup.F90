@@ -9,28 +9,33 @@ module field_utils_setup
    implicit none
 
    interface mk_field
-      module procedure mk_field_r4_2d
-      module procedure mk_field_r8_2d
+      module procedure :: mk_field_r4_2d
+      module procedure :: mk_field_r8_2d
+      module procedure :: mk_r4field
+      module procedure :: mk_r8field
+      module procedure :: mk_r4ungrid_field
    end interface mk_field
 
    interface initialize_array
-      module procedure initialize_array_r4
-      module procedure initialize_array_r8
+      module procedure :: initialize_array_r4
+      module procedure :: initialize_array_r8
    end interface
 
    integer :: i
    type(ESMF_Index_Flag), parameter :: INDEX_FLAG_DEFAULT = ESMF_INDEX_DELOCAL
-   integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2]
-   integer, parameter :: MAX_INDEX_DEFAULT(*) = [4, 4]
+   integer, parameter :: DIMX = 4, DIMY = 4
+   integer, parameter :: SIZE_XY = DIMX*DIMY
+   integer, parameter :: SIZE_R4 = SIZE_XY
+   integer, parameter :: SIZE_R8 = SIZE_XY
    integer, parameter :: MIN_INDEX_DEFAULT(*) = [1, 1]
-   integer, parameter :: DIMR4_DEFAULT(*) = [4, 4]
-   integer, parameter :: DIMR8_DEFAULT(*) = [4, 4]
-   integer, parameter :: SIZE_R4 = 16
-   integer, parameter :: SIZE_R8 = 16
-   real, parameter :: undef = 42.0
+   integer, parameter :: MAX_INDEX_DEFAULT(*) = [DIMX, DIMY]
 
-   real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R4)], DIMR4_DEFAULT)
-   real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R8)], DIMR8_DEFAULT)
+   real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*, *) = reshape([(i, i = 1, SIZE_XY)], MAX_INDEX_DEFAULT)
+   real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*, *) = reshape([(i, i = 1, SIZE_XY)], MAX_INDEX_DEFAULT)
+
+   integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2]
+
+   real, parameter :: UNDEF = 42.0
 
    type(ESMF_Field) :: XR4
    type(ESMF_Field) :: XR8
@@ -159,13 +164,33 @@ contains
 
    end function are_almost_equal
 
+   subroutine reseed()
+      integer :: sz, i
+      integer, allocatable :: seed_array(:)
+
+      call random_seed()
+      call random_seed(size = sz)
+      allocate(seed_array(sz))
+      do i = 1, sz
+         seed_array(i) = 2**i
+      end do
+      call random_seed(put=seed_array(1:sz))
+
+   end subroutine reseed
+
    subroutine initialize_array_R4(x, xmin, xrange)
       real(ESMF_KIND_R4), intent(inout) :: x(:,:)
       real(ESMF_KIND_R4), intent(in) :: xmin
       real(ESMF_KIND_R4), intent(in) :: xrange
       integer :: rc
+!      integer, allocatable :: seed_array(:)
 
       _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
+      call reseed()
+!      call random_seed()
+!      call random_seed(size = sz)
+!      allocate(seed_array(sz))
+!      call random_seed(put=seed_array(1:sz))
       call random_number(x)
       x = xrange * x + xmin
 
@@ -178,21 +203,27 @@ contains
       integer :: rc
 
       _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
+      call reseed()
       call random_number(x)
       x = xrange * x + xmin
 
    end subroutine initialize_array_R8
 
-   function mk_r4field(r4array, field_name, rc) result(r4field)
+   function mk_r4field(r4array, field_name, set_missing_value, rc) result(r4field)
       type(ESMF_Field) :: r4field
       real(kind=ESMF_KIND_R4), intent(in) :: r4array(:,:)
       character(len=*), intent(in) :: field_name
+      logical, optional, intent(in) :: set_missing_value
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       r4field = mk_field(r4array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, &
          maxIndex=MAX_INDEX_DEFAULT, indexflag=INDEX_FLAG_DEFAULT, name = field_name, _RC)
+
+      if(present(set_missing_value)) then
+         call ESMF_AttributeSet(r4field, name="missing_value",value=UNDEF,_RC)
+      end if
 
       _RETURN(_SUCCESS)
 
