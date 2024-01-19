@@ -31,6 +31,7 @@ set(srcs
   GenericGridComp.F90
 
   MAPL_Generic.F90
+  MAPL3_Deprecated.F90
   Validation.F90
 
   VerticalGeom.F90

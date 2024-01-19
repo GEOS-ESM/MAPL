@@ -9,6 +9,7 @@ module mapl3g_VariableSpec
    use mapl3g_HorizontalDimsSpec
    use mapl3g_FieldSpec
    use mapl3g_WildcardSpec
+   use mapl3g_BracketSpec
    use mapl3g_ServiceSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
@@ -42,6 +43,7 @@ module mapl3g_VariableSpec
       character(:), allocatable :: substate
       real, allocatable :: default_value
       type(StringVector) :: attributes
+      integer, allocatable :: bracket_size
 
       ! Geometry
       type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
@@ -50,6 +52,7 @@ module mapl3g_VariableSpec
    contains
       procedure :: make_virtualPt
       procedure :: make_ItemSpec
+      procedure :: make_BracketSpec
       procedure :: make_FieldSpec
       procedure :: make_ServiceSpec
       procedure :: make_WildcardSpec
@@ -67,7 +70,8 @@ contains
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
-        service_items, attributes) result(var_spec)
+        service_items, attributes, &
+        bracket_size) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -84,6 +88,7 @@ contains
       type(UngriddedDimsSpec), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
       type(StringVector), optional, intent(in) :: attributes
+      integer, optional, intent(in) :: bracket_size
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -103,6 +108,7 @@ contains
       _SET_OPTIONAL(vertical_dim_spec)
       _SET_OPTIONAL(ungridded_dims)
       _SET_OPTIONAL(attributes)
+      _SET_OPTIONAL(bracket_size)
 
    end function new_VariableSpec
 
@@ -150,6 +156,8 @@ contains
             itemtype = MAPL_STATEITEM_SERVICE_SUBSCRIBER
          case ('wildcard')
             itemtype = MAPL_STATEITEM_WILDCARD
+         case ('bracket')
+            itemtype = MAPL_STATEITEM_BRACKET
          case default
             itemtype = MAPL_STATEITEM_UNKNOWN
          end select
@@ -193,6 +201,9 @@ contains
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(WildcardSpec::item_spec)
          item_spec = this%make_WildcardSpec(geom, vertical_geom,  _RC)
+      case (MAPL_STATEITEM_BRACKET%ot)
+         allocate(BracketSpec::item_spec)
+         item_spec = this%make_BracketSpec(geom, vertical_geom,  _RC)
       case default
          ! Fail, but still need to allocate a result.
          allocate(InvalidSpec::item_spec)
@@ -203,6 +214,68 @@ contains
    end function make_ItemSpec
 
    
+   function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
+      type(BracketSpec) :: bracket_spec
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_Geom), intent(in) :: geom
+      type(VerticalGeom), intent(in) :: vertical_geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+      type(FieldSpec) :: field_spec
+
+      if (.not. valid(this)) then
+         _RETURN(_FAILURE)
+      end if
+
+      units = get_units(this, _RC)
+
+      field_spec = FieldSpec(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+           standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
+
+      
+      bracket_spec = BracketSpec(field_spec, this%bracket_size)
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      logical function valid(this) result(is_valid)
+         class(VariableSpec), intent(in) :: this
+
+         is_valid = .false. ! unless
+
+         if (.not. this%itemtype == MAPL_STATEITEM_BRACKET) return
+         if (.not. allocated(this%standard_name)) return
+         if (.not. allocated(this%bracket_size)) return
+
+         is_valid = .true.
+
+      end function valid
+
+      function get_units(this, rc) result(units)
+         character(:), allocatable :: units
+         class(VariableSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+
+         character(len=ESMF_MAXSTR) :: canonical_units
+         integer :: status
+
+         if (allocated(this%units)) then ! user override of canonical
+            units = this%units
+            _RETURN(_SUCCESS)
+         end if
+
+         call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
+         _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
+         units = trim(canonical_units)
+
+         _RETURN(_SUCCESS)
+      end function get_units
+
+   end function make_BracketSpec
+
    function make_FieldSpec(this, geom, vertical_geom, rc) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
@@ -219,7 +292,7 @@ contains
 
       units = get_units(this, _RC)
 
-      field_spec = new_FieldSpec_geom(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+      field_spec = FieldSpec(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
            standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
 
       _RETURN(_SUCCESS)
@@ -319,4 +392,4 @@ contains
       end function valid
    end function make_WildcardSpec
 
-end module mapl3g_VariableSpec
+ end module mapl3g_VariableSpec

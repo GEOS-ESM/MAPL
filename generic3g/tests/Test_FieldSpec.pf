@@ -4,11 +4,45 @@ module Test_FieldSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_VerticalDimSpec
    use mapl3g_VerticalGeom
+   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use gftl2_StringVector
    use esmf
    implicit none
 
 contains
+
+   @test
+   subroutine test_can_connect_typekind()
+      type(FieldSpec) :: spec_r4, spec_r8, spec_mirror
+      type(ESMF_Geom) :: geom
+      type(StringVector) :: import_attributes, export_attributes
+
+      spec_r4 = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', units='barn')
+      spec_r8 = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R8, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', units='barn')
+      spec_mirror = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=MAPL_TYPEKIND_MIRROR, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', units='barn')
+
+      @assert_that(spec_r4%can_connect_to(spec_r4), is(true()))
+      @assert_that(spec_r4%can_connect_to(spec_r8), is(true()))
+      @assert_that(spec_r8%can_connect_to(spec_r4), is(true()))
+      @assert_that(spec_r8%can_connect_to(spec_r8), is(true()))
+
+      @assert_that(spec_mirror%can_connect_to(spec_r4), is(true()))
+      @assert_that(spec_mirror%can_connect_to(spec_r8), is(true()))
+
+   end subroutine test_can_connect_typekind
+
 
    @test
    ! Verify that framework detects when an export spec does not
@@ -50,7 +84,6 @@ contains
       call import_attributes%push_back('radius')
       call export_attributes%push_back('radius')
       call export_attributes%push_back('other')
-
       
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
@@ -132,7 +165,7 @@ contains
    @test
    ! Verify that framework detects when an export spec does not
    ! provide mandatory attributes specified by import spec.
-   subroutine test_matched_units()
+   subroutine test_same_units()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec
       type(ESMF_Geom) :: geom
@@ -153,6 +186,31 @@ contains
 
       @assert_that(import_spec%can_connect_to(export_spec), is(true()))
       
-   end subroutine test_matched_units
+   end subroutine test_same_units
+
+   @test
+   ! Verify that framework detects when an export spec does not
+   ! provide mandatory attributes specified by import spec.
+   subroutine test_match_units()
+      type(FieldSpec) :: import_spec
+      type(FieldSpec) :: export_spec
+      type(ESMF_Geom) :: geom
+
+      import_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', attributes=StringVector())
+
+      export_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDimsSpec(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='barn')
+
+      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+      
+   end subroutine test_match_units
 
 end module Test_FieldSpec

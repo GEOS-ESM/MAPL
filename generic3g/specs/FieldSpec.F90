@@ -16,7 +16,6 @@ module mapl3g_FieldSpec
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
-   use mapl3g_SequenceAction
    use mapl3g_CopyAction
    use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
@@ -58,6 +57,7 @@ module mapl3g_FieldSpec
       procedure :: destroy
       procedure :: allocate
       procedure :: get_dependencies
+      procedure :: get_payload
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -198,7 +198,7 @@ contains
 
       integer :: status
 
-      call ESMF_FieldDestroy(this%payload, _RC)
+      call ESMF_FieldDestroy(this%payload, nogarbage=.true., _RC)
       call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
@@ -421,7 +421,6 @@ contains
 
       type(ESMF_Field) :: alias
       integer :: status
-      type(ESMF_FieldStatus_Flag) :: fstatus
       type(ESMF_State) :: state, substate
       character(:), allocatable :: short_name
 
@@ -548,7 +547,6 @@ contains
 !#         end if
          
       class default
-         action = NullAction()
          _FAIL('Dst spec is incompatible with FieldSpec.')
       end select
 
@@ -638,5 +636,11 @@ contains
          update_item_string = .true.
       end if
    end function update_item_string
-   
+
+   function get_payload(this) result(payload)
+      type(ESMF_Field) :: payload
+      class(FieldSpec), intent(in) :: this
+      payload = this%payload
+   end function get_payload
+
 end module mapl3g_FieldSpec

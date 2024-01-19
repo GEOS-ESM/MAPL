@@ -1,0 +1,216 @@
+module Test_BracketSpec
+   use funit
+   use mapl3g_BracketSpec
+   use mapl3g_UngriddedDimsSpec
+   use mapl3g_VerticalDimSpec
+   use mapl3g_VerticalGeom
+   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use gftl2_StringVector
+   use esmf
+   implicit none
+
+contains
+
+!#   @test
+!#   subroutine test_can_connect_typekind()
+!#      type(BracketSpec) :: spec_r4, spec_r8, spec_mirror
+!#      type(ESMF_Geom) :: geom
+!#      type(StringVector) :: import_attributes, export_attributes
+!#
+!#      spec_r4 = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn')
+!#      spec_r8 = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R8, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn')
+!#      spec_mirror = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=MAPL_TYPEKIND_MIRROR, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn')
+!#
+!#      @assert_that(spec_r4%can_connect_to(spec_r4), is(true()))
+!#      @assert_that(spec_r4%can_connect_to(spec_r8), is(true()))
+!#      @assert_that(spec_r8%can_connect_to(spec_r4), is(true()))
+!#      @assert_that(spec_r8%can_connect_to(spec_r8), is(true()))
+!#
+!#      @assert_that(spec_mirror%can_connect_to(spec_r4), is(true()))
+!#      @assert_that(spec_mirror%can_connect_to(spec_r8), is(true()))
+!#
+!#   end subroutine test_can_connect_typekind
+!#
+!#
+!#   @test
+!#   ! Verify that framework detects when an export spec does not
+!#   ! provide mandatory attributes specified by import spec.
+!#   subroutine test_mismatched_attribute()
+!#      type(BracketSpec) :: import_spec
+!#      type(BracketSpec) :: export_spec
+!#      type(ESMF_Geom) :: geom
+!#      type(StringVector) :: import_attributes, export_attributes
+!#
+!#      call import_attributes%push_back('radius')
+!#
+!#      
+!#      import_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn', &
+!#           attributes=import_attributes)
+!#      export_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn', &
+!#           attributes=export_attributes)
+!#
+!#      @assert_that(import_spec%can_connect_to(export_spec), is(false()))
+!#
+!#   end subroutine test_mismatched_attribute
+!#   
+!#   @test
+!#   ! Only the import attributes need to match. Not all.
+!#   subroutine test_matched_attribute()
+!#      type(BracketSpec) :: import_spec
+!#      type(BracketSpec) :: export_spec
+!#      type(ESMF_Geom) :: geom
+!#      type(StringVector) :: import_attributes, export_attributes
+!#
+!#      call import_attributes%push_back('radius')
+!#      call export_attributes%push_back('radius')
+!#      call export_attributes%push_back('other')
+!#      
+!#      import_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn', &
+!#           attributes=import_attributes)
+!#      export_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn', &
+!#           attributes=export_attributes)
+!#
+!#      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+!#
+!#   end subroutine test_matched_attribute
+!#
+!#   @test
+!#   ! Only the import attributes need to match. Not all.
+!#   subroutine test_multiple_attribute()
+!#      type(BracketSpec) :: import_spec
+!#      type(BracketSpec) :: export_spec
+!#      type(ESMF_Geom) :: geom
+!#      type(StringVector) :: import_attributes, export_attributes
+!#
+!#      call import_attributes%push_back('radius')
+!#      call import_attributes%push_back('diameter')
+!#
+!#      call export_attributes%push_back('other')
+!#      call export_attributes%push_back('radius')
+!#      call export_attributes%push_back('other2')
+!#      call export_attributes%push_back('diameter')
+!#
+!#      
+!#      import_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn', &
+!#           attributes=import_attributes)
+!#      export_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', units='barn', &
+!#           attributes=export_attributes)
+!#
+!#      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+!#
+!#   end subroutine test_multiple_attribute
+!#
+!#   @test
+!#   ! Verify that framework detects when an export spec does not
+!#   ! provide mandatory attributes specified by import spec.
+!#   subroutine test_mismatched_units()
+!#      type(BracketSpec) :: import_spec
+!#      type(BracketSpec) :: export_spec
+!#      type(ESMF_Geom) :: geom
+!#
+!#      import_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', attributes=StringVector(), &
+!#           units='barn')
+!#
+!#      export_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', attributes=StringVector(), &
+!#           units='m2')
+!#
+!#      @assert_that(import_spec%can_connect_to(export_spec), is(false()))
+!#
+!#   end subroutine test_mismatched_units
+!#
+!#   @test
+!#   ! Verify that framework detects when an export spec does not
+!#   ! provide mandatory attributes specified by import spec.
+!#   subroutine test_same_units()
+!#      type(BracketSpec) :: import_spec
+!#      type(BracketSpec) :: export_spec
+!#      type(ESMF_Geom) :: geom
+!#
+!#      import_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', attributes=StringVector(), &
+!#           units='barn')
+!#
+!#      export_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', attributes=StringVector(), &
+!#           units='barn')
+!#
+!#      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+!#      
+!#   end subroutine test_same_units
+!#
+!#   @test
+!#   ! Verify that framework detects when an export spec does not
+!#   ! provide mandatory attributes specified by import spec.
+!#   subroutine test_match_units()
+!#      type(BracketSpec) :: import_spec
+!#      type(BracketSpec) :: export_spec
+!#      type(ESMF_Geom) :: geom
+!#
+!#      import_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', attributes=StringVector())
+!#
+!#      export_spec = BracketSpec( &
+!#           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+!#           typekind=ESMF_TYPEKIND_R4, &
+!#           ungridded_dims = UngriddedDimsSpec(), &
+!#           standard_name='A', long_name='AA', attributes=StringVector(), &
+!#           units='barn')
+!#
+!#      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+!#      
+!#   end subroutine test_match_units
+
+end module Test_BracketSpec

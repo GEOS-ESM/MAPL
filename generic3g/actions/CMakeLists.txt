@@ -10,5 +10,6 @@ target_sources(MAPL.generic3g PRIVATE
   CopyAction.F90
   RegridAction.F90
 
+  BundleAction.F90
   SequenceAction.F90
 )

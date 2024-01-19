@@ -65,8 +65,8 @@ contains
       
 
    @test(npes=[0])
-   ! MAPL_run_child() is called from withis _user_ gridcomps.
-   subroutine test_MAPL_run_child(this)
+   ! MAPL_RunChild() is called from withis _user_ gridcomps.
+   subroutine test_MAPL_RunChild(this)
       class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Clock) :: clock
 
@@ -74,16 +74,16 @@ contains
 
       call setup(this, rc=status)
       @assert_that(status, is(0))
-      call MAPL_run_child(user_gc, child_name='child_1', rc=status)
+      call MAPL_RunChild(user_gc, child_name='child_1', rc=status)
       @assert_that(status, is(0))
       @assertEqual("wasRun_child_1", log)
 
       call teardown(this)
       
-   end subroutine test_MAPL_Run_child
+   end subroutine test_MAPL_RunChild
 
    @test(npes=[0])
-   subroutine test_MAPL_Run_child_other_phase(this)
+   subroutine test_MAPL_RunChild_other_phase(this)
       class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Clock) :: clock
 
@@ -92,13 +92,13 @@ contains
       call setup(this, rc=status)
       @assert_that(status, is(0))
 
-      call MAPL_run_child(user_gc, child_name='child_1', phase_name='extra', rc=status)
+      call MAPL_RunChild(user_gc, child_name='child_1', phase_name='extra', rc=status)
       @assert_that(status, is(0))
       @assertEqual("wasRun_extra_child_1", log)
 
       call teardown(this)
       
-   end subroutine test_MAPL_Run_child_other_phase
+   end subroutine test_MAPL_RunChild_other_phase
 
    @test(npes=[0])
    subroutine test_init_children(this)

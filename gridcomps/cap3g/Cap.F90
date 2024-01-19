@@ -44,6 +44,7 @@ contains
 
       cap_name = ESMF_HConfigAsString(hconfig, keystring='cap_name', _RC)
       clock = create_clock(hconfig, _RC)
+      ! TODO:  Rename to MAPL_CreateGridComp() ?
       cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), hconfig, _RC)
       driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
 
@@ -116,6 +117,7 @@ contains
       call ESMF_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
 
       do while (currTime < stopTime)
+         ! TODO:  include Bill's monitoring log messages here
          call driver%run(_RC)
          call ESMF_ClockAdvance(clock, _RC)
          call ESMF_ClockGet(clock, currTime=currTime, _RC)
