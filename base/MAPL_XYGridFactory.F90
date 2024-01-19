@@ -15,7 +15,7 @@ module MAPL_XYGridFactoryMod
    use NetCDF
    !   use Plain_netCDF_Time, only : get_ncfile_dimension
    use Plain_netCDF_Time
-   use MAPL_ObsUtilMod, only : ABI_XY_2_lonlat, test_conversion
+   use MAPL_ObsUtilMod, only : ABI_XY_2_lonlat
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -47,7 +47,7 @@ module MAPL_XYGridFactoryMod
       character(len=ESMF_MAXSTR) :: var_name_x
       character(len=ESMF_MAXSTR) :: var_name_y
       character(len=ESMF_MAXSTR) :: var_name_proj
-      character(len=ESMF_MAXSTR) :: att_name_proj   
+      character(len=ESMF_MAXSTR) :: att_name_proj
 
       integer :: xdim_true
       integer :: ydim_true
@@ -56,7 +56,7 @@ module MAPL_XYGridFactoryMod
       procedure :: make_new_grid
       procedure :: create_basic_grid
       procedure :: add_horz_coordinates_from_file
-      procedure :: add_horz_coordinates_from_ABIfile      
+      procedure :: add_horz_coordinates_from_ABIfile
       procedure :: init_halo
       procedure :: halo
 
@@ -151,7 +151,7 @@ contains
       if ( index(trim(adjustl(this%grid_name)), 'ABI') == 0 ) then
          call this%add_horz_coordinates_from_file(grid, _RC)
       else
-         call this%add_horz_coordinates_from_ABIfile(grid, _RC)         
+         call this%add_horz_coordinates_from_ABIfile(grid, _RC)
       end if
       call this%add_mask(grid,_RC)
 
@@ -348,10 +348,9 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine add_horz_coordinates_from_file
-    
+
 
    subroutine add_horz_coordinates_from_ABIfile(this, grid, unusable, rc)
-      use MAPL_BaseMod, only: MAPL_grid_interior, MAPL_gridget
       use MAPL_CommsMod
       use MAPL_IOMod
       use MAPL_Constants
@@ -361,90 +360,74 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      integer :: i_1,i_n,j_1,j_n, ncid, varid
-      integer :: i, j
-      real(REAL64), pointer :: arr_lon(:,:)
-      real(REAL64), pointer :: arr_lat(:,:)
-      real(REAL64), allocatable :: x(:)
-      real(REAL64), allocatable :: y(:)      
-      real(REAL64) :: lambda0_deg, lambda0
-      real(REAL64) :: x0, y0, lon, lat
-      integer :: outRange
-      
-      real(ESMF_KIND_R8), pointer :: fptr(:,:)
-
-      integer :: COUNTS(3), DIMS(3)
-      integer :: Xdim, Ydim, npoints
-      character(len=:), allocatable :: lon_center_name, lat_center_name, lon_corner_name, lat_corner_name
-      character(len=ESMF_MAXSTR) :: fn, key_x, key_y, key_p, key_p_att, unit
-
       type(ESMF_VM) :: vm
+      integer :: i, j
+      integer :: ix, jx
+      integer :: i_1, i_n, j_1, j_n
+      real(REAL64), pointer :: fptr_x(:,:)   ! lon
+      real(REAL64), pointer :: fptr_y(:,:)   ! lat
+      real(REAL64), pointer :: x(:)
+      real(REAL64), pointer :: y(:)
+      real(REAL64), pointer :: lambda0(:)
+      real(REAL64) :: lambda0_deg
+      real(REAL64) :: x0, y0
+      real(REAL64) :: lam_sat
+      character(len=ESMF_MAXSTR) :: fn, key_x, key_y, key_p, key_p_att
+
       _UNUSED_DUMMY(unusable)
 
-      lon_center_name = this%var_name_x
-      lat_center_name = this%var_name_y
-      
-       call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, globalCellCountPerDim=DIMS, _RC)
-       Xdim = DIMS(1)
-       Ydim = DIMS(2)
-       npoints = Xdim * Ydim
-
-       call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
-       call MAPL_AllocateShared(arr_lon,[Xdim, Ydim],transroot=.true.,_RC)
-        call MAPL_AllocateShared(arr_lat,[Xdim, Ydim],transroot=.true.,_RC)
-       call MAPL_SyncSharedMemory(_RC)
-       
-       fn = this%grid_file_name
-       key_x = this%var_name_x
-       key_y = this%var_name_y
-       key_p = this%var_name_proj
-       key_p_att = this%att_name_proj              
-       if (mapl_am_i_root()) then
-          allocate (x(this%Xdim_true))
-          allocate (y(this%Ydim_true))
-          call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
-          call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
-          call get_att_real_netcdf(fn, key_p, key_p_att, lambda0_deg, _RC)
-          lambda0=lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
-          !write(6, 101) 'x=', x(::100)
-          !write(6, 101) 'y=', y(::100)   
-          !write(6, 101) 'lambda0=', lambda0
-          
-          do i = 1, Xdim
-             do j= 1, Ydim
-                x0 = x( i * this%thin_factor )
-                y0 = y( j * this%thin_factor )                
-                call ABI_XY_2_lonlat (x0, y0, lambda0, arr_lon(i,j), arr_lat(i,j))
-             end do
-          end do
-       end if
-       call MAPL_SyncSharedMemory(_RC)
-
-       call ESMF_VMGetCurrent(vm, _RC)
-       call MAPL_BcastShared (vm, data=arr_lon, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
-       call MAPL_BcastShared (vm, data=arr_lat, N=npoints, Root=MAPL_ROOT, RootOnly=.false., _RC)
-       
-      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
-      fptr = arr_lon(i_1:i_n,j_1:j_n)
+      call MAPL_Grid_Interior (grid, i_1, i_n, j_1, j_n)
+      call MAPL_AllocateShared(x,[this%Xdim_true],transroot=.true.,_RC)
+      call MAPL_AllocateShared(y,[this%Ydim_true],transroot=.true.,_RC)
+      call MAPL_AllocateShared(lambda0,[1],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
+      if (mapl_am_i_root()) then
+         fn    = this%grid_file_name
+         key_x = this%var_name_x
+         key_y = this%var_name_y
+         key_p = this%var_name_proj
+         key_p_att = this%att_name_proj
+         call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
+         call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
+         call get_att_real_netcdf (fn, key_p, key_p_att, lambda0_deg, _RC)
+         lambda0 = lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
+      end if
+      call MAPL_SyncSharedMemory(_RC)
+
+      call ESMF_VMGetCurrent(vm, _RC)
+      call MAPL_BcastShared (vm, data=x, N=this%Xdim_true, Root=MAPL_ROOT, RootOnly=.false., _RC)
+      call MAPL_BcastShared (vm, data=y, N=this%Ydim_true, Root=MAPL_ROOT, RootOnly=.false., _RC)
+      call MAPL_BcastShared (vm, data=lambda0, N=1,        Root=MAPL_ROOT, RootOnly=.false., _RC)
+
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr_x, _RC)
       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
-      fptr = arr_lat(i_1:i_n,j_1:j_n)
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr_y, _RC)
+      lam_sat = lambda0(1)
+      do i = i_1, i_n
+         ix = i - i_1 + 1
+         do j= j_1, j_n
+            jx = j - j_1 + 1
+            x0 = x( i * this%thin_factor )
+            y0 = y( j * this%thin_factor )
+            call ABI_XY_2_lonlat (x0, y0, lam_sat, fptr_x(ix, jx), fptr_y(ix, jx) )
+         end do
+      end do
+      call MAPL_SyncSharedMemory(_RC)
 
       if(MAPL_ShmInitialized) then
-         call MAPL_DeAllocNodeArray(arr_lon,_RC)
-         call MAPL_DeAllocNodeArray(arr_lat,_RC)
+         call MAPL_DeAllocNodeArray(x,_RC)
+         call MAPL_DeAllocNodeArray(y,_RC)
       else
-         deallocate(arr_lon)
-         deallocate(arr_lat)
+         deallocate(x)
+         deallocate(y)
       end if
-       
-       _RETURN(_SUCCESS)
+
+      _RETURN(_SUCCESS)
 
     end subroutine add_horz_coordinates_from_ABIfile
-   
+
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
@@ -500,7 +483,7 @@ contains
       integer :: n1, n2
       integer :: arr(2)
       type(ESMF_VM) :: vm
-      
+
       if (present(unusable)) print*,shape(unusable)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT, _RC)
@@ -518,7 +501,7 @@ contains
       call ESMF_ConfigGetAttribute(config, this%var_name_y,   label=prefix//'var_name_y:',   default="y", _RC)
       call ESMF_ConfigGetAttribute(config, this%var_name_proj,label=prefix//'var_name_proj:',default="",  _RC)
       call ESMF_ConfigGetAttribute(config, this%att_name_proj,label=prefix//'att_name_proj:',default="",  _RC)
-      call ESMF_ConfigGetAttribute(config, this%thin_factor,  label=prefix//'thin_factor:',  default=1,   _RC)            
+      call ESMF_ConfigGetAttribute(config, this%thin_factor,  label=prefix//'thin_factor:',  default=1,   _RC)
 
       if (mapl_am_i_root()) then
          call get_ncfile_dimension(this%grid_file_name, nlon=n1, nlat=n2, &
@@ -535,7 +518,7 @@ contains
       this%ydim_true = arr(2)
       this%im_world  = arr(1) / this%thin_factor
       this%jm_world  = arr(2) / this%thin_factor
-      
+
       call this%check_and_fill_consistency(rc=status)
 
       _RETURN(_SUCCESS)
@@ -1030,7 +1013,7 @@ contains
 
       integer(ESMF_KIND_I4), pointer :: mask(:,:)
       real(ESMF_KIND_R8), pointer :: fptr(:,:)
-      integer :: i,j,status
+      integer :: status
       type(ESMF_VM) :: vm
       integer :: has_undef, local_has_undef
 
@@ -1044,8 +1027,8 @@ contains
       if (any(fptr == MAPL_UNDEF)) local_has_undef = local_has_undef + 1
 
       call ESMF_VMGetCurrent(vm,_RC)
-      call ESMF_VMAllFullReduce(vm, [local_has_undef], has_undef, 1, ESMF_REDUCE_MAX, _RC) 
-      _RETURN_IF(has_undef == 0)    
+      call ESMF_VMAllFullReduce(vm, [local_has_undef], has_undef, 1, ESMF_REDUCE_MAX, _RC)
+      _RETURN_IF(has_undef == 0)
 
       call ESMF_GridAddItem(grid,staggerLoc=ESMF_STAGGERLOC_CENTER,itemflag=ESMF_GRIDITEM_MASK,_RC)
       call ESMF_GridGetItem(grid,localDE=0,staggerLoc=ESMF_STAGGERLOC_CENTER, &

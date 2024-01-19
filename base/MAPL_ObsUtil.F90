@@ -301,7 +301,7 @@ contains
     character(len=ESMF_MAXSTR), optional, intent(in) :: var_name_time
     real(ESMF_KIND_R8), allocatable, optional, intent(inout) :: lon(:,:)
     real(ESMF_KIND_R8), allocatable, optional, intent(inout) :: lat(:,:)
-    real(ESMF_KIND_R8), allocatable, optional, intent(inout) :: time(:,:)    
+    real(ESMF_KIND_R8), allocatable, optional, intent(inout) :: time(:,:)
     logical, optional, intent(in)  ::  Tfilter
     integer, optional, intent(out) :: rc
 
@@ -447,7 +447,7 @@ contains
           deallocate(lat)
           allocate (lat(Xdim, Ydim))
        end if
-       
+
        jx=0
        do i = 1, M
           filename = filenames(i)
@@ -741,8 +741,8 @@ contains
     integer, optional, intent(out):: mask
     real(REAL64) :: a0, b0, c0, rs, Sx, Sy, Sz, t
     real(REAL64) :: a, b, H
-    real(REAL64) :: delta    
-    
+    real(REAL64) :: delta
+
     a=r_eq; b=r_pol; H=H_sat
 
     if (present(mask)) mask=0
@@ -751,10 +751,9 @@ contains
     c0 =  H*H - a*a
     delta = b0*b0 - 4.d0*a0*c0
     if (delta < 0.d0) then
-       ! lon = -999.d0
-       ! lat = -999.d0
        lon = MAPL_UNDEF
-       lat = MAPL_UNDEF       
+       lat = MAPL_UNDEF
+       if (present(mask)) mask=0
        return
     end if
     rs =  ( -b0 - sqrt(b0*b0 - 4.d0*a0*c0) ) / (2.d0*a0)
@@ -775,7 +774,7 @@ contains
 
   end subroutine ABI_XY_2_lonlat
 
-  
+
   subroutine lonlat_2_ABI_XY (lon, lat, lambda0, x, y, mask)
     implicit none
     real(REAL64), intent(in) :: lon, lat
@@ -786,7 +785,7 @@ contains
     real(REAL64) :: e2, rc, Sx, Sy, Sz, t
     real(REAL64) :: a, b, H
     real*8 :: delta
-    
+
     a=r_eq; b=r_pol; H=H_sat
 
     theta_c = atan( (b/a)**2.d0 * tan(lat) )
@@ -806,17 +805,20 @@ contains
     end if
 
   end subroutine lonlat_2_ABI_XY
-    
+
 
   subroutine test_conversion
     implicit none
-    real*8 :: x0 = -0.024052d0
-    real*8 :: y0 =  0.095340d0
+    real*8 :: x0
+    real*8 :: y0
     real*8 :: lam, the
     real*8 :: lon, lat
     integer :: mask
     real*8 :: xnew, ynew
 
+    ! two points mapping: (x0, y0) <--> (lam, the)
+    x0 = -0.024052d0
+    y0 =  0.095340d0
     lam = -1.478135612d0
     the =  0.590726971d0
 
@@ -838,6 +840,6 @@ contains
 111   format (2x, a,20(2x,f25.11))
 121   format (2x, a,10(2x,i8))
 
-  end subroutine test_conversion  
+  end subroutine test_conversion
 
 end module MAPL_ObsUtilMod
