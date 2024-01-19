@@ -43,7 +43,7 @@ contains
 
    end subroutine set_up_data
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    ! Basic test of FieldCOPY subroutine (REAL32)
    subroutine test_FieldCOPY_R4()
       type(ESMF_Field) :: x
@@ -61,7 +61,7 @@ contains
 
    end subroutine test_FieldCOPY_R4
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    ! Basic test of FieldCOPY subroutine (REAL64)
    subroutine test_FieldCOPY_R8()
       type(ESMF_Field) :: x
@@ -79,7 +79,7 @@ contains
 
    end subroutine test_FieldCOPY_R8
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    ! Basic test of FieldCOPY subroutine (REAL32 -> REAL64)
    subroutine test_FieldCOPY_R4R8()
       type(ESMF_Field) :: x
@@ -97,7 +97,7 @@ contains
 
    end subroutine test_FieldCOPY_R4R8
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    ! Basic test of FieldCOPY subroutine (REAL64 -> REAL32)
    subroutine test_FieldCOPY_R8R4()
       type(ESMF_Field) :: x
@@ -117,7 +117,7 @@ contains
 
    end subroutine test_FieldCOPY_R8R4
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    ! Basic test of FieldSCAL subroutine (REAL32)
    subroutine test_FieldSCAL_R4()
       real(kind=ESMF_KIND_R4), parameter :: a = 2.0
@@ -135,7 +135,7 @@ contains
 
    end subroutine test_FieldSCAL_R4
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    ! Basic test of FieldSCAL subroutine (REAL64)
    subroutine test_FieldSCAL_R8()
       real(kind=ESMF_KIND_R8), parameter :: a = 2.0
@@ -153,7 +153,7 @@ contains
 
    end subroutine test_FieldSCAL_R8
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    !
    subroutine test_FieldAXPY_R4()
       real(kind=ESMF_KIND_R4), parameter :: a = 2.0
@@ -178,7 +178,7 @@ contains
 
    end subroutine test_FieldAXPY_R4
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    !
    subroutine test_FieldAXPY_R8()
       real(kind=ESMF_KIND_R8), parameter :: a = 2.0
@@ -203,7 +203,7 @@ contains
 
    end subroutine test_FieldAXPY_R8
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldGetLocalElementCount()
       type(ESMF_Field) :: x
       integer :: rank
@@ -221,7 +221,7 @@ contains
 
    end subroutine test_FieldGetLocalElementCount
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
     !
    subroutine test_FieldGetLocalSize()
       type(ESMF_Field) :: x
@@ -242,7 +242,7 @@ contains
 
    end subroutine test_FieldGetLocalSize
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    ! Test getting the c_ptr for a field
    !wdb fixme  Should test more extensively for different ranks
    !wdb fixme  Should test for ESMF_KIND_I4 and ESMF_KIND_I8
@@ -260,7 +260,7 @@ contains
 
    end subroutine test_FieldGetCptr
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    !wdb fixme  Probably should test for non-conformable fields
    subroutine test_FieldsAreConformableR4()
       type(ESMF_Field) :: x, y
@@ -276,7 +276,7 @@ contains
    end subroutine test_FieldsAreConformableR4
 
    !wdb fixme  Probably should test for non-conformable fields
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldsAreConformableR8()
       type(ESMF_Field) :: x, y
       integer :: status, rc
@@ -290,7 +290,7 @@ contains
 
    end subroutine test_FieldsAreConformableR8
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    !
    subroutine test_FieldsAreSameTypeKind()
       type(ESMF_Field) :: x, y
@@ -318,7 +318,7 @@ contains
    end subroutine test_FieldsAreSameTypeKind
 
 !wdb fixme Enable assertEqual
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldConvertPrec_R4R8()
       integer, parameter :: NROWS = 4
       integer, parameter :: NCOLS = NROWS
@@ -344,7 +344,7 @@ contains
 
    end subroutine test_FieldConvertPrec_R4R8
 
-   @Test
+   @Test(npes=product(REG_DECOMP_DEFAULT))
    subroutine test_FieldClone3D()
       type(ESMF_Field) :: x, y
       integer :: status, rc
@@ -406,7 +406,7 @@ contains
    end subroutine test_almost_equal_array
 
 end module Test_FieldBLAS
-!   @Test
+!   @Test(npes=product(REG_DECOMP_DEFAULT))
 !   !
 !   subroutine test_FieldGEMV_R4()
 !      real(kind=ESMF_KIND_R4), parameter :: alpha = 3.0
@@ -446,7 +446,7 @@ end module Test_FieldBLAS
 !
 !   end subroutine test_FieldGEMV_R4
 
-!   @Test
+!   @Test(npes=product(REG_DECOMP_DEFAULT))
 !   !
 !   subroutine test_FieldSpread()
 !   end subroutine test_FieldSpread
