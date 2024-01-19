@@ -52,6 +52,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
+- Modify swath sampler to handle two Epoch swath grids
+- Handle regrid accumulate for time step (1 sec) during which no obs exists
+- Use IntState%stampoffset(n) to adjust filenames for an epoch time
+- parse "GOCART::CO2" from 'geovals_fields' entry in PLATFORM
+- Add call MAPL_InitializeShmem to ExtDataDriverGridComp.F90
+- Read swath data on root, call MAPL_CommsBcast [which sends data to Shmem (when Shmem initialized) or to MAPL_comm otherwise]. This approach avoids race in reading nc files [e.g. 37 files for 3 hr swath data]
+
 
 - Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
 - Added capability in XY grid factory to add a mask to the grid any points are missing needed for geostationary input data

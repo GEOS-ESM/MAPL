@@ -29,20 +29,26 @@ module MAPL_EpochSwathMod
   use MAPL_DownbitMod
   use Plain_netCDF_Time
   use, intrinsic :: ISO_C_BINDING
-  use, intrinsic :: iso_fortran_env, only: REAL64
-  use ieee_arithmetic, only: isnan => ieee_is_nan
+  use MAPL_CommsMod, only : MAPL_Am_I_Root
   implicit none
-
   private
+
+  integer, parameter       :: ngrid_max = 10
+
+  type, private :: K_V_CF
+     character(len=ESMF_MAXSTR) :: key
+     type(ESMF_config) :: cf
+  end type K_V_CF
 
   type, public :: samplerHQ
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm)         :: alarm
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: Frequency_epoch
-     type(ESMF_config)        :: config_grid_save
-     type(ESMF_grid)          :: ogrid
+     integer                  :: ngrid = 0
      character(len=ESMF_MAXSTR) :: grid_type
+     character(len=ESMF_MAXSTR) :: tunit
+     type (K_V_CF)            :: CF_loc(ngrid_max)
      real*8 :: arr(2)
 
    contains
@@ -50,6 +56,8 @@ module MAPL_EpochSwathMod
      procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
      procedure :: destroy_rh_regen_ogrid
      procedure :: fill_time_in_bundle
+     procedure :: find_config
+     procedure :: config_accumulate
   end type samplerHQ
 
   interface samplerHQ
@@ -105,36 +113,36 @@ module MAPL_EpochSwathMod
 
 contains
 
-  function new_samplerHQ(clock, config, key, rc) result(hq)
+  !
+  ! in MAPL_HistoryGridComp.F90,  Hsampler get its config and key
+  ! from the first SwathGrid entry in HISTORY.rc
+  ! thus
+  ! there is only one frequency_epoch for all the SwathGrid usage
+  !
+  function new_samplerHQ(clock, key, config, rc) result(hq)
     implicit none
     type(samplerHQ) :: hq
-    type(ESMF_Clock),  intent(in) :: clock
+    type(ESMF_Clock),  intent(in)    :: clock
+    character(len=*),  intent(in)    :: key
     type(ESMF_Config), intent(inout) :: config
-    character(len=*), intent(in) :: key
-    integer, optional, intent(out) :: rc
+    integer, optional, intent(out)   :: rc
 
-    character(len=ESMF_MAXSTR) :: time_string
     integer :: status
+    integer :: second
     integer :: time_integer
-    type(ESMF_Time)            :: RingTime_epoch
-    type(ESMF_Time)            :: startTime
-    type(ESMF_Time)         :: currTime
-    type(ESMF_TimeInterval) :: timeStep
+    type(ESMF_Time)          :: startTime
+    type(ESMF_Time)          :: currTime
+    type(ESMF_TimeInterval)  :: timeStep
     type(ESMF_TimeInterval)  :: Frequency_epoch
-
-    integer :: sec, second
-    integer :: n1
-    type(ESMF_Config) :: cf
 
 
     hq%clock= clock
-    hq%config_grid_save= config
-
     hq%arr(1:2) = -2.d0
     call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
     call ESMF_ClockGet ( clock, timestep=timestep, _RC )
     call ESMF_ClockGet ( clock, startTime=startTime, _RC )
     call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(key)//'.Epoch:', default=0, _RC)
+    call ESMF_ConfigGetAttribute(config, value=hq%tunit,     label=trim(key)//'.tunit:', default="", _RC)
     _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
     second = hms_2_s (time_integer)
     call ESMF_TimeIntervalSet(frequency_epoch, s=second, _RC)
@@ -146,6 +154,43 @@ contains
     _RETURN(_SUCCESS)
 
   end function new_samplerHQ
+
+
+  function find_config (this, key, rc) result(cf)
+    class(samplerHQ)  :: this
+    character(len=*) , intent(in) :: key
+    type(ESMF_Config) :: cf
+    integer, intent(out), optional :: rc
+    integer :: status
+    integer :: i, j
+
+    j=0
+    do i=1, this%ngrid
+       if ( trim(key) == trim(this%CF_loc(i)%key) ) then
+          cf = this%CF_loc(i)%cf
+          j=j+1
+          exit
+       end if
+    end do
+
+    _ASSERT( j>0 , trim(key)//' is not found in Hsampler CF_loc(:)')
+
+    _RETURN(_SUCCESS)
+  end function find_config
+
+
+  subroutine config_accumulate (this, key, cf, rc)
+    class(samplerHQ)  :: this
+    type(ESMF_Config), intent(in) :: cf
+    character(len=*) , intent(in) :: key
+    integer, intent(out), optional :: rc
+    integer :: status
+
+    this%ngrid = this%ngrid + 1
+    this%CF_loc(this%ngrid)%key = trim(key)
+    this%CF_loc(this%ngrid)%cf = cf
+    _RETURN(_SUCCESS)
+  end subroutine config_accumulate
 
 
   !--------------------------------------------------!
@@ -165,18 +210,20 @@ contains
     type(ESMF_Config) :: config_grid
     character(len=ESMF_MAXSTR) :: time_string
 
-    logical :: ispresent
 
     if (present(grid_type)) this%grid_type = trim(grid_type)
-    config_grid = this%config_grid_save
+    config_grid = this%find_config(key)
     call ESMF_TimeGet(currTime, timeString=time_string, _RC)
+
     !
     ! -- the `ESMF_ConfigSetAttribute` shows a risk
     !    to overwrite the nextline in config
     !
     call ESMF_ConfigSetAttribute( config_grid, trim(time_string), label=trim(key)//'.Epoch_init:', _RC)
+
     ogrid = grid_manager%make_grid(config_grid, prefix=trim(key)//'.', _RC )
-    this%ogrid = ogrid
+    !!    call grid_validate (ogrid,)
+
     _RETURN(_SUCCESS)
 
   end function create_grid
@@ -189,26 +236,19 @@ contains
     integer :: status
 
     class(AbstractGridFactory), pointer :: factory
-    integer                        :: xy_subset(2,2)
-    type(ESMF_Time)                :: timeset(2)
-    type(ESMF_Time) :: current_time
-    type(ESMF_TimeInterval) :: dur
-    character(len=ESMF_MAXSTR) :: time_string
-
-    integer, allocatable :: global_xy_mask(:,:)
-    integer, allocatable :: local_xy_mask(:,:)
-
-    integer :: counts(5)
-    integer :: dims(3)
-    integer :: m1, m2
+    type(ESMF_Time)            :: timeset(2)
+    type(ESMF_Time)            :: current_time
+    type(ESMF_TimeInterval)    :: dur
+    integer                    :: xy_subset(2,2)
 
     ! __ s1.  get xy_subset
 
-    factory => grid_manager%get_factory(this%ogrid,_RC)
     call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
     call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
     timeset(1) = current_time - dur
     timeset(2) = current_time
+
+    factory => grid_manager%get_factory(sp%output_grid,_RC)
     call factory%get_xy_subset( timeset, xy_subset, _RC)
 
     ! __ s2.  interpolate then save data using xy_mask
@@ -229,34 +269,27 @@ contains
     integer, intent(out), optional :: rc
     integer :: status
 
-    class(AbstractGridFactory), pointer :: factory
     type(ESMF_Time) :: currTime
-    type(ESMF_TimeInterval) :: dur
-    character(len=ESMF_MAXSTR) :: time_string
-
     type(ESMF_Grid), pointer :: pgrid
     type(ESMF_Grid) :: ogrid
-    type(ESMF_Grid) :: input_grid
     character(len=ESMF_MAXSTR) :: key_str
     type (StringGridMapIterator) :: iter
     character(len=:), pointer :: key
-    type (ESMF_Config) ::  config_grid
 
     integer :: i, numVars
     character(len=ESMF_MAXSTR), allocatable :: names(:)
     type(ESMF_Field) :: field
 
     if ( .NOT. ESMF_AlarmIsRinging(this%alarm) ) then
-       write(6,*) 'ck: regen,  not in alarming'
-       rc=0
-       return
+       _RETURN(ESMF_SUCCESS)
     endif
 
 
-    !__ s1. destroy ogrid + regen ogrid
+    !__ s1. destroy ogrid + RH, regen ogrid
 
-    key_str=trim(key_grid_label)
-    pgrid => output_grids%at(trim(key_grid_label))
+    key_str = trim(key_grid_label)
+    pgrid => output_grids%at(key_str)
+
     call grid_manager%destroy(pgrid,_RC)
 
     call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC )
@@ -266,15 +299,14 @@ contains
        if (trim(key)==trim(key_str)) then
           ogrid = this%create_grid (key_str, currTime, _RC)
           call output_grids%set(key, ogrid)
-          this%ogrid = ogrid
        endif
        call iter%next()
     enddo
 
 
     !__ s2. destroy RH
-
     call sp%regrid_handle%destroy(_RC)
+
 
 
     !__ s3. destroy acc_bundle / output_bundle
@@ -302,7 +334,7 @@ contains
   end subroutine destroy_rh_regen_ogrid
 
 
-  subroutine fill_time_in_bundle (this, xname, bundle, rc)
+  subroutine fill_time_in_bundle (this, xname, bundle, ogrid, rc)
     implicit none
     class(samplerHQ) :: this
     character(len=*), intent(in) :: xname
@@ -310,6 +342,7 @@ contains
     integer, optional, intent(out) :: rc
     integer :: status
 
+    type(ESMF_Grid), intent(in) :: ogrid
     class(AbstractGridFactory), pointer :: factory
     type(ESMF_Field) :: field
     real(kind=ESMF_KIND_R4), pointer :: ptr2d(:,:)
@@ -319,8 +352,8 @@ contains
     call ESMF_FieldGet (field, farrayptr=ptr2d, _RC)
 
     ! __ obs_time from swath factory
-    factory => grid_manager%get_factory(this%ogrid,_RC)
-    call factory%get_obs_time (this%ogrid, ptr2d, _RC)
+    factory => grid_manager%get_factory(ogrid,_RC)
+    call factory%get_obs_time (ogrid, ptr2d, _RC)
 
     _RETURN(ESMF_SUCCESS)
 
@@ -354,14 +387,14 @@ contains
      end function new_sampler
 
 
-     subroutine Create_bundle_RH(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
+     subroutine Create_bundle_RH(this,items,bundle,tunit,timeInfo,vdata,ogrid,rc)
         class (sampler), intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
+        character(len=*), intent(in) :: tunit
         type(TimeData), optional, intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
-        type(StringStringMap), target, intent(in), optional :: global_attributes
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -370,10 +403,6 @@ contains
         type(ESMF_Field) :: new_field
         type(GriddedIOitemVectorIterator) :: iter
         type(GriddedIOitem), pointer :: item
-        type(stringVector) :: order
-        integer :: metadataVarsSize
-        type(StringStringMapIterator) :: s_iter
-        character(len=:), pointer :: attr_name, attr_val
         integer :: status
 
         this%items = items
@@ -460,8 +489,11 @@ contains
         !
         new_field = ESMF_FieldCreate(this%output_grid ,name='time', &
                typekind=ESMF_TYPEKIND_R4,_RC)
+        !
+        ! add attribute
+        !
+        call ESMF_AttributeSet(new_field,'UNITS',trim(tunit),_RC)
         call MAPL_FieldBundleAdd( this%acc_bundle, new_field, _RC )
-
 
         _RETURN(_SUCCESS)
       end subroutine Create_Bundle_RH
@@ -577,10 +609,7 @@ contains
         integer :: fieldRank
         logical :: isPresent
         character(len=ESMF_MAXSTR) :: varName,longName,units
-        character(len=:), allocatable :: grid_dims
-        character(len=:), allocatable :: vdims
-        type(Variable) :: v
-        type(ESMF_Info) :: infoh
+
 
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
         _VERIFY(status)
@@ -974,11 +1003,7 @@ contains
     integer, optional, intent(out) :: rc
 
     type(ESMF_Field) :: field,newField
-    type(ESMF_Array) :: array1
-    real(KIND=ESMF_KIND_R4), pointer :: pt2d(:,:)
-    class (AbstractGridFactory), pointer :: factory
     integer :: fieldRank
-    logical :: isPresent
     integer :: status
 
     call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,_RC)
@@ -1001,9 +1026,7 @@ contains
     integer, optional, intent(out) :: rc
 
     type(ESMF_Field) :: field,newField
-    class (AbstractGridFactory), pointer :: factory
     integer :: fieldRank
-    logical :: isPresent
     integer :: status
 
     call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,_RC)
@@ -1033,17 +1056,14 @@ contains
     type(ESMF_Field) :: outField
     type(ESMF_Field) :: new_outField
     type(ESMF_Grid)  :: grid
-    integer :: tindex
-    type(ArrayReference) :: ref
 
     type(GriddedIOitemVectorIterator) :: iter
     type(GriddedIOitem), pointer :: item
-    logical :: have_time
 
     type(ESMF_Array) :: array1, array2
     integer :: is,ie,js,je
 
-    integer :: rank, rank1, rank2
+    integer :: rank
     real(KIND=ESMF_KIND_R4), pointer :: pt2d(:,:), pt2d_(:,:)
     real(KIND=ESMF_KIND_R4), pointer :: pt3d(:,:,:), pt3d_(:,:,:)
 
@@ -1058,6 +1078,11 @@ contains
 
     is=xy_subset(1,1); ie=xy_subset(2,1)
     js=xy_subset(1,2); je=xy_subset(2,2)
+
+    if (js > je) then
+       ! no valid points are found on swath grid for this time step
+       _RETURN(ESMF_SUCCESS)
+    end if
 
     if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
        call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid,rc=status)
@@ -1180,12 +1205,10 @@ contains
 
     integer :: status
     integer :: ii1, iin, jj1, jjn  ! local box for localDE
-    integer :: is, ie, js, je  ! global box for each time-interval
-    integer :: j1p, jnp        ! local y-index for each time-interval
+    integer :: is,ie, js, je       ! global box for each time-interval
 
-    integer :: dimCount
     integer :: y1, y2
-    integer :: j, jj
+    integer :: jj
     integer :: j1, j2
 
     is=xy_subset(1,1); ie=xy_subset(2,1)
