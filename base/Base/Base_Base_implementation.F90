@@ -303,7 +303,7 @@ contains
              call ESMF_FieldGet(FIELD, farrayPtr=VAR_4D, _RC)
              VAR_4D = INIT_VALUE
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL('only up to 4D are supported')
           end select RankCase2d
        else
           select case (rank)
@@ -334,11 +334,11 @@ contains
           call ESMF_FieldGet(FIELD, farrayPtr=VR8_4D, _RC)
           VR8_4D = INIT_VALUE
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL('only up to 4D are supported')
           end select
        end if
 
-       ! Horz + Vert       
+       ! Horz + Vert
        ! -----------
     case(MAPL_DimsHorzVert)
        lb1 = 1-HW
@@ -2776,7 +2776,7 @@ contains
     endif
 
     if ( .not. present(grid)) then
-      _ASSERT(.false., "need a cubed-sphere grid")
+      _FAIL("need a cubed-sphere grid")
     endif
     call MAPL_GridGet(grid, globalCellCountPerDim=dims,_RC)
     IM_World = dims(1)
@@ -3237,7 +3237,7 @@ contains
 
     k1 = localMinIndex(fieldRank)
     k2 = localMaxIndex(fieldRank)
-    deallocate(localMinIndex,localMaxIndex) 
+    deallocate(localMinIndex,localMaxIndex)
 
     n = k2 - k1 + 1
 
