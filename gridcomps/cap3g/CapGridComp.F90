@@ -5,7 +5,7 @@ module mapl3g_CapGridComp
    use :: generic3g, only: MAPL_ConnectAll
    use :: generic3g, only: MAPL_GridCompGet
    use :: generic3g, only: GriddedComponentDriver
-   use :: generic3g, only: MAPL_run_child
+   use :: generic3g, only: MAPL_RunChild
    use :: generic3g, only: MAPL_UserCompGetInternalState
    use :: generic3g, only: MAPL_UserCompSetInternalState
    use :: generic3g, only: GENERIC_INIT_USER
@@ -51,8 +51,7 @@ contains
       _SET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
       ! Get Names of children
-
-      call MAPL_GridCompGet(gridcomp, hconfig, _RC)
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       call MAPL_ResourceGet(hconfig, keystring='extdata_name', value=cap%extdata_name, default='EXTDATA', _RC)
       call MAPL_ResourceGet(hconfig, keystring='history_name', value=cap%history_name, default='HIST', _RC)
       call MAPL_ResourceGet(hconfig, keystring='root_name', value=cap%root_name, _RC)
@@ -102,9 +101,9 @@ contains
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
-      call MAPL_run_child(gridcomp, cap%extdata_name, _RC)
-      call MAPL_run_child(gridcomp, cap%root_name, _RC)
-      call MAPL_run_child(gridcomp, cap%history_name, phase_name='run', _RC)
+      call MAPL_RunChild(gridcomp, cap%extdata_name, _RC)
+      call MAPL_RunChild(gridcomp, cap%root_name, _RC)
+      call MAPL_RunChild(gridcomp, cap%history_name, phase_name='run', _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run

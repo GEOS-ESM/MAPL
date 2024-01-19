@@ -57,7 +57,7 @@ contains
       type(ESMF_HConfigIter) :: iter,e,b
       character(:), allocatable :: var_name
 
-      call MAPL_Get(gc, hconfig=hconfig, registry=registry, _RC)
+      call MAPL_GridCompGet(gc, hconfig=hconfig, registry=registry, _RC)
 
       ! We would do this quite differently in an actual ExtData implementation.
       ! Here we are using information from the generic spec.

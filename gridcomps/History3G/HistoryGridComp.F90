@@ -9,11 +9,11 @@ module mapl3g_HistoryGridComp
    implicit none
    private
 
-   public :: setServices_
+   public :: setServices
 
    contains
 
-   subroutine setServices_(gridcomp, rc)
+   subroutine setServices(gridcomp, rc)
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
@@ -37,7 +37,7 @@ module mapl3g_HistoryGridComp
 
       has_active_collections = ESMF_HConfigIsDefined(hconfig, keyString='active_collections', _RC)
       if (.not. has_active_collections) then
-         call MAPL_Get(gridcomp,logger=lgr)
+         call MAPL_GridCompGet(gridcomp,logger=lgr, _RC)
          call lgr%warning("no active collection specified in History")
          _RETURN(_SUCCESS)
       end if
@@ -62,7 +62,7 @@ module mapl3g_HistoryGridComp
       end do
       
       _RETURN(_SUCCESS)
-   end subroutine setServices_
+   end subroutine setServices
 
    subroutine init(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
@@ -90,7 +90,7 @@ module mapl3g_HistoryGridComp
 
       integer :: status
 
-      call MAPL_Run_Children(gridcomp, phase_name='run', _RC)
+      call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run
@@ -100,7 +100,7 @@ end module mapl3g_HistoryGridComp
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_HistoryGridComp, only: History_setServices => SetServices_    
+   use mapl3g_HistoryGridComp, only: History_setServices => SetServices    
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 
@@ -110,14 +110,4 @@ subroutine setServices(gridcomp,rc)
    _RETURN(_SUCCESS)
 
 end subroutine
-
-
-
-
-
-
-
-
-
-
 
