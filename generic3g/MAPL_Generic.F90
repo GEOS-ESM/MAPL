@@ -49,7 +49,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
-   use :: pflogger
+   use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    implicit none
@@ -155,11 +155,11 @@ module mapl3g_Generic
    end interface MAPL_ResourceGet
 contains
 
-   subroutine MAPL_Get(gridcomp, hconfig, registry, lgr, rc)
+   subroutine MAPL_Get(gridcomp, hconfig, registry, logger, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_Hconfig), optional, intent(out) :: hconfig
       type(HierarchicalRegistry), optional, pointer, intent(out) :: registry
-      class(Logger), optional, pointer, intent(out) :: lgr
+      class(Logger_t), optional, pointer, intent(out) :: logger
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -169,7 +169,7 @@ contains
 
       if (present(hconfig)) hconfig = outer_meta%get_hconfig()
       if (present(registry)) registry => outer_meta%get_registry()
-      if (present(lgr)) lgr => outer_meta%get_lgr()
+      if (present(logger)) logger => outer_meta%get_lgr()
 
       _RETURN(_SUCCESS)
    end subroutine MAPL_Get
