@@ -404,6 +404,7 @@ contains
         type(GriddedIOitemVectorIterator) :: iter
         type(GriddedIOitem), pointer :: item
         integer :: status
+        type(ESMF_Info) :: infoh
 
         this%items = items
         this%input_bundle = bundle
@@ -492,7 +493,8 @@ contains
         !
         ! add attribute
         !
-        call ESMF_AttributeSet(new_field,'UNITS',trim(tunit),_RC)
+        call ESMF_InfoGetFromHost(new_field,infoh,_RC)
+        call ESMF_InfoSet(infoh,'UNITS',trim(tunit),_RC)
         call MAPL_FieldBundleAdd( this%acc_bundle, new_field, _RC )
 
         _RETURN(_SUCCESS)
@@ -609,6 +611,7 @@ contains
         integer :: fieldRank
         logical :: isPresent
         character(len=ESMF_MAXSTR) :: varName,longName,units
+        type(ESMF_Info) :: infoh
 
 
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
