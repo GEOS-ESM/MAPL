@@ -3534,11 +3534,11 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
          elseif (list(n)%sampler_spec == 'mask') then
-            write(6,*) 'nail:  empty mask  metadata file_handle'
+            !!write(6,*) 'nail:  empty mask  metadata file_handle'
 !            if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
 !               call list(n)%trajectory%create_file_handle(filename(n),_RC)
-!               list(n)%currentFile = filename(n)
-!               list(n)%unit = -1
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
 !            end if
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then

@@ -695,7 +695,8 @@ contains
           _RETURN(ESMF_SUCCESS)
        endif
 
-       ! __ Ab. cut swath by time step, convert rectangular to LS
+       ! __ Abstract:
+       !        cut swath by time step, convert rectangular to LS
        !        find on each DE:
        !        - nearest CS points for swath points,  define as index1
        !        - n.n. around these index1 pts, define as index2 
