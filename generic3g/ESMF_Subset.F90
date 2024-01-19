@@ -36,7 +36,8 @@ module mapl3g_ESMF_Subset
         ESMF_HConfigIsDefined, &
         ESMF_HConfigIterBegin, &
         ESMF_HConfigIterEnd, &
-        ESMF_HConfigIterLoop
+        ESMF_HConfigIterLoop, &
+        ESMF_HConfigGetSize
         
    implicit none
 
