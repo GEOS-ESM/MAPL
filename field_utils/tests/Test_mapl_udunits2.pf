@@ -1,0 +1,121 @@
+module Test_mapl_udunits2
+
+   use funit
+   use mapl_udunits2mod, finalize_udunits_system => finalize, initialize_udunits_system => initialize
+   use mapl_udunits2status
+   use mapl_udunits2encoding 
+   use iso_c_binding, only: c_ptr, c_double, c_float, c_associated
+
+   implicit none
+
+   integer(ut_encoding), parameter :: ENCODING = UT_ASCII
+   character(len=*), parameter :: KM = 'km'
+   character(len=*), parameter :: M = 'm'
+   character(len=*), parameter :: S = 's'
+
+contains
+
+   @Test
+   subroutine test_get_converter()
+      type(Converter) :: conv
+      type(c_ptr) :: cptr
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      @assertFalse(conv % is_free(), 'cv_converter is not set')
+      cptr = conv % cptr()
+      @assertTrue(c_associated(cptr), 'c_ptr is not associated')
+      
+      call conv % free()
+      call finalize_udunits_system()
+      
+  end subroutine test_get_converter
+
+   @Test
+   subroutine test_convert_double()
+      real(c_double), parameter :: FROM = 1.0
+      real(c_double), parameter :: EXPECTED = 1000.0
+      real(c_double) :: actual
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      actual = conv % convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv % free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_double
+
+   @Test
+   subroutine test_convert_float()
+      real(c_float), parameter :: FROM = 1.0
+      real(c_float), parameter :: EXPECTED = 1000.0
+      real(c_float) :: actual
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      actual = conv % convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv % free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_float
+
+   @Test
+   subroutine test_convert_doubles()
+      real(c_double), parameter :: FROM(3) = [1.0, 2.0, 3.0]
+      real(c_double), parameter :: EXPECTED(3) = 1000.0 * FROM
+      real(c_double) :: actual(size(EXPECTED))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      call conv % convert_array(FROM, actual)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv % free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_doubles
+
+   @Test
+   subroutine test_convert_floats()
+      real(c_float), parameter :: FROM(3) = [1.0, 2.0, 3.0]
+      real(c_float), parameter :: EXPECTED(3) = 1000.0 * FROM
+      real(c_float) :: actual(size(EXPECTED))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      character(len=*), parameter :: FROM_STRING = KM
+      character(len=*), parameter :: TO_STRING = M
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
+      call conv % convert_array(FROM, actual)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv % free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_floats
+
+end module Test_mapl_udunits2

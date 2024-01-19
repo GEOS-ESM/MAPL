@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 	reasonable results.  Should nicely complement other tools that
 	measure HWM.
 - Replace ESMF_Attribute calls with ESMF_Info calls in MAPL_FieldCopyAttribute
+- Convert values in ESMF\_Field with compatible units using udunits2.
 
 ### Changed
 
