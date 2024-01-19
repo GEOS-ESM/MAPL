@@ -11,6 +11,7 @@ module mapl3g_StateItem
    public :: MAPL_STATEITEM_SERVICE_PROVIDER
    public :: MAPL_STATEITEM_SERVICE_SUBSCRIBER
    public :: MAPL_STATEITEM_WILDCARD
+   public :: MAPL_STATEITEM_BRACKET
 
    ! This following must be public for internal MAPL use, but should not be
    ! exported to the public API of MAPL
@@ -23,6 +24,7 @@ module mapl3g_StateItem
         MAPL_STATEITEM_SERVICE = ESMF_StateItem_Flag(201), &
         MAPL_STATEITEM_SERVICE_PROVIDER = ESMF_StateItem_Flag(202), &
         MAPL_STATEITEM_SERVICE_SUBSCRIBER = ESMF_StateItem_Flag(203), &
-        MAPL_STATEITEM_WILDCARD = ESMF_StateItem_Flag(204)
+        MAPL_STATEITEM_WILDCARD = ESMF_StateItem_Flag(204), &
+        MAPL_STATEITEM_BRACKET = ESMF_StateItem_Flag(205)
 
 end module Mapl3g_StateItem

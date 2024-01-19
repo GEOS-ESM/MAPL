@@ -116,6 +116,7 @@ contains
       call ESMF_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
 
       do while (currTime < stopTime)
+         ! TODO:  include Bill's monitoring log messages here
          call driver%run(_RC)
          call ESMF_ClockAdvance(clock, _RC)
          call ESMF_ClockGet(clock, currTime=currTime, _RC)
