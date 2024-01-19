@@ -47,6 +47,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_StateIntent_Flag
    use :: esmf, only: ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL
    use :: esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
+   use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
    use :: pflogger, only: logger_t => logger
@@ -146,7 +147,9 @@ module mapl3g_Generic
 
    interface MAPL_ResourceGet
       procedure :: hconfig_get_string
+      procedure :: hconfig_get_i8
    end interface MAPL_ResourceGet
+
 contains
 
    subroutine gridcomp_get(gridcomp, unusable, &
@@ -575,19 +578,37 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_connect_all
 
-   subroutine hconfig_get_string(hconfig, keystring, value, default, rc)
+   subroutine gridcomp_get_hconfig(gridcomp, hconfig, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_HConfig), intent(out) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Config) :: config
+      
+      call ESMF_GridCompGet(gridcomp, config=config, _RC)
+      call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
+      
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_get_hconfig
+
+   subroutine hconfig_get_string(hconfig, keystring, value, unusable, default, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(*), intent(in) :: keystring
-      character(:), allocatable :: value
+      character(:), allocatable, intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: default
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: has_key
       
+      _UNUSED_DUMMY(unusable)
+       
       has_key = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
       if (has_key) then
-         value = ESMF_HConfigAsSTring(hconfig, keystring=keystring, _RC)
+         value = ESMF_HConfigAsString(hconfig, keystring=keystring, _RC)
          _RETURN(_SUCCESS)
       end if
 
@@ -596,5 +617,34 @@ contains
       
       _RETURN(_SUCCESS)
    end subroutine hconfig_get_string
+
+   subroutine hconfig_get_i8(hconfig, keystring, value, unusable, default, asString, found, rc)
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      character(len=*), intent(in) :: keystring
+      integer(kind=ESMF_KIND_I8), intent(out) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
+      character(len=*), optional, intent(inout) :: asString
+      logical, optional, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(unusable)
+
+      value = ESMF_HConfigAsI8(hconfig, keystring=keystring, asOkay=found, _RC)
+      if(found) then
+         if(is_present(asString)) then
+            asString = ESMF_HConfigAsString(hconfig, keystring=keystring, _RC)
+         end if
+         _RETURN(_SUCCESS)
+      end if
+
+      _ASSERT(present(default), 'Keystring <'//trim(keystring)//'> not found in hconfig')
+      value = default
+
+      _RETURN(_SUCCESS)
+
+   end subroutine hconfig_get_i8
 
 end module mapl3g_Generic
