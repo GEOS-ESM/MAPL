@@ -618,31 +618,45 @@ contains
       _RETURN(_SUCCESS)
    end subroutine hconfig_get_string
 
-   subroutine hconfig_get_i8(hconfig, keystring, value, unusable, default, asString, found, rc)
+   function hconfig_get_i8_simple(hconfig, keystring, value, rc) result(found)
+      logical :: found
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(len=*), intent(in) :: keystring
       integer(kind=ESMF_KIND_I8), intent(out) :: value
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, intent(out) :: rc
+      
+      integer :: status
+
+      value = ESMF_HConfigAsI8(hconfig, keystring=keystring, asOkay=found, _RC)
+
+   end function hconfig_get_i8_simple
+
+   #define _ASSERT_DEFAULT(D) _ASSERT(is_present(D), 'Keystring <'//trim(keystring)//'> not found in hconfig')
+
+   subroutine hconfig_get_i8(hconfig, keystring, value, unusable, default, asstring, found, rc)
+      integer(kind=ESMF_KIND_I8), intent(out) :: value
       integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(inout) :: asString
       logical, optional, intent(out) :: found
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      _UNUSED_DUMMY(unusable)
-
-      value = ESMF_HConfigAsI8(hconfig, keystring=keystring, asOkay=found, _RC)
-      if(found) then
-         if(is_present(asString)) then
+      if(hconfig_get_i8_simple(hconfig, keystring, value, rc=status)) then
+         if(present(asString)) then
             asString = ESMF_HConfigAsString(hconfig, keystring=keystring, _RC)
          end if
+         if(present(found)) found = .TRUE.
          _RETURN(_SUCCESS)
       end if
 
-      _ASSERT(present(default), 'Keystring <'//trim(keystring)//'> not found in hconfig')
-      value = default
+      _ASSERT_DEFAULT(default)
 
+      value = default
+      _UNUSED_DUMMY(unusable)
       _RETURN(_SUCCESS)
 
    end subroutine hconfig_get_i8
