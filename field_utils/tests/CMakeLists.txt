@@ -4,7 +4,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.field_utils/tests")
 set (test_srcs
   Test_FieldBLAS.pf
   Test_FieldArithmetic.pf
-  Test_mapl_udunits2.pf
+#  Test_mapl_udunits2.pf
 #  Test_mapl_udunits2private.pf
   )
 

@@ -172,7 +172,6 @@ contains
       integer :: status
 
       call ESMF_GeomGet(geom, geomtype=geom_type, _RC)
-
       if(geom_type == ESMF_GEOMTYPE_GRID) then
          call ESMF_GeomGet(geom, grid=grid, _RC)
          call ESMF_FieldEmptySet(field, grid, _RC)

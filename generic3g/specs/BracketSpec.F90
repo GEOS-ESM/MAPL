@@ -211,7 +211,7 @@ contains
            src_spec%field_specs = [(src_spec%reference_spec, i=1,n)]
            
            do i = 1, this%bracket_size
-              call src_spec%field_specs(i)%create(dependency_specs, _RC)
+              call this%field_specs(i)%create(dependency_specs, _RC)
               call this%field_specs(i)%connect_to(src_spec%field_specs(i), actual_pt, _RC)
            end do
          end associate
