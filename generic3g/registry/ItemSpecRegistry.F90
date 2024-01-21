@@ -1,6 +1,6 @@
 module mapl3g_ItemSpecRegistry
    use mapl3g_ConnectionPt
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ConnPtStateItemSpecMap
    implicit none
    private
@@ -20,14 +20,14 @@ contains
    subroutine add_spec(this, conn_pt, spec)
       class(ItemSpecRegistry), intent(inout) :: this
       type(ConnectionPt), intent(in) :: conn_pt
-      class(AbstractStateItemSpec), intent(in) :: spec
+      class(StateItemSpec), intent(in) :: spec
 
       call this%specs_map%insert(conn_pt, spec)
       
    end subroutine add_spec
 
    function get_spec(this, conn_pt) result(spec)
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
       class(ItemSpecRegistry), intent(inout) :: this
       type(ConnectionPt), intent(in) :: conn_pt
 

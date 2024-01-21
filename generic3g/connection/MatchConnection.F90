@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_MatchConnection
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ConnectionPt
    use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_HierarchicalRegistry
@@ -11,7 +11,7 @@ module mapl3g_MatchConnection
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -74,7 +74,7 @@ contains
       type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
       type(StateItemSpecPtr), allocatable :: dst_specs(:)
       integer :: i, j, k
-      class(AbstractStateItemSpec), allocatable :: new_spec
+      class(StateItemSpec), allocatable :: new_spec
       type(ConnectionPt) :: s_pt, d_pt
 
       src_pt = this%get_source()

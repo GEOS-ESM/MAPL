@@ -2,7 +2,7 @@
 
 module mapl3g_HierarchicalRegistry
    use mapl3g_AbstractRegistry
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
@@ -160,7 +160,7 @@ contains
    ! Retrieve a pointer to the item spect associated with an actual pt
    ! in this registry.  Failure returns null pointer.
    function get_item_spec(this, actual_pt, rc) result(spec)
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
       class(HierarchicalRegistry), target, intent(in) :: this
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
@@ -204,11 +204,11 @@ contains
    subroutine add_item_spec_actual(this, actual_pt, spec, rc)
       class(HierarchicalRegistry), intent(inout) :: this
       type(ActualConnectionPt), intent(in) :: actual_pt
-      class(AbstractStateItemSpec), target, intent(in) :: spec
+      class(StateItemSpec), target, intent(in) :: spec
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(AbstractStateItemSpec), pointer :: internal_spec
+      class(StateItemSpec), pointer :: internal_spec
 
       _ASSERT(.not. this%has_item_spec(actual_pt), 'Duplicate item name.')
 
@@ -225,7 +225,7 @@ contains
    subroutine link_item_spec_actual(this, actual_pt, spec, unusable, rc)
       class(HierarchicalRegistry), intent(inout) :: this
       type(ActualConnectionPt), intent(in) :: actual_pt
-      class(AbstractStateItemSpec), target :: spec
+      class(StateItemSpec), target :: spec
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -248,7 +248,7 @@ contains
    subroutine add_item_spec_virtual(this, virtual_pt, spec, rc)
       class(HierarchicalRegistry), intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      class(AbstractStateItemSpec), target, intent(in) :: spec
+      class(StateItemSpec), target, intent(in) :: spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -266,7 +266,7 @@ contains
    subroutine add_item_spec_virtual_override(this, virtual_pt, spec, actual_pt, rc)
       class(HierarchicalRegistry), intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      class(AbstractStateItemSpec), target, intent(in) :: spec
+      class(StateItemSpec), target, intent(in) :: spec
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
@@ -301,7 +301,7 @@ contains
    subroutine link_item_spec_virtual(this, virtual_pt, spec, actual_pt, rc)
       class(HierarchicalRegistry), intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      class(AbstractStateItemSpec), target :: spec
+      class(StateItemSpec), target :: spec
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
@@ -417,8 +417,8 @@ contains
    subroutine extend_(this, v_pt, spec, extension, rc)
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: v_pt
-      class(AbstractStateItemSpec), intent(in) :: spec
-      class(AbstractStateItemSpec), intent(in) :: extension
+      class(StateItemSpec), intent(in) :: spec
+      class(StateItemSpec), intent(in) :: extension
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -442,8 +442,8 @@ contains
    subroutine add_state_extension(this, extension_pt, src_spec, extension, rc)
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(ActualConnectionPt), intent(in) :: extension_pt
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-      class(AbstractStateItemSpec), intent(in) :: extension
+      class(StateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: extension
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -508,7 +508,7 @@ contains
 
       integer :: i
       integer :: status
-      class(AbstractStateItemSpec), pointer :: item
+      class(StateItemSpec), pointer :: item
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(ActualPtVector), pointer :: actual_pts
       type(ActualConnectionPt), pointer :: actual_pt
@@ -641,7 +641,7 @@ contains
       integer :: i, j
       type(ActualPtVector) :: dependencies
       type(StateItemSpecPtr), allocatable :: dependency_specs(:)
-      class(AbstractStateItemSpec), pointer :: item_spec
+      class(StateItemSpec), pointer :: item_spec
 
       do i = 1, this%local_specs%size()
          item_spec => this%local_specs%of(i)
@@ -672,7 +672,7 @@ contains
       type(ActualPtSpecPtrMapIterator) :: actual_iter
       type(ActualConnectionPt), pointer :: actual_pt
       type(StateItemSpecPtr), pointer :: item_spec_ptr
-      class(AbstractStateItemSpec), pointer :: item_spec
+      class(StateItemSpec), pointer :: item_spec
 
       _ASSERT(any([mode == 'user', mode == 'outer']), 'invalid mode: <' // mode // '>')
 
@@ -706,7 +706,7 @@ contains
       type(ActualPtSpecPtrMapIterator) :: actual_iter
       type(ActualConnectionPt), pointer :: actual_pt
       type(StateItemSpecPtr), pointer :: item_spec_ptr
-      class(AbstractStateItemSpec), pointer :: item_spec
+      class(StateItemSpec), pointer :: item_spec
 
       associate (e => this%actual_specs_map%end())
         actual_iter = this%actual_specs_map%begin()
@@ -772,7 +772,7 @@ contains
 
       integer :: i
       integer :: status
-      class(AbstractStateItemSpec), pointer :: item
+      class(StateItemSpec), pointer :: item
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(VirtualConnectionPt) :: parent_vpt
       type(ActualPtVector), pointer :: actual_pts

@@ -1,5 +1,5 @@
 module mapl3g_ServiceProviderSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    implicit none
    private
 
@@ -13,7 +13,7 @@ module mapl3g_ServiceProviderSpec
    ! about units (needs to be thought about).  Extensions cannot handle
    ! differing extra dims.
 
-   type, extends(AbstractStateItemSpec) :: ServiceProviderSpec
+   type, extends(StateItemSpec) :: ServiceProviderSpec
       character(:), allocatable :: service_name
       type(ESMF_Grid) :: grid
       type(ExtraDimsSpec) :: dims_spec
@@ -84,7 +84,7 @@ contains
 
    subroutine connect_to(this, dst, rc)
       class(ServiceProviderSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst
+      class(StateItemSpec), intent(in) :: dst
       integer, optional, intent(out) :: rc
 
       _ASSERT(this%can_connect_to(dst), 'merge requested for incompatible spec')

@@ -1,6 +1,6 @@
 module mapl3g_RelConnPtStateItemPtrMap
    use mapl3g_VirtualConnectionPt
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_StateItemSpecPtr
 
 #define Key RelativeConnectionPoint

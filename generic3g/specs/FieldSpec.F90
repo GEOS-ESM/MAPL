@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FieldSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
@@ -30,7 +30,7 @@ module mapl3g_FieldSpec
    public :: FieldSpec
    public :: new_FieldSpec_geom
 
-   type, extends(AbstractStateItemSpec) :: FieldSpec
+   type, extends(StateItemSpec) :: FieldSpec
       private
 
       type(ESMF_Geom), allocatable :: geom
@@ -308,7 +308,7 @@ contains
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(FieldSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(inout) :: src_spec
+      class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
       integer, optional, intent(out) :: rc
 
@@ -356,7 +356,7 @@ contains
 
    logical function can_connect_to(this, src_spec)
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
 
       select type(src_spec)
       class is (FieldSpec)
@@ -459,7 +459,7 @@ contains
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -478,9 +478,9 @@ contains
    end function extension_cost
 
    function make_extension(this, dst_spec, rc) result(extension)
-      class(AbstractStateItemSpec), allocatable :: extension
+      class(StateItemSpec), allocatable :: extension
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -518,7 +518,7 @@ contains
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status

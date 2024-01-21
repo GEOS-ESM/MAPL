@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_InvalidSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
@@ -19,7 +19,7 @@ module mapl3g_InvalidSpec
   
    public :: InvalidSpec
   
-   type, extends(AbstractStateItemSpec) :: InvalidSpec
+   type, extends(StateItemSpec) :: InvalidSpec
      private
    contains
       procedure :: create
@@ -91,7 +91,7 @@ contains
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(InvalidSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(inout) :: src_spec
+      class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
@@ -105,7 +105,7 @@ contains
 
    logical function can_connect_to(this, src_spec)
       class(InvalidSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
 
       can_connect_to = .false.
 
@@ -114,7 +114,7 @@ contains
 
    logical function requires_extension(this, src_spec)
       class(InvalidSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
 
       requires_extension = .false.
 
@@ -143,9 +143,9 @@ contains
    end subroutine add_to_bundle
 
    function make_extension(this, dst_spec, rc) result(extension)
-      class(AbstractStateItemSpec), allocatable :: extension
+      class(StateItemSpec), allocatable :: extension
       class(InvalidSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -155,7 +155,7 @@ contains
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(InvalidSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: status

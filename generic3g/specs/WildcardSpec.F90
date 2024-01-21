@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_WildcardSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ActualPtStateItemSpecMap
    use mapl3g_ActualConnectionPt
    use mapl3g_MultiState
@@ -19,9 +19,9 @@ module mapl3g_WildcardSpec
 
    public :: WildcardSpec
 
-   type, extends(AbstractStateItemSpec) :: WildcardSpec
+   type, extends(StateItemSpec) :: WildcardSpec
       private
-      class(AbstractStateItemSpec), allocatable :: reference_spec
+      class(StateItemSpec), allocatable :: reference_spec
       type(ActualPtStateItemSpecMap), pointer :: matched_items
    contains
       procedure :: create
@@ -48,7 +48,7 @@ contains
 
    function new_WildcardSpec(reference_spec) result(wildcard_spec)
       type(WildcardSpec) :: wildcard_spec
-      class(AbstractStateItemSpec), intent(in) :: reference_spec
+      class(StateItemSpec), intent(in) :: reference_spec
 
       wildcard_spec%reference_spec = reference_spec
       allocate(wildcard_spec%matched_items)
@@ -114,7 +114,7 @@ contains
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(WildcardSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(inout) :: src_spec
+      class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
@@ -126,12 +126,12 @@ contains
    contains
       subroutine with_target_attribute(this, src_spec, actual_pt, rc)
          class(WildcardSpec), target, intent(inout) :: this
-         class(AbstractStateItemSpec), intent(inout) :: src_spec
+         class(StateItemSpec), intent(inout) :: src_spec
          type(ActualConnectionPt), intent(in) :: actual_pt
          integer, optional, intent(out) :: rc
 
          integer :: status
-         class(AbstractStateItemSpec), pointer :: spec
+         class(StateItemSpec), pointer :: spec
 
          _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
          _ASSERT(this%matched_items%count(actual_pt) == 0, 'duplicate connection pt')
@@ -148,7 +148,7 @@ contains
 
    logical function can_connect_to(this, src_spec)
       class(WildcardSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
 
       can_connect_to = this%reference_spec%can_connect_to(src_spec)
 
@@ -175,7 +175,7 @@ contains
          
          integer :: status
          type(ActualPtStateItemSpecMapIterator) :: iter
-         class(AbstractStateItemSpec), pointer :: spec_ptr
+         class(StateItemSpec), pointer :: spec_ptr
          type(ActualConnectionPt), pointer :: effective_pt
          
          associate (e => this%matched_items%ftn_end())
@@ -206,9 +206,9 @@ contains
    end subroutine add_to_bundle
 
    function make_extension(this, dst_spec, rc) result(extension)
-      class(AbstractStateItemSpec), allocatable :: extension
+      class(StateItemSpec), allocatable :: extension
       class(WildcardSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       _FAIL('wildcard cannot be extended - only used for imports')
@@ -217,7 +217,7 @@ contains
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(WildcardSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -228,7 +228,7 @@ contains
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(WildcardSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: status

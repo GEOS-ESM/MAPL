@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_ServiceSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
    use mapl3g_ExtensionAction
@@ -22,7 +22,7 @@ module mapl3g_ServiceSpec
 
    public :: ServiceSpec
 
-   type, extends(AbstractStateItemSpec) :: ServiceSpec
+   type, extends(StateItemSpec) :: ServiceSpec
       private
       type(ESMF_Typekind_Flag), allocatable :: typekind
       type(ESMF_FieldBundle) :: payload
@@ -101,7 +101,7 @@ contains
 
       integer :: status
       integer :: i
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
 
       associate (dep_specs => this%dependency_specs)
         do i = 1, size(dep_specs)
@@ -149,7 +149,7 @@ contains
    
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(ServiceSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(inout) :: src_spec
+      class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
 
       integer, optional, intent(out) :: rc
@@ -173,7 +173,7 @@ contains
 
     logical function can_connect_to(this, src_spec)
       class(ServiceSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
 
       select type(src_spec)
       class is (ServiceSpec)
@@ -201,7 +201,7 @@ contains
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(ServiceSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -212,16 +212,16 @@ contains
    end function make_action
 
    function make_extension(this, dst_spec, rc) result(extension)
-      class(AbstractStateItemSpec), allocatable :: extension
+      class(StateItemSpec), allocatable :: extension
       class(ServiceSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
       _RETURN(_SUCCESS)
    end function make_extension
    
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(ServiceSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
       cost = 0
       _RETURN(_SUCCESS)

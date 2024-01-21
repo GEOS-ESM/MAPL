@@ -113,18 +113,5 @@ contains
    end subroutine set_outer_gridcomp
 
 
-!!$   subroutine add_spec(this, state_intent, short_name, spec)
-!!$      class(InnerMetaComponent), intent(in) :: this
-!!$      character(*), intent(in) :: state_intent
-!!$      character(*), intent(in) :: short_name
-!!$      class(AbstractStateItemSpec), intent(in) :: spec
-!!$
-!!$      call validate_user_short_name(short_name, _RC)
-!!$      associate (comp_spec => this%comp_spec)
-!!$        call comp_spec%add_user_spec(state_intent, short_name, spec)
-!!$      end associate
-!!$
-!!$   end subroutine add_spec
-
 end module mapl3g_InnerMetaComponent
    
