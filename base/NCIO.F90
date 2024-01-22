@@ -713,7 +713,8 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
     type(ArrayReference)     :: ref
 
-    if (present(oClients)) then
+    if (present(arrdes)) then
+      if (present(oClients)) then
           _ASSERT(present(oClients), "output server is needed")
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
           _VERIFY(status)
@@ -3298,6 +3299,9 @@ module NCIOMod
     logical :: is_stretched
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
+    logical :: have_oclients
+
+    have_oclients = present(oClients)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
