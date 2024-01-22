@@ -5567,7 +5567,7 @@ contains
       character(LEN=*),                 intent(INout) :: FILETYPE
       type(MAPL_MetaComp),              intent(INOUT) :: MPL
       logical,                          intent(IN   ) :: HDR
-      logical,                          intent(IN   ) :: write_with_server
+      logical, optional,                intent(IN   ) :: write_with_oserver
       integer, optional,                intent(  OUT) :: RC
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ESMFStateWriteToFile"
@@ -8333,7 +8333,7 @@ contains
       logical :: value_is_set
 
       call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, rc = status)
-      
+
       if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
@@ -8356,15 +8356,15 @@ contains
 
       logical :: value_is_set
       integer :: status
-      
+
       call MAPL_GetResource_config_array(state%cf, vals, label, value_is_set, &
          default = default, component_name = state%compname, rc = status)
-      
+
       if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
-      
+
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
