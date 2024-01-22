@@ -95,7 +95,7 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 
-     module subroutine initialize_(this,items,bundle,timeInfo,vdata,recycle_track,rc)
+     module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
        class(HistoryTrajectory), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
