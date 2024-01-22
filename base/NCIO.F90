@@ -781,7 +781,7 @@ module NCIOMod
     type(ArrayReference)     :: ref
 
 
-    if (present(oClients) then
+    if (present(oClients)) then
        call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
         _VERIFY(status)
        call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
