@@ -274,7 +274,7 @@ contains
          cchar_path = cstring(path)
          utsystem = ut_read_xml(cchar_path)
       else
-         utsystem = ut_read_xml_cptr(c_null_ptr)
+!#         utsystem = ut_read_xml_cptr(c_null_ptr)
       end if
       status = ut_get_status()
 

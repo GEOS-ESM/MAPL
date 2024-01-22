@@ -7,12 +7,12 @@ set(srcs
   FieldUtilities.F90
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
-#  FieldUnits.F90
-#  mapl_udunits2cfunc.c
-#  mapl_udunits2.F90
-#  mapl_udunits2interfaces.F90
-#  mapl_udunits2encoding.F90
-#  mapl_udunits2status.F90
+  FieldUnits.F90
+  mapl_udunits2cfunc.c
+  mapl_udunits2.F90
+  mapl_udunits2interfaces.F90
+  mapl_udunits2encoding.F90
+  mapl_udunits2status.F90
   )
 
 # To use extended udunits2 procedures, udunits2.c must be built and linked.
@@ -47,9 +47,8 @@ if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
-#find_package(udunits REQUIRED)
-#find_package(Fortran_UDUNITS2 REQUIRED)
+find_package(udunits REQUIRED)
 find_package(EXPAT REQUIRED)
 
-#target_link_libraries(${this} PUBLIC udunits::udunits)
+target_link_libraries(${this} PUBLIC udunits::udunits)
 target_link_libraries(${this} PUBLIC EXPAT::EXPAT)

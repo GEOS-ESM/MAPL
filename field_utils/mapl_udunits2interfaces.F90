@@ -7,7 +7,8 @@ module mapl_udunits2interfaces
    implicit none
 
    public :: ut_get_status, ut_parse
-   public :: ut_read_xml_cptr, ut_read_xml
+!#   public :: ut_read_xml_cptr, ut_read_xml
+   public :: ut_read_xml
    public :: ut_get_converter, ut_are_convertible
    public :: cv_convert_double, cv_convert_float
    public :: cv_convert_doubles, cv_convert_floats
@@ -23,10 +24,10 @@ module mapl_udunits2interfaces
       ! Use ut_get_status to check error condition. 
       ! UT_SUCCESS indicates that the function ran successfully.
       ! Other ut_status codes indicate cause of failure.
-      type(c_ptr) function ut_read_xml_cptr(path) bind(c, name='ut_read_xml')
-         import :: c_ptr
-         type(c_ptr), value :: path
-      end function ut_read_xml_cptr
+!#      type(c_ptr) function ut_read_xml_cptr(path) bind(c, name='ut_read_xml')
+!#         import :: c_ptr
+!#         type(c_ptr), value :: path
+!#      end function ut_read_xml_cptr
 
       ! Return type(c_ptr) to default ut_system units database (from environment variable or library default)
       ! Use ut_get_status to check error condition. 
