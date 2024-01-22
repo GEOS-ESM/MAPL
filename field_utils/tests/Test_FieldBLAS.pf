@@ -43,31 +43,8 @@ contains
       class(MPITestMethod), intent(inout) :: this
       integer :: status, rc
 
-!      allocate(y4array, source=R4_ARRAY_DEFAULT)
-!      allocate(y8array, source=R8_ARRAY_DEFAULT)
       y4array = initialize_r4_array(R4_ARRAY_DEFAULT, ADD_R4)
       y8array = initialize_r8_array(R8_ARRAY_DEFAULT, ADD_R8)
-
-!      call ESMF_Initialize(_RC)
-
-!      XR4 = mk_r4field(R4_ARRAY_DEFAULT, 'XR4', _RC)
-!      XR4 = mk_field(R4_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-!         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4', _RC)
-!      YR4 = mk_r4field(y4array, 'YR4', _RC)
-!      YR4 = mk_field(y4array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-!         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4', _RC)
-!      XR8 = mk_r8field(R8_ARRAY_DEFAULT, 'XR8', _RC)
-!      XR8 = mk_field(R8_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-!         indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
-!      YR8 = mk_r8field(y8array, 'YR8', _RC)
-!      YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-!         indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
-!      XR4_3D = mk_r4ungrid_field('XR4_3D', 1, 3, _RC)
-!      XR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-!         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_RC)
-!      YR4_3D = mk_r4ungrid_field('YR4_3D', 1, 3, _RC)
-!      YR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-!         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _RC)
 
    end subroutine set_up_data
 
@@ -77,11 +54,6 @@ contains
 
       class(MPITestMethod), intent(inout) :: this
       integer :: rc, status
-
-!      call ESMF_Finalize(_RC)
-
-!      if(allocated(y4array)) deallocate(y4array)
-!      if(allocated(y8array)) deallocate(y8array)
 
    end subroutine tear_down
          
@@ -436,12 +408,11 @@ contains
    @Test(npes=[1])
    subroutine test_almost_equal_scalar(this)
       class(MPITestMethod), intent(inout) :: this
-      character(len=*), parameter :: MSG = 'Difference exceeds threshold'
       real(kind=ESMF_KIND_R8), parameter :: X = 1.0 / 3.0
       real(kind=ESMF_KIND_R4) :: y
 
       y = X
-      @assertTrue(are_almost_equal(X, y), trim(MSG))
+      @assertTrue(are_almost_equal(X, y), trim('Difference exceeds threshold'))
 
    end subroutine test_almost_equal_scalar
 
@@ -449,14 +420,13 @@ contains
    subroutine test_almost_equal_array(this)
       class(MPITestMethod), intent(inout) :: this
       integer, parameter :: N = 3
-      character(len=*), parameter :: MSG = 'Difference exceeds threshold'
       real(kind=ESMF_KIND_R8), parameter :: DENOMS(N) = [3.0, 5.0, 7.0]
       real(kind=ESMF_KIND_R8), parameter :: X(N) = 1.0 / DENOMS
       real(kind=ESMF_KIND_R4) :: y(N)
 
       y = X
 
-      @assertTrue(all(are_almost_equal(x, y)), trim(MSG))
+      @assertTrue(all(are_almost_equal(x, y)), trim('Difference exceeds threshold'))
 
    end subroutine test_almost_equal_array
 
