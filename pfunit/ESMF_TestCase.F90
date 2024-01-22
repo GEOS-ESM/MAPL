@@ -42,11 +42,20 @@ contains
    recursive subroutine runBare(this)
       class (ESMF_TestCase), intent(inout) :: this
 
+      ! We need an inner procedure to get the TARGET attribute
+      ! added to the TestCase object so that it can be called back from inside the ESMF
+      ! gridcomp.  Inelegant but it works around the issue where NAG debug flags do
+      ! a copy-in/copy-out which leaves a dangling pointer in the self reference.
+      call runbare_inner(this)
+   end subroutine runBare
+      
+   subroutine runbare_inner(this)
+      class (ESMF_TestCase), target, intent(inout) :: this
+         
       logical :: discard
       type (ESMF_GridComp), target :: gc
       integer :: rc, userRc
       integer :: pet
-
 
       ! Gridded component 
       gc = ESMF_GridCompCreate(petList=[(pet,pet=0,this%getNumPETsRequested()-1)], rc=rc)
@@ -54,9 +63,10 @@ contains
 
       this%gc => gc
       this%val = 4
-      
+
       call this%setInternalState(gc,rc=rc)
       if (rc /= ESMF_SUCCESS) call throw('Insufficient PETs for request')
+
       ! create subcommunicator
       this%context = this%parentContext%makeSubcontext(this%getNumPETsRequested())
 
@@ -86,9 +96,9 @@ contains
       call gatherExceptions(this%parentContext)
 
       call this%clearInternalState(gc, rc=rc)
-      if (rc /= ESMF_SUCCESS) call throw('Failure in ESMF_GridCompFinalize()')
+      if (rc /= ESMF_SUCCESS) call throw('Failure clearing internal state')
 
-   end subroutine runBare
+   end subroutine runbare_inner
 
    subroutine setInternalState(this, gc, rc)
       class (ESMF_TestCase), target, intent(inout) :: this
@@ -127,11 +137,11 @@ contains
       deallocate(this%wrapped%wrapped)
       deallocate(this%wrapped)
 
-      call ESMF_GridCompDestroy(gc, rc=status)
-      if (status /= ESMF_SUCCESS) then
-         rc = status
-         return
-      end if
+!!$      call ESMF_GridCompDestroy(gc, rc=status)
+!!$      if (status /= ESMF_SUCCESS) then
+!!$         rc = status
+!!$         return
+!!$      end if
       rc = ESMF_SUCCESS
 
    end subroutine clearInternalState
@@ -161,7 +171,8 @@ contains
       end if
 
       ! Access private data block and verify data
-      testPtr => wrap%wrapped%testPtr 
+      testPtr => wrap%wrapped%testPtr
+      
       call testPtr%setUp()
    
       rc = finalrc
@@ -236,7 +247,7 @@ contains
 
    end subroutine finalize
 
-   subroutine setServices(comp, rc)
+  subroutine setServices(comp, rc)
       type(ESMF_GridComp)   :: comp   ! must not be optional
       integer, intent(out)  :: rc     ! must not be optional
 

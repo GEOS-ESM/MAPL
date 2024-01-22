@@ -48,13 +48,9 @@ module MAPL_ConfigMod
 
    character, parameter :: BLK = achar(32)   ! blank (space)
    character, parameter :: TAB = achar(09)   ! TAB
-#if defined(ESMF_HAS_ACHAR_BUG)
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
+   character, parameter :: EOL = achar(10)   ! end of line mark (newline)
+   character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
+   character, parameter :: NUL = achar(00)   ! what it says
 
 contains
 
@@ -72,7 +68,6 @@ contains
 #endif
       character, parameter :: NUL = achar(00)   !! what it says
 
-      _UNUSED_DUMMY(unusable)
       config = ESMF_ConfigCreate(rc=rc)
       config%cptr%buffer(1:1) = EOL
       config%cptr%buffer(2:2) = EOB
@@ -80,6 +75,8 @@ contains
       config%cptr%next_line = 1
       config%cptr%value_begin = 1
 
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function MAPL_ConfigCreate
 
 !------------------------------------------------------------------------------
@@ -96,7 +93,7 @@ contains
 !
       subroutine MAPL_ConfigSetAttribute_real64( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: REAL64
-! 
+!
       type(ESMF_Config), intent(inout)             :: config
       real(kind=REAL64), intent(in)                :: value
       character(len=*), intent(in), optional       :: label
@@ -242,7 +239,7 @@ contains
 !
       subroutine MAPL_ConfigSetAttribute_real32( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: REAL32
-! 
+!
       type(ESMF_Config), intent(inout)             :: config
       real(kind=REAL32), intent(in)                :: value
       character(len=*), intent(in), optional       :: label
@@ -375,17 +372,17 @@ contains
    end subroutine MAPL_ConfigSetAttribute_real32
 
 !------------------------------------------------------------------------------
-!>    
+!>
 ! Set a 4-byte integer _value_ in the _config_ object.
-!     
+!
 ! The arguments are:
 !- **config**: Already created  `ESMF_Config` object.
 !- **value**: Integer value to set.
 !- **label**: Identifying attribute label.
 !- **rc**: Return code; equals `ESMF_SUCCESS` if there are no errors.
-!     
+!
 ! **Private name**: call using ESMF_ConfigSetAttribute()`.
-! 
+!
       subroutine MAPL_ConfigSetAttribute_int32( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: INT32
 !
@@ -599,15 +596,15 @@ contains
    end subroutine MAPL_ConfigSetAttribute_reals32
 
 !------------------------------------------------------------------------------
-!>    
+!>
 ! Set a string _value_ in the _config_ object.
-!     
+!
 ! The arguments are:
 !- **config**: Already created  `ESMF_Config` object.
 !- **value**: String value to set.
 !- **label**: Identifying attribute label.
 !- **rc**: Return code; equals `ESMF_SUCCESS` if there are no errors.
-!     
+!
    subroutine MAPL_ConfigSetAttribute_string(config, value, label, rc)
       type(ESMF_Config), intent(inout)             :: config
       character(len=*), intent(in)                 :: value

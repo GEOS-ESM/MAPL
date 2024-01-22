@@ -5,6 +5,7 @@ set (srcs
      MAPL_HistoryTrajectoryMod_smod.F90
      MAPL_HistoryCollection.F90
      MAPL_HistoryGridComp.F90
+     MAPL_EpochSwathMod.F90
      MAPL_StationSamplerMod.F90
     )
 
