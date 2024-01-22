@@ -69,7 +69,6 @@ module HistoryTrajectoryMod
      logical                        :: active
    contains
      procedure :: initialize => initialize_
-     procedure :: reinitialize
      procedure :: create_variable => create_metadata_variable
      procedure :: create_file_handle
      procedure :: close_file_handle
