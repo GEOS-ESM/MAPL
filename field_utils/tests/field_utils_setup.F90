@@ -101,7 +101,7 @@ contains
 
       field = mk_field_common(tk = ESMF_TYPEKIND_R4, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, _RC)
       call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
-      ptr => farray
+      ptr = farray
 
       _RETURN(_SUCCESS)
    end function mk_field_r4_2d
@@ -122,7 +122,7 @@ contains
 
       field = mk_field_common(tk = ESMF_TYPEKIND_R8, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, _RC)
       call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
-      ptr => farray
+      ptr = farray
 
       _RETURN(_SUCCESS)
    end function mk_field_r8_2d
