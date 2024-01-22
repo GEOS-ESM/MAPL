@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.42.1
+  VERSION 2.43.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -148,7 +148,7 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET esmf)
-    find_package(ESMF 8.5.0 MODULE REQUIRED)
+    find_package(ESMF 8.6.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     # NOTE: This looks odd because some versions of FindESMF.cmake out in the
@@ -167,8 +167,8 @@ else ()
   # This is an ESMF version test when using Baselibs which doesn't use the
   # same find_package internally in ESMA_cmake as used above (with a version
   # number) so this lets us at least trap use of old Baselibs here.
-  if (ESMF_VERSION VERSION_LESS 8.5.0)
-    message(FATAL_ERROR "ESMF must be at least 8.5.0")
+  if (ESMF_VERSION VERSION_LESS 8.6.0)
+    message(FATAL_ERROR "ESMF must be at least 8.6.0")
   endif ()
 endif ()
 
@@ -224,6 +224,9 @@ include(CheckCompilerCapabilities)
 # 2. Below is to workaround https://github.com/pmodels/mpich/issues/6693
 if(SUPPORT_FOR_MPI_IERROR_KEYWORD)
   add_compile_definitions(SUPPORT_FOR_MPI_IERROR_KEYWORD)
+endif()
+if (APPLE)
+  add_compile_definitions("-D__DARWIN")
 endif()
 
 add_subdirectory (pfio)

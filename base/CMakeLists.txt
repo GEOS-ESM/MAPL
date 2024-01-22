@@ -32,7 +32,7 @@ set (srcs
   MAPL_IO.F90
   MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
   MAPL_Comms.F90                        MAPL_LatLonToLatLonRegridder.F90    MAPL_TripolarGridFactory.F90
-  MAPL_LlcGridFactory.F90
+  MAPL_LlcGridFactory.F90               MAPL_SwathGridFactory.F90
   MAPL_Config.F90                       MAPL_LocStreamMod.F90
   MAPL_ConservativeRegridder.F90        MAPL_MaxMinMod.F90                  MAPL_VerticalInterpMod.F90
   MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
@@ -55,7 +55,7 @@ set (srcs
   MAPL_Resource.F90
   MAPL_XYGridFactory.F90
   MAPL_NetCDF.F90                       Plain_netCDF_Time.F90
-  MAPL_DateTime_Parsing_ESMF.F90
+  MAPL_DateTime_Parsing_ESMF.F90	MAPL_ObsUtil.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
@@ -77,11 +77,6 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 
-# Workaround for bizarre switch in ESMF
-if (ESMF_HAS_ACHAR_BUG)
-  set_source_files_properties(MAPL_Config.F90  PROPERTIES COMPILE_DEFINITIONS ESMF_HAS_ACHAR_BUG)
-endif()
-      
 if(DISABLE_GLOBAL_NAME_WARNING)
   target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
 endif()

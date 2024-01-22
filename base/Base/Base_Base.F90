@@ -43,6 +43,7 @@ module MAPL_Base
   public MAPL_LatLonGridCreate   ! Creates regular Lat/Lon ESMF Grids
   public MAPL_Nhmsf
   public MAPL_NSECF
+  public MAPL_Nsecf2
   public MAPL_PackTime
   public MAPL_PackDateTime
   public MAPL_RemapBounds
@@ -290,6 +291,10 @@ module MAPL_Base
      integer module function MAPL_nsecf(nhms)
        integer, intent(in) :: nhms
      end function MAPL_nsecf
+
+     integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
+       integer :: nhhmmss, nmmdd, nymd
+     end function MAPL_nsecf2
 
      module subroutine MAPL_tick (nymd,nhms,ndt)
        integer nymd,nhms,ndt
