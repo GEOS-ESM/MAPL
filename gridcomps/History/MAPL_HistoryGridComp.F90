@@ -3727,7 +3727,7 @@ ENDDO PARSER
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
       elseif (list(n)%sampler_spec == 'mask') then
-         call list(n)%mask_sampler%regrid_accumulate(_RC)
+         call list(n)%mask_sampler%find_mask(_RC)
          _FAIL('nail 1')
          if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
 !            call list(n)%mask_sampler%append_file(current_time,_RC)

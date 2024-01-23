@@ -164,50 +164,7 @@ contains
             _FAIL("obs file not found at init time")
          endif
 
-
          call this%create_grid(_RC)
-!
-!!!         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-!!!         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
-!         this%output_bundle = this%create_new_bundle(_RC)
-!         this%acc_bundle    = this%create_new_bundle(_RC)
-!
-!
-!         do k=1, this%nobs_type
-!            call this%obs(k)%metadata%add_dimension(this%index_name_loc, this%obs(k)%nobs_epoch)
-!            if (this%time_info%integer_time) then
-!               v = Variable(type=PFIO_INT32,dimensions=this%index_name_loc)
-!            else
-!               v = Variable(type=PFIO_REAL32,dimensions=this%index_name_loc)
-!            end if
-!            call v%add_attribute('units', this%datetime_units)
-!            call v%add_attribute('long_name', 'dateTime')
-!            call this%obs(k)%metadata%add_variable(this%var_name_time,v)
-!
-!            v = variable(type=PFIO_REAL64,dimensions=this%index_name_loc)
-!            call v%add_attribute('units','degrees_east')
-!            call v%add_attribute('long_name','longitude')
-!            call this%obs(k)%metadata%add_variable(this%var_name_lon,v)
-!
-!            v = variable(type=PFIO_REAL64,dimensions=this%index_name_loc)
-!            call v%add_attribute('units','degrees_north')
-!            call v%add_attribute('long_name','latitude')
-!            call this%obs(k)%metadata%add_variable(this%var_name_lat,v)
-!         end do
-!
-!         ! push varible names down to each obs(k); see create_metadata_variable
-!         iter = this%items%begin()
-!         do while (iter /= this%items%end())
-!            item => iter%get()
-!            if (item%itemType == ItemTypeScalar) then
-!               call this%create_variable(item%xname,_RC)
-!            else if (item%itemType == ItemTypeVector) then
-!               call this%create_variable(item%xname,_RC)
-!               call this%create_variable(item%yname,_RC)
-!            end if
-!            call iter%next()
-!         enddo
-
          
          _RETURN(_SUCCESS)
 
@@ -638,7 +595,7 @@ contains
 
 
        
-       module procedure regrid_accumulate_on_xsubset
+       module procedure find_mask
        use pflogger, only: Logger, logging     
        integer                 :: x_subset(2)
        type(ESMF_Time)         :: timeset(2)
@@ -675,7 +632,6 @@ contains
        integer :: len
        type(Logger), pointer          :: lgr
 
-
        integer :: IM, JM, LM, COUNTS(3)
        type(ESMF_DistGrid) :: distGrid
        type(ESMF_DElayout) :: layout
@@ -685,9 +641,9 @@ contains
        integer :: dimCount
        integer, allocatable :: II(:)
        integer, allocatable :: JJ(:)
-       real, allocatable :: obs_lons(:)
-       real, allocatable :: obs_lats(:)
-
+       real(REAL64), allocatable :: obs_lons(:)
+       real(REAL64), allocatable :: obs_lats(:)
+       integer :: mpic
 
        lgr => logging%get_logger('HISTORY.sampler')
 
@@ -709,7 +665,7 @@ contains
 
 
        call ESMF_VMGetGlobal(vm,_RC)
-       call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
+       call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
 
        !            
        if (mypet == 0) then                      
@@ -761,7 +717,7 @@ contains
           this%nobs_dur = nx
           arr(1)=nx
 
-          call lgr%debug('%a %i12 %i12 %i12', 'this%nobs_dur, nlon, nlat', this%nobs_dur, nlon, len)
+          call lgr%debug('%a %i12 %i12 %i12', 'this%nobs_dur, nlon, nlat', this%nobs_dur, nlon, (jt2 - jt1 + 1) )
 
        else
           allocate(this%lons(0),this%lats(0),_STAT)
@@ -797,7 +753,6 @@ contains
        this%fieldA = ESMF_FieldCreate (this%LS_rt, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
        this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
 
-!!       ptA => null()
        call ESMF_FieldGet( this%fieldA, localDE=0, farrayPtr=ptA)
        call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=ptB)
        if (mypet == 0) then
@@ -806,7 +761,6 @@ contains
        call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
        call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
        this%lons_ds = ptB
-
        
        if (mypet == 0) then
           ptA(:) = this%lats(:)
@@ -819,23 +773,40 @@ contains
        call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)       
 
        !- debug
-!       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, this%lons_ds(::200)
-!       write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, this%lats_ds(::200)
+!       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, this%lons_ds(::1000)
+       write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, this%lats_ds(::2000)
        
-       write(6,'(2x,a,i5,100f10.1)') 'lons_rt pet=', mypet, this%lons(::200)
-       write(6,'(2x,a,i5,100f10.1)') 'lats_rt pet=', mypet, this%lats(::200)       
+!       write(6,'(2x,a,i5,100f10.1)') 'lons_rt pet=', mypet, this%lons(::20)
+!       write(6,'(2x,a,i5,100f10.1)') 'lats_rt pet=', mypet, this%lats(::5)
+       call ESMF_VMBarrier (vm, _RC)
 
 
-       _FAIL ('nail xx')
        ! __ s3. round-1: find n.n. CS pts for LS_ds
        !
        obs_lons = this%lons_ds
        obs_lats = this%lats_ds
        
        nx = size ( this%lons_ds )
+
+!!       ! independent test
+!!       nx = 2
+!!       obs_lons = [ 0.d0 , 10.d0 ]
+!!       obs_lats = [ 0.d0 , 10.d0 ]       
+
        allocate ( II(nx), JJ(nx) )
+       call MPI_Barrier(mpic, status)
        !!       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=this%lons_ds,lat=this%lats_ds,grid=Grid,_RC)
-       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)              
+
+       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)              
+
+       call ESMF_VMBarrier (vm, _RC)
+       
+       write(6,*) 'nx', nx
+       do i=1,nx,20
+          write(6,'(2x,a,i5,i10,2f12.2,10i5)') 'pet,i,lon,lat,II,JJ=', mypet,i,&
+               obs_lons(i),obs_lats(i),II(i),JJ(i)
+       end do
+
 
        call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
        call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
@@ -852,15 +823,15 @@ contains
              this%mask( II(i), JJ(i) ) = 1
           endif
        enddo
+       _FAIL('nail 2')       
+!       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, this%mask(::5,::5)       
        
-       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, this%mask(::5,::5)       
-       
-       _FAIL('nail 2')
+
 
 
        _RETURN(ESMF_SUCCESS)
 
-     end procedure regrid_accumulate_on_xsubset
+     end procedure find_mask
          
 
          module procedure destroy_rh_regen_LS

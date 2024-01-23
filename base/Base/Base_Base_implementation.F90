@@ -2771,10 +2771,12 @@ contains
 
     logical :: good_grid
 
-    if (npts == 0 ) then
-      _RETURN(_SUCCESS)
-    endif
+!    if (npts == 0 ) then
+!      _RETURN(_SUCCESS)
+!    endif
 
+    write(6,*) 'pt 1'
+    
     if ( .not. present(grid)) then
       _FAIL("need a cubed-sphere grid")
     endif
@@ -2788,6 +2790,8 @@ contains
     ! make sure the grid can be used in this subroutine
     good_grid = grid_is_ok(grid)
     _ASSERT( good_grid, "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
+
+    write(6,*) 'pt 2'
 
     allocate(lons(npts),lats(npts))
     if (present(lon) .and. present(lat)) then
@@ -2821,8 +2825,12 @@ contains
     II = -1
     JJ = -1
 
-    ! The edge points are assigned in the order of face 1,2,3,4,5,6
+    ! ygyu when npts=0 on localDE, 
+    if (npts == 0 ) then
+      _RETURN(_SUCCESS)
+    endif
 
+    ! The edge points are assigned in the order of face 1,2,3,4,5,6
     call calculate(x,y,z,II,JJ)
 
     _RETURN(_SUCCESS)
@@ -2849,7 +2857,7 @@ contains
        elseif (abs(z-1.0d0) <= tolerance) then
          call angle_to_index(-x, -y, i, j)
          J = J + IM_WORLD*2
-       ! face = 4
+        ! face = 4
        elseif (abs(x+1.0d0) <= tolerance) then
          call angle_to_index(-z, -y, i, j)
          J = J + IM_WORLD*3

@@ -40,8 +40,8 @@ module MaskSamplerMod
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
 
-     real(kind=ESMF_KIND_R8), allocatable :: lons_ds(:)
-     real(kind=ESMF_KIND_R8), allocatable :: lats_ds(:)     
+     real(kind=REAL64), allocatable :: lons_ds(:)
+     real(kind=REAL64), allocatable :: lats_ds(:)     
 
 !     real(kind=REAL64), allocatable :: lons_ds(:)
 !     real(kind=REAL64), allocatable :: lats_ds(:)     
@@ -109,7 +109,7 @@ module MaskSamplerMod
      procedure :: append_file
      procedure :: create_new_bundle
      procedure :: create_grid
-     procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
+     procedure :: find_mask
      procedure :: destroy_rh_regen_LS
      procedure :: get_x_subset
   end type MaskSampler
@@ -172,11 +172,11 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end subroutine create_grid
 
-     module subroutine regrid_accumulate_on_xsubset (this, rc)
+     module subroutine find_mask (this, rc)
        implicit none
        class(MaskSampler), intent(inout) :: this
        integer, optional, intent(out)          :: rc
-     end subroutine regrid_accumulate_on_xsubset
+     end subroutine find_mask
 
      module subroutine get_x_subset(this, interval, x_subset, rc)
        class(MaskSampler), intent(inout) :: this
