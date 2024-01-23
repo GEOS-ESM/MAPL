@@ -10,6 +10,8 @@ module mapl_udunits2mod
 
    implicit none
 
+   private
+
    public :: Converter
    public :: get_converter
    public :: initialize
@@ -17,11 +19,10 @@ module mapl_udunits2mod
 
    public :: UDUnit
    public :: are_convertible
-
-! Normally, only the procedures and derived type above are public.
-! The private line following this block enforces that. For full testing,
-! comment the private line.
-   private
+   public :: UDSystem
+   public :: cstring
+   public :: read_xml
+   public :: ut_free_system
 
 !================================ CPTRWRAPPER ==================================
 ! Base class to wrap type(c_ptr) instances used for udunits2 objects that cannot 
