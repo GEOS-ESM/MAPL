@@ -2,7 +2,7 @@
 module mapl_udunits2mod
 
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
-   use iso_c_binding, only: c_char, c_int, c_float, c_double
+   use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
    use mapl_udunits2interfaces
    use mapl_udunits2encoding
    use mapl_udunits2status
@@ -14,6 +14,9 @@ module mapl_udunits2mod
    public :: get_converter
    public :: initialize
    public :: finalize
+
+   public :: UDUnit
+   public :: are_convertible
 
 ! Normally, only the procedures and derived type above are public.
 ! The private line following this block enforces that. For full testing,
@@ -189,7 +192,7 @@ contains
 
    ! Get Converter object based on unit names or symbols
    subroutine get_converter(conv, from, to, rc)
-      type(Converter), intent(inout) :: conv
+      type(Converter),intent(inout) :: conv
       character(len=*), intent(in) :: from, to
       integer(ut_status), optional, intent(out) :: rc
       integer(ut_status) :: status
@@ -266,15 +269,16 @@ contains
    ! Read unit database from XML
    subroutine read_xml(path, utsystem, status)
       character(len=*), optional, intent(in) :: path
-      character(kind=c_char, len=:), allocatable :: cchar_path
       type(c_ptr), intent(out) :: utsystem
       integer(ut_status), intent(out) :: status
 
+      character(kind=c_char, len=:), target, allocatable :: cchar_path
+
       if(present(path)) then
          cchar_path = cstring(path)
-         utsystem = ut_read_xml(cchar_path)
+         utsystem = ut_read_xml_cptr(c_loc(cchar_path))
       else
-!#         utsystem = ut_read_xml_cptr(c_null_ptr)
+         utsystem = ut_read_xml_cptr(c_null_ptr)
       end if
       status = ut_get_status()
 

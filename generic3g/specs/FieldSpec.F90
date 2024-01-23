@@ -20,6 +20,7 @@ module mapl3g_FieldSpec
    use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use mapl_udunits2mod, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
    use nuopc
@@ -360,10 +361,13 @@ contains
 
       select type(src_spec)
       class is (FieldSpec)
+         _HERE, src_spec%units
+         _HERE, this%units
+         _HERE, UDUNITS_are_convertible(unit1=UDUNIT(src_spec%units), unit2=UDUNIT(this%units))
          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
-!#              can_convert_units(this, src_spec) &
+              UDUNITS_are_convertible(unit1=UDUNIT(src_spec%units), unit2=UDUNIT(this%units)), &
               this%ungridded_dims == src_spec%ungridded_dims, & 
               includes(this%attributes, src_spec%attributes),  &
               match(this%units, src_spec%units) &
@@ -400,17 +404,6 @@ contains
       class(FieldSpec), intent(in) :: b
       same_typekind = (a%typekind == b%typekind)
    end function same_typekind
-
-   ! Eventually we will integrate UDunits, but for now
-   ! we require units to exactly match when connecting
-   ! fields.
-   logical function can_convert_units(a,b)
-      class(FieldSpec), intent(in) :: a
-      class(FieldSpec), intent(in) :: b
-
-      can_convert_units = a%units == b%units
-
-   end function can_convert_units
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(FieldSpec), intent(in) :: this
@@ -469,7 +462,7 @@ contains
       type is (FieldSpec)
          cost = cost + get_cost(this%geom, src_spec%geom)
          cost = cost + get_cost(this%typekind, src_spec%typekind)
-!#         cost = cost + get_cost(this%units, src_spec%units)
+         cost = cost + get_cost(this%units, src_spec%units)
       class default
          _FAIL('Cannot extend to this StateItemSpec subclass.')
       end select
