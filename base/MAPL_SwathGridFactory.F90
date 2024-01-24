@@ -206,7 +206,7 @@ contains
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_InfoSet(infoh, 'GRID_LM', this%lm, _RC)
       end if
-      call ESMF_InfoSet(infoh, 'GridType', 'LatLon', _RC)
+      call ESMF_InfoSet(infoh, 'GridType', 'Swath', _RC)
       call ESMF_InfoSet(infoh, 'Global', .false., _RC)
 
       _RETURN(_SUCCESS)
@@ -248,7 +248,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-!!      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGetCurrent(vm,_RC)
 !!      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
 
       Xdim=this%im_world
@@ -481,6 +481,9 @@ contains
       call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
+
+      write(6,'(2x,a,100i10)') 'nail 2, nx,ny,im,jm,lm',&
+           this%nx,this%ny,this%im_world,this%jm_world,this%lm
 
       call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
 
