@@ -1,10 +1,10 @@
 module mapl3g_VirtualPtStateItemSpecMap
    use mapl3g_VirtualConnectionPt
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
 
 #define Key VirtualConnectionPt
 #define Key_LT(a,b) (a < b)
-#define T AbstractStateItemSpec
+#define T StateItemSpec
 #define T_polymorphic
 
 #define Map VirtualPtStateItemSpecMap

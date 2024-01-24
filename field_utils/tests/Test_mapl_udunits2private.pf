@@ -4,7 +4,7 @@ module Test_mapl_udunits2private
    use mapl_udunits2mod, finalize_udunits_system => finalize, initialize_udunits_system => initialize
    use mapl_udunits2status
    use mapl_udunits2encoding 
-   use iso_c_binding, only: c_ptr, c_associated
+   use iso_c_binding, only: c_ptr, c_associated, c_char, c_null_char
 
    implicit none
 
@@ -87,7 +87,7 @@ contains
       integer :: status
       type(c_ptr) :: utsystem
 
-      call read_xml(utsystem=utsystem, status)
+      call read_xml(utsystem=utsystem, status=status)
       if(.not. c_associated(utsystem)) then
          @assertFalse(status == UT_OS, 'Operating system error')
          @assertFalse(status == UT_PARSE_ERROR, 'Database file could not be parsed.')

@@ -48,7 +48,6 @@ if (PFUNIT_FOUND)
 endif ()
 
 find_package(udunits REQUIRED)
-#find_package(Fortran_UDUNITS2 REQUIRED)
 find_package(EXPAT REQUIRED)
 
 target_link_libraries(${this} PUBLIC udunits::udunits)

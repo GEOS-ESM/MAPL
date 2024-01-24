@@ -21,7 +21,7 @@ module field_utils_setup
    integer :: i
    type(ESMF_Index_Flag), parameter :: INDEX_FLAG_DEFAULT = ESMF_INDEX_DELOCAL
    integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2]
-   integer, parameter :: MAX_INDEX_DEFAULT(*) = [4, 4]
+   integer, parameter :: MAX_INDEX_DEFAULT(*) = [2, 2]
    integer, parameter :: MIN_INDEX_DEFAULT(*) = [1, 1]
    integer, parameter :: DIMR4_DEFAULT(*) = [4, 4]
    integer, parameter :: DIMR8_DEFAULT(*) = [4, 4]
@@ -29,8 +29,8 @@ module field_utils_setup
    integer, parameter :: SIZE_R8 = 16
    real, parameter :: undef = 42.0
 
-   real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R4)], DIMR4_DEFAULT)
-   real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R8)], DIMR8_DEFAULT)
+   real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, 4)], [2,2])
+   real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, 4)], [2,2])
 
    type(ESMF_Field) :: XR4
    type(ESMF_Field) :: XR8
@@ -56,7 +56,7 @@ contains
 
       integer :: status
 
-      grid = ESMF_GridCreateNoPeriDim(regDecomp = regDecomp, maxIndex = maxIndex, minIndex = minIndex, indexflag = indexflag, name = grid_name, _RC)
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2,2], countsPerDeDim2=[2,2], indexflag = indexflag, name = grid_name, _RC)
 
       _RETURN(_SUCCESS)
    end function mk_grid
@@ -96,7 +96,8 @@ contains
 
       field = mk_field_common(tk = ESMF_TYPEKIND_R4, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, _RC)
       call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
-      ptr => farray
+      
+      ptr = farray
 
       _RETURN(_SUCCESS)
    end function mk_field_r4_2d
@@ -117,7 +118,7 @@ contains
 
       field = mk_field_common(tk = ESMF_TYPEKIND_R8, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, _RC)
       call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
-      ptr => farray
+      ptr = farray
 
       _RETURN(_SUCCESS)
    end function mk_field_r8_2d
@@ -138,7 +139,9 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Grid) :: grid
       integer :: status
+      real, pointer :: fptr(:,:)
 
+      
       grid = mk_grid(regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, grid_name = name // GRID_SUFFIX, _RC)
       field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, ungriddedLBound = ungriddedLBound, ungriddedUBound = ungriddedUBound, _RC)
 

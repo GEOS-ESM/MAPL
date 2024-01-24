@@ -12,7 +12,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_Validation, only: is_valid_name
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ConnectionPt
    use mapl3g_MatchConnection
    use mapl3g_VirtualConnectionPt
@@ -514,7 +514,7 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         class(AbstractStateItemSpec), allocatable :: item_spec
+         class(StateItemSpec), allocatable :: item_spec
          type(VirtualConnectionPt) :: virtual_pt
          integer :: i
          type(ActualPtVector) :: dependencies

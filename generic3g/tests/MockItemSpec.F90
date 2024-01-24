@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module MockItemSpecMod
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_VariableSpec
    use mapl3g_MultiState
@@ -18,7 +18,7 @@ module MockItemSpecMod
    public :: MockAction
 
    ! Note - this leaks memory
-   type, extends(AbstractStateItemSpec) :: MockItemSpec
+   type, extends(StateItemSpec) :: MockItemSpec
       character(len=:), allocatable :: name
       character(len=:), allocatable :: subtype
    contains
@@ -104,7 +104,7 @@ contains
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(MockItemSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(inout) :: src_spec
+      class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
 
       integer, optional, intent(out) :: rc
@@ -129,7 +129,7 @@ contains
 
    logical function can_connect_to(this, src_spec)
       class(MockItemSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
 
       select type(src_spec)
       class is (MockItemSpec)
@@ -176,7 +176,7 @@ contains
       use mapl3g_ExtensionAction
       class(ExtensionAction), allocatable :: action
       class(MockItemSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       select type (dst_spec)
@@ -197,9 +197,9 @@ contains
    end subroutine mock_run
 
    function make_extension(this, dst_spec, rc) result(extension)
-      class(AbstractStateItemSpec), allocatable :: extension
+      class(StateItemSpec), allocatable :: extension
       class(MockItemSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -238,7 +238,7 @@ contains
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(MockItemSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: status

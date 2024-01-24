@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_ReexportConnection
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ConnectionPt
    use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_HierarchicalRegistry
@@ -86,7 +86,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(ActualPtVectorIterator) :: iter
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
       type(ActualConnectionPt), pointer :: src_actual_pt
       type(ActualConnectionPt), allocatable :: dst_actual_pt
       type(ActualPtVector), pointer :: actual_pts

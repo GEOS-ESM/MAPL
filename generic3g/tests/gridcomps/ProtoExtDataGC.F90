@@ -13,7 +13,7 @@ module ProtoExtDataGC
    use mapl3g_ActualConnectionPt
    use mapl3g_ConnectionPt
    use mapl3g_SimpleConnection
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ESMF_Subset
 
    implicit none
@@ -51,8 +51,8 @@ contains
       type(ConnectionPt) :: s_pt, d_pt
       type(SimpleConnection) :: conn
       type(HierarchicalRegistry), pointer :: registry
-      class(AbstractStateItemSpec), pointer :: export_spec
-      class(AbstractStateItemSpec), pointer :: import_spec
+      class(StateItemSpec), pointer :: export_spec
+      class(StateItemSpec), pointer :: import_spec
       type(ESMF_HConfig) :: hconfig, states_spec, state_spec, mapl_config
       type(ESMF_HConfigIter) :: iter,e,b
       character(:), allocatable :: var_name

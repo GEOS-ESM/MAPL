@@ -5,7 +5,7 @@ set (test_srcs
   Test_FieldBLAS.pf
   Test_FieldArithmetic.pf
   Test_mapl_udunits2.pf
-#  Test_mapl_udunits2private.pf
+  Test_mapl_udunits2private.pf
   )
 
 
@@ -15,7 +15,6 @@ add_pfunit_ctest(MAPL.field_utils.tests
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 OTHER_SOURCES field_utils_setup.F90
-#		OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90
                 MAX_PES 4
                 )
 set_target_properties(MAPL.field_utils.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})

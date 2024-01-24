@@ -2,7 +2,7 @@
 
 module mapl3g_BracketSpec
    use mapl3g_FieldSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
@@ -28,7 +28,7 @@ module mapl3g_BracketSpec
    public :: BracketSpec
    public :: new_BracketSpec_geom
 
-   type, extends(AbstractStateItemSpec) :: BracketSpec
+   type, extends(StateItemSpec) :: BracketSpec
       private
 
       type(FieldSpec) :: reference_spec
@@ -161,7 +161,7 @@ contains
 
    logical function can_connect_to(this, src_spec)
       class(BracketSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
 
       select type(src_spec)
       class is (BracketSpec)
@@ -190,7 +190,7 @@ contains
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(BracketSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(inout) :: src_spec
+      class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
       integer, optional, intent(out) :: rc
 
@@ -211,7 +211,7 @@ contains
            src_spec%field_specs = [(src_spec%reference_spec, i=1,n)]
            
            do i = 1, this%bracket_size
-              call src_spec%field_specs(i)%create(dependency_specs, _RC)
+              call this%field_specs(i)%create(dependency_specs, _RC)
               call this%field_specs(i)%connect_to(src_spec%field_specs(i), actual_pt, _RC)
            end do
          end associate
@@ -278,7 +278,7 @@ contains
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(BracketSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -294,9 +294,9 @@ contains
    end function extension_cost
 
    function make_extension(this, dst_spec, rc) result(extension)
-      class(AbstractStateItemSpec), allocatable :: extension
+      class(StateItemSpec), allocatable :: extension
       class(BracketSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -317,7 +317,7 @@ contains
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(BracketSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status

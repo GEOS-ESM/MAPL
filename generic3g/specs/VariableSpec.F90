@@ -2,7 +2,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VariableSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_StateItem
    use mapl3g_UngriddedDimsSpec
    use mapl3g_VerticalDimSpec
@@ -180,7 +180,7 @@ contains
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
    function make_ItemSpec(this, geom, vertical_geom, rc) result(item_spec)
-      class(AbstractStateItemSpec), allocatable :: item_spec
+      class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
