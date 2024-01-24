@@ -183,4 +183,50 @@ contains
 
    end subroutine initialize_array_R8
 
+   function mk_r4field(r4array, field_name, rc) result(r4field)
+      type(ESMF_Field) :: r4field
+      real(kind=ESMF_KIND_R4), intent(in) :: r4array(:,:)
+      character(len=*), intent(in) :: field_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      r4field = mk_field(r4array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, &
+         maxIndex=MAX_INDEX_DEFAULT, indexflag=INDEX_FLAG_DEFAULT, name = field_name, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end function mk_r4field
+
+   function mk_r8field(r8array, field_name, rc) result(r8field)
+      type(ESMF_Field) :: r8field
+      real(kind=ESMF_KIND_R8), intent(in) :: r8array(:,:)
+      character(len=*), intent(in) :: field_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      r8field = mk_field(r8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, &
+         maxIndex=MAX_INDEX_DEFAULT, indexflag=INDEX_FLAG_DEFAULT, name = field_name, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end function mk_r8field
+
+   function mk_r4ungrid_field(field_name, lbound, ubound, rc) result(r4field)
+      type(ESMF_Field) :: r4field
+      character(len=*), intent(in) :: field_name
+      integer, intent(in) :: lbound
+      integer, intent(in) :: ubound
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      r4field = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = field_name, ungriddedLBound=[lbound],ungriddedUBound=[ubound],_RC)
+
+      _RETURN(_SUCCESS)
+
+   end function mk_r4ungrid_field
+
 end module field_utils_setup
