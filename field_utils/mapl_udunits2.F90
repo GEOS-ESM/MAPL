@@ -369,18 +369,18 @@ contains
    end subroutine finalize
 
    ! Check if units are convertible
-   logical function are_convertible(unit1, unit2, rc)
+   function are_convertible(unit1, unit2, rc) result(convertible)
+      logical :: convertible
       type(UDUnit), intent(in) :: unit1, unit2
       integer, optional, intent(out) :: rc
       integer :: status
       integer(ut_status) :: utstatus
-      logical :: convertible
       integer(c_int), parameter :: ZERO = 0_c_int
       
       convertible = (ut_are_convertible(unit1 % cptr(), unit2 % cptr())  /= ZERO)
       utstatus = ut_get_status()
       
-      if(convertible) are_convertible = success(utstatus)
+      convertible = convertible .and. success(utstatus)
       status = merge(_SUCCESS, utstatus, convertible)
 
       if(present(rc)) rc = status
