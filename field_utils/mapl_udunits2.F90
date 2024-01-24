@@ -2,7 +2,7 @@
 module mapl_udunits2mod
 
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
-   use iso_c_binding, only: c_char, c_int, c_float, c_double
+   use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
    use mapl_udunits2interfaces
    use mapl_udunits2encoding
    use mapl_udunits2status
@@ -10,15 +10,19 @@ module mapl_udunits2mod
 
    implicit none
 
+   private
+
    public :: Converter
    public :: get_converter
    public :: initialize
    public :: finalize
 
-! Normally, only the procedures and derived type above are public.
-! The private line following this block enforces that. For full testing,
-! comment the private line.
-   private
+   public :: UDUnit
+   public :: are_convertible
+   public :: UDSystem
+   public :: cstring
+   public :: read_xml
+   public :: ut_free_system
 
 !================================ CPTRWRAPPER ==================================
 ! Base class to wrap type(c_ptr) instances used for udunits2 objects that cannot 
@@ -189,7 +193,7 @@ contains
 
    ! Get Converter object based on unit names or symbols
    subroutine get_converter(conv, from, to, rc)
-      type(Converter), intent(inout) :: conv
+      type(Converter),intent(inout) :: conv
       character(len=*), intent(in) :: from, to
       integer(ut_status), optional, intent(out) :: rc
       integer(ut_status) :: status
@@ -266,13 +270,14 @@ contains
    ! Read unit database from XML
    subroutine read_xml(path, utsystem, status)
       character(len=*), optional, intent(in) :: path
-      character(kind=c_char, len=:), allocatable :: cchar_path
       type(c_ptr), intent(out) :: utsystem
       integer(ut_status), intent(out) :: status
 
+      character(kind=c_char, len=:), target, allocatable :: cchar_path
+
       if(present(path)) then
          cchar_path = cstring(path)
-         utsystem = ut_read_xml(cchar_path)
+         utsystem = ut_read_xml_cptr(c_loc(cchar_path))
       else
          utsystem = ut_read_xml_cptr(c_null_ptr)
       end if
@@ -287,8 +292,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      ! System must be once and only once.
-      _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
+      _RETURN_UNLESS(instance_is_uninitialized())
+!#      ! System must be once and only once.
+!#      _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
 
       ! Disable error messages from udunits2
       call disable_ut_error_message_handler()
@@ -363,18 +369,18 @@ contains
    end subroutine finalize
 
    ! Check if units are convertible
-   logical function are_convertible(unit1, unit2, rc)
+   function are_convertible(unit1, unit2, rc) result(convertible)
+      logical :: convertible
       type(UDUnit), intent(in) :: unit1, unit2
       integer, optional, intent(out) :: rc
       integer :: status
       integer(ut_status) :: utstatus
-      logical :: convertible
       integer(c_int), parameter :: ZERO = 0_c_int
       
       convertible = (ut_are_convertible(unit1 % cptr(), unit2 % cptr())  /= ZERO)
       utstatus = ut_get_status()
       
-      if(convertible) are_convertible = success(utstatus)
+      convertible = convertible .and. success(utstatus)
       status = merge(_SUCCESS, utstatus, convertible)
 
       if(present(rc)) rc = status

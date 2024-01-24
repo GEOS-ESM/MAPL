@@ -1,7 +1,6 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_ComponentSpec
-   use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionVector
    use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_VariableSpec

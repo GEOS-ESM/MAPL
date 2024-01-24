@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FieldSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
@@ -20,6 +20,7 @@ module mapl3g_FieldSpec
    use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use mapl_udunits2mod, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
    use nuopc
@@ -30,7 +31,7 @@ module mapl3g_FieldSpec
    public :: FieldSpec
    public :: new_FieldSpec_geom
 
-   type, extends(AbstractStateItemSpec) :: FieldSpec
+   type, extends(StateItemSpec) :: FieldSpec
       private
 
       type(ESMF_Geom), allocatable :: geom
@@ -172,7 +173,6 @@ contains
       integer :: status
 
       call ESMF_GeomGet(geom, geomtype=geom_type, _RC)
-
       if(geom_type == ESMF_GEOMTYPE_GRID) then
          call ESMF_GeomGet(geom, grid=grid, _RC)
          call ESMF_FieldEmptySet(field, grid, _RC)
@@ -309,7 +309,7 @@ contains
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(FieldSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(inout) :: src_spec
+      class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
       integer, optional, intent(out) :: rc
 
@@ -357,17 +357,16 @@ contains
 
    logical function can_connect_to(this, src_spec)
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
 
       select type(src_spec)
       class is (FieldSpec)
          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
-!#              can_convert_units(this, src_spec) &
               this%ungridded_dims == src_spec%ungridded_dims, & 
-              includes(this%attributes, src_spec%attributes),  &
-              match(this%units, src_spec%units) &
+              includes(this%attributes, src_spec%attributes), &
+              can_connect_units(this%units, src_spec%units) &
               ])
       class default
          can_connect_to = .false.
@@ -401,17 +400,6 @@ contains
       class(FieldSpec), intent(in) :: b
       same_typekind = (a%typekind == b%typekind)
    end function same_typekind
-
-   ! Eventually we will integrate UDunits, but for now
-   ! we require units to exactly match when connecting
-   ! fields.
-   logical function can_convert_units(a,b)
-      class(FieldSpec), intent(in) :: a
-      class(FieldSpec), intent(in) :: b
-
-      can_convert_units = a%units == b%units
-
-   end function can_convert_units
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(FieldSpec), intent(in) :: this
@@ -460,7 +448,7 @@ contains
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -470,7 +458,7 @@ contains
       type is (FieldSpec)
          cost = cost + get_cost(this%geom, src_spec%geom)
          cost = cost + get_cost(this%typekind, src_spec%typekind)
-!#         cost = cost + get_cost(this%units, src_spec%units)
+         cost = cost + get_cost(this%units, src_spec%units)
       class default
          _FAIL('Cannot extend to this StateItemSpec subclass.')
       end select
@@ -479,9 +467,9 @@ contains
    end function extension_cost
 
    function make_extension(this, dst_spec, rc) result(extension)
-      class(AbstractStateItemSpec), allocatable :: extension
+      class(StateItemSpec), allocatable :: extension
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -519,7 +507,7 @@ contains
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -585,6 +573,22 @@ contains
          match = (a == b)
       end if
    end function match_string
+
+   logical function can_connect_units(dst_units, src_units)
+      character(:), allocatable, intent(in) :: dst_units
+      character(:), allocatable, intent(in) :: src_units
+
+      integer :: status
+
+      ! If mirror or same, we can connect without a coupler
+      can_connect_units = match(dst_units, src_units)
+      if (can_connect_units) return
+      ! Otherwise need a coupler, but need to check
+      ! if units are convertible
+      can_connect_units = UDUNITS_are_convertible(unit1=UDUNIT(src_units), unit2=UDUNIT(dst_units),rc=status)
+      ! Ignore status for now (sigh)
+      
+   end function can_connect_units
 
    integer function get_cost_geom(a, b) result(cost)
       type(ESMF_GEOM), allocatable, intent(in) :: a, b

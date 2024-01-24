@@ -1,10 +1,10 @@
 module mapl3g_StateItemSpecMap
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
 
 #define MAPL_DEBUG
    
 #define Key __CHARACTER_DEFERRED
-#define T AbstractStateItemSPec
+#define T StateItemSpec
 #define T_polymorphic
 
 #define Map StateItemSpecMap

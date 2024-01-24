@@ -16,14 +16,14 @@
 
 
 module mapl3g_ServiceRequesterSpec
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use gftl2_StringVector
    implicit none
    private
 
    public :: ServiceRequesterSpec
 
-   type, extends(AbstractStateItemSpec) :: ServiceRequesterSpec
+   type, extends(StateItemSpec) :: ServiceRequesterSpec
       character(:), allocatable :: service_name
       type(ConnectionPoint), allocatable :: items(:)
    contains
@@ -62,7 +62,7 @@ contains
 
    subroutine connect_to(this, other, rc)
       class(ServiceRequesterSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(in) :: other
+      class(StateItemSpec), intent(in) :: other
       integer, optional, intent(out) :: rc
 
       _ASSERT(this%can_connect_to(other), 'merge requested for incompatible spec')
@@ -80,7 +80,7 @@ contains
    
    subroutine can_connect_to(this, dst_spec)
       class(ServiceRequesterSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(in) :: other
+      class(StateItemSpec), intent(in) :: other
 
       can_connect_to = .false. ! unless
 
@@ -94,7 +94,7 @@ contains
 
    subroutine requires_coupler(this, dst_spec)
       class(ServiceRequesterSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(in) :: other
+      class(StateItemSpec), intent(in) :: other
 
       requires_coupler = .false. ! unless
 

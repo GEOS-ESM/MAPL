@@ -1,14 +1,14 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_AbstractStateItemSpec
+module mapl3g_StateItemSpec
    use mapl_ErrorHandling
    implicit none
    private
 
-   public :: AbstractStateItemSpec
+   public :: StateItemSpec
    public :: StateItemSpecPtr
   
-   type, abstract :: AbstractStateItemSpec
+   type, abstract :: StateItemSpec
       private
 
       logical :: active = .false.
@@ -38,10 +38,10 @@ module mapl3g_AbstractStateItemSpec
       procedure, non_overridable :: set_active
 
       procedure :: make_action
-   end type AbstractStateItemSpec
+   end type StateItemSpec
 
    type :: StateItemSpecPtr
-      class(AbstractStateItemSpec), pointer :: ptr
+      class(StateItemSpec), pointer :: ptr
    end type StateItemSpecPtr
 
 
@@ -49,69 +49,69 @@ module mapl3g_AbstractStateItemSpec
 
       subroutine I_connect(this, src_spec, actual_pt, rc)
          use mapl3g_ActualConnectionPt
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), intent(inout) :: this
-         class(AbstractStateItemSpec), intent(inout) :: src_spec
+         import StateItemSpec
+         class(StateItemSpec), intent(inout) :: this
+         class(StateItemSpec), intent(inout) :: src_spec
          type(ActualConnectionPt), intent(in) :: actual_pt
          integer, optional, intent(out) :: rc
       end subroutine I_connect
 
       logical function I_can_connect(this, src_spec)
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), intent(in) :: this
-         class(AbstractStateItemSpec), intent(in) :: src_spec
+         import StateItemSpec
+         class(StateItemSpec), intent(in) :: this
+         class(StateItemSpec), intent(in) :: src_spec
       end function I_can_connect
 
       ! Will use ESMF so cannot be PURE
       subroutine I_create(this, dependency_specs, rc)
-         import AbstractStateItemSpec
+         import StateItemSpec
          import StateItemSpecPtr
-         class(AbstractStateItemSpec), intent(inout) :: this
+         class(StateItemSpec), intent(inout) :: this
          type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
          integer, optional, intent(out) :: rc
       end subroutine I_create
 
       subroutine I_destroy(this, rc)
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), intent(inout) :: this
+         import StateItemSpec
+         class(StateItemSpec), intent(inout) :: this
          integer, optional, intent(out) :: rc
       end subroutine I_destroy
 
       ! Will use ESMF so cannot be PURE
       subroutine I_allocate(this, rc)
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), intent(inout) :: this
+         import StateItemSpec
+         class(StateItemSpec), intent(inout) :: this
          integer, optional, intent(out) :: rc
       end subroutine I_allocate
 
       function I_get_dependencies(this, rc) result(dependencies)
          use mapl3g_ActualPtVector
-         import AbstractStateItemSpec
+         import StateItemSpec
          type(ActualPtVector) :: dependencies
-         class(AbstractStateItemSpec), intent(in) :: this
+         class(StateItemSpec), intent(in) :: this
          integer, optional, intent(out) :: rc
       end function I_get_dependencies
 
       function I_make_extension(this, dst_spec, rc) result(extension)
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), allocatable :: extension
-         class(AbstractStateItemSpec), intent(in) :: this
-         class(AbstractStateItemSpec), intent(in) :: dst_spec
+         import StateItemSpec
+         class(StateItemSpec), allocatable :: extension
+         class(StateItemSpec), intent(in) :: this
+         class(StateItemSpec), intent(in) :: dst_spec
          integer, optional, intent(out) :: rc
       end function I_make_extension
          
       integer function I_extension_cost(this, src_spec, rc) result(cost)
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), intent(in) :: this
-         class(AbstractStateItemSpec), intent(in) :: src_spec
+         import StateItemSpec
+         class(StateItemSpec), intent(in) :: this
+         class(StateItemSpec), intent(in) :: src_spec
          integer, optional, intent(out) :: rc
        end function I_extension_cost
 
       subroutine I_add_to_state(this, multi_state, actual_pt, rc)
          use mapl3g_MultiState
          use mapl3g_ActualConnectionPt
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), intent(in) :: this
+         import StateItemSpec
+         class(StateItemSpec), intent(in) :: this
          type(MultiState), intent(inout) :: multi_state
          type(ActualConnectionPt), intent(in) :: actual_pt
          integer, optional, intent(out) :: rc
@@ -120,8 +120,8 @@ module mapl3g_AbstractStateItemSpec
       subroutine I_add_to_bundle(this, bundle, rc)
          use esmf, only: ESMF_FieldBundle
          use mapl3g_ActualConnectionPt
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), intent(in) :: this
+         import StateItemSpec
+         class(StateItemSpec), intent(in) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_bundle
@@ -132,14 +132,14 @@ contains
    
    function new_StateItemSpecPtr(state_item) result(wrap)
       type(StateItemSpecPtr) :: wrap
-      class(AbstractStateItemSpec), target :: state_item
+      class(StateItemSpec), target :: state_item
 
       wrap%ptr => state_item
    end function new_StateItemSpecPtr
   
 
    pure subroutine set_allocated(this, allocated)
-      class(AbstractStateItemSpec), intent(inout) :: this
+      class(StateItemSpec), intent(inout) :: this
       logical, optional, intent(in) :: allocated
 
       if (present(allocated)) then
@@ -151,12 +151,12 @@ contains
    end subroutine set_allocated
 
    pure logical function is_allocated(this)
-      class(AbstractStateItemSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: this
       is_allocated = this%allocated
    end function is_allocated
 
    pure subroutine set_created(this, created)
-      class(AbstractStateItemSpec), intent(inout) :: this
+      class(StateItemSpec), intent(inout) :: this
       logical, optional, intent(in) :: created
 
       if (present(created)) then
@@ -168,12 +168,12 @@ contains
    end subroutine set_created
 
    pure logical function is_created(this)
-      class(AbstractStateItemSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: this
       is_created = this%created
    end function is_created
 
    pure subroutine set_active(this, active)
-      class(AbstractStateItemSpec), intent(inout) :: this
+      class(StateItemSpec), intent(inout) :: this
       logical, optional, intent(in) :: active
 
       if (present(active)) then
@@ -185,7 +185,7 @@ contains
    end subroutine set_active
 
    pure logical function is_active(this)
-      class(AbstractStateItemSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: this
       is_active = this%active
    end function is_active
 
@@ -194,12 +194,12 @@ contains
       use mapl3g_ExtensionAction
       use mapl3g_NullAction
       class(ExtensionAction), allocatable :: action
-      class(AbstractStateItemSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       action = NullAction()
       _FAIL('Subclass has not implemented make_action')
    end function make_action
 
-end module mapl3g_AbstractStateItemSpec
+end module mapl3g_StateItemSpec

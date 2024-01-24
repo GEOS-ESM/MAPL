@@ -1,10 +1,10 @@
 module mapl3g_ConnPtStateItemSpecMap
    use mapl3g_ConnectionPt
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
 
 #define Key ConnectionPt
 #define Key_LT(a,b) (a < b)
-#define T AbstractStateItemSpec
+#define T StateItemSpec
 #define T_polymorphic
 
 #define Map ConnPtStateItemSpecMap

@@ -1,7 +1,7 @@
 module mapl3g_StateItemVector
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
   
-#define T AbstractStateItemSpec
+#define T StateItemSpec
 #define T_polymorphic
 #define Vector StateItemVector
 #define VectorIterator StateItemVectorIterator

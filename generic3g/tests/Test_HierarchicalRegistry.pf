@@ -2,7 +2,7 @@ module Test_HierarchicalRegistry
    use funit
    use mapl3g_AbstractRegistry
    use mapl3g_HierarchicalRegistry
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ConnectionPt
    use mapl3g_ActualPtVector
    use mapl3g_VirtualConnectionPt
@@ -43,7 +43,7 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       character(*), intent(in) :: expected_name
 
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
       check = .false.
       spec => r%get_item_spec(actual_pt)
       @assert_that(associated(spec), is(true()))
@@ -83,7 +83,7 @@ contains
    subroutine test_get_item_spec_not_found()
 
       type(HierarchicalRegistry) :: r
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
 
       r = HierarchicalRegistry('A')
       spec => r%get_item_spec(new_a_pt('import', 'a'))
@@ -113,7 +113,7 @@ contains
    @test
    subroutine test_get_item_spec_found()
       type(HierarchicalRegistry) :: r
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
       type(ActualConnectionPt) :: cp
 
       r = HierarchicalRegistry('A')
@@ -248,7 +248,7 @@ contains
    subroutine test_internal_to_export_connection()
       type(HierarchicalRegistry), target :: r
       type(VirtualConnectionPt) :: vpt_1, vpt_2
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
 
       integer :: status
 
@@ -353,7 +353,7 @@ contains
    subroutine test_sibling_activation()
       type(HierarchicalRegistry), target :: r
       type(HierarchicalRegistry), target :: r_A, r_B, r_P, r_C
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
 
       type(VirtualConnectionPt) :: vpt_1, vpt_2, vpt_4
       class(Connection), allocatable :: e2e, sib
@@ -432,7 +432,7 @@ contains
    ! Internal state items are always active
    subroutine test_internal_activation()
       type(HierarchicalRegistry) :: r
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
 
       type(ActualConnectionPt) :: apt_1, apt_2, apt_3
            apt_1 = new_a_pt('internal', 'A')
@@ -459,7 +459,7 @@ contains
    ! semi-compatible with an import.
    subroutine test_create_extension()
       type(HierarchicalRegistry), target :: r_A, r_B
-      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
+      class(StateItemSpec), pointer :: dst_spec, src_spec
       class(ExtensionAction), allocatable :: action
 
       type(ActualConnectionPt) :: e1, i1
@@ -571,7 +571,7 @@ contains
       type(HierarchicalRegistry), target :: r_C, r_D, r_A, r_B
       type(HierarchicalRegistry) :: r_P 
       type(VirtualConnectionPt) :: T_A, T_B, T_C, T_D
-      class(AbstractStateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: spec
 
       r_A = HierarchicalRegistry('A')
       r_B = HierarchicalRegistry('B')

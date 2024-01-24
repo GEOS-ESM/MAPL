@@ -10,7 +10,7 @@ target_sources(MAPL.generic3g PRIVATE
   UngriddedDimsSpec.F90
   GridSpec.F90
   
-  AbstractStateItemSpec.F90
+  StateItemSpec.F90
   StateItemSpecMap.F90
   InvalidSpec.F90
   FieldSpec.F90

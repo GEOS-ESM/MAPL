@@ -26,7 +26,7 @@ module mapl3g_Generic
    use :: mapl3g_UngriddedDimsSpec, only: UngriddedDimsSpec
    use :: mapl3g_Validation, only: is_valid_name
    use :: mapl3g_ESMF_Interfaces, only: I_Run
-   use :: mapl3g_AbstractStateItemSpec
+   use :: mapl3g_StateItemSpec
    use :: mapl3g_VerticalGeom
    use :: mapl3g_HierarchicalRegistry
    use mapl_InternalConstantsMod

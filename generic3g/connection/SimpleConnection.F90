@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_SimpleConnection
-   use mapl3g_AbstractStateItemSpec
+   use mapl3g_StateItemSpec
    use mapl3g_ConnectionPt
    use mapl3g_HierarchicalRegistry
    use mapl3g_VirtualConnectionPt
@@ -91,15 +91,15 @@ contains
       integer, optional, intent(out) :: rc
 
       type(StateItemSpecPtr), allocatable :: src_specs(:), dst_specs(:)
-      class(AbstractStateItemSpec), pointer :: src_spec, dst_spec
+      class(StateItemSpec), pointer :: src_spec, dst_spec
       integer :: i, j
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
       integer :: i_extension
       integer :: cost, lowest_cost
-      class(AbstractStateItemSpec), pointer :: best_spec
-      class(AbstractStateItemSpec), pointer :: old_spec
-      class(AbstractStateItemSpec), allocatable, target :: new_spec
+      class(StateItemSpec), pointer :: best_spec
+      class(StateItemSpec), pointer :: old_spec
+      class(StateItemSpec), allocatable, target :: new_spec
       type(ActualConnectionPt) :: effective_pt
 
       src_pt = this%get_source()
