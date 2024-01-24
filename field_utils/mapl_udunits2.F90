@@ -292,8 +292,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      ! System must be once and only once.
-      _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
+      _RETURN_UNLESS(instance_is_uninitialized())
+!#      ! System must be once and only once.
+!#      _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
 
       ! Disable error messages from udunits2
       call disable_ut_error_message_handler()

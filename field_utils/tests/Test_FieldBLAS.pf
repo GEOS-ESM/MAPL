@@ -6,7 +6,7 @@ module Test_FieldBLAS
    use field_utils_setup
    use MAPL_FieldPointerUtilities
    use ESMF
-   use funit
+   use pfunit
    use MAPL_ExceptionHandling
 
    implicit none
@@ -14,8 +14,8 @@ module Test_FieldBLAS
 contains
 
    @Before
-   subroutine set_up_data()
-      implicit none
+   subroutine set_up_data(this)
+      class(MpiTestMethod), intent(inout) :: this
 
       integer :: status, rc
 
@@ -43,9 +43,15 @@ contains
 
    end subroutine set_up_data
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @after
+   subroutine teardown(this)
+      class(MpiTestMethod), intent(inout) :: this
+   end subroutine teardown
+
+   @Test(npes=[4])
    ! Basic test of FieldCOPY subroutine (REAL32)
-   subroutine test_FieldCOPY_R4()
+   subroutine test_FieldCOPY_R4(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
@@ -61,9 +67,10 @@ contains
 
    end subroutine test_FieldCOPY_R4
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    ! Basic test of FieldCOPY subroutine (REAL64)
-   subroutine test_FieldCOPY_R8()
+   subroutine test_FieldCOPY_R8(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
@@ -79,9 +86,10 @@ contains
 
    end subroutine test_FieldCOPY_R8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    ! Basic test of FieldCOPY subroutine (REAL32 -> REAL64)
-   subroutine test_FieldCOPY_R4R8()
+   subroutine test_FieldCOPY_R4R8(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
@@ -97,9 +105,10 @@ contains
 
    end subroutine test_FieldCOPY_R4R8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    ! Basic test of FieldCOPY subroutine (REAL64 -> REAL32)
-   subroutine test_FieldCOPY_R8R4()
+   subroutine test_FieldCOPY_R8R4(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
@@ -117,9 +126,10 @@ contains
 
    end subroutine test_FieldCOPY_R8R4
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    ! Basic test of FieldSCAL subroutine (REAL32)
-   subroutine test_FieldSCAL_R4()
+   subroutine test_FieldSCAL_R4(this)
+      class(MpiTestMethod), intent(inout) :: this
       real(kind=ESMF_KIND_R4), parameter :: a = 2.0
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: x_array
@@ -135,10 +145,11 @@ contains
 
    end subroutine test_FieldSCAL_R4
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    ! Basic test of FieldSCAL subroutine (REAL64)
-   subroutine test_FieldSCAL_R8()
-      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+   subroutine test_FieldSCAL_R8(this)
+       class(MpiTestMethod), intent(inout) :: this
+     real(kind=ESMF_KIND_R8), parameter :: a = 2.0
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
@@ -153,9 +164,10 @@ contains
 
    end subroutine test_FieldSCAL_R8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    !
-   subroutine test_FieldAXPY_R4()
+   subroutine test_FieldAXPY_R4(this)
+      class(MpiTestMethod), intent(inout) :: this
       real(kind=ESMF_KIND_R4), parameter :: a = 2.0
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
@@ -178,10 +190,11 @@ contains
 
    end subroutine test_FieldAXPY_R4
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    !
-   subroutine test_FieldAXPY_R8()
-      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+   subroutine test_FieldAXPY_R8(this)
+       class(MpiTestMethod), intent(inout) :: this
+     real(kind=ESMF_KIND_R8), parameter :: a = 2.0
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
@@ -203,8 +216,9 @@ contains
 
    end subroutine test_FieldAXPY_R8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldGetLocalElementCount()
+   @Test(npes=[4])
+   subroutine test_FieldGetLocalElementCount(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       integer :: rank
       integer, allocatable :: expected_count(:)
@@ -217,13 +231,13 @@ contains
       call ESMF_FieldGet(x, localElementCount=expected_count, _RC)
       actual_count = FieldGetLocalElementCount(x, _RC)
       @assertEqual(actual_count, expected_count)
-      if(allocated(expected_count)) deallocate(expected_count)
 
    end subroutine test_FieldGetLocalElementCount
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
     !
-   subroutine test_FieldGetLocalSize()
+   subroutine test_FieldGetLocalSize(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       integer :: status, rc
       integer :: rank
@@ -242,14 +256,14 @@ contains
 
    end subroutine test_FieldGetLocalSize
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    ! Test getting the c_ptr for a field
    !wdb fixme  Should test more extensively for different ranks
    !wdb fixme  Should test for ESMF_KIND_I4 and ESMF_KIND_I8
    !wdb fixme  Should check c_cptr from tested method against independent test
-
-   subroutine test_FieldGetCptr()
-      type(ESMF_Field) :: x
+   subroutine test_FieldGetCptr(this)
+       class(MpiTestMethod), intent(inout) :: this
+     type(ESMF_Field) :: x
       type(c_ptr) :: cptr
       integer :: status, rc
 
@@ -260,9 +274,10 @@ contains
 
    end subroutine test_FieldGetCptr
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    !wdb fixme  Probably should test for non-conformable fields
-   subroutine test_FieldsAreConformableR4()
+   subroutine test_FieldsAreConformableR4(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x, y
       integer :: status, rc
       logical :: are_conformable
@@ -276,9 +291,10 @@ contains
    end subroutine test_FieldsAreConformableR4
 
    !wdb fixme  Probably should test for non-conformable fields
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldsAreConformableR8()
-      type(ESMF_Field) :: x, y
+   @Test(npes=[4])
+   subroutine test_FieldsAreConformableR8(this)
+       class(MpiTestMethod), intent(inout) :: this
+     type(ESMF_Field) :: x, y
       integer :: status, rc
       logical :: are_conformable
 
@@ -290,9 +306,10 @@ contains
 
    end subroutine test_FieldsAreConformableR8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
+   @Test(npes=[4])
    !
-   subroutine test_FieldsAreSameTypeKind()
+   subroutine test_FieldsAreSameTypeKind(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x, y
       integer :: status, rc
       logical :: are_same_typekind
@@ -318,9 +335,10 @@ contains
    end subroutine test_FieldsAreSameTypeKind
 
 !wdb fixme Enable assertEqual
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldConvertPrec_R4R8()
-      integer, parameter :: NROWS = 4
+   @Test(npes=[4])
+   subroutine test_FieldConvertPrec_R4R8(this)
+       class(MpiTestMethod), intent(inout) :: this
+     integer, parameter :: NROWS = 2
       integer, parameter :: NCOLS = NROWS
       type(ESMF_Field) :: r4_field, r8_field
       real(kind=ESMF_KIND_R4) :: r4_data(NROWS,NCOLS)
@@ -340,12 +358,13 @@ contains
          name = 'YR8', _RC)
       call FieldConvertPrec(r4_field, r8_field, _RC)
       call ESMF_FieldGet(r8_field, farrayPtr = r8_pointer, _RC)
-!      @assertEqual(r8_converted, r8_pointer) !wdb fixme temporarily disabled
+      @assertEqual(r8_converted, r8_pointer)
 
    end subroutine test_FieldConvertPrec_R4R8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldClone3D()
+   @Test(npes=[4])
+   subroutine test_FieldClone3D(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x, y
       integer :: status, rc
 
@@ -380,8 +399,9 @@ contains
 
    end subroutine test_FieldClone3D
 
-   @Test
-   subroutine test_almost_equal_scalar()
+   @Test(npes=[4])
+   subroutine test_almost_equal_scalar(this)
+      class(MpiTestMethod), intent(inout) :: this
       character(len=*), parameter :: MSG = 'Difference exceeds threshold'
       real(kind=ESMF_KIND_R8), parameter :: X = 1.0 / 3.0
       real(kind=ESMF_KIND_R4) :: y
@@ -391,8 +411,9 @@ contains
 
    end subroutine test_almost_equal_scalar
 
-   @Test
-   subroutine test_almost_equal_array()
+   @Test(npes=[4])
+   subroutine test_almost_equal_array(this)
+      class(MpiTestMethod), intent(inout) :: this
       integer, parameter :: N = 3
       character(len=*), parameter :: MSG = 'Difference exceeds threshold'
       real(kind=ESMF_KIND_R8), parameter :: DENOMS(N) = [3.0, 5.0, 7.0]

@@ -10,7 +10,6 @@ contains
       call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_MULTI)
       call MAPL_set_throw_method(throw)
       call pfl_initialize()
-      print*,__FILE__,__LINE__
       call UDUNITS_Initialize()
 
    end subroutine Initialize
