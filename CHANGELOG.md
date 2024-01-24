@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Convert from ABI Fixed Grid to lon/lat coordinates used in MAPL_XYGridFactory (supporting geostationary GOES-R series)
 - Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
 - Modify swath sampler to handle two Epoch swath grids
 - Handle regrid accumulate for time step (1 sec) during which no obs exists
