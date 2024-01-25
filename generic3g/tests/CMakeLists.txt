@@ -26,6 +26,7 @@ set (test_srcs
   Test_Scenarios.pf
   Test_WriteYaml.pf
   Test_HConfigMatch.pf
+  Test_mapl3g_Generic.pf
   
   )
 

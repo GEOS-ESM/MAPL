@@ -1,3 +1,6 @@
+#define _ASSERT_DEFAULT_PRESENT(D) _ASSERT(present(default), 'Keystring <'//keystring//'> not found in hconfig')
+#define ESMF_HCONFIG_AS(T_) ESMF_HConfigAsT_(hconfig, keystring=keystring, _RC)
+
 #include "MAPL_ErrLog.h"
 
 !---------------------------------------------------------------------
@@ -40,7 +43,10 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_ConfigGet
    use :: esmf, only: ESMF_HConfig
    use :: esmf, only: ESMF_HConfigIsDefined
-   use :: esmf, only: ESMF_HConfigAsString
+   use :: esmf, only: ESMF_HConfigAsString, ESMF_HConfigAsLogical
+   use :: esmf, only: ESMF_HConfigAsI4, ESMF_HConfigAsI8
+   use :: esmf, only: ESMF_HConfigAsR4, ESMF_HConfigAsR8
+   use :: esmf, only: ESMF_HConfigAsLogical
    use :: esmf, only: ESMF_SUCCESS
    use :: esmf, only: ESMF_Method_Flag
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
@@ -144,10 +150,10 @@ module mapl3g_Generic
       procedure :: gridcomp_connect_all
    end interface MAPL_ConnectAll
 
-
    interface MAPL_ResourceGet
       procedure :: hconfig_get_string
-      procedure :: hconfig_get_i8
+      procedure :: hconfig_get_i4
+!      procedure :: hconfig_get_r4
    end interface MAPL_ResourceGet
 
 contains
@@ -593,6 +599,14 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
+   ! wdb: hconfig_get needs to written for all these eventually.
+   !integer(ESMF_KIND_I4) / I4 ! Started
+   !integer(ESMF_KIND_I8) / I8 ! Started
+   !logical / Logical
+   !real(ESMF_KIND_R4) / R4
+   !real(ESMF_KIND_R8) / R8
+   !character(len=:), allocatable / String ! Existing
+
    subroutine hconfig_get_string(hconfig, keystring, value, unusable, default, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(*), intent(in) :: keystring
@@ -616,49 +630,144 @@ contains
       value = default
       
       _RETURN(_SUCCESS)
+
    end subroutine hconfig_get_string
 
-   function hconfig_get_i8_simple(hconfig, keystring, value, rc) result(found)
-      logical :: found
+   subroutine hconfig_get_i4(hconfig, keystring, value, unusable, default, message, rc)
+      ! Dummy argument names are boilerplate.
+      integer(ESMF_KIND_I4), intent(out) :: value !wdb TYPE SPECIFIC
+      integer(ESMF_KIND_I4), optional, intent(in) :: default !wdb TYPE SPECIFIC
+      ! Remaining arguments are boilerplate.
       type(ESMF_HConfig), intent(inout) :: hconfig
-      character(len=*), intent(in) :: keystring
-      integer(kind=ESMF_KIND_I8), intent(out) :: value
-      integer, intent(out) :: rc
-      
-      integer :: status
-
-      value = ESMF_HConfigAsI8(hconfig, keystring=keystring, asOkay=found, _RC)
-
-   end function hconfig_get_i8_simple
-
-   #define _ASSERT_DEFAULT(D) _ASSERT(is_present(D), 'Keystring <'//trim(keystring)//'> not found in hconfig')
-
-   subroutine hconfig_get_i8(hconfig, keystring, value, unusable, default, asstring, found, rc)
-      integer(kind=ESMF_KIND_I8), intent(out) :: value
-      integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
-      type(ESMF_HConfig), intent(inout) :: hconfig
-      character(len=*), intent(in) :: keystring
+      character(*), intent(in) :: keystring
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), optional, intent(inout) :: asString
-      logical, optional, intent(out) :: found
+      character(len=*), optional, intent(out) :: message
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_key
+      
+      ! Everything except value = ESMF_HConfigAs ... is boilerplate.
+      _UNUSED_DUMMY(unusable)
+       
+      if(present(message)) message = ''
 
-      if(hconfig_get_i8_simple(hconfig, keystring, value, rc=status)) then
-         if(present(asString)) then
-            asString = ESMF_HConfigAsString(hconfig, keystring=keystring, _RC)
+      has_key = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
+      if (has_key) then
+
+         value = ESMF_HConfigAsI4(hconfig, keyString=keystring, rc=status) !wdb TYPE SPECIFIC
+         if(present(message)) then
+            message = ESMF_HConfigAsString(hconfig, keystring=keystring, _RC)
          end if
-         if(present(found)) found = .TRUE.
+
          _RETURN(_SUCCESS)
+
       end if
 
-      _ASSERT_DEFAULT(default)
-
+      _ASSERT(present(default), 'Keystring <'//keystring//'> not found in hconfig')
       value = default
-      _UNUSED_DUMMY(unusable)
+      
       _RETURN(_SUCCESS)
 
-   end subroutine hconfig_get_i8
+   end subroutine hconfig_get_i4
+
+   subroutine hconfig_get_r4(hconfig, keystring, value, unusable, default, message, rc)
+      ! Dummy argument names are boilerplate.
+      real(ESMF_KIND_R4), intent(out) :: value !wdb TYPE SPECIFIC
+      real(ESMF_KIND_R4), optional, intent(in) :: default !wdb TYPE SPECIFIC
+      ! Remaining arguments are boilerplate.
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      character(*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(out) :: message
+      real, optional, intent(out) :: rc
+
+      real :: status
+      logical :: has_key
+      
+      ! Everything except value = ESMF_HConfigAs ... is boilerplate.
+      _UNUSED_DUMMY(unusable)
+       
+      if(present(message)) message = ''
+
+      has_key = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
+      if (has_key) then
+
+         value = ESMF_HConfigAsR4(hconfig, keyString=keystring, rc=status) !wdb TYPE SPECIFIC
+         if(present(message)) then
+            message = ESMF_HConfigAsString(hconfig, keystring=keystring, _RC)
+         end if
+
+         _RETURN(_SUCCESS)
+
+      end if
+
+      _ASSERT(present(default), 'Keystring <'//keystring//'> not found in hconfig')
+      value = default
+      
+      _RETURN(_SUCCESS)
+
+   end subroutine hconfig_get_r4
+
+!   subroutine hconfig_get_i4(hconfig, keystring, value, unusable, default, message, rc) ! Arguments are boilerplate.
+!      integer(kind=ESMF_KIND_I4), intent(out) :: value ! wdb TYPE-SPECIFIC
+!      integer(kind=ESMF_KIND_I4), optional, intent(in) :: default ! wdb TYPE-SPECIFIC
+!      ! Everything except value = ... are boilerplate
+!      type(ESMF_HConfig), intent(inout) :: hconfig
+!      character(len=*), intent(in) :: keystring
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      character(len=*), optional, intent(out) :: message
+!      integer, optional, intent(out) :: rc
+!
+!      integer :: status
+!      logical :: found
+!
+!      found = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
+!      if(found) then
+!         value = ESMF_HConfigAsI4(hconfig,
+!         value = ESMF_HConfigAsI4(hconfig=hconfig, keystring=keystring, _RC) !wdb TYPE-SPECIFIC
+!         if(present(message)) then
+!            message = ESMF_HConfigAsString(hconfig, keystring=keystring, _RC)
+!         end if
+!         _RETURN(_SUCCESS)
+!      end if
+!
+!      _ASSERT(is_present(default), 'Keystring <'//trim(keystring)//'> not found in hconfig')
+!
+!      value = default
+!      _UNUSED_DUMMY(unusable)
+!      _RETURN(_SUCCESS)
+!
+!   end subroutine hconfig_get_i4
+
+!   subroutine hconfig_get_r4(hconfig, keystring, value, unusable, default, message, rc) ! Arguments are boilerplate.
+!      real(kind=ESMF_KIND_R4), intent(out) :: value ! wdb TYPE-SPECIFIC
+!      real(kind=ESMF_KIND_R4), optional, intent(in) :: default ! wdb TYPE-SPECIFIC
+!      ! Everything except value = ... are boilerplate
+!      type(ESMF_HConfig), intent(inout) :: hconfig
+!      character(len=*), intent(in) :: keystring
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      character(len=*), optional, intent(out) :: message
+!      integer, optional, intent(out) :: rc
+!
+!      integer :: status
+!      logical :: found
+!
+!      found = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
+!      if(found) then
+!         value = ESMF_HConfigAsR4(hconfig, keystring=keystring, _RC) !wdb TYPE-SPECIFIC
+!         if(present(message)) then
+!            message = ESMF_HConfigAsString(hconfig, keystring=keystring, _RC)
+!         end if
+!         _RETURN(_SUCCESS)
+!      end if
+!
+!      _ASSERT(is_present(default), 'Keystring <'//trim(keystring)//'> not found in hconfig')
+!
+!      value = default
+!      _UNUSED_DUMMY(unusable)
+!      _RETURN(_SUCCESS)
+!
+!   end subroutine hconfig_get_r4
 
 end module mapl3g_Generic
