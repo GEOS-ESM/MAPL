@@ -24,6 +24,9 @@ set (test_srcs
   Test_HierarchicalRegistry.pf
 
   Test_Scenarios.pf
+
+  Test_mapl3g_Generic.pf
+
   )
 
 
