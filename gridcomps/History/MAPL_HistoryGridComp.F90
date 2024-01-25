@@ -3728,12 +3728,10 @@ ENDDO PARSER
          end if
       elseif (list(n)%sampler_spec == 'mask') then
          call list(n)%mask_sampler%find_mask(_RC)
-         _FAIL('nail 1')
-         if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
+!         if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
 !            call list(n)%mask_sampler%append_file(current_time,_RC)
 !            call list(n)%mask_sampler%close_file_handle(_RC)
-!            call list(n)%mask_sampler%destroy_rh_regen_LS (_RC)         
-         end if
+!         end if
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then

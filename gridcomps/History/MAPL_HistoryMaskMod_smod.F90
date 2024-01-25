@@ -4,6 +4,7 @@
 submodule (MaskSamplerMod)  MaskSampler_implement
   implicit none
 contains
+
      module procedure MaskSampler_from_config
          use BinIOMod
          use pflogger, only         :  Logger, logging
@@ -597,6 +598,7 @@ contains
        
        module procedure find_mask
        use pflogger, only: Logger, logging     
+       use BinIOMod, only: GETFILE
        integer                 :: x_subset(2)
        type(ESMF_Time)         :: timeset(2)
        type(ESMF_Time)         :: current_time
@@ -645,6 +647,28 @@ contains
        real(REAL64), allocatable :: obs_lats(:)
        integer :: mpic
 
+       type (ESMF_Field) :: fieldI4
+       integer(ESMF_KIND_I4), pointer :: farrayPtr(:,:)
+       integer :: useableHalo_width
+!       integer :: eLB(3), eUB(3)
+!       integer :: cLB(3), cUB(3)
+!       integer :: tLB(3), tUB(3)
+!       integer :: ecount(3)
+!       integer :: ccount(3)
+!       integer :: tcount(3)
+
+       integer :: eLB(2), eUB(2)
+       integer :: cLB(2), cUB(2)
+       integer :: tLB(2), tUB(2)
+       integer :: ecount(2)
+       integer :: ccount(2)
+       integer :: tcount(2)
+       
+       type(ESMF_routehandle) :: RH_halo
+       character(len=50) :: filename
+       integer :: unit
+
+       
        lgr => logging%get_logger('HISTORY.sampler')
 
        if (.NOT. this%is_valid) then
@@ -796,170 +820,104 @@ contains
        allocate ( II(nx), JJ(nx) )
        call MPI_Barrier(mpic, status)
        !!       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=this%lons_ds,lat=this%lats_ds,grid=Grid,_RC)
-
-       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)              
-
+       !!call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)              
+       call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
+       
        call ESMF_VMBarrier (vm, _RC)
        
        write(6,*) 'nx', nx
-       do i=1,nx,20
-          write(6,'(2x,a,i5,i10,2f12.2,10i5)') 'pet,i,lon,lat,II,JJ=', mypet,i,&
-               obs_lons(i),obs_lats(i),II(i),JJ(i)
-       end do
+!!       do i=1,nx,20
+!!          write(6,'(2x,a,i5,i10,2f12.2,10i5)') 'pet,i,lon,lat,II,JJ=', mypet,i,&
+!!               obs_lons(i),obs_lats(i),II(i),JJ(i)
+!!       end do
 
 
-       call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
-       call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
-       call ESMF_DELayoutGet(layout, VM=vm, _RC)
-       call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+!       call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
+!       call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+!       call ESMF_DELayoutGet(layout, VM=vm, _RC)
+!       call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
        call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
        IM= COUNTS(1)
        JM= COUNTS(2)
        LM= COUNTS(3)
-       allocate( this%mask(IM, JM))
-       this%mask = 0
+       if (mapl_am_i_root()) write(6,'(2x,a,2x,10i5)') 'grid counts(1:3)', counts(1:3)
+
+       
+       !
+       ! __  halo for mask
+       !
+       useableHalo_width = 1
+       fieldI4 = ESMF_FieldCreate (grid, ESMF_TYPEKIND_I4, &
+            totalLwidth=[useableHalo_width,useableHalo_width],&
+            totalUwidth=[useableHalo_width,useableHalo_width], _RC)
+       call ESMF_FieldGetBounds (fieldI4, &
+            exclusiveLBound=eLB, exclusiveUBound=eUB, exclusiveCount=ecount, &
+            totalLBound=tLB, totalUBound=tUB, totalCount=tcount, &
+            computationalLBound=cLB, computationalUBound=cUB, computationalCount=ccount, &
+            _RC)
+       call ESMF_FieldGet (fieldI4, farrayPtr=farrayPtr,  _RC)
+       farrayPtr = 0
        do i=1, nx
           if ( II(i)>0 .AND. JJ(i)>0 ) then
-             this%mask( II(i), JJ(i) ) = 1
+             farrayPtr( II(i), JJ(i) ) = 1
           endif
        enddo
-       _FAIL('nail 2')       
-!       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, this%mask(::5,::5)       
+
+       write(6,'(2x,a,2x,i5)') 'pet=', mypet
+       do j=tUB(2), tLB(2), -1
+          write(6, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+       end do
+
+       call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
+       call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
+       call ESMF_VMBarrier (vm, _RC)
+
+       write(filename, '(i5)') mypet
+       filename='t.'//trim(adjustl(filename))
+       open(newunit=unit,  file=trim(filename), status='unknown', _IOSTAT)
+       write(6,'(2x,a,2x,5i20)') 'pet,unit', mypet, unit
        
+       write(unit,'(2x,a,2x,i5)') 'AF pet=', mypet
+       do j=tUB(2), tLB(2), -1
+          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+       end do
+       call MPI_Barrier(mpic, status)
 
+       do i=eLB(1), eUB(1)
+          do j=eLB(2), eUB(2)          
+             if ( farrayPtr(i,j)==0 .AND. ( &
+                  farrayPtr(i-1,j)==1 .OR. &                  
+                  farrayPtr(i+1,j)==1 .OR. &
+                  farrayPtr(i,j-1)==1 .OR. &
+                  farrayPtr(i,j+1)==1 )  ) then
+                farrayPtr(i,j) = -1
+             end if
+          end do
+       end do
+       
+       write(unit,'(2x,a,2x,i5)') 'connect pet=', mypet
+       do j=tUB(2), tLB(2), -1
+          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+       end do
 
+       
+       allocate( this%mask(IM, JM))
+       this%mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
 
+       
+       write(unit,'(2x,a,2x,i5)') 'mask pet=', mypet
+       do j=eUB(2), eLB(2), -1
+          write(unit, '(2x,100i5)') this%mask(eLB(1):eUB(1), j)
+       end do
+       
+!       _FAIL('nail 2')       
+!       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, this%mask(::5,::5)       
+
+       close(unit)
        _RETURN(ESMF_SUCCESS)
 
      end procedure find_mask
          
-
-         module procedure destroy_rh_regen_LS
-           integer :: status
-           integer :: numVars, i, k
-           character(len=ESMF_MAXSTR), allocatable :: names(:)
-           type(ESMF_Field) :: field
-           type(ESMF_Time)  :: currTime
-
-          if (.NOT. this%is_valid) then
-             _RETURN(ESMF_SUCCESS)
-          endif
-!
-!           call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)
-!           call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
-!           call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
-!           call this%regridder%destroy(_RC)
-!           deallocate (this%lons, this%lats, &
-!                this%times_R8, this%obstype_id)
-!
-!           do k=1, this%nobs_type
-!              deallocate (this%obs(k)%metadata)
-!              if (mapl_am_i_root()) then
-!                 deallocate (this%obs(k)%file_handle)
-!              end if
-!           end do
-!
-!           if (mapl_am_i_root()) then
-!              do k=1, this%nobs_type
-!                 deallocate (this%obs(k)%lons)
-!                 deallocate (this%obs(k)%lats)
-!                 deallocate (this%obs(k)%times_R8)
-!                 if (allocated(this%obs(k)%p2d)) then
-!                    deallocate (this%obs(k)%p2d)
-!                 endif
-!                 if (allocated(this%obs(k)%p3d)) then
-!                    deallocate (this%obs(k)%p3d)
-!                 endif
-!              end do
-!           end if
-!
-!           call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
-!           allocate(names(numVars),stat=status)
-!           call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
-!           do i=1,numVars
-!              call ESMF_FieldBundleGet(this%acc_bundle,trim(names(i)),field=field,_RC)
-!              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
-!           enddo
-!           call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
-!
-!           call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
-!           allocate(names(numVars),stat=status)
-!           call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,_RC)
-!           do i=1,numVars
-!              call ESMF_FieldBundleGet(this%output_bundle,trim(names(i)),field=field,_RC)
-!              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
-!           enddo
-!           call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
-!
-!
-!           call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
-!           if (currTime > this%obsfile_end_time) then
-!              this%is_valid = .false.
-!              _RETURN(ESMF_SUCCESS)
-!           end if
-!
-!           this%epoch_index(1:2)=0
-!
-!           call this%initialize(reinitialize=.true., _RC)
-!
-           _RETURN(ESMF_SUCCESS)
-
-         end procedure destroy_rh_regen_LS
-
-
-         module procedure get_x_subset
-           type   (ESMF_Time)    :: T1,  T2
-           real   (ESMF_KIND_R8) :: rT1, rT2
-
-           integer(ESMF_KIND_I8) :: i1,  i2
-           integer(ESMF_KIND_I8) :: jt1, jt2, lb, ub
-           integer               :: jlo, jhi
-           integer               :: status
-
-           T1= interval(1)
-           T2= interval(2)
-           call time_esmf_2_nc_int (T1, this%datetime_units, i1, _RC)
-           call time_esmf_2_nc_int (T2, this%datetime_units, i2, _RC)
-           rT1=real(i1, kind=ESMF_KIND_R8)
-           rT2=real(i2, kind=ESMF_KIND_R8)
-           jlo = 1
-           jhi= size(this%obstime)
-           if (jhi==0) then
-              x_subset(1:2)=0
-              _RETURN(_SUCCESS)
-           endif
-
-           lb=int(jlo, ESMF_KIND_I8)
-           ub=int(jhi, ESMF_KIND_I8)
-           call bisect( this%obstime, rT1, jt1, n_LB=lb, n_UB=ub, rc=rc)
-           call bisect( this%obstime, rT2, jt2, n_LB=lb, n_UB=ub, rc=rc)
-           x_subset(1) = jt1
-
-           if (jt1<lb) then
-              if (jt2<lb) then
-                 x_subset(1) = 0
-                 x_subset(2) = 0
-              elseif (jt2>=ub) then
-                 x_subset(1) = lb
-                 x_subset(2) = ub
-              else
-                 x_subset(1) = lb
-                 x_subset(2) = jt2
-              endif
-           elseif (jt1>=ub) then
-              x_subset(1) = 0
-              x_subset(2) = 0
-           else
-              x_subset(1) = jt1
-              if (jt2>=ub) then
-                 x_subset(2) = ub
-              else
-                 x_subset(2) = jt2
-              endif
-           endif
-
-           _RETURN(_SUCCESS)
-         end procedure get_x_subset
 
 
 end submodule MaskSampler_implement

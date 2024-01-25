@@ -11,6 +11,7 @@ module MaskSamplerMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
   use MAPL_BaseMod
+!!  use BinIOMod, only : GETFILE
   use MAPL_CommsMod
   use MAPL_SortMod
   use MAPL_NetCDF
