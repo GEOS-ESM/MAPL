@@ -1,6 +1,6 @@
 module ud2f_interfaces
-   use ud2f_status_codes
-   use ud2f_encoding
+   use ud2f_encoding, only: ut_encoding
+   use ud2f_status_codes, only: ut_status
    use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_double
    implicit none
    private
