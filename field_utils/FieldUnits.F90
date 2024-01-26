@@ -30,8 +30,7 @@ module mapl_FieldUnits
 
    use mapl_udunits2mod, FieldUnitsConverter => Converter, &
       initialize_udunits => initialize, finalize_udunits => finalize
-   use mapl_udunits2encoding
-   use MAPL_ExceptionHandling
+   use udunits2f
    use MaplShared
    use ESMF
 

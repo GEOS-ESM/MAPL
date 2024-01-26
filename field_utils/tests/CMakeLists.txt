@@ -5,6 +5,7 @@ set (test_srcs
   Test_FieldBLAS.pf
   Test_FieldArithmetic.pf
   Test_mapl_udunits2.pf
+  Test_udunits2f.pf
   )
 
 

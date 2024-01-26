@@ -1,12 +1,10 @@
 #include "MAPL_Generic.h"
 module mapl_udunits2mod
 
+   use MAPL_ExceptionHandling
+   use udunits2f
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
-   use mapl_udunits2interfaces
-   use mapl_udunits2encoding
-   use mapl_udunits2status
-   use MAPL_ExceptionHandling
 
    implicit none
 

@@ -1,6 +1,6 @@
-module mapl_udunits2interfaces
-   use mapl_udunits2status
-   use mapl_udunits2encoding
+module ud2f_interfaces
+   use ud2f_status_codes
+   use ud2f_encoding
    use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_double
    implicit none
    private
@@ -135,4 +135,4 @@ module mapl_udunits2interfaces
 
    end interface
 
-end module mapl_udunits2interfaces
+end module ud2f_interfaces
