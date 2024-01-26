@@ -10,6 +10,7 @@ module MAPL_TripolarGridFactoryMod
    use MAPL_Constants
    use ESMF
    use pFIO
+   use NetCDF
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -32,17 +33,18 @@ module MAPL_TripolarGridFactoryMod
       integer :: ny = MAPL_UNDEFINED_INTEGER
       integer, allocatable :: ims(:)
       integer, allocatable :: jms(:)
+
       ! Used for halo
       type (ESMF_DELayout) :: layout
       integer :: px, py
-      ! global coords
+      logical :: initialized_from_metadata = .false.
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
-      procedure :: add_horz_coordinates
+      procedure :: add_horz_coordinates_from_file
       procedure :: init_halo
       procedure :: halo
-      
+
 
       procedure :: initialize_from_file_metadata
       procedure :: initialize_from_config_with_prefix
@@ -65,9 +67,9 @@ module MAPL_TripolarGridFactoryMod
       procedure :: decomps_are_equal
       procedure :: physical_params_are_equal
    end type TripolarGridFactory
-   
+
    character(len=*), parameter :: MOD_NAME = 'MAPL_TripolarGridFactory::'
-   
+
    interface TripolarGridFactory
       module procedure TripolarGridFactory_from_parameters
    end interface TripolarGridFactory
@@ -100,7 +102,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'TripolarGridFactory_from_parameters'
 
-      
+
       if (present(unusable)) print*,shape(unusable)
 
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
@@ -137,7 +139,7 @@ contains
       grid = this%create_basic_grid(rc=status)
       _VERIFY(status)
 
-      call this%add_horz_coordinates(grid, rc=status)
+      call this%add_horz_coordinates_from_file(grid, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -145,13 +147,13 @@ contains
    end function make_new_grid
 
 
-   
+
    function create_basic_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
       class (TripolarGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
@@ -169,29 +171,28 @@ contains
             poleKindFlag=[ESMF_POLEKIND_MONOPOLE,ESMF_POLEKIND_BIPOLE], &
             coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
       _VERIFY(status)
-      
+
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
       _VERIFY(status)
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
       _VERIFY(status)
-      
+
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
          _VERIFY(status)
       end if
-      
+
       call ESMF_AttributeSet(grid, 'GridType', 'Tripolar', rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end function create_basic_grid
 
-   subroutine add_horz_coordinates(this, grid, unusable, rc)
+   subroutine add_horz_coordinates_from_file(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior, MAPL_gridget
       use MAPL_CommsMod
       use MAPL_IOMod
-      use NetCDF
       use MAPL_Constants
       class (TripolarGridFactory), intent(in) :: this
       type (ESMF_Grid), intent(inout) :: grid
@@ -209,9 +210,21 @@ contains
       integer :: IM, JM
       integer :: IM_WORLD, JM_WORLD
       integer :: COUNTS(3), DIMS(3)
+      character(len=:), allocatable :: lon_center_name, lat_center_name, lon_corner_name, lat_corner_name
 
       _UNUSED_DUMMY(unusable)
 
+       if (this%initialized_from_metadata) then
+          lon_center_name = "lons"
+          lat_center_name = "lats"
+          lon_corner_name = "corner_lons"
+          lat_corner_name = "corner_lats"
+       else
+          lon_center_name = "lon_centers"
+          lat_center_name = "lat_centers"
+          lon_corner_name = "lon_corners"
+          lat_corner_name = "lat_corners"
+       end if
        call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, globalCellCountPerDim=DIMS, RC=STATUS)
        _VERIFY(STATUS)
        IM = COUNTS(1)
@@ -237,19 +250,18 @@ contains
 
        call MAPL_AllocateShared(centers,[im_world,jm_world],transroot=.true.,_RC)
 
-       !allocate(centers(im_world,jm_world),__STAT__)
        call MAPL_SyncSharedMemory(_RC)
 
        ! do longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,'lon_centers',varid)
+          status = nf90_inq_varid(ncid,lon_center_name,varid)
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,centers)
           _VERIFY(status)
-          centers=centers*MAPL_PI_R8/180.d0
+          centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
- 
+
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=fptr, rc=status)
@@ -258,11 +270,11 @@ contains
 
        call MAPL_SyncSharedMemory(_RC)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,'lat_centers',varid)
+          status = nf90_inq_varid(ncid,lat_center_name,varid)
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,centers)
           _VERIFY(status)
-           centers=centers*MAPL_PI_R8/180.d0
+           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
 
@@ -278,18 +290,17 @@ contains
           deallocate(centers)
        end if
        ! now repeat for corners
-       !allocate(corners(im_world+1,jm_world+1),__STAT__)
        call MAPL_AllocateShared(corners,[im_world+1,jm_world+1],transroot=.true.,_RC)
 
        ! do longitudes
 
        call MAPL_SyncSharedMemory(_RC)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,'lon_corners',varid)
+          status = nf90_inq_varid(ncid,lon_corner_name,varid)
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,corners)
           _VERIFY(status)
-          corners=corners*MAPL_PI_R8/180.d0
+          corners=corners*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
 
@@ -301,11 +312,11 @@ contains
 
        call MAPL_SyncSharedMemory(_RC)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,'lat_corners',varid)
+          status = nf90_inq_varid(ncid,lat_corner_name,varid)
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,corners)
           _VERIFY(status)
-          corners=corners*MAPL_PI_R8/180.d0
+          corners=corners*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
 
@@ -328,21 +339,45 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine add_horz_coordinates
+   end subroutine add_horz_coordinates_from_file
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
+      use MAPL_BaseMod, only: MAPL_DecomposeDim
       class (TripolarGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
+      integer :: status
+
+      this%im_world = file_metadata%get_dimension('Xdim',_RC)
+      this%jm_world = file_Metadata%get_dimension('Ydim',_RC)
+      if (file_metadata%has_dimension('lev')) then
+         this%lm = file_metadata%get_dimension('lev',_RC)
+      end if
+
+      this%grid_file_name=file_metadata%get_source_file()
+
+      this%initialized_from_metadata = .true.
+      call this%make_arbitrary_decomposition(this%nx, this%ny, rc=status)
+      _VERIFY(status)
+
+      ! Determine IMS and JMS with constraint for ESMF that each DE has at least an extent
+      ! of 2.  Required for ESMF_FieldRegrid().
+      allocate(this%ims(0:this%nx-1))
+      allocate(this%jms(0:this%ny-1))
+      call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
+      call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny, min_DE_extent=2)
+
+      call this%check_and_fill_consistency(rc=status)
+      _VERIFY(status)
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(rc)
+      _UNUSED_DUMMY(force_file_coordinates)
 
    end subroutine initialize_from_file_metadata
 
@@ -380,7 +415,7 @@ contains
       _RETURN(_SUCCESS)
 
    contains
-      
+
       subroutine get_multi_integer(values, label, rc)
          integer, allocatable, intent(out) :: values(:)
          character(len=*) :: label
@@ -391,7 +426,7 @@ contains
          integer :: tmp
          integer :: status
          logical :: isPresent
-         
+
          call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
          _VERIFY(status)
          if (.not. isPresent) then
@@ -424,7 +459,7 @@ contains
       end subroutine get_multi_integer
 
    end subroutine initialize_from_config_with_prefix
-   
+
 
 
    function to_string(this) result(string)
@@ -454,16 +489,12 @@ contains
       end if
 
       ! Check decomposition/bounds
-      ! Tripolar requires even divisibility
-      _ASSERT(mod(this%im_world, this%nx) == 0,"needs message")
-      _ASSERT(mod(this%jm_world, this%ny) == 0,"needs message")
-
       ! local extents
       call verify(this%nx, this%im_world, this%ims, rc=status)
       call verify(this%ny, this%jm_world, this%jms, rc=status)
       !this%ims = spread(this%im_world / this%nx, 1, this%nx)
       !this%jms = spread(this%jm_world / this%ny, 1, this%ny)
-      
+
       _RETURN(_SUCCESS)
 
    contains
@@ -504,7 +535,7 @@ contains
          _RETURN(_SUCCESS)
 
       end subroutine verify
-         
+
    end subroutine check_and_fill_consistency
 
 
@@ -512,27 +543,27 @@ contains
       integer, intent(out) :: to
       integer, optional, intent(in) :: from
       integer, intent(in) :: default
-      
+
       if (present(from)) then
          to = from
       else
          to = default
       end if
-      
+
    end subroutine set_with_default_integer
-   
-   
+
+
    subroutine set_with_default_character(to, from, default)
       character(len=:), allocatable, intent(out) :: to
       character(len=*), optional, intent(in) :: from
       character(len=*), intent(in) :: default
-      
+
       if (present(from)) then
          to = from
       else
          to = default
       end if
-      
+
    end subroutine set_with_default_character
 
    ! MAPL uses values in lon_array and lat_array only to determine the
@@ -557,9 +588,9 @@ contains
       _UNUSED_DUMMY(lon_array)
       _UNUSED_DUMMY(lat_array)
 
-      
+
       ! not supported
-      _FAIL("tripolar initialize from distgrid non supported") 
+      _FAIL("tripolar initialize from distgrid non supported")
 
    end subroutine initialize_from_esmf_distGrid
 
@@ -578,12 +609,12 @@ contains
          ! same decomposition
          equal = a%nx == this%nx .and. a%ny == this%ny
          if (.not. equal) return
-         
+
       end select
-         
+
    end function decomps_are_equal
 
-   
+
    function physical_params_are_equal(this, a) result(equal)
       class (TripolarGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
@@ -596,14 +627,14 @@ contains
       class is (TripolarGridFactory)
          equal = .true.
 
-         equal = (a%grid_file_name == this%grid_file_name)
-         if (.not. equal) return
+         !equal = (a%grid_file_name == this%grid_file_name)
+         !if (.not. equal) return
 
          equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
          if (.not. equal) return
-         
+
       end select
-         
+
    end function physical_params_are_equal
 
 
@@ -626,9 +657,9 @@ contains
 
          equals = a%physical_params_are_equal(b)
          if (.not. equals) return
-         
+
       end select
-         
+
    end function equals
 
 
@@ -658,12 +689,12 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'init_halo'
-      
+
       _UNUSED_DUMMY(unusable)
 
       grid = this%make_grid(rc=status)
       _VERIFY(status)
-      
+
       call ESMF_GridGet(grid,   distGrid=dist_grid, dimCount=dim_count, rc=status)
       _VERIFY(status)
       call ESMF_DistGridGet(dist_grid, delayout=this%layout, rc=status)
@@ -674,7 +705,7 @@ contains
 
       call ESMF_VmGet(vm, localPet=pet, petCount=ndes, rc=status)
       _VERIFY(status)
-      
+
       this%px = mod(pet, this%nx)
       this%py = pet / this%nx
 
@@ -685,6 +716,7 @@ contains
 
    subroutine halo(this, array, unusable, halo_width, rc)
       use MAPL_CommsMod
+      use mpi
       class (TripolarGridFactory), intent(inout) :: this
       real(kind=REAL32), intent(inout) :: array(:,:)
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -693,7 +725,6 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'halo'
-      include 'mpif.h'
 
       integer :: pet_north
       integer :: pet_south
@@ -743,7 +774,7 @@ contains
          else
             pet = mod(px+nx,nx) + nx*mod(py+ny,ny)
          end if
-         
+
       end function get_pet
 
 
@@ -756,9 +787,9 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
-         
+
          if(this%py==this%ny-1) then
             call MAPL_CommsSendRecv(this%layout,        &
                  array(:,2        ),  len,  pet_south,  &
@@ -784,12 +815,12 @@ contains
               end do
             end block
          end if
-         
+
          _RETURN(_SUCCESS)
 
       end subroutine fill_north
 
-     
+
       subroutine fill_south(array, rc)
          use MAPL_BaseMod, only: MAPL_UNDEF
          real(kind=REAL32), intent(inout) :: array(:,:)
@@ -800,7 +831,7 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
 
          call MAPL_CommsSendRecv(this%layout,     &
@@ -824,10 +855,10 @@ contains
 
          integer :: status
          character(len=*), parameter :: Iam = MOD_NAME // 'fill_east'
-         
+
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
 
          call MAPL_CommsSendRecv(this%layout,      &
@@ -844,28 +875,28 @@ contains
       subroutine fill_west(array, rc)
          real(kind=REAL32), intent(inout) :: array(:,:)
          integer, optional, intent(out) :: rc
-         
+
          integer :: status
          character(len=*), parameter :: Iam = MOD_NAME // 'fill_west'
 
          integer :: len, last
-         
+
          last = size(array,1)-1
          len = size(array,2)
-         
+
          call MAPL_CommsSendRecv(this%layout,   &
               array(last  , : ),  len,  pet_west,  &
               array(1     , : ),  len,  pet_east,  &
               rc=status)
          _VERIFY(status)
-         
+
          _RETURN(_SUCCESS)
 
       end subroutine fill_west
 
 
    end subroutine halo
-      
+
    subroutine append_metadata(this, metadata)
       class (TripolarGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
@@ -876,17 +907,19 @@ contains
 
       call metadata%add_dimension('Xdim', this%im_world)
       call metadata%add_dimension('Ydim', this%jm_world)
+      call metadata%add_dimension('XCdim', this%im_world+1)
+      call metadata%add_dimension('YCdim', this%jm_world+1)
 
       allocate(fake_coord(this%im_world))
       do i=1,this%im_world
          fake_coord(i)=dble(i)
       enddo
-      
+
       ! Coordinate variables
       v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
-      call v%add_const_value(UnlimitedEntity(fake_coord))    
+      call v%add_const_value(UnlimitedEntity(fake_coord))
       call metadata%add_variable('Xdim', v)
       deallocate(fake_coord)
 
@@ -899,7 +932,7 @@ contains
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
       call v%add_const_value(UnlimitedEntity(fake_coord))
-      call metadata%add_variable('Ydim', v)   
+      call metadata%add_variable('Ydim', v)
       deallocate(fake_coord)
 
       v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim')
@@ -912,6 +945,17 @@ contains
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
 
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call metadata%add_variable('corner_lons',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call metadata%add_variable('corner_lats',v)
+
+     call metadata%add_attribute('grid_type','Tripolar')
 
    end subroutine append_metadata
 
@@ -931,7 +975,7 @@ contains
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
 
-      vars = 'Xdim,Ydim'
+      vars = 'Xdim,Ydim,lons,lats,corner_lons,corner_lats'
 
    end function get_file_format_vars
 
@@ -955,7 +999,6 @@ contains
       integer :: status
       integer :: global_dim(3), i1,j1,in,jn
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
-      _UNUSED_DUMMY(this)
 
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
       _VERIFY(status)
@@ -964,10 +1007,12 @@ contains
       allocate(global_start,source=[1,1])
       allocate(global_count,source=[global_dim(1),global_dim(2)])
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metadata)
    end subroutine generate_file_bounds
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
-      use esmf
+      use MAPL_BaseMod
       class (TripolarGridFactory), intent(inout) :: this
       type(ESMF_Grid), intent(inout)      :: grid
       integer, allocatable, intent(out) :: local_start(:)
@@ -977,12 +1022,17 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
 
+      integer :: status
+      integer :: global_dim(3), i1,j1,in,jn
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      allocate(local_start,source=[i1,j1])
+      allocate(global_start,source=[1,1])
+      allocate(global_count,source=[global_dim(1)+1,global_dim(2)+1])
+
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(grid)
-      _UNUSED_DUMMY(local_start)
-      _UNUSED_DUMMY(global_start)
-      _UNUSED_DUMMY(global_count)
-      _FAIL("not yet implemented")
 
    end subroutine generate_file_corner_bounds
 
@@ -991,8 +1041,8 @@ contains
       type(ArrayReference) :: ref
       class(TripolarGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
-      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
+      _UNUSED_DUMMY(this)
    end function generate_file_reference2D
 
    function generate_file_reference3D(this,fpointer,metadata) result(ref)
@@ -1001,8 +1051,9 @@ contains
       class(TripolarGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
       type(FileMetaData), intent(in), optional :: metaData
-      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metadata)
    end function generate_file_reference3D
 
 end module MAPL_TripolarGridFactoryMod

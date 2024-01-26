@@ -1,15 +1,22 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
 #include "unused_dummy.H"
-!==============================================================================
-!BOP
-! !MODULE: ESMF_CFIOVarInfoMod.F90 - Source file for CFIO VarInfo
-
+!>
+!### MODULE: `ESMF_CFIOVarInfoMod`
+!
+! Author: GMAO SI-Team
+!
+! `ESMF_CFIOVarInfoMod` - Source file for CFIO VarInfo
+!
+! The code in this file provides data type definitions and interface specifications.
+!
+!#### History
+!- Feb2007    Yin     Separated from ESMF_CFIOMod
+!
        module ESMF_CFIOVarInfoMod
-
-!
-! !DESCRIPTION:
-!
-! The code in this file provides data type definitions and interface
-! specifications
 !
 !------------------------------------------------------------------------------
 ! !USES:
@@ -17,9 +24,6 @@
                                   addList, err
       use ESMF_CFIOGridMod
 
-! !REVISION HISTORY:
-!
-!  Feb 2007    Yin     Separated from ESMF_CFIOMod
 !
       implicit none
 !------------------------------------------------------------------------------
@@ -35,79 +39,75 @@
       public :: ESMF_CFIOVarInfoDestroy  ! destructor
 !EOP
 !------------------------------------------------------------------------------
-! Define a new data type "CFIO_VarInfo" -- contains variable information
-
+      !> 
+      ! Define a new data type "CFIO_VarInfo" -- contains variable information
       type ESMF_CFIOVarInfo
 !         private
-         character(len=MVARLEN) :: vName       ! variable short name
-         type(ESMF_CFIOGrid) :: grid           ! grid used for this var
-         character(len=MLEN) :: vTitle         ! variable long name, e.g.,
-                                               ! "Geopotential Height"
-         character(len=MVARLEN):: vUnits       ! variable units, e.g.,
-                                               ! "meter/second"
-         real :: validRange(2)                 ! Variable valid range
+         character(len=MVARLEN) :: vName       !! variable short name
+         type(ESMF_CFIOGrid) :: grid           !! grid used for this var
+         character(len=MLEN) :: vTitle         !! variable long name, e.g.,
+                                               !! "Geopotential Height"
+         character(len=MVARLEN):: vUnits       !! variable units, e.g.,
+                                               !! "meter/second"
+         real :: validRange(2)                 !! Variable valid range
          real :: packingRange(2)
-         real :: amiss                         ! Missing value such as 1.0E15
-         real :: addOffSet                     ! optional
-         real :: scaleFactor                   ! optional
-         character(len=MLEN) :: standardName   ! optional, standard name
-                                               ! following CF convention
-         logical :: twoDimVar     ! True for 2D; false for 3D
-         logical :: timAve        ! True for time averaging file
-         logical :: isGridSet     ! True only if grid was passed in
-         character :: aveMethod   ! 'c' for center averaging for time
-                                  ! [-0.5*timeInc+time, 0.5*timeInc+time]
-                                  ! Default: 'c'
-                                  ! 'd' for downstream averaging
-                                  ! [time, time+timeInc]
-                                  ! 'u' for upstream averaging
-                                  ! [time-timeInc, time]
-         character(len=MVARLEN) :: cellMthd   ! Cell methmod
-         integer :: nVarAttInt    ! number of variable int attributes
-         integer :: nVarAttReal   ! number of variable real attributes
-         integer :: nVarAttChar   ! number of variable char attributes
-         integer, pointer :: attCharCnts(:) => NULL()        ! length of char attributes
-         integer, pointer :: attRealCnts(:) => NULL()        ! length of real attributes
-         integer, pointer :: attIntCnts(:) => NULL()         ! length of int attributes
-         character(len=MLEN), pointer :: attCharNames(:) => NULL() ! char attribute name
-         character(len=MLEN), pointer :: attRealNames(:) => NULL() ! Real attribute name
-         character(len=MLEN), pointer :: attIntNames(:) => NULL()  ! int attribute name
+         real :: amiss                         !! Missing value such as 1.0E15
+         real :: addOffSet                     !! optional
+         real :: scaleFactor                   !! optional
+         character(len=MLEN) :: standardName   !! optional, standard name
+                                               !! following CF convention
+         logical :: twoDimVar     !! True for 2D; false for 3D
+         logical :: timAve        !! True for time averaging file
+         logical :: isGridSet     !! True only if grid was passed in
+         character :: aveMethod   !! 'c' for center averaging for time    
+                                  !! [-0.5*timeInc+time, 0.5*timeInc+time]    
+                                  !! Default: 'c'    
+                                  !! 'd' for downstream averaging    
+                                  !! [time, time+timeInc]    
+                                  !! 'u' for upstream averaging    
+                                  !! [time-timeInc, time]    
+         character(len=MVARLEN) :: cellMthd   !! Cell methmod
+         integer :: nVarAttInt    !! number of variable int attributes
+         integer :: nVarAttReal   !! number of variable real attributes
+         integer :: nVarAttChar   !! number of variable char attributes
+         integer, pointer :: attCharCnts(:) => NULL()        !! length of char attributes
+         integer, pointer :: attRealCnts(:) => NULL()        !! length of real attributes
+         integer, pointer :: attIntCnts(:) => NULL()         !! length of int attributes
+         character(len=MLEN), pointer :: attCharNames(:) => NULL() !! char attribute name
+         character(len=MLEN), pointer :: attRealNames(:) => NULL() !! Real attribute name
+         character(len=MLEN), pointer :: attIntNames(:) => NULL()  !! int attribute name
          character(len=MLEN), pointer :: varAttChars(:) => NULL()  ! char attributes
-         real, pointer :: varAttReals(:,:) => NULL()    ! User defined real attributes
-         integer, pointer :: varAttInts(:,:) => NULL()  ! User defined integer attributes
-         character(len=MVARLEN) :: ordering ! (time, lev, lat, lon) (default)
-                                            ! can be any combination of xyzt
+         real, pointer :: varAttReals(:,:) => NULL()    !! User defined real attributes
+         integer, pointer :: varAttInts(:,:) => NULL()  !! User defined integer attributes
+         character(len=MVARLEN) :: ordering !! (time, lev, lat, lon) (default)
+                                            !! can be any combination of xyzt
          type(iNode), pointer :: iList=>NULL()
          type(rNode), pointer :: rList=>NULL()
          type(cNode), pointer :: cList=>NULL()
-         integer, pointer  :: ChunkSize(:) => NULL()   ! ChunkSize for each variable
+         integer, pointer  :: ChunkSize(:) => NULL()   !! ChunkSize for each variable
 
       end type ESMF_CFIOVarInfo
 
       contains
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOVarInfoCreate -- ESMF_CFIOVarInfo object constructor
-
-! !INTERFACE:
-      type(ESMF_CFIOVarInfo) function ESMF_CFIOVarInfoCreate (vName, rc)   
+!>
+! `ESMF_CFIOVarInfoCreate` -- ESMF_CFIOVarInfo object constructor
 !
-! !ARGUMENTS:
+! Create a CFIO varInfo object and initialize variables.
+!
+      type(ESMF_CFIOVarInfo) function ESMF_CFIOVarInfoCreate (vName, rc)   
 !
 ! !INPUT PARAMETERS:
 !
-      character(len=*), intent(in), OPTIONAL :: vName     ! variable name
+      character(len=*), intent(in), OPTIONAL :: vName     !! variable name
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                                                ! -1  problem in creating Grid
-!
-! !DESCRIPTION:
-!     Create a CFIO varInfo object and initialize variables
-!EOP
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:            
+                                                !! 0   all is well            
+                                                !! -1  problem in creating Grid        
+!    
 !------------------------------------------------------------------------------
       type(ESMF_CFIOVarInfo) :: varObj ! a CFIO grid object
       integer :: rtcode = 0
@@ -156,10 +156,9 @@
 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOVarInfoSet  -- Set meta data for a CFIO variable
-
-! !INTERFACE:
+!>
+! `ESMF_CFIOVarInfoSet`  -- Set meta data for a CFIO variable
+!
       subroutine ESMF_CFIOVarInfoSet (varObj, vName, grid, vTitle, vUnits,  &
                               twoDimVar, validRange, amiss, addOffSet,      &
                               scaleFactor, standardName, attCharNames,      &
@@ -171,22 +170,21 @@
                               aveMethod, cellMthd, ChunkSize, rc )
        implicit NONE
 
-! !ARGUMENTS:
 !
 ! !INPUT PARAMETERS:
 !
-       character(len=*), intent(in), OPTIONAL :: vName  ! variable name 
-       type(ESMF_CFIOGrid), intent(in), OPTIONAL :: grid  ! grid 
-       character(len=*), intent(in), OPTIONAL :: vTitle ! variable long name 
-       character(len=*), intent(in), OPTIONAL :: vUnits ! variable units      
-       logical, OPTIONAL :: twoDimVar                 ! True for 2D
-       logical, OPTIONAL :: timAve                    ! True for time average
-       character, OPTIONAL :: aveMethod  ! 'c': center, 'd': downstream
-                                         ! 'u': upstream
-       character(len=*), OPTIONAL :: cellMthd    ! Cell methmod units
-       real, intent(in), OPTIONAL :: validRange(2)    ! Variable valid range
-       real, intent(in), OPTIONAL :: packingRange(2)  ! Variable valid range
-       real, intent(in), OPTIONAL :: amiss            ! FILL value
+       character(len=*), intent(in), OPTIONAL :: vName  !! variable name 
+       type(ESMF_CFIOGrid), intent(in), OPTIONAL :: grid  !! grid 
+       character(len=*), intent(in), OPTIONAL :: vTitle !! variable long name 
+       character(len=*), intent(in), OPTIONAL :: vUnits !! variable units      
+       logical, OPTIONAL :: twoDimVar                 !! True for 2D
+       logical, OPTIONAL :: timAve                    !! True for time average
+       character, OPTIONAL :: aveMethod  !! 'c': center, 'd': downstream
+                                         !! 'u': upstream
+       character(len=*), OPTIONAL :: cellMthd    !! Cell methmod units
+       real, intent(in), OPTIONAL :: validRange(2)    !! Variable valid range
+       real, intent(in), OPTIONAL :: packingRange(2)  !! Variable valid range
+       real, intent(in), OPTIONAL :: amiss            !! FILL value
        real, intent(in), OPTIONAL :: addOffSet    
        real, intent(in), OPTIONAL :: scaleFactor
        character(len=*), intent(in), OPTIONAL :: standardName 
@@ -195,57 +193,53 @@
        character(len=*), intent(in), OPTIONAL :: attRealNames(:)
        character(len=*), intent(in), OPTIONAL :: attIntNames(:)
 
-       integer, intent(in), OPTIONAL :: vAttCharCnts(:) ! length of attributes
-       integer, intent(in), OPTIONAL :: vAttRealCnts(:) ! length of attributes
-       integer, intent(in), OPTIONAL :: vAttIntCnts(:)  ! length of attributes
+       integer, intent(in), OPTIONAL :: vAttCharCnts(:) !! length of attributes
+       integer, intent(in), OPTIONAL :: vAttRealCnts(:) !! length of attributes
+       integer, intent(in), OPTIONAL :: vAttIntCnts(:)  !! length of attributes
 
        character(len=*), intent(in), OPTIONAL :: varAttChars(:)
        real, intent(in), OPTIONAL :: varAttReals(:,:)
        integer, intent(in), OPTIONAL :: varAttInts(:,:)
        
        character(len=*), OPTIONAL :: ordering 
-                                 ! (time, lev, lat, lon) (default)
-                                 ! can be any combination of xyzt
+                                 !! (time, lev, lat, lon) (default)
+                                 !! can be any combination of xyzt
 
        character(len=*), intent(in), OPTIONAL :: attCharName
-                                 ! User defined variable attribute name
+                                 !! User defined variable attribute name
        character(len=*), intent(in), OPTIONAL :: attRealName
-                                 ! User defined variable real attribute name
+                                 !! User defined variable real attribute name
        character(len=*), intent(in), OPTIONAL :: attIntName
-                                 ! User defined variable int attribute name
+                                 !! User defined variable int attribute name
        character(len=*), intent(in), OPTIONAL :: attChar
-                                 ! User defined variable char attribute
+                                 !! User defined variable char attribute
        real,    intent(in), OPTIONAL :: attReal(:)
-                                 ! User defined variable real attribute
+                                 !! User defined variable real attribute
        integer, intent(in), OPTIONAL :: attInt(:)
-                                 ! User defined variable int attribute
+                                 !! User defined variable int attribute
        integer, intent(in), OPTIONAL :: ChunkSize(:)
-                                 ! User defined Chunksize int 
+                                 !! User defined Chunksize int 
 
 !
 ! !OUTPUT PARAMETERS:
 !
-       integer, intent(out), OPTIONAL :: rc   
-                                 ! 0  all is well
-                                 ! -1 Allocation for attCharCnts failed
-                                 ! -2 Allocation for attRealCnts failed
-                                 ! -3 Allocation for attIntCnts failed
-                                 ! -4 Allocation for varAttChars failed
-                                 ! -5 Allocation for varAttReals failed
-                                 ! -6 Allocation for varAttInts failed
-                                 ! -7 Allocation for attCharNames failed
-                                 ! -8 Allocation for attRealNames failed
-                                 ! -9 Allocation for attIntNames failed
+       integer, intent(out), OPTIONAL :: rc   !! 0  all is well   
+                                 !! -1 Allocation for attCharCnts failed   
+                                 !! -2 Allocation for attRealCnts failed   
+                                 !! -3 Allocation for attIntCnts failed   
+                                 !! -4 Allocation for varAttChars failed   
+                                 !! -5 Allocation for varAttReals failed   
+                                 !! -6 Allocation for varAttInts failed   
+                                 !! -7 Allocation for attCharNames failed   
+                                 !! -8 Allocation for attRealNames failed   
+                                 !! -9 Allocation for attIntNames failed   
                                                
 
 ! !INPUT/OUTPUT PARAMETERS:
 !
-       type(ESMF_CFIOVarInfo), intent(inout) :: varObj        ! variable obj 
+       type(ESMF_CFIOVarInfo), intent(inout) :: varObj        !! variable obj 
  
 !
-! !DESCRIPTION:
-!     Set meta data for a CFIO variable         
-!EOP
 !------------------------------------------------------------------------------
        integer :: iCnt, jCnt, count, rtcode = 0
                                                                   
@@ -391,10 +385,9 @@
 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOVarInfoGet -- get information from a CFIO variable object
-
-! !INTERFACE:
+!>
+! `ESMF_CFIOVarInfoGet` -- get information from a CFIO variable object
+!
       subroutine ESMF_CFIOVarInfoGet (varObj, vName, grid, vTitle, vUnits,  &
                               twoDimVar, validRange, amiss, addOffSet,      &
                               scaleFactor, standardName, nVarAttChar,       &
@@ -408,39 +401,34 @@
                               cellMthd, ChunkSize, rc )
        implicit NONE
 
-! !ARGUMENTS:
 !
 ! !INPUT PARAMETERS:
 !
-       type(ESMF_CFIOVarInfo), intent(in) :: varObj      ! variable obj 
-       character(len=*), intent(in), OPTIONAL :: attCharName
-                                    ! User defined  char attribute name
-       character(len=*), intent(in), OPTIONAL :: attRealName
-                                    ! User defined  real attribute name
-       character(len=*), intent(in), OPTIONAL :: attIntName
-                                    ! User defined  int attribute name
+       type(ESMF_CFIOVarInfo), intent(in) :: varObj      !! variable obj 
+       character(len=*), intent(in), OPTIONAL :: attCharName !! User defined  char attribute name
+       character(len=*), intent(in), OPTIONAL :: attRealName !! User defined  real attribute name
+       character(len=*), intent(in), OPTIONAL :: attIntName !! User defined  int attribute name
 
 
 ! !OUTPUT PARAMETERS:
 !
-       character(len=*), intent(out), OPTIONAL :: vName  ! variable short name
-       type(ESMF_CFIOGrid), intent(out), OPTIONAL :: grid  ! grid 
-       character(len=*), intent(out), OPTIONAL :: vTitle ! variable long name 
-       character(len=*), intent(out), OPTIONAL :: vUnits ! variable units      
-       logical, OPTIONAL :: twoDimVar                  ! True for 2D
-       logical, OPTIONAL :: timAve                    ! True for time average
-       character, OPTIONAL :: aveMethod  ! 'c': center, 'd': downstream
-                                         ! 'u': upstream
-       character(len=MVARLEN), OPTIONAL :: cellMthd    ! Cell methmod units
-       real, intent(out), OPTIONAL :: validRange(2)    ! Variable valid range
+       character(len=*), intent(out), OPTIONAL :: vName  !! variable short name
+       type(ESMF_CFIOGrid), intent(out), OPTIONAL :: grid  !! grid 
+       character(len=*), intent(out), OPTIONAL :: vTitle !! variable long name 
+       character(len=*), intent(out), OPTIONAL :: vUnits !! variable units      
+       logical, OPTIONAL :: twoDimVar                  !! True for 2D
+       logical, OPTIONAL :: timAve                    !! True for time average
+       character, OPTIONAL :: aveMethod  !! 'c': center, 'd': downstream
+                                         !! 'u': upstream
+       character(len=MVARLEN), OPTIONAL :: cellMthd    !! Cell methmod units
+       real, intent(out), OPTIONAL :: validRange(2)    !! Variable valid range
        real, intent(out), OPTIONAL :: packingRange(2)
-       real, intent(out), OPTIONAL :: amiss            ! FILL value
+       real, intent(out), OPTIONAL :: amiss            !! FILL value
        real, intent(out), OPTIONAL :: addOffSet    
        real, intent(out), OPTIONAL :: scaleFactor
        character(len=*), intent(out), OPTIONAL :: standardName 
-       character(len=*), OPTIONAL :: ordering
-                                 ! (time, lev, lat, lon) (default)
-                                 ! can be any combination of xyzt
+       character(len=*), OPTIONAL :: ordering !! (time, lev, lat, lon) (default)
+                                 !! can be any combination of xyzt
        integer, intent(out), OPTIONAL :: nVarAttInt
        integer, intent(out), OPTIONAL :: nVarAttReal
        integer, intent(out), OPTIONAL :: nVarAttChar
@@ -449,9 +437,9 @@
        character(len=*), pointer, OPTIONAL :: attRealNames(:)
        character(len=*), pointer, OPTIONAL :: attIntNames(:)
 
-       integer, pointer,OPTIONAL::vAttCharCnts(:) ! length of attributes
-       integer, pointer,OPTIONAL::vAttRealCnts(:) ! length of attributes
-       integer, pointer,OPTIONAL::vAttIntCnts(:)  ! length of attributes
+       integer, pointer,OPTIONAL::vAttCharCnts(:) !! length of attributes
+       integer, pointer,OPTIONAL::vAttRealCnts(:) !! length of attributes
+       integer, pointer,OPTIONAL::vAttIntCnts(:)  !! length of attributes
 
        character(len=*), pointer, OPTIONAL :: varAttChars(:)
        real, pointer, OPTIONAL :: varAttReals(:,:)
@@ -460,32 +448,24 @@
        integer, intent(out), OPTIONAL :: attIntCnt
        integer, intent(out), OPTIONAL :: attRealCnt
        integer, intent(out), OPTIONAL :: attCharCnt
-       character(len=*), intent(out), OPTIONAL :: attChar
-                                    ! User defined  char attribute
-       real,    pointer, OPTIONAL :: attReal(:)
-                                    ! User defined  real attribute
-       integer, pointer, OPTIONAL :: attInt(:)
-                                    ! User defined  int attribute
-       integer, pointer, OPTIONAL :: ChunkSize(:)
-                                 ! User defined Chunksize int 
+       character(len=*), intent(out), OPTIONAL :: attChar !! User defined  char attribute
+       real,    pointer, OPTIONAL :: attReal(:) !! User defined  real attribute
+       integer, pointer, OPTIONAL :: attInt(:) !! User defined  int attribute
+       integer, pointer, OPTIONAL :: ChunkSize(:) !! User defined Chunksize int 
 
-       integer, intent(out), OPTIONAL :: rc 
-                                    ! Error return code:
-                                    ! 0   all is well
-                                    ! -1  Allocation for attCharNames failed
-                                    ! -2  Allocation for attRealNames failed
-                                    ! -3  Allocation for attIntNames failed 
-                                    ! -4  Allocation for vAttCharCnts failed
-                                    ! -5  Allocation for vAttRealCnts failed 
-                                    ! -6  Allocation for vAttIntCnts failed 
-                                    ! -7  Allocation for varAttChars failed 
-                                    ! -8  Allocation for varAttReals failed 
-                                    ! -9  Allocation for varAttInts failed  
+       integer, intent(out), OPTIONAL :: rc !! Error return code:               
+                                    !! 0   all is well               
+                                    !! -1  Allocation for attCharNames failed               
+                                    !! -2  Allocation for attRealNames failed               
+                                    !! -3  Allocation for attIntNames failed                
+                                    !! -4  Allocation for vAttCharCnts failed               
+                                    !! -5  Allocation for vAttRealCnts failed                
+                                    !! -6  Allocation for vAttIntCnts failed                
+                                    !! -7  Allocation for varAttChars failed            
+                                    !! -8  Allocation for varAttReals failed            
+                                    !! -9  Allocation for varAttInts failed         
 
 !
-! !DESCRIPTION:
-!     get information from a CFIO variable object
-!EOP
 !------------------------------------------------------------------------------
        integer :: rtcode = 0
        integer :: i
@@ -669,27 +649,22 @@
 
       end subroutine ESMF_CFIOVarInfoGet
 
-!------------------------------------------------------------------------------!BOP
-! !ROUTINE: ESMF_CFIOVarInfoDestroy -- destructor for a CFIO varInfo object
-
-! !INTERFACE:
-      subroutine ESMF_CFIOVarInfoDestroy (varObj, rc)
+!------------------------------------------------------------------------------
+!>
+! `ESMF_CFIOVarInfoDestroy` -- destructor for a CFIO varInfo object
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIOVarInfoDestroy (varObj, rc)
 !
 ! !INPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:            
+                                                !! 0   all is well        
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-      type(ESMF_CFIOVarInfo), intent(inout) :: varObj ! CFIOVarInfo object
+      type(ESMF_CFIOVarInfo), intent(inout) :: varObj !! CFIOVarInfo object
 
 !
-! !DESCRIPTION:
-!     destructor for a CFIO varInfo object
-!EOP
 !------------------------------------------------------------------------------
       integer :: rtcode = 0
 

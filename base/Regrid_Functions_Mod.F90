@@ -1,17 +1,22 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "unused_dummy.H"
+!
+!>
+!### MODULE: `regrid_functions_mod`
+!
+! Author: GMAO SI-Team
+!
+! The module `regrid_functions_mod` contains functions for regridding.
+!
+!#### History
+!- 09 Jan 2017 - S. D. Eastham - Initial version
+!
 
-!-----------------------------------------------------------------------
-!                 GEOS-Chem Global Chemical Transport Model            !
-!-----------------------------------------------------------------------
-!BOP
-!
-! !MODULE: regrid_functions_mod
-!
-! !DESCRIPTION: Module regrid_functions_mod contains functions for regridding.
-!\\
-!\\
-! !INTERFACE:
-!
   MODULE Regrid_Functions_Mod
 !
 ! !USES:
@@ -47,13 +52,6 @@
 !
 ! !PRIVATE MEMBER FUNCTIONS:
 !
-!
-! !REVISION HISTORY:
-!  09 Jan 2017 - S. D. Eastham - Initial version
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-!
 ! !PRIVATE TYPES:
 !
       ! Precision
@@ -80,20 +78,16 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The subroutine `Assert` checks if the output value is valid.
 !
-! !ROUTINE: Assert
-!
-! !DESCRIPTION: Subroutine to check if the output value is valid
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version.
 !
       Subroutine Assert(RC,CallRoutine,CallMsg,ncID)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -108,11 +102,7 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -143,24 +133,20 @@
       End If
 
       End Subroutine Assert
-!EOC
+!
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The subroutine `Set_fID` sets the file ID shadow variables.
 !
-! !ROUTINE: Set_fID
-!
-! !DESCRIPTION: Routine Set_fID sets the file ID shadow variables
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine Set_fID(fIDIn, fIDOut, RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -174,9 +160,6 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
 !BOC
 !
@@ -194,7 +177,7 @@
             Call Assert(-1,'Set_fID','fIDIn already set')
          End If
       End If
- 
+
       If (Present(fIDOut)) Then
          If (fIDOutLocal.lt.0) Then
             fIDOutLocal = fIDOut
@@ -208,20 +191,16 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `Cleanup` closes any remaining open files.
 !
-! !ROUTINE: Cleanup
-!
-! !DESCRIPTION: Routine Cleanup closes any remaining open files
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine Cleanup(RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -233,11 +212,7 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -249,7 +224,7 @@
          RC = NF90_CLOSE(ncid=fIDInLocal)
          Write(6,'(a,I0.3)') 'Closed input file.  Result: ', RC
       End If
- 
+
       If (fIDOutLocal.gt.-1) Then
          RC = NF90_CLOSE(ncid=fIDOutLocal)
          Write(6,'(a,I0.3)') 'Closed output file. Result: ', RC
@@ -262,27 +237,23 @@
       If (Allocated(JJ_Out))   Deallocate(JJ_Out)
       If (Allocated(W))        Deallocate(W)
       If (Allocated(outSum))   Deallocate(outSum)
- 
+
       End Subroutine Cleanup
 !EOC
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `readTileFileNC` reads a Tempest NetCDF tile file
+! and stores the relevant data in module variables for later use.
 !
-! !ROUTINE: readTileFileNC
-!
-! !DESCRIPTION: Routine readTileFileNC reads a Tempest NetCDF tile file
-!  and stores the relevant data in module variables for later use.
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       subroutine readTileFileNC(TFDir,gridIn,gridOut,RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -297,11 +268,7 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -334,7 +301,7 @@
 
       call readTileFileNC_file(fName, rc=status)
       if (present(rc)) rc = status
-      
+
       end subroutine readTileFileNC
 
       subroutine  readTileFileNC_file(fName, RC)
@@ -389,7 +356,7 @@
       If (nDimIn == 1) Then
          ! Cubed-sphere grid
          I = resInFile(1)
-         resInFile(1) = Int(sqrt(float(I/6)))
+         resInFile(1) = Int(sqrt(real(I/6)))
          resInFile(2) = resInFile(1) * 6
       End If
 
@@ -403,7 +370,7 @@
       If (nDimOut == 1) Then
          ! Cubed-sphere grid
          I = resOutFile(1)
-         resOutFile(1) = Int(sqrt(float(I/6)))
+         resOutFile(1) = Int(sqrt(real(I/6)))
          resOutFile(2) = resOutFile(1) * 6
       End If
 
@@ -487,7 +454,7 @@
       RC = NF90_GET_VAR(ncid=fID, varid=I, values=RTemp)
       W = RTemp
 
-      ! Close the tile file 
+      ! Close the tile file
       RC = NF90_CLOSE(ncid=fID)
 
       ! Remap the cube faces
@@ -627,7 +594,6 @@
          Integer                 :: iFace
          Integer                 :: xFace
          Integer                 :: minJJ, maxJJ, minJJOut
-         Integer                 :: II0(nVal)
          Integer                 :: JJ0(nVal)
          Integer                 :: I
          Integer, Parameter      :: faceMap(6) = (/4,5,1,2,6,3/)
@@ -635,7 +601,6 @@
          _UNUSED_DUMMY(nY)
 
          ! Copy input
-         II0 = II
          JJ0 = JJ
 
          Do iFace = 1,6
@@ -655,21 +620,17 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `readTileFile` reads a tile file and stores the
+! relevant data in module variables for later use.
 !
-! !ROUTINE: readTileFile
-!
-! !DESCRIPTION: Routine readTileFile reads a tile file and stores the
-!  relevant data in module variables for later use.
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine readTileFile(TFDir,gridIn,gridOut,RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -684,11 +645,7 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -730,7 +687,7 @@
 
       ! NOTE: Tile files are little-endian
       Open(File=Trim(fName),Unit=fID,IOStat=status,&
-               FORM='UNFORMATTED',STATUS='OLD',CONVERT='little_endian')
+               FORM='UNFORMATTED',STATUS='OLD')
       If (status/=0) Then
          Write(errMsg,'(a,a,a,I8)') 'Failed to open ',Trim(fName),&
             '. ID: ', status
@@ -756,13 +713,13 @@
          Close(Unit=fID)
          Call Assert(-1,'readTileFile','Bad grid count')
       End If
-      
+
       Do I=1,nGrids
          Read(fID) STemp
          Read(fID) nX(I)
          Read(fID) nY(I)
          gridNameTF(I) = Trim(STemp)
-      End Do 
+      End Do
 
       Found = .False.
       Do I=1,nGrids
@@ -860,7 +817,7 @@
       !Read(fID) RTemp
       !W = RTemp
 
-      ! Close the tile file 
+      ! Close the tile file
       Close(Unit=fID)
 
       ! Allocate the counting variable
@@ -876,15 +833,12 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `genGridName` returns the name of a grid based on
+! certain parameters. This mimics the MAPL behavior.
 !
-! !ROUTINE: genGridName
-!
-! !DESCRIPTION: Routine genGridName returns the name of a grid based on
-!  certain parameters. This mimics the MAPL behavior.
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine genGridName(nX, nY, gridName, xVec, yVec, &
                                    isCS, isPC, isDE, rc)
@@ -909,11 +863,7 @@
       Logical, Optional, Intent(Out)       :: isDE
       Logical, Optional, Intent(Out)       :: isPC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -975,8 +925,8 @@
          pole='6C'
          write(gridname,'(a,i4.4,a,a)') dateline,nX,'x',pole
       end if
- 
-      ! Assign outputs 
+
+      ! Assign outputs
       If (present(isCS)) isCS = isCS_
       If (present(isDE)) isDE = isDE_
       If (present(isPC)) isPC = isPC_
@@ -986,23 +936,23 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: parseGridName
-!
-! !DESCRIPTION: Routine parseGridName determines a grid specification
+!>
+! The routine `parseGridName` determines a grid specification
 ! based on a string. The string can either be a standardized MAPL grid
 ! name (eg DE0180xPC0091, CF0024x6C) or a small number of shorthand
 ! options:
+!
+!```
 !       4x5          GMAO 4x5 grid
 !       2x2.5        GMAO 2x2.5 grid
 !       1x1.25       GMAO 1x1.25 grid
 !       1x1          GMAO 1x1 grid
 !       0.5x0.625    GMAO 0.5x0.625 grid
 !       0.25x0.3125  GMAO 0.25x0.3125 grid
-!\\
-!\\
-! !INTERFACE:
+!```
+!
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine parseGridName( gridName, nX, nY, isCS, isDE, isPC )
 !
@@ -1021,11 +971,7 @@
       Logical, Optional, Intent(Out)       :: isDE
       Logical, Optional, Intent(Out)       :: isPC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -1126,8 +1072,8 @@
              End If
           End If
       End If
-     
-      ! Assign outputs 
+
+      ! Assign outputs
       If (present(isCS)) isCS = isCS_
       If (present(isDE)) isDE = isDE_
       If (present(isPC)) isPC = isPC_
@@ -1137,26 +1083,21 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: nXYtoVec
-!
-! !DESCRIPTION: Routine nXYtoVec estimate the X/Y mid-point vectors
+!>
+! The routine `nXYtoVec` estimate the X/Y mid-point vectors
 ! based on as little data as possible.
-!\\
-!\\
-! !INTERFACE:
+!
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine nXYtoVec(xVec,yVec,isCS,isPC,isDE,RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
 ! !INPUT PARAMETERS:
-!
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -1164,11 +1105,7 @@
       Logical,Intent(In)                   :: isCS, isPC, isDE
       Integer, Optional                    :: RC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -1194,56 +1131,53 @@
          Else
             ! Simple system
             Do I = 1, nX
-               xVec(I) = Float(I)
+               xVec(I) = real(I)
             End Do
             Do I = 1, nY
-               yVec(I) = Float(I)
+               yVec(I) = real(I)
             End Do
          End If
       Else
-         ! Longitude first 
-         fStride = 360.0/Float(nX)
+         ! Longitude first
+         fStride = 360.0/real(nX)
          If (isDE) Then
             fMin = (-180.0) - (fStride/2.0)
          Else
             fMin = (-180.0) - fStride
          End If
          Do I = 1, nX
-            xVec(I) = fMin + (fStride * Float(I))
+            xVec(I) = fMin + (fStride * real(I))
          End Do
          ! Now latitude
          If (isPC) Then
-            fStride = (180.0 / Float(nY - 1))
+            fStride = (180.0 / real(nY - 1))
             fMin = (-90.0) - fStride
          Else
-            fStride = (180.0 / Float(nY))
+            fStride = (180.0 / real(nY))
             fMin = (-90.0) - (fStride/2.0)
          End If
          Do I = 1, nY
-            yVec(I) = fMin + (fStride * Float(I))
+            yVec(I) = fMin + (fStride * real(I))
          End Do
          If (isPC) Then
             yVec(1)  = (-90.0) + (fStride/4.0)
             yVec(nY) = ( 90.0) - (fStride/4.0)
-         End If 
+         End If
       End If
       If (Present(RC)) RC = RC_
- 
+
       End Subroutine nXYToVec
 !EOC
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: GetLUN
-!
-! !DESCRIPTION: Routine GetLUN finds a valid logical unit number in the
+!>
+! The routine `GetLUN` finds a valid logical unit number in the
 ! range 1-100. IMPORTANT: This is the minimal-effort version of this
 ! routine, and extremely slow!
-!\\
-!\\
-! !INTERFACE:
+!
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine GetLUN(LUN,RC)
 !
@@ -1261,9 +1195,6 @@
       Integer, Intent(Out)                 :: LUN
       Integer, Optional                    :: RC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
 !BOC
 !
@@ -1288,21 +1219,18 @@
       End Do
       If (isOpen) RC_ = -1
       If (Present(RC)) RC = RC_
- 
+
       End Subroutine GetLUN
 !EOC
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: regridData
-!
-! !DESCRIPTION: Routine regridData regrids from lat-lon to cubed-sphere,
+!>
+! The routine `regridData` regrids from lat-lon to cubed-sphere,
 !  using tile file data already read in.
-!\\
-!\\
-! !INTERFACE:
+!
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine regridData(in2D,out2D,RC)
 !
@@ -1324,11 +1252,7 @@
 !
       Integer, Optional                    :: RC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -1362,35 +1286,29 @@
             wVal = outSum(iX,iY)
             out2D(iX,iY) = out2D(iX,iY)/wVal
          End If
-      End Do 
+      End Do
       End Do
       If (Present(RC)) RC = 0
- 
-      End Subroutine regridData 
+
+      End Subroutine regridData
 !EOC
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `ReadInput` reads the input options file.
 !
-! !ROUTINE: ReadInput
-!
-! !DESCRIPTION: Routine ReadInput reads the input options file.
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine ReadInput(resOut,fNameIn,fNameOut,reverseLev,&
                               isCSOut,isPCOut,isDEOut,RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
-
 !
 ! !INPUT PARAMETERS:
-!
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -1403,17 +1321,13 @@
       Logical, Intent(Out)                 :: reverseLev
       Integer, Optional                    :: RC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
       Integer            :: fIDGCHP, RC_, I
       Integer            :: resTemp(2)
-      Character(Len=255) :: currLine, strRead 
+      Character(Len=255) :: currLine, strRead
       Logical            :: Found, logRead
 
       !=================================================================
@@ -1465,18 +1379,18 @@
             RC_ = -10
          End If
          resOut = resTemp
- 
+
          ! Input file name
          Read(fIDGCHP,'(a)',IOStat=RC_) currLine
          I = SCAN(currLine,':')
          Read(currLine((I+1):),*,IOStat=RC_) strRead
          fNameIn = Trim(AdjustL(strRead))
- 
+
          ! Output file name
          Read(fIDGCHP,'(a)',IOStat=RC_) currLine
          I = SCAN(currLine,':')
          Read(currLine((I+1):),*,IOStat=RC_) strRead
- 
+
          fNameOut = Trim(AdjustL(strRead))
 
          ! Reverse vertical grid?
@@ -1484,14 +1398,14 @@
          I = SCAN(currLine,':')
          Read(currLine((I+1):),*,IOStat=RC_) logRead
          reverseLev = logRead
-      Else 
+      Else
          ! Report failure
          RC_ = -1
       End If
       Close(Unit=fIDGCHP)
 
       If (Present(RC)) RC = RC_
- 
+
       End Subroutine ReadInput
 !EOC
       End Module Regrid_Functions_Mod

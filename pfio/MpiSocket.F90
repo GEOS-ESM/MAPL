@@ -3,7 +3,6 @@
 
 module pFIO_MpiSocketMod
    use iso_c_binding
-   use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: INT64
    use MAPL_ExceptionHandling
    use pFIO_AbstractSocketMod
@@ -120,7 +119,7 @@ contains
    end function receive
 
    subroutine send(this, message, rc)
-      class (MpiSocket), intent(inout) :: this
+      class (MpiSocket), target, intent(inout) :: this
       class (AbstractMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -156,10 +155,13 @@ contains
 
       integer, pointer :: data(:)
       integer :: n_words
+      integer(kind=INT64) :: big_n
       
       tag = make_tag(request_id)
 
-      n_words = product(local_reference%shape) * word_size(local_reference%type_kind)
+      big_n   = product(int(local_reference%shape, INT64)) * word_size(local_reference%type_kind)
+      _ASSERT( big_n < huge(0), "Increase the number of processors to decrease the local size of data to be sent")
+      n_words = big_n
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
       call MPI_Isend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
@@ -170,7 +172,7 @@ contains
 
    function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
-      class (MpiSocket), intent(inout) :: this
+      class (MpiSocket), target, intent(inout) :: this
       integer, intent(in) :: request_id
       class (AbstractDataReference), intent(in) :: local_reference
       integer, optional, intent(out) :: rc
@@ -194,14 +196,12 @@ contains
    end function get
 
    subroutine wait(this, rc)
-      class (MpiRequestHandle), intent(inout) :: this
+      class (MpiRequestHandle), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: ierror
       integer :: status(MPI_STATUS_SIZE)
-      integer :: save_request
 
-      save_request = this%mpi_request
       call MPI_Wait(this%mpi_request, status, ierror)
       _VERIFY(ierror)
       _RETURN(_SUCCESS)

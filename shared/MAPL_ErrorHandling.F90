@@ -13,31 +13,31 @@ module MAPL_ErrorHandlingMod
    public :: MAPL_abort
 
 
-   public :: MAPL_UNKNOWN_ERROR
    public :: MAPL_SUCCESS
 
+   public :: MAPL_UNKNOWN_ERROR
    public :: MAPL_NO_SUCH_PROPERTY
    public :: MAPL_NO_SUCH_VARIABLE
    public :: MAPL_TYPE_MISMATCH
    public :: MAPL_UNSUPPORTED_TYPE
-   public :: MAPL_VALUE_NOT_SUPPORTED
 
+   public :: MAPL_VALUE_NOT_SUPPORTED
    public :: MAPL_NO_DEFAULT_VALUE
    public :: MAPL_DUPLICATE_KEY
    public :: MAPL_STRING_TOO_SHORT
 
    enum, bind(c)
-      enumerator :: MAPL_UNKNOWN_ERROR = -1
       enumerator :: MAPL_SUCCESS       = 0
 
       ! 001-005
+      enumerator :: MAPL_UNKNOWN_ERROR
       enumerator :: MAPL_NO_SUCH_PROPERTY
       enumerator :: MAPL_NO_SUCH_VARIABLE
       enumerator :: MAPL_TYPE_MISMATCH
       enumerator :: MAPL_UNSUPPORTED_TYPE
-      enumerator :: MAPL_VALUE_NOT_SUPPORTED
 
       ! 006-010
+      enumerator :: MAPL_VALUE_NOT_SUPPORTED
       enumerator :: MAPL_NO_DEFAULT_VALUE
       enumerator :: MAPL_DUPLICATE_KEY
       enumerator :: MAPL_STRING_TOO_SHORT
@@ -53,17 +53,17 @@ module MAPL_ErrorHandlingMod
       module procedure MAPL_VRFY
       module procedure MAPL_VRFYt
    end interface MAPL_VRFY
-   
+
    interface MAPL_ASRT
       module procedure MAPL_ASRT
       module procedure MAPL_ASRTt
    end interface MAPL_ASRT
-   
+
    interface MAPL_RTRN
       module procedure MAPL_RTRN
       module procedure MAPL_RTRNt
    end interface MAPL_RTRN
-   
+
 contains
 
 
@@ -94,7 +94,7 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc ! Not present in MAIN
       character(:), allocatable :: message
-      
+
       fail = .not. condition
 
       if (fail) then
@@ -129,11 +129,11 @@ contains
          !$omp end critical (MAPL_ErrorHandling3)
          if (present(rc)) rc = status
       end if
-      
+
    end function MAPL_Verify
 
 
-   subroutine MAPL_Return(status, filename, line, rc) 
+   subroutine MAPL_Return(status, filename, line, rc)
       integer, intent(in) :: status
       character(*), intent(in) :: filename
       integer, intent(in) :: line
@@ -152,13 +152,13 @@ contains
          !$omp end critical (MAPL_ErrorHandling4)
       end if
       ! Regardless of error:
-      if (present(rc)) rc = status 
-      
+      if (present(rc)) rc = status
+
    end subroutine MAPL_Return
 
    logical function MAPL_RTRN(A,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
 
@@ -171,7 +171,7 @@ contains
 
    logical function MAPL_VRFY(A,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_VRFY = A/=0
@@ -187,7 +187,7 @@ contains
 
    logical function MAPL_ASRT(A,iam,line,rc)
       logical,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_ASRT = .not.A
@@ -199,11 +199,11 @@ contains
             RC=1
           endif
         endif
-   end function MAPL_ASRT   
+   end function MAPL_ASRT
 
    logical function MAPL_ASRTt(A,text,iam,line,rc)
       logical,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam,text
+      character(len=*),  intent(IN ) :: iam,text
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_ASRTt =   MAPL_ASRT(A,iam,line,rc)
@@ -214,7 +214,7 @@ contains
 
    logical function MAPL_RTRNt(A,text,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: text,iam
+      character(len=*),  intent(IN ) :: text,iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
 
@@ -231,7 +231,7 @@ contains
 
    logical function MAPL_VRFYt(A,text,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam,text
+      character(len=*),  intent(IN ) :: iam,text
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_VRFYt =  MAPL_VRFY(A,iam,line,rc)
@@ -240,9 +240,9 @@ contains
         !$omp end critical (MAPL_ErrorHandling10)
    end function MAPL_VRFYT
 
-   subroutine MAPL_abort
+   subroutine MAPL_abort()
       integer :: status
-      integer :: error_code
+      integer :: error_code = -1
       call MPI_Abort(MPI_COMM_WORLD,error_code,status)
   end subroutine MAPL_abort
 

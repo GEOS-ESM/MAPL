@@ -1,18 +1,24 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_ErrLog.h"
 #define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
-
-!BOP
-
-! !MODULE: BinIO -- A Module to do I/O (ASCII+binary) until ESMF fully supports it
-
-
-! !INTERFACE:
-
+!
+!>
+!### MODULE: `BinIO`
+!
+! Author: GMAO SI-Team
+!
+! `BinIO` - A Module to do I/O (ASCII+binary) until ESMF fully supports it
+!
 module  BinIOMod
 
   use FileIOSharedMod, only: ArrDescr, MAPL_TileMaskGet, WRITE_PARALLEL, alloc_, dealloc_
   use FileIOSharedMod, only: STD_OUT_UNIT_NUMBER, LAST_UNIT, TAKEN, MTAKEN, mname
-  use FileIOSharedMod, only: not_allocated, r4_2, r4_1, r8_2, r8_1, i4_2, i4_1
+  use FileIOSharedMod, only: r4_2, r4_1, r8_2, r8_1, i4_1
   use FileIOSharedMod, only: MEM_UNITS, munit, REC
   use ESMF
   use MAPL_BaseMod
@@ -22,6 +28,7 @@ module  BinIOMod
   use MAPL_ExceptionHandling
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
+  use mpi
   implicit none
   private
 
@@ -39,8 +46,6 @@ module  BinIOMod
   public MAPL_ClimUpdate
   public MAPL_DestroyFile
   public MAPL_MemFileInquire
-
-  include "mpif.h"
 
 !#define TIME_MPIIO
 #ifdef TIME_MPIIO
@@ -222,7 +227,7 @@ module  BinIOMod
   end function getfileunit
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!---------------------------------------------------------------------------
   SUBROUTINE FREE_FILE(UNIT, RC)
     implicit none
     integer         , intent(out), OPTIONAL :: RC
@@ -255,7 +260,7 @@ module  BinIOMod
     _RETURN(ESMF_SUCCESS)
   END SUBROUTINE FREE_FILE
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!---------------------------------------------------------------------------
   subroutine MAPL_DestroyFile(unit,  RC )
     IMPLICIT NONE
     integer         , intent(in   )           :: unit
@@ -281,7 +286,7 @@ module  BinIOMod
     if(present(rc)) rc = 0
     return
   end subroutine MAPL_DestroyFile
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!---------------------------------------------------------------------------
 
   subroutine MAPL_StateVarRead(UNIT, STATE, NAME, arrdes, bootstrapable, RC)
     integer                     , intent(IN   ) :: UNIT
@@ -1100,8 +1105,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_beg = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_beg = MPI_Wtime()
 #endif
 
     if(present(arrdes)) then
@@ -1280,8 +1284,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*4/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_ioread_bandwidth) peak_ioread_bandwidth = bwidth
@@ -1671,8 +1674,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_beg = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_beg = MPI_Wtime()
 #endif
 
     if(present(arrdes)) then
@@ -1832,8 +1834,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_ioread_bandwidth) peak_ioread_bandwidth = bwidth
@@ -2730,8 +2731,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
     call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
     _VERIFY(STATUS)
-    itime_beg = MPI_Wtime(STATUS)
-    _VERIFY(STATUS)
+    itime_beg = MPI_Wtime()
 
 #endif
 
@@ -2954,8 +2954,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*4/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_iowrite_bandwidth) peak_iowrite_bandwidth = bwidth
@@ -3378,8 +3377,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_beg = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_beg = MPI_Wtime()
 #endif
 
     if(present(arrdes)) then
@@ -3595,8 +3593,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_iowrite_bandwidth) peak_iowrite_bandwidth = bwidth

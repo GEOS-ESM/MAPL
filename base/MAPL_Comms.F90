@@ -16,6 +16,7 @@ module MAPL_CommsMod
   use MAPL_ShmemMod
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
   use MAPL_ExceptionHandling
+  use mpi
   implicit none
   private
 
@@ -114,7 +115,10 @@ module MAPL_CommsMod
 
   interface MAPL_BcastShared
      module procedure MAPL_BcastShared_1DR4
+     module procedure MAPL_BcastShared_1DR8
+     module procedure MAPL_BcastShared_2DI4     
      module procedure MAPL_BcastShared_2DR4
+     module procedure MAPL_BcastShared_2DR8     
   end interface
 
   interface MAPL_CommsScatterV
@@ -208,6 +212,7 @@ module MAPL_CommsMod
 
   interface MAPL_CommsSendRecv
      module procedure MAPL_CommsSendRecv_I4_0
+     module procedure MAPL_CommsSendRecv_R4_0
      module procedure MAPL_CommsSendRecv_R4_1
      module procedure MAPL_CommsSendRecv_R4_2
      module procedure MAPL_CommsSendRecv_R8_1
@@ -233,14 +238,12 @@ module MAPL_CommsMod
      module procedure ArrayGatherRcvCnt_R4_1
   end interface
 
-  include "mpif.h"
-
   integer, parameter :: MAPL_root=0
   integer, parameter :: msg_tag=11
 
   contains
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------------
 
 !---------------------------
 !---------------------------
@@ -745,7 +748,7 @@ module MAPL_CommsMod
 
     type (MAPL_CommRequest)       :: reqs(size(LocArray,3))
     integer                       :: root(size(LocArray,3))
-    integer                       :: NumCores, Nnodes
+    integer                       :: Nnodes
     integer                       :: nn
     integer                       :: LM, L, nc, npes, mype, dims(5)
     type(ESMF_VM)                 :: VM
@@ -761,12 +764,6 @@ module MAPL_CommsMod
     call ESMF_VMGet(VM, petcount=npes, localpet=MYPE, mpiCommunicator=comm, RC=STATUS)
     _VERIFY(STATUS)
 
-    if(present(CoresPerNode)) then
-       NumCores = CoresPerNode
-    else
-       NumCores = MAPL_CoresPerNodeGet(comm,rc=status)
-       _VERIFY(STATUS)
-    end if
 
     LM     = size(LocArray,3)
 
@@ -815,7 +812,8 @@ module MAPL_CommsMod
     end do
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_CollectiveGather3D
+     _UNUSED_DUMMY(corespernode)
+ end subroutine MAPL_CollectiveGather3D
 
 
   subroutine MAPL_CollectiveScatter3D(Grid, GlobArray, LocArray, hw, rc)
@@ -1090,6 +1088,30 @@ module MAPL_CommsMod
 
   end subroutine MAPL_BcastShared_1DR4
 
+  subroutine MAPL_BcastShared_1DR8(VM, Data, N, Root, RootOnly, rc)
+    type(ESMF_VM) :: VM
+    real(kind=REAL64), pointer,  intent(INOUT) :: Data(:)
+    integer,           intent(IN   ) :: N
+    integer, optional, intent(IN   ) :: Root
+    logical,           intent(IN   ) :: RootOnly
+    integer, optional, intent(  OUT) :: rc
+    integer :: status
+
+    if(.not.MAPL_ShmInitialized) then
+       if (RootOnly) then
+          _RETURN(ESMF_SUCCESS)
+       end if
+       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+    else
+       call MAPL_SyncSharedMemory(_RC)
+       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
+       call MAPL_SyncSharedMemory(_RC)
+    endif
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_BcastShared_1DR8
+
   subroutine MAPL_BcastShared_2DR4(VM, Data, N, Root, RootOnly, rc)
     type(ESMF_VM) :: VM
     real,    pointer,  intent(INOUT) :: Data(:,:)
@@ -1122,6 +1144,55 @@ module MAPL_CommsMod
 
   end subroutine MAPL_BcastShared_2DR4
 
+
+  subroutine MAPL_BcastShared_2DR8(VM, Data, N, Root, RootOnly, rc)
+    type(ESMF_VM) :: VM
+    real(kind=REAL64),  pointer,  intent(INOUT) :: Data(:,:)
+    integer,           intent(IN   ) :: N
+    integer, optional, intent(IN   ) :: Root
+    logical,           intent(IN   ) :: RootOnly
+    integer, optional, intent(  OUT) :: rc
+    integer :: status
+
+    if(.not.MAPL_ShmInitialized) then
+       if (RootOnly) then
+          _RETURN(ESMF_SUCCESS)
+       end if
+       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+    else
+       call MAPL_SyncSharedMemory(_RC)
+       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
+       call MAPL_SyncSharedMemory(_RC)
+    endif
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_BcastShared_2DR8
+
+  subroutine MAPL_BcastShared_2DI4(VM, Data, N, Root, RootOnly, rc)
+    type(ESMF_VM) :: VM
+    integer, pointer,  intent(INOUT) :: Data(:,:)
+    integer,           intent(IN   ) :: N
+    integer, optional, intent(IN   ) :: Root
+    logical,           intent(IN   ) :: RootOnly
+    integer, optional, intent(  OUT) :: rc
+    integer :: status
+
+    if(.not.MAPL_ShmInitialized) then
+       if (RootOnly) then
+          _RETURN(ESMF_SUCCESS)
+       end if
+       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+    else
+       call MAPL_SyncSharedMemory(_RC)
+       call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
+       call MAPL_SyncSharedMemory(_RC)
+    endif
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_BcastShared_2DI4
+  
 ! Rank 0
 !---------------------------
 #define RANK_ 0
@@ -1477,6 +1548,11 @@ module MAPL_CommsMod
 !---------------------------
 #define RANK_ 0
 #define VARTYPE_ 1
+#include "sendrecv.H"
+
+!---------------------------
+#define RANK_ 0
+#define VARTYPE_ 3
 #include "sendrecv.H"
 
 !---------------------------

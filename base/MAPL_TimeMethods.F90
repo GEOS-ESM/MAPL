@@ -6,7 +6,6 @@ module MAPL_TimeDataMod
   use pFIO
   use MAPL_ExceptionHandling
   use MAPL_ESMFTimeVectorMod
-  use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
 
   private
@@ -20,6 +19,7 @@ module MAPL_TimeDataMod
      type(ESMF_TimeInterval) :: offset
      character(len=:), allocatable :: funits
      logical :: integer_time
+     logical :: is_initialized = .false.
    contains
      procedure :: add_time_to_metadata
      procedure :: define_time_variable
@@ -27,13 +27,22 @@ module MAPL_TimeDataMod
      procedure :: get_start_time
      procedure :: get
      procedure :: setFrequency
+     procedure :: am_i_initialized
   end type timeData
 
   interface timeData
      module procedure new_time_data
   end interface timeData
+
+  public parse_time_string
 contains
 
+  function am_i_initialized(this) result(logical_temp)
+     logical  :: logical_temp
+     class(TimeData), intent(inout) :: this
+     logical_temp = this%is_initialized
+  end
+     
   function new_time_data(clock,ntime,frequency,offset,funits,integer_time,rc) result(tData)
     type(timeData) :: tData
     type(ESMF_Clock),intent(inout) :: clock
@@ -44,6 +53,7 @@ contains
     logical, optional, intent(in) :: integer_time
     integer, optional, intent(Out) :: rc
 
+    tData%is_initialized = .true.
     tdata%clock=clock
     tdata%ntime=ntime
     tdata%frequency=frequency
@@ -230,16 +240,17 @@ contains
     integer :: tdim
     integer :: status
 
-    if (this%ntime==-1) then
-       tdim = pFIO_UNLIMITED
-    else
-       tdim = this%ntime
+    if (this%is_initialized) then
+       if (this%ntime==-1) then
+          tdim = pFIO_UNLIMITED
+       else
+          tdim = this%ntime
+       end if
+       call metadata%add_dimension('time',tdim)
+       v = this%define_time_variable(_RC)
+       call metadata%add_variable('time',v,_RC)
     end if
-    call metadata%add_dimension('time',tdim)
-    v = this%define_time_variable(rc=status)
-    _VERIFY(status)
-    call metadata%add_variable('time',v,rc=status)
-    _VERIFY(status)
+    _RETURN(_SUCCESS)
 
   end subroutine add_time_to_metadata
 

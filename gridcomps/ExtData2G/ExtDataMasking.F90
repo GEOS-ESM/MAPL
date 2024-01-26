@@ -44,12 +44,12 @@ module MAPL_ExtDataMask
       _ASSERT(i1 > 0,'Incorrect format for function expression: missing "("')
       function_name = adjustl(mask_expression(:i1-1))
       function_name = ESMF_UtilStringLowerCase(function_name, _RC)
-      
-      if (index(function_name,"regionmask") /= 0) then 
+
+      if (index(function_name,"regionmask") /= 0) then
          new_mask%mask_type = "regionmask"
-      else if (index(function_name,"zonemask") /= 0) then 
+      else if (index(function_name,"zonemask") /= 0) then
          new_mask%mask_type = "zonemask"
-      else if (index(function_name,"boxmask") /= 0) then 
+      else if (index(function_name,"boxmask") /= 0) then
          new_mask%mask_type = "boxmask"
       else
          _FAIL("Invalid mask type")
@@ -64,11 +64,10 @@ module MAPL_ExtDataMask
    end function
 
    function get_mask_variables(this,rc) result(variables_in_mask)
-      class(ExtDataMask), intent(inout) :: this 
+      class(ExtDataMask), intent(inout) :: this
       type(StringVector) :: variables_in_mask
       integer, intent(out), optional :: rc
 
-      integer                         :: status
       integer                         :: i1,i2
       logical                         :: twovar
       character(len=:), allocatable   :: tmpstring1,tmpstring2
@@ -107,7 +106,7 @@ module MAPL_ExtDataMask
          call this%evaluate_box_mask(state,var_name,_RC)
       end select
       _RETURN(_SUCCESS)
-   end subroutine evaluate_mask   
+   end subroutine evaluate_mask
 
    subroutine evaluate_region_mask(this,state,var_name,rc)
       class(ExtDataMask), intent(inout) :: this
@@ -120,11 +119,11 @@ module MAPL_ExtDataMask
       character(len=:), allocatable :: maskString,maskname,vartomask
       integer, allocatable :: regionNumbers(:), flag(:)
       integer, allocatable :: mask(:,:)
-      real, pointer        :: rmask(:,:)   
-      real, pointer        :: rvar2d(:,:)  
+      real, pointer        :: rmask(:,:)
+      real, pointer        :: rvar2d(:,:)
       real, pointer        :: rvar3d(:,:,:)
-      real, pointer        :: var2d(:,:)   
-      real, pointer        :: var3d(:,:,:) 
+      real, pointer        :: var2d(:,:)
+      real, pointer        :: var3d(:,:,:)
       integer              :: rank,ib,ie
       type(ESMF_Field)     :: field,temp_field
 
@@ -201,11 +200,11 @@ module MAPL_ExtDataMask
 
        integer :: i
        character(len=:), allocatable :: vartomask,clatS,clatN
-       real, pointer        :: rvar2d(:,:)   
-       real, pointer        :: rvar3d(:,:,:) 
-       real, pointer        :: var2d(:,:)   
-       real, pointer        :: var3d(:,:,:) 
-       real(REAL64), pointer :: lats(:,:)    
+       real, pointer        :: rvar2d(:,:)
+       real, pointer        :: rvar3d(:,:,:)
+       real, pointer        :: var2d(:,:)
+       real, pointer        :: var3d(:,:,:)
+       real(REAL64), pointer :: lats(:,:)
        real(REAL64)         :: limitS, limitN
        type(ESMF_Field)     :: field,temp_field
        type(ESMF_Grid)      :: grid
@@ -257,7 +256,7 @@ module MAPL_ExtDataMask
              where(limitS <= lats .and. lats <=limitN) var3d(:,:,i) = rvar3d(:,:,i)
           enddo
        end if
- 
+
       _RETURN(_SUCCESS)
    end subroutine evaluate_zone_mask
 
@@ -271,12 +270,12 @@ module MAPL_ExtDataMask
 
        integer :: i
        character(len=:), allocatable :: vartomask,strtmp
-       real, pointer        :: rvar2d(:,:)  
+       real, pointer        :: rvar2d(:,:)
        real, pointer        :: rvar3d(:,:,:)
-       real, pointer        :: var2d(:,:)   
+       real, pointer        :: var2d(:,:)
        real, pointer        :: var3d(:,:,:)
-       real(REAL64), pointer :: lats(:,:)  
-       real(REAL64), pointer :: lons(:,:) 
+       real(REAL64), pointer :: lats(:,:)
+       real(REAL64), pointer :: lons(:,:)
        real(REAL64)         :: limitS, limitN, limitE, limitW
        real(REAL64)         :: limitE1, limitW1
        real(REAL64)         :: limitE2, limitW2
@@ -429,60 +428,47 @@ module MAPL_ExtDataMask
        _RETURN(_SUCCESS)
   end subroutine evaluate_box_mask
 
-  SUBROUTINE ExtDataExtractIntegers(string,iSize,iValues,delimiter,verbose,rc)
-
-! !USES:
-
-  IMPLICIT NONE
-
-! !INPUT/OUTPUT PARAMETERS:
-
-  CHARACTER(LEN=*), INTENT(IN)   :: string     ! Character-delimited string of integers
-  INTEGER, INTENT(IN)            :: iSize
-  INTEGER, INTENT(INOUT)         :: iValues(iSize)! Space allocated for extracted integers
-  CHARACTER(LEN=*), OPTIONAL     :: delimiter     ! 1-character delimiter
-  LOGICAL, OPTIONAL, INTENT(IN)  :: verbose    ! Let me know iValues as they are found.
-                                      ! DEBUG directive turns on the message even
-                                      ! if verbose is not present or if
-                                      ! verbose = .FALSE.
-  INTEGER, OPTIONAL, INTENT(OUT) :: rc            ! Return code
-! !DESCRIPTION:
+!------------------------------------------------------------------------------
+!>
+! Extract integers from a character-delimited string, for example, "-1,45,256,7,10".  In the context
+! of Chem_Util, this is provided for determining the numerically indexed regions over which an
+! emission might be applied.
 !
-!  Extract integers from a character-delimited string, for example, "-1,45,256,7,10".  In the context
-!  of Chem_Util, this is provided for determining the numerically indexed regions over which an
-!  emission might be applied.
+! In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
+! including the delimiter are taken as consecutive digits of an integer.  A negative sign ("-") is
+! allowed.  After the first pass, each integer and its trailing delimiter are lopped of the head of
+! the (local copy of the) string, and the process is started over.
 !
-!  In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
-!  including the delimiter are taken as consecutive digits of an integer.  A negative sign ("-") is
-!  allowed.  After the first pass, each integer and its trailing delimiter are lopped of the head of
-!  the (local copy of the) string, and the process is started over.
+! The default delimiter is a comma (",").
 !
-!  The default delimiter is a comma (",").
+! "Unfilled" iValues are zero.
 !
-!  "Unfilled" iValues are zero.
+! Return codes:
+!1. Zero-length string.
+!2. iSize needs to be increased.
 !
-!  Return codes:
-!  1 Zero-length string.
-!  2 iSize needs to be increased.
+!#### Assumptions/bugs:
 !
-!  Assumptions/bugs:
+! A non-zero return code does not stop execution.
+! Allowed numerals are: 0,1,2,3,4,5,6,7,8,9.
+! A delimiter must be separated from another delimiter by at least one numeral.
+! The delimiter cannot be a numeral or a negative sign.
+! The character following a negative sign must be an allowed numeral.
+! The first character must be an allowed numeral or a negative sign.
+! The last character must be an allowed numeral.
+! The blank character (" ") cannot serve as a delimiter.
 !
-!  A non-zero return code does not stop execution.
-!  Allowed numerals are: 0,1,2,3,4,5,6,7,8,9.
-!  A delimiter must be separated from another delimiter by at least one numeral.
-!  The delimiter cannot be a numeral or a negative sign.
-!  The character following a negative sign must be an allowed numeral.
-!  The first character must be an allowed numeral or a negative sign.
-!  The last character must be an allowed numeral.
-!  The blank character (" ") cannot serve as a delimiter.
-!
-!  Examples of strings that will work:
+!#### Examples of strings that will work:
+!```
 !  "1"
 !  "-1"
 !  "-1,2004,-3"
 !  "1+-2+3"
 !  "-1A100A5"
-!  Examples of strings that will not work:
+!```
+!
+!#### Examples of strings that will not work:
+!```
 !  "1,--2,3"
 !  "1,,2,3"
 !  "1,A,3"
@@ -490,6 +476,21 @@ module MAPL_ExtDataMask
 !  "1,2,3,4,"
 !  "+1"
 !  "1 3 6"
+!```
+!
+  SUBROUTINE ExtDataExtractIntegers(string,iSize,iValues,delimiter,verbose,rc)
+
+  IMPLICIT NONE
+
+  CHARACTER(LEN=*), INTENT(IN)   :: string         !! Character-delimited string of integers
+  INTEGER, INTENT(IN)            :: iSize
+  INTEGER, INTENT(INOUT)         :: iValues(iSize) !! Space allocated for extracted integers
+  CHARACTER(LEN=*), OPTIONAL     :: delimiter      !! 1-character delimiter
+  LOGICAL, OPTIONAL, INTENT(IN)  :: verbose        !! Let me know iValues as they are found.
+                                                   !! DEBUG directive turns on the message even
+                                                   !! if verbose is not present or if
+                                                   !! verbose = .FALSE.
+  INTEGER, OPTIONAL, INTENT(OUT) :: rc             !! Return code
 
  INTEGER :: base,count,i,iDash,last,lenStr
  INTEGER :: multiplier,pos,posDelim,sign

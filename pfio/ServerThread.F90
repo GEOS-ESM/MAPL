@@ -3,7 +3,6 @@
 
 module pFIO_ServerThreadMod
    use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
@@ -41,6 +40,7 @@ module pFIO_ServerThreadMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_ModifyMetadataMessageMod
+   use pFIO_ReplaceMetadataMessageMod
 
    use pFIO_NetCDF4_FileFormatterMod
    use pFIO_HistoryCollectionMod
@@ -70,7 +70,7 @@ module pFIO_ServerThreadMod
       logical,public           :: terminate = .false.
       type (MessageVector),public     :: request_backlog
       logical                  :: have_done = .true.
-      class(AbstractServer),pointer :: containing_server=>null()
+      class(AbstractServer), pointer :: containing_server=>null()
       integer :: thread_rank
       type (IntegerVector) :: sub_array_types
    contains
@@ -95,6 +95,7 @@ module pFIO_ServerThreadMod
       procedure :: handle_StageData
       procedure :: handle_CollectiveStageData
       procedure :: handle_ModifyMetadata
+      procedure :: handle_ReplaceMetadata
       procedure :: handle_HandShake
 
       procedure :: get_hist_collection
@@ -135,9 +136,8 @@ contains
       type (ServerThread) :: s
       integer :: status
 
-      call s%set_connection(sckt, status)
-      _VERIFY(status)
-      if(present(server)) s%containing_server=>server
+      call s%set_connection(sckt, _RC)
+      if(present(server)) s%containing_server => server
 
       _RETURN(_SUCCESS)
    end function new_ServerThread
@@ -150,9 +150,8 @@ contains
 
       integer :: status
 
-      call this%set_connection(sckt, status)
-      _VERIFY(status)
-      this%containing_server=>server
+      call this%set_connection(sckt, _RC)
+      this%containing_server => server
 
       _RETURN(_SUCCESS)
    end subroutine init
@@ -170,8 +169,7 @@ contains
       message => connection%receive()
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("wait_message")
       if (associated(message)) then
-         call message%dispatch(this, status)
-         _VERIFY(status)
+         call message%dispatch(this, _RC)
          deallocate(message)
       end if
       _RETURN(_SUCCESS)
@@ -227,7 +225,6 @@ contains
       class(AbstractMessage),pointer :: dMessage
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
-      class(AbstractSocket),pointer :: connection
       integer :: status
 
       ! first time handling the "Done" message, simple return
@@ -235,7 +232,7 @@ contains
       if ( this%have_done) then
          this%have_done = .false.
           ! Simple server will continue, but no effect for other server type
-         dMessage=>this%containing_server%get_dmessage()
+         dMessage => this%containing_server%get_dmessage()
          call dmessage%dispatch(this, _RC)
          deallocate(dmessage)
          _RETURN(_SUCCESS)
@@ -250,8 +247,6 @@ contains
 
       iter = this%request_backlog%begin()
       msg => iter%get()
-      connection=>this%get_connection(status)
-      _VERIFY(status)
 
       select type (q=>msg)
       type is (PrefetchDataMessage)
@@ -543,7 +538,7 @@ contains
    end subroutine handle_AddHistCollection
 
    subroutine handle_PrefetchData(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (PrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -559,7 +554,7 @@ contains
    end subroutine handle_PrefetchData
 
    subroutine handle_CollectivePrefetchData(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (CollectivePrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -575,7 +570,7 @@ contains
    end subroutine handle_CollectivePrefetchData
 
    subroutine handle_ModifyMetadata(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (ModifyMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -592,6 +587,25 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine handle_ModifyMetadata
+
+   subroutine handle_ReplaceMetadata(this, message, rc)
+      class (ServerThread), target, intent(inout) :: this
+      type (ReplaceMetadataMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      type (HistoryCollection),pointer :: hist_collection
+      class(AbstractSocket),pointer :: connection
+      type (DummyMessage) :: handshake_msg
+      integer :: status
+
+      hist_collection=>this%hist_collections%at(message%collection_id)
+      call hist_collection%ReplaceMetadata(message%fmd)
+
+      connection=>this%get_connection()
+      call connection%send(handshake_msg,_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine handle_ReplaceMetadata
 
    subroutine handle_HandShake(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
@@ -718,7 +732,7 @@ contains
    end subroutine get_DataFromFile
 
    subroutine handle_StageData(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (StageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -740,23 +754,25 @@ contains
    end subroutine handle_StageData
 
    subroutine handle_CollectiveStageData(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (CollectiveStageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
       class(AbstractSocket),pointer :: connection
-      type(LocalMemReference) :: mem_data_reference
+      type(LocalMemReference), target :: mem_data_reference
       type(DummyMessage) :: handshake_msg
       integer :: status
-
-      connection=>this%get_connection()
+      class(AbstractRequestHandle), allocatable :: handle
+      
+      connection => this%get_connection()
       call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)
 
-      mem_data_reference=LocalMemReference(message%type_kind,message%count)
+      mem_data_reference = LocalMemReference(message%type_kind,message%count)
       !iRecv
-      call this%insert_RequestHandle(message%request_id, &
-              & connection%get(message%request_id, mem_data_reference))
+      handle = connection%get(message%request_id, mem_data_reference)
+      call this%insert_RequestHandle(message%request_id, handle, _RC)
+
       _RETURN(_SUCCESS)
    end subroutine handle_CollectiveStageData
 
@@ -824,16 +840,16 @@ contains
       case (1:)
           select case (message%type_kind)
           case (pFIO_INT32)
-              call c_f_pointer(address, values_int32_1d, [product(count)])
+              call c_f_pointer(address, values_int32_1d, [product(int(count, INT64))])
               call formatter%put_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
           case (pFIO_INT64)
-              call c_f_pointer(address, values_int64_1d, [product(count)])
+              call c_f_pointer(address, values_int64_1d, [product(int(count, INT64))])
               call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
           case (pFIO_REAL32)
-              call c_f_pointer(address, values_real32_1d, [product(count)])
+              call c_f_pointer(address, values_real32_1d,[product(int(count, INT64))])
               call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
           case (pFIO_REAL64)
-              call c_f_pointer(address, values_real64_1d, [product(count)])
+              call c_f_pointer(address, values_real64_1d,[product(int(count, INT64))])
               call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
           case default
               _FAIL( "not supported type")
@@ -849,7 +865,7 @@ contains
 
      class (AbstractDataReference), pointer :: dataRefPtr
      type (RDMAReference), pointer :: remotePtr
-     integer(kind=MPI_ADDRESS_KIND) :: msize_word, offset
+     integer(kind=MPI_ADDRESS_KIND) :: offset
      integer :: local_size
      integer, pointer :: k_ptr(:)
      type (MessageVectorIterator) :: iter
@@ -875,7 +891,6 @@ contains
             if (local_size > 0) then
                call c_f_pointer(handle%data_reference%base_address, k_ptr, shape=[local_size])
                collection_counter = this%containing_server%stage_offset%at(i_to_string(msg%collection_id))
-               msize_word  = this%containing_server%stage_offset%of(i_to_string(MSIZE_ID+collection_counter))
 
                ndims = size(msg%start)
                offset  = this%containing_server%stage_offset%at(i_to_string(msg%request_id))
@@ -962,27 +977,19 @@ contains
 
       integer :: status
 
-      _UNUSED_DUMMY(message)
-
       this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
          _RETURN(_SUCCESS)
       endif
-
       _ASSERT( associated(this%containing_server), "need server")
 
-      call this%containing_server%create_remote_win(rc=status)
-      _VERIFY(status)
-
-      call this%containing_server%receive_output_data(rc=status)
-      _VERIFY(status)
-
-      call this%containing_server%put_dataToFile(rc=status)
-      _VERIFY(status)
-
+      call this%containing_server%create_remote_win(_RC)
+      call this%containing_server%receive_output_data(_RC)
+      call this%containing_server%put_dataToFile(_RC)
       call this%containing_server%clean_up()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_stage
 
    recursive subroutine handle_Done_stage(this, message, rc)
@@ -992,7 +999,6 @@ contains
 
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
-      class(AbstractSocket),pointer :: connection
       class (AbstractRequestHandle), pointer :: handle
       integer :: status
 
@@ -1005,8 +1011,6 @@ contains
       iter = this%request_backlog%begin()
       do while ( iter /= this%request_backlog%end())
          msg => iter%get()
-         connection=>this%get_connection(status)
-         _VERIFY(status)
 
          select type (q=>msg)
          type is (StageDataMessage)
@@ -1070,6 +1074,7 @@ contains
        _UNUSED_DUMMY(message)
    end subroutine handle_Done_prefetch
 
+
    recursive subroutine handle_Done_collective_prefetch(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
       type (CollectivePrefetchDoneMessage), intent(in) :: message
@@ -1102,7 +1107,6 @@ contains
       call this%containing_server%get_DataFromMem(multi_data_read, _RC)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
-
       call this%containing_server%clean_up()
 
       _RETURN(_SUCCESS)

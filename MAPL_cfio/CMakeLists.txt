@@ -3,7 +3,7 @@ string (REPLACE MAPL_cfio_ "" precision ${this})
 
 
 set (srcs
-  ESMF_CFIOBaseMod.f
+  ESMF_CFIOBaseMod.F90
   ESMF_CFIOFileMod.F90
   ESMF_CFIOGridMod.F90
   ESMF_CFIOMod.F90
@@ -53,4 +53,24 @@ if (precision MATCHES "r8")
   foreach (flag ${flags})
     target_compile_options (${lib} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${flag}>)
   endforeach ()
+endif ()
+
+if (USE_F2PY)
+  if (precision STREQUAL "r4")
+    find_package(F2PY3)
+    if (F2PY3_FOUND)
+      esma_add_f2py3_module(ShaveMantissa_
+        SOURCES ShaveMantissa_py.F90 ShaveMantissa.c
+        DESTINATION lib/Python/${this}
+        INCLUDEDIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/lib ${include_${this}}
+        )
+      add_dependencies(ShaveMantissa_ ${this})
+
+      # Install the Python files
+      install (
+        FILES shavemantissa.py
+        DESTINATION lib/Python/${this}
+        )
+      endif ()
+  endif ()
 endif ()

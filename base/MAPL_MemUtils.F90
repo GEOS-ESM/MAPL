@@ -1,12 +1,17 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
 #include "MAPL_ErrLog.h"
 
-!BOP
-
-! !MODULE: MAPL_MemUtilsMod -- A Module to query/print memory use per processor (Adapted by WMP from FMS memuse utility)
-
-
-! !INTERFACE:
-
+!>
+!### MODULE: `MAPL_MemUtilsMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_MemUtilsMod` -- A Module to query/print memory use per processor (Adapted by WMP from FMS memuse utility)
+!
 module MAPL_MemUtilsMod
 
   use ESMF
@@ -17,6 +22,7 @@ module MAPL_MemUtilsMod
   use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use mpi
 
 !Author: Balaji (V.Balaji@noaa.gov)
 !Various operations for memory management
@@ -53,6 +59,7 @@ module MAPL_MemUtilsMod
   public MAPL_MemUtilsFree
   public MAPL_MemCommited
   public MAPL_MemUsed
+  public MAPL_MemReport
 
 #ifdef _CRAY
   public :: hplen
@@ -72,8 +79,6 @@ module MAPL_MemUtilsMod
   integer, public, parameter :: MAPL_MemUtilsModeBase = 0
   integer, save      :: MAPL_MemUtilsMode
   real, save :: gmax_save
-
-  include "mpif.h"
 
   contains
 
@@ -141,7 +146,7 @@ module MAPL_MemUtilsMod
       _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_MemUtilsInit
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-----------------------------------------------------------------------
 !                                                                      !
 !MEMCPY routines: <nelems> real*8 words are copied from RHS to LHS     !
 !  Either side can have constant stride (lhs_stride, rhs_stride)       !
@@ -184,7 +189,7 @@ module MAPL_MemUtilsMod
 !T3E: we use the shmem routines on-processor to effect the transfer    !
 !     via the (faster) E-registers                                     !
 !                                                                      !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-----------------------------------------------------------------------
     subroutine memcpy_r8( lhs, rhs, dim, nelems, lhs_stride, rhs_stride )
 !base routine: handles constant stride memcpy
 !default strides are of course 1
@@ -762,5 +767,33 @@ subroutine get_unit ( iunit )
 
   return
 end subroutine get_unit
+
+subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
+   integer, intent(in) :: comm
+   character(len=*), intent(in) :: file_name
+   integer, intent(in) :: line
+   character(len=*), intent(in), optional :: decorator
+   integer, intent(out), optional :: rc
+
+    real :: mem_total,mem_used,percent_used
+    real :: committed_total,committed,percent_committed
+    integer :: rank,status
+    character(len=:), allocatable :: extra_message
+
+#ifdef sysDarwin
+    _RETURN(ESMF_SUCCESS)
+#endif
+    call MPI_Barrier(comm,status)
+    if (present(decorator)) then
+       extra_message = decorator
+    else
+       extra_message = ""
+    end if
+    call MAPL_MemUsed(mem_total,mem_used,percent_used)
+    call MAPL_MemCommited(committed_total,committed,percent_committed)
+    call MPI_Comm_Rank(comm,rank,status)
+    if (rank == 0) write(*,'("Mem report ",A20," ",A30," ",i7," ",f5.1,"% : ",f5.1,"% Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
+
+end subroutine
 
 end module MAPL_MemUtilsMod

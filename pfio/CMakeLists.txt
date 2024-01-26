@@ -10,8 +10,6 @@ endif()
 
 set (srcs
   # pFIO Files
-  pFIO_ShaveMantissa.c
-  DownBit.F90
   pFIO_Constants.F90
   UnlimitedEntity.F90
   Attribute.F90
@@ -48,6 +46,7 @@ set (srcs
   CollectiveStageDataMessage.F90
   AddHistCollectionMessage.F90
   ModifyMetadataMessage.F90
+  ReplaceMetadataMessage.F90
   ForwardDataAndMessage.F90
   ForwardDataMessage.F90
   ProtocolParser.F90
@@ -91,8 +90,36 @@ set (srcs
   StringVectorUtil.F90
   )
 
+###############################################################
+# Check to see if quantize capability is present in netcdf-c. #
+###############################################################
+
+include(CheckCSourceCompiles)
+set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIRS})
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_QUANTIZE
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_QUANTIZE)
+if (NETCDF_HAS_QUANTIZE)
+  message(STATUS "netCDF has quantize capability")
+  add_definitions(-DNF_HAS_QUANTIZE)
+else ()
+  message(STATUS "netCDF does not have quantize capability")
+endif ()
+
+if (BUILD_WITH_PFLOGGER)
+  find_package (PFLOGGER REQUIRED)
+endif ()
+
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
-target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
+
+target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
@@ -106,10 +133,15 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
+if (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+  target_compile_definitions(${this} PRIVATE SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+endif ()
+
 ecbuild_add_executable (
    TARGET pfio_open_close.x
    SOURCES pfio_open_close.F90
-   LIBS ${this} )
+   LIBS ${this})
+
 set_target_properties (pfio_open_close.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 ecbuild_add_executable (

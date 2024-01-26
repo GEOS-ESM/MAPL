@@ -150,7 +150,7 @@ CONTAINS
           call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",_RC)
        end if
 
-
+       _RETURN(_SUCCESS)
      end function create_cf
 
     function create_gridname(im,jm,date,pole) result(gridname)
@@ -172,7 +172,6 @@ CONTAINS
 ! This is how you can "reset" the MAPL_Generic.h verify bits for a program.
 ! Program must be at the end of the file to do this and everything else in a module
 
-#undef MAPL_ErrLog_DONE
 #define I_AM_MAIN
 #include "MAPL_Generic.h"
 
@@ -261,7 +260,7 @@ CONTAINS
     call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
 
     lm_world=3
-    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,_RC)
+    cfoutput = create_cf(trim(gridname),im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,_RC)
     grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",_RC)
     bundle=ESMF_FieldBundleCreate(name="cfio_bundle",_RC)
     call ESMF_FieldBundleSet(bundle,grid=grid_new,_RC)

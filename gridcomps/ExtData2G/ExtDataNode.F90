@@ -15,6 +15,7 @@ module MAPL_ExtDataNode
       integer :: time_index
       logical :: was_set = .false.
       contains
+         procedure :: check_if_initialized
          procedure :: set
          procedure :: get
          procedure :: equals
@@ -22,6 +23,15 @@ module MAPL_ExtDataNode
    end type
 
 contains
+
+   function check_if_initialized(this,rc) result(field_initialized)
+      logical :: field_initialized
+      class(ExtDataNode), intent(inout) :: this
+      integer, intent(out), optional :: rc
+      integer :: status
+      field_initialized = ESMF_FieldIsCreated(this%field,_RC)
+      _RETURN(_SUCCESS)
+   end function
 
    subroutine set(this, unusable, field, time, file, time_index, was_set, rc)
       class(ExtDataNode), intent(inout) :: this

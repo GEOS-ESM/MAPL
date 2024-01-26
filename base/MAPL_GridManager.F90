@@ -17,7 +17,6 @@ module MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use ESMF
-   use MAPL_ExceptionHandling, only: MAPL_throw_exception
    implicit none
    private
 
@@ -33,6 +32,9 @@ module MAPL_GridManager_private
       type (Integer64GridFactoryMap) :: factories
    contains
       procedure :: add_prototype
+      procedure :: destroy_grid
+      generic :: destroy => destroy_grid
+
       procedure :: delete
 !!$   procedure :: make_field
 !!$   procedure :: delete_field
@@ -59,6 +61,7 @@ module MAPL_GridManager_private
       procedure :: make_clone
       procedure :: get_id
       procedure :: add_factory
+      procedure :: is_valid_prototype
 
    end type GridManager
 
@@ -78,14 +81,87 @@ contains
       
    end subroutine add_prototype
 
+   ! Is prototype_name present in the prototypes map keys?
+   logical function is_valid_prototype(this, prototype_name, unusable, rc)
+      class (GridManager), intent(inout) :: this
+      character(len=*), intent(in) :: prototype_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical, save :: initialized = .false.
+
+      _UNUSED_DUMMY(unusable)
+
+      ! This is a local variable to prevent the function from running
+      ! initialiazation twice. It avoids a shared state variable for
+      ! initialization status.
+      initialized = .false.
+
+      ! Do not initialize prototypes more than once.
+      if (.not. initialized) then
+         call initialize_prototypes(this, _RC)
+         initialized = .true.
+      end if
+
+      is_valid_prototype = .not. this%prototypes%find(prototype_name) == this%prototypes%end()
+
+      _RETURN(_SUCCESS)
+
+   end function is_valid_prototype
+
+   ! Add (name, GridFactory) items to prototypes map.
+   !---------------
+   ! Note:
+   ! We need to add LatLon prototype somewhere, and MAPL does not have
+   ! a natural initialization.  Other grids can be added during
+   ! setServices or initialize of the component that defines the grid.
+   !---------------
+   subroutine initialize_prototypes(this, unusable, rc)
+      use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
+      use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
+      use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
+      use MAPL_LlcGridFactoryMod, only: LlcGridFactory
+      use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
+      use MAPL_XYGridFactoryMod, only: XYGridFactory
+      use MAPL_SwathGridFactoryMod, only : SwathGridFactory
+
+      class (GridManager), intent(inout) :: this
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      type (LatLonGridFactory) :: latlon_factory
+      type (CubedSphereGridFactory) :: cubed_factory
+      type (TripolarGridFactory) :: tripolar_factory
+      type (LlcGridFactory) :: llc_factory
+      type (ExternalGridFactory) :: external_factory
+      type (XYGridFactory) :: xy_factory
+      type (SwathGridFactory) :: swath_factory
+      
+      ! This is a local variable to prevent the subroutine from running
+      ! initialiazation twice. Calling functions have their own local variables
+      ! to prevent calling this subroutine twice, but the initialization status
+      ! is not shared. This guarantees it. It's a trade-off between efficiency
+      ! with a shared state variable with avoiding a shared state vartiable.
+      logical, save :: initialized = .false.
+
+      ! intialized check prevents adding same items twice
+      if (.not. initialized) then
+         call this%prototypes%insert('LatLon', latlon_factory)
+         call this%prototypes%insert('Cubed-Sphere', cubed_factory)
+         call this%prototypes%insert('Tripolar',  tripolar_factory)
+         call this%prototypes%insert('llc',  llc_factory)
+         call this%prototypes%insert('External', external_factory)
+         call this%prototypes%insert('XY', xy_factory)
+         call this%prototypes%insert('Swath', swath_factory)         
+         initialized = .true. 
+      end if
+
+      _RETURN(_SUCCESS)
+
+      _UNUSED_DUMMY(unusable)
+   end subroutine initialize_prototypes
 
    function make_clone(this, grid_type, unusable, rc) result(factory)
-     use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-     use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-     use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
-     use MAPL_LlcGridFactoryMod, only: LlcGridFactory
-     use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
-     !use MAPL_OldCubedSphereGridFactoryMod, only: OldCubedSphereGridFactory
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: grid_type
@@ -96,32 +172,17 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_clone'
 
-      !---------------
-      ! Note:
-      ! We need to add LatLon prototype somewhere, and MAPL does not have
-      ! a natural initialization.  Other grids can be added during
-      ! setServices or initialize of the component that defines the grid.
-      !---------------
+      ! This is a local variable to prevent the function from running
+      ! initialiazation twice.
       logical, save :: initialized = .false.
-      type (LatLonGridFactory) :: latlon_factory
-      type (CubedSphereGridFactory) :: cubed_factory
-      !type (OldCubedSphereGridFactory) :: old_cubed_factory
-      type (TripolarGridFactory) :: tripolar_factory
-      type (LlcGridFactory) :: llc_factory
-      type (ExternalGridFactory) :: external_factory
 
       _UNUSED_DUMMY(unusable)
 
+      ! Do not initialize prototypes more than once.
       if (.not. initialized) then
-           call this%prototypes%insert('LatLon', latlon_factory)
-           call this%prototypes%insert('Cubed-Sphere', cubed_factory)
-           !call this%prototypes%insert('Old-Cubed-Sphere', old_cubed_factory)
-           call this%prototypes%insert('Tripolar',  tripolar_factory)
-           call this%prototypes%insert('llc',  llc_factory)
-           call this%prototypes%insert('External', external_factory)
+           call initialize_prototypes(this, _RC)
            initialized = .true.
       end if
-
 
       prototype => this%prototypes%at(grid_type)
 
@@ -138,7 +199,7 @@ contains
       
 
    subroutine add_factory(this, factory, id)
-      class (GridManager), intent(inout) :: this
+      class (GridManager), target, intent(inout) :: this
       class (AbstractGridFactory), intent(in) :: factory
       integer(kind=ESMF_KIND_I8), optional, intent(out)  :: id
 
@@ -182,7 +243,7 @@ contains
 
       use ESMF
       type (ESMF_Grid) :: grid
-      class (GridManager), intent(inout) :: this
+      class (GridManager), target, intent(inout) :: this
       class (AbstractGridFactory), intent(in) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional,  intent(out) :: rc
@@ -236,7 +297,7 @@ contains
       end if
 
       call ESMF_ConfigGetAttribute(config, label=label, value=grid_type, rc=status)
-      _ASSERT(status==0,'label not found')
+      _ASSERT(status==0,'label ['//label//'] not found')
 
       allocate(factory, source=this%make_factory(trim(grid_type), config, prefix=prefix, rc=status))
       _VERIFY(status)
@@ -342,6 +403,27 @@ contains
    end function make_factory_from_distGrid
 
 
+   subroutine destroy_grid(this, grid, unusable, rc)
+      use ESMF
+      class (GridManager), target, intent(inout) :: this
+      type (ESMF_Grid), intent(inout) :: grid
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer (kind=ESMF_KIND_I8) :: id
+      class(AbstractGridFactory), pointer :: factory
+      type(Integer64GridFactoryMapIterator) :: iter
+
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, _RC)
+      factory => this%factories%at(id)
+      call factory%destroy(_RC)
+      iter = this%factories%find(id)
+      call this%factories%erase(iter)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine destroy_grid
 
    ! Clients should use this procedure to release ESMF resources when a grid
    ! is no longer being used.
@@ -358,21 +440,19 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'destroy_grid'
 
-      _UNUSED_DUMMY(unusable)
-
       if (.not. this%keep_grids) then
-         call ESMF_GridDestroy(grid, rc=status)
+         call ESMF_GridDestroy(grid, noGarbage=.true., rc=status)
          _ASSERT(status==0,'failed to destroy grid')
       end if
 
       _RETURN(_SUCCESS)
-      
+      _UNUSED_DUMMY(unusable)
    end subroutine delete
 
 
    function get_factory(this, grid, unusable, rc) result(factory)
       class (AbstractGridFactory), pointer :: factory
-      class (GridManager), intent(in) :: this
+      class (GridManager), target, intent(in) :: this
       type (ESMF_Grid), intent(in) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -406,7 +486,7 @@ contains
       
       type (FileMetadata) :: file_metadata
       type (NetCDF4_FileFormatter) :: file_formatter
-      integer :: im, jm, nf
+      integer :: im, jm
       
       character(len=*), parameter :: Iam= MOD_NAME // 'make_factory_from_file()'
       integer :: status
@@ -421,7 +501,8 @@ contains
       logical :: hasLongitude = .FALSE.
       logical :: hasLat       = .FALSE.
       logical :: hasLatitude  = .FALSE.
-      
+      logical :: splitByface  = .FALSE.
+ 
       _UNUSED_DUMMY(unused)
 
       call ESMF_VMGetCurrent(vm, rc=status)
@@ -433,6 +514,10 @@ contains
       _VERIFY(status)
       file_metadata = file_formatter%read(rc=status)
       _VERIFY(status)
+      call file_formatter%close(rc=status)
+      _VERIFY(status)
+
+      splitByface = file_metadata%has_attribute("Cubed_Sphere_Face_Index")
 
       im = 0
       hasXdim = file_metadata%has_dimension('Xdim')
@@ -457,8 +542,10 @@ contains
          attr => file_metadata%get_attribute('grid_type')
          attr_value => attr%get_value()
          select type (attr_value)
-         type is (StringWrap)
-            grid_type => attr_value%value
+         type is (character(*))
+            grid_type => attr_value
+         class default
+            _FAIL("grid_type attribute must be stringwrap") 
          end select
          allocate(factory,source=this%make_clone(grid_type))
       else if (hasXdim) then
@@ -466,11 +553,10 @@ contains
          if (status == _SUCCESS) then
             jm = file_metadata%get_dimension('Ydim',rc=status)
             _VERIFY(status)
-            if (jm == 6*im) then 
+            if (jm == 6*im .or. splitByface) then 
                allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
-               nf = file_metadata%get_dimension('nf',rc=status)
-               if (status == _SUCCESS) then
+               if (file_metadata%has_dimension('nf')) then
                   allocate(factory, source=this%make_clone('Cubed-Sphere'))
                end if
             end if
@@ -489,7 +575,7 @@ contains
             end if
          end if
 
-         if (jm == 6*im) then ! old-format cubed-sphere
+         if (jm == 6*im .or. splitByface) then ! old-format cubed-sphere
             allocate(factory, source=this%make_clone('Cubed-Sphere'))
 !!$        elseif (...) then ! something that is true for tripolar?
 !!$           factory = this%make_clone('tripolar')
@@ -501,7 +587,6 @@ contains
 
      call factory%initialize(file_metadata, force_file_coordinates=force_file_coordinates, rc=status)
      _VERIFY(status)
-     call file_formatter%close(rc=status)
 
      _RETURN(_SUCCESS)
      
@@ -514,7 +599,6 @@ module MAPL_GridManagerMod
    use MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
-   use MAPL_ExceptionHandling, only: MAPL_throw_exception
    use ESMF
    implicit none
    private

@@ -1,11 +1,18 @@
-
-!----------------------------------------------------------------------------
-!BOP
-
-! !MODULE: MAPL_MaxMinMod --- Global Max/Min of Arrays
-
-! !INTERFACE:
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_MaxMinMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_MaxMinMo` --- Global Max/Min of Arrays
+!
+! This module implements functions for calculating/printing out the global min/max
+! of fortran arrays. Derived from GEOS-4 pmaxmin() functions.
+!
    module MAPL_MaxMinMod
 
 
@@ -20,11 +27,6 @@
 !
       private
       public  MAPL_MaxMin
-
-! !DESCRIPTION:  This module implements functions for calculating/printing out the global min/max
-!                 of fortran arrays. Derived from GEOS-4 pmaxmin() functions.
-
-!EOP
 
       interface MAPL_MaxMin
 
@@ -42,7 +44,7 @@ CONTAINS
 
   subroutine pmaxmin3d_r4 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:,:,:)     ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R4), optional, intent(out) :: pmax, pmin   ! min/max value
@@ -56,7 +58,7 @@ CONTAINS
     subroutine pmaxmin2d_r4 ( qname, a, pmin_, pmax_, fac_ )
 
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:,:)       ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac_         ! multiplication factor
       real(ESMF_KIND_R4), optional, intent(out) :: pmax_, pmin_ ! min/max value
@@ -113,7 +115,7 @@ CONTAINS
       call MAPL_CommsAllReduceMax(vm, sendbuf=pm1, recvbuf=pm_res, cnt=two, RC=status)
       pmax=pm_res(1)
       pmin=-pm_res(2)
-     
+
       if ( present(pmax_) ) pmax_ = pmax
       if ( present(pmin_) ) pmin_ = pmin
       deallocate(qmax,qmin)
@@ -133,7 +135,7 @@ CONTAINS
 
     subroutine pmaxmin1d_r4 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:)         ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R4), optional, intent(out) :: pmax, pmin   ! min/max value
@@ -148,12 +150,12 @@ CONTAINS
 
   subroutine pmaxmin3d_r8 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:,:,:)     ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R8), optional, intent(out) :: pmax, pmin   ! min/max value
 !                         ---
-      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4 
+      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4
       if ( present(fac) ) then
          fac_r4 = fac
       else
@@ -166,12 +168,12 @@ CONTAINS
 
   subroutine pmaxmin2d_r8 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:,:)     ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R8), optional, intent(out) :: pmax, pmin   ! min/max value
 !                         ---
-      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4 
+      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4
       if ( present(fac) ) then
          fac_r4 = fac
       else
@@ -184,12 +186,12 @@ CONTAINS
 
   subroutine pmaxmin1d_r8 ( qname, a, pmin, pmax, fac )
       implicit none
-      character*(*),                intent(in)  :: qname        ! label to print
+      character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:)         ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor
       real(ESMF_KIND_R8), optional, intent(out) :: pmax, pmin   ! min/max value
 !                         ---
-      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4 
+      real(ESMF_KIND_R4) :: pmin_r4, pmax_r4, fac_r4
       if ( present(fac) ) then
          fac_r4 = fac
       else

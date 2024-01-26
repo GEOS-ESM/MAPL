@@ -1,11 +1,21 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
-
+!
+!>
+!### MODULE: `MAPL_Base`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_Base` provides a collection assorted
+! utilities and constants used throughout the MAPL Library.
+!
 module MAPL_Base
-
-  !BOP
-  !
-  ! !MODULE: MAPL_BaseMod --- A Collection of Assorted MAPL Utilities
 
   ! !USES:
   !
@@ -48,9 +58,9 @@ module MAPL_Base
   public MAPL_StateAdd
   public MAPL_FieldBundleAdd
   public MAPL_FieldBundleGet
-  public MAPL_FieldDestroy
   public MAPL_FieldBundleDestroy
   public MAPL_GetHorzIJIndex
+  public MAPL_GetGlobalHorzIJIndex
   public MAPL_GenGridName
   public MAPL_GenXYOffset
   public MAPL_GeosNameNew
@@ -65,7 +75,7 @@ module MAPL_Base
   public MAPL_GetCorrectedPhase
 
 
-  real,    public, parameter :: MAPL_UNDEF              = 1.0e15  
+  real,    public, parameter :: MAPL_UNDEF              = 1.0e15
 
 
   character(len=ESMF_MAXSTR), public, parameter :: MAPL_StateItemOrderList = 'MAPL_StateItemOrderList'
@@ -79,17 +89,6 @@ module MAPL_Base
      !logical :: am_i_root
   end type MAPL_Communicator
 
-#ifdef __PROTEX__
-
-  !DESCRIPTION:
-
-  The module {\tt MAPL\_Base} provides a collection assorted
-  utilities and constants used throughout the MAPL Library.
-
-
-#endif
-
-  !EOP
   !----------------------------------------------------------------------
 
   interface MAPL_FieldCreate
@@ -143,26 +142,26 @@ module MAPL_Base
      module subroutine MAPL_AllocateCoupling(field, rc)
        use ESMF, only: ESMF_Field
        type(ESMF_Field),  intent(INOUT) :: field
-       integer, optional, intent(  OUT) :: rc             
+       integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_AllocateCoupling
 
      module subroutine MAPL_FieldAllocCommit(field, dims, location, typekind, &
           hw, ungrid, default_value, rc)
        use ESMF, only: ESMF_Field
        type(ESMF_Field),               intent(INOUT) :: field
-       integer,                        intent(IN   ) :: dims            
-       integer,                        intent(IN   ) :: location            
+       integer,                        intent(IN   ) :: dims
+       integer,                        intent(IN   ) :: location
        integer,                        intent(IN   ) :: typekind
        integer,                        intent(IN   ) :: hw !halowidth
        integer,              optional, intent(IN   ) :: ungrid(:)
        real,                 optional, intent(IN   ) :: default_value
-       integer,              optional, intent(  OUT) :: rc             
+       integer,              optional, intent(  OUT) :: rc
      end subroutine MAPL_FieldAllocCommit
 
      module subroutine MAPL_FieldF90Deallocate(field, rc)
        use ESMF, only: ESMF_Field
        type(ESMF_Field),  intent(INOUT) :: field
-       integer, optional, intent(  OUT) :: rc             
+       integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_FieldF90Deallocate
 
      module subroutine MAPL_SetPointer2DR4(state, ptr, name, rc)
@@ -170,7 +169,7 @@ module MAPL_Base
        type(ESMF_State),               intent(INOUT) :: state
        real,                           pointer       :: ptr(:,:)
        character(len=*),               intent(IN   ) :: name
-       integer,              optional, intent(  OUT) :: rc             
+       integer,              optional, intent(  OUT) :: rc
      end subroutine MAPL_SetPointer2DR4
 
      module subroutine MAPL_SetPointer3DR4(state, ptr, name, rc)
@@ -178,7 +177,7 @@ module MAPL_Base
        type(ESMF_State),               intent(INOUT) :: state
        real,                           pointer       :: ptr(:,:,:)
        character(len=*),               intent(IN   ) :: name
-       integer,              optional, intent(  OUT) :: rc             
+       integer,              optional, intent(  OUT) :: rc
      end subroutine MAPL_SetPointer3DR4
 
      module subroutine MAPL_DecomposeDim ( dim_world,dim,NDEs, unusable, symmetric, min_DE_extent )
@@ -202,13 +201,13 @@ module MAPL_Base
 
      module subroutine MAPL_Interp_Fac (TIME0, TIME1, TIME2, FAC1, FAC2, RC)
        use ESMF, only: ESMF_Time
-       !------------------------------------------------------------        
+       !------------------------------------------------------------
 
        !  PURPOSE:
        !  ========
        !
-       !    Compute interpolation factors, fac, to be used 
-       !    in the calculation of the instantaneous boundary 
+       !    Compute interpolation factors, fac, to be used
+       !    in the calculation of the instantaneous boundary
        !    conditions, ie:
        !
        !     q(i,j) = fac1*q1(i,j) + (1.-fac1)*q2(i,j)
@@ -221,16 +220,16 @@ module MAPL_Base
        !  INPUT:
        !  ======
        !    time0    : Time of current timestep
-       !    time1    : Time of boundary data 1 
-       !    time2    : Time of boundary data 2 
+       !    time1    : Time of boundary data 1
+       !    time2    : Time of boundary data 2
 
        !  OUTPUT:
        !  =======
        !     fac1    : Interpolation factor for Boundary Data 1
        !
-       ! ------------------------------------------------------------        
-       !               GODDARD LABORATORY FOR ATMOSPHERES            
-       ! ------------------------------------------------------------        
+       ! ------------------------------------------------------------
+       !               GODDARD LABORATORY FOR ATMOSPHERES
+       ! ------------------------------------------------------------
 
        type(ESMF_Time),   intent(in ) :: TIME0, TIME1, TIME2
        real,              intent(out) :: FAC1
@@ -241,7 +240,7 @@ module MAPL_Base
      module subroutine MAPL_ClimInterpFac (CLOCK,I1,I2,FAC, RC)
        use ESMF, only: ESMF_Clock
 
-       !------------------------------------------------------------        
+       !------------------------------------------------------------
 
        type(ESMF_CLOCK),  intent(in ) :: CLOCK
        integer,           intent(OUT) :: I1, I2
@@ -293,13 +292,13 @@ module MAPL_Base
        integer, intent(in) :: nhms
      end function MAPL_nsecf
 
+     integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
+       integer :: nhhmmss, nmmdd, nymd
+     end function MAPL_nsecf2
+
      module subroutine MAPL_tick (nymd,nhms,ndt)
        integer nymd,nhms,ndt
      end subroutine MAPL_tick
-
-     integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
-       integer nhhmmss,nmmdd,nymd
-     end function MAPL_nsecf2
 
      integer module function MAPL_nhmsf (nsec)
        implicit none
@@ -307,7 +306,7 @@ module MAPL_Base
      end function MAPL_nhmsf
 
      ! A year is a leap year if
-     ! 1) it is divible by 4, and 
+     ! 1) it is divible by 4, and
      ! 2) it is not divisible by 100, unless
      ! 3) it is also divisible by 400.
      logical module function MAPL_LEAP(NY)
@@ -315,7 +314,7 @@ module MAPL_Base
      end function MAPL_LEAP
 
 
-     integer module function MAPL_incymd (NYMD,M)                                                  
+     integer module function MAPL_incymd (NYMD,M)
        integer nymd,m
      end function MAPL_incymd
 
@@ -424,14 +423,100 @@ module MAPL_Base
        real(kind=REAL64), pointer            :: ptr(:,:,:)
      end function MAPL_RemapBounds_3dr8
 
-     !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-     !BOP
-
-     ! !IROUTINE: MAPL_LatLonGridCreate --- Create regular Lat/Lon Grid
-     !
-     ! !INTERFACE:
-
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!>
+! `MAPL_LatLonGridCreate` --- Create regular Lat/Lon Grid
+!
+! This routine creates a distributed ESMF grid where the horizontal
+! coordinates are regular longitudes and latitudes. The grid is
+! created on the user specified **VM**, or on the current VM if the user
+! does not specify one. The layout and the coordinate information can
+! be provided with a `ESMF_Config attribute, a resource file name
+! or specified through the argument list.
+!
+!### Using resource files
+! The **resource file** has a syntax similar to a GrADS
+! control file.  Here is an example defining a typical GEOS-5 1x1.25
+! grid with 72 layers:
+!
+!```
+!       GDEF: LatLon
+!       IDEF: 32
+!       JDEF: 16
+!       LDEF:  1
+!       XDEF: 288 LINEAR -180. 1.25
+!       YDEF: 181 LINEAR -90. 1.
+!       ZDEF:  72 LINEAR 1 1
+!```
+! More generally,
+!```
+!       GDEF: LatLon
+!       IDEF: Nx
+!       JDEF: Ny
+!       LDEF: Nz
+!       XDEF: IM_World XCoordType BegLon, DelLon
+!       YDEF: JM_World YCoordType BegLat, DelLat
+!       ZDEF: LM_World ZCoordType 1        1
+!```
+!
+! The attribute **GDEF** must always be `LatLon` for  Lat/Lon grids.
+! The remaining parameters are:
+!- **Nx** is the number of processors used to decompose the X dimension
+!- **Ny** is the number of processors used to decompose the Y dimension
+!- **Nz** is the number of processors used to decompose the Z dimension;
+!   must be 1 for now.
+!- **IM_World** is the number of longitudinal grid points; if `IM_World=0` then
+!   the grid has no zonal dimension.
+!- **XCoordType** must be set to LINEAR
+!- **BegLon** is the longitude (in degrees) of the {\em center} of the first gridbox
+!- **DelLon** is the constant mesh size (in degrees); if `DelLon<1` then a
+!   global grid is assumed.
+!- **JM_World** is the number of meridional grid points; if `JM_World=0` then
+!   the grid has no meridional dimension.
+!- **YCoordType** must be set to LINEAR
+!- **BegLat** s the latitude (in degrees) of the *center* of the first gridbox
+!- **DelLat** s the constant mesh size (in degrees); if `DelLat<1` then a
+!   global grid is assumed.
+!- **LM_World** is the number of vertical grid points; `LM_World=0` then the grid has no
+!   vertical dimension.
+!
+! As of this writing, only the size of the vertical grid `LM_World` needs to be specified.
+!
+!### Passing an ESMF Config
+! The `ESMF_Config` object `Config`, when specified, must
+! contain the same information as the resource file above.
+!
+!### Providing parameters explicitly through the argument list
+! Alternatively, one can specify coordinate information in the argument
+! list; their units and meaning is as in the resource file above. In
+! this case you must specify at least `Nx, Ny, IM_World, JM_World`, and
+! `LM_World`. The other parameters have default values
+!- **BegLon** defaults to -180. (the date line)
+!- **DelLon** defaults to -1. (meaning a global grid)
+!- **BegLat** defaults to -90. (the south pole)
+!- **DelLat** deaults to -1. (meaning a global grid)
+!
+!### Restrictions
+! The current implementation imposes the following restrictions:
+!1. Only uniform longitude/latitude grids are supported (no Gaussian grids).
+!2. Only 2D Lon-Lat or 3D Lon-Lat-Lev grids are currently supported
+!   (no Lat-Lev or Lon-Lev grids supprted yet).
+!3. No vertical decomposition yet (`Nz=1`).
+!
+!### Future enhancements
+! The `IDEF/JDEF/LDEF` records in the resource file should be
+! extended as to allow specification of a more general distribution.
+! For consistency with the `XDEF/YDEF/ZDEF` records a similar
+! syntax could be adopted. For example,
+!
+!```
+!       IDEF 4   LEVELS  22 50 50 22
+!       XDEF 144 LINEAR -180 2.5
+!```
+! would indicate that longitudes would be decomposed in 4 PETs,
+! with the first PET having 22 grid points, the second 50 gridpoints,
+! and so on.
+!
      module function MAPL_LatLonGridCreate (Name, vm,                 &
           Config, ConfigFile,       &
           Nx, Ny,                   &
@@ -452,8 +537,8 @@ module MAPL_Base
        !   There are 3 possibilities to provide the coordinate information:
 
        ! 1) Thru Config object:
-       type(ESMF_Config), OPTIONAL, target,     & 
-            intent(in)  :: Config 
+       type(ESMF_Config), OPTIONAL, target,     &
+            intent(in)  :: Config
 
        ! 2) Thru a resource file:
        character(len=*),  OPTIONAL, intent(in)  :: ConfigFile
@@ -461,7 +546,7 @@ module MAPL_Base
 
        ! 3) Thru argument list:
        integer,           OPTIONAL, intent(in)  :: Nx, Ny          ! Layout
-       integer,           OPTIONAL, intent(in)  :: IM_World        ! Zonal 
+       integer,           OPTIONAL, intent(in)  :: IM_World        ! Zonal
        real,              OPTIONAL, intent(in)  :: BegLon, DelLon  ! in degrees
 
        integer,           OPTIONAL, intent(in)  :: JM_World        ! Meridional
@@ -473,117 +558,6 @@ module MAPL_Base
 
        type (ESMF_Grid)                         :: Grid  ! Distributed grid
        integer,           OPTIONAL, intent(out) :: rc    ! return code
-#ifdef ___PROTEX___
-
-       !DESCRIPTION: 
-
-       This routine creates a distributed ESMF grid where the horizontal
-       coordinates are regular longitudes and latitudes. The grid is 
-       created on the user specified {\bf VM}, or on the current VM if the user 
-       does not specify one. The layout and the coordinate information can
-       be provided with a {\tt ESMF\_Config attribute}, a resource file name
-       or specified through the argument list.
-
-       \subsubsection*{Using resource files}
-
-       The {\bf resource file} {\tt ConfigFile} has a syntax similar to a GrADS
-       control file.  Here is an example defining a typical GEOS-5 1x1.25
-       grid with 72 layers:
-       %
-       \begin{verbatim}
-       GDEF: LatLon 
-       IDEF: 32  
-       JDEF: 16  
-       LDEF:  1  
-       XDEF: 288 LINEAR -180. 1.25
-       YDEF: 181 LINEAR -90. 1.
-       ZDEF:  72 LINEAR 1 1
-       \end{verbatim}
-       %
-       More generally, 
-       \begin{verbatim}
-       GDEF: LatLon 
-       IDEF: Nx 
-       JDEF: Ny
-       LDEF: Nz
-       XDEF: IM_World XCoordType BegLon, DelLon
-       YDEF: JM_World YCoordType BegLat, DelLat
-       ZDEF: LM_World ZCoordType 1        1
-       \end{verbatim}
-       The attribute {\bf GDEF} must always be {\tt LatLon} for  Lat/Lon grids. 
-       The remaining parameters are:
-       \bd
-       \item[Nx] is the number of processors used to decompose the X dimension
-       \item[Ny] is the number of processors used to decompose the Y dimension
-       \item[Nz] is the number of processors used to decompose the Z dimension;
-       must be 1 for now.          
-       \item[IM\_World] is the number of longitudinal grid points;  if {\tt IM\_World=0} then
-       the grid has no zonal dimension.
-       \item[XCoordType] must be set to LINEAR
-       \item[BegLon] is the longitude (in degrees) of the {\em center} of the first 
-       gridbox
-       \item[DelLon] is the constant mesh size (in degrees); if {\tt DelLon<1} then a
-       global grid is assumed.
-       %
-       \item[JM\_World] is the number of meridional grid points  if {\tt JM\_World=0} then
-       the grid has no meridional dimension.
-       \item[YCoordType] must be set to LINEAR
-       \item[BegLat] is the latitude (in degrees) of the {\em center} of the first 
-       gridbox
-       \item[DelLat] is the constant mesh size (in degrees); if {\tt DelLat<1} then a
-       global grid is assumed.
-       %
-       \item[LM\_World] is the number of vertical grid points; if {\tt LM\_World=0} then the grid has no
-       vertical dimension.
-       \ed
-       As of this writing, only the size of the vertical grid ({\tt LM\_World})
-       needs to be specified.
-
-       \subsubsection*{Passing an ESMF Config}
-
-       The {\bf ESMF\_Config} object {\tt Config}, when specified, must
-       contain the same information as the resource file above.
-
-       subsubsection*{Providing parameters explicitly through the argument list}
-
-       Alternatively, one can specify coordinate information in the argument
-       list; their units and meaning is as in the resource file above. In
-       this case you must specify at least {\tt Nx, Ny, IM\_World, JM\_World,} and 
-       {\tt LM\_World}. The other parameters have default values
-       \bd
-       \item[BegLon] defaults to -180. (the date line)
-       \item[DelLon] defaults to -1. (meaning a global grid)
-       \item[BegLat] defaults to -90. (the south pole)
-       \item[DelLat] deaults to -1. (meaning a global grid)
-       \ed
-
-       \subsubsection*{Restrictions}
-
-       The current implementation imposes the following 
-       restrictions:
-       \begin{enumerate}
-       \item Only uniform longitude/latitude grids are supported (no Gaussian grids).
-       \item Only 2D Lon-Lat or 3D Lon-Lat-Lev grids are currently supported 
-       (no Lat-Lev or Lon-Lev grids supprted yet).
-       \item No vertical decomposition yet ({\tt Nz=1}).
-       \end{enumerate}
-
-       \subsubsection*{Future enhancements}
-
-       The {\tt IDEF/JDEF/LDEF} records in the resource file should be
-       extended as to allow specification of a more general distribution.
-       For consistency with the {\tt XDEF/YDEF/ZDEF} records a similar 
-       syntax could be adopted. For example,
-       %
-       \begin{verbatim}
-       IDEF 4   LEVELS  22 50 50 22 
-       XDEF 144 LINEAR -180 2.5 
-       \end{verbatim}
-       would indicate that longitudes would be decomposed in 4 PETs,
-       with the first PET having 22 grid points, the second 50 gridpoints,
-       and so on. 
-
-#endif
      end function MAPL_LatLonGridCreate
 
      !............................................................................
@@ -667,12 +641,6 @@ module MAPL_Base
      end subroutine MAPL_FieldAttSetI4
      ! ========================================
 
-     module subroutine MAPL_FieldDestroy(Field,RC)
-       use ESMF, only: ESMF_Field
-       type(ESMF_Field),          intent(INOUT) :: Field
-       integer, optional,         intent(OUT  ) :: RC
-     end subroutine MAPL_FieldDestroy
-
      module subroutine MAPL_FieldBundleDestroy(Bundle,RC)
        use ESMF, only: ESMF_FieldBundle
        type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
@@ -728,6 +696,22 @@ module MAPL_Base
        type(ESMF_Grid),    optional, intent(inout) :: Grid ! ESMF grid
        integer,            optional, intent(out  ) :: rc  ! return code
      end subroutine MAPL_GetHorzIJIndex
+
+     module subroutine MAPL_GetGlobalHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
+       use ESMF, only: ESMF_KIND_R8, ESMF_GRid
+       implicit none
+       !ARGUMENTS:
+       integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
+       integer,                      intent(inout) :: II(npts) ! array of the first index for each lat and lon
+       integer,                      intent(inout) :: JJ(npts) ! array of the second index for each lat and lon
+       real, optional,               intent(in   ) :: lon(npts) ! array of longitudes in radians
+       real, optional,               intent(in   ) :: lat(npts) ! array of latitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) ! array of latitudes in radians
+       type(ESMF_Grid),    optional, intent(inout) :: Grid ! ESMF grid
+       integer,            optional, intent(out  ) :: rc  ! return code
+     end subroutine MAPL_GetGlobalHorzIJIndex
+
 
      module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
        integer :: im, jm
@@ -807,7 +791,7 @@ module MAPL_BaseMod
   use MAPL_RangeMod, only:   MAPL_Range
   use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_Constants
-   
+
 
 
 

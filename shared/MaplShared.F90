@@ -13,12 +13,13 @@ module MaplShared
    use mapl_LoadBalanceMod
    use mapl_KeywordEnforcerMod
    use mapl_InterpMod
-   use mapl_HeapMod
    use mapl_HashMod
    use mapl_ErrorHandlingMod
    use mapl_DirPathMod
    use mapl_Constants
    use mapl_CommGroupDescriptionMod
    use mapl_AbstractCommSplitterMod
+   use mapl_DownbitMod
+   use mapl_sleepMod
    
 end module MaplShared

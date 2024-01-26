@@ -35,7 +35,7 @@ class Exp(object):
         self.submit()  # resubmit itsef
 
     def submit(self):
-        raise NotImplementedError, "Not implemented yet"
+        raise NotImplementedError("Not implemented yet")
         
 
 #                   --------------
@@ -74,7 +74,7 @@ def setup(inConfigFiles=None):
     os.mkdir(tmpdir)
     os.chdir(tmpdir)
     if os.system(cmd):
-       raise IOerror, "red_ma.pl did not complete successfully"
+       raise IOerror("red_ma.pl did not complete successfully")
 
 #   Resources as specified by user
 #   ------------------------------
@@ -82,7 +82,7 @@ def setup(inConfigFiles=None):
         
 #   Setup directory tree
 #   --------------------
-    for dir in  cf.regex('Dir$').values():
+    for dir in  list(cf.regex('Dir$').values()):
         os.mkdir(dir)
 
 #   Populate Resources

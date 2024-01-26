@@ -3,7 +3,6 @@
 #include "unused_dummy.H"
 module MAPL_ExtdataAbstractFileHandler
    use ESMF
-   use yafYaml
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_ExtDataBracket
@@ -28,14 +27,14 @@ module MAPL_ExtdataAbstractFileHandler
       type(ESMF_Time), allocatable :: valid_range(:)
       logical :: persist_closest
       contains
-         procedure :: initialize 
+         procedure :: initialize
          procedure :: make_metadata
          procedure :: get_time_on_file
          procedure(get_file_bracket), deferred :: get_file_bracket
    end type
 
    abstract interface
-      subroutine get_file_bracket(this, input_time, source_time, bracket, rc)
+      subroutine get_file_bracket(this, input_time, source_time, bracket, fail_on_missing_file, rc)
          use ESMF
          use MAPL_ExtDataBracket
          import ExtDataAbstractFileHandler
@@ -43,11 +42,12 @@ module MAPL_ExtdataAbstractFileHandler
          type(ESMF_Time), intent(in) :: input_time
          type(ESMF_Time), intent(in) :: source_time(:)
          type(ExtDataBracket), intent(inout) :: bracket
+         logical, intent(in) :: fail_on_missing_file
          integer, optional, intent(out) :: rc
       end subroutine get_file_bracket
 
    end interface
-   
+
 contains
 
    subroutine initialize(this,file_series,persist_closest,unusable,rc)
@@ -56,10 +56,6 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: persist_closest
       integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _UNUSED_DUMMY(unusable)
 
       this%file_template = file_series%file_template
       this%frequency = file_series%frequency
@@ -73,6 +69,9 @@ contains
       else
          this%persist_closest = .false.
       end if
+
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(rc)
 
    end subroutine initialize
 
@@ -92,7 +91,7 @@ contains
       type(ESMF_Time), allocatable :: time_series(:)
       logical :: in_bounds, found_time, wrap_
       integer :: i,num_times
-    
+
       _UNUSED_DUMMY(unusable)
       if (present(wrap)) then
          wrap_= .true.
@@ -100,8 +99,11 @@ contains
          wrap_=.false.
       end if
       time_index=time_not_found
+      if (trim(filename) == file_not_found) then
+         _RETURN(_SUCCESS)
+      end if
 
-      call this%make_metadata(filename,file_metadata,_RC) 
+      call this%make_metadata(filename,file_metadata,_RC)
       call file_metadata%get_time_info(timeVector=time_series,_RC)
       num_times = size(time_series)
       found_time = .false.
@@ -116,14 +118,14 @@ contains
                   exit
                end if
             enddo
-         else 
+         else
             if (wrap_) then
                output_time=time_series(num_times)
                time_index = num_times
                found_time = .true.
-               wrap = -1   
+               wrap = -1
             end if
-         end if         
+         end if
       else if (bracketside == 'R') then
          in_bounds = .not.(target_time >= time_series(num_times))
          if (in_bounds) then
@@ -135,12 +137,12 @@ contains
                   exit
                end if
             enddo
-         else 
+         else
             if (wrap_) then
                output_time=time_series(1)
                time_index = 1
                found_time = .true.
-               wrap = 1   
+               wrap = 1
             end if
          end if
       else
@@ -157,12 +159,11 @@ contains
       type(FileMetadataUtils), pointer, intent(inout)   :: metadata
       integer, optional,          intent(out  ) :: rc
       type(MAPLDataCollection), pointer :: collection => null()
- 
+
       Collection => DataCollections%at(this%collection_id)
       metadata => collection%find(file)
      _RETURN(_SUCCESS)
 
   end subroutine make_metadata
- 
 
 end module MAPL_ExtdataAbstractFileHandler

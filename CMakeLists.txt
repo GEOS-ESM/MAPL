@@ -1,20 +1,19 @@
 cmake_minimum_required (VERSION 3.17)
-cmake_policy (SET CMP0053 NEW)
-cmake_policy (SET CMP0054 NEW)
+
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(NOT is_multi_config AND NOT (CMAKE_BUILD_TYPE OR DEFINED ENV{CMAKE_BUILD_TYPE}))
+  message (STATUS "Setting build type to 'Release' as none was specified.")
+  set (CMAKE_BUILD_TYPE Release CACHE STRING "Default Release-Choose the type of build.")
+endif ()
 
 project (
   MAPL
-  VERSION 2.26.0
+  VERSION 2.43.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
-# Set the default build type to release
-if (NOT CMAKE_BUILD_TYPE)
-  message (STATUS "Setting build type to 'Release' as none was specified.")
-  set (CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
-  set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-    "Debug" "Release" "Aggressive")
-endif ()
+# Set the possible values of build type for cmake-gui
+set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+  "Debug" "Release" "Aggressive")
 
 # mepo can now clone subrepos in three styles
 set (ESMA_CMAKE_DIRS
@@ -59,6 +58,8 @@ if (NOT COMMAND esma)
 
 endif ()
 
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
 if (BUILD_SHARED_MAPL)
   set (MAPL_LIBRARY_TYPE SHARED)
@@ -72,30 +73,40 @@ message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 # This would then populate the target already leading to find_package()
 # errors.
 if(NOT TARGET GFTL::gftl)
-  # MAPL currently requires at least GFTL 1.5.1
-  find_package(GFTL 1.5.1 REQUIRED)
+  find_package(GFTL 1.10.0 REQUIRED)
 else()
-  if (GFTL_VERSION VERSION_LESS 1.5.1)
-    message(FATAL_ERROR "GFTL must be at least 1.5.1")
+  if (GFTL_VERSION VERSION_LESS 1.10.0)
+    message(FATAL_ERROR "gFTL must be at least 1.10.0")
   endif ()
 endif()
+message (STATUS "Found gFTL: ${GFTL_DIR} (found version ${GFTL_VERSION})")
+
 if(NOT TARGET GFTL_SHARED::gftl-shared)
-  find_package(GFTL_SHARED REQUIRED)
+  # MAPL currently requires at least gFTL-shared 1.6.1
+  find_package(GFTL_SHARED 1.6.1 REQUIRED)
+else ()
+  if (GFTL_SHARED_VERSION VERSION_LESS 1.6.1)
+    message(FATAL_ERROR "gFTL-shared must be at least 1.6.1")
+  endif ()
 endif()
-if(NOT TARGET FARGPARSE::fargparse)
-  find_package(FARGPARSE QUIET)
+message (STATUS "Found gFTL-shared: ${GFTL_DIR} (found version ${GFTL_SHARED_VERSION})")
+
+option(BUILD_WITH_FARGPARSE "Use fArgParse for command line processing" ON)
+if(BUILD_WITH_FARGPARSE)
+  if(NOT TARGET FARGPARSE::fargparse)
+    find_package(FARGPARSE 1.5.0 REQUIRED)
+  else()
+    if (FARGPARSE_VERSION VERSION_LESS 1.5.0)
+      message(FATAL_ERROR "fArgParse must be at least 1.5.0")
+    endif ()
+  endif()
+  message (STATUS "Building with fArgParse")
+  message (STATUS "Found fArgParse: ${FARGPARSE_DIR} (found version ${FARGPARSE_VERSION})")
 endif()
 
 option(USE_EXTDATA2G "Use ExtData2G" ON)
 if(USE_EXTDATA2G)
   set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
-  if(NOT TARGET YAFYAML::yafyaml)
-    find_package(YAFYAML 1.0.4 REQUIRED)
-  else()
-    if (YAFYAML_VERSION VERSION_LESS 1.0.4)
-      message(FATAL_ERROR "yaFyaml must be at least 1.0.4")
-    endif ()
-  endif()
   message (STATUS "Building with ExtData2G")
 else()
   set (EXTDATA2G_TARGET "" CACHE STRING "ExtData2G Target")
@@ -104,15 +115,17 @@ endif()
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
 if (BUILD_WITH_PFLOGGER)
   if(NOT TARGET PFLOGGER::pflogger)
-    find_package(PFLOGGER 1.9.1 REQUIRED)
+    find_package(PFLOGGER 1.9.5 REQUIRED)
   else()
-    if (PFLOGGER_VERSION VERSION_LESS 1.9.1)
-      message(FATAL_ERROR "pFlogger must be at least 1.9.1")
+    if (PFLOGGER_VERSION VERSION_LESS 1.9.5)
+      message(FATAL_ERROR "pFlogger must be at least 1.9.5")
     endif ()
   endif()
+  message (STATUS "Building with pFlogger")
+  message (STATUS "Found pFlogger: ${PFLOGGER_DIR} (found version ${PFLOGGER_VERSION})")
 endif()
 
-option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
+option(BUILD_WITH_FLAP "Use FLAP for command line processing" OFF)
 if (BUILD_WITH_FLAP)
   find_package(FLAP REQUIRED)
 endif ()
@@ -135,7 +148,7 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET esmf)
-    find_package(ESMF MODULE REQUIRED)
+    find_package(ESMF 8.6.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     # NOTE: This looks odd because some versions of FindESMF.cmake out in the
@@ -150,6 +163,40 @@ if (NOT Baselibs_FOUND)
       add_library(esmf ALIAS ESMF)
     endif()
   endif ()
+else ()
+  # This is an ESMF version test when using Baselibs which doesn't use the
+  # same find_package internally in ESMA_cmake as used above (with a version
+  # number) so this lets us at least trap use of old Baselibs here.
+  if (ESMF_VERSION VERSION_LESS 8.6.0)
+    message(FATAL_ERROR "ESMF must be at least 8.6.0")
+  endif ()
+endif ()
+
+# We wish to add extra flags when compiling as Debug. We should only
+# do this if we are using esma_cmake since the flags are defined
+# there. Note that some flags like STANDARD_F18 might be available on
+# all compilers, but others might only be needed for, say, Intel, since,
+# for example, GNU does not allow if(integer) no matter what
+if (COMMAND esma)
+  set (STRICT_DEBUG_FLAGS
+    ${STANDARD_F18}
+    ${ERROR_IF_INTEGER}
+    ${ERROR_LOGICAL_SET_TO_INTEGER}
+    ${DISABLE_LONG_LINE_LENGTH_WARNING}
+    )
+
+  # Are we compiling Fortran?
+  set (is_fortran "$<COMPILE_LANGUAGE:Fortran>")
+  # and is our build type Debug?
+  set (is_build_type_debug "$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>")
+  # set the logical AND
+  set (meets_requirements "$<AND:${is_fortran},${is_build_type_debug}>")
+
+  foreach (flag ${STRICT_DEBUG_FLAGS})
+    # We use SHELL to avoid de-duplication and preserve spaces:
+    #   https://cmake.org/cmake/help/latest/command/target_compile_options.html?highlight=target_compile_options#option-de-duplication
+    add_compile_options("SHELL:$<${meets_requirements}:${flag}>")
+  endforeach ()
 endif ()
 
 if (BUILD_WITH_PFLOGGER)
@@ -158,13 +205,34 @@ else ()
   add_subdirectory (pflogger_stub)
 endif ()
 
+add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
+
+# Support for automated code generation
+include(mapl_acg)
+include(mapl_create_stub_component)
+add_subdirectory (Apps)
+
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
 add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 
+# This tests for various capabilities of the compiler
+# We mainly use it for MPICH issues
+include(CheckCompilerCapabilities)
+
+# 1. The first workaround is in pfio for https://github.com/pmodels/mpich/issues/6691
+# 2. Below is to workaround https://github.com/pmodels/mpich/issues/6693
+if(SUPPORT_FOR_MPI_IERROR_KEYWORD)
+  add_compile_definitions(SUPPORT_FOR_MPI_IERROR_KEYWORD)
+endif()
+if (APPLE)
+  add_compile_definitions("-D__DARWIN")
+endif()
+
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
+add_subdirectory (field_utils)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
@@ -172,20 +240,15 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
-if (BUILD_WITH_FLAP)
-   add_subdirectory (tutorial)
+if (BUILD_WITH_FARGPARSE)
+   add_subdirectory (docs)
+   add_subdirectory (benchmarks)
 endif()
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
-
-# Support for automated code generation
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-include(mapl_acg)
-include(mapl_create_stub_component)
-add_subdirectory (Apps)
 
 add_subdirectory (Tests)
 

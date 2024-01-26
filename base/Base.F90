@@ -20,7 +20,6 @@ module MAPLBase_Mod
   use MAPL_SunMod
   use MAPL_LocStreamMod
   use MAPL_InterpMod
-  use MAPL_HeapMod
   use MAPL_SatVaporMod
   use MAPL_MemUtilsMod
   use MAPL_HashMod
@@ -49,6 +48,9 @@ module MAPLBase_Mod
   use MAPL_EtaHybridVerticalCoordinateMod
   use MAPL_ApplicationSupport
   use MAPL_ServerManager
+  use MAPL_FileMetadataUtilsMod
+  use MAPL_VerticalDataMod
+  use MAPL_SphericalGeometry
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPLBase_Mod

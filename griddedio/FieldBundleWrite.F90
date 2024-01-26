@@ -6,6 +6,7 @@ module MAPL_ESMFFieldBundleWrite
    use MAPL_TimeDataMod
    use MAPL_GriddedIOitemVectorMod
    use MAPL_GriddedIOitemMod
+   use MAPL_VerticalDataMod
    use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
    implicit none
@@ -28,34 +29,39 @@ module MAPL_ESMFFieldBundleWrite
 
    contains
 
-      subroutine write_bundle_single_time(bundle,clock,output_file,nbits,deflate,rc)
+      subroutine write_bundle_single_time(bundle,clock,output_file,nbits_to_keep,deflate,quantize_algorithm,quantize_level,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), intent(in) :: output_file
-         integer, optional, intent(in)  :: nbits
+         integer, optional, intent(in)  :: nbits_to_keep
          integer, optional, intent(in)  :: deflate
+         integer, optional, intent(in)  :: quantize_algorithm
+         integer, optional, intent(in)  :: quantize_level
          integer, optional, intent(out) :: rc
 
          integer :: status
 
          type(FieldBundleWriter) :: newWriter
 
-         call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits=nbits,deflate=deflate,rc=status)
+         call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits_to_keep=nbits_to_keep,deflate=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,rc=status)
          _VERIFY(status)
          call newWriter%write_to_file(rc=status)
          _VERIFY(status)
          _RETURN(_SUCCESS)
       end subroutine write_bundle_single_time
 
-      subroutine create_from_bundle(this,bundle,clock,output_file,n_steps,time_interval,nbits,deflate,rc)
+      subroutine create_from_bundle(this,bundle,clock,output_file,vertical_data,n_steps,time_interval,nbits_to_keep,deflate,quantize_algorithm,quantize_level,rc)
          class(FieldBundleWRiter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), optional, intent(in) :: output_file
+         type(VerticalData), optional, intent(inout) :: vertical_data
          integer, optional, intent(in)  :: n_steps
          integer, optional, intent(in)  :: time_interval
-         integer, optional, intent(in)  :: nbits
+         integer, optional, intent(in)  :: nbits_to_keep
          integer, optional, intent(in)  :: deflate
+         integer, optional, intent(in)  :: quantize_algorithm
+         integer, optional, intent(in)  :: quantize_level
          integer, optional, intent(out) :: rc
 
          type(TimeData) :: time_info
@@ -79,7 +85,7 @@ module MAPL_ESMFFieldBundleWrite
             time_interval_=0
          end if
 
-         call this%cfio%set_param(nbits=nbits,deflation=deflate)
+         call this%cfio%set_param(nbits_to_keep=nbits_to_keep,deflation=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level)
          time_info = TimeData(clock,file_steps,time_interval_,offset)
          call ESMF_FieldBundleGet(bundle, fieldCount=num_fields,rc=status)
          _VERIFY(status)
@@ -92,8 +98,13 @@ module MAPL_ESMFFieldBundleWrite
             item%xname = trim(field_names(i))
             call items%push_back(item)
          enddo
-         call this%cfio%createFileMetadata(items,bundle,time_info,rc=status)
-         _VERIFY(status)
+         if (present(vertical_data)) then
+            call this%cfio%createFileMetadata(items,bundle,time_info,vdata=vertical_data,rc=status)
+            _VERIFY(status)
+         else
+            call this%cfio%createFileMetadata(items,bundle,time_info,rc=status)
+            _VERIFY(status)
+         end if
          if (present(output_file)) this%file_name = output_file
          collection_id = o_clients%add_hist_collection(this%cfio%metadata)
          call this%cfio%set_param(write_collection_id=collection_id)

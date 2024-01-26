@@ -23,7 +23,7 @@ module MAPL_ApplicationSupport
 
       character(:), allocatable :: logging_configuration_file
       integer :: comm_world,status
-     
+
       _UNUSED_DUMMY(unusable)
 
       if (present(logging_config)) then
@@ -55,7 +55,7 @@ module MAPL_ApplicationSupport
       integer :: comm_world,status
 
       _UNUSED_DUMMY(unusable)
-      
+
       if (present(comm)) then
          comm_world = comm
       else
@@ -80,6 +80,8 @@ module MAPL_ApplicationSupport
       use pflogger, only: StreamHandler, FileHandler, HandlerVector
       use pflogger, only: MpiLock, MpiFormatter
       use pflogger, only: INFO, WARNING
+      use PFL_Formatter, only: get_sim_time
+      use mapl_SimulationTime, only: fill_time_dict
 
       use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
 
@@ -109,6 +111,7 @@ module MAPL_ApplicationSupport
       end if
 
       call pfl_initialize()
+      get_sim_time => fill_time_dict
 
       if (logging_configuration_file /= '') then
          call logging%load_file(logging_configuration_file)
@@ -137,7 +140,7 @@ module MAPL_ApplicationSupport
 
          if (rank == 0) then
             lgr => logging%get_logger('MAPL')
-            call lgr%warning('No configure file specified for logging layer.  Using defaults.')            
+            call lgr%warning('No configure file specified for logging layer.  Using defaults.')
          end if
 
       end if
@@ -158,6 +161,7 @@ module MAPL_ApplicationSupport
       integer :: npes, my_rank, ierror
       character(1) :: empty(0)
       class (BaseProfiler), pointer :: t_p
+      type(Logger), pointer :: lgr
 
       _UNUSED_DUMMY(unusable)
       if (present(comm)) then
@@ -185,14 +189,16 @@ module MAPL_ApplicationSupport
       call MPI_Comm_Rank(world_comm, my_rank, ierror)
 
       if (my_rank == 0) then
-            report_lines = reporter%generate_report(t_p)
-            write(*,'(a,1x,i0)')'Report on process: ', my_rank
-            do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
-            end do
-       end if
-       call MPI_Barrier(world_comm, ierror)
+         report_lines = reporter%generate_report(t_p)
+         lgr => logging%get_logger('MAPL.profiler')
+         call lgr%info('Report on process: %i0', my_rank)
+         do i = 1, size(report_lines)
+            call lgr%info('%a', report_lines(i))
+         end do
+      end if
+      call MPI_Barrier(world_comm, ierror)
 
+      _RETURN(_SUCCESS)
    end subroutine report_global_profiler
 
 end module MAPL_ApplicationSupport

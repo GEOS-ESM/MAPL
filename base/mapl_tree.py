@@ -14,7 +14,7 @@ class MAPL_Tree():
     #-----------------------------------------------------------------------
     """
 
-    def __init__(self, output_format='txt', output_color=False, add_link=False,
+    def __init__(self, output_format='txt', output_color=False,
                  full_tree=False, trim=False, repo=False):
         """
         #-----------------------------------------------------------------------
@@ -25,7 +25,6 @@ class MAPL_Tree():
         #   dict gc_dir
         #   out_format
         #   out_color
-        #   out_link
         #   full_tree
         #   space
         #
@@ -45,10 +44,6 @@ class MAPL_Tree():
         # color surface and children green
         # --------------------------------
         self.out_color = output_color
-
-        # add external links
-        # ------------------
-        self.add_link = add_link
 
         # Option to display full tree
         # ---------------------------
@@ -144,23 +139,6 @@ class MAPL_Tree():
         else:
             return None
 
-    def get_link(self, compname):
-        """
-        #-----------------------------------------------------------------------
-        # returns an (external) link corresponding to the component
-        # if no link exists, returns None
-        #-----------------------------------------------------------------------
-        """
-
-        if compname.lower() == 'agcm':
-            return 'http://geos5.org/wiki/index.php?title=AGCM_Structure'
-        elif compname.lower() == 'ogcm':
-            return 'http://geos5.org/wiki/index.php?title=OGCM_Structure'
-        elif compname.lower() == 'aana':
-            return 'http://geos5.org/wiki/index.php?title=Atmospheric_Analysis'
-        else:
-            return None
-
     def get_color(self, compname):
         """
         #-----------------------------------------------------------------------
@@ -218,15 +196,11 @@ class MAPL_Tree():
         else:
             compname = compname_
 
-        if self.add_link: MYLINK = self.get_link(compname)
-        else: MYLINK = None
         if self.out_color: MYCOLOR = self.get_color(compname)
         else: MYCOLOR = None
 
         if self.out_format=='mm':
             txt2prnt = level*self.space + '<node TEXT="' + compname + '"'
-            if MYLINK:
-                txt2prnt += ' LINK="' + MYLINK + '"'
             if MYCOLOR:
                 txt2prnt += ' COLOR="' + MYCOLOR + '"'
             print(txt2prnt +'>')
@@ -413,7 +387,6 @@ def main():
     OUT_TYPE  = 'dirname'  # comm_opts['outtype']
     OUT_FORM  = comm_opts['format']
     OUT_COLOR = comm_opts['color']
-    ADD_LINK  = comm_opts['link']
     FULL_TREE = comm_opts['full']
     TRIM      = comm_opts['trim']
     REPO      = comm_opts['repo']
@@ -422,7 +395,7 @@ def main():
          FULL_TREE = True
          TRIM = False
 
-    MT = MAPL_Tree(OUT_FORM, OUT_COLOR, ADD_LINK, FULL_TREE, TRIM, REPO)
+    MT = MAPL_Tree(OUT_FORM, OUT_COLOR, FULL_TREE, TRIM, REPO)
 
     if OUT_TYPE=='chname':
         MT.traverse_chname(ROOTDIR, ROOTCOMP) # TO DO: remove this option
@@ -451,7 +424,6 @@ def parse_args():
     p.add_argument('-f','--format', help='output format: ascii (txt) or mindmap (mm)',
                     choices=['txt','mm'], default='txt')
     p.add_argument('-F','--full', help='display full tree', action='store_true')
-    p.add_argument('-l','--link', help='add external link to nodes (edit MAPL_Tree::get_link)', action='store_true')
     p.add_argument('-t','--trim', help='skip non GridComps, shorten names, use built-in aliases',action='store_true')
     p.add_argument('-r','--repo', help='shows only the repository hierarchy',action='store_true')
 

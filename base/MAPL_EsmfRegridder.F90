@@ -10,8 +10,9 @@ module MAPL_EsmfRegridderMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridManagerMod
-   use MAPL_BaseMod, only: MAPL_undef, MAPL_GridGet, MAPL_GridHasDE
+   use MAPL_BaseMod, only: MAPL_undef, MAPL_GridHasDE
    use MAPL_RegridderSpecRouteHandleMap
+   use MAPL_ConstantsMod
    implicit none
    private
 
@@ -53,6 +54,8 @@ module MAPL_EsmfRegridderMod
       procedure :: do_regrid
       procedure :: create_route_handle
       procedure :: select_route_handle
+      procedure :: destroy
+      procedure :: destroy_route_handle
  
    end type EsmfRegridder
 
@@ -136,7 +139,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -191,7 +194,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -243,7 +246,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
@@ -326,7 +329,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -409,7 +412,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -441,8 +444,6 @@ contains
       type (ESMF_Field) :: src_field, dst_field
 
       integer :: km,kin,kout
-      integer :: im_src, jm_src
-      integer :: im_dst, jm_dst
       logical :: hasDE
       type(ESMF_VM) :: vm
 
@@ -452,12 +453,6 @@ contains
 
       km = size(q_in,3)
       _ASSERT(km == size(q_out,3),'inconsistent array shape')
-
-      im_src = size(q_in,1)
-      jm_src = size(q_in,2)
-
-      im_dst = size(q_out,1)
-      jm_dst = size(q_out,2)
 
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
@@ -498,7 +493,7 @@ contains
       if (HasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
@@ -587,7 +582,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -681,7 +676,7 @@ contains
      if (hasDE) then
         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
         _VERIFY(status)
-        p_dst = 0
+        p_dst = MAPL_UNDEF
      end if
 
      call this%do_regrid(src_field, dst_field, rc=status)
@@ -771,7 +766,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
@@ -825,8 +820,10 @@ contains
 
       km = size(u_in,3)
       _ASSERT(km == size(v_in,3),'inconsistent array shape')
-      _ASSERT(km == size(u_out,3),'inconsistent array shape')
-      _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      if (size(u_out) /= 0) then
+         _ASSERT(km == size(u_out,3),'inconsistent array shape')
+         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      end if
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
@@ -885,7 +882,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
@@ -938,8 +935,10 @@ contains
 
      km = size(u_in,3)
      _ASSERT(km == size(v_in,3),'inconsistent array shape')
-     _ASSERT(km == size(u_out,3),'inconsistent array shape')
-     _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      if (size(u_out) /= 0) then
+         _ASSERT(km == size(u_out,3),'inconsistent array shape')
+         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      end if
 
      im_src = size(u_in,1)
      jm_src = size(u_in,2)
@@ -992,7 +991,7 @@ contains
      if (hasDE) then
         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
         _VERIFY(status)
-        p_dst = 0
+        p_dst = MAPL_UNDEF
      end if
 
      call this%do_regrid(src_field, dst_field, rc=status)
@@ -1046,8 +1045,10 @@ contains
 
       km = size(u_in,3)
       _ASSERT(km == size(v_in,3),'inconsistent array shape')
-      _ASSERT(km == size(u_out,3),'inconsistent array shape')
-      _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      if (size(u_out) /= 0) then
+         _ASSERT(km == size(u_out,3),'inconsistent array shape')
+         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      end if
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
@@ -1107,7 +1108,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
          _VERIFY(status)
-         p_dst = 0
+         p_dst = MAPL_UNDEF
       end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true.,rc=status)
@@ -1361,7 +1362,6 @@ contains
    subroutine initialize_subclass(this, unusable, rc)
      use MAPL_KeywordEnforcerMod
      use MAPL_RegridderSpec
-     use MAPL_BaseMod, only: MAPL_grid_interior
      class (EsmfRegridder), intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc
@@ -1431,10 +1431,11 @@ contains
 
      integer :: srcTermProcessing
      integer, pointer :: factorIndexList(:,:)
+     integer, allocatable :: dstMaskValues(:)
      real(ESMF_KIND_R8), pointer :: factorList(:)
      type(ESMF_RouteHandle) :: dummy_rh
      type(ESMF_UnmappedAction_Flag) :: unmappedaction
-     logical :: global, isPresent
+     logical :: global, isPresent, has_mask
      type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
      type(ESMF_RouteHandle) :: route_handle, transpose_route_handle
     
@@ -1483,6 +1484,8 @@ contains
               dst_dummy_r8 = 0
            end if
         end if
+        call ESMF_GridGetItem(spec%grid_out,itemflag=ESMF_GRIDITEM_MASK, &
+             staggerloc=ESMF_STAGGERLOC_CENTER, isPresent = has_mask, _RC)
 
         counter = counter + 1
 
@@ -1492,18 +1495,19 @@ contains
            call ESMF_AttributeGet(spec%grid_in, name='Global',value=global,rc=status)
            if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
         end if
+        if (has_mask) dstMaskValues = [MAPL_MASK_OUT] ! otherwise unallocated
         select case (spec%regrid_method)
         case (REGRID_METHOD_BILINEAR, REGRID_METHOD_BILINEAR_MONOTONIC)
-
            call ESMF_FieldRegridStore(src_field, dst_field, &
+                & dstMaskValues = dstMaskValues, &
                 & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
                 & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
                 & srcTermProcessing = srcTermProcessing, &
                 & factorList=factorList, factorIndexList=factorIndexList, &
-                & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
-           _VERIFY(status)
+                & routehandle=route_handle, unmappedaction=unmappedaction, _RC)
         case (REGRID_METHOD_PATCH)
 
+           _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_PATCH, &
                 & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
@@ -1513,6 +1517,7 @@ contains
            _VERIFY(status)
         case (REGRID_METHOD_CONSERVE_2ND)
 
+           _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_CONSERVE_2ND, &
                 & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
@@ -1521,6 +1526,7 @@ contains
                 & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
            _VERIFY(status)
         case (REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_MONOTONIC, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
+           _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
                 & srcTermProcessing = srcTermProcessing, &
@@ -1528,6 +1534,7 @@ contains
                 & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
            _VERIFY(status)
         case (REGRID_METHOD_NEAREST_STOD)
+           _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_NEAREST_STOD, &
                 & factorList=factorList, factorIndexList=factorIndexList, &
@@ -1602,5 +1609,55 @@ contains
      _RETURN(_SUCCESS)
 
    end function select_route_handle
+
+   subroutine destroy(this, rc)
+      class(EsmfRegridder), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call this%destroy_route_handle(ESMF_TYPEKIND_R4, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+
+   subroutine destroy_route_handle(this, kind, rc)
+      class(EsmfRegridder), intent(inout) :: this
+      type(ESMF_TypeKind_Flag), intent(in) :: kind
+      integer, optional, intent(out) :: rc
+
+     type (RegridderSpec) :: spec
+     type(ESMF_RouteHandle) :: dummy_rh
+     type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
+     type(ESMF_RouteHandle) :: route_handle
+     type(RegridderSpecRouteHandleMapIterator) :: iter
+     integer :: status
+
+     if (kind == ESMF_TYPEKIND_R4) then
+        route_handles => route_handles_r4
+        transpose_route_handles => transpose_route_handles_r4
+     else if(kind == ESMF_TYPEKIND_R8) then
+        route_handles => route_handles_r8
+        transpose_route_handles => transpose_route_handles_r8
+     else
+        _FAIL('unsupported type kind (must be R4 or R8)')
+     end if
+
+     spec = this%get_spec()
+
+     _ASSERT(route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+     route_handle = route_handles%at(spec)
+     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.,_RC)
+     iter = route_handles%find(spec)
+     call route_handles%erase(iter)
+
+     _ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+     route_handle = transpose_route_handles%at(spec)
+     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true., _RC)
+     iter = transpose_route_handles%find(spec)
+     call transpose_route_handles%erase(iter)
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy_route_handle
 
 end module MAPL_EsmfRegridderMod

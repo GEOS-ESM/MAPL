@@ -7,11 +7,10 @@ module MAPL_Shmem
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
   use MAPL_Constants
+  use mpi
 
   implicit none
   private
-
-  include 'mpif.h'
 
   public :: MAPL_GetNodeInfo
   public :: MAPL_CoresPerNodeGet
@@ -30,7 +29,7 @@ module MAPL_Shmem
 
   public :: MAPL_GetNewRank
 
-  character*30 :: Iam="MAPL_ShmemMod in line "
+  character(len=30) :: Iam="MAPL_ShmemMod in line "
 
   integer(c_int), parameter :: IPC_CREAT = 512
   integer(c_int), parameter :: IPC_RMID  = 0
@@ -99,11 +98,6 @@ module MAPL_Shmem
        type (c_ptr),    value :: buf
      end function shmctl
 
-     subroutine perror(s) bind(c,name="perror")
-       use, intrinsic :: ISO_C_BINDING
-       character(c_char), intent(in) :: s(*)
-     end subroutine perror
-
   end interface
 
   interface MAPL_AllocNodeArray
@@ -161,6 +155,7 @@ module MAPL_Shmem
      module procedure MAPL_AllocateShared_1DI4
      module procedure MAPL_AllocateShared_1DR4
      module procedure MAPL_AllocateShared_1DR8
+     module procedure MAPL_AllocateShared_2DI4
      module procedure MAPL_AllocateShared_2DR4
      module procedure MAPL_AllocateShared_2DR8
   end interface MAPL_AllocateShared
@@ -181,7 +176,7 @@ module MAPL_Shmem
      end subroutine MAPL_FinalizeShmem
 
      module subroutine MAPL_DeAllocNodeArray_1DL4(Ptr,rc)
-       logical,  pointer              :: Ptr(:)
+       logical, pointer :: Ptr(:)
        integer, optional, intent(OUT) :: rc
 
      end subroutine MAPL_DeAllocNodeArray_1DL4
@@ -400,6 +395,14 @@ module MAPL_Shmem
        integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_AllocateShared_1DR8
 
+     module subroutine MAPL_AllocateShared_2DI4(Ptr, Shp, lbd, TransRoot, rc)
+       integer, pointer,  intent(INOUT) :: Ptr(:,:)
+       integer,           intent(IN   ) :: Shp(2)
+       integer, optional, intent(IN   ) :: lbd(2)
+       logical,           intent(IN   ) :: TransRoot
+       integer, optional, intent(  OUT) :: rc
+     end subroutine MAPL_AllocateShared_2DI4
+
      module subroutine MAPL_AllocateShared_2DR4(Ptr, Shp, lbd, TransRoot, rc)
        real,    pointer,  intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
@@ -407,7 +410,7 @@ module MAPL_Shmem
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_AllocateShared_2DR4
-
+     
      module subroutine MAPL_AllocateShared_2DR8(Ptr, Shp, lbd, TransRoot, rc)
        real(KIND=REAL64), pointer, intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)

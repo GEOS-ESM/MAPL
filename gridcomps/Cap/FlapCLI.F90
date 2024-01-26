@@ -30,15 +30,23 @@ module MAPL_FlapCLIMod
       module procedure old_CapOptions_from_flap
    end interface MAPL_CapOptions
 
+   abstract interface
+      subroutine I_extraoptions(options, rc)
+         import command_line_interface
+         type(command_line_interface), intent(inout) :: options
+         integer, optional, intent(out) :: rc
+      end subroutine
+   end interface
 
 contains
 
-   function new_CapOptions_from_flap(unusable, description, authors, dummy, rc) result (cap_options)
+   function new_CapOptions_from_flap(unusable, description, authors, dummy, extra, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_CapOptions) :: cap_options
       character(*), intent(in) :: description
       character(*), intent(in) :: authors
       character(*), intent(in) :: dummy !Needed for backward compatibility. Remove after 3.0
+      procedure(I_extraoptions), optional :: extra
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -49,22 +57,27 @@ contains
         authors     = trim(authors))
 
       call flap_cli%add_command_line_options(flap_cli%cli_options, rc=status)
-      _VERIFY(status)   
+      _VERIFY(status)
+
+      if (present(extra)) then
+         call extra(flap_cli%cli_options, _RC)
+      end if
 
       call flap_cli%cli_options%parse(error=status); _VERIFY(status)
 
       call flap_cli%fill_cap_options(cap_options, rc=status)
       _VERIFY(status)
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function new_CapOptions_from_flap
 
-   function new_CapOptions_from_flap_back_comp(unusable, description, authors, rc) result (flapcap)
+   function new_CapOptions_from_flap_back_comp(unusable, description, authors, extra, rc) result (flapcap)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_FlapCLI) :: flapcap
       character(*), intent(in) :: description
       character(*), intent(in) :: authors
+      procedure(I_extraoptions), optional :: extra
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -75,6 +88,10 @@ contains
 
       call flapcap%add_command_line_options(flapcap%cli_options, rc=status)
       _VERIFY(status)
+
+      if (present(extra)) then
+         call extra(flapcap%cli_options, _RC)
+      end if
 
       call flapcap%cli_options%parse(error=status); _VERIFY(status)
       _VERIFY(status)
@@ -173,7 +190,7 @@ contains
            act='store', &
            error=status)
       _VERIFY(status)
-      
+
       call options%add(switch='--npes_output_server', &
            help='# MPI processes used by output server', &
            required=.false., &
@@ -193,7 +210,7 @@ contains
            act='store', &
            error=status)
       _VERIFY(status)
-      
+
       call options%add(switch='--nodes_output_server', &
            help='# NCCS nodes (28 or more processors) used by output server', &
            required=.false., &

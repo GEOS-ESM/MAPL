@@ -1,25 +1,26 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
 !
-! Implements a wrapper class around the ESMF_FieldBundle. By construction, this
-! is NOT an opaque object.
-!
-! Arlindo da Silva <arlindo.dasilva@nasa.gov>, April 2010
-! Todling - 11Feb2011 - remove ESMFL_BundleAddState since in MAPL_CFIO
-!----------------------------------------------------------------------------
-
 #ifndef __PROTEX__
 #  include "MAPL_Generic.h"
 #endif
-
-!----------------------------------------------------------------------------
-!BOP
-
-! !MODULE: MAPL_SimpleBundle --- A Transparent ESMF Field Bundle Wrapper Class
-
-! !INTERFACE:
-
+!
+!>
+!### MODULE: `MAPL_SimpleBundleMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_SimpleBundleMod` implements a wrapper class around the
+! ESMF_FieldBundle. By construction, this is NOT an opaque object.
+!
+!#### History
+!- April2010: Arlindo da Silva <arlindo.dasilva@nasa.gov>
+!- 11Feb2011: Todling - remove ESMFL_BundleAddState since in MAPL_CFIO
+!
    module MAPL_SimpleBundleMod
-
-! !USES:
 
    use ESMF
    use ESMFL_Mod
@@ -33,8 +34,6 @@
    implicit NONE
    private
 
-! !PUBLIC MEMBER FUNCTIONS:
-!
    public MAPL_SimpleBundleCreate
    public MAPL_SimpleBundlePrint
    public MAPL_SimpleBundleGetIndex
@@ -43,14 +42,12 @@
    public MAPL_SimpleBundleRead
    public MAPL_SimpleBundleWrite
 
-! !PUBLIC TYPES:
-
    public MAPL_SimpleBundle
 
    type SimpleArray_1D
       character(len=ESMF_MAXSTR) :: name
       integer :: myKind = ESMF_KIND_R4
-      real(kind=ESMF_KIND_R4), pointer   :: q(:) => null()      ! alias for qr4
+      real(kind=ESMF_KIND_R4), pointer   :: q(:) => null()      !! alias for qr4
       real(kind=ESMF_KIND_R4), pointer   :: qr4(:) => null()
       real(kind=ESMF_KIND_R8), pointer   :: qr8(:) => null()
    end type SimpleArray_1D
@@ -58,7 +55,7 @@
    type SimpleArray_2D
       character(len=ESMF_MAXSTR) :: name
       integer :: myKind = ESMF_KIND_R4
-      real(kind=ESMF_KIND_R4), pointer   :: q(:,:) => null()    ! alias for qr4
+      real(kind=ESMF_KIND_R4), pointer   :: q(:,:) => null()    !! alias for qr4
       real(kind=ESMF_KIND_R4), pointer   :: qr4(:,:) => null()
       real(kind=ESMF_KIND_R8), pointer   :: qr8(:,:) => null()
    end type SimpleArray_2D
@@ -66,7 +63,7 @@
    type SimpleArray_3D
       character(len=ESMF_MAXSTR) :: name
       integer :: myKind = ESMF_KIND_R4
-      real(kind=ESMF_KIND_R4), pointer   :: q(:,:,:) => null()   ! alias for qr4
+      real(kind=ESMF_KIND_R4), pointer   :: q(:,:,:) => null()   !! alias for qr4
       real(kind=ESMF_KIND_R4), pointer   :: qr4(:,:,:) => null()
       real(kind=ESMF_KIND_R8), pointer   :: qr8(:,:,:) => null()
    end type SimpleArray_3D
@@ -77,18 +74,18 @@
    end type LcvGrid
 
    type SimpleGrid
-      real(kind=ESMF_KIND_R4), pointer   :: Lons(:,:) => null() ! Longitudes in degrees
-      real(kind=ESMF_KIND_R4), pointer   :: Lats(:,:) => null() ! Latitudes in degrees
-      real(kind=ESMF_KIND_R4), pointer   :: Levs(:)   => null() ! Vertical Levels
-      character(len=ESMF_MAXSTR)         :: LevUnits = '1'      ! Vertical Level units
-      type(LcvGrid)                      :: lcv                 ! Lagrangian Control Volume
+      real(kind=ESMF_KIND_R4), pointer   :: Lons(:,:) => null() !! Longitudes in degrees
+      real(kind=ESMF_KIND_R4), pointer   :: Lats(:,:) => null() !! Latitudes in degrees
+      real(kind=ESMF_KIND_R4), pointer   :: Levs(:)   => null() !! Vertical Levels
+      character(len=ESMF_MAXSTR)         :: LevUnits = '1'      !! Vertical Level units
+      type(LcvGrid)                      :: lcv                 !! Lagrangian Control Volume
    end type SimpleGrid
- 
+
    type MAPL_SimpleBundle
       character(len=ESMF_MAXSTR) :: name
-      type(ESMF_FieldBundle), pointer    :: Bundle  ! Associated ESMF bundle
-      type(ESMF_Grid)                    :: grid    ! Associated ESMF grid
-      type(SimpleGrid)                   :: coords  ! Coordinate variables
+      type(ESMF_FieldBundle), pointer    :: Bundle  !! Associated ESMF bundle
+      type(ESMF_Grid)                    :: grid    !! Associated ESMF grid
+      type(SimpleGrid)                   :: coords  !! Coordinate variables
       integer :: n1d=-1
       integer :: n2d=-1
       integer :: n3d=-1
@@ -98,11 +95,6 @@
       type(SimpleArray_3D), pointer :: r3(:) => null()
    end type MAPL_SimpleBundle
 
-! !DESCRIPTION: This module implements the MAPL SimpleBundle class which
-!                is a transparent (read: non-opaque) representation of an ESMF
-!  Field Bundle.
-!
-!EOP
 !----------------------------------------------------------------------------
 
    interface MAPL_SimpleBundleWrite
@@ -122,39 +114,26 @@ CONTAINS
 
 
 !-----------------------------------------------------------------------------
-!BOP
- 
-! !IROUTINE: MAPL_SimpleBundleCreate --- Create Simple Bundle
-!
-! !IIROUTINE: MAPL_SimpleBundleCreate --- Create Simple Bundle from nothing
-!
-! !INTERFACE:
-!
+!>
+! Given inputs, create a SimpleBundle.
 
   Function MAPL_SimpleBundleCreateEmpty ( grid, rc, &
                                           Levs, LevUnits, &
                                           ptop, delp,     &
                                           name) result (self)
 
-! !ARGUMENTS:
-
-    type(MAPL_SimpleBundle)                        :: self     ! Simple Bundle !rename to simpleBundle
+    type(MAPL_SimpleBundle)                        :: self          !! Simple Bundle !rename to simpleBundle
     type(ESMF_Grid),                intent(in)     :: grid
     integer, OPTIONAL,              intent(out)    :: rc
-                                                    ! Vertical coordinates
-    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: Levs(:)       ! Constant levels
-    character(len=*), OPTIONAL,     intent(in)     :: LevUnits      ! Level units
-                                                    ! Lagrangian Control Volume Info
-    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: ptop          ! top pressure (Pa)
+    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: Levs(:)       !! Vertical coordinates
+                                                                    !! Constant levels
+    character(len=*), OPTIONAL,     intent(in)     :: LevUnits      !! Level units
+    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: ptop          !! top pressure (Pa)
+                                                                    !! Lagrangian Control Volume Info
     real(ESMF_KIND_R4), OPTIONAL, pointer, &
-                                    intent(in)     :: delp(:,:,:)   ! layer thickness (Pa)
-    character(len=*), OPTIONAL,     intent(in)     :: name          ! name
-
-! !DESCRIPTION: Given inputs, create a SimpleBundle
+                                    intent(in)     :: delp(:,:,:)   !! layer thickness (Pa)
+    character(len=*), OPTIONAL,     intent(in)     :: name          !! name
 !
-!EOP
-
-! !Locals
     character(len=ESMF_MAXSTR) :: bundleName
     integer :: im, jm, km, dims(3), i
     character(len=ESMF_MAXSTR) :: message
@@ -228,15 +207,14 @@ CONTAINS
   end Function MAPL_SimpleBundleCreateEmpty
 
 !-----------------------------------------------------------------------------
-!BOP
- 
-! !IROUTINE: MAPL_SimpleBundleCreate --- Create Simple Bundle
+!>
+! Given an ESMF Bundle, creates a corresponding Simple Bundle. The
+! specification of a vertical grid is optional but useful in many
+! cases. The 1-D `Levs` will default to the layer number, and units of "1".
+! Input parameters `(ptop,delp)` can be used to record the corresponding
+! Lagrangian Control Volume Grid. When `delp` is not specified, variables
+! `DELP` or `delp` are used if present inside the bundle.
 !
-! !IIROUTINE: MAPL_SimpleBundleCreate --- Create Simple Bundle from ESMF Bundle
-!
-! !INTERFACE:
-!
-
   Function MAPL_SimpleBundleCreateFromBundle ( Bundle, rc,     &
                                                Levs, LevUnits, &
                                                ptop, delp,     &
@@ -244,31 +222,20 @@ CONTAINS
                                                strict,         &
                                                name) result (self)
 
-! !ARGUMENTS:
+    type(MAPL_SimpleBundle)                        :: self          !! Simple Bundle
 
-    type(MAPL_SimpleBundle)                        :: self     ! Simple Bundle
-
-    type(ESMF_FieldBundle), target, intent(inout)  :: Bundle   ! ESMF Bundle
+    type(ESMF_FieldBundle), target, intent(inout)  :: Bundle        !! ESMF Bundle
     integer, OPTIONAL,              intent(out)    :: rc
-                                                    ! Vertical coordinates
-    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: Levs(:)       ! Constant levels
-    character(len=*), OPTIONAL,     intent(in)     :: LevUnits      ! Level units
-                                                    ! Lagrangian Control Volume Info
-    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: ptop          ! top pressure (Pa)
+    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: Levs(:)       !! Vertical coordinates
+                                                                    !! Constant levels
+    character(len=*), OPTIONAL,     intent(in)     :: LevUnits      !! Level units
+    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: ptop          !! top pressure (Pa)
+                                                                    !! Lagrangian Control Volume Info
     real(ESMF_KIND_R4), OPTIONAL, pointer, &
-                                    intent(in)     :: delp(:,:,:)   ! layer thickness (Pa)
-    character(len=*), OPTIONAL,     intent(in)     :: only_vars     ! comma separated field names
-    logical, OPTIONAL,              intent(in)     :: strict        ! force name matching, ignored if only_vars is not present
-    character(len=*), OPTIONAL,     intent(in)     :: name          ! name
-
-! !DESCRIPTION: Given an ESMF Bundle, creates a corresponding Simple Bundle. The
-!               specification of a vertical grid is optional but useful in many
-!  cases. The 1-D {\tt Levs} will default to the layer number, and units of "1".
-!  Input parameters {\tt (ptop,delp)} can be used to record the corresponding 
-!  Lagrangian Control Volume Grid. When {\tt delp} is not specified, variables
-!  {\tt DELP} or {\tt delp} are used if present inside the bundle. 
-!
-!EOP
+                                    intent(in)     :: delp(:,:,:)   !! layer thickness (Pa)
+    character(len=*), OPTIONAL,     intent(in)     :: only_vars     !! comma separated field names
+    logical, OPTIONAL,              intent(in)     :: strict        !! force name matching, ignored if only_vars is not present
+    character(len=*), OPTIONAL,     intent(in)     :: name          !! name
 
 !                           ------
 
@@ -280,7 +247,7 @@ CONTAINS
     integer :: arrayRank, I, n, n1d, n2d, n3d, NumVars
     integer :: im, jm, km, dims(3)
     type(ESMF_FieldStatus_Flag) :: fieldStatus
-    
+
 
     logical :: strict_match
     logical :: isPresent
@@ -337,7 +304,7 @@ CONTAINS
 
        var_list = '__NONE__'
        call csv_tokens_get_(only_vars, var_list, _RC)
- 
+
        do i = 1, size(var_list)
           isPresent = .false.
 
@@ -350,7 +317,7 @@ CONTAINS
                 exit
              end if
           end do
-         
+
           if (isPresent) then
              isRequested(n) = .true.
           else
@@ -358,7 +325,7 @@ CONTAINS
                 message = 'could not find field '//trim(var_list(i))// &
                           ' in Simple Bundle <'//trim(self%name)//'>'
                 __raise__(MAPL_RC_ERROR, message)
-             end if   
+             end if
           end if
        end do
 
@@ -373,8 +340,8 @@ CONTAINS
 
     call MAPL_GridGet(self%Grid, localCellCountPerDim = dims, _RC)
     im = dims(1);  jm = dims(2);  km = dims(3)
-    allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__) 
-    
+    allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__)
+
 !   Retrieve the lat/lon from Grid and convert to degrees
 !   -----------------------------------------------------
    call ESMF_GridGetCoord (self%Grid, coordDim=1, localDE=0, &
@@ -411,7 +378,7 @@ CONTAINS
 !ALT      self%coords%lcv%delp = delp
       self%coords%lcv%delp => delp
    else ! Look inside bundle for delp or DELP
-      self%coords%lcv%delp => NULL() 
+      self%coords%lcv%delp => NULL()
 
       haveDelp = .FALSE.
       call ESMF_FieldBundleGet (Bundle, fieldName='DELP', isPresent=isPresentBundle, RC=STATUS)
@@ -520,7 +487,7 @@ CONTAINS
           _VERIFY(STATUS)
        end if
 
-    end do 
+    end do
 
     self%n1d = n1d
     self%n2d = n2d
@@ -529,7 +496,7 @@ CONTAINS
     deallocate(isRequested, __STAT__)
 
     _RETURN(_SUCCESS)
-  
+
   contains
 
     function csv_tokens_count_(str, delimiter) result(n)
@@ -542,7 +509,7 @@ CONTAINS
       ! local
       character, parameter :: char_comma = ','
       character            :: c
-      integer              :: i 
+      integer              :: i
 
       if (present(delimiter)) then
          c = delimiter
@@ -554,9 +521,9 @@ CONTAINS
       do i = 1, len_trim(str)
          if (str(i:i) == c) then
             n = n + 1
-         end if   
+         end if
       end do
-    end function csv_tokens_count_ 
+    end function csv_tokens_count_
 
     subroutine csv_tokens_get_(str, list, delimiter, ignore, rc)
       implicit none
@@ -569,7 +536,7 @@ CONTAINS
 
       ! local
       character, parameter :: char_empty = ''
-      character, parameter :: char_space = ' '     
+      character, parameter :: char_space = ' '
       character, parameter :: char_comma = ','
 
       character :: c_dlm, c_ign
@@ -584,10 +551,10 @@ CONTAINS
       if (present(ignore)) then
          c_ign = ignore
       else
-         c_ign = char_space 
+         c_ign = char_space
       end if
 
-      
+
       list = char_empty
       j = 1
       n = 1
@@ -600,12 +567,12 @@ CONTAINS
             if (n > size(list)) then
                err = 99
                exit
-            end if   
-            
+            end if
+
             if (str(i:i) /= c_ign) then
                list(n)(j:j) = str(i:i)
                j = j + 1
-            end if   
+            end if
          else
             j = 1
             n = n + 1
@@ -615,20 +582,22 @@ CONTAINS
 
       if (present(rc)) then
          rc = err
-      end if   
+      end if
     end subroutine csv_tokens_get_
 
   end Function MAPL_SimpleBundleCreateFromBundle
 
 !-----------------------------------------------------------------------------
-!BOP
- 
+!>
+! Given an ESMF Staete, creates a corresponding Simple Bundle.
+! The specificatiopn of a vertical grid is optional but useful in many
+! cases. The 1-D `Levs` will default to the layer number, and units of "1".
+! Input parameters `(ptop,delp)` can be used to record the corresponding
+! Lagrangian Control Volume Grid. When `delp` is not specified, variables
+! `DELP` or `delp` are used if present inside the bundle.
 !
-! !IIROUTINE: MAPL_SimpleBundleCreate --- Create Simple Bundle from ESMF State
+! **IMPORTANT:** It is assumed that the ESMF State has a single grid.
 !
-! !INTERFACE:
-!
-
   Function MAPL_SimpleBundleCreateFromState ( State, rc,      &
                                               Levs, LevUnits, &
                                               ptop, delp,     &
@@ -636,33 +605,20 @@ CONTAINS
                                               strict,         &
                                               name) result (self)
 
-! !ARGUMENTS:
+    type(MAPL_SimpleBundle)                        :: self          !! Simple Bundle
 
-    type(MAPL_SimpleBundle)                        :: self     ! Simple Bundle
-
-    type(ESMF_State), target, intent(inout)        :: State    ! ESMF State
+    type(ESMF_State), target, intent(inout)        :: State         !! ESMF State
     integer, OPTIONAL,              intent(out)    :: rc
-                                                    ! Vertical coordinates
-    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: Levs(:)       ! Constant levels
-    character(len=*), OPTIONAL,     intent(in)     :: LevUnits      ! Level units
-                                                    ! Lagrangian Control Volume Info
-    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: ptop          ! top pressure (Pa)
+    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: Levs(:)       !! Vertical coordinates
+                                                                    !! Constant levels
+    character(len=*), OPTIONAL,     intent(in)     :: LevUnits      !! Level units
+    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: ptop          !! top pressure (Pa)
+                                                                    !! Lagrangian Control Volume Info
     real(ESMF_KIND_R4), OPTIONAL, pointer, &
-                                    intent(in)     :: delp(:,:,:)   ! layer thickness (Pa)
-    character(len=*), OPTIONAL,     intent(in)     :: only_vars     ! comma separated field names
-    logical, OPTIONAL,              intent(in)     :: strict        ! force name maching, ignored if only_vars is not present
-    character(len=*), OPTIONAL,     intent(in)     :: name          ! name
-
-! !DESCRIPTION: Given an ESMF Stae=te, creates a corresponding Simple Bundle. The
-!               specificatiopn of a vertical grid is optional but useful in many
-!  cases. The 1-D {\tt Levs} will default to the layer number, and units of "1".
-!  Input parameters {\tt (ptop,delp)} can be used to record the corresponding 
-!  Lagrangian Control Volume Grid. When {\tt delp} is not specified, variables
-!  {\tt DELP} or {\tt delp} are used if present inside the bundle. 
-!
-!  {\bf IMPORTANT: } It is assumed that the ESMF State has a single grid.
-
-!EOP
+                                    intent(in)     :: delp(:,:,:)   !! layer thickness (Pa)
+    character(len=*), OPTIONAL,     intent(in)     :: only_vars     !! comma separated field names
+    logical, OPTIONAL,              intent(in)     :: strict        !! force name maching, ignored if only_vars is not present
+    character(len=*), OPTIONAL,     intent(in)     :: name          !! name
 
     character(len=ESMF_MAXSTR) :: stateName
     character(len=ESMF_MAXSTR) :: bundleName
@@ -678,7 +634,7 @@ CONTAINS
           message = 'string "'//trim(name)//'" is too long to be used '// &
                     'as a Simple Bundle name'
           __raise__(MAPL_RC_ERROR, message)
-       end if   
+       end if
 
        bundleName = trim(name)
     else
@@ -696,31 +652,20 @@ CONTAINS
   end Function MAPL_SimpleBundleCreateFromState
 
 !-----------------------------------------------------------------------------
-!BOP
- 
-! !IROUTINE: MAPL_SimpleBundleDestroy --- Destroy a Simple Bundle
+!>
+! Destructor for the MAPL Simple Bundle.
+! It is assumed that the bundle has been created from an ESMF Field Bundle.
 !
-! !INTERFACE:
-!
-  subroutine MAPL_SimpleBundleDestroy (self, rc ) 
-
-! !ARGUMENTS:
+  subroutine MAPL_SimpleBundleDestroy (self, rc )
 
     type(MAPL_SimpleBundle)                    :: self ! Simple Bundle
-
     integer, OPTIONAL,           intent(out)   :: rc
 
-!  !DESCRIPTION:
-!
-!   Destructor for the MAPL Simple Bundle.  It is assumed that the bundle has been created from 
-!   an ESMF Field Bundle.
-
-!EOP
 !-----------------------------------------------------------------------------
 
     integer :: status
 
-    deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__) 
+    deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__)
 !    deallocate(self%r1, self%r2, self%r3, __STAT__)
     if(associated(self%r1)) deallocate(self%r1)
     if(associated(self%r2)) deallocate(self%r2)
@@ -739,40 +684,27 @@ CONTAINS
   end subroutine MAPL_SimpleBundleDestroy
 
 !-----------------------------------------------------------------------------
-!BOP
- 
-! !IROUTINE: MAPL_SimpleBundleRead - Reads a Simple Bundle from File
+!>
+! Given an ESMF Config object and a filename, reads the corresponding file into
+! a MAPL SimpleBundle.
 !
-! !IIROUTINE: MAPL_SimpleBundleRead - Reads a Simple Bundle given Config
-!
-! !INTERFACE:
-!
-
   Function MAPL_SimpleBundleRead (filename, bundle_name, grid, time, verbose, &
                                   only_vars, expid, voting, unusable, rc ) result (self)
          use mapl_KeywordEnforcerMod
 
-! !ARGUMENTS:
-
-    type(MAPL_SimpleBundle)                    :: self ! Simple Bundle
+    type(MAPL_SimpleBundle)                    :: self !! Simple Bundle
 
     character(len=*),            intent(in)    :: filename
     character(len=*),            intent(in)    :: bundle_name
     type(ESMF_Time),             intent(inout) :: Time
     type(ESMF_Grid),             intent(in)    :: Grid
     logical, OPTIONAL,           intent(in)    :: verbose
-    character(len=*), optional,  intent(IN)    :: only_vars 
+    character(len=*), optional,  intent(IN)    :: only_vars
     character(len=*), optional,  intent(IN)    :: expid
     class(KeywordEnforcer), optional, intent(in) :: unusable
     logical,          optional,  intent(in)    :: voting
     integer, OPTIONAL,           intent(out)   :: rc
 
-!  !DESCRIPTION:
-!
-!   Given an ESMF Config object and a filename, reads the corresponding file into
-!    a MAPL SimpleBundle.
-!
-!EOP
 !-----------------------------------------------------------------------------
 
     integer :: status
@@ -790,36 +722,22 @@ CONTAINS
 
     _RETURN(_SUCCESS)
 
+    _UNUSED_DUMMY(unusable)
+
   end function MAPL_SimpleBundleRead
 
 !-----------------------------------------------------------------------------
-!BOP
- 
-! !IROUTINE: MAPL_SimpleBundleWrite - Writes a Simple Bundle to File
-!
-! !IIROUTINE: MAPL_SimpleBundleWrite1 - Writes a Simple Bundle to File given Clock
-!
-! !INTERFACE:
-!
+!>
+! Writes a MAPL SimpleBundle to file fiven an ESMF Clock object.
+! The file opened, written to, and closed.
+
   subroutine MAPL_SimpleBundleWrite1 ( self, filename, clock, verbose, rc )
 
-! !ARGUMENTS:
-
     type(MAPL_SimpleBundle)                 :: self
-
     character(len=*),           intent(in) :: filename
     type(ESMF_Clock),           intent(inout) :: Clock
-
     logical, OPTIONAL,          intent(in)  :: verbose
     integer, OPTIONAL,          intent(out) :: rc
-
-!  !DESCRIPTION:
-!
-!  Writes a MAPL SimpleBundle to file fiven an ESMF Clock object. The file opened,
-!  written to, and closed.
-
-!EOP
-
 !                                ---
     type(MAPL_CFIO)            :: cfio
     integer                    :: status
@@ -832,33 +750,20 @@ CONTAINS
   end subroutine MAPL_SimpleBundleWrite1
 
 !............................................................................................
-
-!-----------------------------------------------------------------------------
-!BOP
-! 
-! !IIROUTINE: MAPL_SimpleBundleWrite2 - Writes a Simple Bundle to File given Time
-!
-! !INTERFACE:
+!>
+! Writes a MAPL SimpleBundle to file fiven an ESMF Time object.
+! The file opened, written to, and closed.
+! A fake timestep of 30 minutes is assumed.
 !
   subroutine MAPL_SimpleBundleWrite2 ( self, filename, time, verbose, rc )
 !
     type(MAPL_SimpleBundle)                 :: self
-
     character(len=*),           intent(in) :: filename
     type(ESMF_Time),            intent(in)  :: time
-
     logical, OPTIONAL,          intent(in)  :: verbose
     integer, OPTIONAL,          intent(out) :: rc
-
-!  !DESCRIPTION:
-!
-!   Writes a MAPL SimpleBundle to file fiven an ESMF Time object. The file opened,
-!   written to, and closed. A fake timestep of 30 minutes is assumed.
-!
-!EOP
-
 !                                ---
-    type(ESMF_TimeInterval)    :: TimeStep 
+    type(ESMF_TimeInterval)    :: TimeStep
     type(ESMF_Clock)           :: Clock
     type(MAPL_CFIO)            :: cfio
     integer                    :: status
@@ -874,27 +779,16 @@ CONTAINS
   end subroutine MAPL_SimpleBundleWrite2
 
 !............................................................................................
-
-!-----------------------------------------------------------------------------
-!BOP
-! 
-! !IIROUTINE: MAPL_SimpleBundlePrint --- Prints Global Max/Min
-!
-! !INTERFACE:
+!>
+! Prints the global max/min for each variable in the Simple Bundle.
 !
   subroutine MAPL_SimpleBundlePrint ( self )
 
-! !ARGUMENTS:
-
     type(MAPL_SimpleBundle) :: self
-    
-!  !DESCRIPTION: Prints the global max/min for each variable in the
-!                Simple Bundle.
 !
-!EOP
 !-----------------------------------------------------------------------------
 
-    integer :: i 
+    integer :: i
 
     if ( MAPL_AM_I_ROOT() ) then
        print *
@@ -960,28 +854,19 @@ CONTAINS
 end subroutine MAPL_SimpleBundlePrint
 
 !-----------------------------------------------------------------------------
-!BOP
-! 
-! !IIROUTINE: MAPL_SimpleBundleGetIndex ---- Get Index of a Variable
-!
-! !INTERFACE:
+!>
+! Finds the index of the first variable with name `vname`.
+! This routine is case insensitive.
 !
   function MAPL_SimpleBundleGetIndex ( self, name, rank, rc, quiet ) result(iq)
 
-! !ARGUMENTS:
-
-    integer                                   :: iq   ! index of variable
-
-    type(MAPL_SimpleBundle)                   :: self
-    character(len=*), intent(in)              :: name ! variable name 
-    integer,                     intent(in)   :: rank
+    integer                                  :: iq    !! index of variable
+    type(MAPL_SimpleBundle)                  :: self
+    character(len=*),            intent(in)  :: name  !! variable name
+    integer,                     intent(in)  :: rank
     integer, OPTIONAL,           intent(out) :: rc
-    logical, OPTIONAL,           intent(in)   :: quiet
-    
-!  !DESCRIPTION: Finds the index of the first variable with name {\tt vname}.
-!                This routine is case insensitive.
+    logical, OPTIONAL,           intent(in)  :: quiet
 !
-!EOP
 !-----------------------------------------------------------------------------
 
     character(len=ESMF_MAXSTR) :: message

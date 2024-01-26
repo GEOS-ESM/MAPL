@@ -1,6 +1,5 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataRule
-   use yaFyaml
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -21,6 +20,7 @@ module MAPL_ExtDataRule
       character(:), allocatable :: vector_component
       character(:), allocatable :: vector_file_partner
       logical :: multi_rule
+      logical :: fail_on_missing_file = .true.
       contains
          procedure :: set_defaults
          procedure :: split_vector
@@ -33,7 +33,7 @@ module MAPL_ExtDataRule
 contains
 
    function new_ExtDataRule(config,sample_map,key,unusable,multi_rule,rc) result(rule)
-      class(YAML_Node), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
       character(len=*), intent(in) :: key
       type(ExtDataTimeSampleMap) :: sample_map
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -43,7 +43,7 @@ contains
       type(ExtDataRule) :: rule
       logical :: collection_present, variable_present
       integer :: status
-      class(YAML_Node), pointer ::config1
+      type(ESMF_HConfig) ::config1
       character(len=:), allocatable :: tempc
       type(ExtDataTimeSample) :: ts
       logical :: usable_multi_rule
@@ -56,57 +56,61 @@ contains
       end if
 
       if (allocated(tempc)) deallocate(tempc)
-      collection_present = config%has("collection")
+      collection_present = ESMF_HConfigIsDefined(config,keyString="collection")
       _ASSERT(collection_present,"no collection present in ExtData export")
-      rule%collection = config%of("collection")
+      rule%collection = ESMF_HConfigAsString(config,keyString="collection",_RC)
 
       if (allocated(tempc)) deallocate(tempc)
-      variable_present = config%has("variable")
+      variable_present = ESMF_HConfigIsDefined(config,keyString="variable")
       if (index(rule%collection,"/dev/null")==0) then
          _ASSERT(variable_present,"no variable present in ExtData export")
       end if
       if (variable_present) then
-         tempc = config%of("variable")
+         tempc = ESMF_HConfigAsString(config,keyString="variable",_RC)
          rule%file_var=tempc
       else
          rule%file_var='null'
       end if
 
-      if (config%has("sample")) then
-         config1=>config%at("sample")
-         if (config1%is_mapping()) then
+      if (ESMF_HConfigIsDefined(config,keyString="sample")) then
+
+         config1 = ESMF_HConfigCreateAt(config,keyString="sample",_RC)
+         if (ESMF_HConfigIsMap(config1)) then
             ts = ExtDataTimeSample(config1,_RC)
             call sample_map%insert(trim(key)//"_sample",ts)
             rule%sample_key=trim(key)//"_sample"
-         else if (config1%is_string()) then
-            rule%sample_key=config1
          else
-            _FAIL("sample entry unsupported")
+            rule%sample_key=ESMF_HConfigAsString(config1,_RC)
          end if
-      else 
+      else
          rule%sample_key = ""
       end if
 
       if (allocated(rule%linear_trans)) deallocate(rule%linear_trans)
-      if (config%has("linear_transformation")) then
-         call config%get(rule%linear_trans,"linear_transformation")
+      if (ESMF_HConfigIsDefined(config,keyString="linear_transformation")) then
+         allocate(rule%linear_trans(2))
+         rule%linear_trans = ESMF_HConfigAsR4Seq(config,keyString="linear_transformation",_RC)
       else
          allocate(rule%linear_trans,source=[0.0,0.0])
       end if
-    
+
       if (allocated(tempc)) deallocate(tempc)
-      if (config%has("regrid")) then
-         tempc = config%of("regrid")
+      if (ESMF_HConfigIsDefined(config,keyString="regrid")) then
+         tempc = ESMF_HConfigAsString(config,keyString="regrid",_RC)
          rule%regrid_method=tempc
-      else 
+      else
          rule%regrid_method="BILINEAR"
       end if
 
-      if (config%has("starting")) then
-         tempc = config%of("starting")
+      if (ESMF_HConfigIsDefined(config,keyString="starting")) then
+         tempc = ESMF_HConfigAsString(config,keyString="starting",_RC)
          rule%start_time = tempc
       end if
-  
+
+      if (ESMF_HConfigIsDefined(config,keyString="fail_on_missing_file")) then
+         rule%fail_on_missing_file = ESMF_HConfigAsLogical(config,keyString="fail_on_missing_file",_RC)
+      end if
+
       rule%multi_rule=usable_multi_rule
 
       _RETURN(_SUCCESS)
@@ -132,7 +136,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: semi_pos
       character(len=:),allocatable :: uname,vname
-    
+
       _UNUSED_DUMMY(unusable)
 
       semi_pos = index(this%file_var,";")

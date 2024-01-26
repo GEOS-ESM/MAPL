@@ -1081,8 +1081,6 @@ contains
          character(len=*) :: label
          integer, optional, intent(out) :: rc
 
-         integer :: i
-         integer :: n
          integer :: status
          logical :: isPresent
 
@@ -1617,6 +1615,8 @@ contains
       integer :: pet_south
       integer :: pet_east
       integer :: pet_west
+      integer :: pet_N_E, pet_N_W, pet_S_E, pet_S_W
+      integer :: last_lon, last_lat
 
       _UNUSED_DUMMY(unusable)
       ! not yet implmented, default is 1
@@ -1626,6 +1626,9 @@ contains
          call this%init_halo(rc=status)
          _VERIFY(status)
       end if
+
+      last_lon = size(array,1)
+      last_lat = size(array,2)
 
       associate (nx => this%nx, ny => this% ny, px => this%px, py => this%py)
         ! Nearest neighbors processor' ids
@@ -1643,6 +1646,51 @@ contains
         _VERIFY(status)
         call fill_west(array, rc=status)
         _VERIFY(status)
+
+        pet_N_E   = get_pet(px+1, py+1, nx, ny)
+        pet_N_W   = get_pet(px-1, py+1, nx, ny)
+        pet_S_E   = get_pet(px+1, py-1, nx, ny)
+        pet_S_W   = get_pet(px-1, py-1, nx, ny)
+
+        !fill north east
+        call MAPL_CommsSendRecv(this%layout,              &
+              array(2,      2         ), 1,  pet_S_W,  &
+              array(last_lon,last_lat ), 1,  pet_N_E,  &
+              rc=status)
+        _VERIFY(status)
+
+        !fill north west
+        call MAPL_CommsSendRecv(this%layout,              &
+              array(last_lon-1, 2), 1,  pet_S_E,  &
+              array(1,   last_lat), 1,  pet_N_W,  &
+              rc=status)
+        _VERIFY(status)
+
+        ! north pol corner
+        if(this%py== this%ny-1) then
+           array(last_lon,last_lat) = array(last_lon-1,last_lat-1)
+           array(1,last_lat)        = array(2,last_lat-1)
+        endif
+
+        !fill south east
+        call MAPL_CommsSendRecv(this%layout,              &
+              array(2, last_lat-1), 1,  pet_N_W,  &
+              array(last_lon,1),    1,  pet_S_E,  &
+              rc=status)
+        _VERIFY(status)
+
+        !fill south west
+        call MAPL_CommsSendRecv(this%layout,              &
+              array(last_lon-1,last_lat-1), 1,  pet_N_E,  &
+              array(1,1                  ), 1,  pet_S_W,  &
+              rc=status)
+        _VERIFY(status)
+
+        ! south pole corner
+        if(this%py==0) then
+           array(last_lon,1   ) = array(last_lon-1,2 )
+           array(1,1   )        = array(2,2 )
+        endif
 
       end associate
 
@@ -1718,8 +1766,8 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1
-         len = size(array,1)
+         last = size(array,1)-1
+         len = size(array,2)
 
          call MAPL_CommsSendRecv(this%layout,      &
               array(2     , : ),  len,  pet_west,  &
@@ -1744,8 +1792,8 @@ contains
          len = size(array,2)
 
          call MAPL_CommsSendRecv(this%layout,   &
-              array(last  , : ),  len,  pet_west,  &
-              array(1     , : ),  len,  pet_east,  &
+              array(last  , : ),  len,  pet_east,  &
+              array(1     , : ),  len,  pet_west,  &
               rc=status)
          _VERIFY(status)
 
@@ -1827,8 +1875,6 @@ contains
       integer :: status
       integer :: global_dim(3), i1,j1,in,jn
 
-      _UNUSED_DUMMY(this)
-
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
       _VERIFY(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
@@ -1838,6 +1884,8 @@ contains
 
       _RETURN(_SUCCESS)
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metadata)
    end subroutine generate_file_bounds
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
@@ -1864,8 +1912,8 @@ contains
       type(ArrayReference) :: ref
       class(LatLonGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
-      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
+      _UNUSED_DUMMY(this)
    end function generate_file_reference2D
 
    function generate_file_reference3D(this,fpointer,metaData) result(ref)
@@ -1874,8 +1922,10 @@ contains
       class(LatLonGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
       type(FileMetaData), intent(in), optional :: metaData
-      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metaData)
    end function generate_file_reference3D
 
 

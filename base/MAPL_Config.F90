@@ -1,10 +1,20 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_Generic.h"
-
-
-! This module implements extensions that allow extending an
+!
+!>
+!### MODULE: `MAPL_ConfigMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_ConfigMod` implements extensions that allow extending an
 ! ESMF_Config object.  Otherwise, ESMF only provides a constructor
 ! that loads the data from a text file.
-
+!
 module MAPL_ConfigMod
    use ESMF
    use MAPL_ExceptionHandling
@@ -23,6 +33,25 @@ module MAPL_ConfigMod
       module procedure :: MAPL_ConfigSetAttribute_string
    end interface
 
+   integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
+   integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
+                                      ! usually *less* than the number
+                                      ! of non-blank/comment lines
+                                      ! (because most lines are shorter
+                                      ! then LSZ)
+
+   integer,   parameter :: NBUF_MAX = MSZ*LSZ     ! max size of buffer
+   integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
+                                                  ! assumes an average line
+                                                  ! size of 16, the code
+                                                  ! will do a bound check
+
+   character, parameter :: BLK = achar(32)   ! blank (space)
+   character, parameter :: TAB = achar(09)   ! TAB
+   character, parameter :: EOL = achar(10)   ! end of line mark (newline)
+   character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
+   character, parameter :: NUL = achar(00)   ! what it says
+
 contains
 
    function MAPL_ConfigCreate(unusable, rc) result(config)
@@ -31,15 +60,14 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-#ifdef ESMF_HAS_ACHAR_BUG
-      character, parameter :: EOL = achar(12)   ! end of line mark (cr)
+      character, parameter :: EOB = achar(00)   !! end of buffer mark (null)
+#if defined(__NAG_COMPILER_BUILD) && defined(__DARWIN)
+      character, parameter :: EOL = achar(12)   !! end of line mark (cr)
 #else
-      character, parameter :: EOL = achar(10)   ! end of line mark (newline)
+      character, parameter :: EOL = achar(10)   !! end of line mark (newline)
 #endif
-      character, parameter :: NUL = achar(00)   ! what it says
+      character, parameter :: NUL = achar(00)   !! what it says
 
-      _UNUSED_DUMMY(unusable)
       config = ESMF_ConfigCreate(rc=rc)
       config%cptr%buffer(1:1) = EOL
       config%cptr%buffer(2:2) = EOB
@@ -47,63 +75,30 @@ contains
       config%cptr%next_line = 1
       config%cptr%value_begin = 1
 
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function MAPL_ConfigCreate
-! BOPI -------------------------------------------------------------------
-!
-! !IROUTINE: MAPL_ConfigSetAttribute - Set a 4-byte integer number
 
+!------------------------------------------------------------------------------
+!>
+! Set a 8-byte real _value_ in the _config_ object.
 !
-! !INTERFACE:
-      ! Private name; call using ESMF_ConfigSetAttribute()
+! The arguments are:
+!- **config**: Already created  `ESMF_Config` object.
+!- **value**: Real value to set.
+!- **label**: Identifying attribute label.
+!- **rc**: Return code; equals `ESMF_SUCCESS` if there are no errors.
+!
+! **Private name**: call using ESMF_ConfigSetAttribute()`.
+!
       subroutine MAPL_ConfigSetAttribute_real64( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: REAL64
-! !ARGUMENTS:
+!
       type(ESMF_Config), intent(inout)             :: config
       real(kind=REAL64), intent(in)                :: value
       character(len=*), intent(in), optional       :: label
       integer, intent(out), optional               :: rc
-
 !
-! !DESCRIPTION:
-!  Sets an integer {\tt value} in the {\tt config} object.
-!
-!   The arguments are:
-!   \begin{description}
-!   \item [config]
-!     Already created {\tt ESMF\_Config} object.
-!   \item [value]
-!     Integer value to set.
-!   \item [{[label]}]
-!     Identifying attribute label.
-!   \item [{[rc]}]
-!     Return code; equals {\tt ESMF\_SUCCESS} if there are no errors.
-!   \end{description}
-!
-! EOPI -------------------------------------------------------------------
-
-       !integer,   parameter :: LSZ = 256  ! Maximum line size
-       integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
-       integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
-                                          ! usually *less* than the number
-                                          ! of non-blank/comment lines
-                                          ! (because most lines are shorter
-                                          ! then LSZ)
-
-       integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
-                                                  ! assumes an average line
-                                                  ! size of 16, the code
-                                                  ! will do a bound check
-
-       character, parameter :: BLK = achar(32)   ! blank (space)
-       character, parameter :: TAB = achar(09)   ! TAB
-#ifdef ESMF_HAS_ACHAR_BUG
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
 
 !$$      character(len=ESMF_MAXSTR) :: Iam = 'MAPL_ConfigSetAttribute_int32'
 
@@ -230,63 +225,26 @@ contains
       return
    end subroutine MAPL_ConfigSetAttribute_real64
 
-
-! BOPI -------------------------------------------------------------------
+!------------------------------------------------------------------------------
+!>
+! Set a 4-byte real _value_ in the _config_ object.
 !
-! !IROUTINE: MAPL_ConfigSetAttribute - Set a 4-byte rea; number
-
+! The arguments are:
+!- **config**: Already created  `ESMF_Config` object.
+!- **value**: Real value to set.
+!- **label**: Identifying attribute label.
+!- **rc**: Return code; equals `ESMF_SUCCESS` if there are no errors.
 !
-! !INTERFACE:
-      ! Private name; call using ESMF_ConfigSetAttribute()
+! **Private name**: call using ESMF_ConfigSetAttribute()`.
+!
       subroutine MAPL_ConfigSetAttribute_real32( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: REAL32
-! !ARGUMENTS:
+!
       type(ESMF_Config), intent(inout)             :: config
       real(kind=REAL32), intent(in)                :: value
       character(len=*), intent(in), optional       :: label
       integer, intent(out), optional               :: rc
-
 !
-! !DESCRIPTION:
-!  Sets an integer {\tt value} in the {\tt config} object.
-!
-!   The arguments are:
-!   \begin{description}
-!   \item [config]
-!     Already created {\tt ESMF\_Config} object.
-!   \item [value]
-!     Integer value to set.
-!   \item [{[label]}]
-!     Identifying attribute label.
-!   \item [{[rc]}]
-!     Return code; equals {\tt ESMF\_SUCCESS} if there are no errors.
-!   \end{description}
-!
-! EOPI -------------------------------------------------------------------
-
-       !integer,   parameter :: LSZ = 256  ! Maximum line size
-       integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
-       integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
-                                          ! usually *less* than the number
-                                          ! of non-blank/comment lines
-                                          ! (because most lines are shorter
-                                          ! then LSZ)
-
-       integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
-                                                  ! assumes an average line
-                                                  ! size of 16, the code
-                                                  ! will do a bound check
-
-       character, parameter :: BLK = achar(32)   ! blank (space)
-       character, parameter :: TAB = achar(09)   ! TAB
-#ifdef ESMF_HAS_ACHAR_BUG
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
 
 !$$      character(len=ESMF_MAXSTR) :: Iam = 'MAPL_ConfigSetAttribute_int32'
 
@@ -413,63 +371,26 @@ contains
       return
    end subroutine MAPL_ConfigSetAttribute_real32
 
-
-! BOPI -------------------------------------------------------------------
+!------------------------------------------------------------------------------
+!>
+! Set a 4-byte integer _value_ in the _config_ object.
 !
-! !IROUTINE: MAPL_ConfigSetAttribute - Set a 4-byte integer number
-
+! The arguments are:
+!- **config**: Already created  `ESMF_Config` object.
+!- **value**: Integer value to set.
+!- **label**: Identifying attribute label.
+!- **rc**: Return code; equals `ESMF_SUCCESS` if there are no errors.
 !
-! !INTERFACE:
-      ! Private name; call using ESMF_ConfigSetAttribute()
+! **Private name**: call using ESMF_ConfigSetAttribute()`.
+!
       subroutine MAPL_ConfigSetAttribute_int32( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: INT32
-! !ARGUMENTS:
+!
       type(ESMF_Config), intent(inout)             :: config
       integer(kind=INT32), intent(in)            :: value
       character(len=*), intent(in), optional       :: label
       integer, intent(out), optional               :: rc
-
 !
-! !DESCRIPTION:
-!  Sets an integer {\tt value} in the {\tt config} object.
-!
-!   The arguments are:
-!   \begin{description}
-!   \item [config]
-!     Already created {\tt ESMF\_Config} object.
-!   \item [value]
-!     Integer value to set.
-!   \item [{[label]}]
-!     Identifying attribute label.
-!   \item [{[rc]}]
-!     Return code; equals {\tt ESMF\_SUCCESS} if there are no errors.
-!   \end{description}
-!
-! EOPI -------------------------------------------------------------------
-
-       !integer,   parameter :: LSZ = 256  ! Maximum line size
-       integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
-       integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
-                                          ! usually *less* than the number
-                                          ! of non-blank/comment lines
-                                          ! (because most lines are shorter
-                                          ! then LSZ)
-
-       integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
-                                                  ! assumes an average line
-                                                  ! size of 16, the code
-                                                  ! will do a bound check
-
-       character, parameter :: BLK = achar(32)   ! blank (space)
-       character, parameter :: TAB = achar(09)   ! TAB
-#ifdef ESMF_HAS_ACHAR_BUG
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
 
 !$$      character(len=ESMF_MAXSTR) :: Iam = 'MAPL_ConfigSetAttribute_int32'
 
@@ -611,7 +532,6 @@ contains
 ! !INTERFACE:
       ! Private name; call using MAPL_ConfigSetAttribute()
 
-     integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
      character(len=LSZ) :: buffer
      character(len=12) :: tmpStr, newVal
      integer :: count, i, j
@@ -656,7 +576,6 @@ contains
      ! 18 is needed for gfortran
      ! Hopefully 32 is large enough to fit-all.
 #define IWSZ 32
-     integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
      character(len=LSZ) :: buffer
      character(len=IWSZ) :: tmpStr, newVal
      integer :: count, i, j
@@ -676,54 +595,22 @@ contains
      _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_ConfigSetAttribute_reals32
 
+!------------------------------------------------------------------------------
+!>
+! Set a string _value_ in the _config_ object.
+!
+! The arguments are:
+!- **config**: Already created  `ESMF_Config` object.
+!- **value**: String value to set.
+!- **label**: Identifying attribute label.
+!- **rc**: Return code; equals `ESMF_SUCCESS` if there are no errors.
+!
    subroutine MAPL_ConfigSetAttribute_string(config, value, label, rc)
-! !ARGUMENTS:
       type(ESMF_Config), intent(inout)             :: config
       character(len=*), intent(in)                 :: value
       character(len=*), intent(in), optional       :: label
       integer, intent(out), optional               :: rc
-
 !
-! !DESCRIPTION:
-!  Sets an integer {\tt value} in the {\tt config} object.
-!
-!   The arguments are:
-!   \begin{description}
-!   \item [config]
-!     Already created {\tt ESMF\_Config} object.
-!   \item [value]
-!     Integer value to set.
-!   \item [{[label]}]
-!     Identifying attribute label.
-!   \item [{[rc]}]
-!     Return code; equals {\tt ESMF\_SUCCESS} if there are no errors.
-!   \end{description}
-!
-! EOPI -------------------------------------------------------------------
-
-       !integer,   parameter :: LSZ = 256  ! Maximum line size
-       integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
-       integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
-                                          ! usually *less* than the number
-                                          ! of non-blank/comment lines
-                                          ! (because most lines are shorter
-                                          ! then LSZ)
-
-       integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
-                                                  ! assumes an average line
-                                                  ! size of 16, the code
-                                                  ! will do a bound check
-
-       character, parameter :: BLK = achar(32)   ! blank (space)
-       character, parameter :: TAB = achar(09)   ! TAB
-#ifdef ESMF_HAS_ACHAR_BUG
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
 
 !$$      character(len=ESMF_MAXSTR) :: Iam = 'MAPL_ConfigSetAttribute_string'
 

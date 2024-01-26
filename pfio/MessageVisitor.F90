@@ -20,6 +20,7 @@ module pFIO_MessageVisitorMod
    use pFIO_DummyMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_ModifyMetadataMessageMod
+   use pFIO_ReplaceMetadataMessageMod
    use pFIO_AbstractRequestHandleMod 
    implicit none
    private
@@ -45,6 +46,7 @@ module pFIO_MessageVisitorMod
       procedure :: handle_CollectiveStageData
       procedure :: handle_Terminate
       procedure :: handle_ModifyMetadata
+      procedure :: handle_ReplaceMetadata
       procedure :: handle_HandShake
       
       generic :: handle_cmd => handle_Done
@@ -61,6 +63,7 @@ module pFIO_MessageVisitorMod
       generic :: handle_cmd => handle_CollectiveStageData
       generic :: handle_cmd => handle_Terminate
       generic :: handle_cmd => handle_ModifyMetadata
+      generic :: handle_cmd => handle_ReplaceMetadata
       generic :: handle_cmd => handle_HandShake
 
    end type MessageVisitor
@@ -68,8 +71,8 @@ module pFIO_MessageVisitorMod
 contains
 
    recursive subroutine handle(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
-      class (AbstractMessage), intent(in) :: message
+      class (MessageVisitor), target, intent(inout) :: this
+      class (AbstractMessage), target, intent(in) :: message
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -87,11 +90,9 @@ contains
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (StageDoneMessage)
-        call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+         call this%handle_cmd(cmd,_RC)
       type is (CollectiveStageDoneMessage)
-        call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+          call this%handle_cmd(cmd,_RC)
       type is (AddExtCollectionMessage)
         call this%handle_AddExtCollection(cmd,rc=status)
         _VERIFY(status)
@@ -116,6 +117,9 @@ contains
       type is (ModifyMetadataMessage)
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
+      type is (ReplaceMetadataMessage)
+        call this%handle_cmd(cmd,rc=status)
+        _VERIFY(status)
       type is (HandShakeMessage)
         ! the handShake is from client to server
         call this%handle_cmd(cmd, rc=status)
@@ -132,7 +136,7 @@ contains
    end subroutine handle
 
    subroutine handle_CollectivePrefetchData(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (CollectivePrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_CollectivePrefetchData should not be called")
@@ -141,7 +145,7 @@ contains
    end subroutine handle_CollectivePrefetchData
 
    subroutine handle_CollectiveStageData(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (CollectiveStageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_CollectiveStageData should not be called")
@@ -231,7 +235,7 @@ contains
    end subroutine handle_Id
 
    subroutine handle_PrefetchData(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (PrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_PrefetchData should not be called")
@@ -240,7 +244,7 @@ contains
    end subroutine handle_PrefetchData
 
    subroutine handle_StageData(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (StageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_StageData should not be called")
@@ -249,13 +253,22 @@ contains
    end subroutine handle_StageData
 
    subroutine handle_ModifyMetadata(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (ModifyMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_ModifyMetadata should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_ModifyMetadata
+
+   subroutine handle_ReplaceMetadata(this, message, rc)
+      class (MessageVisitor), target, intent(inout) :: this
+      type (ReplaceMetadataMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+      _FAIL( "Warning : dummy handle_ReplaceMetadata should not be called")
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+   end subroutine handle_ReplaceMetadata
 
    subroutine handle_HandShake(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this

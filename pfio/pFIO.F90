@@ -15,7 +15,7 @@ module pFIO
    use pFIO_MultiCommServerMod
    use pFIO_MultiGroupServerMod
    use pFIO_UtilitiesMod
-!!$   use pFIO_OpenMPServerMod
+!C$   use pFIO_OpenMPServerMod
    use pFIO_ServerThreadMod
    use pFIO_ClientThreadMod
    use pFIO_ClientThreadVectorMod
@@ -28,7 +28,6 @@ module pFIO
    use pFIO_ArrayReferenceMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringVariableMapMod
-   use pFIO_DownBitMod
    use pFIO_LocalMemReferenceMod
    use pFIO_FormatterPtrVectorMod
    use pFIO_StringVectorUtilMod 

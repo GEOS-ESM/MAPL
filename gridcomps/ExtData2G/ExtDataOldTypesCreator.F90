@@ -4,7 +4,6 @@
 module MAPL_ExtDataOldTypesCreator
    use ESMF
    use MAPL_BaseMod
-   use yafYaml
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_ExtDataTypeDef
@@ -22,7 +21,9 @@ module MAPL_ExtDataOldTypesCreator
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
    implicit none
+
    public :: ExtDataOldTypesCreator
+   public :: new_ExtDataOldTypesCreator
 
    type, extends(ExtDataConfig) :: ExtDataOldTypesCreator
       private
@@ -31,32 +32,31 @@ module MAPL_ExtDataOldTypesCreator
          procedure :: fillin_derived
    end type ExtDataOldTypesCreator
 
-   interface ExtDataOldTypesCreator
-      module procedure :: new_ExtDataOldTypesCreator
-   end interface
+!#   interface ExtDataOldTypesCreator
+!#      module procedure :: new_ExtDataOldTypesCreator
+!#   end interface
 
    contains
 
-   function new_ExtDataOldTypesCreator(config_file,current_time,unusable,rc ) result(ExtDataObj)
-      character(len=*), intent(in) :: config_file
-      type(ESMF_Time), intent(in) :: current_time
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+      subroutine new_ExtDataOldTypesCreator(extdataobj, config_file,current_time,unusable,rc )
+         type(ExtDataOldTypesCreator), target, intent(out) :: ExtDataObj
+         character(len=*), intent(in) :: config_file
+         type(ESMF_Time), intent(in) :: current_time
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
 
-      type(ExtDataOldTypesCreator) :: ExtDataObj
 
-      integer :: status
+         integer :: status
+         
+         call ExtDataObj%ExtDataConfig%new_ExtDataConfig_from_yaml(config_file,current_time,_RC)
+         
+         _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
+      end subroutine new_ExtDataOldTypesCreator
 
-      _UNUSED_DUMMY(unusable)
-      call ExtDataObj%ExtDataConfig%new_ExtDataConfig_from_yaml(config_file,current_time,rc=status)
-      _VERIFY(status)
 
-      _RETURN(_SUCCESS)
-   end function new_ExtDataOldTypesCreator
-
-   
    subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,unusable,rc)
-      class(ExtDataOldTypesCreator), intent(inout) :: this
+      class(ExtDataOldTypesCreator), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       character(len=*), intent(in) :: base_name
       type(PrimaryExport), intent(inout) :: primary_item
@@ -72,12 +72,12 @@ module MAPL_ExtDataOldTypesCreator
       type(ExtDataSimpleFileHandler) :: simple_handler
       type(ExtDataClimFileHandler) :: clim_handler
       integer :: status, semi_pos
-      logical :: disable_interpolation, get_range
+      logical :: disable_interpolation, get_range, exact
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
       time_sample => this%sample_map%at(rule%sample_key)
-      
+
       if(.not.associated(time_sample)) then
         call default_time_sample%set_defaults()
         time_sample=>default_time_sample
@@ -106,14 +106,14 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%fileVars%itemType = ItemTypeScalar
          primary_item%fileVars%xname  = trim(rule%file_var)
       end if
-      
+
       ! regrid method
       if (index(rule%regrid_method,"FRACTION;")>0) then
          semi_pos = index(rule%regrid_method,";")
          read(rule%regrid_method(semi_pos+1:),*) primary_item%fracVal
          primary_item%trans = REGRID_METHOD_FRACTION
       else
-         primary_item%trans = get_regrid_method(rule%regrid_method)
+         primary_item%trans = regrid_method_string_to_int(rule%regrid_method)
       end if
       _ASSERT(primary_item%trans/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
@@ -131,17 +131,24 @@ module MAPL_ExtDataOldTypesCreator
       call primary_item%update_freq%create_from_parameters(time_sample%refresh_time, &
            time_sample%refresh_frequency, time_sample%refresh_offset, time, clock, _RC)
 
-      disable_interpolation =  .not.time_sample%time_interpolation 
+      disable_interpolation =  .not.time_sample%time_interpolation
+      exact = time_sample%exact
 
-      call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation)
-      call primary_item%modelGridFields%comp2%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation)
-      call primary_item%modelGridFields%auxiliary1%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation)
-      call primary_item%modelGridFields%auxiliary2%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation)
+      call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
+      call primary_item%modelGridFields%comp2%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
+      call primary_item%modelGridFields%auxiliary1%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation,exact=exact)
+      call primary_item%modelGridFields%auxiliary2%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation,exact=exact)
 
       ! file_template
       primary_item%isConst = .false.
       if (index(rule%collection,"/dev/null")==0) then
-         dataset => this%file_stream_map%at(trim(rule%collection))
+
+         if ( ASSOCIATED(this%file_stream_map%at(trim(rule%collection))) ) then
+           dataset => this%file_stream_map%at(trim(rule%collection))
+         else
+           _FAIL("ExtData problem with collection "//TRIM(rule%collection))
+         end if
+
          primary_item%file_template = dataset%file_template
          get_range = trim(time_sample%extrap_outside) /= "none"
          call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
@@ -161,6 +168,8 @@ module MAPL_ExtDataOldTypesCreator
             allocate(primary_item%filestream,source=simple_handler)
          end if
       end if
+
+      primary_item%fail_on_missing_file = rule%fail_on_missing_file
 
       _RETURN(_SUCCESS)
 
@@ -182,7 +191,7 @@ module MAPL_ExtDataOldTypesCreator
 
       _UNUSED_DUMMY(unusable)
       rule => this%derived_map%at(trim(item_name))
-  
+
       derived_item%name = trim(item_name)
       derived_item%expression = rule%expression
       if (allocated(rule%sample_key)) then
@@ -201,7 +210,7 @@ module MAPL_ExtDataOldTypesCreator
       end if
 
       _RETURN(_SUCCESS)
- 
+
    end subroutine fillin_derived
 
 end module MAPL_ExtDataOldTypesCreator

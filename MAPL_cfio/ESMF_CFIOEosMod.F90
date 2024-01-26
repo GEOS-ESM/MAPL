@@ -1,32 +1,37 @@
-!==============================================================================
-!BOP
-! !MODULE: ESMF_CFIOMod.F90 - Source file for CFIO
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `ESMF_CFIOEosMod`
+!
+! Author: GMAO SI-Team
+!
+! `ESMF_CFIOEosMod` - Source file for CFIO
+!
+! The module `ESMF_CFIOEosMod` provides data type definitions and interface
+! specifications. It provides all the necessary subroutines for users to
+! write/read HDF format output using CF convention.
+!
+!#### History
+!- Jan2004  Baoyu Yin  Initial design and prototyping.
+!- Apr2004  Baoyu Yin  Implementation
+!- Sep2004  Baoyu Yin  Modified return codes to make it more specific.
+!- Sep2004  Baoyu Yin  Moved some utility routines to ESMF_CFIOUtil.F90.
+!- Sep2004  Baoyu Yin  Modified station grid metadata.
+!- Sep2004  Baoyu Yin  Added ptopUnit to ptop for eta and sigma coordinates.
+!- Oct2004  Baoyu Yin  Migrated to Halem and fixed some bugs.
+!- Oct2004  Baoyu Yin  Added timeString to ESMF_CFIOSet and ESMF_CFIOEosVarWrite.
+!   Rearranged the argument order in ESMF_CFIOEosVarWrite.
+!- Jan2005  Baoyu Yin  Fixed some memory problems. Fixed scaleFactor and offset
+!   problem. Fixed standard_name problem in reading CFIO files.
+!- Mar2005  Baoyu Yin  Moved some utility routines into ESMF_CFIOUtil.F90
+!   Modified error return codes.
+!
 
        module ESMF_CFIOEosMod
 !
-! !DESCRIPTION:
-!
-! The code in this file provides data type definitions and interface 
-! specifications
-!
-! This module provides all the necessary subroutines for users to write/read
-! HDF format output using CF convention.
-!
-! !REVISION HISTORY:
-!
-!  Jan2004  Baoyu Yin  Initial design and prototyping.
-!  Apr2004  Baoyu Yin  Implementation
-!  Sep2004  Baoyu Yin  Modified return codes to make it more specific.
-!  Sep2004  Baoyu Yin  Moved some utility routines to ESMF_CFIOUtil.F90.
-!  Sep2004  Baoyu Yin  Modified station grid metadata.
-!  Sep2004  Baoyu Yin  Added ptopUnit to ptop for eta and sigma coordinates.
-!  Oct2004  Baoyu Yin  Migrated to Halem and fixed some bugs.
-!  Oct2004  Baoyu Yin  Added timeString to ESMF_CFIOSet and ESMF_CFIOEosVarWrite.
-!                      Rearranged the argument order in ESMF_CFIOEosVarWrite.
-!  Jan2005  Baoyu Yin  Fixed some memory problems. Fixed scaleFactor and offset
-!                      problem. Fixed standard_name problem in reading CFIO files.
-!  Mar2005  Baoyu Yin  Moved some utility routines into ESMF_CFIOUtil.F90
-!                      Modified error return codes.
 !------------------------------------------------------------------------------
 ! !USES:
       use ESMF_CFIOUtilMod
@@ -57,43 +62,37 @@
       contains
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOEosFileCreate -- Create a CFIO output file with meta data
-
-! !INTERFACE:
-      subroutine ESMF_CFIOEosFileCreate (cfio, rc)
+!>
+! `ESMF_CFIOEosFileCreate` -- Create a CFIO output file with meta data
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIOEosFileCreate (cfio, rc)
 !
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inout) :: cfio       ! a CFIO object
+      type(ESMF_CFIO), intent(inout) :: cfio       !! a CFIO object
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                      ! 0   all is well
-                      ! -1 Time increment is 0
-                      ! -2  allocate memory error
-                      ! -3  Num of int/char/real elements and Cnt don't match
-                      ! -12  error determining default precision
-                      ! -18 incorrect time increment
-                      ! -30 can't open file
-                      ! -31 error from NF90_DEF_DIM
-                      ! -32 error from NF90_DEF_VAR (dimension variable)
-                      ! -33 error from NF90_PUT_ATT (dimension attribute)
-                      ! -34 error from NF90_DEF_VAR (variable)
-                      ! -35  error from NF90_PUT_ATT (variable attribute)
-                      ! -36  error from NF90_PUT_ATT (global attribute)
-                      ! -37  error from NF90_ENDDEF
-                      ! -38  error from NF90_PUT_VAR (dimension variable)
-                      ! -39 Num of real var elements and Cnt differ
-                      ! -55  error from NF90_REDEF (enter define mode)
-                      ! -56  error from NF90_ENDDEF (exit define mode)
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                      !! 0   all is well
+                      !! -1 Time increment is 0
+                      !! -2  allocate memory error
+                      !! -3  Num of int/char/real elements and Cnt don't match
+                      !! -12  error determining default precision
+                      !! -18 incorrect time increment
+                      !! -30 can't open file
+                      !! -31 error from NF90_DEF_DIM
+                      !! -32 error from NF90_DEF_VAR (dimension variable)
+                      !! -33 error from NF90_PUT_ATT (dimension attribute)
+                      !! -34 error from NF90_DEF_VAR (variable)
+                      !! -35  error from NF90_PUT_ATT (variable attribute)
+                      !! -36  error from NF90_PUT_ATT (global attribute)
+                      !! -37  error from NF90_ENDDEF
+                      !! -38  error from NF90_PUT_VAR (dimension variable)
+                      !! -39 Num of real var elements and Cnt differ
+                      !! -55  error from NF90_REDEF (enter define mode)
+                      !! -56  error from NF90_ENDDEF (exit define mode)
 !
-! !DESCRIPTION:
-!     Create a CFIO output file with meta data
-!EOP
 !------------------------------------------------------------------------------
        integer :: i, n, maxLen, rtcode
        character (len=MVARLEN), pointer :: vname(:), vtitle(:), vunits(:)
@@ -113,8 +112,8 @@
           valid_range(2,i) = cfio%varObjs(i)%validRange(2)
           packing_range(1,i) = cfio%varObjs(i)%packingRange(1)
           packing_range(2,i) = cfio%varObjs(i)%packingRange(2)
-       enddo 
- 
+       enddo
+
        call EOS_Create_ (cfio, trim(cfio%fName), trim(cfio%title), trim(cfio%source),   &
                trim(cfio%contact), cfio%varObjs(1)%amiss,                         &
                cfio%grids(1)%im, cfio%grids(1)%jm, cfio%grids(1)%km, cfio%grids(1)%lon,  &
@@ -129,21 +128,21 @@
           if ( present(rc) ) rc = rtcode
           return
        end if
-                                                                                                                       
+
        call EOS_PutCharAtt(cfio%fid, 'title', len(trim(cfio%title)),        &
                              cfio%title, rtcode )
        if (err("can't write title",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
-                                                                                                                       
+
        call EOS_PutCharAtt(cfio%fid, 'history', len(trim(cfio%history)),    &
                              cfio%history, rtcode )
        if (err("can't write history",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
-                                                                                                                       
+
        call EOS_PutCharAtt(cfio%fid,'institution',                          &
                             len(trim(cfio%institution)),                     &
                             cfio%institution, rtcode )
@@ -165,7 +164,7 @@
           if ( present(rc) ) rc = rtcode
           return
        end if
-                                                                                                                       
+
        call EOS_PutCharAtt(cfio%fid,'comment',len(trim(cfio%comment)),      &
                              cfio%comment, rtcode )
        if (err("can't write comment",rtcode,rtcode) .lt. 0) then
@@ -179,7 +178,7 @@
           if ( present(rc) ) rc = rtcode
           return
        end if
-                                                                                                                       
+
 !      get integer attributes from iList
        if ( associated(cfio%iList) ) then
           call getMaxLenCnt(maxLen, cfio%nAttInt, iList=cfio%iList)
@@ -190,11 +189,11 @@
              if ( present(rc) ) rc = rtcode
              return
           end if
-                                                                                                                       
+
           call getList(iList=cfio%iList, intAttNames=cfio%attIntNames,       &
                        intAttCnts=cfio%attIntCnts, intAtts=cfio%attInts )
        end if
-                                                                                                                       
+
 !      write user defined integer attributes
        if ( cfio%nAttInt .gt. 0 ) then
           do i = 1, cfio%nAttInt
@@ -204,7 +203,7 @@
                 if ( present(rc) ) rc = rtcode
                 return
              end if
-                                                                                                                       
+
              call EOS_PutIntAtt(cfio%fid, cfio%attIntNames(i),              &
                                  cfio%attIntCnts(i), cfio%attInts(i,:),      &
                                  cfio%prec, rtcode )
@@ -212,10 +211,10 @@
                 if ( present(rc) ) rc = rtcode
                 return
              end if
-                                                                                                                       
+
           end do
        end if
-                                                                                                                       
+
 !      get real attributes from rList
        if ( associated(cfio%rList) ) then
           call getMaxLenCnt(maxLen, cfio%nAttReal, rList=cfio%rList)
@@ -226,13 +225,13 @@
              if ( present(rc) ) rc = rtcode
              return
           end if
-                                                                                                                       
+
           call getList(rList=cfio%rList, realAttNames=cfio%attRealNames,   &
                        realAttCnts=cfio%attRealCnts, realAtts=cfio%attReals )
           do i = 1, cfio%nAttReal
           end do
        end if
-                                                                                                                       
+
 !      write user defined real attributes
        if ( cfio%nAttReal .gt. 0 ) then
           do i = 1, cfio%nAttReal
@@ -252,7 +251,7 @@
              end if
           end do
        end if
-                                                                                                                       
+
 !      get char attributes from cList
        if ( associated(cfio%cList) ) then
           call getMaxLenCnt(maxLen, cfio%nAttChar, cList=cfio%cList)
@@ -266,7 +265,7 @@
           call getList(cList=cfio%cList, charAttNames=cfio%attCharNames,  &
                        charAttCnts=cfio%attCharCnts, charAtts=cfio%attChars )
        end if
-                                                                                                                       
+
 !      write user defined char attributes
        if ( cfio%nAttChar .gt. 0 ) then
           do i = 1, cfio%nAttChar
@@ -279,7 +278,7 @@
              end if
           end do
        end if
-     
+
        cfio%isOpen = .true.
 
        rtcode = 0
@@ -289,67 +288,61 @@
       end subroutine ESMF_CFIOEosFileCreate
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOEosVarWrite3D_ -- Write a variable to a output file
-
-! !INTERFACE:
+!>
+! `ESMF_CFIOEosVarWrite3D_` -- Write a variable to a output file.
+!
       subroutine ESMF_CFIOEosVarWrite3D_(cfio, vName, field, date, curTime, kbeg, &
                                       kount, timeString, doComp, doChunk, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(in) :: cfio         ! a CFIO obj  
-      character(len=*), intent(in) :: vName       ! Variable name  
-      real, intent(in) :: field(:,:,:)            ! array contains data
-      integer, intent(in), OPTIONAL :: date       ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime    ! hhmmss
-      integer, intent(in), OPTIONAL :: kbeg       ! first level to write
-      integer, intent(in), OPTIONAL :: kount      ! number of levels to write
+      type(ESMF_CFIO), intent(in) :: cfio         !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! Variable name
+      real, intent(in) :: field(:,:,:)            !! array contains data
+      integer, intent(in), OPTIONAL :: date       !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime    !! hhmmss
+      integer, intent(in), OPTIONAL :: kbeg       !! first level to write
+      integer, intent(in), OPTIONAL :: kount      !! number of levels to write
       character(len=*), intent(in), OPTIONAL :: timeString
-      logical, intent(in), OPTIONAL :: doComp     ! do szip compression
-      logical, intent(in), OPTIONAL :: doChunk    ! do szip compression
-                                  ! string expression for date and time
+      logical, intent(in), OPTIONAL :: doComp     !! do szip compression
+      logical, intent(in), OPTIONAL :: doChunk    !! do szip compression
+                                  !! string expression for date and time
 
 
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -15  data outside of valid range
-                         !  rc = -16  data outside of packing range
-                         !  rc = -17  data outside of pack and valid range
-                         !  rc = -38  error from NF90_PUT_VAR (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -45  error from NF90_PUT_VAR
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
-                         !  rc = -53  error from NF90_GET_ATT
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -15  data outside of valid range
+                         !!  rc = -16  data outside of packing range
+                         !!  rc = -17  data outside of pack and valid range
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -45  error from NF90_PUT_VAR
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -53  error from NF90_GET_ATT
 
 !
-! !DESCRIPTION:
-!     Write a variable to file
-!EOP
 !------------------------------------------------------------------------------
       integer :: i, rtcode
       integer :: myKbeg, myKount
       integer :: myDate, myCurTime
       logical :: do_comp, do_chunk
-      
+
       do_comp = .false.
       do_chunk = .false.
 
@@ -366,7 +359,7 @@
       end do
 
 !     write 2D variable
-      if ( cfio%varObjs(i)%twoDimVar ) then 
+      if ( cfio%varObjs(i)%twoDimVar ) then
          call EOS_PutVar (cfio%fid, vName, myDate, myCurTime,             &
                         cfio%varObjs(i)%grid%im, cfio%varObjs(i)%grid%jm,  &
                         0, 1, field, do_comp, do_chunk, rtcode )
@@ -379,7 +372,7 @@
          myKbeg = 1
          myKount = cfio%varObjs(i)%grid%km
 
-         if ( present(kbeg) ) myKbeg = kbeg 
+         if ( present(kbeg) ) myKbeg = kbeg
          if ( present(kount) ) myKount = kount
 
          call EOS_PutVar (cfio%fid, vName, myDate, myCurTime,             &
@@ -400,41 +393,35 @@
       end subroutine ESMF_CFIOEosVarWrite3D_
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOEosVarWrite1D_ -- Write a variable to a output file
-                                                                                
-! !INTERFACE:
+!>
+! `ESMF_CFIOEosVarWrite1D_` -- Write a variable to a output file.
+!
       subroutine ESMF_CFIOEosVarWrite1D_(cfio, vName, field, date, curTime,  &
                                       timeString, doComp, doChunk, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(in) :: cfio         ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! Variable name
-      real, intent(in) :: field(:)            ! array contains data
-      integer, intent(in), OPTIONAL :: date       ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime    ! hhmmss
+      type(ESMF_CFIO), intent(in) :: cfio         !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! Variable name
+      real, intent(in) :: field(:)            !! array contains data
+      integer, intent(in), OPTIONAL :: date       !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime    !! hhmmss
       character(len=*), intent(in), OPTIONAL :: timeString
-      logical, intent(in), OPTIONAL :: doComp     ! do szip compression
-      logical, intent(in), OPTIONAL :: doChunk    ! do szip compression
-                                  ! string expression for date and time
-                                                                                
+      logical, intent(in), OPTIONAL :: doComp     !! do szip compression
+      logical, intent(in), OPTIONAL :: doChunk    !! do szip compression
+                                  !! string expression for date and time
+
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
 !
-! !DESCRIPTION:
-!     Write a variable to file
-!EOP
 !------------------------------------------------------------------------------
       integer :: i, rtcode
       integer :: myDate, myCurTime
       logical :: do_comp, do_chunk
-                                                                                         
+
       do_comp = .false.
       do_chunk = .false.
 
@@ -448,7 +435,7 @@
       do i = 1, cfio%mVars
          if ( trim(vName) .eq. trim(cfio%varObjs(i)%vName) ) exit
       end do
-                                                                                
+
 !     NEED WORK HERE
       if (index(cfio%varObjs(i)%grid%gName,'station') .gt. 0) then
 !         call CFIO_SPutVar (cfio%fid, vName, myDate, myCurTime,      &
@@ -468,52 +455,46 @@
       end if
 
       if ( present(rc) ) rc = rtcode
-                                                                                
+
       end subroutine ESMF_CFIOEosVarWrite1D_
-                                                                                
-                                                                                
+
+
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOEosVarWrite2D_ -- Write a variable to a output file
-                                                                                
-! !INTERFACE:
+!
+! `ESMF_CFIOEosVarWrite2D_` -- Write a variable to a output file.
+!
       subroutine ESMF_CFIOEosVarWrite2D_(cfio, vName, field, date, curTime, kbeg, &
                                       kount, timeString, doComp, doChunk, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(in) :: cfio         ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! Variable name
-      real, intent(in) :: field(:,:)            ! array contains data
-      integer, intent(in), OPTIONAL :: date     ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime  ! hhmmss
-      integer, intent(in), OPTIONAL :: kbeg     ! first level to write
-      integer, intent(in), OPTIONAL :: kount    ! number of levels to write
+      type(ESMF_CFIO), intent(in) :: cfio         !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! Variable name
+      real, intent(in) :: field(:,:)            !! array contains data
+      integer, intent(in), OPTIONAL :: date     !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime  !! hhmmss
+      integer, intent(in), OPTIONAL :: kbeg     !! first level to write
+      integer, intent(in), OPTIONAL :: kount    !! number of levels to write
       character(len=*), intent(in), OPTIONAL :: timeString
-      logical, intent(in), OPTIONAL :: doComp     ! do szip compression
-      logical, intent(in), OPTIONAL :: doChunk    ! do szip compression
-                                  ! string expression for date and time
-                                                                                
+      logical, intent(in), OPTIONAL :: doComp     !! do szip compression
+      logical, intent(in), OPTIONAL :: doChunk    !! do szip compression
+                                  !! string expression for date and time
+
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
 !
-! !DESCRIPTION:
-!     Write a variable to file
-!EOP
 !------------------------------------------------------------------------------
       integer :: i, rtcode
       integer :: myKbeg, myKount
       integer :: myDate, myCurTime
       logical :: do_comp, do_chunk
-                                                                                             
+
       do_comp = .false.
       do_chunk = .false.
-                                                                                         
+
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
       if ( present(timeString) ) call strToInt(timeString,myDate,myCurTime)
@@ -524,7 +505,7 @@
       do i = 1, cfio%mVars
          if ( trim(vName) .eq. trim(cfio%varObjs(i)%vName) ) exit
       end do
-                                                                                
+
 !     write 2D variable
       if (index(cfio%varObjs(i)%grid%gName,'station') .gt. 0) then
          if ( cfio%varObjs(i)%twoDimVar ) then
@@ -561,40 +542,32 @@
          end if
 
       end if
-                                                         
+
       if ( cfio%varObjs(i)%timAve ) then
          call writeBnds(cfio, vName, myDate, myCurTime, rtcode)
       end if
 
       if ( present(rc) ) rc = rtcode
-                                                                                
+
       end subroutine ESMF_CFIOEosVarWrite2D_
-                                                                                
+
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOEosFileClose -- close an open CFIO stream
-
-! !INTERFACE:
-      subroutine ESMF_CFIOEosFileClose (cfio, rc)
+!>
+! `ESMF_CFIOEosFileClose` -- close an open CFIO stream.
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIOEosFileClose (cfio, rc)
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                       ! 0   all is well
-                                       ! -54  error from NF90_CLOSE (file close)
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                       !! 0   all is well
+                                       !! -54  error from NF90_CLOSE (file close)
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inout) :: cfio       ! CFIO object
-
-
+      type(ESMF_CFIO), intent(inout) :: cfio       !! CFIO object
 !
-! !DESCRIPTION:
-!     close an open CFIO stream
-!EOP
 !------------------------------------------------------------------------------
        integer :: rtcode
 
@@ -605,7 +578,7 @@
           else
              cfio%isOpen = .false.
           end if
-        
+
        else
           rtcode = 0
        end if
@@ -616,39 +589,32 @@
 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: writeBnds -- write time bounds
-
-! !INTERFACE:
-      subroutine writeBnds(cfio, vName, date, curTime, rc)
+!>
+! `writeBnds` -- write time bounds for time averaging variable.
 !
-! !ARGUMENTS:
+      subroutine writeBnds(cfio, vName, date, curTime, rc)
 !
 ! !INPUT PARAMETERS:
 !
       type (ESMF_CFIO), intent(in) :: cfio
       character(len=*), intent(in) :: vName
-      integer, intent(in) :: date 
+      integer, intent(in) :: date
       integer, intent(in) :: curTime
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                                                ! 1   ...
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                                                !! 1   ...
 !
-!
-! !DESCRIPTION:
-!     write time bounds for time averaging variable
-!EOP
 !------------------------------------------------------------------------------
-      integer :: sds_index, sfwdata, sfselect, sfn2index    
+      integer :: sds_index, sfwdata, sfselect, sfn2index
       integer :: sfsnatt, sfendacc
       integer :: sds_id, corner(4), edges(4), stride(4)
       integer :: hour, min, sec, incSecs, timeIndex
       integer :: seconds, timeinc, curSecs
       real*4 :: bndsdata(2)
-      character*8 :: strBuf
+      character(len=8) :: strBuf
       integer :: i, rtcode=0
 
 !     make sure user provides the right variable name
@@ -663,11 +629,11 @@
          read (strBuf,204) hour, min, sec
 204      format (3I2)
          incSecs = hour*3600 + min*60 + sec
-                                                                                       
+
          write (strBuf,203) curTime
          read (strBuf,204) hour, min, sec
          curSecs = hour*3600 + min*60 + sec
-                                                                                       
+
          timeIndex = seconds/incSecs + 1
          corner(1) = 0
          corner(2) = timeIndex-1
@@ -685,25 +651,45 @@
             bndsdata(1) = curSecs/60.
             bndsdata(2) = (incSecs + curSecs)/60.
          end if
- 
+
          sds_index = sfn2index(cfio%sd_id, 'time_bnds')
          sds_id = sfselect(cfio%sd_id, sds_index)
          rtcode = sfwdata (sds_id, corner, stride, edges, bndsdata)
-         if ( rtcode .ne. 0 ) then 
+         if ( rtcode .ne. 0 ) then
             print *, "sfwdata failed in time_bnds"
             if ( present(rc) ) rc = rtcode
             return
          end if
          rtcode = sfendacc(sds_id)
       end if
- 
+
       if ( present(rc) ) rc = rtcode
 
       end subroutine writeBnds
 
- 
+
 
 !------------------------------------------------------------------------------
+!>
+! `EOS_Create_`
+!
+!#### History
+!- 1997.09.13  da Silva/Lucchesi  Initial interface design.
+!- 1997.09.22  Lucchesi           Added timinc to interface.
+!- 1998.02.10  Lucchesi           Added support for applications running with 64-bit reals.
+!- 1998.02.17  Lucchesi           Added time_inc, begin_time, and begin_date
+!   attributes to the time dimension.
+!- 1998.03.30  Lucchesi           Documentation expanded.  Clean-up of code.
+!- 1998.07.07  Lucchesi           Removed vids from argument list
+!- 1998.07.09  Lucchesi           Converted timinc to seconds before saving
+!- 1998.10.09  Lucchesi           Precision flag, documentation changes.
+!- 1998.10.27  Lucchesi           Added support for packing and range checks
+!- 1999.01.29  Lucchesi           Converted API to SD for HDFEOS
+!- 1999.04.13  Lucchesi           Added "missing_value" as a global attritute
+!   and a HDF-EOS Grid attribute to be consistent
+!   with Dan Ziskin's earlier work.
+!- 1999.05.27  Lucchesi           Added error checking and updated error codes.
+!
       subroutine EOS_Create_(cfio, fname, title, source, contact, amiss, &
                               im, jm, km, lon, lat, levs, levunits, &
                               yyyymmdd_beg, hhmmss_beg, timinc,&
@@ -713,116 +699,95 @@
 !
 ! !USES:
 !
-      Implicit NONE  
+      Implicit NONE
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
                                     ! ------- Global Metadata ------
-      character*(*)   fname         ! File name
-      character*(*)   title         ! A title for the data set
-      character*(*)   source        ! Source of data, e.g. NASA/DAO
-      character*(*)   contact       ! Who to contact about the data set, e.g.,
-                                    ! 'Contact data@dao.gsfc.nasa.gov'
-      real            amiss         ! Missing value such as 1.0E15
+      character(len=*)   fname         !! File name
+      character(len=*)   title         !! A title for the data set
+      character(len=*)   source        !! Source of data, e.g. NASA/DAO
+      character(len=*)   contact       !! Who to contact about the data set, e.g.,
+                                    !! 'Contact data@dao.gsfc.nasa.gov'
+      real            amiss         !! Missing value such as 1.0E15
 
                                     ! ------- Dimension Metadata -------
-      integer         im            ! size of longitudinal dimension
-      integer         jm            ! size of latitudinal  dimension
-      integer         km            ! size of vertical     dimension 
-                                    ! (surface only=1)
-      real*8          lon(im)       ! longitude of center of gridbox in 
-                                    ! degrees east of Greenwich (can be 
-                                    ! -180 -> 180 or 0 -> 360)
-      real*8          lat(jm)       ! latitude of center of gridbox in 
-                                    ! degrees north of equator
-      real*8          levs(km)      ! Level (units given by levunits) of
-                                    !   center of gridbox
-      character*(*)   levunits      ! units of level dimension, e.g.,
-                                    !   "millibar", "hPa", or "sigma_level"
-      integer        yyyymmdd_beg   ! First year-month-day to be written 
-      integer          hhmmss_beg   ! First hour-minute-second to be written
-      integer         timinc        ! Increment between output times (HHMMSS)
+      integer         im            !! size of longitudinal dimension
+      integer         jm            !! size of latitudinal  dimension
+      integer         km            !! size of vertical     dimension
+                                    !! (surface only=1)
+      real*8          lon(im)       !! longitude of center of gridbox in
+                                    !! degrees east of Greenwich (can be
+                                    !! -180 -> 180 or 0 -> 360)
+      real*8          lat(jm)       !! latitude of center of gridbox in
+                                    !! degrees north of equator
+      real*8          levs(km)      !! Level (units given by levunits) of
+                                    !!   center of gridbox
+      character(len=*)   levunits      !! units of level dimension, e.g.,
+                                    !!   "millibar", "hPa", or "sigma_level"
+      integer        yyyymmdd_beg   !! First year-month-day to be written
+      integer          hhmmss_beg   !! First hour-minute-second to be written
+      integer         timinc        !! Increment between output times (HHMMSS)
 
                                     ! ------- Variable Metadata -------
-      integer         nvars         ! number of variables in file
-      character*(*)   vname(nvars)  ! variable short name, e.g., "hght"
-      character*(*)   vtitle(nvars) ! variable long name, e.g.,
-                                    !   "Geopotential Height"
-      character*(*)   vunits(nvars) ! variable units, e.g., "meter/second"
-      integer         kmvar(nvars)  ! number of levels for variable; it can
-                                    !  either be 0 (2-D fields) or equal to km
+      integer         nvars         !! number of variables in file
+      character(len=*)   vname(nvars)  !! variable short name, e.g., "hght"
+      character(len=*)   vtitle(nvars) !! variable long name, e.g.,
+                                    !!   "Geopotential Height"
+      character(len=*)   vunits(nvars) !! variable units, e.g., "meter/second"
+      integer         kmvar(nvars)  !! number of levels for variable; it can
+                                    !!  either be 0 (2-D fields) or equal to km
 
-      real    valid_range(2,nvars)  ! Variable valid range; EOS_PutVar
-                                    ! will return a non-fatal error if a value is 
-                                    ! outside of this range. IMPORTANT: If packing
-                                    ! is not desired for a given variable, YOU MUST
-                                    ! set both components of valid_range to amiss.
+      real    valid_range(2,nvars)  !! Variable valid range; EOS_PutVar
+                                    !! will return a non-fatal error if a value is
+                                    !! outside of this range. IMPORTANT: If packing
+                                    !! is not desired for a given variable, YOU MUST
+                                    !! set both components of valid_range to amiss.
                                     ! ------ Packing Metadata ----
-      real   packing_range(2,nvars) ! Packing range to be used for 16-bit packing 
-                                    ! of each variable. IMPORTANT: If packing is not 
-                                    ! desired for a given variable, YOU MUST set both
-                                    ! components of packing_range to amiss.
-                                    ! NOTE:
-                                    ! * The packing algorithm sets all values
-                                    !    outside the packing range to missing.
-                                    ! * The larger the packing range, the greater
-                                    !    the loss of precision.
-      integer        prec           ! Desired precision of data:
-                                    !   0 = 32 bit
-                                    !   1 = 64 bit
-                                    !   NOTE: mixing precision in the same 
-                                    !   * Mixing 32 and 64 bit precision in the 
-                                    !      same file is not supported.
-                                    !   * If packing is turned on for a variable,
-                                    !      the prec flag is ignored.
-    
+      real   packing_range(2,nvars) !! Packing range to be used for 16-bit packing
+                                    !! of each variable. IMPORTANT: If packing is not
+                                    !! desired for a given variable, YOU MUST set both
+                                    !! components of packing_range to amiss.
+                                    !! NOTE:
+                                    !!* The packing algorithm sets all values
+                                    !!   outside the packing range to missing.
+                                    !!* The larger the packing range, the greater
+                                    !!   the loss of precision.
+      integer        prec           !! Desired precision of data:
+                                    !!   0 = 32 bit
+                                    !!   1 = 64 bit
+                                    !! NOTE: mixing precision in the same
+                                    !!* Mixing 32 and 64 bit precision in the
+                                    !!   same file is not supported.
+                                    !!* If packing is turned on for a variable,
+                                    !!   the prec flag is ignored.
+
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer        fid     ! File handle
-      integer        rc      ! Error return code:
-                             !  rc = 0   all is well
-                             !  rc = -1  time increment is 0
-                             !  rc = -18 incorrect time increment
-                             !
-                             !  NetCDF Errors
-                             !  -------------
-                             !  rc = -30  error creating file
-                             !  rc = -31  error defining a coordinate (dimension)
-                             !  rc = -32  error detaching from grid
-                             !  rc = -33  error associating a dimension with a variable
-                             !  rc = -34  error defining a variable
-                             !  rc = -35  error defining a variable attribute
-                             !  rc = -36  error creating a global attribute
-                             !  rc = -37  error attaching to grid (HDFEOS)
-                             !  rc = -38  error writing a coordinate (dimension)
-                             !  rc = -59  variable name contains only blanks     
+      integer        fid     !! File handle
+      integer        rc      !! Error return code:
+                             !!  rc = 0   all is well
+                             !!  rc = -1  time increment is 0
+                             !!  rc = -18 incorrect time increment
+                             !!
+                             !!  NetCDF Errors
+                             !!  -------------
+                             !!  rc = -30  error creating file
+                             !!  rc = -31  error defining a coordinate (dimension)
+                             !!  rc = -32  error detaching from grid
+                             !!  rc = -33  error associating a dimension with a variable
+                             !!  rc = -34  error defining a variable
+                             !!  rc = -35  error defining a variable attribute
+                             !!  rc = -36  error creating a global attribute
+                             !!  rc = -37  error attaching to grid (HDFEOS)
+                             !!  rc = -38  error writing a coordinate (dimension)
+                             !!  rc = -59  variable name contains only blanks
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
      type(ESMF_CFIO), intent(inout) :: cfio
 !
-
-! !REVISION HISTORY: 
-!
-!  1997.09.13  da Silva/Lucchesi  Initial interface design.
-!  1997.09.22  Lucchesi           Added timinc to interface.
-!  1998.02.10  Lucchesi           Added support for applications running with
-!                                 64-bit reals.
-!  1998.02.17  Lucchesi           Added time_inc, begin_time, and begin_date 
-!                                 attributes to the time dimension.
-!  1998.03.30  Lucchesi           Documentation expanded.  Clean-up of code.
-!  1998.07.07  Lucchesi           Removed vids from argument list
-!  1998.07.09  Lucchesi           Converted timinc to seconds before saving
-!  1998.10.09  Lucchesi           Precision flag, documentation changes.
-!  1998.10.27  Lucchesi           Added support for packing and range checks
-!  1999.01.29  Lucchesi           Converted API to SD for HDFEOS
-!  1999.04.13  Lucchesi           Added "missing_value" as a global attritute
-!                                 and a HDF-EOS Grid attribute to be consistent
-!                                 with Dan Ziskin's earlier work.
-!  1999.05.27  Lucchesi           Added error checking and updated error codes.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       ! REAL*4 variables for 32-bit output to netCDF file.
@@ -839,11 +804,11 @@
       integer dims3D(4), dims2D(3), bnd_dim(2)
       integer bnd_id, tim_id
       integer corner(4), edges(4)
-      character*80 timeUnits 
-      character*(MAXCHR) dimName, dimUnits
+      character(len=80) timeUnits
+      character(len=MAXCHR) dimName, dimUnits
       logical surfaceOnly
-      character*8 strBuf
-      character*14 dateString
+      character(len=8) strBuf
+      character(len=14) dateString
       integer year,mon,day,hour,min,sec
       integer rct
       integer timeSteps
@@ -855,7 +820,7 @@
       real*4 pRange_32(2,nvars),vRange_32(2,nvars)
       logical packflag
 
-! Set metadata strings.  These metadata values are specified in the 
+! Set metadata strings.  These metadata values are specified in the
 ! COARDS conventions
 
       character (len=50) :: lonName = "longitude"
@@ -871,7 +836,7 @@
       character (len=50) :: missing = "missing_value"
 
 ! NEW VARIABLES FOR SD INTERFACE
-  
+
       ! Functions
 
         integer sfstart
@@ -919,20 +884,20 @@
       integer gridId
       real*8, dimension(2) :: uplft = (/-180000000.00, 90000000.00/)
       real*8, dimension(2) :: lwrgt = (/180000000.00, -90000000.00/)
-      character*100 cdims2D
-      character*100 cdims3D
-      character*100 cdims
+      character(len=100) cdims2D
+      character(len=100) cdims3D
+      character(len=100) cdims
       integer dims, numType
       integer start(4), edge(4)
-      
+
 
 ! Internal CFIO functions
 
 
-      character (len=60) :: lonStr 
-      character (len=60) :: latStr 
-      character (len=60) :: levStr 
-      character (len=60) :: timStr 
+      character (len=60) :: lonStr
+      character (len=60) :: latStr
+      character (len=60) :: levStr
+      character (len=60) :: timStr
       logical :: aveFile = .false.
       character cellMthd
       amiss_16 = PACK_FILL
@@ -940,7 +905,7 @@
 
       if (cfio%tSteps .gt. 0) then
          timeSteps = cfio%tSteps
-      else 
+      else
          timeSteps = SD_UNLIMITED
       end if
 
@@ -971,7 +936,7 @@
       do i=1,nvars
         if ( cfio%varObjs(i)%timAve ) then
             aveFile = .true.
-            cellMthd = cfio%varObjs(i)%cellMthd   
+            cellMthd = cfio%varObjs(i)%cellMthd
         end if
       enddo
 
@@ -1014,7 +979,7 @@
 
 ! Open new file.
 
-#if defined(HDFSD)   
+#if defined(HDFSD)
      ! Create file.
 
       sd_id = sfstart (fname, DFACC_CREATE)
@@ -1024,7 +989,7 @@
       endif
 #endif
 
-#if defined(HDFEOS)  
+#if defined(HDFEOS)
       ! Create file, define projection, define origin
 
       fid = GDopen (fname, DFACC_CREATE)
@@ -1037,7 +1002,7 @@
       if (err("Create: error in EHidinfo",rc,-30) .NE. 0) return
       cfio%sd_id = sd_id
 
-      gridId = GDcreate (fid, GRID_NAME, im, jm, uplft, lwrgt) 
+      gridId = GDcreate (fid, GRID_NAME, im, jm, uplft, lwrgt)
       if (err("Create: error in GDcreate",rc,-30) .NE. 0) return
       rct = GDdefproj (gridId, GCTP_GEO, 0, 0, 0)
       if (err("Create: error in GDdefproj",rc,-30) .NE. 0) return
@@ -1046,12 +1011,12 @@
       gridId = GDattach (fid, GRID_NAME)
       if (err("Create: error in GDattach",rc,-37) .NE. 0) return
 #endif
-      
+
 
 #if defined(HDFEOS)
 
-      ! NOTE: X and Y dimensions are created implicitly by the 
-      !       GD interface.  These are single-precision coordinate 
+      ! NOTE: X and Y dimensions are created implicitly by the
+      !       GD interface.  These are single-precision coordinate
       !       variables that satisfy the needs of COARDS.
       !       The double-precision coordinate variable required by
       !       HDF-EOS are defined later.
@@ -1080,7 +1045,7 @@
       dims2D(2) = jm
       dims2D(1) = im
 #if defined(HDFEOS)
-      cdims2D = "XDim,YDim,TIME"     
+      cdims2D = "XDim,YDim,TIME"
 #endif
 
       scale_32 = 1.0     ! No packing for now.
@@ -1101,7 +1066,7 @@
         else
           packflag = .FALSE.
         endif
- 
+
         if ( kmvar(i) .eq. 0 ) then
 
 #if defined(HDFSD)
@@ -1113,22 +1078,22 @@
             vid(i) = sfcreate (sd_id,vname(i),DFNT_FLOAT32,3,dims2D)
           endif
           if (err("Create: error defining variable",rc,-34).NE.0) &
-         then   
+         then
             print *, 'Error details: Could not define ',vname(i)
             goto 999
           endif
 
           dim_id = sfdimid(vid(i),0)
           if (err("Create: error in sfdimid",rc,-33) goto 999
-          rct = sfsdmname(dim_id, 'XDim') 
+          rct = sfsdmname(dim_id, 'XDim')
           if (err("Create: error in sfsdmname",rc,-33) goto 999
           dim_id = sfdimid (vid(i),1)
           if (err("Create: error in sfdimid",rc,-33) goto 999
-          rct = sfsdmname(dim_id, 'YDim') 
+          rct = sfsdmname(dim_id, 'YDim')
           if (err("Create: error in sfsdmname",rc,-33) goto 999
           dim_id = sfdimid (vid(i),2)
           if (err("Create: error in sfdimid",rc,-33) goto 999
-          rct = sfsdmname(dim_id, 'time') 
+          rct = sfsdmname(dim_id, 'time')
           if (err("Create: error in sfsdmname",rc,-33) goto 999
 #endif
 
@@ -1137,19 +1102,19 @@
             rct = GDdeffld (gridId, vname(i), cdims2D, DFNT_INT16, &
                             HDFE_NOMERGE)
             if (err("Create: error defining variable",rc,-34).NE.0) &
-           then   
+           then
               print *, 'Error details: Could not define ',vname(i)
               goto 999
             endif
             rct = GDsetfill (gridId, vname(i), amiss_32)    ! amiss_16 ?
             if (err("Create: error in GDsetfill",rc,-34).NE.0) &
              goto 999
-            vid(i) = GetSDSid (fid, vname(i))             
+            vid(i) = GetSDSid (fid, vname(i))
           else if (prec .EQ. 1) then
             rct = GDdeffld (gridId, vname(i), cdims2D, DFNT_FLOAT64, &
                             HDFE_NOMERGE)
             if (err("Create: error defining variable",rc,-34).NE.0) &
-           then   
+           then
               print *, 'Error details: Could not define ',vname(i)
               goto 999
             endif
@@ -1161,7 +1126,7 @@
             rct = GDdeffld (gridId, vname(i), cdims2D, DFNT_FLOAT32, &
                             HDFE_NOMERGE)
             if (err("Create: error defining variable",rc,-34).NE.0) &
-           then   
+           then
               print *, 'Error details: Could not define ',vname(i)
               goto 999
             endif
@@ -1271,7 +1236,7 @@
           print *, "Error details: Can't set long_name to ",vtitle(i)
           goto 999
         endif
- 
+
         if (LEN_TRIM(vunits(i)) .NE. 0) then
           rct = sfscatt(vid(i),'units',DFNT_CHAR8,LEN_TRIM(vunits(i)),TRIM(vunits(i)) )
         else
@@ -1297,7 +1262,7 @@
           endif
           scale_32 = (high_32 - low_32)/PACK_BITS*2
           offset_32 = high_32 - scale_32*PACK_BITS
-          if (scale_32 .EQ. 0.0) then              ! If packing range is 0, 
+          if (scale_32 .EQ. 0.0) then              ! If packing range is 0,
              scale_32 = 1.0                        ! default to no packing.
              offset_32 = 0.0
           endif
@@ -1375,9 +1340,9 @@
       if (surfaceOnly) then
         idx=1
       else
-        do idx=1,nvars  
+        do idx=1,nvars
           if (kmvar(idx) .EQ. km) then
-            exit  
+            exit
           endif
         enddo
 !        print *, 'idx=',idx,' nvars=',nvars,'km=',km
@@ -1427,7 +1392,7 @@
           rct = sfscatt (levid,'long_name',DFNT_CHAR8,LEN_TRIM(levName),TRIM(levName))
           if (err("Create: error lev attribute",rc,-35).NE.0) goto 999
 
-          ! Check for blanks in levunits because this string is passed in 
+          ! Check for blanks in levunits because this string is passed in
           ! by the user.
 
           if ( LEN_TRIM(levunits) .NE. 0) then
@@ -1516,7 +1481,7 @@
       if (err("Create: error writing TIME",rc,-38).NE.0) goto 999
 #endif
 
- 
+
 ! Define global file attributes.  Check for strings containing only blanks.
 
 #if defined(HDFEOS)

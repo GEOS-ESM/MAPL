@@ -39,7 +39,9 @@ module pFIO_ClientManagerMod
       procedure :: add_ext_collection
       procedure :: add_hist_collection
       procedure :: modify_metadata
+      procedure :: replace_metadata
       procedure :: modify_metadata_all
+      procedure :: replace_metadata_all
       procedure :: prefetch_data
       procedure :: stage_data
       procedure :: collective_prefetch_data
@@ -56,7 +58,7 @@ module pFIO_ClientManagerMod
       procedure :: terminate
 
       procedure :: size
-      procedure :: next
+      procedure :: next => next_
       procedure :: current
       procedure :: set_current
       procedure :: set_optimal_server
@@ -101,6 +103,7 @@ contains
            allocate(clientPtr, source = ClientThread())
         endif
         call c_manager%clients%push_back(clientPtr)
+
         clientPtr=>null()
       enddo
 
@@ -162,11 +165,12 @@ contains
       class (ClientThread), pointer :: clientPtr
       integer :: request_id, status
 
-      clientPtr =>this%current()
-      request_id = clientPtr%prefetch_data(collection_id, file_name, var_name, data_reference, start=start, rc=status)
-      _VERIFY(status)
+      clientPtr => this%current()
+      request_id = clientPtr%prefetch_data(collection_id, file_name, var_name, data_reference, start=start, _RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine prefetch_data
 
    subroutine modify_metadata(this, collection_id, unusable,var_map, rc)
@@ -187,6 +191,22 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine modify_metadata
 
+   subroutine replace_metadata(this, collection_id, fmd, rc)
+      class (ClientManager), intent(inout) :: this
+      integer, intent(in) :: collection_id
+      type (FileMetadata), intent(in) :: fmd
+      integer, optional, intent(out) :: rc
+
+      class (ClientThread), pointer :: clientPtr
+      integer :: status
+
+      ClientPtr => this%current()
+      call clientPtr%replace_metadata(collection_id, fmd, rc=status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end subroutine replace_metadata
+
    subroutine modify_metadata_all(this, collection_id, unusable,var_map,rc)
       class (ClientManager), intent(inout) :: this
       integer, intent(in) :: collection_id
@@ -206,6 +226,24 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine modify_metadata_all
+
+   subroutine replace_metadata_all(this, collection_id, fmd, rc)
+      class (ClientManager), intent(inout) :: this
+      integer, intent(in) :: collection_id
+      type (FileMetadata), intent(in) :: fmd
+      integer, optional, intent(out) :: rc
+
+      class (ClientThread), pointer :: clientPtr
+      integer :: i, status
+
+      do i = 1, this%clients%size()
+         ClientPtr => this%clients%at(i)
+         call clientPtr%replace_metadata(collection_id, fmd, rc=status)
+         _VERIFY(status)
+      enddo
+
+      _RETURN(_SUCCESS)
+   end subroutine replace_metadata_all
 
    subroutine collective_prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start,global_start,global_count, rc)
@@ -229,6 +267,7 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine collective_prefetch_data
 
    subroutine stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -250,6 +289,7 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine stage_data
 
    subroutine collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -274,6 +314,7 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine collective_stage_data
 
    subroutine stage_nondistributed_data(this, collection_id, file_name, var_name, data_reference, unusable, rc)
@@ -288,11 +329,12 @@ contains
       class (clientThread), pointer :: clientPtr
       integer :: request_id, status
 
-      clientPtr =>this%current()
-      request_id = clientPtr%collective_stage_data(collection_id, file_name, var_name, data_reference, rc=status)
-      _VERIFY(status)
+      clientPtr => this%current()
+      request_id = clientPtr%collective_stage_data(collection_id, file_name, var_name, data_reference, _RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine stage_nondistributed_data
 
    subroutine shake_hand(this, unusable, rc)
@@ -412,11 +454,11 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine terminate
 
-   subroutine next(this)
+   subroutine next_(this)
       class (ClientManager), target,intent(inout) :: this
       this%current_client = this%current_client + 1
       if (this%current_client > this%clients%size()) this%current_client = 1
-   end subroutine next
+   end subroutine next_
 
    subroutine set_current(this, ith, rc)
       class (ClientManager), intent(inout) :: this
@@ -434,7 +476,7 @@ contains
    function current(this) result(clientPtr)
       class (ClientManager), target, intent(in) :: this
       class (ClientThread), pointer :: clientPtr
-      clientPtr=> this%clients%at(this%current_client)
+      clientPtr => this%clients%at(this%current_client)
    end function current
 
    subroutine set_optimal_server(this,nwriting,unusable,rc)
