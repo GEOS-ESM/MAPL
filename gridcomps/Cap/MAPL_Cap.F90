@@ -275,6 +275,8 @@ contains
       integer :: status
       class(Logger), pointer :: lgr
       logical :: file_exists
+      type (ESMF_VM) :: VM
+      character(len=:), allocatable :: esmfComm
 
       _UNUSED_DUMMY(unusable)
 
@@ -297,6 +299,11 @@ contains
       else
          call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, _RC)
       end if
+
+      ! We check to see if ESMF_COMM was built as mpiuni which is not allowed for MAPL
+      call ESMF_VmGetCurrent(VM, _RC)
+      call ESMF_VmGet(VM, esmfComm = esmfComm, _RC)
+      _ASSERT( esmfComm /= 'mpiuni', 'ESMF_COMM=mpiuni is not allowed for MAPL')
 
       ! Note per ESMF this is a temporary routine as eventually MOAB will
       ! be the only mesh generator. But until then, this allows us to
