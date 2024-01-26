@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now required), NAG no longer needs this workaround.
 - Refactor the CircleCI workflows for more flexibility
 - Fix field utils issue - add npes argument to test subroutine decorators.
-- Convert moist specs to ACG
+- Convert update ACG writer
 
 ### Fixed
 
