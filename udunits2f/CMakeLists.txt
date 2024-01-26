@@ -1,6 +1,7 @@
 esma_set_this (OVERRIDE udunits2f)
 
 set(srcs
+  mapl_udunits2.F90
   udunits2f.F90
   encoding.F90
   interfaces.F90
@@ -20,3 +21,7 @@ find_package(EXPAT REQUIRED)
 target_link_libraries(${this} PUBLIC udunits::udunits)
 target_link_libraries(${this} PUBLIC EXPAT::EXPAT)
 
+if (PFUNIT_FOUND)
+  # Turning off until test with GNU can be fixed
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()

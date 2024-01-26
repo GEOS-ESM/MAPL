@@ -25,4 +25,13 @@ module ud2f_status_codes
    end enum
    integer, parameter :: ut_status = kind(UT_SUCCESS)
 
+   enum, bind(c)
+      enumerator :: &
+           UTF_DUPLICATE_INITIALIZATION = 100, &
+           UTF_CONVERTER_NOT_INITIALIZED, &
+           UTF_NOT_INITIALIZED, &
+           UTF_INITIALIZATION_FAILURE
+      
+   end enum
+
 end module ud2f_status_codes

@@ -1,7 +1,9 @@
-#include "MAPL_Generic.h"
-module mapl_udunits2mod
+#define _RETURN(status) if(present(rc)) rc=status; return
+#define _RETURN_UNLESS(cond) if (.not. cond) then; _RETURN(UT_SUCCESS); endif
+#define _ASSERT(cond, msg) if (.not. (cond)) then;  _RETURN(msg); endif
+#define _RC rc=status); _ASSERT(rc==UT_SUCCESS, status)
 
-   use MAPL_ExceptionHandling
+module mapl_udunits2mod
    use udunits2f
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
@@ -104,14 +106,14 @@ contains
    type(c_ptr) function cptr(this)
       class(CptrWrapper), intent(in) :: this
 
-      cptr = this % cptr_
+      cptr = this%cptr_
 
    end function cptr
 
    logical function is_free(this)
       class(CptrWrapper), intent(in) :: this
 
-      is_free = .not. c_associated(this % cptr_)
+      is_free = .not. c_associated(this%cptr_)
 
    end function is_free
 
@@ -119,9 +121,9 @@ contains
    subroutine free(this)
       class(CptrWrapper), intent(inout) :: this
 
-      if(this % is_free()) return
-      call this % free_memory()
-      this % cptr_ = c_null_ptr
+      if(this%is_free()) return
+      call this%free_memory()
+      this%cptr_ = c_null_ptr
 
    end subroutine free
 
@@ -136,8 +138,8 @@ contains
       call read_xml(path, utsystem, status)
       
       if(success(status)) then
-         instance % cptr_ = utsystem
-         if(present(encoding)) instance % encoding = encoding
+         instance%cptr_ = utsystem
+         if(present(encoding)) instance%encoding = encoding
          return
       end if
          
@@ -156,10 +158,10 @@ contains
       if(instance_is_uninitialized()) return
 
       cchar_identifier = cstring(identifier)
-      utunit1 = ut_parse(SYSTEM_INSTANCE % cptr(), cchar_identifier, SYSTEM_INSTANCE % encoding)
+      utunit1 = ut_parse(SYSTEM_INSTANCE%cptr(), cchar_identifier, SYSTEM_INSTANCE%encoding)
 
       if(success(ut_get_status())) then
-         instance % cptr_ = utunit1
+         instance%cptr_ = utunit1
       else
          ! Free memory in the case of failure
          if(c_associated(utunit1)) call ut_free(utunit1)
@@ -175,13 +177,13 @@ contains
       logical :: convertible
 
       ! Must supply units that are initialized and convertible
-      if(from_unit % is_free() .or. to_unit % is_free()) return
+      if(from_unit%is_free() .or. to_unit%is_free()) return
       if(.not. are_convertible(from_unit, to_unit)) return
 
-      cvconverter1 = ut_get_converter(from_unit % cptr(), to_unit % cptr())
+      cvconverter1 = ut_get_converter(from_unit%cptr(), to_unit%cptr())
 
       if(success(ut_get_status())) then
-         conv % cptr_ = cvconverter1
+         conv%cptr_ = cvconverter1
       else
          ! Free memory in the case of failure
          if(c_associated(cvconverter1)) call cv_free(cvconverter1)
@@ -197,9 +199,9 @@ contains
       integer(ut_status) :: status
 
       conv = get_converter_function(from, to)
-      status = merge(_FAILURE, UT_SUCCESS, conv % is_free())
-      _RETURN(status)
+      _ASSERT(.not. conv%is_free(), UTF_CONVERTER_NOT_INITIALIZED)
 
+      _RETURN(UT_SUCCESS)
    end subroutine get_converter
 
    ! Get converter object
@@ -214,18 +216,18 @@ contains
 
       ! Get units based on strings. Free memory on fail.
       from_unit = UDUnit(from)
-      if(from_unit % is_free()) return
+      if(from_unit%is_free()) return
       to_unit = UDUnit(to)
-      if(to_unit % is_free()) then
-         call from_unit % free()
+      if(to_unit%is_free()) then
+         call from_unit%free()
          return
       end if
 
       conv = Converter(from_unit, to_unit)
 
       ! Units are no longer needed
-      call from_unit % free()
-      call to_unit % free()
+      call from_unit%free()
+      call to_unit%free()
 
    end function get_converter_function
 
@@ -234,7 +236,7 @@ contains
       real(c_double), intent(in) :: from
       real(c_double) :: to
 
-      to = cv_convert_double(this % cptr(), from)
+      to = cv_convert_double(this%cptr(), from)
 
    end function convert_double
 
@@ -243,7 +245,7 @@ contains
       real(c_float), intent(in) :: from
       real(c_float) :: to
 
-      to = cv_convert_float(this % cptr(), from)
+      to = cv_convert_float(this%cptr(), from)
 
    end function convert_float
 
@@ -252,7 +254,7 @@ contains
       real(c_double), intent(in) :: from(:)
       real(c_double), intent(out) :: to(:)
 
-      call cv_convert_doubles(this % cptr(), from, size(from), to)
+      call cv_convert_doubles(this%cptr(), from, size(from), to)
 
    end subroutine convert_doubles
 
@@ -261,7 +263,7 @@ contains
       real(c_float), intent(in) :: from(:)
       real(c_float), intent(out) :: to(:)
 
-      call cv_convert_floats(this % cptr(), from, size(from), to)
+      call cv_convert_floats(this%cptr(), from, size(from), to)
 
    end subroutine convert_floats
 
@@ -291,20 +293,20 @@ contains
       integer :: status
 
       _RETURN_UNLESS(instance_is_uninitialized())
-!#      ! System must be once and only once.
-!#      _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
+      ! System must be once and only once.
+      _ASSERT(instance_is_uninitialized(), UTF_DUPLICATE_INITIALIZATION)
 
       ! Disable error messages from udunits2
       call disable_ut_error_message_handler()
 
       call initialize_system(SYSTEM_INSTANCE, path, encoding, rc=status)
-      if(status /= _SUCCESS) then
+      if(status /= UT_SUCCESS) then
          ! On failure, free memory
          call finalize()
-         _FAIL('Failed to initialize UDUNITS')
+         _RETURN(UTF_INITIALIZATION_FAILURE)
       end if
-      _ASSERT(.not. SYSTEM_INSTANCE % is_free(), 'UDUNITS is not initialized.')
-      _RETURN(_SUCCESS)
+      _ASSERT(.not. SYSTEM_INSTANCE%is_free(), UTF_NOT_INITIALIZED)
+      _RETURN(UT_SUCCESS)
 
    end subroutine initialize
 
@@ -317,16 +319,16 @@ contains
       type(c_ptr) :: utsystem
 
       ! A system can be initialized only once.
-      _ASSERT(system % is_free(), 'UDUNITS system is already initialized.')
-      system = UDSystem(path, encoding)
-      _RETURN(_SUCCESS)
+      _ASSERT(system%is_free(), UTF_DUPLICATE_INITIALIZATION)
 
+      system = UDSystem(path, encoding)
+      _RETURN(UT_SUCCESS)
    end subroutine initialize_system
 
    ! Is the instance of the unit system initialized?
    logical function instance_is_uninitialized()
       
-      instance_is_uninitialized = SYSTEM_INSTANCE % is_free()
+      instance_is_uninitialized = SYSTEM_INSTANCE%is_free()
       
    end function instance_is_uninitialized
 
@@ -334,8 +336,8 @@ contains
    subroutine free_ut_system(this)
       class(UDSystem), intent(in) :: this
         
-      if(this % is_free()) return
-      call ut_free_system(this % cptr())
+      if(this%is_free()) return
+      call ut_free_system(this%cptr())
 
    end subroutine free_ut_system
 
@@ -343,8 +345,8 @@ contains
    subroutine free_ut_unit(this)
       class(UDUnit), intent(in) :: this
 
-      if(this % is_free()) return
-      call ut_free(this % cptr())
+      if(this%is_free()) return
+      call ut_free(this%cptr())
 
    end subroutine free_ut_unit
 
@@ -353,16 +355,16 @@ contains
       class(Converter), intent(in) :: this
       type(c_ptr) :: cvconverter1 
 
-      if(this % is_free()) return
-      call cv_free(this % cptr())
+      if(this%is_free()) return
+      call cv_free(this%cptr())
 
    end subroutine free_cv_converter
 
    ! Free memory for unit system instance
    subroutine finalize()
 
-      if(SYSTEM_INSTANCE % is_free()) return
-      call SYSTEM_INSTANCE % free()
+      if(SYSTEM_INSTANCE%is_free()) return
+      call SYSTEM_INSTANCE%free()
 
    end subroutine finalize
 
@@ -372,17 +374,13 @@ contains
       type(UDUnit), intent(in) :: unit1, unit2
       integer, optional, intent(out) :: rc
       integer :: status
-      integer(ut_status) :: utstatus
       integer(c_int), parameter :: ZERO = 0_c_int
       
-      convertible = (ut_are_convertible(unit1 % cptr(), unit2 % cptr())  /= ZERO)
-      utstatus = ut_get_status()
-      
-      convertible = convertible .and. success(utstatus)
-      status = merge(_SUCCESS, utstatus, convertible)
+      convertible = (ut_are_convertible(unit1%cptr(), unit2%cptr())  /= ZERO)
+      status = ut_get_status()
+      _ASSERT(success(status), status)
 
-      if(present(rc)) rc = status
-
+      _RETURN(UT_SUCCESS)
    end function are_convertible
 
    ! Create C string from Fortran string
