@@ -24,11 +24,11 @@ contains
       @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, KM, M, rc=status)
       @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
-      @assertFalse(conv % is_free(), 'cv_converter is not set')
-      cptr = conv % cptr()
+      @assertFalse(conv%is_free(), 'cv_converter is not set')
+      cptr = conv%get_cptr()
       @assertTrue(c_associated(cptr), 'c_ptr is not associated')
       
-      call conv % free()
+      call conv%free()
       call finalize_udunits_system()
       
   end subroutine test_get_converter
@@ -47,9 +47,9 @@ contains
       @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
       @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
-      actual = conv % convert(FROM)
+      actual = conv%convert(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
-      call conv % free()
+      call conv%free()
       call finalize_udunits_system()
 
    end subroutine test_convert_double
@@ -68,9 +68,9 @@ contains
       @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
       @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
-      actual = conv % convert(FROM)
+      actual = conv%convert(FROM)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
-      call conv % free()
+      call conv%free()
       call finalize_udunits_system()
 
    end subroutine test_convert_float
@@ -89,9 +89,9 @@ contains
       @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
       @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
-      call conv % convert_array(FROM, actual)
+      call conv%convert_array(FROM, actual)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
-      call conv % free()
+      call conv%free()
       call finalize_udunits_system()
 
    end subroutine test_convert_doubles
@@ -110,9 +110,9 @@ contains
       @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
       call get_converter(conv, FROM_STRING, TO_STRING, rc=status)
       @assertEqual(UT_SUCCESS, status, 'Failed to get converter')
-      call conv % convert_array(FROM, actual)
+      call conv%convert_array(FROM, actual)
       @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
-      call conv % free()
+      call conv%free()
       call finalize_udunits_system()
 
    end subroutine test_convert_floats

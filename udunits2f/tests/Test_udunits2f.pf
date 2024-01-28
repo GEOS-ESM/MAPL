@@ -19,8 +19,8 @@ contains
       type(UDSystem) :: wrapper
       
       wrapper = UDSystem()
-      @assertFalse(wrapper % is_free(), 'ut_system is not set')
-      call ut_free_system(wrapper % cptr())
+      @assertFalse(wrapper%is_free(), 'ut_system is not set')
+      call ut_free_system(wrapper%get_cptr())
 
    end subroutine test_construct_system_no_path
 
@@ -31,15 +31,15 @@ contains
       logical :: cassoc
 
       wrapper = UDSystem()
-      cptr = wrapper % cptr()
+      cptr = wrapper%get_cptr()
       cassoc = c_associated(cptr)
       @assertTrue(cassoc, 'Did not get c_ptr')
       if(cassoc) then
-         @assertFalse(wrapper % is_free(), 'c_ptr should be set.')
-         call wrapper % free()
-         cptr = wrapper % cptr()
+         @assertFalse(wrapper%is_free(), 'c_ptr should be set.')
+         call wrapper%free()
+         cptr = wrapper%get_cptr()
          @assertFalse(c_associated(cptr), 'c_ptr should not be associated')
-         @assertTrue(wrapper % is_free(), 'c_ptr should not be set')
+         @assertTrue(wrapper%is_free(), 'c_ptr should not be set')
       end if
       if(c_associated(cptr)) call ut_free_system(cptr)
 
@@ -53,9 +53,9 @@ contains
       call initialize_udunits_system(rc=status)
       @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
       unit1 = UDUnit(KM)
-      @assertFalse(unit1 % is_free(), 'ut_unit is not set (default encoding)')
+      @assertFalse(unit1%is_free(), 'ut_unit is not set (default encoding)')
 
-      call unit1 % free()
+      call unit1%free()
       call finalize_udunits_system()
       
    end subroutine test_construct_unit
@@ -72,11 +72,11 @@ contains
       unit1 = UDUnit(KM)
       unit2 = UDUnit(M)
       conv = Converter(unit1, unit2) 
-      @assertFalse(conv % is_free(), 'cv_converter is not set')
+      @assertFalse(conv%is_free(), 'cv_converter is not set')
       
-      call unit1 % free()
-      call unit2 % free()
-      call conv % free()
+      call unit1%free()
+      call unit2%free()
+      call conv%free()
       call finalize_udunits_system()
 
    end subroutine test_construct_converter
@@ -133,8 +133,8 @@ contains
          @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
       end if
 
-      call unit1 % free()
-      call unit2 % free()
+      call unit1%free()
+      call unit2%free()
       call finalize_udunits_system()
 
    end subroutine test_are_convertible
@@ -158,8 +158,8 @@ contains
          @assertTrue(status == UT_SUCCESS, 'Units are not convertible.')
       end if
 
-      call unit1 % free()
-      call unit2 % free()
+      call unit1%free()
+      call unit2%free()
       call finalize_udunits_system()
 
    end subroutine test_are_not_convertible
