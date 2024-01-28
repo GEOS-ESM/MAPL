@@ -1,7 +1,4 @@
-#define _RETURN(status) if(present(rc)) rc=status; return
-#define _RETURN_UNLESS(cond) if (.not. cond) then; _RETURN(UT_SUCCESS); endif
-#define _ASSERT(cond, msg) if (.not. (cond)) then;  _RETURN(msg); endif
-#define _RC rc=status); _ASSERT(rc==UT_SUCCESS, status)
+#include "error_handling.h"
 
 module ud2f_UDSystem
    use udunits2f
@@ -67,6 +64,11 @@ module ud2f_UDSystem
    interface UDUnit
       module procedure :: construct_unit
    end interface UDUnit
+
+   interface are_convertible
+      procedure :: are_convertible_udunit
+      procedure :: are_convertible_str
+   end interface are_convertible
 
 !============================= INSTANCE VARIABLES ==============================
 ! Single instance of units system. There is one system in use, only.
@@ -324,7 +326,7 @@ contains
    end subroutine finalize
 
    ! Check if units are convertible
-   function are_convertible(unit1, unit2, rc) result(convertible)
+   function are_convertible_udunit(unit1, unit2, rc) result(convertible)
       logical :: convertible
       type(UDUnit), intent(in) :: unit1, unit2
       integer, optional, intent(out) :: rc
@@ -336,7 +338,23 @@ contains
       _ASSERT(success(status), status)
 
       _RETURN(UT_SUCCESS)
-   end function are_convertible
+   end function are_convertible_udunit
+
+   ! Check if units are convertible
+   function are_convertible_str(from, to, rc) result(convertible)
+      logical :: convertible
+      character(*), intent(in) :: from, to
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(UDUnit) :: unit1, unit2
+
+      unit1 = UDUnit(from)
+      unit2 = UDUnit(to)
+      convertible = are_convertible_udunit(unit1, unit2, _RC)
+
+      _RETURN(UT_SUCCESS)
+   end function are_convertible_str
 
    ! Create C string from Fortran string
    function cstring(s) result(cs)
