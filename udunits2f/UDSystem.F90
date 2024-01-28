@@ -1,14 +1,13 @@
 #include "error_handling.h"
 
 module ud2f_UDSystem
-   use udunits2f
    use ud2f_CptrWrapper
-   
+   use ud2f_interfaces
+   use ud2f_encoding
+   use ud2f_status_codes
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
-
    implicit none
-
    private
 
    public :: Converter
@@ -28,13 +27,32 @@ module ud2f_UDSystem
    type, extends(CptrWrapper) :: Converter
       private
    contains
-      procedure, public, pass(this) :: free_memory => free_cv_converter
-      procedure, private, pass(this) :: convert_double
-      procedure, private, pass(this) :: convert_float
-      procedure, private, pass(this) :: convert_doubles
-      procedure, private, pass(this) :: convert_floats
-      generic :: convert => convert_double, convert_float
-      generic :: convert_array => convert_doubles, convert_floats
+      procedure :: free_memory => free_cv_converter
+      procedure, private :: convert_float_0d
+      procedure, private :: convert_float_1d
+      procedure, private :: convert_float_2d
+      procedure, private :: convert_float_3d
+      procedure, private :: convert_float_4d
+      procedure, private :: convert_float_5d
+      procedure, private :: convert_double_0d
+      procedure, private :: convert_double_1d
+      procedure, private :: convert_double_2d
+      procedure, private :: convert_double_3d
+      procedure, private :: convert_double_4d
+      procedure, private :: convert_double_5d
+
+      generic :: convert => convert_float_0d
+      generic :: convert => convert_float_1d
+      generic :: convert => convert_float_2d
+      generic :: convert => convert_float_3d
+      generic :: convert => convert_float_4d
+      generic :: convert => convert_float_5d
+      generic :: convert => convert_double_0d
+      generic :: convert => convert_double_1d
+      generic :: convert => convert_double_2d
+      generic :: convert => convert_double_3d
+      generic :: convert => convert_double_4d
+      generic :: convert => convert_double_5d
    end type Converter
 
    interface Converter
@@ -188,41 +206,89 @@ contains
 
    end function get_converter_function
 
-   impure elemental function convert_double(this, from) result(to)
-      class(Converter), intent(in) :: this
-      real(c_double), intent(in) :: from
-      real(c_double) :: to
-
-      to = cv_convert_double(this%get_cptr(), from)
-
-   end function convert_double
-
-   impure elemental function convert_float(this, from) result(to)
+   function convert_float_0d(this, from) result(to)
       class(Converter), intent(in) :: this
       real(c_float), intent(in) :: from
       real(c_float) :: to
-
       to = cv_convert_float(this%get_cptr(), from)
+   end function convert_float_0d
 
-   end function convert_float
-
-   subroutine convert_doubles(this, from, to)
-      class(Converter), intent(in) :: this
-      real(c_double), intent(in) :: from(:)
-      real(c_double), intent(out) :: to(:)
-
-      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
-
-   end subroutine convert_doubles
-
-   subroutine convert_floats(this, from, to)
+   function convert_float_1d(this, from) result(to)
       class(Converter), intent(in) :: this
       real(c_float), intent(in) :: from(:)
-      real(c_float), intent(out) :: to(:)
-
+      real(c_float) :: to(size(from))
       call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_1d
 
-   end subroutine convert_floats
+   function convert_float_2d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:,:)
+      real(c_float) :: to(size(from,1), size(from,2))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_2d
+
+   function convert_float_3d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:,:,:)
+      real(c_float) :: to(size(from,1), size(from,2), size(from,3))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_3d
+
+   function convert_float_4d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:,:,:,:)
+      real(c_float) :: to(size(from,1), size(from,2), size(from,3), size(from,4))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_4d
+
+   function convert_float_5d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:,:,:,:,:)
+      real(c_float) :: to(size(from,1), size(from,2), size(from,3), size(from,4), size(from,5))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_5d
+
+   function convert_double_0d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from
+      real(c_double) :: to
+      to = cv_convert_double(this%get_cptr(), from)
+   end function convert_double_0d
+
+   function convert_double_1d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:)
+      real(c_double) :: to(size(from))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_1d
+
+   function convert_double_2d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:,:)
+      real(c_double) :: to(size(from,1), size(from,2))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_2d
+
+   function convert_double_3d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:,:,:)
+      real(c_double) :: to(size(from,1), size(from,2), size(from,3))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_3d
+
+   function convert_double_4d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:,:,:,:)
+      real(c_double) :: to(size(from,1), size(from,2), size(from,3), size(from,4))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_4d
+
+   function convert_double_5d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:,:,:,:,:)
+      real(c_double) :: to(size(from,1), size(from,2), size(from,3), size(from,4), size(from,5))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_5d
 
    ! Read unit database from XML
    subroutine read_xml(path, utsystem, status)

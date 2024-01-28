@@ -20,7 +20,7 @@ module mapl3g_FieldSpec
    use mapl3g_RegridAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_geom_mgr, only: MAPL_SameGeom
-   use mapl_udunits2mod, only: UDUNITS_are_convertible => are_convertible, udunit
+   use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
    use nuopc
@@ -585,7 +585,7 @@ contains
       if (can_connect_units) return
       ! Otherwise need a coupler, but need to check
       ! if units are convertible
-      can_connect_units = UDUNITS_are_convertible(unit1=UDUNIT(src_units), unit2=UDUNIT(dst_units),rc=status)
+      can_connect_units = UDUNITS_are_convertible(src_units, dst_units, rc=status)
       ! Ignore status for now (sigh)
       
    end function can_connect_units

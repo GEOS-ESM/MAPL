@@ -27,10 +27,8 @@
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 module mapl_FieldUnits
-
-   use mapl_udunits2mod, FieldUnitsConverter => Converter, &
+   use udunits2f, FieldUnitsConverter => Converter, &
       initialize_udunits => initialize, finalize_udunits => finalize
-   use udunits2f
    use MaplShared
    use ESMF
 
