@@ -3,7 +3,7 @@
 #define _ASSERT(cond, msg) if (.not. (cond)) then;  _RETURN(msg); endif
 #define _RC rc=status); _ASSERT(rc==UT_SUCCESS, status)
 
-module mapl_udunits2mod
+module ud2f_UDSystem
    use udunits2f
    use ud2f_CptrWrapper
    
@@ -357,4 +357,4 @@ contains
       if(present(is_set)) is_set = handler_set
    end subroutine disable_ut_error_message_handler
 
-end module mapl_udunits2mod
+end module ud2f_UDSystem

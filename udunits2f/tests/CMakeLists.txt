@@ -1,7 +1,7 @@
 set(MODULE_DIRECTORY "${esma_include}/udunits2f.tests")
 
 set (test_srcs
-  Test_mapl_udunits2.pf
+  Test_UDSystem.pf
   Test_udunits2f.pf
   )
 
