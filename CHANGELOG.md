@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- added 0-size message to o-server root processes
+
 ### Removed
 
 ### Deprecated
