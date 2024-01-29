@@ -1,0 +1,1153 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CreateFileMetaData &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CreateFileMetaData
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">97 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GriddedIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/griddedio.f90.html'>GriddedIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_griddediomod.html'>MAPL_GriddedIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">CreateFileMetaData</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/createfilemetadata.html#src">CreateFileMetaData</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine CreateFileMetaData(this, items, bundle, timeInfo, vdata, ogrid, global_attributes, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/mapl_griddedio.html'>MAPL_GriddedIO</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2466"></span>
+              class(<a href='../type/mapl_griddedio.html'>MAPL_GriddedIO</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-items~17"></span>
+              type(<a href='../type/griddedioitemvector.html'>GriddedIOitemVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>items</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~22"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bundle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeinfo~7"></span>
+              type(<a href='../type/timedata.html'>timeData</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeInfo</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vdata~9"></span>
+              type(<a href='../type/verticaldata.html'>verticalData</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vdata</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ogrid~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>ogrid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-global_attributes~3"></span>
+              type(StringStringMap),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>global_attributes</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~834"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~createfilemetadata~~CallsGraph Pages: 1 -->
+<svg id="proccreatefilemetadataCallsGraph" width="641pt" height="756pt"
+ viewBox="0.00 0.00 641.00 755.61" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~createfilemetadata~~CallsGraph" class="graph" transform="scale(1.27 1.27) rotate(0) translate(4 952)">
+<title>proc~~createfilemetadata~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-952 807,-952 807,4 -4,4"/>
+<!-- proc~createfilemetadata -->
+<g id="proc~~createfilemetadata~~CallsGraph_node1" class="node">
+<title>proc~createfilemetadata</title>
+<polygon fill="none" stroke="black" points="333,-486 0,-486 0,-462 333,-462 333,-486"/>
+<text text-anchor="middle" x="166.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GriddedIOMod::MAPL_GriddedIO%CreateFileMetaData</text>
+</g>
+<!-- append_metadata -->
+<g id="proc~~createfilemetadata~~CallsGraph_node2" class="node">
+<title>append_metadata</title>
+<polygon fill="#777777" stroke="#777777" points="641,-948 531,-948 531,-924 641,-924 641,-948"/>
+<text text-anchor="middle" x="586" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">append_metadata</text>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;append_metadata -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge1" class="edge">
+<title>proc~createfilemetadata&#45;&gt;append_metadata</title>
+<path fill="none" stroke="#255000" d="M168.77,-486.2C175.66,-545.41 214.12,-804.53 369,-915 412.49,-946.02 474.06,-949.12 520.34,-945.71"/>
+<polygon fill="#255000" stroke="#255000" points="520.9,-949.18 530.57,-944.84 520.31,-942.2 520.9,-949.18"/>
+</g>
+<!-- esmf_fieldbundlecreate -->
+<g id="proc~~createfilemetadata~~CallsGraph_node3" class="node">
+<title>esmf_fieldbundlecreate</title>
+<polygon fill="#777777" stroke="#777777" points="655,-906 517,-906 517,-882 655,-882 655,-906"/>
+<text text-anchor="middle" x="586" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundlecreate</text>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;esmf_fieldbundlecreate -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge2" class="edge">
+<title>proc~createfilemetadata&#45;&gt;esmf_fieldbundlecreate</title>
+<path fill="none" stroke="#255000" d="M169.37,-486.17C178.65,-541.94 225.21,-774.62 369,-873 408.81,-900.24 462.83,-905.48 506.88,-903.92"/>
+<polygon fill="#255000" stroke="#255000" points="507.16,-907.41 516.98,-903.44 506.83,-900.42 507.16,-907.41"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~createfilemetadata~~CallsGraph_node4" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="646.5,-864 525.5,-864 525.5,-840 646.5,-840 646.5,-864"/>
+<text text-anchor="middle" x="586" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge3" class="edge">
+<title>proc~createfilemetadata&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#255000" d="M170.13,-486.3C182.05,-538.71 236.28,-744.63 369,-831 411.86,-858.89 470,-863.11 515.16,-860.92"/>
+<polygon fill="#255000" stroke="#255000" points="515.4,-864.41 525.17,-860.32 514.98,-857.42 515.4,-864.41"/>
+</g>
+<!-- esmf_fieldbundleset -->
+<g id="proc~~createfilemetadata~~CallsGraph_node5" class="node">
+<title>esmf_fieldbundleset</title>
+<polygon fill="#777777" stroke="#777777" points="646,-822 526,-822 526,-798 646,-798 646,-822"/>
+<text text-anchor="middle" x="586" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleset</text>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;esmf_fieldbundleset -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge4" class="edge">
+<title>proc~createfilemetadata&#45;&gt;esmf_fieldbundleset</title>
+<path fill="none" stroke="#255000" d="M171.01,-486.18C185.65,-534.58 246.91,-714.26 369,-789 412.53,-815.64 470.46,-819.97 515.37,-818.14"/>
+<polygon fill="#255000" stroke="#255000" points="515.81,-821.62 525.62,-817.61 515.45,-814.63 515.81,-821.62"/>
+</g>
+<!-- interface~mapl_fieldbundledestroy -->
+<g id="proc~~createfilemetadata~~CallsGraph_node6" class="node">
+<title>interface~mapl_fieldbundledestroy</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node6"><a xlink:href="../interface/mapl_fieldbundledestroy.html" xlink:title="MAPL_Base::MAPL_FieldBundleDestroy">
+<polygon fill="#a7506f" stroke="#a7506f" points="694.5,-780 477.5,-780 477.5,-756 694.5,-756 694.5,-780"/>
+<text text-anchor="middle" x="586" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_FieldBundleDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;interface~mapl_fieldbundledestroy -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge5" class="edge">
+<title>proc~createfilemetadata&#45;&gt;interface~mapl_fieldbundledestroy</title>
+<path fill="none" stroke="#255000" d="M172.12,-486.07C189.72,-530.22 257.3,-683.64 369,-747 398.33,-763.63 433.55,-771.21 466.96,-774.02"/>
+<polygon fill="#255000" stroke="#255000" points="467.04,-777.53 477.26,-774.74 467.53,-770.55 467.04,-777.53"/>
+</g>
+<!-- key -->
+<g id="proc~~createfilemetadata~~CallsGraph_node7" class="node">
+<title>key</title>
+<polygon fill="#777777" stroke="#777777" points="613,-738 559,-738 559,-714 613,-714 613,-738"/>
+<text text-anchor="middle" x="586" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">key</text>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;key -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge6" class="edge">
+<title>proc~createfilemetadata&#45;&gt;key</title>
+<path fill="none" stroke="#255000" d="M173.67,-486.13C194.63,-525.89 267.5,-652.77 369,-705 426.38,-734.52 503.66,-733.94 548.53,-730.32"/>
+<polygon fill="#255000" stroke="#255000" points="549.03,-733.79 558.67,-729.41 548.4,-726.82 549.03,-733.79"/>
+</g>
+<!-- none~add_attribute -->
+<g id="proc~~createfilemetadata~~CallsGraph_node8" class="node">
+<title>none~add_attribute</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node8"><a xlink:href="../type/filemetadata.html#boundprocedure-add_attribute" xlink:title="pFIO_FileMetadataMod::FileMetadata%add_attribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="730.5,-696 441.5,-696 441.5,-672 730.5,-672 730.5,-696"/>
+<text text-anchor="middle" x="586" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%add_attribute</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;none~add_attribute -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge7" class="edge">
+<title>proc~createfilemetadata&#45;&gt;none~add_attribute</title>
+<path fill="none" stroke="#255000" d="M175.79,-486.09C200.43,-520.89 277.24,-621.46 369,-663 388.42,-671.79 409.81,-677.73 431.35,-681.63"/>
+<polygon fill="#255000" stroke="#255000" points="430.81,-685.09 441.25,-683.29 431.96,-678.19 430.81,-685.09"/>
+</g>
+<!-- none~make_regridder -->
+<g id="proc~~createfilemetadata~~CallsGraph_node9" class="node">
+<title>none~make_regridder</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node9"><a xlink:href="../type/newregriddermanager.html#boundprocedure-make_regridder" xlink:title="mapl_NewRegridderManager_private::NewRegridderManager%make_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="803,-654 369,-654 369,-630 803,-630 803,-654"/>
+<text text-anchor="middle" x="586" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_NewRegridderManager_private::NewRegridderManager%make_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;none~make_regridder -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge8" class="edge">
+<title>proc~createfilemetadata&#45;&gt;none~make_regridder</title>
+<path fill="none" stroke="#255000" d="M179.27,-486.27C208.28,-515.62 286.84,-589.74 369,-621 374.95,-623.26 381.06,-625.32 387.27,-627.19"/>
+<polygon fill="#255000" stroke="#255000" points="386.55,-630.62 397.12,-629.97 388.45,-623.88 386.55,-630.62"/>
+</g>
+<!-- proc~add_time_to_metadata -->
+<g id="proc~~createfilemetadata~~CallsGraph_node10" class="node">
+<title>proc~add_time_to_metadata</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node10"><a xlink:href="../proc/add_time_to_metadata.html" xlink:title="MAPL_TimeDataMod::timeData%add_time_to_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="741,-612 431,-612 431,-588 741,-588 741,-612"/>
+<text text-anchor="middle" x="586" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimeDataMod::timeData%add_time_to_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~add_time_to_metadata -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge9" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~add_time_to_metadata</title>
+<path fill="none" stroke="#255000" d="M184.84,-486.01C218.55,-508.65 296.02,-557.33 369,-579 385.45,-583.89 402.89,-587.7 420.45,-590.66"/>
+<polygon fill="#255000" stroke="#255000" points="420.36,-594.19 430.79,-592.31 421.46,-587.28 420.36,-594.19"/>
+</g>
+<!-- proc~alphabatize_variables~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_node11" class="node">
+<title>proc~alphabatize_variables~2</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node11"><a xlink:href="../proc/alphabatize_variables~2.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%alphabatize_variables">
+<polygon fill="#d9534f" stroke="#d9534f" points="758,-570 414,-570 414,-546 758,-546 758,-570"/>
+<text text-anchor="middle" x="586" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%alphabatize_variables</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~alphabatize_variables~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge10" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~alphabatize_variables~2</title>
+<path fill="none" stroke="#255000" d="M199.08,-486.11C238.3,-500.62 307.57,-524.55 369,-537 383.39,-539.92 398.4,-542.43 413.51,-544.6"/>
+<polygon fill="#255000" stroke="#255000" points="413.07,-548.07 423.45,-545.98 414.03,-541.14 413.07,-548.07"/>
+</g>
+<!-- proc~append_vertical_metadata -->
+<g id="proc~~createfilemetadata~~CallsGraph_node12" class="node">
+<title>proc~append_vertical_metadata</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node12"><a xlink:href="../proc/append_vertical_metadata.html" xlink:title="MAPL_VerticalDataMod::verticalData%append_vertical_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="765.5,-528 406.5,-528 406.5,-504 765.5,-504 765.5,-528"/>
+<text text-anchor="middle" x="586" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VerticalDataMod::verticalData%append_vertical_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~append_vertical_metadata -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge11" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~append_vertical_metadata</title>
+<path fill="none" stroke="#255000" d="M281.51,-486.02C310.07,-488.99 340.65,-492.15 369,-495 395.09,-497.63 422.97,-500.38 449.72,-502.99"/>
+<polygon fill="#255000" stroke="#255000" points="449.62,-506.5 459.92,-503.99 450.3,-499.53 449.62,-506.5"/>
+</g>
+<!-- proc~check_chunking~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_node13" class="node">
+<title>proc~check_chunking~2</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node13"><a xlink:href="../proc/check_chunking~2.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%check_chunking">
+<polygon fill="#d9534f" stroke="#d9534f" points="742.5,-486 429.5,-486 429.5,-462 742.5,-462 742.5,-486"/>
+<text text-anchor="middle" x="586" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%check_chunking</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~check_chunking~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge12" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~check_chunking~2</title>
+<path fill="none" stroke="#255000" d="M333.11,-474C361.39,-474 390.78,-474 419.08,-474"/>
+<polygon fill="#255000" stroke="#255000" points="419.45,-477.5 429.45,-474 419.45,-470.5 419.45,-477.5"/>
+</g>
+<!-- proc~createvariable~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_node14" class="node">
+<title>proc~createvariable~2</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node14"><a xlink:href="../proc/createvariable~2.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%CreateVariable">
+<polygon fill="#d9534f" stroke="#d9534f" points="739.5,-444 432.5,-444 432.5,-420 739.5,-420 739.5,-444"/>
+<text text-anchor="middle" x="586" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%CreateVariable</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~createvariable~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge13" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~createvariable~2</title>
+<path fill="none" stroke="#255000" d="M281.51,-461.98C310.07,-459.01 340.65,-455.85 369,-453 395.09,-450.37 422.97,-447.62 449.72,-445.01"/>
+<polygon fill="#255000" stroke="#255000" points="450.3,-448.47 459.92,-444.01 449.62,-441.5 450.3,-448.47"/>
+</g>
+<!-- proc~get_factory~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_node15" class="node">
+<title>proc~get_factory~2</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node15"><a xlink:href="../proc/get_factory~2.html" xlink:title="MAPL_GridManagerMod::get_factory">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="689,-402 483,-402 483,-378 689,-378 689,-402"/>
+<text text-anchor="middle" x="586" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridManagerMod::get_factory</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~get_factory~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge14" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~get_factory~2</title>
+<path fill="none" stroke="#255000" d="M199.08,-461.89C238.3,-447.38 307.57,-423.45 369,-411 402.38,-404.23 439.12,-399.63 472.68,-396.5"/>
+<polygon fill="#255000" stroke="#255000" points="473.34,-399.96 482.99,-395.58 472.72,-392.98 473.34,-399.96"/>
+</g>
+<!-- proc~get_interpolating_variable -->
+<g id="proc~~createfilemetadata~~CallsGraph_node16" class="node">
+<title>proc~get_interpolating_variable</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node16"><a xlink:href="../proc/get_interpolating_variable.html" xlink:title="MAPL_VerticalDataMod::verticalData%get_interpolating_variable">
+<polygon fill="#d9534f" stroke="#d9534f" points="764,-360 408,-360 408,-336 764,-336 764,-360"/>
+<text text-anchor="middle" x="586" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VerticalDataMod::verticalData%get_interpolating_variable</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~get_interpolating_variable -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge15" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~get_interpolating_variable</title>
+<path fill="none" stroke="#255000" d="M184.84,-461.99C218.55,-439.35 296.02,-390.67 369,-369 378.41,-366.2 388.15,-363.76 398.04,-361.63"/>
+<polygon fill="#255000" stroke="#255000" points="398.89,-365.03 407.98,-359.59 397.49,-358.17 398.89,-365.03"/>
+</g>
+<!-- proc~get_order -->
+<g id="proc~~createfilemetadata~~CallsGraph_node17" class="node">
+<title>proc~get_order</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node17"><a xlink:href="../proc/get_order.html" xlink:title="pFIO_FileMetadataMod::FileMetadata%get_order">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="721,-318 451,-318 451,-294 721,-294 721,-318"/>
+<text text-anchor="middle" x="586" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%get_order</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~get_order -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge16" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~get_order</title>
+<path fill="none" stroke="#255000" d="M179.27,-461.73C208.28,-432.38 286.84,-358.26 369,-327 391.52,-318.43 416.26,-312.83 440.71,-309.26"/>
+<polygon fill="#255000" stroke="#255000" points="441.36,-312.7 450.8,-307.89 440.42,-305.77 441.36,-312.7"/>
+</g>
+<!-- proc~get_regrid_method -->
+<g id="proc~~createfilemetadata~~CallsGraph_node18" class="node">
+<title>proc~get_regrid_method</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node18"><a xlink:href="../proc/get_regrid_method.html" xlink:title="MAPL_AbstractRegridderMod::AbstractRegridder%get_regrid_method">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="776,-276 396,-276 396,-252 776,-252 776,-276"/>
+<text text-anchor="middle" x="586" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridderMod::AbstractRegridder%get_regrid_method</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~get_regrid_method -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge17" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~get_regrid_method</title>
+<path fill="none" stroke="#255000" d="M175.79,-461.91C200.43,-427.11 277.24,-326.54 369,-285 374.5,-282.51 380.15,-280.25 385.92,-278.2"/>
+<polygon fill="#255000" stroke="#255000" points="387.35,-281.42 395.74,-274.95 385.14,-274.77 387.35,-281.42"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~createfilemetadata~~CallsGraph_node19" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node19"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="696,-234 476,-234 476,-210 696,-210 696,-234"/>
+<text text-anchor="middle" x="586" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~mapl_return -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge18" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M173.67,-461.87C194.63,-422.11 267.5,-295.23 369,-243 398.37,-227.89 432.97,-220.66 465.75,-217.7"/>
+<polygon fill="#255000" stroke="#255000" points="466.17,-221.17 475.86,-216.91 465.62,-214.19 466.17,-221.17"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~createfilemetadata~~CallsGraph_node20" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node20"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="693,-192 479,-192 479,-168 693,-168 693,-192"/>
+<text text-anchor="middle" x="586" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~mapl_verify -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge19" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M172.12,-461.93C189.72,-417.78 257.3,-264.36 369,-201 398.9,-184.04 434.93,-176.5 468.92,-173.82"/>
+<polygon fill="#255000" stroke="#255000" points="469.16,-177.32 478.91,-173.17 468.7,-170.33 469.16,-177.32"/>
+</g>
+<!-- proc~set_default_chunking~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_node21" class="node">
+<title>proc~set_default_chunking~2</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node21"><a xlink:href="../proc/set_default_chunking~2.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%set_default_chunking">
+<polygon fill="#d9534f" stroke="#d9534f" points="756,-150 416,-150 416,-126 756,-126 756,-150"/>
+<text text-anchor="middle" x="586" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%set_default_chunking</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~set_default_chunking~2 -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge20" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~set_default_chunking~2</title>
+<path fill="none" stroke="#255000" d="M171.01,-461.82C185.65,-413.42 246.91,-233.74 369,-159 380.57,-151.92 393.16,-146.41 406.25,-142.18"/>
+<polygon fill="#255000" stroke="#255000" points="407.28,-145.52 415.87,-139.32 405.29,-138.81 407.28,-145.52"/>
+</g>
+<!-- proc~v_begin~5 -->
+<g id="proc~~createfilemetadata~~CallsGraph_node22" class="node">
+<title>proc~v_begin~5</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node22"><a xlink:href="../proc/v_begin~5.html" xlink:title="MAPL_GriddedIOitemVectorMod::GriddedIOitemVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="761.5,-108 410.5,-108 410.5,-84 761.5,-84 761.5,-108"/>
+<text text-anchor="middle" x="586" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemVectorMod::GriddedIOitemVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~v_begin~5 -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge21" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~v_begin~5</title>
+<path fill="none" stroke="#255000" d="M170.13,-461.7C182.05,-409.29 236.28,-203.37 369,-117 378.93,-110.54 389.68,-105.35 400.9,-101.21"/>
+<polygon fill="#255000" stroke="#255000" points="402.08,-104.51 410.42,-97.98 399.83,-97.88 402.08,-104.51"/>
+</g>
+<!-- proc~v_iter_get~5 -->
+<g id="proc~~createfilemetadata~~CallsGraph_node23" class="node">
+<title>proc~v_iter_get~5</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node23"><a xlink:href="../proc/v_iter_get~5.html" xlink:title="MAPL_GriddedIOitemVectorMod::GriddedIOitemVectorIterator%v_iter_get">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="786.5,-66 385.5,-66 385.5,-42 786.5,-42 786.5,-66"/>
+<text text-anchor="middle" x="586" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemVectorMod::GriddedIOitemVectorIterator%v_iter_get</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~v_iter_get~5 -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge22" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~v_iter_get~5</title>
+<path fill="none" stroke="#255000" d="M169.37,-461.83C178.65,-406.06 225.21,-173.38 369,-75 371.44,-73.33 373.94,-71.74 376.48,-70.23"/>
+<polygon fill="#255000" stroke="#255000" points="378.21,-73.28 385.3,-65.4 374.85,-67.14 378.21,-73.28"/>
+</g>
+<!-- proc~v_iter_next~5 -->
+<g id="proc~~createfilemetadata~~CallsGraph_node24" class="node">
+<title>proc~v_iter_next~5</title>
+<g id="a_proc~~createfilemetadata~~CallsGraph_node24"><a xlink:href="../proc/v_iter_next~5.html" xlink:title="MAPL_GriddedIOitemVectorMod::GriddedIOitemVectorIterator%v_iter_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="789,-24 383,-24 383,0 789,0 789,-24"/>
+<text text-anchor="middle" x="586" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemVectorMod::GriddedIOitemVectorIterator%v_iter_next</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~v_iter_next~5 -->
+<g id="proc~~createfilemetadata~~CallsGraph_edge23" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~v_iter_next~5</title>
+<path fill="none" stroke="#255000" d="M168.77,-461.8C175.66,-402.59 214.12,-143.47 369,-33 370.87,-31.67 372.77,-30.39 374.71,-29.15"/>
+<polygon fill="#255000" stroke="#255000" points="376.52,-32.15 383.37,-24.07 372.98,-26.11 376.52,-32.15"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreatefilemetadataCallsGraph = svgPanZoom('#proccreatefilemetadataCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~createfilemetadata~~CalledByGraph Pages: 1 -->
+<svg id="proccreatefilemetadataCalledByGraph" width="641pt" height="81pt"
+ viewBox="0.00 0.00 641.00 81.09" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~createfilemetadata~~CalledByGraph" class="graph" transform="scale(2.21 2.21) rotate(0) translate(4 175)">
+<title>proc~~createfilemetadata~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-175 1411,-175 1411,4 -4,4"/>
+<!-- proc~createfilemetadata -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node1" class="node">
+<title>proc~createfilemetadata</title>
+<polygon fill="none" stroke="black" points="1407,-66 1074,-66 1074,-42 1407,-42 1407,-66"/>
+<text text-anchor="middle" x="1240.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GriddedIOMod::MAPL_GriddedIO%CreateFileMetaData</text>
+</g>
+<!-- proc~create_from_bundle -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node2" class="node">
+<title>proc~create_from_bundle</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node2"><a xlink:href="../proc/create_from_bundle.html" xlink:title="MAPL_ESMFFieldBundleWrite::FieldBundleWriter%create_from_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="1038,-108 656,-108 656,-84 1038,-84 1038,-108"/>
+<text text-anchor="middle" x="847" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::FieldBundleWriter%create_from_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge1" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#255000" d="M959.93,-83.99C1009.18,-78.71 1067.17,-72.49 1117.53,-67.09"/>
+<polygon fill="#255000" stroke="#255000" points="1117.92,-70.56 1127.49,-66.02 1117.17,-63.6 1117.92,-70.56"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node3" class="node">
+<title>proc~initialize~3</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node3"><a xlink:href="../proc/initialize~3.html" xlink:title="MAPL_HistoryGridCompMod::Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="953,-66 741,-66 741,-42 953,-42 953,-66"/>
+<text text-anchor="middle" x="847" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~3&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge2" class="edge">
+<title>proc~initialize~3&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#255000" d="M953.17,-54C987.27,-54 1026.07,-54 1063.86,-54"/>
+<polygon fill="#255000" stroke="#255000" points="1063.96,-57.5 1073.96,-54 1063.96,-50.5 1063.96,-57.5"/>
+</g>
+<!-- proc~run~2 -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node4" class="node">
+<title>proc~run~2</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node4"><a xlink:href="../proc/run~2.html" xlink:title="MAPL_HistoryGridCompMod::Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="941,-24 753,-24 753,0 941,0 941,-24"/>
+<text text-anchor="middle" x="847" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~2&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge3" class="edge">
+<title>proc~run~2&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#255000" d="M941.28,-22.01C993.98,-27.66 1060.47,-34.79 1117.3,-40.89"/>
+<polygon fill="#255000" stroke="#255000" points="1117.11,-44.39 1127.42,-41.98 1117.85,-37.43 1117.11,-44.39"/>
+</g>
+<!-- proc~main~2 -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node5" class="node">
+<title>proc~main~2</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node5"><a xlink:href="../proc/main~2.html" xlink:title="Regrid_Util::main">
+<polygon fill="#d9534f" stroke="#d9534f" points="518.5,-171 414.5,-171 414.5,-147 518.5,-147 518.5,-171"/>
+<text text-anchor="middle" x="466.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util::main</text>
+</a>
+</g>
+</g>
+<!-- proc~main~2&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge4" class="edge">
+<title>proc~main~2&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M518.77,-152.55C548.4,-148.67 586.36,-143.44 620,-138 672.38,-129.53 731.3,-118.53 775.85,-109.91"/>
+<polygon fill="#255000" stroke="#255000" points="776.55,-113.34 785.7,-108 775.22,-106.47 776.55,-113.34"/>
+</g>
+<!-- proc~write_bundle_single_time -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node6" class="node">
+<title>proc~write_bundle_single_time</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node6"><a xlink:href="../proc/write_bundle_single_time.html" xlink:title="MAPL_ESMFFieldBundleWrite::write_bundle_single_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="620,-129 313,-129 313,-105 620,-105 620,-129"/>
+<text text-anchor="middle" x="466.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::write_bundle_single_time</text>
+</a>
+</g>
+</g>
+<!-- proc~write_bundle_single_time&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge5" class="edge">
+<title>proc~write_bundle_single_time&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M620.09,-108.53C628.57,-108.06 637.16,-107.59 645.78,-107.11"/>
+<polygon fill="#255000" stroke="#255000" points="646.11,-110.6 655.9,-106.55 645.72,-103.61 646.11,-110.6"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node7" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node7"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="497,-87 436,-87 436,-63 497,-63 497,-87"/>
+<text text-anchor="middle" x="466.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge6" class="edge">
+<title>program~time_ave&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M497.2,-76.65C530.48,-78.49 587.45,-81.66 645.81,-84.89"/>
+<polygon fill="#255000" stroke="#255000" points="645.77,-88.4 655.95,-85.46 646.16,-81.41 645.77,-88.4"/>
+</g>
+<!-- program~ut_regridding -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node8" class="node">
+<title>program~ut_regridding</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node8"><a xlink:href="../program/ut_regridding.html" xlink:title="ut_ReGridding">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="510.5,-45 422.5,-45 422.5,-21 510.5,-21 510.5,-45"/>
+<text text-anchor="middle" x="466.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
+</a>
+</g>
+</g>
+<!-- program~ut_regridding&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge7" class="edge">
+<title>program~ut_regridding&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M510.61,-34.46C541.74,-36.58 584.38,-41.7 620,-54 637.51,-60.05 638.41,-69.19 656,-75 663.62,-77.52 671.49,-79.74 679.5,-81.72"/>
+<polygon fill="#255000" stroke="#255000" points="678.8,-85.15 689.34,-84 680.38,-78.33 678.8,-85.15"/>
+</g>
+<!-- interface~mapl_write_bundle -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node9" class="node">
+<title>interface~mapl_write_bundle</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node9"><a xlink:href="../interface/mapl_write_bundle.html" xlink:title="MAPL_ESMFFieldBundleWrite::MAPL_Write_Bundle">
+<polygon fill="#a7506f" stroke="#a7506f" points="277,-129 0,-129 0,-105 277,-105 277,-129"/>
+<text text-anchor="middle" x="138.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::MAPL_Write_Bundle</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_write_bundle&#45;&gt;proc~write_bundle_single_time -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge9" class="edge">
+<title>interface~mapl_write_bundle&#45;&gt;proc~write_bundle_single_time</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M277.28,-117C285.62,-117 294.05,-117 302.48,-117"/>
+<polygon fill="transparent" stroke="transparent" points="302.76,-120.5 312.76,-117 302.75,-113.5 302.76,-120.5"/>
+</g>
+<!-- program~regrid_util -->
+<g id="proc~~createfilemetadata~~CalledByGraph_node10" class="node">
+<title>program~regrid_util</title>
+<g id="a_proc~~createfilemetadata~~CalledByGraph_node10"><a xlink:href="../program/regrid_util.html" xlink:title="Regrid_Util">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="173.5,-171 103.5,-171 103.5,-147 173.5,-147 173.5,-171"/>
+<text text-anchor="middle" x="138.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
+</a>
+</g>
+</g>
+<!-- program~regrid_util&#45;&gt;proc~main~2 -->
+<g id="proc~~createfilemetadata~~CalledByGraph_edge8" class="edge">
+<title>program~regrid_util&#45;&gt;proc~main~2</title>
+<path fill="none" stroke="#255000" d="M173.77,-159C228.43,-159 336.1,-159 404.24,-159"/>
+<polygon fill="#255000" stroke="#255000" points="404.41,-162.5 414.41,-159 404.41,-155.5 404.41,-162.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreatefilemetadataCalledByGraph = svgPanZoom('#proccreatefilemetadataCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">     </span><span class="k">subroutine </span><span class="n">CreateFileMetaData</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">items</span><span class="p">,</span><span class="n">bundle</span><span class="p">,</span><span class="n">timeInfo</span><span class="p">,</span><span class="n">vdata</span><span class="p">,</span><span class="n">ogrid</span><span class="p">,</span><span class="n">global_attributes</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">        </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GriddedIO</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedIOitemVector</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">items</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">TimeData</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeInfo</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalData</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vdata</span>
+<span class="w">        </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ogrid</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">StringStringMap</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">global_attributes</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_grid</span>
+<span class="w">        </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span>
+
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedIOitemVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedIOitem</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">stringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">order</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadataVarsSize</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">StringStringMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s_iter</span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attr_name</span><span class="p">,</span><span class="w"> </span><span class="n">attr_val</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">)</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">MAPL_FieldBundleDestroy</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">items</span>
+<span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">input_bundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bundle</span>
+<span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldBundleCreate</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">timeInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeInfo</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">input_bundle</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">input_grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ogrid</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="o">=</span><span class="n">ogrid</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">input_bundle</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="k">        </span><span class="n">this</span><span class="p">%</span><span class="n">regrid_handle</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">new_regridder_manager</span><span class="p">%</span><span class="n">make_regridder</span><span class="p">(</span><span class="n">input_grid</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+
+<span class="w">        </span><span class="c">! We get the regrid_method here because in the case of Identity, we set it to</span>
+<span class="w">        </span><span class="c">! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need</span>
+<span class="w">        </span><span class="c">! to change the regrid_method in the GriddedIO object to be the same as the</span>
+<span class="w">        </span><span class="c">! the regridder object.</span>
+<span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">regrid_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">regrid_handle</span><span class="p">%</span><span class="n">get_regrid_method</span><span class="p">()</span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_FieldBundleSet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_factory</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">factory</span><span class="p">%</span><span class="n">append_metadata</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">)</span>
+
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">vdata</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="o">=</span><span class="n">vdata</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="o">=</span><span class="n">VerticalData</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">        call </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">append_vertical_metadata</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">input_bundle</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">doVertRegrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">regrid_type</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">VERTICAL_METHOD_NONE</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">regrid_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">VERTICAL_METHOD_ETA2LEV</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">get_interpolating_variable</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">input_bundle</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">timeInfo</span><span class="p">%</span><span class="n">add_time_to_metadata</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">items</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">this</span><span class="p">%</span><span class="n">set_default_chunking</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           call </span><span class="n">this</span><span class="p">%</span><span class="n">check_chunking</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">lm</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+
+
+<span class="k">        </span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">%</span><span class="n">get_order</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="n">metadataVarsSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">order</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+
+<span class="w">        </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">items</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">           </span><span class="n">item</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ItemTypeScalar</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">this</span><span class="p">%</span><span class="n">CreateVariable</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ItemTypeVector</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">this</span><span class="p">%</span><span class="n">CreateVariable</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">CreateVariable</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">yname</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">           call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">        </span><span class="k">enddo</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">itemOrderAlphabetical</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">this</span><span class="p">%</span><span class="n">alphabatize_variables</span><span class="p">(</span><span class="n">metadataVarsSize</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">global_attributes</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">s_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">global_attributes</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">           </span><span class="k">do while</span><span class="p">(</span><span class="n">s_iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">global_attributes</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">              </span><span class="n">attr_name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s_iter</span><span class="p">%</span><span class="n">key</span><span class="p">()</span>
+<span class="w">              </span><span class="n">attr_val</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s_iter</span><span class="p">%</span><span class="k">value</span><span class="p">()</span>
+<span class="w">              </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span><span class="n">attr_val</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">s_iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">           </span><span class="k">enddo</span>
+<span class="k">        end if</span>
+<span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">CreateFileMetaData</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-01-29T17:22:51.131172             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

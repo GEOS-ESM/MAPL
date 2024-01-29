@@ -1,0 +1,1046 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>utCFIO_Nbits.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>utCFIO_Nbits.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for source files.">121 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/utCFIO_Nbits.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">utCFIO_Nbits.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#progs-0"
+         aria-expanded="false" aria-controls="progs-0">
+         <h4 class="card-header bg-primary text-white">Programs</h4>
+      </a>
+      <div id="progs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../program/utcfio~3.html">utCFIO</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/utcfio_nbits.f90.html#src">utCFIO_Nbits.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~utcfio_nbits.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefileutcfio_nbitsf90EfferentGraph" width="641pt" height="746pt"
+ viewBox="0.00 0.00 641.00 745.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph" class="graph" transform="scale(1.32 1.32) rotate(0) translate(4 980)">
+<title>sourcefile~~utcfio_nbits.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-980 842,-980 842,4 -4,4"/>
+<!-- sourcefile~utcfio_nbits.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~utcfio_nbits.f90</title>
+<polygon fill="none" stroke="black" points="838,-685 736,-685 736,-661 838,-661 838,-685"/>
+<text text-anchor="middle" x="787" y="-670.6" font-family="Helvetica,sans-Serif" font-size="10.50">utCFIO_Nbits.F90</text>
+</g>
+<!-- sourcefile~base_base.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~base_base.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/base_base.f90.html" xlink:title="Base_Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="324,-766 231,-766 231,-742 324,-742 324,-766"/>
+<text text-anchor="middle" x="277.5" y="-751.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M652.5,-876C599.75,-897.08 444.44,-884.72 398,-852 367.12,-830.24 391.14,-799.04 362,-775 353.96,-768.37 344.11,-763.79 334.03,-760.64"/>
+<polygon fill="#255000" stroke="#255000" points="334.91,-757.25 324.34,-758.04 333.09,-764.01 334.91,-757.25"/>
+</g>
+<!-- sourcefile~esmf_cfiomod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~esmf_cfiomod.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/esmf_cfiomod.f90.html" xlink:title="ESMF_CFIOMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="542.5,-928 426.5,-928 426.5,-904 542.5,-904 542.5,-928"/>
+<text text-anchor="middle" x="484.5" y="-913.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~esmf_cfiomod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~esmf_cfiomod.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M652.5,-876C620.65,-888.73 583.7,-898.1 552.66,-904.55"/>
+<polygon fill="#255000" stroke="#255000" points="551.92,-901.13 542.81,-906.55 553.3,-907.99 551.92,-901.13"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_cfio.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/mapl_cfio.f90.html" xlink:title="MAPL_CFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="700,-482 607,-482 607,-458 700,-458 700,-482"/>
+<text text-anchor="middle" x="653.5" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M778.17,-660.91C756.42,-627.34 695.12,-532.71 667.86,-490.63"/>
+<polygon fill="#255000" stroke="#255000" points="670.67,-488.52 662.29,-482.03 664.79,-492.32 670.67,-488.52"/>
+</g>
+<!-- sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_comms.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_comms.f90.html" xlink:title="MAPL_Comms.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="539,-730 430,-730 430,-706 539,-706 539,-730"/>
+<text text-anchor="middle" x="484.5" y="-715.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Comms.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~mapl_comms.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M783.21,-685.18C773.6,-723.76 737.75,-842.73 654.5,-876"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M652.5,-876C599.58,-897.15 612.97,-815.56 571,-777 553.81,-761.21 532.14,-746.3 514.92,-735.42"/>
+<polygon fill="#255000" stroke="#255000" points="516.72,-732.42 506.37,-730.12 513.03,-738.36 516.72,-732.42"/>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="122.5,-703 34.5,-703 34.5,-679 122.5,-679 122.5,-703"/>
+<text text-anchor="middle" x="78.5" y="-688.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M244.25,-741.94C220.33,-733.18 186.82,-721.27 157,-712 149.14,-709.56 140.79,-707.13 132.59,-704.83"/>
+<polygon fill="#255000" stroke="#255000" points="133.28,-701.39 122.71,-702.1 131.41,-708.14 133.28,-701.39"/>
+</g>
+<!-- sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~mapl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/mapl_keywordenforcer.f90.html" xlink:title="MAPL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="157,-829 0,-829 0,-805 157,-805 157,-829"/>
+<text text-anchor="middle" x="78.5" y="-814.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M230.69,-763.06C218.23,-766.18 204.9,-770.15 193,-775 175.85,-781.99 174.09,-788.85 157,-796 151.94,-798.12 146.6,-800.08 141.19,-801.89"/>
+<polygon fill="#255000" stroke="#255000" points="139.9,-798.63 131.42,-804.97 142.01,-805.3 139.9,-798.63"/>
+</g>
+<!-- sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~mapl_range.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/mapl_range.f90.html" xlink:title="MAPL_Range.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="130,-787 27,-787 27,-763 130,-763 130,-787"/>
+<text text-anchor="middle" x="78.5" y="-772.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Range.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~mapl_range.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M230.81,-758.87C203.87,-761.74 169.44,-765.41 140.23,-768.53"/>
+<polygon fill="#255000" stroke="#255000" points="139.71,-765.06 130.14,-769.6 140.45,-772.02 139.71,-765.06"/>
+</g>
+<!-- sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node27" class="node">
+<title>sourcefile~maplgrid.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node27"><a xlink:href="../sourcefile/maplgrid.f90.html" xlink:title="MaplGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="120,-745 37,-745 37,-721 120,-721 120,-745"/>
+<text text-anchor="middle" x="78.5" y="-730.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~maplgrid.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M230.81,-749.13C200.79,-745.93 161.47,-741.74 130.44,-738.43"/>
+<polygon fill="#255000" stroke="#255000" points="130.57,-734.92 120.26,-737.34 129.83,-741.89 130.57,-734.92"/>
+</g>
+<!-- sourcefile~esmf_cfiofilemod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~esmf_cfiofilemod.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/esmf_cfiofilemod.f90.html" xlink:title="ESMF_CFIOFileMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="344.5,-850 210.5,-850 210.5,-826 344.5,-826 344.5,-850"/>
+<text text-anchor="middle" x="277.5" y="-835.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfiofilemod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfiofilemod.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M431.45,-903.95C420.06,-900.29 408.33,-895.68 398,-890 379.5,-879.82 380.74,-868.72 362,-859 358.19,-857.02 354.19,-855.23 350.09,-853.6"/>
+<polygon fill="transparent" stroke="transparent" points="350.96,-850.19 340.36,-850.08 348.57,-856.77 350.96,-850.19"/>
+</g>
+<!-- sourcefile~esmf_cfiogridmod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~esmf_cfiogridmod.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/esmf_cfiogridmod.f90.html" xlink:title="ESMF_CFIOGridMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="347,-934 208,-934 208,-910 347,-910 347,-934"/>
+<text text-anchor="middle" x="277.5" y="-919.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOGridMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfiogridmod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfiogridmod.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M426.4,-917.67C405.03,-918.3 380.37,-919.02 357.39,-919.69"/>
+<polygon fill="transparent" stroke="transparent" points="357.21,-916.19 347.31,-919.99 357.41,-923.19 357.21,-916.19"/>
+</g>
+<!-- sourcefile~esmf_cfiosdfmod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~esmf_cfiosdfmod.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/esmf_cfiosdfmod.f90.html" xlink:title="ESMF_CFIOSdfMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="344,-892 211,-892 211,-868 344,-868 344,-892"/>
+<text text-anchor="middle" x="277.5" y="-877.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfiosdfmod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfiosdfmod.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M426.4,-905.97C404.11,-902.06 378.23,-897.51 354.41,-893.33"/>
+<polygon fill="transparent" stroke="transparent" points="354.8,-889.85 344.35,-891.56 353.59,-896.74 354.8,-889.85"/>
+</g>
+<!-- sourcefile~esmf_cfioutilmod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~esmf_cfioutilmod.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/esmf_cfioutilmod.f90.html" xlink:title="ESMF_CFIOUtilMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="344,-808 211,-808 211,-784 344,-784 344,-808"/>
+<text text-anchor="middle" x="277.5" y="-793.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOUtilMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfioutilmod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfioutilmod.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M426.35,-905.74C416.13,-902.01 406.16,-896.93 398,-890 370.42,-866.59 390.14,-839.73 362,-817 359.24,-814.77 356.28,-812.78 353.17,-810.99"/>
+<polygon fill="transparent" stroke="transparent" points="354.6,-807.79 344.08,-806.49 351.49,-814.06 354.6,-807.79"/>
+</g>
+<!-- sourcefile~esmf_cfiovarinfomod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~esmf_cfiovarinfomod.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/esmf_cfiovarinfomod.f90.html" xlink:title="ESMF_CFIOVarInfoMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="354.5,-976 200.5,-976 200.5,-952 354.5,-952 354.5,-976"/>
+<text text-anchor="middle" x="277.5" y="-961.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarInfoMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfiovarinfomod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~esmf_cfiomod.f90&#45;&gt;sourcefile~esmf_cfiovarinfomod.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M432.03,-928.05C404.01,-934.61 369.15,-942.77 339.74,-949.66"/>
+<polygon fill="transparent" stroke="transparent" points="338.93,-946.26 329.99,-951.94 340.52,-953.07 338.93,-946.26"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M651.36,-482.32C645.9,-538.51 620.65,-769.88 571,-819 543.33,-846.38 520.21,-820.37 485.5,-838"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M483.5,-838C448.79,-855.63 431.15,-839.41 398,-819 376.48,-805.75 383.33,-788.54 362,-775 353.58,-769.65 343.87,-765.66 334.12,-762.69"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="334.97,-759.3 324.4,-760.05 333.13,-766.05 334.97,-759.3"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~esmf_cfiomod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~esmf_cfiomod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M652.87,-482.05C653.83,-531.92 651.96,-725.48 571,-852 558.41,-871.68 537.49,-887.5 519.5,-898.48"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="517.29,-895.72 510.41,-903.78 520.82,-901.76 517.29,-895.72"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_comms.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M651.98,-482.01C649.68,-519.8 637.25,-637.29 571,-697 564.63,-702.74 556.96,-706.97 548.85,-710.08"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="547.6,-706.8 539.18,-713.24 549.77,-713.46 547.6,-706.8"/>
+</g>
+<!-- sourcefile~cfiocollection.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~cfiocollection.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/cfiocollection.f90.html" xlink:title="CFIOCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="541,-646 428,-646 428,-622 541,-622 541,-646"/>
+<text text-anchor="middle" x="484.5" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIOCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~cfiocollection.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~cfiocollection.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M648.65,-482.39C639.63,-509.37 614.53,-573.78 571,-608 564.91,-612.79 557.95,-616.7 550.68,-619.89"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="549.37,-616.64 541.35,-623.56 551.94,-623.15 549.37,-616.64"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M641.84,-457.84C627.52,-442.55 600.45,-417.06 571,-407 498.24,-382.16 470.48,-381.33 398,-407 252.46,-458.54 132.81,-614.37 93.35,-670.54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="90.33,-668.75 87.51,-678.96 96.08,-672.73 90.33,-668.75"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~esmf_cfiofilemod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~esmf_cfiofilemod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M483.5,-838C438.7,-860.76 380.97,-858.41 338.19,-851.73"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="338.64,-848.26 328.2,-850.05 337.48,-855.17 338.64,-848.26"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~esmf_cfioutilmod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~esmf_cfioutilmod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M652.88,-482.18C653.49,-524.76 649.41,-668.19 571,-739 562.89,-746.32 438.18,-768.79 354.25,-783.23"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="353.49,-779.81 344.22,-784.95 354.67,-786.71 353.49,-779.81"/>
+</g>
+<!-- sourcefile~esmfl_mod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~esmfl_mod.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/esmfl_mod.f90.html" xlink:title="ESMFL_Mod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="533,-566 436,-566 436,-542 533,-542 533,-566"/>
+<text text-anchor="middle" x="484.5" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_Mod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~esmfl_mod.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~esmfl_mod.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M640.36,-482.08C625.34,-496.34 598.38,-519.79 571,-533 562.32,-537.19 552.72,-540.59 543.19,-543.33"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="542.08,-540.01 533.32,-545.96 543.88,-546.77 542.08,-540.01"/>
+</g>
+<!-- sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~mapl_abstractgridfactory.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/mapl_abstractgridfactory.f90.html" xlink:title="MAPL_AbstractGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="571,-524 398,-524 398,-500 571,-500 571,-524"/>
+<text text-anchor="middle" x="484.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M606.83,-481.86C595.16,-484.87 582.62,-488.08 571,-491 562.49,-493.14 553.5,-495.38 544.67,-497.56"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="543.68,-494.2 534.81,-499.99 545.35,-501 543.68,-494.2"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~mapl_abstractregridder.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/mapl_abstractregridder.f90.html" xlink:title="MAPL_AbstractRegridder.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="566.5,-482 402.5,-482 402.5,-458 566.5,-458 566.5,-482"/>
+<text text-anchor="middle" x="484.5" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridder.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M606.87,-470C597.43,-470 587.17,-470 576.74,-470"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="576.72,-466.5 566.72,-470 576.72,-473.5 576.72,-466.5"/>
+</g>
+<!-- sourcefile~mapl_config.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~mapl_config.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/mapl_config.f90.html" xlink:title="MAPL_Config.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="536,-440 433,-440 433,-416 536,-416 536,-440"/>
+<text text-anchor="middle" x="484.5" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Config.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_config.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_config.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M606.83,-458.14C595.16,-455.13 582.62,-451.92 571,-449 562.49,-446.86 553.5,-444.62 544.67,-442.44"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="545.35,-439 534.81,-440.01 543.68,-445.8 545.35,-439"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="362,-606 193,-606 193,-582 362,-582 362,-606"/>
+<text text-anchor="middle" x="277.5" y="-591.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M646.61,-482.31C635.27,-504.57 608.23,-551.41 571,-575 538.12,-595.83 521.83,-580.03 485.5,-594"/>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M483.5,-594C443.62,-609.33 396.06,-610.29 356.8,-606.97"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="357.03,-603.48 346.74,-606.02 356.37,-610.45 357.03,-603.48"/>
+</g>
+<!-- sourcefile~mapl_getlatloncoord.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~mapl_getlatloncoord.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/mapl_getlatloncoord.f90.html" xlink:title="MAPL_GetLatLonCoord.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="562.5,-360 406.5,-360 406.5,-336 562.5,-336 562.5,-360"/>
+<text text-anchor="middle" x="484.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetLatLonCoord.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_getlatloncoord.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_getlatloncoord.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M645.38,-457.73C632.91,-437.32 605.17,-396.44 571,-374 564.94,-370.02 558.24,-366.62 551.34,-363.74"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="552.43,-360.41 541.84,-360.1 549.93,-366.94 552.43,-360.41"/>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~mapl_gridmanager.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/mapl_gridmanager.f90.html" xlink:title="MAPL_GridManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="553,-318 416,-318 416,-294 553,-294 553,-318"/>
+<text text-anchor="middle" x="484.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_gridmanager.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M649.18,-457.83C640.94,-430.03 616.83,-361.61 571,-327 568.32,-324.97 565.46,-323.14 562.49,-321.48"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="563.78,-318.22 553.25,-317.01 560.73,-324.52 563.78,-318.22"/>
+</g>
+<!-- sourcefile~mapl_io.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~mapl_io.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/mapl_io.f90.html" xlink:title="MAPL_IO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="524,-276 445,-276 445,-252 524,-252 524,-276"/>
+<text text-anchor="middle" x="484.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_IO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_io.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_io.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M650.88,-457.88C645.77,-424.73 626.91,-331.94 571,-285 560.64,-276.31 547.24,-271.11 534.13,-268.04"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="534.7,-264.59 524.21,-266.08 533.34,-271.45 534.7,-264.59"/>
+</g>
+<!-- sourcefile~mapl_latlongridfactory.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~mapl_latlongridfactory.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/mapl_latlongridfactory.f90.html" xlink:title="MAPL_LatLonGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="567,-234 402,-234 402,-210 567,-210 567,-234"/>
+<text text-anchor="middle" x="484.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LatLonGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_latlongridfactory.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_latlongridfactory.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M651.98,-457.99C649.68,-420.2 637.25,-302.71 571,-243 569.67,-241.8 568.29,-240.67 566.86,-239.61"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="568.49,-236.5 558.17,-234.14 564.77,-242.43 568.49,-236.5"/>
+</g>
+<!-- sourcefile~mapl_memutils.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~mapl_memutils.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/mapl_memutils.f90.html" xlink:title="MAPL_MemUtils.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="543.5,-192 425.5,-192 425.5,-168 543.5,-168 543.5,-192"/>
+<text text-anchor="middle" x="484.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtils.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_memutils.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_memutils.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M652.75,-457.96C652.95,-415.82 647.67,-273.69 571,-201 565.93,-196.2 559.95,-192.44 553.54,-189.5"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="554.49,-186.12 543.9,-185.77 551.96,-192.65 554.49,-186.12"/>
+</g>
+<!-- sourcefile~mapl_regriddermanager.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~mapl_regriddermanager.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/mapl_regriddermanager.f90.html" xlink:title="MAPL_RegridderManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="568,-150 401,-150 401,-126 568,-126 568,-150"/>
+<text text-anchor="middle" x="484.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RegridderManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_regriddermanager.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_regriddermanager.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M650.95,-457.66C644.15,-405.33 615.25,-202.57 571,-159 569.91,-157.93 568.78,-156.91 567.6,-155.94"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="569.54,-153.02 559.32,-150.22 565.56,-158.78 569.54,-153.02"/>
+</g>
+<!-- sourcefile~mapl_sort.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~mapl_sort.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node26"><a xlink:href="../sourcefile/mapl_sort.f90.html" xlink:title="MAPL_Sort.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="530,-108 439,-108 439,-84 530,-84 530,-108"/>
+<text text-anchor="middle" x="484.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_sort.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_sort.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M651.39,-457.94C645.99,-401.89 620.68,-167.38 571,-117 562.7,-108.58 551.61,-103.33 540.17,-100.11"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="540.63,-96.62 530.1,-97.77 539.05,-103.44 540.63,-96.62"/>
+</g>
+<!-- sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node28" class="node">
+<title>sourcefile~newregriddermanager.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node28"><a xlink:href="../sourcefile/newregriddermanager.f90.html" xlink:title="NewRegridderManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="562.5,-66 406.5,-66 406.5,-42 562.5,-42 562.5,-66"/>
+<text text-anchor="middle" x="484.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NewRegridderManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M651.69,-457.75C647.48,-397.37 626.02,-132.11 571,-75 569.94,-73.9 568.83,-72.85 567.68,-71.86"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="569.7,-69 559.53,-66.01 565.61,-74.68 569.7,-69"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node29" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node29"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="513.5,-24 455.5,-24 455.5,0 513.5,0 513.5,-24"/>
+<text text-anchor="middle" x="484.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M651.96,-457.76C648.87,-393.62 631.43,-96.94 571,-33 558.92,-20.21 540.41,-14.68 523.7,-12.46"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="523.9,-8.96 513.61,-11.47 523.22,-15.93 523.9,-8.96"/>
+</g>
+<!-- sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node30" class="node">
+<title>sourcefile~regridmethods.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node30"><a xlink:href="../sourcefile/regridmethods.f90.html" xlink:title="RegridMethods.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="542,-810 427,-810 427,-786 542,-786 542,-810"/>
+<text text-anchor="middle" x="484.5" y="-795.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridMethods.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~regridmethods.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M653.08,-482.06C654.56,-527.03 653.57,-686.78 571,-772 565.46,-777.72 558.7,-782.19 551.44,-785.68"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="549.91,-782.53 542.03,-789.61 552.6,-788.99 549.91,-782.53"/>
+</g>
+<!-- sourcefile~shmem.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node31" class="node">
+<title>sourcefile~shmem.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node31"><a xlink:href="../sourcefile/shmem.f90.html" xlink:title="Shmem.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="315.5,-648 239.5,-648 239.5,-624 315.5,-624 315.5,-648"/>
+<text text-anchor="middle" x="277.5" y="-633.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Shmem.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~shmem.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~shmem.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M483.5,-594C476.12,-596.84 384.02,-615.23 325.8,-626.72"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="324.85,-623.34 315.71,-628.7 326.2,-630.21 324.85,-623.34"/>
+</g>
+<!-- sourcefile~stringtemplate.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_node32" class="node">
+<title>sourcefile~stringtemplate.f90</title>
+<g id="a_sourcefile~~utcfio_nbits.f90~~EfferentGraph_node32"><a xlink:href="../sourcefile/stringtemplate.f90.html" xlink:title="StringTemplate.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="542,-688 427,-688 427,-664 542,-664 542,-688"/>
+<text text-anchor="middle" x="484.5" y="-673.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringTemplate.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~stringtemplate.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~stringtemplate.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M650.88,-482.12C645.77,-515.27 626.91,-608.06 571,-655 565.37,-659.73 558.83,-663.42 551.93,-666.3"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="550.57,-663.07 542.34,-669.75 552.93,-669.66 550.57,-663.07"/>
+</g>
+<!-- sourcefile~mapl_comms.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~mapl_comms.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M429.91,-727.41C400.51,-732.57 364.11,-738.97 334.36,-744.19"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="333.38,-740.81 324.14,-745.99 334.6,-747.7 333.38,-740.81"/>
+</g>
+<!-- sourcefile~mapl_comms.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~mapl_comms.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M429.85,-714.41C352.31,-709.23 209.76,-699.71 132.55,-694.55"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="132.77,-691.05 122.55,-693.88 132.3,-698.04 132.77,-691.05"/>
+</g>
+<!-- sourcefile~mapl_comms.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~mapl_comms.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M429.77,-712.66C418.33,-709.49 407.01,-704.57 398,-697 367.53,-671.39 392.4,-640.69 362,-615 360.46,-613.7 358.85,-612.47 357.18,-611.32"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="358.8,-608.22 348.41,-606.17 355.26,-614.25 358.8,-608.22"/>
+</g>
+<!-- sourcefile~mapl_comms.f90&#45;&gt;sourcefile~shmem.f90 -->
+<g id="sourcefile~~utcfio_nbits.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~mapl_comms.f90&#45;&gt;sourcefile~shmem.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M429.56,-706.76C418.96,-703.99 408.03,-700.73 398,-697 365.82,-685.02 331.07,-666.61 307.38,-653.14"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="308.98,-650.02 298.57,-648.07 305.49,-656.09 308.98,-650.02"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefileutcfio_nbitsf90EfferentGraph = svgPanZoom('#sourcefileutcfio_nbitsf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="c">!</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="c">! Simple unit test for CFIO Read/Write Bundle with variable NBIT precision</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="c">!</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">Program </span><span class="n">utCFIO</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF_Mod</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_BaseMod</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_CommsMod</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF_CfioMod</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_CfioMod</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">implicit NONE</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">   type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">VM</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_DELayout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">layout</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="nb">dTime</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="nb">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="n">dTimeStep</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">fClock</span><span class="p">,</span><span class="w"> </span><span class="n">dClock</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Bundle</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">dBundle</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfio</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IM_WORLD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">288</span><span class="p">,</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">181</span><span class="p">,</span><span class="w"> </span><span class="n">KM_WORLD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">72</span><span class="w">   </span><span class="c">! globalc72</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span><span class="p">,</span><span class="w"> </span><span class="n">km</span><span class="w">                                      </span><span class="c">! local</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">       </span><span class="n">dirname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/share/dasilva/fvInput/fvchem/c/aero_clm&#39;</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">     </span><span class="n">fFilename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dirname</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;/gfedv2.aero.eta.200207clm.hdf&#39;</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fname</span><span class="w"> </span><span class="c">! output file name</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">nbits</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IamRoot</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">resolution</span><span class="p">(:),</span><span class="w"> </span><span class="n">levels</span><span class="p">(:)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;utCFIO&#39;</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="c">!                             -----</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">    </span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">    </span><span class="k">call </span><span class="n">test_main</span><span class="p">()</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="k">CONTAINS</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="k">    subroutine </span><span class="n">test_main</span><span class="p">()</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="c">!   Initialize framework</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="c">!   --------------------</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_Initialize</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span><span class="o">=</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">    </span><span class="n">IamRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_am_I_root</span><span class="p">()</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="c">!   Get the global vm</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="c">!   -----------------</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGetGlobal</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="c">!   Create a grid</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="c">!   -------------</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">    </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyGridCreate_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="c">!   Create empty bundles</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="c">!   --------------------</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">    </span><span class="n">fBundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_BundleCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Francesca&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">    </span><span class="n">dBundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_BundleCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Denise&#39;</span><span class="p">,</span><span class="w">    </span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="c">!   Set the time as the one on the hardwired file name</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="c">!   --------------------------------------------------</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_CalendarSetDefault</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">ESMF_CAL_GREGORIAN</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="mi">2002</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="w"> </span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">    </span><span class="n">fClock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ClockCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Clovis&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">timeStep</span><span class="o">=</span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">                                </span><span class="n">startTime</span><span class="o">=</span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="c">!   Read Bundle from file on a clean slate</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="c">!   --------------------------------------</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IamRoot</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Reading &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">fFilename</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_ioRead</span><span class="w">  </span><span class="p">(</span><span class="w"> </span><span class="n">fFilename</span><span class="p">,</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">                        </span><span class="n">verbose</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">force_regrid</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w">   </span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="c">!   Setup data types need for write</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="c">!   -------------------------------</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">resolution</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">levels</span><span class="p">(</span><span class="n">KM_WORLD</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">    </span><span class="n">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="w"> </span><span class="n">IM_WORLD</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="o">/</span><span class="p">)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">    </span><span class="n">levels</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">KM_WORLD</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="c">!   Write the same bundle to a different file, each time with</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="c">!    different precision</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="c">!   ----------------------------------------------------------</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">     </span><span class="n">nbits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="w"> </span><span class="c">! full precision</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">     </span><span class="k">write</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s2">&quot;(&#39;test.aero.eta.&#39;,I2.2)&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">nbits</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">     </span><span class="k">call </span><span class="n">ESMF_ioCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="n">fClock</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">                          </span><span class="n">resolution</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Bundle Write Test&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">     </span><span class="k">call </span><span class="n">ESMF_ioWrite</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">fClock</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">                         </span><span class="n">verbose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c">! omit nbits</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">     </span><span class="k">call </span><span class="n">ESMF_ioDestroy</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">    </span><span class="k">do </span><span class="n">nbits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">     </span><span class="k">write</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s2">&quot;(&#39;test.aero.eta.&#39;,I2.2)&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">nbits</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">     </span><span class="k">call </span><span class="n">ESMF_ioCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="n">fClock</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">                          </span><span class="n">resolution</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Bundle Write Test&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">     </span><span class="k">call </span><span class="n">ESMF_ioWrite</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">fClock</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">                         </span><span class="n">nbits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nbits</span><span class="p">,</span><span class="w"> </span><span class="n">verbose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">     </span><span class="k">call </span><span class="n">ESMF_ioDestroy</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">    </span><span class="k">end do</span><span class="w"> </span><span class="c">! precision loop</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="c">!   All done</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="c">!   --------</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_Finalize</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">    </span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">test_main</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="c">!........................................................................</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">  </span><span class="k">function </span><span class="n">MyGridCreate_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VM</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="c">! Local vars</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">    </span><span class="kt">integer</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s1">&#39;MyGridCreate&#39;</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">LM</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">L</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">NX</span><span class="p">,</span><span class="w"> </span><span class="n">NY</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">IMXY</span><span class="p">(:),</span><span class="w"> </span><span class="n">JMXY</span><span class="p">(:)</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">gridname</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">minCoord</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">deltaX</span><span class="p">,</span><span class="w"> </span><span class="n">deltaY</span><span class="p">,</span><span class="w"> </span><span class="n">deltaZ</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">    </span><span class="kt">real</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">LON0</span><span class="p">,</span><span class="w"> </span><span class="n">LAT0</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">    </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pi</span><span class="p">,</span><span class="w"> </span><span class="n">d2r</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="c">! grid create</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">    </span><span class="n">lm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KM_WORLD</span><span class="w">   </span><span class="c">! no. vertical layers</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">    </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">    </span><span class="n">ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">     </span><span class="n">pi</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">atan</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">    </span><span class="n">d2r</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">pi</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">18</span><span class="mf">0.</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">    </span><span class="n">LON0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">180</span><span class="w">  </span><span class="o">*</span><span class="w"> </span><span class="n">d2r</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">    </span><span class="n">LAT0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">9</span><span class="mf">0.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">d2r</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="c">! Get the IMXY vector</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="c">! -------------------</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">imxy</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">nx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">  </span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">    </span><span class="k">call </span><span class="n">MAPL_GET_LOCAL_DIMS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">imxy</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="c">! Get the JMXY vector</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="c">! -------------------</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">jmxy</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">ny</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">  </span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">    </span><span class="k">call </span><span class="n">MAPL_GET_LOCAL_DIMS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">jmxy</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">    </span><span class="n">deltaX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="o">*</span><span class="n">pi</span><span class="o">/</span><span class="n">IM_WORLD</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">    </span><span class="n">deltaY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pi</span><span class="o">/</span><span class="p">(</span><span class="n">JM_WORLD</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">    </span><span class="n">deltaZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">MAPL_Am_I_Root</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;nx : imxy = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; : &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">imxy</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ny : jmxy = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; : &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">jmxy</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">    </span><span class="k">endif</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="c">! Define South-West Corner of First Grid-Box</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="c">! ------------------------------------------</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">    </span><span class="n">minCoord</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LON0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">deltaX</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">    </span><span class="n">minCoord</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LAT0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">deltaY</span><span class="o">/</span><span class="mi">2</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">    </span><span class="n">minCoord</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deltaZ</span><span class="o">/</span><span class="mf">2.</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">    </span><span class="n">layout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_DELayoutCreate</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">deCountList</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">NX</span><span class="p">,</span><span class="w"> </span><span class="n">NY</span><span class="o">/</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">    </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateHorzLatLonUni</span><span class="p">(</span><span class="w">         </span><span class="p">&amp;</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">         </span><span class="n">counts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">IM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="o">/</span><span class="p">),</span><span class="w">        </span><span class="p">&amp;</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">         </span><span class="n">minGlobalCoordPerDim</span><span class="o">=</span><span class="n">minCoord</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">         </span><span class="n">deltaPerDim</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">deltaX</span><span class="p">,</span><span class="w"> </span><span class="n">deltaY</span><span class="w"> </span><span class="o">/</span><span class="p">),</span><span class="w">        </span><span class="p">&amp;</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">         </span><span class="n">horzStagger</span><span class="o">=</span><span class="n">ESMF_Grid_Horz_Stagger_A</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">         </span><span class="n">periodic</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">ESMF_TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_FALSE</span><span class="o">/</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">         </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Beatrice&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridAddVertHeight</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">         </span><span class="n">delta</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="p">(</span><span class="n">deltaZ</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="p">),</span><span class="w">            </span><span class="p">&amp;</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">         </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridDistribute</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w">               </span><span class="p">&amp;</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">         </span><span class="n">deLayout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span><span class="w">                        </span><span class="p">&amp;</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">         </span><span class="n">countsPerDEDim1</span><span class="o">=</span><span class="n">imxy</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">         </span><span class="n">countsPerDEDim2</span><span class="o">=</span><span class="n">jmxy</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">         </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">imxy</span><span class="p">)</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">jmxy</span><span class="p">)</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">  </span><span class="k">end function </span><span class="n">MyGridCreate_</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="k">end Program </span><span class="n">utCFIO</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-01-29T17:22:51.131172             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
