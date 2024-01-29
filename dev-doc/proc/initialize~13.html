@@ -80,20 +80,20 @@
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip"
                  data-bs-placement="bottom" data-html="true"
-                 title=" 0.0% of total for procedures.">22 statements</a>
+                 title=" 0.0% of total for procedures.">17 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ESMF_TestCase.F90"> Source File</a>
+              <a href="../src/StubComponent.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/esmf_testcase.f90.html'>ESMF_TestCase.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/esmf_testcase_mod.html'>ESMF_TestCase_mod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/stubcomponent.f90.html'>StubComponent.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_stubcomponent.html'>MAPL_StubComponent</a></li>
             <li class="breadcrumb-item active" aria-current="page">initialize</li>
           </ol>
         </nav>
@@ -145,11 +145,13 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine initialize(comp, importState, exportState, clock, rc)  
+    <h2>private  subroutine initialize(this, import_state, export_state, clock, phase, unusable, rc)  
 </h2>
     
 
 
+    <h3>Type Bound</h3>
+    <p><a href='../type/stubcomponent.html'>StubComponent</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -164,55 +166,55 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comp~2"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>)
+              <span class="anchor" id="variable-this~3497"></span>
+              class(<a href='../type/stubcomponent.html'>StubComponent</a>),
             </td>
-<td></td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>comp</strong></td>
+            <td><strong>this</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-importstate"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+              <span class="anchor" id="variable-import_state~12"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
-<td></td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>importState</strong></td>
+            <td><strong>import_state</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-exportstate"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+              <span class="anchor" id="variable-export_state~12"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
-<td></td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>exportState</strong></td>
+            <td><strong>export_state</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~58"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+              <span class="anchor" id="variable-clock~48"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
-<td></td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
@@ -224,11 +226,41 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1797"></span>
+              <span class="anchor" id="variable-phase~16"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>phase</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~214"></span>
+              class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1392"></span>
               integer,
             </td>
-<td>intent(out)</td>
-              <td></td>            <td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
@@ -252,44 +284,108 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~initialize~13~~CallsGraph Pages: 1 -->
-<svg id="procinitialize13CallsGraph" width="441pt" height="74pt"
- viewBox="0.00 0.00 441.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~initialize~13~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<svg id="procinitialize13CallsGraph" width="641pt" height="73pt"
+ viewBox="0.00 0.00 641.00 72.76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize~13~~CallsGraph" class="graph" transform="scale(1.59 1.59) rotate(0) translate(4 112)">
 <title>proc~~initialize~13~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 437,-70 437,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 1018,-112 1018,4 -4,4"/>
 <!-- proc~initialize~13 -->
 <g id="proc~~initialize~13~~CallsGraph_node1" class="node">
 <title>proc~initialize~13</title>
-<polygon fill="none" stroke="black" points="174,-45 0,-45 0,-21 174,-21 174,-45"/>
-<text text-anchor="middle" x="87" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_TestCase_mod::initialize</text>
+<polygon fill="none" stroke="black" points="280,-45 0,-45 0,-21 280,-21 280,-45"/>
+<text text-anchor="middle" x="140" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_StubComponent::StubComponent%initialize</text>
 </g>
-<!-- ESMF_GridCompGetInternalState -->
+<!-- proc~mapl_return -->
 <g id="proc~~initialize~13~~CallsGraph_node2" class="node">
-<title>ESMF_GridCompGetInternalState</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="433,-66 210,-66 210,-42 433,-42 433,-66"/>
-<text text-anchor="middle" x="321.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompGetInternalState</text>
+<title>proc~mapl_return</title>
+<g id="a_proc~~initialize~13~~CallsGraph_node2"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="536,-45 316,-45 316,-21 536,-21 536,-45"/>
+<text text-anchor="middle" x="426" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
 </g>
-<!-- proc~initialize~13&#45;&gt;ESMF_GridCompGetInternalState -->
+</g>
+<!-- proc~initialize~13&#45;&gt;proc~mapl_return -->
 <g id="proc~~initialize~13~~CallsGraph_edge1" class="edge">
-<title>proc~initialize~13&#45;&gt;ESMF_GridCompGetInternalState</title>
-<path fill="none" stroke="#255000" d="M174.24,-40.79C182.6,-41.54 191.19,-42.32 199.8,-43.1"/>
-<polygon fill="#255000" stroke="#255000" points="199.64,-46.6 209.92,-44.01 200.27,-39.63 199.64,-46.6"/>
+<title>proc~initialize~13&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M280.09,-33C288.58,-33 297.09,-33 305.49,-33"/>
+<polygon fill="#255000" stroke="#255000" points="305.67,-36.5 315.67,-33 305.67,-29.5 305.67,-36.5"/>
 </g>
-<!-- setup -->
+<!-- proc~get_error_message -->
 <g id="proc~~initialize~13~~CallsGraph_node3" class="node">
-<title>setup</title>
-<polygon fill="#777777" stroke="#777777" points="348.5,-24 294.5,-24 294.5,0 348.5,0 348.5,-24"/>
-<text text-anchor="middle" x="321.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setup</text>
+<title>proc~get_error_message</title>
+<g id="a_proc~~initialize~13~~CallsGraph_node3"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="825,-66 572,-66 572,-42 825,-42 825,-66"/>
+<text text-anchor="middle" x="698.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
 </g>
-<!-- proc~initialize~13&#45;&gt;setup -->
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
 <g id="proc~~initialize~13~~CallsGraph_edge2" class="edge">
-<title>proc~initialize~13&#45;&gt;setup</title>
-<path fill="none" stroke="#255000" d="M174.24,-25.21C212.23,-21.78 254.8,-17.93 284.17,-15.28"/>
-<polygon fill="#255000" stroke="#255000" points="284.72,-18.75 294.36,-14.36 284.09,-11.77 284.72,-18.75"/>
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#255000" d="M536.24,-41.48C544.67,-42.14 553.25,-42.8 561.82,-43.47"/>
+<polygon fill="#255000" stroke="#255000" points="561.64,-46.96 571.88,-44.25 562.18,-39.98 561.64,-46.96"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~initialize~13~~CallsGraph_node4" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~initialize~13~~CallsGraph_node4"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="813,-24 584,-24 584,0 813,0 813,-24"/>
+<text text-anchor="middle" x="698.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~initialize~13~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255000" d="M536.24,-24.52C548.62,-23.56 561.3,-22.57 573.85,-21.6"/>
+<polygon fill="#255000" stroke="#255000" points="574.18,-25.08 583.88,-20.82 573.64,-18.11 574.18,-25.08"/>
+</g>
+<!-- at -->
+<g id="proc~~initialize~13~~CallsGraph_node5" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="964.5,-108 910.5,-108 910.5,-84 964.5,-84 964.5,-108"/>
+<text text-anchor="middle" x="937.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~initialize~13~~CallsGraph_edge4" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M767.41,-66.04C810.55,-73.68 864.7,-83.28 899.93,-89.52"/>
+<polygon fill="#255000" stroke="#255000" points="899.76,-93.04 910.22,-91.34 900.98,-86.15 899.76,-93.04"/>
+</g>
+<!-- insert -->
+<g id="proc~~initialize~13~~CallsGraph_node6" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="964.5,-66 910.5,-66 910.5,-42 964.5,-42 964.5,-66"/>
+<text text-anchor="middle" x="937.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~initialize~13~~CallsGraph_edge5" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M825.29,-54C852.83,-54 879.86,-54 900.36,-54"/>
+<polygon fill="#255000" stroke="#255000" points="900.46,-57.5 910.46,-54 900.46,-50.5 900.46,-57.5"/>
+</g>
+<!-- proc~initialize~4 -->
+<g id="proc~~initialize~13~~CallsGraph_node7" class="node">
+<title>proc~initialize~4</title>
+<g id="a_proc~~initialize~13~~CallsGraph_node7"><a xlink:href="../proc/initialize~4.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1014,-24 861,-24 861,0 1014,0 1014,-24"/>
+<text text-anchor="middle" x="937.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~4 -->
+<g id="proc~~initialize~13~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~4</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M813.14,-12C825.76,-12 838.46,-12 850.65,-12"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="850.77,-15.5 860.77,-12 850.77,-8.5 850.77,-15.5"/>
 </g>
 </g>
 </svg>
-</div>          <div>
+</div>                <script>
+                  var panprocinitialize13CallsGraph = svgPanZoom('#procinitialize13CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
             <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
           </div>
           <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
@@ -384,36 +480,22 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comp</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="w">            </span><span class="c">! must not be optional</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span><span class="w">            </span><span class="c">! must not be optional</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w">                  </span><span class="c">! must not be optional</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">                </span><span class="c">! must not be optional</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">import_state</span><span class="p">,</span><span class="w"> </span><span class="n">export_state</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StubComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_state</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_state</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">InternalState</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TestCase</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">testPtr</span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalrc</span>
-
-<span class="w">      </span><span class="c">! To prevent &quot;unused variable&quot; warnings, we do something useless here.</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">importState</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">exportState</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
-
-<span class="w">      </span><span class="c">! Get Internal State</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompGetInternalState</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span><span class="w"> </span><span class="n">wrap</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">finalrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FAILURE</span>
-<span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">finalrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_SUCCESS</span>
-<span class="w">      </span><span class="k">end if</span>
-
-<span class="w">      </span><span class="c">! Access private data block and verify data</span>
-<span class="w">      </span><span class="n">testPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">wrap</span><span class="p">%</span><span class="n">wrapped</span><span class="p">%</span><span class="n">testPtr</span>
-<span class="w">      </span>
-<span class="w">      </span><span class="k">call </span><span class="n">testPtr</span><span class="p">%</span><span class="n">setUp</span><span class="p">()</span>
-<span class="w">   </span>
-<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">finalrc</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">import_state</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">export_state</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">FAILURE</span><span class="p">)</span>
 
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
 </pre></div>
@@ -436,7 +518,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-01-29T21:13:20.306884             </p>
+ on 2024-01-29T21:16:39.031598             </p>
           </div>
         </div>
         <br>
