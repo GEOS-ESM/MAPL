@@ -104,7 +104,7 @@ contains
     Ts = T1 + dTs
     Te = T1 + dTe
 
-    obsfile_Ts_index = n1
+    obsfile_Ts_index = n1 - 1   ! downshift by 1
     obsfile_Te_index = n2
 
     _RETURN(ESMF_SUCCESS)

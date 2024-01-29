@@ -492,12 +492,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
+         real(kind=REAL64)              :: t_shift         
          integer,           allocatable :: obstype_id_full(:)
 
          real(ESMF_KIND_R8), pointer :: ptAT(:)
          type(ESMF_routehandle) :: RH
          type(ESMF_Time) :: timeset(2)
          type(ESMF_Time) :: current_time
+         type(ESMF_Time) :: time0
+         type(ESMF_TimeInterval) :: dt
          type(ESMF_Grid) :: grid
 
          type(ESMF_VM) :: vm
@@ -510,6 +513,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer(kind=ESMF_KIND_I8) :: nstart, nend
          real(kind=ESMF_KIND_R8) :: jx0, jx1
          integer :: nx, nx_sum
+         integer :: n0
          integer :: arr(1)
          integer :: sec
          integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
@@ -605,8 +609,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            this%datetime_units = trim(timeunits_file)
                            call lgr%debug('%a %a', 'datetime_units from 1st file:', trim(timeunits_file))
                         end if
+                        call diff_two_timeunits (this%datetime_units, timeunits_file, t_shift, _RC)
+                        times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + t_shift
                         obstype_id_full(len+1:len+num_times) = k
-                        !!write(6,'(f12.2)')  times_R8_full(::50)
+                        write(6,'(f20.2)')  times_R8_full(len+1:len+num_times:50)
                         len = len + num_times
                      end if
                      j=j+1
@@ -615,6 +621,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end if
 
+         
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
          if (nx_sum == 0) then
@@ -1208,7 +1215,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            !!
            !! I choose UB = N+1 not N, because my sub. bisect find n: Y(n)<x<=Y(n+1)
            jhi= size(this%obstime) + 1
-           if (jhi==0) then
+
+           !write(6,*) 'size(this%obstime)=', size(this%obstime)
+
+           if (jhi==1) then
               x_subset(1:2)=0
               _RETURN(_SUCCESS)
            endif

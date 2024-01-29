@@ -179,6 +179,12 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end subroutine find_mask
 
+     module subroutine regrid_accumulate_on_xsubset (this, rc)
+       implicit none
+       class(MaskSampler), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine regrid_accumulate_on_xsubset
+
      module subroutine get_x_subset(this, interval, x_subset, rc)
        class(MaskSampler), intent(inout) :: this
        type(ESMF_Time), intent(in)             :: interval(2)

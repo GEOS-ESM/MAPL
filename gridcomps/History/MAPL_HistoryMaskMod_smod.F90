@@ -919,5 +919,356 @@ contains
      end procedure find_mask
          
 
+       module procedure regrid_accumulate_on_xsubset
+       use pflogger, only: Logger, logging     
+       integer                 :: x_subset(2)
+       type(ESMF_Time)         :: timeset(2)
+       type(ESMF_Time)         :: current_time
+       type(ESMF_TimeInterval) :: dur
+       type(GriddedIOitemVectorIterator) :: iter
+       type(GriddedIOitem), pointer :: item
+       type(ESMF_Field) :: src_field,dst_field,acc_field
+       integer :: rank
+       real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
+       real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
+       real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
+       real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
+       integer :: is, ie
+       integer :: status
+
+       real(ESMF_KIND_R8), pointer :: ptA(:)
+       real(ESMF_KIND_R8), pointer :: ptB(:)       
+       type(ESMF_routehandle) :: RH
+       type(ESMF_grid) :: grid
+       integer :: i, j, k, L
+       integer :: fid_s, fid_e
+       integer :: M_file
+       integer(kind=ESMF_KIND_I8) :: j0, j1
+       integer(kind=ESMF_KIND_I8) :: jt1, jt2
+       integer(kind=ESMF_KIND_I8) :: nstart, nend
+       real(kind=ESMF_KIND_R8) :: jx0, jx1
+       integer :: nx, ny, nx_sum
+       integer :: nlon, nlat
+       integer :: arr(1)
+       integer :: sec
+
+       integer :: mypet, petcount
+       integer :: len
+       type(Logger), pointer          :: lgr
+
+
+       integer :: IM, JM, LM, COUNTS(3)
+       type(ESMF_DistGrid) :: distGrid
+       type(ESMF_DElayout) :: layout
+       type(ESMF_VM) :: VM
+       integer :: myid
+       integer :: ndes
+       integer :: dimCount
+       integer, allocatable :: II(:)
+       integer, allocatable :: JJ(:)
+       real, allocatable :: obs_lons(:)
+       real, allocatable :: obs_lats(:)
+
+
+       lgr => logging%get_logger('HISTORY.sampler')
+!
+!       if (.NOT. this%is_valid) then
+!          _RETURN(ESMF_SUCCESS)
+!       endif
+!
+!       ! __ Ab. cut swath by time step, convert rectangular to LS
+!       !        find on each DE:
+!       !        - nearest CS points for swath points,  define as index1
+!       !        - n.n. around these index1 pts, define as index2 
+!       !        - merge and accumulate
+!
+!
+!       !           call this%get_x_subset(timeset, x_subset, _RC)
+!       !           is=x_subset(1)
+!       !           ie=x_subset(2)
+!
+!
+!       call ESMF_VMGetGlobal(vm,_RC)
+!       call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
+!
+!       !            
+!       if (mypet == 0) then                      
+!          call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
+!          call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
+!          timeset(1) = current_time - dur
+!          timeset(2) = current_time
+!
+!          ! __ s1. cut swath by Epoch time, convert rectangular to LS
+!          !
+!          call time_esmf_2_nc_int (timeset(1), this%datetime_units, j0, _RC)
+!          call ESMF_TimeIntervalGet(dur, s=sec, _RC)
+!          j1= j0 + sec
+!          jx0= j0
+!          jx1= j1
+!
+!          !! write(6,*) 'dur in s', sec
+!
+!          nstart = 1
+!          nend = size(this%t_alongtrack)
+!          call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+!          call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+!
+!          call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
+!          call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Dur]    w.r.t. timeunit ', jx0, jx1)
+!          call lgr%debug ('%a %f20.1 %f20.1', 'x0[times(1)] xn[times(N)] w.r.t. timeunit ', &
+!               this%t_alongtrack(1), this%t_alongtrack(nend))
+!          call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
+!
+!          if (jt1==jt2) then
+!             _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
+!          endif
+!          jt1 = jt1 + 1               ! (x1,x2]  design
+!
+!
+!          ! use nx as 1d
+!          nlon = size (this%lons_2d, dim=1)
+!          len =  nlon * (jt2 - jt1 + 1)
+!          allocate(this%lons(len),this%lats(len),_STAT)
+!          nx = 0
+!          do j = jt1, jt2
+!             do i = 1, nlon
+!                nx = nx + 1
+!                this%lons(nx) = this%lons_2d(i, j)
+!                this%lats(nx) = this%lats_2d(i, j)
+!             end do
+!          end do
+!
+!          this%nobs_dur = nx
+!          arr(1)=nx
+!
+!          call lgr%debug('%a %i12 %i12 %i12', 'this%nobs_dur, nlon, nlat', this%nobs_dur, nlon, len)
+!
+!       else
+!          allocate(this%lons(0),this%lats(0),_STAT)
+!          this%nobs_dur = 0
+!          nx=0
+!          arr(1)=0
+!       endif
+!       
+!
+!       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
+!            count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
+!       this%nobs_dur_sum = nx_sum
+!       if (mapl_am_I_root()) write(6,*) 'nobs in dur(heartbeat)  :', nx_sum
+!
+!       
+!       if ( nx_sum == 0 ) then
+!          this%is_valid = .false.
+!          _RETURN(ESMF_SUCCESS)
+!          !
+!          ! no valid obs points are found
+!          !
+!       end if
+!
+!
+!       ! __ s2. set distributed LS
+!       !
+!
+!       this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
+!       this%LS_rt = this%locstream_factory%create_locstream(_RC)
+!       call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+!       this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)
+!
+!       this%fieldA = ESMF_FieldCreate (this%LS_rt, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
+!       this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
+!
+!!!       ptA => null()
+!       call ESMF_FieldGet( this%fieldA, localDE=0, farrayPtr=ptA)
+!       call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=ptB)
+!       if (mypet == 0) then
+!          ptA(:) = this%lons(:)
+!       end if
+!       call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
+!       call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
+!       this%lons_ds = ptB
+!
+!       
+!       if (mypet == 0) then
+!          ptA(:) = this%lats(:)
+!       end if
+!       call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
+!       this%lats_ds = ptB
+!       
+!       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+!       call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
+!       call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)       
+!
+!       !- debug
+!!       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, this%lons_ds(::200)
+!!       write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, this%lats_ds(::200)
+!       
+!       write(6,'(2x,a,i5,100f10.1)') 'lons_rt pet=', mypet, this%lons(::200)
+!       write(6,'(2x,a,i5,100f10.1)') 'lats_rt pet=', mypet, this%lats(::200)       
+!
+!
+!       _FAIL ('nail xx')
+!       ! __ s3. round-1: find n.n. CS pts for LS_ds
+!       !
+!       obs_lons = this%lons_ds
+!       obs_lats = this%lats_ds
+!       
+!       nx = size ( this%lons_ds )
+!       allocate ( II(nx), JJ(nx) )
+!       !!       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=this%lons_ds,lat=this%lats_ds,grid=Grid,_RC)
+!       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)              
+!
+!       call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
+!       call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+!       call ESMF_DELayoutGet(layout, VM=vm, _RC)
+!       call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+!       call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+!       IM= COUNTS(1)
+!       JM= COUNTS(2)
+!       LM= COUNTS(3)
+!       allocate( this%mask(IM, JM))
+!       this%mask = 0
+!       do i=1, nx
+!          if ( II(i)>0 .AND. JJ(i)>0 ) then
+!             this%mask( II(i), JJ(i) ) = 1
+!          endif
+!       enddo
+!       
+!       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, this%mask(::5,::5)       
+!       
+!       _FAIL('nail 2')
+!
+!
+       _RETURN(ESMF_SUCCESS)
+
+     end procedure regrid_accumulate_on_xsubset
+         
+
+         module procedure destroy_rh_regen_LS
+           integer :: status
+           integer :: numVars, i, k
+           character(len=ESMF_MAXSTR), allocatable :: names(:)
+           type(ESMF_Field) :: field
+           type(ESMF_Time)  :: currTime
+!
+!          if (.NOT. this%is_valid) then
+!             _RETURN(ESMF_SUCCESS)
+!          endif
+!!
+!!           call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)
+!!           call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
+!!           call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
+!!           call this%regridder%destroy(_RC)
+!!           deallocate (this%lons, this%lats, &
+!!                this%times_R8, this%obstype_id)
+!!
+!!           do k=1, this%nobs_type
+!!              deallocate (this%obs(k)%metadata)
+!!              if (mapl_am_i_root()) then
+!!                 deallocate (this%obs(k)%file_handle)
+!!              end if
+!!           end do
+!!
+!!           if (mapl_am_i_root()) then
+!!              do k=1, this%nobs_type
+!!                 deallocate (this%obs(k)%lons)
+!!                 deallocate (this%obs(k)%lats)
+!!                 deallocate (this%obs(k)%times_R8)
+!!                 if (allocated(this%obs(k)%p2d)) then
+!!                    deallocate (this%obs(k)%p2d)
+!!                 endif
+!!                 if (allocated(this%obs(k)%p3d)) then
+!!                    deallocate (this%obs(k)%p3d)
+!!                 endif
+!!              end do
+!!           end if
+!!
+!!           call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
+!!           allocate(names(numVars),stat=status)
+!!           call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
+!!           do i=1,numVars
+!!              call ESMF_FieldBundleGet(this%acc_bundle,trim(names(i)),field=field,_RC)
+!!              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+!!           enddo
+!!           call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
+!!
+!!           call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
+!!           allocate(names(numVars),stat=status)
+!!           call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,_RC)
+!!           do i=1,numVars
+!!              call ESMF_FieldBundleGet(this%output_bundle,trim(names(i)),field=field,_RC)
+!!              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+!!           enddo
+!!           call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
+!!
+!!
+!!           call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
+!!           if (currTime > this%obsfile_end_time) then
+!!              this%is_valid = .false.
+!!              _RETURN(ESMF_SUCCESS)
+!!           end if
+!!
+!!           this%epoch_index(1:2)=0
+!!
+!!           call this%initialize(reinitialize=.true., _RC)
+!!
+!           _RETURN(ESMF_SUCCESS)
+!
+         end procedure destroy_rh_regen_LS
+
+
+         module procedure get_x_subset
+           type   (ESMF_Time)    :: T1,  T2
+           real   (ESMF_KIND_R8) :: rT1, rT2
+
+           integer(ESMF_KIND_I8) :: i1,  i2
+           integer(ESMF_KIND_I8) :: jt1, jt2, lb, ub
+           integer               :: jlo, jhi
+           integer               :: status
+
+!           T1= interval(1)
+!           T2= interval(2)
+!           call time_esmf_2_nc_int (T1, this%datetime_units, i1, _RC)
+!           call time_esmf_2_nc_int (T2, this%datetime_units, i2, _RC)
+!           rT1=real(i1, kind=ESMF_KIND_R8)
+!           rT2=real(i2, kind=ESMF_KIND_R8)
+!           jlo = 1
+!           jhi= size(this%obstime)
+!           if (jhi==0) then
+!              x_subset(1:2)=0
+!              _RETURN(_SUCCESS)
+!           endif
+!
+!           lb=int(jlo, ESMF_KIND_I8)
+!           ub=int(jhi, ESMF_KIND_I8)
+!           call bisect( this%obstime, rT1, jt1, n_LB=lb, n_UB=ub, rc=rc)
+!           call bisect( this%obstime, rT2, jt2, n_LB=lb, n_UB=ub, rc=rc)
+!           x_subset(1) = jt1
+!
+!           if (jt1<lb) then
+!              if (jt2<lb) then
+!                 x_subset(1) = 0
+!                 x_subset(2) = 0
+!              elseif (jt2>=ub) then
+!                 x_subset(1) = lb
+!                 x_subset(2) = ub
+!              else
+!                 x_subset(1) = lb
+!                 x_subset(2) = jt2
+!              endif
+!           elseif (jt1>=ub) then
+!              x_subset(1) = 0
+!              x_subset(2) = 0
+!           else
+!              x_subset(1) = jt1
+!              if (jt2>=ub) then
+!                 x_subset(2) = ub
+!              else
+!                 x_subset(2) = jt2
+!              endif
+!           endif
+!
+           _RETURN(_SUCCESS)
+         end procedure get_x_subset
+
 
 end submodule MaskSampler_implement
