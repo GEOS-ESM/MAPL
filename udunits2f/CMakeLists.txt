@@ -1,7 +1,7 @@
 esma_set_this (OVERRIDE udunits2f)
 
 set(srcs
-  CPtrWrapper.F90
+  CptrWrapper.F90
   UDSystem.F90
   udunits2f.F90
   encoding.F90
