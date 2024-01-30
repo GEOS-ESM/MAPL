@@ -3,6 +3,7 @@
 module MAPL_FieldPointerUtilities
    use ESMF
    use MAPL_ExceptionHandling
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc
    implicit none
    private
 
@@ -482,14 +483,14 @@ contains
       integer, dimension(:), allocatable :: count_x, count_y
       integer :: status
       logical :: normal_conformable
-      
+
       conformable = .false.
       ! this should really used the geom and ungridded dims
       ! for now we will do this until we have a geom agnostic stuff worked out...
       ! the ideal algorithm would be if geom == geom and input does not have ungridded
       ! and thing we are copying to does, then we are "conformable"
       normal_conformable = FIeldsAreConformable(x,y,_RC)
-      
+
       if (normal_conformable) then
          conformable = .true.
          _RETURN(_SUCCESS)
@@ -841,7 +842,7 @@ contains
         else
            _FAIL("Unsupported rank")
         end if
-     else 
+     else
         _FAIL("Unsupported type")
      end if
      _RETURN(_SUCCESS)
@@ -870,7 +871,7 @@ contains
 
      integer :: status, i
      logical :: isPresent
-     
+
      allocate(undef_values(size(fields)))
      do i =1,size(fields)
         call ESMF_AttributeGet(fields(i),name="missing_value",isPresent=isPresent,_RC)
@@ -887,7 +888,7 @@ contains
 
      integer :: status, i
      logical :: isPresent
-     
+
      allocate(undef_values(size(fields)))
      do i =1,size(fields)
         call ESMF_AttributeGet(fields(i),name="missing_value",isPresent=isPresent,_RC)

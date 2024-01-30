@@ -16,17 +16,16 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.14.0
-bcs_version: &bcs_version v11.2.0
+baselibs_version: &baselibs_version v7.17.0
+bcs_version: &bcs_version v11.3.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@1
+  ci: geos-esm/circleci-tools@2
 
 workflows:
-  build-and-test:
+  build-and-test-MAPL:
     jobs:
-
       # Builds MAPL in a "default" way - Intel
       - ci/build:
           name: build-and-test-MAPL-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
@@ -35,7 +34,7 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
-              cmake_generator: ['Unix Makefiles']
+              cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -61,7 +60,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran]
-              cmake_generator: ['Unix Makefiles']
+              cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -86,6 +85,29 @@ workflows:
           run_unit_tests: true
           ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
 
+      # Run MAPL Tutorials
+      - ci/run_mapl_tutorial:
+          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              #compiler: [gfortran, ifort]
+              compiler: [ifort]
+              tutorial_name:
+                - hello_world
+                - parent_no_children
+                - parent_one_child_import_via_extdata
+                - parent_one_child_no_imports
+                - parent_two_siblings_connect_import_export
+          # We will only run the tutorials with GNU make. No need to double up
+          # as Ninja is a build test only
+          requires:
+            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
+          baselibs_version: *baselibs_version
+
+  build-and-run-GEOSgcm:
+    jobs:
       # Build GEOSgcm -- ifort
       - ci/build:
           name: build-GEOSgcm-on-<< matrix.compiler >>
@@ -115,36 +137,6 @@ workflows:
           mepodevelop: true
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
-
-      # Build GEOSldas on ifort
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: develop
-          checkout_mapl_branch: true
-
-      # Build GEOSldas on gfortran
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: develop
-          checkout_mapl_branch: true
 
       # Run GCM (1 hour, no ExtData)
       - ci/run_gcm:
@@ -176,26 +168,37 @@ workflows:
           gcm_ocean_type: MOM6
           change_layout: false
 
-      # Run MAPL Tutorials
-      - ci/run_mapl_tutorial:
-          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+  build-GEOSldas:
+    jobs:
+      # Build GEOSldas on ifort
+      - ci/build:
+          name: build-GEOSldas-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              #compiler: [gfortran, ifort]
               compiler: [ifort]
-              tutorial_name:
-                - hello_world
-                - parent_no_children
-                - parent_one_child_import_via_extdata
-                - parent_one_child_no_imports
-                - parent_two_siblings_connect_import_export
-          # We will only run the tutorials with GNU make. No need to double up
-          # as Ninja is a build test only
-          requires:
-            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+          repo: GEOSldas
+          mepodevelop: false
+          checkout_fixture: true
+          fixture_branch: develop
+          checkout_mapl_branch: true
+
+      # Build GEOSldas on gfortran
+      - ci/build:
+          name: build-GEOSldas-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran]
+          baselibs_version: *baselibs_version
+          repo: GEOSldas
+          mepodevelop: false
+          checkout_fixture: true
+          fixture_branch: develop
+          checkout_mapl_branch: true
 
   build-GEOSadas:
     jobs:
@@ -221,7 +224,7 @@ workflows:
     when:
       equal: [ "release", << pipeline.parameters.GHA_Event >> ]
     jobs:
-      - ci/publish-docker:
+      - ci/publish_docker:
           filters:
             tags:
               only: /^v.*$/
@@ -238,7 +241,7 @@ workflows:
           compiler_version: 2022.1.0
           image_name: geos-env
           tag_build_arg_name: *tag_build_arg_name
-      - ci/publish-docker:
+      - ci/publish_docker:
           filters:
             tags:
               only: /^v.*$/
@@ -250,7 +253,7 @@ workflows:
           baselibs_version: *baselibs_version
           container_name: mapl
           mpi_name: openmpi
-          mpi_version: 4.1.4
+          mpi_version: 5.0.0
           compiler_name: gcc
           compiler_version: 12.1.0
           image_name: geos-env-mkl

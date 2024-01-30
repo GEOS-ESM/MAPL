@@ -8,6 +8,7 @@ module MAPL_AbstractRegridderMod
    use ESMF
    use MAPL_MemUtilsMod
    use MAPL_ExceptionHandling
+   use MAPL_RegridderSpecRouteHandleMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private
@@ -91,6 +92,9 @@ module MAPL_AbstractRegridderMod
       procedure :: clear_undef_value
       procedure :: has_undef_value
       procedure :: get_regrid_method
+
+      procedure :: destroy
+      procedure :: destroy_route_handle
 
    end type AbstractRegridder
 
@@ -1005,5 +1009,22 @@ contains
       class (AbstractRegridder), intent(in) :: this
       method = this%spec%regrid_method
    end function get_regrid_method
+
+
+   subroutine destroy(this, rc)
+      class(AbstractRegridder), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+   subroutine destroy_route_handle(this, kind, rc)
+      class(AbstractRegridder), intent(inout) :: this
+      type(ESMF_TypeKind_Flag), intent(in) :: kind
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy_route_handle
 
 end module MAPL_AbstractRegridderMod
