@@ -2823,8 +2823,7 @@ contains
     JM_World = dims(2)
     _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
 
-    call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
-    _VERIFY(STATUS)
+    call ESMF_GridGet(grid,coordSys=coordSys,_RC)
     _ASSERT(coordSys==ESMF_COORDSYS_SPH_RAD, "Coordsys unit should be in Radians")
 
     dalpha = 2.0d0*alpha/IM_WORLD
