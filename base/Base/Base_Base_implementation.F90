@@ -3145,7 +3145,7 @@ contains
 
     call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
     _VERIFY(STATUS)
-    _ASSERT(coordSys==ESMF_COORDSYS_SPH_RAD, "Coordsys unit should be in Radiant")
+    _ASSERT(coordSys==ESMF_COORDSYS_SPH_RAD, "Coordsys unit should be in Radians")
 
     dalpha = 2.0d0*alpha/IM_WORLD
 
