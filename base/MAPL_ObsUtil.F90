@@ -250,12 +250,14 @@ contains
 !    print*, 'ck dT0_s, dT1_s, dT2_s', dT0_s, dT1_s, dT2_s
 !    print*, '1st n1, n2', n1, n2
 
-    obsfile_Ts_index = n1
-    if ( dT2_s - n2*dT0_s < 1 ) then
-       obsfile_Te_index = n2 - 1
-    else
-       obsfile_Te_index = n2
-    end if
+    obsfile_Ts_index = n1 - 1   ! downshift by 1
+    obsfile_Te_index = n2
+!    if ( dT2_s - n2*dT0_s < 1 ) then
+!       obsfile_Te_index = n2 - 1
+!    else
+!       obsfile_Te_index = n2
+!    end if
+
 
     ! put back
     n1 = obsfile_Ts_index
@@ -465,7 +467,7 @@ contains
        end do
 
     end if
-    
+
     _RETURN(_SUCCESS)
   end subroutine read_M_files_4_swath
 

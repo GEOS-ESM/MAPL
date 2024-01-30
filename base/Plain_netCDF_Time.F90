@@ -245,14 +245,14 @@ contains
     real(REAL64), intent(inout) :: array(:)
     character(len=*), optional, intent(in) :: att_name
     real(REAL64), optional, intent(out) :: att_value
-    character(len=*), optional, intent(out) :: group_name    
+    character(len=*), optional, intent(out) :: group_name
     integer, optional, intent(out) :: rc
 
     integer :: status, iret
     integer :: ncid, ncid_grp, ncid_sv
-    integer :: varid    
+    integer :: varid
     real(REAL32) :: scale_factor, add_offset
-    
+
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
@@ -272,7 +272,7 @@ contains
     if(present(att_name)) then
        call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
     end if
-    
+
     call check_nc_status(nf90_close(ncid_sv), _RC)
 
     _RETURN(_SUCCESS)
@@ -287,12 +287,12 @@ contains
     character(len=*), intent(in) :: varname
     character(len=*), intent(in) :: att_name
     real(REAL64), intent(out) :: att_value
-    character(len=*), optional, intent(out) :: group_name    
+    character(len=*), optional, intent(out) :: group_name
     integer, optional, intent(out) :: rc
     integer :: status
     integer :: ncid, ncid_grp, ncid_sv
-    integer :: varid    
-    
+    integer :: varid
+
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
@@ -307,7 +307,7 @@ contains
     _RETURN(_SUCCESS)
 
   end subroutine get_att_real_netcdf
-  
+
   subroutine get_att_char_netcdf(filename, varname, att_name, att_value, group_name, rc)
     use netcdf
     implicit none
@@ -315,12 +315,12 @@ contains
     character(len=*), intent(in) :: varname
     character(len=*), intent(in) :: att_name
     character(len=*), intent(out) :: att_value
-    character(len=*), optional, intent(out) :: group_name    
+    character(len=*), optional, intent(out) :: group_name
     integer, optional, intent(out) :: rc
     integer :: status
     integer :: ncid, ncid_grp, ncid_sv
-    integer :: varid    
-    
+    integer :: varid
+
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
@@ -335,7 +335,7 @@ contains
     _RETURN(_SUCCESS)
 
   end subroutine get_att_char_netcdf
-  
+
 
   subroutine check_nc_status(status, rc)
     use netcdf
@@ -441,10 +441,10 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
-    if (trim(s_unit) == 'seconds') then       
+    if (trim(s_unit) == 'seconds') then
        isec=n
     elseif (trim(s_unit) == 'minutes') then
-       isec=n * 60       
+       isec=n * 60
     elseif (trim(s_unit) == 'hours') then
        isec=n * 3600
     else
@@ -464,7 +464,7 @@ contains
   subroutine parse_timeunit_i8(tunit, n, t0, dt, rc)
     use ESMF
     implicit none
-    
+
     character(len=*), intent(in) :: tunit
     integer(ESMF_KIND_I8), intent(in) :: n
     type(ESMF_Time), intent(out) :: t0
@@ -489,10 +489,10 @@ contains
 !    write(6,*) 'y, c1, m, c1, d',  y, c1, m, c1, d
 !    write(6,*) 'hour, c1, min, c1, sec', hour, c1, min, c1, sec
 
-    if (trim(s_unit) == 'seconds') then       
+    if (trim(s_unit) == 'seconds') then
        isec=n
     elseif (trim(s_unit) == 'minutes') then
-       isec=n * 60       
+       isec=n * 60
     elseif (trim(s_unit) == 'hours') then
        isec=n * 3600
     else
@@ -513,28 +513,28 @@ contains
     character(len=*), intent(in) :: tunit2
     real(ESMF_KIND_R8), intent(out) :: x
     integer, intent(out), optional     :: rc
-    
+
     type(ESMF_Time) :: t1_base
     type(ESMF_TimeInterval) :: dt1
     type(ESMF_Time) :: t2_base
     type(ESMF_TimeInterval) :: dt2
     type(ESMF_TimeInterval) :: deltaT_base
     integer(ESMF_KIND_I8) :: n1
-    integer(ESMF_KIND_I8) :: n2    
+    integer(ESMF_KIND_I8) :: n2
     character(len=20) :: s_unit
     integer :: i, status, sec
 
     n1=0; n2=0
     call parse_timeunit (tunit1, n1, t1_base, dt1, _RC)
-    call parse_timeunit (tunit2, n2, t2_base, dt2, _RC)    
+    call parse_timeunit (tunit2, n2, t2_base, dt2, _RC)
     deltaT_base = t2_base - t1_base
 
     i=index(trim(tunit1), 'since')
     s_unit=trim(tunit1(1:i-1))
 
     !!    call ESMF_TimeIntervalGet(deltaT_base, s_r8=x, _RC)
-    call ESMF_TimeIntervalGet(deltaT_base, s=sec, _RC)    
-    if (trim(s_unit) == 'seconds') then       
+    call ESMF_TimeIntervalGet(deltaT_base, s=sec, _RC)
+    if (trim(s_unit) == 'seconds') then
        x = sec
        ! pass
     elseif (trim(s_unit) == 'minutes') then
@@ -550,12 +550,12 @@ contains
     !!write(6,*) 'del sec', sec
     !!write(6,*) 'del x',  x
 
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine diff_two_timeunits
 
 
-  
+
 
   subroutine ESMF_time_to_two_integer(time, itime, rc)
     type(ESMF_Time), intent(in) ::   time

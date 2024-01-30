@@ -492,7 +492,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
-         real(kind=REAL64)              :: t_shift         
+         real(kind=REAL64)              :: t_shift
          integer,           allocatable :: obstype_id_full(:)
 
          real(ESMF_KIND_R8), pointer :: ptAT(:)
@@ -621,7 +621,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end if
 
-         
+
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
          if (nx_sum == 0) then
@@ -1032,7 +1032,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               rc=0
               return
            endif
-           
+
            call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
            call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
            timeset(1) = current_time - dur
