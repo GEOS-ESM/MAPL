@@ -778,7 +778,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
          this%nobs_epoch_sum = nx_sum
-         call lgr%debug('%a %i5', 'nobservation points=', nx_sum)
+         call lgr%debug('%a %i20', 'nobservation points=', nx_sum)
 
          
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
