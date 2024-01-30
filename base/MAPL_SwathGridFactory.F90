@@ -480,9 +480,6 @@ contains
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
 
-      write(6,'(2x,a,100i10)') 'nail 2, nx,ny,im,jm,lm',&
-           this%nx,this%ny,this%im_world,this%jm_world,this%lm
-
       call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
 
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
@@ -499,20 +496,6 @@ contains
            label= prefix// 'obs_file_begin:', _RC)
       _ASSERT (trim(STR1)/='', 'obs_file_begin missing, critical for data with 5 min interval!')
       call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
-      !!disable using currTime as obsfile_start_time
-      !!if (trim(STR1)=='') then
-      !!   this%obsfile_start_time = currTime
-      !!   call ESMF_TimeGet(currTime, timestring=STR1, _RC)
-      !!   if (mapl_am_I_root()) then
-      !!      write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
-      !!   endif
-      !!else
-      !!   call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
-      !!   if (mapl_am_I_root()) then
-      !!      write(6,105) 'obs_file_begin provided: ', trim(STR1)
-      !!   end if
-      !!end if
-
 
       if (mapl_am_I_root()) then
          write(6,105) 'obs_file_begin provided: ', trim(STR1)
