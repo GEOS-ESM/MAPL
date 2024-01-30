@@ -5516,13 +5516,14 @@ ENDDO PARSER
           allocate (str_piece(mxseg))
           i = index(line2, ':')
           line = adjustl ( line2(i+1:) )
-          write(6,*) 'line for obsplatforms=', trim(line)
           call split_string_by_space (line, length_mx, mxseg, &
                nplatform, str_piece, status)
 
+          !! to do: add debug
+          !!write(6,*) 'line for obsplatforms=', trim(line)
+          !!write(6,*) 'split string,  nplatform=', nplatform
+          !!write(6,*) 'nplf=', nplf
 
-          write(6,*) 'split string,  nplatform=', nplatform
-          write(6,*) 'nplf=', nplf
           !!write(6,*) 'str_piece=', str_piece(1:nplatform)
           !!do j=1, nplf
           !!   write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
@@ -5577,8 +5578,8 @@ ENDDO PARSER
           write(unitw,'(a,/)') '::'
           write(unitw,'(a)') trim(string)//'obs_files:     # table start from next line'
 
-
-          write(6,*) 'nplatform', nplatform
+          !! TODO: add debug
+          !! write(6,*) 'nplatform', nplatform
           do i2=1, nplatform
              k=map(i2)
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))

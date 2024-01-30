@@ -612,7 +612,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         call diff_two_timeunits (this%datetime_units, timeunits_file, t_shift, _RC)
                         times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + t_shift
                         obstype_id_full(len+1:len+num_times) = k
-                        write(6,'(f20.2)')  times_R8_full(len+1:len+num_times:50)
                         len = len + num_times
                      end if
                      j=j+1
@@ -641,8 +640,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
             call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=this%obsTime)
             this%obsTime= -1.d0
-
-            call lgr%debug('%a %i5', 'nobservation points=', nx_sum)
             rc = 0
             return
          end if
@@ -781,8 +778,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
          this%nobs_epoch_sum = nx_sum
-         if (mapl_am_I_root()) write(6,'(2x,a,2x,i15)') 'nobs in Epoch    :', nx_sum
+         call lgr%debug('%a %i5', 'nobservation points=', nx_sum)
 
+         
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
