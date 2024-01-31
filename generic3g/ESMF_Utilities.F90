@@ -15,6 +15,7 @@ module mapl3g_ESMF_Utilities
 
    interface write(formatted)
       procedure write_state
+      procedure write_hconfig
    end interface write(formatted)
 
 contains
@@ -188,5 +189,162 @@ contains
 
       _RETURN(_SUCCESS)
    end function to_esmf_state_intent
+
+   subroutine write_hconfig(hconfig, unit, iotype, v_list, iostat, iomsg)
+      type(ESMF_Hconfig), intent(in) :: hconfig
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+
+      call write_hconfig_recursive(hconfig, unit, iotype, v_list, iostat, iomsg)
+      
+   end subroutine write_hconfig
+
+   recursive subroutine write_hconfig_recursive(hconfig, unit, iotype, v_list, iostat, iomsg)
+      type(ESMF_Hconfig), intent(in) :: hconfig
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      integer :: status
+      logical :: is_mapping, is_sequence, is_scalar
+
+      iostat = 0 ! unless
+
+      is_mapping = ESMF_HConfigIsMap(hconfig, rc=status)
+      if (status /= 0) then
+         iostat = 1
+         return
+      end if
+
+     if (is_mapping) then
+        call write_mapping(hconfig, unit, iotype, v_list, iostat, iomsg)
+         return
+      end if
+
+      is_sequence = ESMF_HConfigIsSequence(hconfig, rc=status)
+      if (status /= 0) then
+         iostat = 1
+         return
+      end if
+
+      if (is_sequence) then
+         call write_sequence(hconfig, unit, iotype, v_list, iostat, iomsg)
+         return
+      end if
+
+      is_scalar = ESMF_HConfigIsScalar(hconfig, rc=status)
+      if (status /= 0) then
+         iostat = 1
+         return
+      end if
+
+      if (is_scalar) then
+         call write_scalar(hconfig, unit, iotype, v_list, iostat, iomsg)
+         return
+      end if
+
+      iostat = 0 ! Illegal node type
+   end subroutine write_hconfig_recursive
+
+   recursive subroutine write_mapping(hconfig, unit, iotype, v_list, iostat, iomsg)
+      type(ESMF_Hconfig), intent(in) :: hconfig
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      integer :: status
+      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
+      type(ESMF_HConfig) :: val_hconfig
+      character(:), allocatable :: key
+      logical :: first
+
+      iostat = 0 ! unless
+
+      write(unit, '("{")')
+         iter_begin = ESMF_HConfigIterBegin(hconfig, rc=status)
+         iter_end = ESMF_HConfigIterEnd(hconfig, rc=status)
+         iter = iter_begin
+
+         first = .true.
+         do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+            if (status /= 0) then
+               iostat = 1
+               return
+            end if
+
+            key = ESMF_HConfigAsStringMapKey(iter, rc=status)
+            
+            if (.not. first) then
+               write(unit, '(", ")', advance='no')
+            end if
+            first =.false.
+            write(unit, '(a,a)') key, ': '
+               val_hconfig = ESMF_HConfigCreateAtMapVal(iter, rc=status)
+            call write_hconfig_recursive(val_hconfig, unit, iotype, v_list, iostat, iomsg)
+         end do
+         write(unit, '("}")')
+      end subroutine write_mapping
+
+   recursive subroutine write_sequence(hconfig, unit, iotype, v_list, iostat, iomsg)
+      type(ESMF_Hconfig), intent(in) :: hconfig
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      integer :: status
+      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
+      type(ESMF_HConfig) :: val_hconfig
+      logical :: first
+
+      iostat = 0 ! unless
+     write(unit, '("[")')
+         iter_begin = ESMF_HConfigIterBegin(hconfig, rc=status)
+         iter_end = ESMF_HConfigIterEnd(hconfig, rc=status)
+         iter = iter_begin
+         first = .true.
+         do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+            if (status /= 0) then
+               iostat = 1
+               return
+            end if
+
+            if (.not. first) then
+               write(unit, '(", ")', advance='no')
+            end if
+            first =.false.
+            val_hconfig = ESMF_HConfigCreateAt(iter, rc=status)
+            call write_hconfig_recursive(val_hconfig, unit, iotype, v_list, iostat, iomsg)
+         end do
+         write(unit, '("]")')
+      end subroutine write_sequence
+
+   recursive subroutine write_scalar(hconfig, unit, iotype, v_list, iostat, iomsg)
+      type(ESMF_Hconfig), intent(in) :: hconfig
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      integer :: status
+      character(:), allocatable :: str
+   
+      iostat = 0 ! unless
+
+      str = ESMF_HConfigAsString(hconfig, rc=status)
+      write(unit, '(a)', iostat=iostat, iomsg=iomsg)  str
+            
+   end subroutine write_scalar
+
 
 end module mapl3g_ESMF_Utilities

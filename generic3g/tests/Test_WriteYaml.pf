@@ -1,0 +1,102 @@
+#include "MAPL_TestErr.h"
+module Test_WriteYaml
+   use funit
+   use mapl3g_ESMF_Utilities
+   use esmf
+   implicit none
+
+contains
+
+   @test
+   subroutine test_write_scalar()
+      type(ESMF_HConfig) :: hconfig
+      character(10) :: buffer
+      integer :: status
+      character(:), allocatable :: content
+
+      content = 'a'
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected=content, found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+
+      content = 'aBc'
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected=content, found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+
+      content = '3.14'
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected=content, found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+
+   end subroutine test_write_scalar
+
+   @test
+   subroutine test_write_sequence()
+      type(ESMF_HConfig) :: hconfig
+      character(100) :: buffer
+      integer :: status
+      character(:), allocatable :: content
+
+      content = '[]'
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected=content, found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+      
+      content = '[1, a, 3.14]'
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected=content, found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+
+   end subroutine test_write_sequence
+
+   @test
+   subroutine test_write_mapping()
+      type(ESMF_HConfig) :: hconfig
+      character(100) :: buffer
+      integer :: status
+      
+      hconfig = ESMF_HConfigCreate(content='{}', _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected='{}', found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+      
+      hconfig = ESMF_HConfigCreate(content='{a: b}', _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected='{a: b}', found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+
+      hconfig = ESMF_HConfigCreate(content='{a: b, c: 1, d: 3.14, e: true}', _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected='{a: b, c: 1, d: 3.14, e: true}', found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+
+   end subroutine test_write_mapping
+
+   @test
+   subroutine test_write_kitchen_sink()
+      type(ESMF_HConfig) :: hconfig
+      character(100) :: buffer
+      integer :: status
+      character(*), parameter :: CONTENT = '{a: [{b: 1, c: 2, d: [3, 4, a]}]}'
+      hconfig = ESMF_HConfigCreate(content=CONTENT, _RC)
+      write(buffer, *, iostat=status) hconfig
+      _VERIFY(status)
+      @assertEqual(expected=CONTENT, found=trim(buffer))
+      call ESMF_HConfigDestroy(hconfig)
+   end subroutine test_write_kitchen_sink
+
+end module Test_WriteYaml
