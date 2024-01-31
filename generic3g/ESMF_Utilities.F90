@@ -10,6 +10,7 @@ module mapl3g_ESMF_Utilities
    public :: get_substate
    public :: to_esmf_state_intent
    public :: MAPL_TYPEKIND_MIRROR
+   public :: MAPL_HConfigMatch
 
    type(ESMF_TypeKind_Flag), parameter :: MAPL_TYPEKIND_MIRROR = ESMF_TypeKind_Flag(200)
 
@@ -211,38 +212,28 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      integer :: status
       logical :: is_mapping, is_sequence, is_scalar
 
       iostat = 0 ! unless
 
-      is_mapping = ESMF_HConfigIsMap(hconfig, rc=status)
-      if (status /= 0) then
-         iostat = 1
+      is_mapping = ESMF_HConfigIsMap(hconfig, rc=iostat)
+      if (iostat /= 0) return
+
+      if (is_mapping) then
+         call write_mapping(hconfig, unit, iotype, v_list, iostat, iomsg)
          return
       end if
 
-     if (is_mapping) then
-        call write_mapping(hconfig, unit, iotype, v_list, iostat, iomsg)
-         return
-      end if
-
-      is_sequence = ESMF_HConfigIsSequence(hconfig, rc=status)
-      if (status /= 0) then
-         iostat = 1
-         return
-      end if
+      is_sequence = ESMF_HConfigIsSequence(hconfig, rc=iostat)
+      if (iostat /= 0) return
 
       if (is_sequence) then
          call write_sequence(hconfig, unit, iotype, v_list, iostat, iomsg)
          return
       end if
 
-      is_scalar = ESMF_HConfigIsScalar(hconfig, rc=status)
-      if (status /= 0) then
-         iostat = 1
-         return
-      end if
+      is_scalar = ESMF_HConfigIsScalar(hconfig, rc=iostat)
+      if (iostat /= 0) return
 
       if (is_scalar) then
          call write_scalar(hconfig, unit, iotype, v_list, iostat, iomsg)
@@ -260,7 +251,6 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      integer :: status
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: val_hconfig
       character(:), allocatable :: key
@@ -268,29 +258,42 @@ contains
 
       iostat = 0 ! unless
 
-      write(unit, '("{")')
-         iter_begin = ESMF_HConfigIterBegin(hconfig, rc=status)
-         iter_end = ESMF_HConfigIterEnd(hconfig, rc=status)
-         iter = iter_begin
-
-         first = .true.
-         do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-            if (status /= 0) then
-               iostat = 1
-               return
-            end if
-
-            key = ESMF_HConfigAsStringMapKey(iter, rc=status)
-            
-            if (.not. first) then
-               write(unit, '(", ")', advance='no')
-            end if
-            first =.false.
-            write(unit, '(a,a)') key, ': '
-               val_hconfig = ESMF_HConfigCreateAtMapVal(iter, rc=status)
-            call write_hconfig_recursive(val_hconfig, unit, iotype, v_list, iostat, iomsg)
-         end do
-         write(unit, '("}")')
+      write(unit, '("{")', iostat=iostat, iomsg=iomsg)
+      if (iostat /= 0) return
+      iter_begin = ESMF_HConfigIterBegin(hconfig, rc=iostat)
+      if (iostat /= 0) return
+      iter_end = ESMF_HConfigIterEnd(hconfig, rc=iostat)
+      if (iostat /= 0) return
+      iter = iter_begin
+      
+      first = .true.
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=iostat))
+         if (iostat /= 0) return
+         
+         key = ESMF_HConfigAsStringMapKey(iter, rc=iostat)
+         if (iostat /= 0) return
+         
+         if (.not. first) then
+            write(unit, '(", ")', iostat=iostat, iomsg=iomsg)
+            if (iostat /= 0) return
+         end if
+         first =.false.
+         write(unit, '(a,a)', iostat=iostat, iomsg=iomsg) key, ': '
+         if (iostat /= 0) return
+         
+         val_hconfig = ESMF_HConfigCreateAtMapVal(iter, rc=iostat)
+         if (iostat /= 0) return
+         
+         call write_hconfig_recursive(val_hconfig, unit, iotype, v_list, iostat, iomsg)
+         if (iostat /= 0) return
+         
+         call ESMF_HConfigDestroy(val_hconfig, rc=iostat)
+         if (iostat /= 0) return
+         
+      end do
+      write(unit, '("}")', iostat=iostat, iomsg=iomsg)
+      if (iostat /= 0) return
+      
       end subroutine write_mapping
 
    recursive subroutine write_sequence(hconfig, unit, iotype, v_list, iostat, iomsg)
@@ -301,33 +304,42 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      integer :: status
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: val_hconfig
       logical :: first
 
       iostat = 0 ! unless
-     write(unit, '("[")')
-         iter_begin = ESMF_HConfigIterBegin(hconfig, rc=status)
-         iter_end = ESMF_HConfigIterEnd(hconfig, rc=status)
-         iter = iter_begin
-         first = .true.
-         do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-            if (status /= 0) then
-               iostat = 1
-               return
-            end if
+      write(unit, '("[")', iostat=iostat, iomsg=iomsg)
 
-            if (.not. first) then
-               write(unit, '(", ")', advance='no')
-            end if
-            first =.false.
-            val_hconfig = ESMF_HConfigCreateAt(iter, rc=status)
-            call write_hconfig_recursive(val_hconfig, unit, iotype, v_list, iostat, iomsg)
-         end do
-         write(unit, '("]")')
-      end subroutine write_sequence
+      iter_begin = ESMF_HConfigIterBegin(hconfig, rc=iostat)
+      if (iostat /= 0) return
+      iter_end = ESMF_HConfigIterEnd(hconfig, rc=iostat)
+      if (iostat /= 0) return
+      iter = iter_begin
+      first = .true.
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=iostat))
+         if (iostat /= 0) return
+         
+         if (.not. first) then
+            write(unit, '(", ")', iostat=iostat, iomsg=iomsg)
+            if (iostat /= 0) return
+         end if
+         first =.false.
+         
+         val_hconfig = ESMF_HConfigCreateAt(iter, rc=iostat)
+         if (iostat /= 0) return
+         call write_hconfig_recursive(val_hconfig, unit, iotype, v_list, iostat, iomsg)
+         if (iostat /= 0) return
+         call ESMF_HConfigDestroy(val_hconfig, rc=iostat)
+         if (iostat /= 0) return
+         
+      end do
 
+      write(unit, '("]")', iostat=iostat, iomsg=iomsg)
+      if (iostat /= 0) return
+      
+   end subroutine write_sequence
+   
    recursive subroutine write_scalar(hconfig, unit, iotype, v_list, iostat, iomsg)
       type(ESMF_Hconfig), intent(in) :: hconfig
       integer, intent(in) :: unit
@@ -336,15 +348,184 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      integer :: status
       character(:), allocatable :: str
    
       iostat = 0 ! unless
 
-      str = ESMF_HConfigAsString(hconfig, rc=status)
+      str = ESMF_HConfigAsString(hconfig, rc=iostat)
+      if (iostat /= 0) return
       write(unit, '(a)', iostat=iostat, iomsg=iomsg)  str
+      if (iostat /= 0) return
             
    end subroutine write_scalar
+
+
+   recursive logical function MAPL_HConfigMatch(a, b, rc) result(match)
+      type(ESMF_HConfig), intent(in) :: a, b
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: a_type, b_type
+
+      match = .false. ! unless
+
+      a_type = get_hconfig_type(a, _RC)
+      b_type = get_hconfig_type(b, _RC)
+
+      if (a_type /= b_type) then
+         _RETURN(_SUCCESS)
+      end if
+
+      if (a_type == 'MAPPING') then
+         match = MAPL_HConfigMatchMapping(a, b, rc)
+      else if (a_type == 'SEQUENCE') then
+         match = MAPL_HConfigMatchSequence(a, b, rc)
+      else if (a_type == 'SCALAR') then
+         match = MAPL_HConfigMatchScalar(a, b, rc)
+      else
+         _FAIL('unsupported HConfig type.')
+      end if
+      
+      match = .true. 
+
+      _RETURN(_SUCCESS)
+   end function MAPL_HConfigMatch
+
+   function get_hconfig_type(hconfig, rc) result(hconfig_type)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: hconfig_type
+      logical :: is_scalar
+      logical :: is_sequence
+      logical :: is_mapping
+
+      is_scalar = ESMF_HConfigIsScalar(hconfig, _RC)
+      if (is_scalar) then
+         hconfig_type = 'SCALAR'
+         _RETURN(_SUCCESS)
+      end if
+      
+      is_sequence = ESMF_HConfigIsSequence(hconfig, _RC)
+      if (is_scalar) then
+         hconfig_type = 'SEQUENCE'
+         _RETURN(_SUCCESS)
+      end if
+
+      is_mapping = ESMF_HConfigIsMap(hconfig, _RC)
+      if (is_scalar) then
+         hconfig_type = 'MAPPING'
+         _RETURN(_SUCCESS)
+      end if
+
+      hconfig_type = 'UNKNOWN'
+      _FAIL('unsupported HConfig type.')
+
+      _RETURN(_SUCCESS)
+   end function get_hconfig_type
+
+   recursive logical function MAPL_HConfigMatchScalar(a, b, rc) result(match)
+      type(ESMF_HConfig), intent(in) :: a, b
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: a_str, b_str
+
+      match = .false. ! unless
+
+      a_str = ESMF_HConfigAsString(a, _RC)
+      b_str = ESMF_HConfigAsString(b, _RC)
+
+      match = (a_str == b_str)
+
+      _RETURN(_SUCCESS)
+   end function MAPL_HConfigMatchScalar
+
+
+   recursive logical function MAPL_HConfigMatchSequence(a, b, rc) result(match)
+      type(ESMF_HConfig), intent(in) :: a, b
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: a_val_hconfig, b_val_hconfig
+      integer :: i
+      integer :: a_size, b_size
+
+      match = .false. ! unless
+
+      a_size = ESMF_HConfigGetSize(a, _RC)
+      b_size = ESMF_HConfigGetSize(b, _RC)
+
+      if (a_size /= b_size) then
+         _RETURN(_SUCCESS)
+      end if
+
+      do i = 1, a_size
+
+         a_val_hconfig = ESMF_HConfigCreateAt(a, index=i, _RC)
+         b_val_hconfig = ESMF_HConfigCreateAt(b, index=i, _RC)
+
+         match = MAPL_HConfigMatch(a_val_hconfig, b_val_hconfig, _RC)
+
+         call ESMF_HConfigDestroy(a_val_hconfig, _RC)
+         call ESMF_HConfigDestroy(b_val_hconfig, _RC)
+
+         if (.not. match) then
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      match = .true.
+
+      _RETURN(_SUCCESS)
+   end function MAPL_HConfigMatchSequence
+
+   recursive logical function MAPL_HConfigMatchMapping(a, b, rc) result(match)
+      type(ESMF_HConfig), intent(in) :: a, b
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: a_val_hconfig, b_val_hconfig
+      character(:), allocatable :: key
+      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
+      integer :: a_size, b_size
+
+      match = .false. ! unless
+
+      a_size = ESMF_HConfigGetSize(a, _RC)
+      b_size = ESMF_HConfigGetSize(b, _RC)
+
+      if (a_size /= b_size) then
+         _RETURN(_SUCCESS)
+      end if
+
+      iter_begin = ESMF_HConfigIterBegin(a, _RC)
+      iter_end = ESMF_HConfigIterEnd(a, _RC)
+      iter = iter_begin
+
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+         _VERIFY(status)
+
+         key = ESMF_HConfigAsStringMapKey(iter, _RC)
+         
+         a_val_hconfig = ESMF_HConfigCreateAt(a, keyString=key, _RC)
+         b_val_hconfig = ESMF_HConfigCreateAt(b, keyString=key, _RC)
+
+         match = MAPL_HConfigMatch(a_val_hconfig, b_val_hconfig, _RC)
+
+         call ESMF_HConfigDestroy(a_val_hconfig, _RC)
+         call ESMF_HConfigDestroy(b_val_hconfig, _RC)
+
+         if (.not. match) then
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      match = .true.
+
+      _RETURN(_SUCCESS)
+   end function MAPL_HConfigMatchMapping
 
 
 end module mapl3g_ESMF_Utilities
