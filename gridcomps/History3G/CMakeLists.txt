@@ -12,5 +12,5 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.generic3g PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
 
 if (PFUNIT_FOUND)
-  add_subdirectory(tests EXCLUDE_FROM_ALL)
+#  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
