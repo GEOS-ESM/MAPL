@@ -35,6 +35,7 @@ module MAPL_ObsUtilMod
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
+     integer,           allocatable :: location_index_ioda(:)     
      real(kind=REAL32), allocatable :: p2d(:)
      real(kind=REAL32), allocatable :: p3d(:,:)
   end type obs_unit
@@ -56,6 +57,11 @@ module MAPL_ObsUtilMod
      module procedure sort_three_arrays_by_time
      module procedure sort_four_arrays_by_time
   end interface sort_multi_arrays_by_time
+
+  interface apply_order_index
+     module procedure apply_order_index_R8
+     module procedure apply_order_index_I4     
+  end interface apply_order_index
 
 contains
 
@@ -666,6 +672,68 @@ contains
     _RETURN(_SUCCESS)
   end subroutine sort_four_arrays_by_time
 
+
+  subroutine sort_index (X, IA, rc)
+    use MAPL_SortMod
+    real(ESMF_KIND_R8), intent(in) :: X(:)
+    integer, intent(out) :: IA(:)            ! index
+    integer, optional, intent(out) :: rc
+    
+    integer :: i, len
+    integer(ESMF_KIND_I8), allocatable :: IX(:)
+
+    _ASSERT (size(X)==size(IA), 'X and IA (its index) differ in dimension')
+    len = size (X)
+    allocate (IX(len))
+    do i=1, len
+       IX(i)=X(i)
+       IA(i)=i
+    enddo
+    call MAPL_Sort(IX,IA)
+    _RETURN(_SUCCESS)
+    
+  end subroutine sort_index
+
+
+  subroutine apply_order_index_R8 (X, IA, rc)
+    use MAPL_SortMod
+    real(ESMF_KIND_R8), intent(inout) :: X(:)
+    integer, intent(in) :: IA(:)            ! index
+    integer, optional, intent(out) :: rc
+
+    integer :: i, len
+    real(ESMF_KIND_R8), allocatable :: XX(:)
+
+    _ASSERT (size(X)==size(IA), 'X and IA (its index) differ in dimension')
+    len = size (X)
+    allocate (XX(len))
+    XX(:) = X(:)
+    do i=1, len
+       X(i) = XX(IA(i))
+    enddo
+    _RETURN(_SUCCESS)
+
+  end subroutine apply_order_index_R8
+
+  subroutine apply_order_index_I4 (X, IA, rc)
+    use MAPL_SortMod
+    integer, intent(inout) :: X(:)
+    integer, intent(in) :: IA(:)            ! index
+    integer, optional, intent(out) :: rc
+
+    integer :: i, len
+    integer, allocatable :: XX(:)
+
+    _ASSERT (size(X)==size(IA), 'X and IA (its index) differ in dimension')
+    len = size (X)
+    allocate (XX(len))
+    XX(:) = X(:)
+    do i=1, len
+       X(i) = XX(IA(i))
+    enddo
+    _RETURN(_SUCCESS)
+
+  end subroutine apply_order_index_I4
 
   function copy_platform_nckeys(a, rc)
     type(obs_platform) :: copy_platform_nckeys

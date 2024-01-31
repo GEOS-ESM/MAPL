@@ -396,11 +396,11 @@ contains
     call parse_timeunit(tunit, n, time0, dt, _RC)
     dt = time - time0
 
-    ! test
+    !! test
     !!write(6, '(2x,a,2x,a)') 'tunit=', trim(tunit)
-    call ESMF_TimeGet(time, timestring=STR1, _RC)
+    !!call ESMF_TimeGet(time, timestring=STR1, _RC)
     !!write(6, '(2x,a,2x,a)') 'time=', trim(STR1)
-    call ESMF_TimeGet(time0, timestring=STR1, _RC)
+    !!call ESMF_TimeGet(time0, timestring=STR1, _RC)
     !!write(6, '(2x,a,2x,a)') 'time0=', trim(STR1)
 
     ! assume unit is second
@@ -432,7 +432,6 @@ contains
     character(len=1) :: c1
     integer :: y,m,d,hour,min,sec
     integer :: isec
-    type(ESMF_Calendar) :: gregorianCalendar
 
     i=index(trim(tunit), 'since')
     s_time=trim(tunit(i+5:))
@@ -451,9 +450,7 @@ contains
        _FAIL ('time_unit not implemented')
     end if
 
-    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', _RC)
-    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,&
-         calendar=gregorianCalendar, _RC)
+    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,_RC)
     call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s=isec, _RC)
 
    _RETURN(_SUCCESS)
@@ -477,7 +474,6 @@ contains
     character(len=1) :: c1
     integer :: y,m,d,hour,min,sec
     integer(ESMF_KIND_I8) :: isec
-    type(ESMF_Calendar) :: gregorianCalendar
 
     i=index(trim(tunit), 'since')
     s_time=trim(tunit(i+5:))
@@ -499,9 +495,7 @@ contains
        _FAIL ('time_unit not implemented')
     end if
 
-    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', _RC)
-    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,&
-         calendar=gregorianCalendar, _RC)
+    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec, _RC)
     call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s_i8=isec, _RC)
 
     _RETURN(_SUCCESS)
@@ -549,7 +543,6 @@ contains
     !!write(6,*) 'tunit2=', tunit2
     !!write(6,*) 'del sec', sec
     !!write(6,*) 'del x',  x
-
 
     _RETURN(ESMF_SUCCESS)
   end subroutine diff_two_timeunits

@@ -270,6 +270,7 @@ contains
 
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
+!! test code
 !    v = Variable(type=pFIO_STRING, dimensions='station_index')
 !    call v%add_attribute('long_name','station name')
 !    call this%fmd%add_variable('station_name',v)
@@ -424,8 +425,9 @@ contains
     call this%formatter%put_var('longitude',this%lons,_RC)
     call this%formatter%put_var('latitude',this%lats,_RC)
     call this%formatter%put_var('station_id',this%station_id,_RC)
-    !!   call this%formatter%put_var('station_name',(trim(this%station_name(j)), j=1,this%nstation),_RC)
-!!    call this%formatter%put_var('station_name',this%station_name,_RC)
+!! test code
+!    !!call this%formatter%put_var('station_name',(trim(this%station_name(j)), j=1,this%nstation),_RC)
+!    call this%formatter%put_var('station_name',this%station_name,_RC)
 
     _RETURN(_SUCCESS)
   end subroutine create_file_handle

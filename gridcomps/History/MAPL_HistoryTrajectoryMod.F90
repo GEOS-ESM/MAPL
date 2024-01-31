@@ -24,6 +24,7 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      integer,           allocatable :: obstype_id(:)
+     integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file     
 
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
@@ -56,6 +57,7 @@ module HistoryTrajectoryMod
      character(len=ESMF_MAXSTR)     :: var_name_lat_full
      character(len=ESMF_MAXSTR)     :: var_name_lon_full
      character(len=ESMF_MAXSTR)     :: datetime_units
+     character(len=ESMF_MAXSTR)     :: Location_index_name
      integer                        :: epoch        ! unit: second
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
