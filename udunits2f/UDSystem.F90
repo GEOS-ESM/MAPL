@@ -1,15 +1,13 @@
-#include "MAPL_Generic.h"
-module mapl_udunits2mod
+#include "error_handling.h"
 
+module ud2f_UDSystem
+   use ud2f_CptrWrapper
+   use ud2f_interfaces
+   use ud2f_encoding
+   use ud2f_status_codes
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
-   use mapl_udunits2interfaces
-   use mapl_udunits2encoding
-   use mapl_udunits2status
-   use MAPL_ExceptionHandling
-
    implicit none
-
    private
 
    public :: Converter
@@ -24,41 +22,37 @@ module mapl_udunits2mod
    public :: read_xml
    public :: ut_free_system
 
-!================================ CPTRWRAPPER ==================================
-! Base class to wrap type(c_ptr) instances used for udunits2 objects that cannot 
-! interface directly to fortran. Each extended class must provide a subroutine
-! to free the memory associated with cptr_
-   type, abstract :: CptrWrapper
-      private
-      type(c_ptr) :: cptr_ = c_null_ptr
-   contains
-      procedure, public, pass(this) :: cptr
-      procedure, public, pass(this) :: is_free
-      procedure, public, pass(this) :: free
-      procedure(CptrWrapperSub), private, deferred, pass(this) :: free_memory
-   end type CptrWrapper
-
-   abstract interface
-
-      subroutine CptrWrapperSub(this)
-         import :: CptrWrapper
-         class(CptrWrapper), intent(in) :: this
-      end subroutine CptrWrapperSub
-
-   end interface
-
 !================================= CONVERTER ===================================
 ! Converter object to hold convert functions for an (order) pair of units
    type, extends(CptrWrapper) :: Converter
       private
    contains
-      procedure, public, pass(this) :: free_memory => free_cv_converter
-      procedure, private, pass(this) :: convert_double
-      procedure, private, pass(this) :: convert_float
-      procedure, private, pass(this) :: convert_doubles
-      procedure, private, pass(this) :: convert_floats
-      generic :: convert => convert_double, convert_float
-      generic :: convert_array => convert_doubles, convert_floats
+      procedure :: free_memory => free_cv_converter
+      procedure, private :: convert_float_0d
+      procedure, private :: convert_float_1d
+      procedure, private :: convert_float_2d
+      procedure, private :: convert_float_3d
+      procedure, private :: convert_float_4d
+      procedure, private :: convert_float_5d
+      procedure, private :: convert_double_0d
+      procedure, private :: convert_double_1d
+      procedure, private :: convert_double_2d
+      procedure, private :: convert_double_3d
+      procedure, private :: convert_double_4d
+      procedure, private :: convert_double_5d
+
+      generic :: convert => convert_float_0d
+      generic :: convert => convert_float_1d
+      generic :: convert => convert_float_2d
+      generic :: convert => convert_float_3d
+      generic :: convert => convert_float_4d
+      generic :: convert => convert_float_5d
+      generic :: convert => convert_double_0d
+      generic :: convert => convert_double_1d
+      generic :: convert => convert_double_2d
+      generic :: convert => convert_double_3d
+      generic :: convert => convert_double_4d
+      generic :: convert => convert_double_5d
    end type Converter
 
    interface Converter
@@ -89,6 +83,11 @@ module mapl_udunits2mod
       module procedure :: construct_unit
    end interface UDUnit
 
+   interface are_convertible
+      procedure :: are_convertible_udunit
+      procedure :: are_convertible_str
+   end interface are_convertible
+
 !============================= INSTANCE VARIABLES ==============================
 ! Single instance of units system. There is one system in use, only.
    type(UDSystem), private :: SYSTEM_INSTANCE
@@ -103,30 +102,6 @@ contains
 
    end function success
 
-   type(c_ptr) function cptr(this)
-      class(CptrWrapper), intent(in) :: this
-
-      cptr = this % cptr_
-
-   end function cptr
-
-   logical function is_free(this)
-      class(CptrWrapper), intent(in) :: this
-
-      is_free = .not. c_associated(this % cptr_)
-
-   end function is_free
-
-   ! Free up memory pointed to by cptr_ and set cptr_ to c_null_ptr
-   subroutine free(this)
-      class(CptrWrapper), intent(inout) :: this
-
-      if(this % is_free()) return
-      call this % free_memory()
-      this % cptr_ = c_null_ptr
-
-   end subroutine free
-
    function construct_system(path, encoding) result(instance)
       type(UDsystem) :: instance
       character(len=*), optional, intent(in) :: path
@@ -138,8 +113,8 @@ contains
       call read_xml(path, utsystem, status)
       
       if(success(status)) then
-         instance % cptr_ = utsystem
-         if(present(encoding)) instance % encoding = encoding
+         call instance%set_cptr(utsystem)
+         if(present(encoding)) instance%encoding = encoding
          return
       end if
          
@@ -158,10 +133,10 @@ contains
       if(instance_is_uninitialized()) return
 
       cchar_identifier = cstring(identifier)
-      utunit1 = ut_parse(SYSTEM_INSTANCE % cptr(), cchar_identifier, SYSTEM_INSTANCE % encoding)
+      utunit1 = ut_parse(SYSTEM_INSTANCE%get_cptr(), cchar_identifier, SYSTEM_INSTANCE%encoding)
 
       if(success(ut_get_status())) then
-         instance % cptr_ = utunit1
+         call instance%set_cptr(utunit1)
       else
          ! Free memory in the case of failure
          if(c_associated(utunit1)) call ut_free(utunit1)
@@ -177,13 +152,13 @@ contains
       logical :: convertible
 
       ! Must supply units that are initialized and convertible
-      if(from_unit % is_free() .or. to_unit % is_free()) return
+      if(from_unit%is_free() .or. to_unit%is_free()) return
       if(.not. are_convertible(from_unit, to_unit)) return
 
-      cvconverter1 = ut_get_converter(from_unit % cptr(), to_unit % cptr())
+      cvconverter1 = ut_get_converter(from_unit%get_cptr(), to_unit%get_cptr())
 
       if(success(ut_get_status())) then
-         conv % cptr_ = cvconverter1
+         call conv%set_cptr(cvconverter1)
       else
          ! Free memory in the case of failure
          if(c_associated(cvconverter1)) call cv_free(cvconverter1)
@@ -199,9 +174,9 @@ contains
       integer(ut_status) :: status
 
       conv = get_converter_function(from, to)
-      status = merge(_FAILURE, UT_SUCCESS, conv % is_free())
-      _RETURN(status)
+      _ASSERT(.not. conv%is_free(), UTF_CONVERTER_NOT_INITIALIZED)
 
+      _RETURN(UT_SUCCESS)
    end subroutine get_converter
 
    ! Get converter object
@@ -216,56 +191,104 @@ contains
 
       ! Get units based on strings. Free memory on fail.
       from_unit = UDUnit(from)
-      if(from_unit % is_free()) return
+      if(from_unit%is_free()) return
       to_unit = UDUnit(to)
-      if(to_unit % is_free()) then
-         call from_unit % free()
+      if(to_unit%is_free()) then
+         call from_unit%free()
          return
       end if
 
       conv = Converter(from_unit, to_unit)
 
       ! Units are no longer needed
-      call from_unit % free()
-      call to_unit % free()
+      call from_unit%free()
+      call to_unit%free()
 
    end function get_converter_function
 
-   impure elemental function convert_double(this, from) result(to)
-      class(Converter), intent(in) :: this
-      real(c_double), intent(in) :: from
-      real(c_double) :: to
-
-      to = cv_convert_double(this % cptr(), from)
-
-   end function convert_double
-
-   impure elemental function convert_float(this, from) result(to)
+   function convert_float_0d(this, from) result(to)
       class(Converter), intent(in) :: this
       real(c_float), intent(in) :: from
       real(c_float) :: to
+      to = cv_convert_float(this%get_cptr(), from)
+   end function convert_float_0d
 
-      to = cv_convert_float(this % cptr(), from)
-
-   end function convert_float
-
-   subroutine convert_doubles(this, from, to)
-      class(Converter), intent(in) :: this
-      real(c_double), intent(in) :: from(:)
-      real(c_double), intent(out) :: to(:)
-
-      call cv_convert_doubles(this % cptr(), from, size(from), to)
-
-   end subroutine convert_doubles
-
-   subroutine convert_floats(this, from, to)
+   function convert_float_1d(this, from) result(to)
       class(Converter), intent(in) :: this
       real(c_float), intent(in) :: from(:)
-      real(c_float), intent(out) :: to(:)
+      real(c_float) :: to(size(from))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_1d
 
-      call cv_convert_floats(this % cptr(), from, size(from), to)
+   function convert_float_2d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:,:)
+      real(c_float) :: to(size(from,1), size(from,2))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_2d
 
-   end subroutine convert_floats
+   function convert_float_3d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:,:,:)
+      real(c_float) :: to(size(from,1), size(from,2), size(from,3))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_3d
+
+   function convert_float_4d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:,:,:,:)
+      real(c_float) :: to(size(from,1), size(from,2), size(from,3), size(from,4))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_4d
+
+   function convert_float_5d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_float), intent(in) :: from(:,:,:,:,:)
+      real(c_float) :: to(size(from,1), size(from,2), size(from,3), size(from,4), size(from,5))
+      call cv_convert_floats(this%get_cptr(), from, size(from), to)
+   end function convert_float_5d
+
+   function convert_double_0d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from
+      real(c_double) :: to
+      to = cv_convert_double(this%get_cptr(), from)
+   end function convert_double_0d
+
+   function convert_double_1d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:)
+      real(c_double) :: to(size(from))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_1d
+
+   function convert_double_2d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:,:)
+      real(c_double) :: to(size(from,1), size(from,2))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_2d
+
+   function convert_double_3d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:,:,:)
+      real(c_double) :: to(size(from,1), size(from,2), size(from,3))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_3d
+
+   function convert_double_4d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:,:,:,:)
+      real(c_double) :: to(size(from,1), size(from,2), size(from,3), size(from,4))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_4d
+
+   function convert_double_5d(this, from) result(to)
+      class(Converter), intent(in) :: this
+      real(c_double), intent(in) :: from(:,:,:,:,:)
+      real(c_double) :: to(size(from,1), size(from,2), size(from,3), size(from,4), size(from,5))
+      call cv_convert_doubles(this%get_cptr(), from, size(from), to)
+   end function convert_double_5d
 
    ! Read unit database from XML
    subroutine read_xml(path, utsystem, status)
@@ -293,20 +316,20 @@ contains
       integer :: status
 
       _RETURN_UNLESS(instance_is_uninitialized())
-!#      ! System must be once and only once.
-!#      _ASSERT(instance_is_uninitialized(), 'UDUNITS is already initialized.')
+      ! System must be once and only once.
+      _ASSERT(instance_is_uninitialized(), UTF_DUPLICATE_INITIALIZATION)
 
       ! Disable error messages from udunits2
       call disable_ut_error_message_handler()
 
       call initialize_system(SYSTEM_INSTANCE, path, encoding, rc=status)
-      if(status /= _SUCCESS) then
+      if(status /= UT_SUCCESS) then
          ! On failure, free memory
          call finalize()
-         _FAIL('Failed to initialize UDUNITS')
+         _RETURN(UTF_INITIALIZATION_FAILURE)
       end if
-      _ASSERT(.not. SYSTEM_INSTANCE % is_free(), 'UDUNITS is not initialized.')
-      _RETURN(_SUCCESS)
+      _ASSERT(.not. SYSTEM_INSTANCE%is_free(), UTF_NOT_INITIALIZED)
+      _RETURN(UT_SUCCESS)
 
    end subroutine initialize
 
@@ -319,16 +342,16 @@ contains
       type(c_ptr) :: utsystem
 
       ! A system can be initialized only once.
-      _ASSERT(system % is_free(), 'UDUNITS system is already initialized.')
-      system = UDSystem(path, encoding)
-      _RETURN(_SUCCESS)
+      _ASSERT(system%is_free(), UTF_DUPLICATE_INITIALIZATION)
 
+      system = UDSystem(path, encoding)
+      _RETURN(UT_SUCCESS)
    end subroutine initialize_system
 
    ! Is the instance of the unit system initialized?
    logical function instance_is_uninitialized()
       
-      instance_is_uninitialized = SYSTEM_INSTANCE % is_free()
+      instance_is_uninitialized = SYSTEM_INSTANCE%is_free()
       
    end function instance_is_uninitialized
 
@@ -336,8 +359,8 @@ contains
    subroutine free_ut_system(this)
       class(UDSystem), intent(in) :: this
         
-      if(this % is_free()) return
-      call ut_free_system(this % cptr())
+      if(this%is_free()) return
+      call ut_free_system(this%get_cptr())
 
    end subroutine free_ut_system
 
@@ -345,8 +368,8 @@ contains
    subroutine free_ut_unit(this)
       class(UDUnit), intent(in) :: this
 
-      if(this % is_free()) return
-      call ut_free(this % cptr())
+      if(this%is_free()) return
+      call ut_free(this%get_cptr())
 
    end subroutine free_ut_unit
 
@@ -355,37 +378,49 @@ contains
       class(Converter), intent(in) :: this
       type(c_ptr) :: cvconverter1 
 
-      if(this % is_free()) return
-      call cv_free(this % cptr())
+      if(this%is_free()) return
+      call cv_free(this%get_cptr())
 
    end subroutine free_cv_converter
 
    ! Free memory for unit system instance
    subroutine finalize()
 
-      if(SYSTEM_INSTANCE % is_free()) return
-      call SYSTEM_INSTANCE % free()
+      if(SYSTEM_INSTANCE%is_free()) return
+      call SYSTEM_INSTANCE%free()
 
    end subroutine finalize
 
    ! Check if units are convertible
-   function are_convertible(unit1, unit2, rc) result(convertible)
+   function are_convertible_udunit(unit1, unit2, rc) result(convertible)
       logical :: convertible
       type(UDUnit), intent(in) :: unit1, unit2
       integer, optional, intent(out) :: rc
       integer :: status
-      integer(ut_status) :: utstatus
       integer(c_int), parameter :: ZERO = 0_c_int
       
-      convertible = (ut_are_convertible(unit1 % cptr(), unit2 % cptr())  /= ZERO)
-      utstatus = ut_get_status()
-      
-      convertible = convertible .and. success(utstatus)
-      status = merge(_SUCCESS, utstatus, convertible)
+      convertible = (ut_are_convertible(unit1%get_cptr(), unit2%get_cptr())  /= ZERO)
+      status = ut_get_status()
+      _ASSERT(success(status), status)
 
-      if(present(rc)) rc = status
+      _RETURN(UT_SUCCESS)
+   end function are_convertible_udunit
 
-   end function are_convertible
+   ! Check if units are convertible
+   function are_convertible_str(from, to, rc) result(convertible)
+      logical :: convertible
+      character(*), intent(in) :: from, to
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(UDUnit) :: unit1, unit2
+
+      unit1 = UDUnit(from)
+      unit2 = UDUnit(to)
+      convertible = are_convertible_udunit(unit1, unit2, _RC)
+
+      _RETURN(UT_SUCCESS)
+   end function are_convertible_str
 
    ! Create C string from Fortran string
    function cstring(s) result(cs)
@@ -406,4 +441,4 @@ contains
       if(present(is_set)) is_set = handler_set
    end subroutine disable_ut_error_message_handler
 
-end module mapl_udunits2mod
+end module ud2f_UDSystem

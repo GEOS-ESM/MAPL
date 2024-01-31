@@ -1,8 +1,8 @@
 ! Flags for encodings for unit names and symbols
 ! The values are the same as the udunits2 utEncoding C enum
-module mapl_udunits2encoding
-
+module ud2f_encoding
    implicit none
+   public
 
    enum, bind(c)
       enumerator :: UT_ASCII = 0
@@ -13,4 +13,5 @@ module mapl_udunits2encoding
    end enum
    integer, parameter :: ut_encoding = kind(UT_ENCODING_DEFAULT)
 
-end module mapl_udunits2encoding
+end module ud2f_encoding
+
