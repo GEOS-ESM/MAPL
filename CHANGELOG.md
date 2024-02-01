@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Convert from ABI Fixed Grid to lon/lat coordinates used in MAPL_XYGridFactory (supporting geostationary GOES-R series)
 - Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
 - Modify swath sampler to handle two Epoch swath grids
 - Handle regrid accumulate for time step (1 sec) during which no obs exists
@@ -39,11 +40,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Explictly `use` some `iso_c_binding` types previously pulled in through ESMF. This is fixed in future ESMF versions (8.7+) and so
   we anticipate this here
 - Add explicit `Fortran_MODULE_DIRECTORY` to `CMakeLists.txt` in benchmarks to avoid race condition in Ninja builds
+- Add check to make sure ESMF was not built as `mpiuni`
 - Various fixes for NVHPC work
 
 ### Removed
 
 ### Deprecated
+
+## [2.43.1] - 2024-01-29
+
+### Fixed
+
+- Added 0-size message to o-server root processes (fixes #2557)
 
 ## [2.43.0] - 2023-12-21
 

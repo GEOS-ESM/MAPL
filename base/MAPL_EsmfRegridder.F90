@@ -1431,6 +1431,7 @@ contains
 
      integer :: srcTermProcessing
      integer, pointer :: factorIndexList(:,:)
+     integer, allocatable :: dstMaskValues(:)
      real(ESMF_KIND_R8), pointer :: factorList(:)
      type(ESMF_RouteHandle) :: dummy_rh
      type(ESMF_UnmappedAction_Flag) :: unmappedaction
@@ -1494,24 +1495,16 @@ contains
            call ESMF_AttributeGet(spec%grid_in, name='Global',value=global,rc=status)
            if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
         end if
+        if (has_mask) dstMaskValues = [MAPL_MASK_OUT] ! otherwise unallocated
         select case (spec%regrid_method)
         case (REGRID_METHOD_BILINEAR, REGRID_METHOD_BILINEAR_MONOTONIC)
-           if (has_mask) then
-              call ESMF_FieldRegridStore(src_field, dst_field, &
-                   & dstMaskValues = [MAPL_MASK_OUT], &
-                   & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
-                   & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
-                   & srcTermProcessing = srcTermProcessing, &
-                   & factorList=factorList, factorIndexList=factorIndexList, &
-                   & routehandle=route_handle, unmappedaction=unmappedaction, _RC)
-           else
-              call ESMF_FieldRegridStore(src_field, dst_field, &
-                   & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
-                   & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
-                   & srcTermProcessing = srcTermProcessing, &
-                   & factorList=factorList, factorIndexList=factorIndexList, &
-                   & routehandle=route_handle, unmappedaction=unmappedaction, _RC)
-           end if
+           call ESMF_FieldRegridStore(src_field, dst_field, &
+                & dstMaskValues = dstMaskValues, &
+                & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
+                & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
+                & srcTermProcessing = srcTermProcessing, &
+                & factorList=factorList, factorIndexList=factorIndexList, &
+                & routehandle=route_handle, unmappedaction=unmappedaction, _RC)
         case (REGRID_METHOD_PATCH)
 
            _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
