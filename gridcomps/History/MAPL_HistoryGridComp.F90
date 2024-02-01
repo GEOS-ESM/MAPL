@@ -53,7 +53,7 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
-  use MaskSamplerMod  
+  use MaskSamplerGeosatMod  
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -2419,8 +2419,8 @@ ENDDO PARSER
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
-          elseif (list(n)%sampler_spec == 'mask') then
-             list(n)%mask_sampler = MaskSampler(cfg,string,clock,_RC)
+          elseif (list(n)%sampler_spec == 'mask_geosat') then
+             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,_RC)
              call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)

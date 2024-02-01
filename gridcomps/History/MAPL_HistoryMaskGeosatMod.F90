@@ -30,6 +30,7 @@ module MaskSamplerGeosatMod
   public :: MaskSamplerGeosat
   type :: MaskSamplerGeosat
      private
+     character(len=:), allocatable :: grid_file_name
      type(ESMF_LocStream)   :: LS_rt        !  obs LS on root
      type(ESMF_LocStream)   :: LS_ds        !  distributed
      !!type(ESMF_LocStream)   :: mask_LS_rt   !  output
@@ -70,6 +71,7 @@ module MaskSamplerGeosatMod
 
      integer                        :: nobs_type
      character(len=ESMF_MAXSTR)     :: index_name_x
+     character(len=ESMF_MAXSTR)     :: index_name_y     
      character(len=ESMF_MAXSTR)     :: index_name_location
      character(len=ESMF_MAXSTR)     :: index_name_lon
      character(len=ESMF_MAXSTR)     :: index_name_lat
@@ -77,11 +79,14 @@ module MaskSamplerGeosatMod
      character(len=ESMF_MAXSTR)     :: var_name_time
      character(len=ESMF_MAXSTR)     :: var_name_lat
      character(len=ESMF_MAXSTR)     :: var_name_lon
-     character(len=ESMF_MAXSTR)     :: datetime_units
-     character(len=ESMF_MAXSTR)     :: tunit
-     character(len=ESMF_MAXSTR)     :: input_template
-     character(len=ESMF_MAXSTR)     :: filenames(mx_file)
-     integer                        :: M_file
+     character(len=ESMF_MAXSTR)     :: var_name_x
+     character(len=ESMF_MAXSTR)     :: var_name_y
+     character(len=ESMF_MAXSTR)     :: var_name_proj
+     character(len=ESMF_MAXSTR)     :: att_name_proj
+     
+     integer :: xdim_true
+     integer :: ydim_true
+     integer :: thin_factor
 
      integer                        :: epoch        ! unit: second
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
@@ -104,8 +109,6 @@ module MaskSamplerGeosatMod
      procedure :: create_new_bundle
      procedure :: create_grid
      procedure :: find_mask
-     procedure :: destroy_rh_regen_LS
-     procedure :: get_x_subset
   end type MaskSamplerGeosat
 
   interface MaskSamplerGeosat
@@ -142,12 +145,6 @@ module MaskSamplerGeosatMod
        class(MaskSamplerGeosat), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine find_mask
-
-     module subroutine regrid_accumulate_on_xsubset (this, rc)
-       implicit none
-       class(MaskSamplerGeosat), intent(inout) :: this
-       integer, optional, intent(out)          :: rc
-     end subroutine regrid_accumulate_on_xsubset
 
      module function create_new_bundle(this,rc) result(new_bundle)
        class(MaskSamplerGeosat), intent(inout) :: this
