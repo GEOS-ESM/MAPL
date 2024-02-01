@@ -1,21 +1,46 @@
 ﻿{
-  "version": 3,
+  "version": 6,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 21,
+    "minor": 26,
     "patch": 0
   },
   "configurePresets": [
     {
-      "name": "base-configure",
+      "name": "base-configure-nccs",
+      "hidden": true,
+      "displayName": "Base Configure Settings",
+      "description": "Sets build and install directories",
+      "binaryDir": "$penv{CMAKE_BUILD_LOCATIONS}/${sourceDirName}/build-${presetName}",
+      "installDir": "$penv{CMAKE_INSTALL_LOCATIONS}/${sourceDirName}/install-${presetName}",
+      "condition": {
+         "type": "equals",
+         "lhs": "$penv{CMAKE_SITE_NAME}",
+         "rhs": "NCCS"
+      }
+    },
+    {
+      "name": "base-configure-default",
       "hidden": true,
       "displayName": "Base Configure Settings",
       "description": "Sets build and install directories",
       "binaryDir": "${sourceDir}/build-${presetName}",
-      "cacheVariables": {
-        "BASEDIR": "$env{BASEDIR}",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install-${presetName}"
+      "installDir": "${sourceDir}/install-${presetName}",
+      "condition": {
+         "type": "notEquals",
+         "lhs": "$penv{CMAKE_SITE_NAME}",
+         "rhs": "NCCS"
       }
+    },
+    {
+      "name": "base-configure",
+      "hidden": true,
+      "inherits": [
+         "base-configure-nccs",
+         "base-configure-default"
+         ],
+      "displayName": "Base Configure Settings",
+      "description": "Sets build and install directories"
     },
     {
       "name": "base-gnu",
