@@ -13,11 +13,7 @@
       "description": "Sets build and install directories",
       "binaryDir": "$penv{CMAKE_BUILD_LOCATIONS}/${sourceDirName}/build-${presetName}",
       "installDir": "$penv{CMAKE_INSTALL_LOCATIONS}/${sourceDirName}/install-${presetName}",
-      "condition": {
-         "type": "equals",
-         "lhs": "$penv{CMAKE_SITE_NAME}",
-         "rhs": "NCCS"
-      }
+      "condition": { "lhs": "$penv{CMAKE_SITE_NAME}", "type": "equals", "rhs": "NCCS" }
     },
     {
       "name": "base-configure-default",
@@ -26,12 +22,7 @@
       "description": "Sets build and install directories",
       "binaryDir": "${sourceDir}/build-${presetName}",
       "installDir": "${sourceDir}/install-${presetName}",
-      "condition": {
-         "type": "notEquals",
-         "lhs": "$penv{CMAKE_SITE_NAME}",
-         "rhs": "NCCS"
-      }
-    },
+      "condition": { "lhs": "$penv{CMAKE_SITE_NAME}", "type": "notEquals", "rhs": "NCCS" } },
     {
       "name": "base-configure",
       "hidden": true,
