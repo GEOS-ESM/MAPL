@@ -16,8 +16,9 @@ contains
       integer :: rank
       integer :: status
 
-      hconfig = ESMF_HConfigCreate(content="{geom: {schema: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}}", &
-           _RC)
+      hconfig = ESMF_HConfigCreate(content=&
+         "{geom: {schema: latlon, im_world: 12, jm_world: 13, pole: PC,&
+         dateline: DC, nx: 1, ny: 1}}", _RC)
       geom = make_geom(hconfig, _RC)
       call ESMF_GeomGet(geom, grid=grid, rank=rank, _RC)
       @assert_that(rank, is(2))

@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 	measure HWM.
 - Replace ESMF_Attribute calls with ESMF_Info calls in MAPL_FieldCopyAttribute
 - Convert values in ESMF\_Field with compatible units using udunits2.
+- Add make_geom function in new module mapl3g_HistoryCollectionGridComp_private.
+- Use anchors for reading HConfig in Test_HistoryGridComp.
 
 ### Changed
 
