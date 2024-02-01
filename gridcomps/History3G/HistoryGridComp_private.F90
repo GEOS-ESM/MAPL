@@ -14,7 +14,6 @@ module mapl3g_HistoryGridComp_private
    public :: run
    public :: make_child_name
    public :: make_child_hconfig
-   public :: fill_entry_from_dict
    public :: get_subconfig
 
    contains
@@ -134,44 +133,16 @@ module mapl3g_HistoryGridComp_private
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_HConfig) :: collections_hconfig, collection_hconfig
+      type(ESMF_HConfig) :: collections_hconfig
 
       collections_hconfig = get_subconfig(hconfig, 'collections', _RC)
-      collection_hconfig = get_subconfig(collections_hconfig, collection_name, _RC)
+      child_hconfig = get_subconfig(collections_hconfig, collection_name, _RC)
       call ESMF_HConfigDestroy(collections_hconfig, _RC)
 
-      call fill_entry_from_dict(dest=collection_hconfig, dest_key='geom', src=hconfig, src_key='geoms', _RC)
-
-      child_hconfig = collection_hconfig
       call ESMF_HConfigAdd(child_hconfig, content=collection_name, addKeyString='collection_name', _RC)
 
       _RETURN(_SUCCESS)
    end function make_child_hconfig
-
-   subroutine fill_entry_from_dict(unusable, dest, dest_key, src, src_key, rc)
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Hconfig), intent(inout) :: dest
-      character(*), intent(in) :: dest_key
-      type(ESMF_HConfig), intent(in) :: src
-      character(*), intent(in) :: src_key
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: entry_name
-      type(ESMF_Hconfig) :: entries_hconfig, entry_hconfig
-
-      entries_hconfig = get_subconfig(src, keyString=src_key, _RC)
-      entry_name = ESMF_HConfigAsString(dest, keystring=dest_key, _RC)
-      entry_hconfig = get_subconfig(entries_hconfig, keyString=entry_name, _RC)
-
-      call ESMF_HConfigRemove(dest, keyString=dest_key, _RC)
-      call ESMF_HConfigAdd(dest, content=entry_hconfig, addKeyString=dest_key, _RC)
-
-      call ESMF_HConfigDestroy(entry_hconfig, _RC)
-      call ESMF_HConfigDestroy(entries_hconfig, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine fill_entry_from_dict
 
    function get_subconfig(hconfig, keyString, rc) result(subconfig)
       type(ESMF_HConfig) :: subconfig
