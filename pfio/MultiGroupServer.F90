@@ -367,7 +367,7 @@ contains
               call handle%wait()
               words = word_size(q%type_kind)
               local_size = product(q%count)*words
-              if (local_size > 0) then
+              if (local_size > 0 .or. this%I_am_front_root) then
                  collection_counter = this%stage_offset%at(i_to_string(q%collection_id))
                  call c_f_pointer(handle%data_reference%base_address, i_ptr, shape=[local_size])
                  call f_d_ms(collection_counter)%add_data_message(q, i_ptr)
