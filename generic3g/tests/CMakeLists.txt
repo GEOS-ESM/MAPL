@@ -24,6 +24,9 @@ set (test_srcs
   Test_HierarchicalRegistry.pf
 
   Test_Scenarios.pf
+  Test_WriteYaml.pf
+  Test_HConfigMatch.pf
+  
   )
 
 
