@@ -1,16 +1,16 @@
 esma_set_this (OVERRIDE MAPL.history3g)
 
-#set(srcs
-# HistoryGridComp_private.F90
-# HistoryGridComp.F90
-#  )
+set(srcs
+ HistoryGridComp_private.F90
+ HistoryGridComp.F90
+  )
 
 find_package (MPI REQUIRED)
 
-#esma_add_library(${this}
-#  SRCS ${srcs}
-#  DEPENDENCIES MAPL.generic3g PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library(${this}
+  SRCS ${srcs}
+  DEPENDENCIES MAPL.generic3g PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
 
 if (PFUNIT_FOUND)
-#  add_subdirectory(tests EXCLUDE_FROM_ALL)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()

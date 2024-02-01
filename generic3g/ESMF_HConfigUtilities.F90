@@ -192,7 +192,6 @@ contains
       character(:), allocatable :: a_type, b_type
 
       match = .false. ! unless
-
       a_type = get_hconfig_type(a, _RC)
       b_type = get_hconfig_type(b, _RC)
 
@@ -201,17 +200,15 @@ contains
       end if
 
       if (a_type == 'MAPPING') then
-         match = MAPL_HConfigMatchMapping(a, b, rc)
+         match = MAPL_HConfigMatchMapping(a, b, _RC)
       else if (a_type == 'SEQUENCE') then
-         match = MAPL_HConfigMatchSequence(a, b, rc)
+         match = MAPL_HConfigMatchSequence(a, b, _RC)
       else if (a_type == 'SCALAR') then
-         match = MAPL_HConfigMatchScalar(a, b, rc)
+         match = MAPL_HConfigMatchScalar(a, b, _RC)
       else
          _FAIL('unsupported HConfig type.')
       end if
       
-      match = .true. 
-
       _RETURN(_SUCCESS)
    end function MAPL_HConfigMatch
 
@@ -232,13 +229,13 @@ contains
       end if
       
       is_sequence = ESMF_HConfigIsSequence(hconfig, _RC)
-      if (is_scalar) then
+      if (is_sequence) then
          hconfig_type = 'SEQUENCE'
          _RETURN(_SUCCESS)
       end if
 
       is_mapping = ESMF_HConfigIsMap(hconfig, _RC)
-      if (is_scalar) then
+      if (is_mapping) then
          hconfig_type = 'MAPPING'
          _RETURN(_SUCCESS)
       end if
@@ -260,7 +257,6 @@ contains
 
       a_str = ESMF_HConfigAsString(a, _RC)
       b_str = ESMF_HConfigAsString(b, _RC)
-
       match = (a_str == b_str)
 
       _RETURN(_SUCCESS)
@@ -281,9 +277,7 @@ contains
       a_size = ESMF_HConfigGetSize(a, _RC)
       b_size = ESMF_HConfigGetSize(b, _RC)
 
-      if (a_size /= b_size) then
-         _RETURN(_SUCCESS)
-      end if
+      _RETURN_UNLESS(a_size == b_size)
 
       do i = 1, a_size
 
@@ -295,9 +289,7 @@ contains
          call ESMF_HConfigDestroy(a_val_hconfig, _RC)
          call ESMF_HConfigDestroy(b_val_hconfig, _RC)
 
-         if (.not. match) then
-            _RETURN(_SUCCESS)
-         end if
+         _RETURN_UNLESS(match)
       end do
 
       match = .true.
@@ -320,9 +312,7 @@ contains
       a_size = ESMF_HConfigGetSize(a, _RC)
       b_size = ESMF_HConfigGetSize(b, _RC)
 
-      if (a_size /= b_size) then
-         _RETURN(_SUCCESS)
-      end if
+      _RETURN_UNLESS(a_size == b_size)
 
       iter_begin = ESMF_HConfigIterBegin(a, _RC)
       iter_end = ESMF_HConfigIterEnd(a, _RC)
@@ -332,6 +322,8 @@ contains
          _VERIFY(status)
 
          key = ESMF_HConfigAsStringMapKey(iter, _RC)
+         match = ESMF_HConfigIsDefined(b, keystring=key, _RC)
+         _RETURN_UNLESS(match)
          
          a_val_hconfig = ESMF_HConfigCreateAt(a, keyString=key, _RC)
          b_val_hconfig = ESMF_HConfigCreateAt(b, keyString=key, _RC)
@@ -341,9 +333,7 @@ contains
          call ESMF_HConfigDestroy(a_val_hconfig, _RC)
          call ESMF_HConfigDestroy(b_val_hconfig, _RC)
 
-         if (.not. match) then
-            _RETURN(_SUCCESS)
-         end if
+         _RETURN_UNLESS(match)
       end do
 
       match = .true.

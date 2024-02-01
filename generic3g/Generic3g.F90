@@ -8,4 +8,5 @@ module Generic3g
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriver
    use mapl3g_UserSetServices
+   use mapl3g_ESMF_HConfigUtilities, only: MAPL_HConfigMatch
 end module Generic3g
