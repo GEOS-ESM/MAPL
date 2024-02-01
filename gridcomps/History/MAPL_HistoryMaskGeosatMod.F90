@@ -1,4 +1,4 @@
-module MaskSamplerMod
+module MaskSamplerGeosatMod
   use ESMF
   use MAPL_ErrorHandlingMod
   use MAPL_KeywordEnforcerMod
@@ -11,7 +11,6 @@ module MaskSamplerMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
   use MAPL_BaseMod
-!!  use BinIOMod, only : GETFILE
   use MAPL_CommsMod
   use MAPL_SortMod
   use MAPL_NetCDF
@@ -25,11 +24,11 @@ module MaskSamplerMod
   use pflogger, only: Logger, logging
   implicit none
 
-  integer, parameter :: mx_file = 300
+  integer, parameter :: mx_file = 10
   private
 
-  public :: MaskSampler
-  type :: MaskSampler
+  public :: MaskSamplerGeosat
+  type :: MaskSamplerGeosat
      private
      type(ESMF_LocStream)   :: LS_rt        !  obs LS on root
      type(ESMF_LocStream)   :: LS_ds        !  distributed
@@ -40,14 +39,9 @@ module MaskSamplerMod
      type(ESMF_Time),   allocatable :: times(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
-
      real(kind=REAL64), allocatable :: lons_ds(:)
      real(kind=REAL64), allocatable :: lats_ds(:)     
-
-!     real(kind=REAL64), allocatable :: lons_ds(:)
-!     real(kind=REAL64), allocatable :: lats_ds(:)     
      real(kind=REAL64), allocatable :: times_R8(:)
-     integer,           allocatable :: obstype_id(:)
 
      ! in case obs is swath type, we convert 2d to 1d vector
      real(kind=REAL64), allocatable :: lons_2d(:,:)
@@ -66,7 +60,6 @@ module MaskSamplerMod
      type(VerticalData) :: vdata
      logical :: do_vertical_regrid
 
-     type(LocstreamRegridder) :: regridder
      type(TimeData)           :: time_info
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
@@ -113,24 +106,24 @@ module MaskSamplerMod
      procedure :: find_mask
      procedure :: destroy_rh_regen_LS
      procedure :: get_x_subset
-  end type MaskSampler
+  end type MaskSamplerGeosat
 
-  interface MaskSampler
-     module procedure MaskSampler_from_config
-  end interface MaskSampler
+  interface MaskSamplerGeosat
+     module procedure MaskSamplerGeosat_from_config
+  end interface MaskSamplerGeosat
 
 
   interface
-     module function MaskSampler_from_config(config,string,clock,rc) result(mask)
-       type(MaskSampler) :: mask
+     module function MaskSamplerGeosat_from_config(config,string,clock,rc) result(mask)
+       type(MaskSamplerGeosat) :: mask
        type(ESMF_Config), intent(inout)        :: config
        character(len=*),  intent(in)           :: string
        type(ESMF_Clock),  intent(in)           :: clock
        integer, optional, intent(out)          :: rc
-     end function MaskSampler_from_config
+     end function MaskSamplerGeosat_from_config
 
      module subroutine initialize(this,items,bundle,timeInfo,vdata,reinitialize,rc)
-       class(MaskSampler), intent(inout) :: this
+       class(MaskSamplerGeosat), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
        type(TimeData), optional, intent(inout)           :: timeInfo
@@ -139,63 +132,51 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end subroutine initialize
 
-     module subroutine  create_metadata_variable(this,vname,rc)
-       class(MaskSampler), intent(inout) :: this
-       character(len=*), intent(in)            :: vname
-       integer, optional, intent(out)          :: rc
-     end subroutine create_metadata_variable
-
-     module function create_new_bundle(this,rc) result(new_bundle)
-       class(MaskSampler), intent(inout) :: this
-       type(ESMF_FieldBundle)                  :: new_bundle
-       integer, optional, intent(out)          :: rc
-     end function create_new_bundle
-
-     module subroutine create_file_handle(this,filename_suffix,rc)
-       class(MaskSampler), intent(inout) :: this
-       character(len=*), intent(in)            :: filename_suffix
-       integer, optional, intent(out)          :: rc
-     end subroutine create_file_handle
-
-     module subroutine close_file_handle(this,rc)
-       class(MaskSampler), intent(inout) :: this
-       integer, optional, intent(out)          :: rc
-     end subroutine close_file_handle
-
-     module subroutine append_file(this,current_time,rc)
-       class(MaskSampler), intent(inout) :: this
-       type(ESMF_Time), intent(inout)          :: current_time
-       integer, optional, intent(out)          :: rc
-     end subroutine append_file
-
      module subroutine create_grid(this, rc)
-       class(MaskSampler), intent(inout) :: this
+       class(MaskSamplerGeosat), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine create_grid
 
      module subroutine find_mask (this, rc)
        implicit none
-       class(MaskSampler), intent(inout) :: this
+       class(MaskSamplerGeosat), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine find_mask
 
      module subroutine regrid_accumulate_on_xsubset (this, rc)
        implicit none
-       class(MaskSampler), intent(inout) :: this
+       class(MaskSamplerGeosat), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine regrid_accumulate_on_xsubset
 
-     module subroutine get_x_subset(this, interval, x_subset, rc)
-       class(MaskSampler), intent(inout) :: this
-       type(ESMF_Time), intent(in)             :: interval(2)
-       integer, intent(out)                    :: x_subset(2)
+     module function create_new_bundle(this,rc) result(new_bundle)
+       class(MaskSamplerGeosat), intent(inout) :: this
+       type(ESMF_FieldBundle)                  :: new_bundle
        integer, optional, intent(out)          :: rc
-     end subroutine get_x_subset
+     end function create_new_bundle
 
-     module subroutine destroy_rh_regen_LS (this, rc)
-       class(MaskSampler), intent(inout) :: this
+     module subroutine  create_metadata_variable(this,vname,rc)
+       class(MaskSamplerGeosat), intent(inout) :: this
+       character(len=*), intent(in)            :: vname
        integer, optional, intent(out)          :: rc
-     end subroutine destroy_rh_regen_LS
+     end subroutine create_metadata_variable
+
+     module subroutine create_file_handle(this,filename_suffix,rc)
+       class(MaskSamplerGeosat), intent(inout) :: this
+       character(len=*), intent(in)            :: filename_suffix
+       integer, optional, intent(out)          :: rc
+     end subroutine create_file_handle
+
+     module subroutine close_file_handle(this,rc)
+       class(MaskSamplerGeosat), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine close_file_handle
+
+     module subroutine append_file(this,current_time,rc)
+       class(MaskSamplerGeosat), intent(inout) :: this
+       type(ESMF_Time), intent(inout)          :: current_time
+       integer, optional, intent(out)          :: rc
+     end subroutine append_file
 
   end interface
-end module MaskSamplerMod
+end module MaskSamplerGeosatMod
