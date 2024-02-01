@@ -156,117 +156,6 @@ contains
 
 
 
-       ! __ this code does not handle zero observations
-       !
-       !
-        module procedure create_grid
-        use pflogger, only: Logger, logging
-         character(len=ESMF_MAXSTR) :: filename
-         integer(ESMF_KIND_I4) :: num_times
-         integer :: len
-         integer :: len_full
-         integer :: status
-         type(Logger), pointer :: lgr
-
-         character(len=ESMF_MAXSTR) :: grp_name
-         character(len=ESMF_MAXSTR) :: timeunits_file
-
-         real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
-         real(kind=REAL64), allocatable :: times_R8_full(:)
-         integer,           allocatable :: obstype_id_full(:)
-
-         real(kind=ESMF_KIND_R8), allocatable :: lon_true(:,:)
-         real(kind=ESMF_KIND_R8), allocatable :: lat_true(:,:)
-         real(kind=ESMF_KIND_R8), allocatable :: scanTime(:,:)         
-         
-         real(ESMF_KIND_R8), pointer :: ptAT(:)
-         type(ESMF_routehandle) :: RH
-         type(ESMF_Time) :: timeset(2)
-         type(ESMF_Time) :: currTime
-         type(ESMF_Grid) :: grid
-
-         type(ESMF_VM) :: vm
-         integer :: mypet, petcount
-
-         integer :: i, j, k, L
-         integer :: fid_s, fid_e
-         integer :: M_file
-
-         integer :: nx, ny, nx_sum
-         integer :: nlon, nlat
-         integer :: sec
-
-
-         type(ESMF_TimeInterval) :: Toff
-
-
-         lgr => logging%get_logger('HISTORY.sampler')
-!
-!         call ESMF_VMGetGlobal(vm,_RC)
-!         call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
-!
-!         ! __ read in swath grid (at high Res) as LS
-!
-!         if (mypet==0) then
-!            write(6,'(10(2x,a20,2x,a40,/))') &
-!                 'index_name_lon:', trim(this%index_name_lon), &
-!                 'index_name_lat:', trim(this%index_name_lat), &
-!                 'var_name_lon:',   trim(this%var_name_lon), &
-!                 'var_name_lat:',   trim(this%var_name_lat), &
-!                 'var_name_time:',  trim(this%var_name_time), &
-!                 'tunit:',          trim(this%datetime_units)
-!         end if
-!
-!         if (mypet==0) then
-!            call ESMF_TimeIntervalSet(Toff, h=0, m=0, s=0, _RC)
-!            call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
-!            call Find_M_files_for_currTime (currTime, &
-!                 this%obsfile_start_time, this%obsfile_end_time, this%obsfile_interval, &
-!                 this%epoch_frequency,  this%input_template, M_file, this%filenames, &
-!                 T_offset_in_file_content = Toff,  _RC)
-!            this%M_file = M_file
-!            write(6,'(10(2x,a20,2x,i40))') &
-!                 'M_file:', M_file
-!            do i=1, M_file
-!               write(6,'(10(2x,a14,i4,a2,2x,a))') &
-!                    'filenames(', i, '):', trim(this%filenames(i))
-!            end do
-!
-!            ! __ s1. find obs files
-!            !
-!            !    QC for obs files:
-!            !
-!            !    --  redefine nstart to skip un-defined time value
-!            !    --  Scan_Start_Time =  -9999, -9999, -9999,
-!            !        ::  eliminate this row of data
-!
-!            allocate(lon_true(0,0), lat_true(0,0), scanTime(0,0))
-!            call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
-!                 this%index_name_lon, this%index_name_lat, &
-!                 var_name_lon=this%var_name_lon, &
-!                 var_name_lat=this%var_name_lat, &
-!                 var_name_time=this%var_name_time, &
-!                 lon=lon_true, lat=lat_true, time=scanTime, &
-!                 Tfilter=.true., _RC)
-!
-!            nlon=nx
-!            nlat=ny
-!            allocate(this%t_alongtrack(nlat))
-!            do j=1, nlat
-!               this%t_alongtrack(j) = scanTime(1,j)
-!            end do
-!
-!            this%lons_2d = lon_true
-!            this%lats_2d = lat_true            
-!
-!            write(6,'(a)')  'this%t_alongtrack(::50)='
-!            write(6,'(5f20.2)')  this%t_alongtrack(::50)
-!
-!         end if
-!         
-         _RETURN(_SUCCESS)
-       end procedure create_grid
-
 
 
       module procedure create_new_bundle
@@ -596,6 +485,58 @@ contains
        integer :: is, ie
        integer :: status
 
+
+       
+       lgr => logging%get_logger('HISTORY.sampler')
+
+
+       _RETURN(ESMF_SUCCESS)
+
+     end procedure find_mask
+         
+
+
+       ! __ this code does not handle zero observations
+       !
+       !
+        module procedure create_grid
+        use pflogger, only: Logger, logging
+         character(len=ESMF_MAXSTR) :: filename
+         integer(ESMF_KIND_I4) :: num_times
+         integer :: len
+         integer :: len_full
+         integer :: status
+         type(Logger), pointer :: lgr
+
+         character(len=ESMF_MAXSTR) :: grp_name
+         character(len=ESMF_MAXSTR) :: timeunits_file
+
+         real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
+         real(kind=REAL64), allocatable :: times_R8_full(:)
+         integer,           allocatable :: obstype_id_full(:)
+
+         real(kind=ESMF_KIND_R8), allocatable :: lon_true(:,:)
+         real(kind=ESMF_KIND_R8), allocatable :: lat_true(:,:)
+         real(kind=ESMF_KIND_R8), allocatable :: scanTime(:,:)         
+         
+         real(ESMF_KIND_R8), pointer :: ptAT(:)
+         type(ESMF_routehandle) :: RH
+         type(ESMF_Time) :: timeset(2)
+         type(ESMF_Time) :: currTime
+         type(ESMF_Grid) :: grid
+
+         type(ESMF_VM) :: vm
+         integer :: mypet, petcount
+
+         integer :: i, j, k, L
+         integer :: fid_s, fid_e
+         integer :: M_file
+
+         integer :: nx, ny, nx_sum
+         integer :: nlon, nlat
+         integer :: sec
+
+
        real(ESMF_KIND_R8), pointer :: ptA(:)
        real(ESMF_KIND_R8), pointer :: ptB(:)       
        type(ESMF_routehandle) :: RH
@@ -649,256 +590,258 @@ contains
        type(ESMF_routehandle) :: RH_halo
        character(len=50) :: filename
        integer :: unit
-
-       
-       lgr => logging%get_logger('HISTORY.sampler')
-
-       if (.NOT. this%is_valid) then
-          _RETURN(ESMF_SUCCESS)
-       endif
-!@
-!@       ! __ Abstract:
-!@       !        cut swath by time step, convert rectangular to LS
-!@       !        find on each DE:
-!@       !        - nearest CS points for swath points,  define as index1
-!@       !        - n.n. around these index1 pts, define as index2 
-!@       !        - merge and accumulate
-!@
-!@
-!@       !           call this%get_x_subset(timeset, x_subset, _RC)
-!@       !           is=x_subset(1)
-!@       !           ie=x_subset(2)
-!@
-!@
-!@       call ESMF_VMGetGlobal(vm,_RC)
-!@       call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
-!@
-!@       !            
-!@       if (mypet == 0) then                      
-!@          call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
-!@          call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
-!@          timeset(1) = current_time - dur
-!@          timeset(2) = current_time
-!@
-!@          ! __ s1. cut swath by Epoch time, convert rectangular to LS
-!@          !
-!@          call time_esmf_2_nc_int (timeset(1), this%datetime_units, j0, _RC)
-!@          call ESMF_TimeIntervalGet(dur, s=sec, _RC)
-!@          j1= j0 + sec
-!@          jx0= j0
-!@          jx1= j1
-!@
-!@          !! write(6,*) 'dur in s', sec
-!@
-!@          nstart = 1
-!@          nend = size(this%t_alongtrack)
-!@          call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
-!@          call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
-!@
-!@          call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
-!@          call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Dur]    w.r.t. timeunit ', jx0, jx1)
-!@          call lgr%debug ('%a %f20.1 %f20.1', 'x0[times(1)] xn[times(N)] w.r.t. timeunit ', &
-!@               this%t_alongtrack(1), this%t_alongtrack(nend))
-!@          call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
-!@
-!@          if (jt1==jt2) then
-!@             _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
-!@          endif
-!@          jt1 = jt1 + 1               ! (x1,x2]  design
-!@
-!@
-!@          ! use nx as 1d
-!@          nlon = size (this%lons_2d, dim=1)
-!@          len =  nlon * (jt2 - jt1 + 1)
-!@          allocate(this%lons(len),this%lats(len),_STAT)
-!@          nx = 0
-!@          do j = jt1, jt2
-!@             do i = 1, nlon
-!@                nx = nx + 1
-!@                this%lons(nx) = this%lons_2d(i, j)
-!@                this%lats(nx) = this%lats_2d(i, j)
-!@             end do
-!@          end do
-!@
-!@          this%nobs_dur = nx
-!@          arr(1)=nx
-!@
-!@          call lgr%debug('%a %i12 %i12 %i12', 'this%nobs_dur, nlon, nlat', this%nobs_dur, nlon, (jt2 - jt1 + 1) )
-!@
-!@       else
-!@          allocate(this%lons(0),this%lats(0),_STAT)
-!@          this%nobs_dur = 0
-!@          nx=0
-!@          arr(1)=0
-!@       endif
-!@       
-!@
-!@       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
-!@            count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
-!@       this%nobs_dur_sum = nx_sum
-!@       if (mapl_am_I_root()) write(6,*) 'nobs in dur(heartbeat)  :', nx_sum
-!@
-!@       
-!@       if ( nx_sum == 0 ) then
-!@          this%is_valid = .false.
-!@          _RETURN(ESMF_SUCCESS)
-!@          !
-!@          ! no valid obs points are found
-!@          !
-!@       end if
-!@
-!@
-!@       ! __ s2. set distributed LS
-!@       !
-!@
-!@       this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
-!@       this%LS_rt = this%locstream_factory%create_locstream(_RC)
-!@       call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-!@       this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)
-!@
-!@       this%fieldA = ESMF_FieldCreate (this%LS_rt, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
-!@       this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
-!@
-!@       call ESMF_FieldGet( this%fieldA, localDE=0, farrayPtr=ptA)
-!@       call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=ptB)
-!@       if (mypet == 0) then
-!@          ptA(:) = this%lons(:)
-!@       end if
-!@       call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
-!@       call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
-!@       this%lons_ds = ptB
-!@       
-!@       if (mypet == 0) then
-!@          ptA(:) = this%lats(:)
-!@       end if
-!@       call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
-!@       this%lats_ds = ptB
-!@       
-!@       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-!@       call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
-!@       call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)       
-!@
-!@       !- debug
-!@!       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, this%lons_ds(::1000)
-!@       write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, this%lats_ds(::2000)
-!@       
-!@!       write(6,'(2x,a,i5,100f10.1)') 'lons_rt pet=', mypet, this%lons(::20)
-!@!       write(6,'(2x,a,i5,100f10.1)') 'lats_rt pet=', mypet, this%lats(::5)
-!@       call ESMF_VMBarrier (vm, _RC)
-!@
-!@
-!@       ! __ s3. round-1: find n.n. CS pts for LS_ds
-!@       !
-!@       obs_lons = this%lons_ds
-!@       obs_lats = this%lats_ds
-!@       
-!@       nx = size ( this%lons_ds )
-!@
-!@!!       ! independent test
-!@!!       nx = 2
-!@!!       obs_lons = [ 0.d0 , 10.d0 ]
-!@!!       obs_lats = [ 0.d0 , 10.d0 ]       
-!@
-!@       allocate ( II(nx), JJ(nx) )
-!@       call MPI_Barrier(mpic, status)
-!@       !!       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=this%lons_ds,lat=this%lats_ds,grid=Grid,_RC)
-!@       !!call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)              
-!@       call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
-!@       
-!@       call ESMF_VMBarrier (vm, _RC)
-!@       
-!@       write(6,*) 'nx', nx
-!@!!       do i=1,nx,20
-!@!!          write(6,'(2x,a,i5,i10,2f12.2,10i5)') 'pet,i,lon,lat,II,JJ=', mypet,i,&
-!@!!               obs_lons(i),obs_lats(i),II(i),JJ(i)
-!@!!       end do
-!@
-!@
-!@!       call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
-!@!       call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
-!@!       call ESMF_DELayoutGet(layout, VM=vm, _RC)
-!@!       call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
-!@       call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
-!@       IM= COUNTS(1)
-!@       JM= COUNTS(2)
-!@       LM= COUNTS(3)
-!@       if (mapl_am_i_root()) write(6,'(2x,a,2x,10i5)') 'grid counts(1:3)', counts(1:3)
-!@
-!@       
-!@       !
-!@       ! __  halo for mask
-!@       !
-!@       useableHalo_width = 1
-!@       fieldI4 = ESMF_FieldCreate (grid, ESMF_TYPEKIND_I4, &
-!@            totalLwidth=[useableHalo_width,useableHalo_width],&
-!@            totalUwidth=[useableHalo_width,useableHalo_width], _RC)
-!@       call ESMF_FieldGetBounds (fieldI4, &
-!@            exclusiveLBound=eLB, exclusiveUBound=eUB, exclusiveCount=ecount, &
-!@            totalLBound=tLB, totalUBound=tUB, totalCount=tcount, &
-!@            computationalLBound=cLB, computationalUBound=cUB, computationalCount=ccount, &
-!@            _RC)
-!@       call ESMF_FieldGet (fieldI4, farrayPtr=farrayPtr,  _RC)
-!@       farrayPtr = 0
-!@       do i=1, nx
-!@          if ( II(i)>0 .AND. JJ(i)>0 ) then
-!@             farrayPtr( II(i), JJ(i) ) = 1
-!@          endif
-!@       enddo
-!@
-!@       write(6,'(2x,a,2x,i5)') 'pet=', mypet
-!@       do j=tUB(2), tLB(2), -1
-!@          write(6, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-!@       end do
-!@
-!@       call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
-!@       call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
-!@       call ESMF_VMBarrier (vm, _RC)
-!@
-!@       write(filename, '(i5)') mypet
-!@       filename='t.'//trim(adjustl(filename))
-!@       open(newunit=unit,  file=trim(filename), status='unknown', _IOSTAT)
-!@       write(6,'(2x,a,2x,5i20)') 'pet,unit', mypet, unit
-!@       
-!@       write(unit,'(2x,a,2x,i5)') 'AF pet=', mypet
-!@       do j=tUB(2), tLB(2), -1
-!@          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-!@       end do
-!@       call MPI_Barrier(mpic, status)
-!@
-!@       do i=eLB(1), eUB(1)
-!@          do j=eLB(2), eUB(2)          
-!@             if ( farrayPtr(i,j)==0 .AND. ( &
-!@                  farrayPtr(i-1,j)==1 .OR. &                  
-!@                  farrayPtr(i+1,j)==1 .OR. &
-!@                  farrayPtr(i,j-1)==1 .OR. &
-!@                  farrayPtr(i,j+1)==1 )  ) then
-!@                farrayPtr(i,j) = -1
-!@             end if
-!@          end do
-!@       end do
-!@       
-!@       write(unit,'(2x,a,2x,i5)') 'connect pet=', mypet
-!@       do j=tUB(2), tLB(2), -1
-!@          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-!@       end do
-!@
-!@       
-!@       allocate( this%mask(IM, JM))
-!@       this%mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
-!@
-!@       
-!@       write(unit,'(2x,a,2x,i5)') 'mask pet=', mypet
-!@       do j=eUB(2), eLB(2), -1
-!@          write(unit, '(2x,100i5)') this%mask(eLB(1):eUB(1), j)
-!@       end do
-!@       
-!@!       _FAIL('nail 2')       
-!@!       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, this%mask(::5,::5)       
-!@
-!@       close(unit)
-!@       _RETURN(ESMF_SUCCESS)
-
-     end procedure find_mask
          
 
+
+      integer :: i, j
+      integer :: ix, jx
+      integer :: i_1, i_n, j_1, j_n
+      real(REAL64), pointer :: x(:)
+      real(REAL64), pointer :: y(:)
+      real(REAL64) :: lambda0_deg, lambda0
+      real(REAL64) :: x0, y0
+      real(REAL64) :: lon0, lat0      
+      real(REAL64) :: lam_sat
+      integer      :: mask0
+      character(len=ESMF_MAXSTR) :: fn, key_x, key_y, key_p, key_p_att
+
+      lgr => logging%get_logger('HISTORY.sampler')
+
+      ! Meta code:
+      !   read ABI grid into LS_rt
+      !   gen LS_ds with CS grid
+      !   find mask on each PET
+      !   determine CS_LS_ds
+         
+
+      if (mapl_am_i_root()) then
+         call get_ncfile_dimension(this%grid_file_name, nlon=n1, nlat=n2, &
+              key_lon=this%index_name_x, key_lat=this%index_name_y, _RC)
+         !
+         ! use thin_factor to reduce regridding matrix size
+         !
+         xdim_true = n1
+         ydim_true = n2
+         xdim_red  = n1 / this%thin_factor
+         ydim_red  = n2 / this%thin_factor
+
+         allcoate (x (xdim_true) )
+         allcoate (y (xdim_true) )         
+
+         fn    = this%grid_file_name
+         key_x = this%var_name_x
+         key_y = this%var_name_y
+         key_p = this%var_name_proj
+         key_p_att = this%att_name_proj
+
+         call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
+         call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
+         call get_att_real_netcdf (fn, key_p, key_p_att, lambda0_deg, _RC)
+         lam_sat = lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
+
+         nx=0
+         do i=1, xdim_red
+            do j=1, ydim_red
+               x0 = x( i * this%thin_factor )
+               y0 = y( j * this%thin_factor )
+               call ABI_XY_2_lonlat (x0, y0, lam_sat, lon0, lat0, mask=mask0)
+               if (mask0 > 0) then
+                  nx=nx+1
+               end if
+            end do
+         end do
+         allocate (lons(nx), lats(nx))
+         nx = 0
+         do i=1, xdim_red
+            do j=1, ydim_red
+               x0 = x( i * this%thin_factor )
+               y0 = y( j * this%thin_factor )
+               call ABI_XY_2_lonlat (x0, y0, lam_sat, lon0, lat0, mask=mask0)
+               if (mask0 > 0) then
+                  nx=nx+1
+                  lons(nx) = lon0
+                  lats(nx) = lat0
+               end if
+            end do
+         end do      
+         this%nobs = nx
+         arr(1)=nx
+       else
+          allocate(lons(0),lats(0),_STAT)
+          this%nobs = 0
+          nx=0
+          arr(1)=0
+       endif
+       
+
+       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
+            count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
+       this%nobs = nx
+       if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
+
+       if ( nx == 0 ) then
+          this%is_valid = .false.
+          _RETURN(ESMF_SUCCESS)
+          !
+          ! no valid obs points are found
+          !
+       end if
+
+
+       ! __ s2. set distributed LS
+       !
+
+       locstream_factory = LocStreamFactory(lons,lats,_RC)
+       LS_rt = this%locstream_factory%create_locstream(_RC)
+       call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+       LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)
+
+       fieldA = ESMF_FieldCreate (LS_rt, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
+       fieldB = ESMF_FieldCreate (LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
+
+       call ESMF_FieldGet( fieldA, localDE=0, farrayPtr=ptA)
+       call ESMF_FieldGet( fieldB, localDE=0, farrayPtr=ptB)
+       if (mypet == 0) then
+          ptA(:) = lons(:)
+       end if
+       call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
+       call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
+       lons_ds = ptB
+       
+       if (mypet == 0) then
+          ptA(:) = this%lats(:)
+       end if
+       call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
+       this%lats_ds = ptB
+       
+       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+       call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
+       call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)       
+
+       !- debug
+!       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, this%lons_ds(::1000)
+       write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, this%lats_ds(::2000)
+       
+!       write(6,'(2x,a,i5,100f10.1)') 'lons_rt pet=', mypet, this%lons(::20)
+!       write(6,'(2x,a,i5,100f10.1)') 'lats_rt pet=', mypet, this%lats(::5)
+       call ESMF_VMBarrier (vm, _RC)
+
+
+       ! __ s3. round-1: find n.n. CS pts for LS_ds
+       !
+       obs_lons = this%lons_ds
+       obs_lats = this%lats_ds
+       
+       nx = size ( this%lons_ds )
+
+!!       ! independent test
+!!       nx = 2
+!!       obs_lons = [ 0.d0 , 10.d0 ]
+!!       obs_lats = [ 0.d0 , 10.d0 ]       
+
+       allocate ( II(nx), JJ(nx) )
+       call MPI_Barrier(mpic, status)
+       !!       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=this%lons_ds,lat=this%lats_ds,grid=Grid,_RC)
+       !!call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)              
+       call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
+       
+       call ESMF_VMBarrier (vm, _RC)
+       
+       write(6,*) 'nx', nx
+!!       do i=1,nx,20
+!!          write(6,'(2x,a,i5,i10,2f12.2,10i5)') 'pet,i,lon,lat,II,JJ=', mypet,i,&
+!!               obs_lons(i),obs_lats(i),II(i),JJ(i)
+!!       end do
+
+
+!       call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
+!       call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+!       call ESMF_DELayoutGet(layout, VM=vm, _RC)
+!       call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+       call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+       IM= COUNTS(1)
+       JM= COUNTS(2)
+       LM= COUNTS(3)
+       if (mapl_am_i_root()) write(6,'(2x,a,2x,10i5)') 'grid counts(1:3)', counts(1:3)
+
+       
+       !
+       ! __  halo for mask
+       !
+       useableHalo_width = 1
+       fieldI4 = ESMF_FieldCreate (grid, ESMF_TYPEKIND_I4, &
+            totalLwidth=[useableHalo_width,useableHalo_width],&
+            totalUwidth=[useableHalo_width,useableHalo_width], _RC)
+       call ESMF_FieldGetBounds (fieldI4, &
+            exclusiveLBound=eLB, exclusiveUBound=eUB, exclusiveCount=ecount, &
+            totalLBound=tLB, totalUBound=tUB, totalCount=tcount, &
+            computationalLBound=cLB, computationalUBound=cUB, computationalCount=ccount, &
+            _RC)
+       call ESMF_FieldGet (fieldI4, farrayPtr=farrayPtr,  _RC)
+       farrayPtr = 0
+       do i=1, nx
+          if ( II(i)>0 .AND. JJ(i)>0 ) then
+             farrayPtr( II(i), JJ(i) ) = 1
+          endif
+       enddo
+
+       write(6,'(2x,a,2x,i5)') 'pet=', mypet
+       do j=tUB(2), tLB(2), -1
+          write(6, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+       end do
+
+       call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
+       call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
+       call ESMF_VMBarrier (vm, _RC)
+
+       write(filename, '(i5)') mypet
+       filename='t.'//trim(adjustl(filename))
+       open(newunit=unit,  file=trim(filename), status='unknown', _IOSTAT)
+       write(6,'(2x,a,2x,5i20)') 'pet,unit', mypet, unit
+       
+       write(unit,'(2x,a,2x,i5)') 'AF pet=', mypet
+       do j=tUB(2), tLB(2), -1
+          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+       end do
+       call MPI_Barrier(mpic, status)
+
+       do i=eLB(1), eUB(1)
+          do j=eLB(2), eUB(2)          
+             if ( farrayPtr(i,j)==0 .AND. ( &
+                  farrayPtr(i-1,j)==1 .OR. &                  
+                  farrayPtr(i+1,j)==1 .OR. &
+                  farrayPtr(i,j-1)==1 .OR. &
+                  farrayPtr(i,j+1)==1 )  ) then
+                farrayPtr(i,j) = -1
+             end if
+          end do
+       end do
+       
+       write(unit,'(2x,a,2x,i5)') 'connect pet=', mypet
+       do j=tUB(2), tLB(2), -1
+          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+       end do
+
+       
+       allocate( this%mask(IM, JM))
+       this%mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
+
+       
+       write(unit,'(2x,a,2x,i5)') 'mask pet=', mypet
+       do j=eUB(2), eLB(2), -1
+          write(unit, '(2x,100i5)') this%mask(eLB(1):eUB(1), j)
+       end do
+       
+!       _FAIL('nail 2')       
+!       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, this%mask(::5,::5)       
+
+       close(unit)
+      
+         
+         _RETURN(_SUCCESS)
+       end procedure create_grid
+
+     
 end submodule MaskSamplerGeosat_implement
+
+

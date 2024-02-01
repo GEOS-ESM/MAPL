@@ -125,12 +125,13 @@ module MaskSamplerGeosatMod
        integer, optional, intent(out)          :: rc
      end function MaskSamplerGeosat_from_config
 
-     module subroutine initialize(this,items,bundle,timeInfo,vdata,reinitialize,rc)
+     module subroutine initialize(this,items,bundle,timeInfo,vdata,ogrid,reinitialize,rc)
        class(MaskSamplerGeosat), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
        type(TimeData), optional, intent(inout)           :: timeInfo
-       type(VerticalData), optional, intent(inout) :: vdata
+       type(VerticalData), optional, intent(inout)       :: vdata
+       type(ESMF_Grid), intent(in), pointer, optional    :: ogrid
        logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
      end subroutine initialize
