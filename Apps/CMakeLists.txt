@@ -10,6 +10,8 @@ file (COPY mapl_stub.pl DESTINATION ${esma_etc}/MAPL)
 
 install (PROGRAMS
   MAPL_GridCompSpecs_ACG.py
+  combine_restarts.py
+  split_restart.py
   mapl_acg.pl
   mapl_stub.pl
   TYPE SYSCONF
