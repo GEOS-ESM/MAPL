@@ -3756,38 +3756,20 @@ module NCIOMod
                 x1=90.0d0
              end if
           endif
-         if (arrdes%split_checkpoint) then
-            lat = MAPL_Range(x0,x1,arrdes%JM_WORLD/arrdes%num_writers)
-            call cf%add_dimension('lat',arrdes%jm_world/arrdes%num_writers,rc=status)
-            _VERIFY(status)
-            allocate(coordinate_data,source=lat)
-            allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lat'),coordinate_data))
-         else if ( (.not.arrdes%split_checkpoint) .and. (arrdes%writers_comm /= MPI_Comm_Null)) then
-            lat = MAPL_Range(x0,x1,arrdes%JM_WORLD)
-            call cf%add_dimension('lat',arrdes%jm_world,rc=status)
-            _VERIFY(status)
-            allocate(coordinate_data,source=lat)
-            allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lat'),coordinate_data))
-         endif
-
           if (arrdes%split_checkpoint) then
+             lat = MAPL_Range(x0,x1,arrdes%JM_WORLD/arrdes%num_writers)
              call cf%add_dimension('lat',arrdes%jm_world/arrdes%num_writers,rc=status)
              _VERIFY(status)
-             block
-                integer :: j0, j1, block_size,ny
-                ny = size(arrdes%jn)
-                block_size = ny/arrdes%num_writers
-                j0 = arrdes%j1(arrdes%writer_id*block_size+1)
-                j1 = arrdes%jn((arrdes%writer_id+1)*block_size)
-                allocate(coordinate_data,source=lat(j0:j1))
-             end block
+             allocate(coordinate_data,source=lat)
              allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lat'),coordinate_data))
           else
+             lat = MAPL_Range(x0,x1,arrdes%JM_WORLD)
              call cf%add_dimension('lat',arrdes%jm_world,rc=status)
              _VERIFY(status)
              allocate(coordinate_data,source=lat)
              allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lat'),coordinate_data))
           endif
+
           call var%add_attribute('units','degrees_north')
           call var%add_attribute('long_name','Latitude')
           call cf%add_variable('lat',var,rc=status)
