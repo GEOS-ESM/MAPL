@@ -1,104 +1,16 @@
 #include "MAPL_Generic.h"
 module mapl3g_HistoryGridComp_private
-   use generic3g
    use mapl_ErrorHandlingMod
    use mapl_keywordenforcermod
    use esmf
-   use pflogger
-!# use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
    implicit none
    private
 
-   public :: setServices
-   public :: init
-   public :: run
    public :: make_child_name
    public :: make_child_hconfig
    public :: get_subconfig
 
-   contains
-
-   subroutine setServices(gridcomp, rc)
-      type(ESMF_GridComp) :: gridcomp
-      integer, intent(out) :: rc
-
-      type(ESMF_HConfig) :: hconfig, collections_config, child_hconfig
-      character(len=:), allocatable :: child_name, collection_name
-      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
-      logical :: has_active_collections
-      character(*), parameter :: PRIVATE_STATE = "HistoryGridComp"
-      class(logger), pointer :: lgr
-      integer :: num_collections, status
-
-      ! Set entry points
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER")
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
-
-      ! Attach private state
-!#    _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history_gridcomp)
-
-      ! Determine collections
-      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-
-      has_active_collections = ESMF_HConfigIsDefined(hconfig, keyString='active_collections', _RC)
-      if (.not. has_active_collections) then
-         call MAPL_GridCompGet(gridcomp,logger=lgr, _RC)
-         call lgr%warning("no active collection specified in History")
-         _RETURN(_SUCCESS)
-      end if
-
-      collections_config = ESMF_HConfigCreateAt(hconfig, keystring='active_collections', _RC)
-      num_collections = ESMF_HConfigGetSize(collections_config, _RC)
-      _RETURN_UNLESS(num_collections > 0)
-
-      iter_begin = ESMF_HConfigIterBegin(collections_config,_RC)
-      iter_end = ESMF_HConfigIterEnd(collections_config, _RC)
-      iter = iter_begin
-
-      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-         _VERIFY(status)
-
-         collection_name = ESMF_HConfigAsStringMapKey(iter, _RC)
-         child_hconfig = make_child_hconfig(hconfig, collection_name)
-         child_name = make_child_name(collection_name, _RC)
-!#       call MAPL_AddChild(gridcomp, child_name, collection_setServices, child_hconfig, _RC)
-         call ESMF_HConfigDestroy(child_hconfig, _RC)
-         
-      end do
-      
-      _RETURN(_SUCCESS)
-   end subroutine setServices
-
-   subroutine init(gridcomp, importState, exportState, clock, rc)
-      type(ESMF_GridComp)   :: gridcomp
-      type(ESMF_State)      :: importState
-      type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
-      integer, intent(out)  :: rc
-
-      integer :: status
-
-      ! To Do:
-      ! - determine run frequencey and offset (save as alarm)
-
-      
-      _RETURN(_SUCCESS)
-   end subroutine init
-
-
-   subroutine run(gridcomp, importState, exportState, clock, rc)
-      type(ESMF_GridComp)   :: gridcomp
-      type(ESMF_State)      :: importState
-      type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
-      integer, intent(out)  :: rc
-
-      integer :: status
-
-      call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine run
+contains
 
    ! Collection names are permitted to include period ('.') characters, but gridcomps
    ! are not. (Because we use "." as dive-down character in other syntax.)  So here

@@ -3,6 +3,7 @@ esma_set_this (OVERRIDE MAPL.history3g)
 set(srcs
  HistoryGridComp_private.F90
  HistoryGridComp.F90
+ HistoryCollectionGridComp.F90
  HistoryCollectionGridComp_private.F90
   )
 
