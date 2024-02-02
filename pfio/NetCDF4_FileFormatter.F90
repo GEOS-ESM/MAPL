@@ -43,7 +43,6 @@ module pFIO_NetCDF4_FileFormatterMod
 
 #include "new_overload.macro"
 
-      procedure :: ___SUB(get_var,string,0)
       procedure :: ___SUB(get_var,string,1)
 
       procedure :: ___SUB(get_var,int32,0)
@@ -67,7 +66,6 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,real64,3)
       procedure :: ___SUB(get_var,real64,4)
 
-      procedure :: ___SUB(put_var,string,0)
       procedure :: ___SUB(put_var,string,1)
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
@@ -91,7 +89,6 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,real64,4)
 
 
-      generic :: get_var => ___SUB(get_var,string,0)
       generic :: get_var => ___SUB(get_var,string,1)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
@@ -114,7 +111,6 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: get_var => ___SUB(get_var,real64,3)
       generic :: get_var => ___SUB(get_var,real64,4)
 
-      generic :: put_var => ___SUB(put_var,string,0)
       generic :: put_var => ___SUB(put_var,string,1)
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
@@ -139,6 +135,7 @@ module pFIO_NetCDF4_FileFormatterMod
 
 #include "undo_overload.macro"
 
+      procedure :: inq_var_string_length
       procedure, private :: def_dimensions
       procedure, private :: put_attributes
       procedure, private :: put_var_attributes
@@ -751,9 +748,12 @@ contains
          status = nf90_def_var(this%ncid, var_name, xtype, dimids, varid)
          !$omp end critical
          _VERIFY(status)
-         !$omp critical
-         status = nf90_def_var_fill(this%ncid, varid, NF90_NOFILL, 0)
-         !$omp end critical
+         ! There is no nf90 interface for string. skip the fill
+         if (xtype /=12) then
+           !$omp critical
+           status = nf90_def_var_fill(this%ncid, varid, NF90_NOFILL, 0)
+           !$omp end critical
+         endif
          _VERIFY(status)
          chunksizes => var%get_chunksizes()
          if (size(chunksizes) > 0) then
@@ -1092,6 +1092,21 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine inq_var_attributes
 
+   subroutine inq_var_string_length(this, var_name, length, unusable, rc)
+      class (NetCDF4_FileFormatter), intent(inout) :: this
+      character(*),                  intent(in)    :: var_name
+      integer,                       intent(out)   :: length
+      class (KeywordEnforcer), optional, intent(in):: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: varid, status
+
+      status = nf90_inq_varid(this%ncid, name=var_name, varid=varid)
+      _VERIFY(status)
+      status = pfio_nf90_get_var_string_len(this%ncid, varid, length)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
+   end subroutine inq_var_string_length
 
    subroutine inq_variables(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
