@@ -1,47 +1,9 @@
-#if defined TYPE_I4
-#undef TYPE_I4
-#endif
-
-#if defined TYPE_I8
-#undef TYPE_I8
-#endif
-
-#if defined TYPE_R4
-#undef TYPE_R4
-#endif
-
-#if defined TYPE_R8
-#undef TYPE_R8
-#endif
-
-#if defined TYPE_LOGICAL
-#undef TYPE_LOGICAL
-#endif
-
-#if defined TYPE_CHARACTER
-#undef TYPE_CHARACTER
-#endif
-
-#define TYPE_I4 integer(kind=ESMF_KIND_I4)
-#define TYPE_I8 integer(kind=ESMF_KIND_I8)
-#define TYPE_R4 real(kind=ESMF_KIND_R4)
-#define TYPE_R8 real(kind=ESMF_KIND_R8)
-#define TYPE_LOGICAL logical
-#define TYPE_CHARACTER character(len=*)
-
 #include "MAPL_ErrLog.h"
-! This module uses macros to represent data types that are used frequently.
-! These macros are used below for type of values
 module hconfig_get
-   use :: esmf, only: ESMF_HConfig
-   use :: esmf, only: ESMF_HConfigIsDefined
-   use :: esmf, only: ESMF_HConfigAsString
-   use :: esmf, only: ESMF_HConfigAsLogical
-   use :: esmf, only: ESMF_HConfigAsI4, ESMF_KIND_I4
-   use :: esmf, only: ESMF_HConfigAsI8, ESMF_KIND_I8
-   use :: esmf, only: ESMF_HConfigAsR4, ESMF_KIND_R4
-   use :: esmf, only: ESMF_HConfigAsR8, ESMF_KIND_R8
-   use :: esmf, only: MAXSTRLEN => ESMF_MAXSTR
+   use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined, MAXSTRLEN => ESMF_MAXSTR
+   use :: esmf, only: ESMF_HConfigAsI4, ESMF_KIND_I4, ESMF_HConfigAsI8, ESMF_KIND_I8
+   use :: esmf, only: ESMF_HConfigAsR4, ESMF_KIND_R4, ESMF_HConfigAsR8, ESMF_KIND_R8
+   use :: esmf, only: ESMF_HConfigAsLogical, ESMF_HConfigAsString
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
 
@@ -49,12 +11,6 @@ module hconfig_get
 
    public :: MAXSTRLEN
    public :: get_value
-
-   character(len=*), parameter :: FMTI4 = '(I12)'
-   character(len=*), parameter :: FMTI8 = '(I22)'
-   character(len=*), parameter :: FMTR4 = '(G17.8)'
-   character(len=*), parameter :: FMTR8 = '(G24.16)'
-   character(len=*), parameter :: FMTL = '(L1)'
 
 contains
 
@@ -70,40 +26,36 @@ contains
       character(len=:), allocatable :: valuestring
 
       integer :: status
-      logical :: hconfig_is_not_defined
       integer :: ios
       character(len=MAXSTRLEN) :: rawstring
 
-      found = .FALSE.
-
-      hconfig_is_not_defined = .not. ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
-
-      if(hconfig_is_not_defined) then
+      found = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
+      if(.not. found) then
          _RETURN(_SUCCESS)
       end if
 
       select type(value)
-      type is (TYPE_I4)
+      type is (integer(kind=ESMF_KIND_I4))
          typestring = 'I4'
          value = ESMF_HConfigAsI4(hconfig, keyString=keystring, _RC)
-         write(rawstring, fmt=FMTI4, iostat=ios) value
-      type is (TYPE_I8)
+         write(rawstring, fmt='(I12)', iostat=ios) value
+      type is (integer(kind=ESMF_KIND_I8))
          typestring = 'I8'
          value = ESMF_HConfigAsI8(hconfig, keyString=keystring, _RC)
-         write(rawstring, fmt=FMTI8, iostat=ios) value
-      type is (TYPE_R4)
+         write(rawstring, fmt='(I22)', iostat=ios) value
+      type is (real(kind=ESMF_KIND_R4))
          typestring = 'R4'
          value = ESMF_HConfigAsR4(hconfig, keyString=keystring, _RC)
-         write(rawstring, fmt=FMTR4, iostat=ios) value
-      type is (TYPE_R8)
+         write(rawstring, fmt='(G17.8)', iostat=ios) value
+      type is (real(kind=ESMF_KIND_R8))
          typestring = 'R8'
          value = ESMF_HConfigAsR8(hconfig, keyString=keystring, _RC)
-         write(rawstring, fmt=FMTR8, iostat=ios) value
-      type is (TYPE_LOGICAL)
+         write(rawstring, fmt='(G24.16)', iostat=ios) value
+      type is (logical)
          typestring = 'L'
          value = ESMF_HConfigAsLogical(hconfig, keyString=keystring, _RC)
-         write(rawstring, fmt=FMTL, iostat=ios) value
-      type is (TYPE_CHARACTER)
+         write(rawstring, fmt='(L1)', iostat=ios) value
+      type is (character(len=*))
          typestring = 'CH'
          value = ESMF_HConfigAsString(hconfig, keyString=keystring, _RC)
          rawstring = value
@@ -115,7 +67,6 @@ contains
       _ASSERT(len(valuestring) > 0, 'valuestring is empty.')
       message = form_message(typestring, keystring, valuestring, valuerank=0)
       _ASSERT(len(message) > 0, 'message is empty.')
-      found = .TRUE.
       
       _RETURN(_SUCCESS)
 
@@ -127,22 +78,12 @@ contains
       character(len=*), intent(in) :: keystring
       character(len=*), intent(in) :: valuestring
       integer, intent(in) :: valuerank
-      character(len=:), allocatable :: rank_string
-      character(len=MAXSTRLEN) :: rawstring
-      character(len=*), parameter :: FMT3 = '(A,", ", A, ", ", A)'
-      character(len=*), parameter :: FMT4 = '(A,", ", A, ", ", A, ", ", A)'
-      integer :: ios
+      character(len=*), parameter :: J_ = ', '
 
       if(valuerank > 0) then
-         write(rawstring, fmt=FMT4, iostat=ios) typestring, keystring, valuestring, rankstring(valuerank)
+         message = typestring //J_// keystring //J_// valuestring //J_// rankstring(valuerank)
       else
-         write(rawstring, fmt=FMT3, iostat=ios) typestring, keystring, valuestring
-      end if
-
-      if(ios == 0) then
-         message = trim(rawstring)
-      else
-         message = ''
+         message = typestring //J_// keystring //J_// valuestring
       end if
 
    end function form_message
@@ -150,13 +91,12 @@ contains
    function rankstring(valuerank) result(string)
       character(len=:), allocatable :: string
       integer, intent(in) :: valuerank
-      character(len=*), parameter :: OPEN_STRING = '(:'
-      character(len=*), parameter :: CLOSE_STRING = ')'
-      character(len=*), parameter :: ADDITIONAL_RANK = ',:'
-      character(len=MAXSTRLEN) :: raw = ''
 
-      if(valuerank > 0) raw = OPEN_STRING // repeat(ADDITIONAL_RANK, valuerank-1) // CLOSE_STRING
-      string = trim(raw)
+      if(valuerank > 0) then
+         string = '(:' // repeat(',:', valuerank-1) // ')'
+      else
+         string = ''
+      end if
 
    end function rankstring
 
