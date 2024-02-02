@@ -1330,10 +1330,6 @@ contains
 
    ! string
 #define _VARTYPE 0
-#  define _RANK 0
-#    include "NetCDF4_get_var.H"
-#    include "NetCDF4_put_var.H"
-#  undef _RANK
 #  define _RANK 1
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
