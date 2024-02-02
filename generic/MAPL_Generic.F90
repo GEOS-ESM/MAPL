@@ -1188,8 +1188,8 @@ contains
          if (trim(write_restart_by_oserver) == 'YES') then
             ! reset other choices
             ! io_rank 0 becomes the root
-            num_writers = 1
-            split_checkpoint = 'NO'
+            !num_writers = 1
+            !split_checkpoint = 'NO'
             mygrid%write_restart_by_oserver = .true.
          endif
 

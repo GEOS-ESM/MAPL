@@ -102,8 +102,9 @@ module FileIOSharedMod
      integer :: num_writers = 1
      ! only used when writing though o_server
      logical :: write_restart_by_oserver = .false.
-     integer :: collection_id = -1
+     integer, allocatable :: collection_id(:)
      character(LEN=ESMF_MAXSTR) :: filename
+     integer :: writer_id
   end type ArrDescr
 
 
@@ -594,11 +595,11 @@ module FileIOSharedMod
        integer, intent(in) :: num_writers
        integer, optional, intent(out) :: rc
 
-       integer :: status, nx, ny, color, ny_by_writers, myid, j
+       integer :: status, nx, ny, color, ny_by_writers, myid, j, writer_rank
 
        nx = size(arrdes%i1)
        ny = size(arrdes%j1)
-       _ASSERT(num_writers < ny,'num writers must be less than NY')
+       _ASSERT(num_writers <= ny,'num writers must be less or equal to than NY')
        _ASSERT(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
        call mpi_comm_rank(full_comm,myid, _IERROR)
        color =  arrdes%NX0
@@ -618,7 +619,13 @@ module FileIOSharedMod
             j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_writers)
           call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, _IERROR)
        endif
-
+       if (arrdes%writers_comm /= MPI_COMM_NULL) then
+          call mpi_comm_rank(arrdes%writers_comm,writer_rank,status)
+          _VERIFY(STATUS)
+       end if
+       call MPI_BCast(writer_rank,1,MPI_INTEGER,0,arrdes%iogathercomm,status)
+       _VERIFY(STATUS)
+       arrdes%writer_id = writer_rank
 
        _RETURN(_SUCCESS)
 
