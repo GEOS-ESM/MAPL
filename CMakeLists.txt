@@ -249,6 +249,7 @@ endif()
 
 add_subdirectory (geom_mgr)
 add_subdirectory (regridder_mgr)
+add_subdirectory (hconfig)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
