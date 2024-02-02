@@ -221,4 +221,71 @@ contains
       call ESMF_HConfigDestroy(b, _RC)
    end subroutine test_reproducer_from_history
       
+   @test
+   subroutine test_match_bool()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='on', _RC)
+      b = ESMF_HConfigCreate(content='true', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_bool
+
+   @test
+   subroutine test_match_bool_mismatch()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='on', _RC)
+      b = ESMF_HConfigCreate(content='false', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_bool_mismatch
+
+   @test
+   @disable
+   ! YAML distinguish strings like `"no"` from bool `no`.
+   ! Currently cannot do that with ESMF_HConfig.
+   subroutine test_match_bool_str_mismatch()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='on', _RC)
+      b = ESMF_HConfigCreate(content='"on"', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_bool_str_mismatch
+
+   @test
+   subroutine test_match_int_ignore_sign()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='1', _RC)
+      b = ESMF_HConfigCreate(content='+1', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_int_ignore_sign
+
 end module Test_HConfigMatch
