@@ -40,16 +40,21 @@ module HistoryTrajectoryMod
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime
-     type(ESMF_TimeInterval)  :: epoch_frequency
+     type(ESMF_TimeInterval), public  :: epoch_frequency
 
      integer                        :: nobs_type
-     character(len=ESMF_MAXSTR)     :: nc_index
-     character(len=ESMF_MAXSTR)     :: nc_time
-     character(len=ESMF_MAXSTR)     :: nc_latitude
-     character(len=ESMF_MAXSTR)     :: nc_longitude
+!     character(len=ESMF_MAXSTR)     :: nc_index
+!     character(len=ESMF_MAXSTR)     :: nc_time
+!     character(len=ESMF_MAXSTR)     :: nc_latitude
+!     character(len=ESMF_MAXSTR)     :: nc_longitude
+
+     character(len=ESMF_MAXSTR)     :: index_name_x
      character(len=ESMF_MAXSTR)     :: var_name_time
      character(len=ESMF_MAXSTR)     :: var_name_lat
      character(len=ESMF_MAXSTR)     :: var_name_lon
+     character(len=ESMF_MAXSTR)     :: var_name_time_full
+     character(len=ESMF_MAXSTR)     :: var_name_lat_full
+     character(len=ESMF_MAXSTR)     :: var_name_lon_full
      character(len=ESMF_MAXSTR)     :: datetime_units
      integer                        :: epoch        ! unit: second
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
@@ -61,7 +66,7 @@ module HistoryTrajectoryMod
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
-     logical                        :: is_valid
+     logical                        :: active
    contains
      procedure :: initialize
      procedure :: create_variable => create_metadata_variable
