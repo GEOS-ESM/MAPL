@@ -24,6 +24,7 @@ contains
 
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
+      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       integer :: status
 
       ! Set entry points
@@ -31,7 +32,7 @@ contains
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
-      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, "HistoryCollectionGridComp", collection_gridcomp)
+      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
 
       ! Determine collections
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)

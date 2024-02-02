@@ -22,7 +22,6 @@ contains
       character(len=:), allocatable :: child_name, collection_name
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       logical :: has_active_collections
-      character(*), parameter :: PRIVATE_STATE = "HistoryGridComp"
       class(logger), pointer :: lgr
       integer :: num_collections, status
 
