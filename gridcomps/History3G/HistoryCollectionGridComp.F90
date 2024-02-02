@@ -1,8 +1,10 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_HistoryCollectionGridComp
-   use mapl3g_HistoryCollectionCollectionGridComp, only: collection_setServices => setServices
    use mapl_ErrorHandlingMod
+   use generic3g
+
+   use esmf
    implicit none
    private
 
@@ -10,23 +12,27 @@ module mapl3g_HistoryCollectionGridComp
 
    ! Private state
    type :: HistoryCollectionGridComp
-      class(Client), pointer :: client
+!#      class(Client), pointer :: client
    end type HistoryCollectionGridComp
 
 
+contains
+   
    subroutine setServices(gridcomp, rc)
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
+      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
+      integer :: status
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, update_geom, phase_name='GENERIC_RUN_UPDATE_GEOM', _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
-      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, "HistoryCollectionGridComp", collection_gridcomp)
+      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
 
       ! Determine collections
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
