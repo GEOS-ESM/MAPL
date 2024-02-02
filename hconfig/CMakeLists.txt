@@ -2,7 +2,6 @@ esma_set_this (OVERRIDE MAPL.hconfig)
 
 set(srcs
   hconfig_get.F90
-  #  datatypes.F90
   )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
@@ -17,7 +16,6 @@ esma_add_library(${this}
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 
-# datatypes.h
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 target_link_libraries (${this} PUBLIC esmf)
