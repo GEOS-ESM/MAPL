@@ -30,9 +30,6 @@ contains
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER")
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
-      ! Attach private state
-!#    _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history_gridcomp)
-
       ! Determine collections
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
@@ -57,7 +54,7 @@ contains
          collection_name = ESMF_HConfigAsStringMapKey(iter, _RC)
          child_hconfig = make_child_hconfig(hconfig, collection_name)
          child_name = make_child_name(collection_name, _RC)
-!#       call MAPL_AddChild(gridcomp, child_name, collection_setServices, child_hconfig, _RC)
+         call MAPL_AddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, _RC)
          call ESMF_HConfigDestroy(child_hconfig, _RC)
          
       end do
