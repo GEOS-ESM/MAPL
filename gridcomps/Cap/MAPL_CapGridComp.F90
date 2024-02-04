@@ -1235,10 +1235,6 @@ contains
            this%starts%start_timer = MPI_Wtime()
         end if
 
-        call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%child_imports(this%extdata_id), &
-             exportState = this%child_exports(this%extdata_id), &
-             clock = this%clock, userrc = status)
-         _VERIFY(status)
         ! Call Record for intermediate checkpoint (if desired)
         ! ------------------------------------------------------
         call ESMF_GridCompWriteRestart(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
@@ -1250,6 +1246,11 @@ contains
              exportstate = this%child_exports(this%history_id), &
              clock = this%clock_hist, userrc = status)
         _VERIFY(status)
+
+        call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%child_imports(this%extdata_id), &
+             exportState = this%child_exports(this%extdata_id), &
+             clock = this%clock, userrc = status)
+         _VERIFY(status)
 
         if (this%compute_throughput) then
            call ESMF_VMBarrier(this%vm,rc=status)

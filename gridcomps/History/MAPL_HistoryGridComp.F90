@@ -937,6 +937,7 @@ contains
 ! -------------------------------------
 
        list(n)%vvars = ""
+       vvar=""
 
        len = ESMF_ConfigGetLen( cfg, label=trim(trim(string) // 'levels:'), rc = status )
 
@@ -1400,7 +1401,7 @@ contains
        enddo
     else
        do n=1,nstatelist
-          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),_RC )
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),status )
           call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
                reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
 

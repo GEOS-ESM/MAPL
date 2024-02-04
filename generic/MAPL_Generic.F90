@@ -455,6 +455,10 @@ module MAPL_GenericMod
       type(ProvidedServiceItemVector) :: provided_services
       type(RequestedServiceItemVector) :: requested_services
 
+! this should not be ported to MAPL3
+      type(ESMF_GridComp), pointer :: GCS(:) => null()
+      type(ESMF_State), pointer :: GIM(:) => null()
+      type(ESMF_State), pointer :: GEX(:) => null()
    contains
 
       procedure :: get_ith_child
@@ -2603,6 +2607,7 @@ contains
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
+      logical :: writing
       !=============================================================================
 
       !  Begin...
@@ -2644,6 +2649,7 @@ contains
       ! ------------------
       call MAPL_TimerOn(STATE,"generic")
 
+      writing = .false.
       if (associated(STATE%RECORD)) then
 
          FILETYPE = MAPL_Write2Disk
@@ -2651,6 +2657,7 @@ contains
          DO I = 1, size(STATE%RECORD%ALARM)
             if ( ESMF_AlarmIsRinging(STATE%RECORD%ALARM(I), RC=status) ) then
                _VERIFY(status)
+               writing = .true.
                filetype = STATE%RECORD%FILETYPE(I)
 
                if (.not. ftype(filetype)) then
@@ -2709,6 +2716,16 @@ contains
             end if
          END DO
       endif
+      !ALT: drop a file to mark record has finished
+      ! only the root PE writes from the Root of the hierarchy
+      if (writing .and. .not.associated(state%parentGC)) then
+         if (MAPL_Am_I_Root()) then
+            close(99)
+            open (99,file='done.'//datestamp,form='formatted')
+            close(99)
+         end if
+      end if
+
       call MAPL_TimerOff(STATE,"generic",_RC)
 
       call state%t_profiler%stop('Record',_RC)
@@ -4360,10 +4377,15 @@ contains
          block
            integer i, nc
            nc = STATE%get_num_children()
-           allocate(GCS(nc))
-           do i = 1, nc
-              GCS(i) = STATE%get_child_gridcomp(i)
-           end do
+           GCS => state%GCS
+           nc = STATE%get_num_children()
+           if (.not. associated(STATE%GCS)) then
+              allocate(GCS(nc))
+              state%GCS => GCS
+              do i = 1, nc
+                 GCS(i) = STATE%get_child_gridcomp(i)
+              end do
+           end if
          end block
       endif
 
@@ -4381,11 +4403,16 @@ contains
       if(present(GIM)) then
          block
            integer i, nc
-           nc = STATE%get_num_children()
-           allocate(GIM(nc))
-           do i = 1, nc
-              GIM(i) = state%get_child_import_state(i)
-           end do
+           GIM => state%GIM
+           if (.not. associated(STATE%GIM)) then
+              nc = STATE%get_num_children()
+              allocate(GIM(nc))
+              state%GIM => GIM
+              do i = 1, nc
+                 GIM(i) = state%get_child_import_state(i)
+              end do
+              state%GIM => GIM
+           end if
          end block
       endif
 
@@ -4403,11 +4430,15 @@ contains
       if(present(GEX)) then
          block
            integer i, nc
+           GEX => state%GEX
            nc = STATE%get_num_children()
-           allocate(GEX(nc))
-           do i = 1, nc
-              GEX(i) = state%get_child_export_state(i)
-           end do
+           if (.not. associated(STATE%GEX)) then
+              allocate(GEX(nc))
+              state%GEX => GEX
+              do i = 1, nc
+                 GEX(i) = state%get_child_export_state(i)
+              end do
+           end if
          end block
       endif
 

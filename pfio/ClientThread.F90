@@ -149,6 +149,7 @@ contains
       class default
         _FAIL( " should get id message")
       end select
+!@      if (associated(message)) deallocate(message)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
