@@ -36,10 +36,20 @@
 
      _ASSERT(status==0,"Variable not found: "//trim(var_name)//" in file: "//trim(this%origin_file))
      !$omp critical
+#if (_VARTYPE == 0)
+
+#if (_RANK == 1)
+    ! only support rank 1 of string
+    status = pfio_nf90_get_var_string(ncid, varid, values, start, count)
+#endif
+
+#else
+
 #if (_RANK == 0)
       status = nf90_get_var(ncid, varid, values)
 #else
       status = nf90_get_var(ncid, varid, values, start, count)
+#endif
 #endif
      !$omp end critical
       _ASSERT(status==0,"Unable to get variable: "//trim(var_name)//" from file: "//trim(this%origin_file))

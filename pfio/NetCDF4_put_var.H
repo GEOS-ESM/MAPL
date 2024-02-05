@@ -22,16 +22,25 @@
       integer :: status
       integer :: varid
 
-
      !$omp critical
       status = nf90_inq_varid(this%ncid, name=var_name, varid=varid)
      !$omp end critical
       _VERIFY(status)
      !$omp critical
+#if (_VARTYPE == 0)
+
+#if (_RANK == 1)
+     ! only support 1d string
+     status = pfio_nf90_put_var_string(this%ncid, varid, values, start, count)
+#endif
+
+#else
+
 #if (_RANK == 0)
       status = nf90_put_var(this%ncid, varid, values)
 #else
       status = nf90_put_var(this%ncid, varid, values, start, count)
+#endif
 #endif
      !$omp end critical
       _VERIFY(status)
