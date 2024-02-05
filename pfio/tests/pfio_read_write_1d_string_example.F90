@@ -20,7 +20,7 @@ program main
   call metadata%add_dimension('Ydim', Ydim)
   v = Variable(type=pFIO_STRING, dimensions='Ydim')
   call metadata%add_variable('char1',v)
-  cvar1 = ["abcd","lmnd","xyzu", "1234", "haha"]
+  cvar1 = ["1","22","333", "4    ", "5    "]
 
   call test_formatter%create('test_in.nc4', rc=status)
   call test_formatter%write(metadata, rc=status)
@@ -32,6 +32,7 @@ program main
 
   call test_formatter%open('test_in.nc4', PFIO_READ, rc=status)
   call test_formatter%inq_var_string_length('char1',length)
+  print*, "length :", length
   metadata = test_formatter%read()
   my_dim = metadata%get_dimension('Ydim')
   if (my_dim /= Ydim ) print *, "dim is wrong"

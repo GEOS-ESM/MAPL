@@ -35,7 +35,7 @@ module pfio_NetCDF_Supplement
          integer(kind=C_INT), value, intent(in) :: size
       end function c_f_pfio_get_var_string_len
 
-      function c_f_pfio_get_var_string(ncid, varid, string_ptr, start_ptr, count_ptr) &
+      function c_f_pfio_get_var_string(ncid, varid, string_ptr, str_len,  start_ptr, count_ptr) &
            & result(stat) bind(C, name='pfio_get_var_string')
          use, intrinsic :: iso_c_binding
          implicit none
@@ -43,6 +43,7 @@ module pfio_NetCDF_Supplement
          integer(kind=C_INT), value, intent(in) :: ncid
          integer(kind=C_INT), value, intent(in) :: varid
          type(c_ptr), intent(in), value         :: string_ptr
+         integer(kind=C_INT), value, intent(in) :: str_len
          type(c_ptr), intent(in), value         :: start_ptr
          type(c_ptr), intent(in), value         :: count_ptr
       end function c_f_pfio_get_var_string
@@ -110,7 +111,7 @@ contains
         start_ = start
         count_ = count
       endif
-      status = c_f_pfio_get_var_string(ncid, varid, c_loc(string), c_loc(start_), c_loc(count_))
+      status = c_f_pfio_get_var_string(ncid, varid, c_loc(string), str_len,  c_loc(start_), c_loc(count_))
       deallocate(start_, count_)
 
    end function pfio_nf90_get_var_string
@@ -123,9 +124,10 @@ contains
       integer, optional,   intent(in) :: start(:)
       integer, optional,   intent(in) :: count(:)
       integer, target, allocatable :: start_(:), count_(:)
-      integer :: str_len, str_size
+      integer :: max_len, str_size, k
+      character(len=:),allocatable, target :: string_C(:)
 
-      str_len  = len(string(1))
+      max_len  = len(string(1)) + 1
       str_size = size(string)
       if (.not. present(start) .or. .not. present(count)) then
         allocate(start_(1), count_(1))
@@ -135,8 +137,15 @@ contains
         start_ = start
         count_ = count
       endif
-      status = c_f_pfio_put_var_string(ncid, varid, c_loc(string), str_len, str_size, c_loc(start_), c_loc(count_))
+
+      allocate(character(len=max_len) :: string_C(str_size))
+      do k = 1, str_size
+        string_C(k) = trim(string(k))//c_null_char
+      enddo
+
+      status = c_f_pfio_put_var_string(ncid, varid, c_loc(string_C), max_len, str_size, c_loc(start_), c_loc(count_))
       deallocate(start_, count_)
+      deallocate(string_C)
    end function pfio_nf90_put_var_string
 
    function pfio_nf90_get_var_string_len(ncid, varid, str_len) result(status)
