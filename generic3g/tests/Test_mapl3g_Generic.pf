@@ -1,0 +1,125 @@
+!#include "MAPL_Exceptions.h"
+!#include "MAPL_ErrLog.h"
+
+!module Test_mapl3g_Generic
+!   use mapl3g_Generic
+!   use ESMF
+!   use pfunit
+!   use MAPL_ExceptionHandling
+!
+!   implicit none
+!
+!   integer, parameter :: STRLEN = 80
+!
+!   ! error message stubs
+!   character(len=*), parameter :: ERROR_STATUS = 'Error for hconfig_get_'
+!   character(len=*), parameter :: ERROR_ACTUAL = 'actual value does not match expected value.'
+!   character(len=*), parameter :: ERROR_DEFAULT = 'actual value does not match default value.'
+!   character(len=*), parameter :: ERROR_ADD_FAIL = 'Failed to add'
+!
+!   ! keys and content
+!   ! I4
+!   character(len=*), parameter :: KEYI4 = 'inv_alpha'
+!   integer(kind=ESMF_KIND_I4), parameter :: CONI4 = 137_ESMF_KIND_I4
+!   ! String
+!   character(len=*), parameter :: KEYSTR = 'newton'
+!   character(len=*), parameter :: CONSTR = 'Fg = Gm1m2/r^2'
+!   ! R4
+!   character(len=*), parameter :: KEYR4 = 'plank_mass'
+!   real(kind=ESMF_KIND_R4), parameter :: CONR4 = 1.0 ! 1.859E−9_ESMF_KIND_R4
+!
+!   ! instance variables
+!   logical :: hconfig_is_created = .FALSE.
+!   type(ESMF_HConfig) :: hconfig
+!
+!contains
+!
+!   @Before
+!   subroutine set_up()
+!      
+!      integer :: status
+!
+!      if(.not. hconfig_is_created) then
+!         hconfig = ESMF_HConfigCreate(rc=status)
+!         hconfig_is_created = (status == 0)
+!      end if
+!
+!      @assertTrue(hconfig_is_created, 'HConfig was not created.')
+!
+!      call ESMF_HConfigAdd(hconfig, CONI4, addKeyString=KEYI4, rc=status)
+!      @assertEqual(0, status, ERROR_ADD_FAIL // ' integer(kind=ESMF_KIND_I4)')
+!
+!      call ESMF_HConfigAdd(hconfig, CONSTR, addKeyString=KEYSTR, rc=status)
+!      @assertEqual(0, status, ERROR_ADD_FAIL // ' string')
+!
+!   end subroutine set_up
+!
+!   @After
+!   subroutine tear_down()
+!
+!      integer :: status
+!
+!      if(hconfig_is_created) call ESMF_HConfigDestroy(hconfig, rc=status)
+!      hconfig_is_created = .FALSE.
+!      @assertFalse(hconfig_is_created, 'HConfig was not destroyed.')
+!
+!   end subroutine tear_down
+!
+!   @Test
+!   subroutine test_hconfig_get_string()
+!      character(len=STRLEN), parameter :: DEFAULT = "G_ab = 8 pi T_ab"
+!      character(len=*), parameter :: KEYSTR_ = "einstein"
+!      character(len=:), allocatable :: actual
+!      integer :: status
+!      
+!      call MAPL_ResourceGet(hconfig, KEYSTR, actual, rc=status)
+!      @assertEqual(0, status, ERROR_STATUS // 'string')
+!      @assertEqual(CONSTR, actual, ERROR_ACTUAL)
+!      
+!      call MAPL_ResourceGet(hconfig, KEYSTR_, actual, default=DEFAULT, rc=status)
+!      @assertEqual(0, status, ERROR_STATUS // 'string (default)')
+!      @assertEqual(DEFAULT, actual, ERROR_DEFAULT)
+!
+!   end subroutine test_hconfig_get_string
+!
+!   @Test
+!   subroutine test_hconfig_get_i4()
+!      integer(kind=ESMF_KIND_I4), parameter :: DEFAULT = 1_ESMF_KIND_I4
+!      character(len=*), parameter :: KEYI4_ = 'KEYI4_'
+!      integer(kind=ESMF_KIND_I4) :: actual
+!      character(len=STRLEN) :: message
+!      integer :: status
+!
+!      call MAPL_ResourceGet(hconfig, KEYI4, actual, message=message, rc=status)
+!      @assertEqual(0, status, ERROR_STATUS // 'i4')
+!      @assertEqual(CONI4, actual, ERROR_ACTUAL)
+!      @assertTrue(len_trim(message) > 0, 'Message is blank.')
+!
+!      call MAPL_ResourceGet(hconfig, KEYI4_, actual, default=DEFAULT, message=message, rc=status)
+!      @assertEqual(0, status, ERROR_STATUS // 'i4 (default)')
+!      @assertEqual(DEFAULT, actual, ERROR_DEFAULT)
+!      @assertTrue(len_trim(message) == 0, 'Message should be blank: ' // trim(message))
+!
+!   end subroutine test_hconfig_get_i4
+!   
+!   !@Test
+!   subroutine test_hconfig_get_r4()
+!      real(kind=ESMF_KIND_R4), parameter :: DEFAULT = 1.0!D0_ESMF_KIND_R4
+!      character(len=*), parameter :: KEYR4_ = 'KEYR4_'
+!      real(kind=ESMF_KIND_R4) :: actual
+!      character(len=STRLEN) :: message
+!      real :: status
+!
+!      call MAPL_ResourceGet(hconfig, KEYR4, actual, message=message, rc=status)
+!      @assertEqual(0, status, ERROR_STATUS // 'r4')
+!      @assertEqual(CONR4, actual, ERROR_ACTUAL)
+!      @assertTrue(len_trim(message) > 0, 'Message is blank.')
+!
+!      call MAPL_ResourceGet(hconfig, KEYR4_, actual, default=DEFAULT, message=message, rc=status)
+!      @assertEqual(0, status, ERROR_STATUS // 'r4 (default)')
+!      @assertEqual(DEFAULT, actual, ERROR_DEFAULT)
+!      @assertTrue(len_trim(message) == 0, 'Message should be blank: ' // trim(message))
+!
+!   end subroutine test_hconfig_get_r4
+!
+!end module Test_mapl3g_Generic
