@@ -1,10 +1,9 @@
-module mapl_udunits2interfaces
-
-   use iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_double
-   use mapl_udunits2status
-   use mapl_udunits2encoding
-
+module ud2f_interfaces
+   use ud2f_encoding, only: ut_encoding
+   use ud2f_status_codes, only: ut_status
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_double
    implicit none
+   private
 
    public :: ut_get_status, ut_parse
    public :: ut_read_xml_cptr
@@ -12,7 +11,7 @@ module mapl_udunits2interfaces
    public :: cv_convert_double, cv_convert_float
    public :: cv_convert_doubles, cv_convert_floats
    public :: ut_free, ut_free_system, cv_free
-
+   public :: ut_set_ignore_error_message_handler
    interface
 
       ! Procedures that return type(c_ptr) return a C null pointer on failure.
@@ -136,4 +135,4 @@ module mapl_udunits2interfaces
 
    end interface
 
-end module mapl_udunits2interfaces
+end module ud2f_interfaces

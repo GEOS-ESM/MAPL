@@ -2,9 +2,9 @@
 
 module mapl3g_ConvertUnitsAction
    use mapl3g_ExtensionAction
-   use mapl_udunits2mod, only: UDUNITS_Converter => Converter
-   use mapl_udunits2mod, only: UDUNITS_GetConverter => get_converter
-   use mapl_udunits2mod, only: UDUNITS_Initialize => Initialize
+   use udunits2f, only: UDUNITS_Converter => Converter
+   use udunits2f, only: UDUNITS_GetConverter => get_converter
+   use udunits2f, only: UDUNITS_Initialize => Initialize
    use MAPL_FieldUtils
    use mapl_ErrorHandling
    use esmf
@@ -62,14 +62,14 @@ contains
          call assign_fptr(this%f_in, x4_in, _RC)
          call assign_fptr(this%f_out, x4_out, _RC)
 
-         call this%converter%convert_array(x4_in, x4_out)
+         x4_out = this%converter%convert(x4_in)
 
       elseif (typekind == ESMF_TYPEKIND_R8) then
 
          call assign_fptr(this%f_in, x8_in, _RC)
          call assign_fptr(this%f_out, x8_out, _RC)
 
-         call this%converter%convert_array(x8_in, x8_out)
+         x8_out = this%converter%convert(x8_in)
       end if
 
       _RETURN(_SUCCESS)

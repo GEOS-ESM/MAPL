@@ -39,6 +39,7 @@ set(srcs
   # ComponentSpecBuilder.F90
 
   ESMF_Utilities.F90
+  ESMF_HConfigUtilities.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
@@ -67,7 +68,7 @@ add_subdirectory(couplers)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-target_link_libraries (${this} PUBLIC MAPL.field_utils esmf NetCDF::NetCDF_Fortran)
+target_link_libraries (${this} PUBLIC udunits2f MAPL.field_utils esmf NetCDF::NetCDF_Fortran)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)

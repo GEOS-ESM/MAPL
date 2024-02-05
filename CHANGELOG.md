@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 	measure HWM.
 - Replace ESMF_Attribute calls with ESMF_Info calls in MAPL_FieldCopyAttribute
 - Convert values in ESMF\_Field with compatible units using udunits2.
+- Add make_geom function in new module mapl3g_HistoryCollectionGridComp_private.
+- Use anchors for reading HConfig in Test_HistoryGridComp.
 
 ### Changed
 
@@ -53,6 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Convert from ABI Fixed Grid to lon/lat coordinates used in MAPL_XYGridFactory (supporting geostationary GOES-R series)
 - Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
 - Modify swath sampler to handle two Epoch swath grids
 - Handle regrid accumulate for time step (1 sec) during which no obs exists
@@ -60,8 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - parse "GOCART::CO2" from 'geovals_fields' entry in PLATFORM
 - Add call MAPL_InitializeShmem to ExtDataDriverGridComp.F90
 - Read swath data on root, call MAPL_CommsBcast [which sends data to Shmem (when Shmem initialized) or to MAPL_comm otherwise]. This approach avoids race in reading nc files [e.g. 37 files for 3 hr swath data]
-
-
 - Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
 - Added capability in XY grid factory to add a mask to the grid any points are missing needed for geostationary input data
 - Added capability in the MAPL ESMF regridding wrapper to apply a destination mask if the destination grid contains a mask
@@ -85,10 +87,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Explictly `use` some `iso_c_binding` types previously pulled in through ESMF. This is fixed in future ESMF versions (8.7+) and so
   we anticipate this here
 - Add explicit `Fortran_MODULE_DIRECTORY` to `CMakeLists.txt` in benchmarks to avoid race condition in Ninja builds
+- Add check to make sure ESMF was not built as `mpiuni`
 
 ### Removed
 
 ### Deprecated
+
+## [2.43.1] - 2024-01-29
+
+### Fixed
+
+- Added 0-size message to o-server root processes (fixes #2557)
 
 ## [2.43.0] - 2023-12-21
 

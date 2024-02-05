@@ -1,0 +1,51 @@
+module Test_HistoryGridComp
+   use pfunit
+   use mapl3g_HistoryGridComp_private
+   use generic3g, only: MAPL_HConfigMatch
+   use esmf
+   implicit none
+
+   private
+
+   public :: test_make_child_name
+   public :: test_make_child_hconfig
+
+contains
+
+   @test
+   subroutine test_make_child_name()
+
+      @assertEqual(expected='a', found=make_child_name('a'))
+      @assertEqual(expected='a\.b', found=make_child_name('a.b'))
+      @assertEqual(expected='a\.b\.c', found=make_child_name('a.b.c'))
+      
+   end subroutine test_make_child_name
+
+   @test
+   subroutine test_make_child_hconfig()
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_HConfig) :: expected_child_hconfig, found_child_hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( content=&
+           '{geoms: {geom1: &geom1 {class: latlon}}, collections: {c1: {geom: *geom1}}}', &
+           rc=status)
+      @assert_that(status, is(0))
+      expected_child_hconfig = ESMF_HConfigCreate(content=&
+           '{collection_name: c1, geom: {class: latlon}}', rc=status)
+      @assert_that(status, is(0))
+
+      found_child_hconfig = make_child_hconfig(hconfig, 'c1', rc=status)
+      @assert_that(status, is(0))
+       @assertTrue(MAPL_HConfigMatch(found_child_hconfig, expected_child_hconfig))
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(expected_child_hconfig, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(found_child_hconfig, rc=status)
+      @assert_that(status, is(0))
+
+   end subroutine test_make_child_hconfig
+
+end module Test_HistoryGridComp

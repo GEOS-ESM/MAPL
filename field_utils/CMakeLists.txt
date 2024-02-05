@@ -8,11 +8,6 @@ set(srcs
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
   FieldUnits.F90
-  mapl_udunits2cfunc.c
-  mapl_udunits2.F90
-  mapl_udunits2interfaces.F90
-  mapl_udunits2encoding.F90
-  mapl_udunits2status.F90
   )
 
 # To use extended udunits2 procedures, udunits2.c must be built and linked.
@@ -29,7 +24,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared PFLOGGER::pflogger
+  DEPENDENCIES MAPL.shared PFLOGGER::pflogger udunits2f
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 
@@ -39,7 +34,6 @@ esma_add_library(${this}
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-#target_link_libraries (${this} PUBLIC esmf NetCDF::NetCDF_Fortran)
 target_link_libraries (${this} PUBLIC esmf)
 
 if (PFUNIT_FOUND)
@@ -47,8 +41,3 @@ if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
-find_package(udunits REQUIRED)
-find_package(EXPAT REQUIRED)
-
-target_link_libraries(${this} PUBLIC udunits::udunits)
-target_link_libraries(${this} PUBLIC EXPAT::EXPAT)

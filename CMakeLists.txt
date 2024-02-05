@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.43.0
+  VERSION 2.43.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -229,6 +229,7 @@ if (APPLE)
   add_compile_definitions("-D__DARWIN")
 endif()
 
+add_subdirectory (udunits2f)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
