@@ -24,38 +24,31 @@ module MaskSamplerGeosatMod
   use pflogger, only: Logger, logging
   implicit none
 
-  integer, parameter :: mx_file = 10
   private
 
   public :: MaskSamplerGeosat
   type :: MaskSamplerGeosat
      private
-     character(len=:), allocatable :: grid_file_name
-     type(ESMF_LocStream)   :: LS_rt        !  obs LS on root
-     type(ESMF_LocStream)   :: LS_ds        !  distributed
-     !!type(ESMF_LocStream)   :: mask_LS_rt   !  output
-     !!type(ESMF_LocStream)   :: mask_LS_ds
-     type(LocStreamFactory) :: locstream_factory
-     type(obs_unit),    allocatable :: obs(:)
-     type(ESMF_Time),   allocatable :: times(:)
-     real(kind=REAL64), allocatable :: lons(:)
-     real(kind=REAL64), allocatable :: lats(:)
-     real(kind=REAL64), allocatable :: lons_ds(:)
-     real(kind=REAL64), allocatable :: lats_ds(:)     
-     real(kind=REAL64), allocatable :: times_R8(:)
-
-     ! in case obs is swath type, we convert 2d to 1d vector
-     real(kind=REAL64), allocatable :: lons_2d(:,:)
-     real(kind=REAL64), allocatable :: lats_2d(:,:)
-     real(kind=REAL64), allocatable :: times_R8_2d(:,:)
-
-     integer, allocatable :: mask(:,:)
-
-     type(ESMF_FieldBundle) :: bundle
-     type(ESMF_FieldBundle) :: output_bundle
-     type(ESMF_FieldBundle) :: acc_bundle
-     type(ESMF_Field)       :: fieldA
-     type(ESMF_Field)       :: fieldB
+     !     character(len=:), allocatable :: grid_file_name
+     character(len=ESMF_MAXSTR) :: grid_file_name
+     type (ESMF_LocStream) :: LS_rt
+     type (ESMF_LocStream) :: LS_ds     
+     !     type(obs_unit),    allocatable :: obs(:)
+     !     type(ESMF_Time),   allocatable :: times(:)
+     !     real(kind=REAL64), allocatable :: lons(:)
+     !     real(kind=REAL64), allocatable :: lats(:)
+     !     real(kind=REAL64), allocatable :: lons_ds(:)
+     !     real(kind=REAL64), allocatable :: lats_ds(:)     
+     !     real(kind=REAL64), allocatable :: times_R8(:)
+     integer :: npt_mask
+     integer :: tot_npt_mask     
+     integer, allocatable :: index_mask(:,:)
+     !
+          type(ESMF_FieldBundle) :: bundle
+          type(ESMF_FieldBundle) :: output_bundle
+     !     type(ESMF_FieldBundle) :: acc_bundle
+     !     type(ESMF_Field)       :: fieldA
+     !     type(ESMF_Field)       :: fieldB
 
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
@@ -70,6 +63,8 @@ module MaskSamplerGeosatMod
      type(NetCDF4_FileFormatter), allocatable :: file_handle
 
      integer                        :: nobs_type
+     integer                        :: nobs     
+     
      character(len=ESMF_MAXSTR)     :: index_name_x
      character(len=ESMF_MAXSTR)     :: index_name_y     
      character(len=ESMF_MAXSTR)     :: index_name_location
@@ -83,7 +78,7 @@ module MaskSamplerGeosatMod
      character(len=ESMF_MAXSTR)     :: var_name_y
      character(len=ESMF_MAXSTR)     :: var_name_proj
      character(len=ESMF_MAXSTR)     :: att_name_proj
-     
+
      integer :: xdim_true
      integer :: ydim_true
      integer :: thin_factor
@@ -106,9 +101,8 @@ module MaskSamplerGeosatMod
      procedure :: create_file_handle
      procedure :: close_file_handle
      procedure :: append_file
-     procedure :: create_new_bundle
-     procedure :: create_grid
-     procedure :: find_mask
+!     procedure :: create_new_bundle
+     procedure :: create_grid => create_Geosat_grid_find_mask
   end type MaskSamplerGeosat
 
   interface MaskSamplerGeosat
@@ -125,33 +119,26 @@ module MaskSamplerGeosatMod
        integer, optional, intent(out)          :: rc
      end function MaskSamplerGeosat_from_config
 
-     module subroutine initialize(this,items,bundle,timeInfo,vdata,ogrid,reinitialize,rc)
+     module subroutine initialize(this,items,bundle,timeInfo,vdata,reinitialize,rc)
        class(MaskSamplerGeosat), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
        type(TimeData), optional, intent(inout)           :: timeInfo
        type(VerticalData), optional, intent(inout)       :: vdata
-       type(ESMF_Grid), intent(in), pointer, optional    :: ogrid
        logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
      end subroutine initialize
 
-     module subroutine create_grid(this, rc)
+     module subroutine create_Geosat_grid_find_mask(this, rc)
        class(MaskSamplerGeosat), intent(inout) :: this
        integer, optional, intent(out)          :: rc
-     end subroutine create_grid
+     end subroutine create_Geosat_grid_find_mask
 
-     module subroutine find_mask (this, rc)
-       implicit none
-       class(MaskSamplerGeosat), intent(inout) :: this
-       integer, optional, intent(out)          :: rc
-     end subroutine find_mask
-
-     module function create_new_bundle(this,rc) result(new_bundle)
-       class(MaskSamplerGeosat), intent(inout) :: this
-       type(ESMF_FieldBundle)                  :: new_bundle
-       integer, optional, intent(out)          :: rc
-     end function create_new_bundle
+!!     module function create_new_bundle(this,rc) result(new_bundle)
+!!       class(MaskSamplerGeosat), intent(inout) :: this
+!!       type(ESMF_FieldBundle)                  :: new_bundle
+!!       integer, optional, intent(out)          :: rc
+!!     end function create_new_bundle
 
      module subroutine  create_metadata_variable(this,vname,rc)
        class(MaskSamplerGeosat), intent(inout) :: this

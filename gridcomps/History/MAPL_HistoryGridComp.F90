@@ -2421,8 +2421,7 @@ ENDDO PARSER
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask_geosat') then
              list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,_RC)
-             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,ogrid=pgrid,_RC)
+             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3394,8 +3393,10 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
-      else if (list(n)%sampler_spec == 'mask') then
-         Writing(n) = ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm )
+         !! ygyu delete it
+         !! mask: use frequency
+         !!      else if (list(n)%sampler_spec == 'mask') then
+         !!         Writing(n) = ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm )
       else if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
@@ -3728,7 +3729,10 @@ ENDDO PARSER
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
       elseif (list(n)%sampler_spec == 'mask') then
-         call list(n)%mask_sampler%find_mask(_RC)
+
+         !! ygyu take action
+         !  output to files
+!!         call list(n)%mask_sampler%find_mask(_RC)
 !         if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
 !            call list(n)%mask_sampler%append_file(current_time,_RC)
 !            call list(n)%mask_sampler%close_file_handle(_RC)
