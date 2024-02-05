@@ -1,5 +1,5 @@
 #include "MAPL_ErrLog.h"
-module hconfig_get
+module mapl3hconfig_get_private
    use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined, MAXSTRLEN => ESMF_MAXSTR
    use :: esmf, only: ESMF_HConfigAsI4, ESMF_KIND_I4, ESMF_HConfigAsI8, ESMF_KIND_I8
    use :: esmf, only: ESMF_HConfigAsR4, ESMF_KIND_R4, ESMF_HConfigAsR8, ESMF_KIND_R8
@@ -100,4 +100,4 @@ contains
 
    end function rankstring
 
-end module hconfig_get
+end module mapl3hconfig_get_private
