@@ -12,9 +12,13 @@ module mapl3hconfig_get_private
    public :: MAXSTRLEN
    public :: get_value
 
+   interface get_value
+      module procedure :: get_value_scalar
+   end interface get_value
+
 contains
 
-   subroutine get_value(hconfig, value, found, message, keystring, rc)
+   subroutine get_value_scalar(hconfig, value, found, message, keystring, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       class(*), intent(inout) :: value
       logical, intent(out) :: found
@@ -70,7 +74,7 @@ contains
       
       _RETURN(_SUCCESS)
 
-   end subroutine get_value
+   end subroutine get_value_scalar
 
    function form_message(typestring, keystring, valuestring, valuerank) result(message)
       character(len=:), allocatable :: message
