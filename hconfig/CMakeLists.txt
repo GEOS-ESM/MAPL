@@ -1,7 +1,8 @@
 esma_set_this (OVERRIDE MAPL.hconfig)
 
 set(srcs
-  hconfig_get.F90
+  mapl3hconfig_get.F90
+  mapl3hconfig_get_private.F90
   )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
