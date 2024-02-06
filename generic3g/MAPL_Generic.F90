@@ -58,6 +58,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
+   use hconfig3g
    use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -152,6 +153,19 @@ module mapl3g_Generic
       procedure :: gridcomp_connect_all
    end interface MAPL_ConnectAll
 
+   ! MAPL_ResourceGet
+   !  This will have 4 specific procedures:
+   !     scalar value from hconfig
+   !     scalar value from metacomp
+   !     array value from hconfig
+   !     array value from metacomp
+   !
+   !  For MAPL3, the messages for MAPL_ResourceGet will go to pflogger
+   !     instead of to standard output/error directly.
+   !  The 2 hconfig procedures will have an optional pflogger
+   !     pointer argument to write messages.
+   !  The 2 metacomp procedures will use the pflogger associated with
+   !     the metacomp to write messages.
    interface MAPL_ResourceGet
       module procedure :: mapl_resource_get_scalar
    end interface MAPL_ResourceGet
@@ -599,62 +613,70 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
-   subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, default, is_default, rc)
+   subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, default, logger, is_default, found, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
+      class(Logger_t), optional, pointer, intent(inout) :: logger
       logical, optional, intent(out) :: is_default
+      logical, optional, intent(out) :: found
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: found, is_default_
+      logical :: value_is_set, is_default_, found_
       character(len=:), allocatable :: message
 
       _UNUSED_DUMMY(unusable)
 
       is_default_ = .FALSE.
+      found_ = .FALSE.
+
       if(present(default)) then
          _ASSERT(same_type_as(value, default), 'value and default are not the same type.')
+      else
+         _ASSERT(.not. present(is_default), 'is_default cannot be set without default.')
       end if
 
-      select type(value)
-      type is (integer(kind=ESMF_KIND_I4))
-         #define TYPE_ integer(kind=ESMF_KIND_I4)
-         call GetHConfig(hconfig, value, found, message, keystring, _RC)
-         if(.not. found) then
-            _ASSERT(present(default), 'default was not provided.')
-            SELECT_TYPE(TYPE_, default, value)
+      call MAPL_HConfigGet(hconfig, keystring, value, message, value_is_set=value_is_set, _RC)
+
+      if(present(default)) then
+         found_ = .TRUE.
+         if(value_is_set) then
+            is_default_ = (value == default)
+         else
+            value = default
+            is_default_ = .TRUE.
          end if
-         #undef TYPE_
-      class default
-         _FAIL('The value type is not supported.')
-      end select
+      else
+         _ASSERT(value_is_set .or. present(found), 'Value was not found.')
+         found_ = value_is_set
+      end if
 
-      is_default_ = .not. found
-
-      call mapl_resource_logger(logger, message, _RC)
-
-      if(present(is_default)) is_default = present(default) .and. is_default_
+      if(present(logger)) then
+         call mapl_resource_logger(logger, message, _RC)
+      end if
+      if(present(is_default)) is_default = is_default_
+      if(present(found)) found = found_
 
       _RETURN(_SUCCESS)
 
    end subroutine mapl_resource_get_scalar
 
-!   subroutine mapl_resource_logger(logger, message, rc)
-!      type(Logger_t), intent(inout) :: logger
-!      character(len=*), intent(in) :: message
-!      integer, optional, intent(out) :: rc
+   subroutine mapl_resource_logger(logger, message, rc)
+      class(Logger_t), intent(inout) :: logger
+      character(len=*), intent(in) :: message
+      integer, optional, intent(out) :: rc
 
-!      integer :: status
+      integer :: status
 
-!      _ASSERT(len_trim(message) > 0, 'Log message is empty.')
+      _ASSERT(len_trim(message) > 0, 'Log message is empty.')
 
-!      ! Something amazing happens here with the logger.
+      ! Something amazing happens here with the logger.
 
-!      _RETURN(_SUCCESS)
+      _RETURN(_SUCCESS)
 
-!   end subroutine mapl_resource_logger
+   end subroutine mapl_resource_logger
 
 end module mapl3g_Generic
