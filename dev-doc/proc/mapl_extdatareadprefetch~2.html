@@ -1,0 +1,705 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_ExtDataReadPrefetch &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_ExtDataReadPrefetch
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">20 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataGridCompNG.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompng.f90.html'>ExtDataGridCompNG.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcomp2g.html'>MAPL_ExtDataGridComp2G</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_ExtDataReadPrefetch</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_extdatareadprefetch~2.html#src">MAPL_ExtDataReadPrefetch</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_ExtDataReadPrefetch(IOBundles, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iobundles~11"></span>
+              type(<a href='../type/iobundlengvector.html'>IoBundleNGVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>IOBundles</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2129"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_extdatareadprefetch~2~~CallsGraph Pages: 1 -->
+<svg id="procmapl_extdatareadprefetch2CallsGraph" width="641pt" height="151pt"
+ viewBox="0.00 0.00 641.00 150.55" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph" class="graph" transform="scale(2.17 2.17) rotate(0) translate(4 322)">
+<title>proc~~mapl_extdatareadprefetch~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 1384,-322 1384,4 -4,4"/>
+<!-- proc~mapl_extdatareadprefetch~2 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node1" class="node">
+<title>proc~mapl_extdatareadprefetch~2</title>
+<polygon fill="none" stroke="black" points="311,-255 0,-255 0,-231 311,-231 311,-255"/>
+<text text-anchor="middle" x="155.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataGridComp2G::MAPL_ExtDataReadPrefetch</text>
+</g>
+<!-- none~at~108 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node2" class="node">
+<title>none~at~108</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node2"><a xlink:href="../type/iobundlengvector.html#boundprocedure-at~108" xlink:title="MAPL_ExtDataNG_IOBundleVectorMod::IoBundleNGVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="686,-316 347,-316 347,-292 686,-292 686,-316"/>
+<text text-anchor="middle" x="516.5" y="-301.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataNG_IOBundleVectorMod::IoBundleNGVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdatareadprefetch~2&#45;&gt;none~at~108 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_extdatareadprefetch~2&#45;&gt;none~at~108</title>
+<path fill="none" stroke="#255000" d="M222.13,-255.01C258.83,-261.65 305.43,-269.96 347,-277 373.55,-281.5 402.49,-286.2 428.77,-290.4"/>
+<polygon fill="#255000" stroke="#255000" points="428.27,-293.87 438.7,-291.99 429.38,-286.96 428.27,-293.87"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1016.5,-276 796.5,-276 796.5,-252 1016.5,-252 1016.5,-276"/>
+<text text-anchor="middle" x="906.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdatareadprefetch~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_extdatareadprefetch~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M311.24,-247.34C452.21,-251.29 657.47,-257.05 786.13,-260.65"/>
+<polygon fill="#255000" stroke="#255000" points="786.32,-264.16 796.42,-260.94 786.52,-257.16 786.32,-264.16"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node4"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1013.5,-234 799.5,-234 799.5,-210 1013.5,-210 1013.5,-234"/>
+<text text-anchor="middle" x="906.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdatareadprefetch~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_extdatareadprefetch~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M311.24,-238.66C453.25,-234.68 660.51,-228.87 788.98,-225.27"/>
+<polygon fill="#255000" stroke="#255000" points="789.34,-228.76 799.24,-224.98 789.14,-221.76 789.34,-228.76"/>
+</g>
+<!-- proc~process_data_from_file~2 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node5" class="node">
+<title>proc~process_data_from_file~2</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node5"><a xlink:href="../proc/process_data_from_file~2.html" xlink:title="MAPL_TileIOMod::MAPL_TileIO%process_data_from_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="667,-171 366,-171 366,-147 667,-147 667,-171"/>
+<text text-anchor="middle" x="516.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TileIOMod::MAPL_TileIO%process_data_from_file</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdatareadprefetch~2&#45;&gt;proc~process_data_from_file~2 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_extdatareadprefetch~2&#45;&gt;proc~process_data_from_file~2</title>
+<path fill="none" stroke="#255000" d="M207.94,-230.96C272.98,-215.74 384.85,-189.57 454.24,-173.33"/>
+<polygon fill="#255000" stroke="#255000" points="455.22,-176.7 464.16,-171.01 453.63,-169.88 455.22,-176.7"/>
+</g>
+<!-- proc~v_at_32~11 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node13" class="node">
+<title>proc~v_at_32~11</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node13"><a xlink:href="../proc/v_at_32~11.html" xlink:title="MAPL_ExtDataNG_IOBundleVectorMod::IoBundleNGVector%v_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1091,-318 722,-318 722,-294 1091,-294 1091,-318"/>
+<text text-anchor="middle" x="906.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataNG_IOBundleVectorMod::IoBundleNGVector%v_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~108&#45;&gt;proc~v_at_32~11 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge5" class="edge">
+<title>none~at~108&#45;&gt;proc~v_at_32~11</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M686.27,-304.87C694.63,-304.91 703.04,-304.96 711.46,-305"/>
+<polygon fill="#255000" stroke="#255000" points="711.71,-308.5 721.72,-305.05 711.74,-301.5 711.71,-308.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1380,-276 1127,-276 1127,-252 1380,-252 1380,-276"/>
+<text text-anchor="middle" x="1253.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="transparent" d="M1016.66,-264C1048.42,-264 1083.5,-264 1116.68,-264"/>
+<polygon fill="transparent" stroke="transparent" points="1116.91,-267.5 1126.91,-264 1116.91,-260.5 1116.91,-267.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1368,-234 1139,-234 1139,-210 1368,-210 1368,-234"/>
+<text text-anchor="middle" x="1253.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M1015.24,-251.95C1040.13,-249.09 1066.49,-246 1091,-243 1110.69,-240.59 1131.71,-237.93 1151.86,-235.33"/>
+<polygon fill="transparent" stroke="transparent" points="1152.52,-238.77 1161.99,-234.02 1151.62,-231.83 1152.52,-238.77"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1013.83,-222C1050.02,-222 1090.8,-222 1128.27,-222"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1128.74,-225.5 1138.74,-222 1128.74,-218.5 1128.74,-225.5"/>
+</g>
+<!-- proc~process_data_from_file~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge13" class="edge">
+<title>proc~process_data_from_file~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M540.7,-171.02C577.88,-189.71 653.61,-225.4 722,-243 742.51,-248.28 764.65,-252.23 786.21,-255.19"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="786.03,-258.69 796.4,-256.52 786.94,-251.75 786.03,-258.69"/>
+</g>
+<!-- proc~process_data_from_file~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge15" class="edge">
+<title>proc~process_data_from_file~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M569.8,-171.07C610.98,-180.26 669.92,-192.69 722,-201 743.56,-204.44 766.62,-207.54 788.87,-210.23"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="788.69,-213.73 799.03,-211.43 789.51,-206.78 788.69,-213.73"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node6" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="967,-24 846,-24 846,0 967,0 967,-24"/>
+<text text-anchor="middle" x="906.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~process_data_from_file~2&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge9" class="edge">
+<title>proc~process_data_from_file~2&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M532.22,-146.68C564.31,-120.61 643.97,-60 722,-33 758.27,-20.45 800.73,-15.05 835.67,-12.85"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="836,-16.34 845.79,-12.29 835.61,-9.35 836,-16.34"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node7" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="949,-192 864,-192 864,-168 949,-168 949,-192"/>
+<text text-anchor="middle" x="906.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~process_data_from_file~2&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge10" class="edge">
+<title>proc~process_data_from_file~2&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M667.23,-167.1C733.03,-170.67 806,-174.61 853.64,-177.19"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="853.53,-180.69 863.7,-177.74 853.9,-173.7 853.53,-180.69"/>
+</g>
+<!-- interface~arrayscatter -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node8" class="node">
+<title>interface~arrayscatter</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node8"><a xlink:href="../interface/arrayscatter.html" xlink:title="MAPL_CommsMod::ArrayScatter">
+<polygon fill="#a7506f" stroke="#a7506f" points="998.5,-150 814.5,-150 814.5,-126 998.5,-126 998.5,-150"/>
+<text text-anchor="middle" x="906.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayScatter</text>
+</a>
+</g>
+</g>
+<!-- proc~process_data_from_file~2&#45;&gt;interface~arrayscatter -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge11" class="edge">
+<title>proc~process_data_from_file~2&#45;&gt;interface~arrayscatter</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M667.23,-150.9C713.06,-148.42 762.37,-145.75 804.18,-143.48"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="804.56,-146.97 814.36,-142.93 804.18,-139.98 804.56,-146.97"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node9" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node9"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1015,-108 798,-108 798,-84 1015,-84 1015,-108"/>
+<text text-anchor="middle" x="906.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~process_data_from_file~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge12" class="edge">
+<title>proc~process_data_from_file~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M569.8,-146.93C610.98,-137.74 669.92,-125.31 722,-117 743.14,-113.63 765.74,-110.58 787.6,-107.93"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="788.06,-111.4 797.58,-106.74 787.23,-104.45 788.06,-111.4"/>
+</g>
+<!-- proc~mapl_tilemaskget -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_node12" class="node">
+<title>proc~mapl_tilemaskget</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CallsGraph_node12"><a xlink:href="../proc/mapl_tilemaskget.html" xlink:title="FileIOSharedMod::MAPL_TileMaskGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="1010.5,-66 802.5,-66 802.5,-42 1010.5,-42 1010.5,-66"/>
+<text text-anchor="middle" x="906.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::MAPL_TileMaskGet</text>
+</a>
+</g>
+</g>
+<!-- proc~process_data_from_file~2&#45;&gt;proc~mapl_tilemaskget -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CallsGraph_edge14" class="edge">
+<title>proc~process_data_from_file~2&#45;&gt;proc~mapl_tilemaskget</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M540.7,-146.98C577.88,-128.29 653.61,-92.6 722,-75 744.42,-69.23 768.78,-65.05 792.22,-62.01"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="792.7,-65.48 802.19,-60.78 791.84,-58.53 792.7,-65.48"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_extdatareadprefetch2CallsGraph = svgPanZoom('#procmapl_extdatareadprefetch2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_extdatareadprefetch~2~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_extdatareadprefetch2CalledByGraph" width="545pt" height="32pt"
+ viewBox="0.00 0.00 545.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_extdatareadprefetch~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~mapl_extdatareadprefetch~2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 541,-28 541,4 -4,4"/>
+<!-- proc~mapl_extdatareadprefetch~2 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CalledByGraph_node1" class="node">
+<title>proc~mapl_extdatareadprefetch~2</title>
+<polygon fill="none" stroke="black" points="537,-24 226,-24 226,0 537,0 537,-24"/>
+<text text-anchor="middle" x="381.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataGridComp2G::MAPL_ExtDataReadPrefetch</text>
+</g>
+<!-- proc~run_~5 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CalledByGraph_node2" class="node">
+<title>proc~run_~5</title>
+<g id="a_proc~~mapl_extdatareadprefetch~2~~CalledByGraph_node2"><a xlink:href="../proc/run_~5.html" xlink:title="MAPL_ExtDataGridComp2G::Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="190,-24 0,-24 0,0 190,0 190,-24"/>
+<text text-anchor="middle" x="95" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~5&#45;&gt;proc~mapl_extdatareadprefetch~2 -->
+<g id="proc~~mapl_extdatareadprefetch~2~~CalledByGraph_edge1" class="edge">
+<title>proc~run_~5&#45;&gt;proc~mapl_extdatareadprefetch~2</title>
+<path fill="none" stroke="#255000" d="M190.34,-12C198.59,-12 207.09,-12 215.7,-12"/>
+<polygon fill="#255000" stroke="#255000" points="215.86,-15.5 225.86,-12 215.86,-8.5 215.86,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_ExtDataReadPrefetch</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">IOBundleNGVector</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IOBundles</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">      </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nfiles</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ExtDataNG_IOBundle</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">io_bundle</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+
+<span class="w">     </span><span class="n">nfiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IOBundles</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">     </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nfiles</span>
+<span class="w">        </span><span class="n">io_bundle</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">IOBundles</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">io_bundle</span><span class="p">%</span><span class="n">on_tiles</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">io_bundle</span><span class="p">%</span><span class="n">tile_io</span><span class="p">%</span><span class="n">process_data_from_file</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           call </span><span class="n">io_bundle</span><span class="p">%</span><span class="n">grid_io</span><span class="p">%</span><span class="n">process_data_from_file</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">     enddo</span>
+
+<span class="k">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_ExtDataReadPrefetch</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-06T15:11:55.344614             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

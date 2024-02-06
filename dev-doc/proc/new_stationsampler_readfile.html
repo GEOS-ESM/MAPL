@@ -1,0 +1,1203 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>new_StationSampler_readfile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>new_StationSampler_readfile
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">126 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_StationSamplerMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_stationsamplermod.f90.html'>MAPL_StationSamplerMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/stationsamplermod.html'>StationSamplerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">new_StationSampler_readfile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/new_stationsampler_readfile.html#src">new_StationSampler_readfile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function new_StationSampler_readfile(filename, nskip_line, rc) result(sampler)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/pflogger.html'>pflogger</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_stationsampler_readfile~~UsesGraph Pages: 1 -->
+<svg id="procnew_stationsampler_readfileUsesGraph" width="641pt" height="119pt"
+ viewBox="0.00 0.00 641.00 118.65" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_stationsampler_readfile~~UsesGraph" class="graph" transform="scale(1.3 1.3) rotate(0) translate(4 150)">
+<title>proc~~new_stationsampler_readfile~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-150 828,-150 828,4 -4,4"/>
+<!-- proc~new_stationsampler_readfile -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_node1" class="node">
+<title>proc~new_stationsampler_readfile</title>
+<polygon fill="none" stroke="black" points="824,-84 544,-84 544,-60 824,-60 824,-84"/>
+<text text-anchor="middle" x="684" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50">StationSamplerMod::new_StationSampler_readfile</text>
+</g>
+<!-- module~pflogger -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_node2" class="node">
+<title>module~pflogger</title>
+<g id="a_proc~~new_stationsampler_readfile~~UsesGraph_node2"><a xlink:href="../module/pflogger.html" xlink:title="pflogger">
+<polygon fill="#337ab7" stroke="#337ab7" points="508,-84 450,-84 450,-60 508,-60 508,-84"/>
+<text text-anchor="middle" x="479" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger</text>
+</a>
+</g>
+</g>
+<!-- proc~new_stationsampler_readfile&#45;&gt;module~pflogger -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge1" class="edge">
+<title>proc~new_stationsampler_readfile&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M543.95,-72C534.79,-72 526.1,-72 518.24,-72"/>
+<polygon fill="#255000" stroke="#255000" points="518.09,-68.5 508.09,-72 518.09,-75.5 518.09,-68.5"/>
+</g>
+<!-- module~pfl_keywordenforcermod -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_node3" class="node">
+<title>module~pfl_keywordenforcermod</title>
+<g id="a_proc~~new_stationsampler_readfile~~UsesGraph_node3"><a xlink:href="../module/pfl_keywordenforcermod.html" xlink:title="PFL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-146 0,-146 0,-122 148,-122 148,-146"/>
+<text text-anchor="middle" x="74" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge2" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M352.5,-132C287.79,-141.67 213.65,-141.64 158.29,-139.49"/>
+<polygon fill="#255000" stroke="#255000" points="158.32,-135.99 148.18,-139.06 158.02,-142.98 158.32,-135.99"/>
+</g>
+<!-- module~pfl_logger -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_node4" class="node">
+<title>module~pfl_logger</title>
+<g id="a_proc~~new_stationsampler_readfile~~UsesGraph_node4"><a xlink:href="../module/pfl_logger.html" xlink:title="PFL_Logger">
+<polygon fill="#337ab7" stroke="#337ab7" points="257,-104 184,-104 184,-80 257,-80 257,-104"/>
+<text text-anchor="middle" x="220.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_logger -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge3" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M461.84,-84.03C449.3,-92.95 431.2,-104.92 414,-113 388.88,-124.81 381.96,-127.9 354.5,-132"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M352.5,-132C316.47,-137.38 276.65,-122 250.48,-108.78"/>
+<polygon fill="#255000" stroke="#255000" points="251.97,-105.61 241.49,-104.05 248.71,-111.8 251.97,-105.61"/>
+</g>
+<!-- module~pfl_loggermanager -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_node5" class="node">
+<title>module~pfl_loggermanager</title>
+<g id="a_proc~~new_stationsampler_readfile~~UsesGraph_node5"><a xlink:href="../module/pfl_loggermanager.html" xlink:title="PFL_LoggerManager">
+<polygon fill="#337ab7" stroke="#337ab7" points="414,-104 293,-104 293,-80 414,-80 414,-104"/>
+<text text-anchor="middle" x="353.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_loggermanager -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge4" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_loggermanager</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M449.98,-76.54C442.14,-77.81 433.25,-79.25 424.13,-80.72"/>
+<polygon fill="#255000" stroke="#255000" points="423.5,-77.28 414.18,-82.33 424.61,-84.19 423.5,-77.28"/>
+</g>
+<!-- module~pfl_severitylevels -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_node6" class="node">
+<title>module~pfl_severitylevels</title>
+<g id="a_proc~~new_stationsampler_readfile~~UsesGraph_node6"><a xlink:href="../module/pfl_severitylevels.html" xlink:title="PFL_SeverityLevels">
+<polygon fill="#337ab7" stroke="#337ab7" points="130.5,-62 17.5,-62 17.5,-38 130.5,-38 130.5,-62"/>
+<text text-anchor="middle" x="74" y="-47.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_SeverityLevels</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_severitylevels -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge5" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M449.98,-70.47C386.47,-67 230.16,-58.47 140.68,-53.59"/>
+<polygon fill="#255000" stroke="#255000" points="140.82,-50.09 130.64,-53.04 140.44,-57.08 140.82,-50.09"/>
+</g>
+<!-- module~pfl_wraparray -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_node7" class="node">
+<title>module~pfl_wraparray</title>
+<g id="a_proc~~new_stationsampler_readfile~~UsesGraph_node7"><a xlink:href="../module/pfl_wraparray.html" xlink:title="PFL_WrapArray">
+<polygon fill="#337ab7" stroke="#337ab7" points="400,-24 307,-24 307,0 400,0 400,-24"/>
+<text text-anchor="middle" x="353.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_WrapArray</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_wraparray -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge6" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_wraparray</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M456.29,-59.94C444,-53.24 428.27,-44.9 414,-38 407.23,-34.73 399.95,-31.4 392.89,-28.26"/>
+<polygon fill="#255000" stroke="#255000" points="394.02,-24.93 383.45,-24.12 391.21,-31.34 394.02,-24.93"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge8" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M183.87,-102.51C172.42,-105.87 159.68,-109.61 148,-113 141.12,-115 133.88,-117.1 126.73,-119.16"/>
+<polygon fill="transparent" stroke="transparent" points="125.73,-115.8 117.09,-121.94 127.67,-122.53 125.73,-115.8"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_severitylevels -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge9" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M183.87,-81.49C172.42,-78.13 159.68,-74.39 148,-71 141.12,-69 133.88,-66.9 126.73,-64.84"/>
+<polygon fill="transparent" stroke="transparent" points="127.67,-61.47 117.09,-62.06 125.73,-68.2 127.67,-61.47"/>
+</g>
+<!-- gFTL_StringUnlimitedMap -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_node8" class="node">
+<title>gFTL_StringUnlimitedMap</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-104 0,-104 0,-80 148,-80 148,-104"/>
+<text text-anchor="middle" x="74" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringUnlimitedMap</text>
+</g>
+<!-- module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge7" class="edge">
+<title>module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M183.78,-92C175.89,-92 167.2,-92 158.29,-92"/>
+<polygon fill="transparent" stroke="transparent" points="158.16,-88.5 148.16,-92 158.16,-95.5 158.16,-88.5"/>
+</g>
+<!-- module~pfl_loggermanager&#45;&gt;module~pfl_logger -->
+<g id="proc~~new_stationsampler_readfile~~UsesGraph_edge10" class="edge">
+<title>module~pfl_loggermanager&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M292.75,-92C284.21,-92 275.54,-92 267.32,-92"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="267.2,-88.5 257.2,-92 267.2,-95.5 267.2,-88.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocnew_stationsampler_readfileUsesGraph = svgPanZoom('#procnew_stationsampler_readfileUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filename~11"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nskip_line"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nskip_line</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~326"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-sampler"></span>
+          type(<a href='../type/stationsampler.html'>StationSampler</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_stationsampler_readfile~~CallsGraph Pages: 1 -->
+<svg id="procnew_stationsampler_readfileCallsGraph" width="641pt" height="167pt"
+ viewBox="0.00 0.00 641.00 166.75" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_stationsampler_readfile~~CallsGraph" class="graph" transform="scale(2.31 2.31) rotate(0) translate(4 381)">
+<title>proc~~new_stationsampler_readfile~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-381 1476,-381 1476,4 -4,4"/>
+<!-- proc~new_stationsampler_readfile -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node1" class="node">
+<title>proc~new_stationsampler_readfile</title>
+<polygon fill="none" stroke="black" points="280,-148 0,-148 0,-124 280,-124 280,-148"/>
+<text text-anchor="middle" x="140" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50">StationSamplerMod::new_StationSampler_readfile</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="592.5,-335 375.5,-335 375.5,-311 592.5,-311 592.5,-335"/>
+<text text-anchor="middle" x="484" y="-320.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~new_stationsampler_readfile&#45;&gt;interface~mapl_assert -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge1" class="edge">
+<title>proc~new_stationsampler_readfile&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M153.02,-148.1C179.89,-174.5 247.81,-237.71 316,-273 346.56,-288.81 382.91,-300.44 413.89,-308.49"/>
+<polygon fill="#255000" stroke="#255000" points="413.19,-311.92 423.74,-310.97 414.9,-305.13 413.19,-311.92"/>
+</g>
+<!-- none~get_logger~2 -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node3" class="node">
+<title>none~get_logger~2</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node3"><a xlink:href="../type/loggermanager.html#boundprocedure-get_logger~2" xlink:title="PFL_LoggerManager::LoggerManager%get_logger">
+<polygon fill="#a7506f" stroke="#a7506f" points="624,-108 344,-108 344,-84 624,-84 624,-108"/>
+<text text-anchor="middle" x="484" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager::LoggerManager%get_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~new_stationsampler_readfile&#45;&gt;none~get_logger~2 -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge2" class="edge">
+<title>proc~new_stationsampler_readfile&#45;&gt;none~get_logger~2</title>
+<path fill="none" stroke="#255000" d="M243.61,-124C283.51,-119.33 329.35,-113.97 370.18,-109.2"/>
+<polygon fill="#255000" stroke="#255000" points="370.64,-112.67 380.17,-108.03 369.83,-105.71 370.64,-112.67"/>
+</g>
+<!-- proc~count_substring -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node4" class="node">
+<title>proc~count_substring</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node4"><a xlink:href="../proc/count_substring.html" xlink:title="StationSamplerMod::count_substring">
+<polygon fill="#d9534f" stroke="#d9534f" points="588.5,-66 379.5,-66 379.5,-42 588.5,-42 588.5,-66"/>
+<text text-anchor="middle" x="484" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StationSamplerMod::count_substring</text>
+</a>
+</g>
+</g>
+<!-- proc~new_stationsampler_readfile&#45;&gt;proc~count_substring -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge3" class="edge">
+<title>proc~new_stationsampler_readfile&#45;&gt;proc~count_substring</title>
+<path fill="none" stroke="#255000" d="M169.55,-123.95C203.75,-110.02 263.06,-87.41 316,-75 333.04,-71 351.26,-67.73 369.16,-65.06"/>
+<polygon fill="#255000" stroke="#255000" points="369.66,-68.52 379.06,-63.63 368.66,-61.59 369.66,-68.52"/>
+</g>
+<!-- proc~create_locstream -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node5" class="node">
+<title>proc~create_locstream</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node5"><a xlink:href="../proc/create_locstream.html" xlink:title="LocStreamFactoryMod::LocStreamFactory%create_locstream">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="652,-188 316,-188 316,-164 652,-164 652,-188"/>
+<text text-anchor="middle" x="484" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LocStreamFactoryMod::LocStreamFactory%create_locstream</text>
+</a>
+</g>
+</g>
+<!-- proc~new_stationsampler_readfile&#45;&gt;proc~create_locstream -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge4" class="edge">
+<title>proc~new_stationsampler_readfile&#45;&gt;proc~create_locstream</title>
+<path fill="none" stroke="#255000" d="M243.61,-148C283.51,-152.67 329.35,-158.03 370.18,-162.8"/>
+<polygon fill="#255000" stroke="#255000" points="369.83,-166.29 380.17,-163.97 370.64,-159.33 369.83,-166.29"/>
+</g>
+<!-- proc~debug -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node6" class="node">
+<title>proc~debug</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node6"><a xlink:href="../proc/debug.html" xlink:title="PFL_Logger::Logger%debug">
+<polygon fill="#d9534f" stroke="#d9534f" points="565,-24 403,-24 403,0 565,0 565,-24"/>
+<text text-anchor="middle" x="484" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger::Logger%debug</text>
+</a>
+</g>
+</g>
+<!-- proc~new_stationsampler_readfile&#45;&gt;proc~debug -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge5" class="edge">
+<title>proc~new_stationsampler_readfile&#45;&gt;proc~debug</title>
+<path fill="none" stroke="#255000" d="M156.79,-123.65C186.22,-101.37 252.27,-54.73 316,-33 340.3,-24.72 367.58,-19.65 392.94,-16.56"/>
+<polygon fill="#255000" stroke="#255000" points="393.38,-20.03 402.93,-15.43 392.6,-13.08 393.38,-20.03"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="951,-83 731,-83 731,-59 951,-59 951,-83"/>
+<text text-anchor="middle" x="841" y="-68.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~new_stationsampler_readfile&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge6" class="edge">
+<title>proc~new_stationsampler_readfile&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M235.65,-148.04C340.41,-157.84 512.84,-163.44 652,-117 670.48,-110.83 669.85,-99.08 688,-92 698.46,-87.92 709.6,-84.61 720.9,-81.93"/>
+<polygon fill="#255000" stroke="#255000" points="721.86,-85.31 730.87,-79.74 720.35,-78.47 721.86,-85.31"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="948,-293 734,-293 734,-269 948,-269 948,-293"/>
+<text text-anchor="middle" x="841" y="-278.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~new_stationsampler_readfile&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge7" class="edge">
+<title>proc~new_stationsampler_readfile&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M170.57,-148.02C204.99,-161.61 263.8,-183.58 316,-197 478.41,-238.74 522.26,-234.52 688,-260 704.62,-262.55 722.28,-265.13 739.46,-267.55"/>
+<polygon fill="#255000" stroke="#255000" points="739.12,-271.04 749.51,-268.96 740.1,-264.1 739.12,-271.04"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node15" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node15"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="977,-377 705,-377 705,-353 977,-353 977,-377"/>
+<text text-anchor="middle" x="841" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M586.73,-335.04C631.02,-340.28 683.05,-346.43 728.4,-351.8"/>
+<polygon fill="#255000" stroke="#255000" points="728.22,-355.3 738.56,-353 729.04,-348.35 728.22,-355.3"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node16"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="984,-335 698,-335 698,-311 984,-311 984,-335"/>
+<text text-anchor="middle" x="841" y="-320.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M592.96,-323C622.78,-323 655.71,-323 687.54,-323"/>
+<polygon fill="#255000" stroke="#255000" points="687.83,-326.5 697.83,-323 687.83,-319.5 687.83,-326.5"/>
+</g>
+<!-- proc~get_logger_root -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node14" class="node">
+<title>proc~get_logger_root</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node14"><a xlink:href="../proc/get_logger_root.html" xlink:title="PFL_LoggerManager::LoggerManager%get_logger_root">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="994,-41 688,-41 688,-17 994,-17 994,-41"/>
+<text text-anchor="middle" x="841" y="-26.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager::LoggerManager%get_logger_root</text>
+</a>
+</g>
+</g>
+<!-- none~get_logger~2&#45;&gt;proc~get_logger_root -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge10" class="edge">
+<title>none~get_logger~2&#45;&gt;proc~get_logger_root</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M623.45,-83.92C633.25,-81.45 642.86,-78.5 652,-75 670.19,-68.03 669.85,-57.08 688,-50 693.94,-47.68 700.11,-45.61 706.39,-43.76"/>
+<polygon fill="transparent" stroke="transparent" points="707.64,-47.05 716.37,-41.04 705.8,-40.3 707.64,-47.05"/>
+</g>
+<!-- proc~create_locstream&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge15" class="edge">
+<title>proc~create_locstream&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M624.76,-163.84C634.36,-160.14 643.56,-155.59 652,-150 677.3,-133.25 662.56,-108.53 688,-92 698.03,-85.48 709.23,-80.6 720.86,-76.99"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="722.03,-80.3 730.73,-74.24 720.15,-73.55 722.03,-80.3"/>
+</g>
+<!-- proc~create_locstream&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge16" class="edge">
+<title>proc~create_locstream&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M514.27,-188.06C547.62,-201.82 603.76,-224.98 652,-245 668.01,-251.64 671.28,-255.44 688,-260 699.45,-263.12 711.51,-265.79 723.63,-268.07"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="723.35,-271.58 733.81,-269.9 724.58,-264.69 723.35,-271.58"/>
+</g>
+<!-- ESMF_LocStreamAddKey -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node9" class="node">
+<title>ESMF_LocStreamAddKey</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="930,-125 752,-125 752,-101 930,-101 930,-125"/>
+<text text-anchor="middle" x="841" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_LocStreamAddKey</text>
+</g>
+<!-- proc~create_locstream&#45;&gt;ESMF_LocStreamAddKey -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge11" class="edge">
+<title>proc~create_locstream&#45;&gt;ESMF_LocStreamAddKey</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M590.17,-163.96C610.88,-160.37 632.3,-155.8 652,-150 668.8,-145.05 671.16,-138.8 688,-134 705.18,-129.1 723.8,-125.33 741.91,-122.42"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="742.56,-125.87 751.92,-120.9 741.5,-118.95 742.56,-125.87"/>
+</g>
+<!-- ESMF_LocStreamCreate -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node10" class="node">
+<title>ESMF_LocStreamCreate</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="928,-251 754,-251 754,-227 928,-227 928,-251"/>
+<text text-anchor="middle" x="841" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_LocStreamCreate</text>
+</g>
+<!-- proc~create_locstream&#45;&gt;ESMF_LocStreamCreate -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge12" class="edge">
+<title>proc~create_locstream&#45;&gt;ESMF_LocStreamCreate</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M538.24,-188.03C579.08,-197.01 636.93,-209.2 688,-218 706.03,-221.11 725.32,-224.06 743.9,-226.71"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="743.44,-230.18 753.83,-228.11 744.42,-223.25 743.44,-230.18"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node11" class="node">
+<title>ESMF_VMGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="899.5,-209 782.5,-209 782.5,-185 899.5,-185 899.5,-209"/>
+<text text-anchor="middle" x="841" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGet</text>
+</g>
+<!-- proc~create_locstream&#45;&gt;ESMF_VMGet -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge13" class="edge">
+<title>proc~create_locstream&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M652.1,-185.89C694.48,-188.39 737.65,-190.95 771.9,-192.97"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="772.05,-196.49 782.23,-193.58 772.46,-189.5 772.05,-196.49"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node12" class="node">
+<title>ESMF_VMGetCurrent</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="919.5,-167 762.5,-167 762.5,-143 919.5,-143 919.5,-167"/>
+<text text-anchor="middle" x="841" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGetCurrent</text>
+</g>
+<!-- proc~create_locstream&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge14" class="edge">
+<title>proc~create_locstream&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M652.1,-166.11C686.68,-164.07 721.79,-161.99 752.15,-160.2"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="752.48,-163.68 762.25,-159.6 752.06,-156.7 752.48,-163.68"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1283,-178 1030,-178 1030,-154 1283,-154 1283,-178"/>
+<text text-anchor="middle" x="1156.5" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#720255" d="M951.17,-82.15C965.71,-84.78 980.32,-88.01 994,-92 1041.9,-105.95 1093.75,-131.82 1125.43,-148.97"/>
+<polygon fill="#720255" stroke="#720255" points="1124.14,-152.26 1134.59,-153.99 1127.5,-146.12 1124.14,-152.26"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node17" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node17"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1271,-314 1042,-314 1042,-290 1271,-290 1271,-314"/>
+<text text-anchor="middle" x="1156.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#720255" d="M951.28,-71.66C966.76,-75.7 981.6,-82.12 994,-92 1029.31,-120.14 1004.67,-149.62 1030,-187 1057.35,-227.35 1101.55,-263.44 1129.54,-284.01"/>
+<polygon fill="#720255" stroke="#720255" points="1127.51,-286.87 1137.67,-289.89 1131.61,-281.19 1127.51,-286.87"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M948.14,-288.11C975.03,-289.91 1004.15,-291.86 1031.83,-293.72"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="1031.75,-297.22 1041.96,-294.39 1032.22,-290.23 1031.75,-297.22"/>
+</g>
+<!-- at -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node18" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1422.5,-199 1368.5,-199 1368.5,-175 1422.5,-175 1422.5,-199"/>
+<text text-anchor="middle" x="1395.5" y="-184.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge20" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M1283.29,-177.15C1310.83,-179.59 1337.86,-181.98 1358.36,-183.8"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="1358.19,-187.3 1368.46,-184.69 1358.81,-180.32 1358.19,-187.3"/>
+</g>
+<!-- insert -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node19" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1422.5,-157 1368.5,-157 1368.5,-133 1422.5,-133 1422.5,-157"/>
+<text text-anchor="middle" x="1395.5" y="-142.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M1283.29,-154.85C1310.83,-152.41 1337.86,-150.02 1358.36,-148.2"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="1358.81,-151.68 1368.46,-147.31 1358.19,-144.7 1358.81,-151.68"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M941.62,-352.94C959.14,-350.34 977.15,-347.34 994,-344 1031.44,-336.57 1073.11,-325.67 1104.75,-316.83"/>
+<polygon fill="#002505" stroke="#002505" points="1105.98,-320.12 1114.65,-314.04 1104.08,-313.38 1105.98,-320.12"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M969.18,-310.98C977.74,-308.48 986.09,-305.52 994,-302 1025.91,-287.8 1099.82,-219.37 1135.51,-185.32"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1138.11,-187.67 1142.91,-178.22 1133.27,-182.62 1138.11,-187.67"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M984.07,-313.48C999.89,-312.42 1015.9,-311.35 1031.47,-310.31"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1031.88,-313.79 1041.63,-309.63 1031.41,-306.8 1031.88,-313.79"/>
+</g>
+<!-- proc~initialize~5 -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_node20" class="node">
+<title>proc~initialize~5</title>
+<g id="a_proc~~new_stationsampler_readfile~~CallsGraph_node20"><a xlink:href="../proc/initialize~5.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1472,-314 1319,-314 1319,-290 1472,-290 1472,-314"/>
+<text text-anchor="middle" x="1395.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~5 -->
+<g id="proc~~new_stationsampler_readfile~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~5</title>
+<path fill="none" stroke="transparent" d="M1271.14,-302C1283.76,-302 1296.46,-302 1308.65,-302"/>
+<polygon fill="transparent" stroke="transparent" points="1308.77,-305.5 1318.77,-302 1308.77,-298.5 1308.77,-305.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocnew_stationsampler_readfileCallsGraph = svgPanZoom('#procnew_stationsampler_readfileCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_stationsampler_readfile~~CalledByGraph Pages: 1 -->
+<svg id="procnew_stationsampler_readfileCalledByGraph" width="532pt" height="32pt"
+ viewBox="0.00 0.00 532.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_stationsampler_readfile~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~new_stationsampler_readfile~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 528,-28 528,4 -4,4"/>
+<!-- proc~new_stationsampler_readfile -->
+<g id="proc~~new_stationsampler_readfile~~CalledByGraph_node1" class="node">
+<title>proc~new_stationsampler_readfile</title>
+<polygon fill="none" stroke="black" points="524,-24 244,-24 244,0 524,0 524,-24"/>
+<text text-anchor="middle" x="384" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">StationSamplerMod::new_StationSampler_readfile</text>
+</g>
+<!-- interface~stationsampler -->
+<g id="proc~~new_stationsampler_readfile~~CalledByGraph_node2" class="node">
+<title>interface~stationsampler</title>
+<g id="a_proc~~new_stationsampler_readfile~~CalledByGraph_node2"><a xlink:href="../interface/stationsampler.html" xlink:title="StationSamplerMod::StationSampler">
+<polygon fill="#a7506f" stroke="#a7506f" points="208,-24 0,-24 0,0 208,0 208,-24"/>
+<text text-anchor="middle" x="104" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StationSamplerMod::StationSampler</text>
+</a>
+</g>
+</g>
+<!-- interface~stationsampler&#45;&gt;proc~new_stationsampler_readfile -->
+<g id="proc~~new_stationsampler_readfile~~CalledByGraph_edge1" class="edge">
+<title>interface~stationsampler&#45;&gt;proc~new_stationsampler_readfile</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M208.12,-12C216.45,-12 224.97,-12 233.53,-12"/>
+<polygon fill="#255000" stroke="#255000" points="233.61,-15.5 243.61,-12 233.61,-8.5 233.61,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">function </span><span class="n">new_StationSampler_readfile</span><span class="w"> </span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">nskip_line</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">sampler</span><span class="p">)</span>
+<span class="w">    </span><span class="k">use </span><span class="n">pflogger</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="w">             </span><span class="p">:</span><span class="w">  </span><span class="n">Logger</span><span class="p">,</span><span class="w"> </span><span class="n">logging</span>
+<span class="w">    </span><span class="k">implicit none</span>
+<span class="k">    type</span><span class="p">(</span><span class="n">StationSampler</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">sampler</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nskip_line</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">ios</span><span class="p">,</span><span class="w"> </span><span class="n">nstation</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ncount</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">con1</span><span class="p">,</span><span class="w"> </span><span class="n">con2</span>
+<span class="w">    </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">CH1</span>
+<span class="w">    </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">seq</span>
+<span class="w">    </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">line2</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">nskip</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+
+<span class="w">    </span><span class="c">!__ 1. read from station_id_file: static</span>
+<span class="w">    </span><span class="c">!      plain text format:</span>
+<span class="w">    </span><span class="c">!      [&quot;name,lat,lon,elev&quot;] or [&quot;id,name,lat,lon,elev&quot;]</span>
+<span class="w">    </span><span class="c">!      [&quot;name_short lat lon elev name_full&quot;]</span>
+<span class="w">    </span><span class="c">!</span>
+
+<span class="w">    </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="k">file</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span><span class="w"> </span><span class="n">form</span><span class="o">=</span><span class="s1">&#39;formatted&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="nb">access</span><span class="o">=</span><span class="s1">&#39;sequential&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;old&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IOSTAT</span><span class="p">)</span>
+<span class="w">    </span><span class="n">ios</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">    </span><span class="n">nstation</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">    </span><span class="n">nskip</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">nskip_line</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">nskip</span><span class="o">=</span><span class="n">nskip_line</span>
+<span class="w">    </span><span class="k">end if</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">nskip</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nskip</span>
+<span class="w">          </span><span class="k">read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">    end if</span>
+<span class="k">    read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(a100)&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span><span class="w"> </span><span class="n">line</span>
+<span class="w">    </span><span class="k">call </span><span class="n">count_substring</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ncount</span><span class="p">)</span>
+<span class="w">    </span><span class="n">con1</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">ncount</span><span class="o">&gt;=</span><span class="mi">2</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">ncount</span><span class="o">&lt;=</span><span class="mi">4</span><span class="p">).</span><span class="nb">OR</span><span class="p">.(</span><span class="n">ncount</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">con1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;string sequence in Aeronet file not supported&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ncount</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">seq</span><span class="o">=</span><span class="s1">&#39;AFFFA&#39;</span>
+<span class="w">    </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">ncount</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">seq</span><span class="o">=</span><span class="s1">&#39;AFF&#39;</span>
+<span class="w">    </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">ncount</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">seq</span><span class="o">=</span><span class="s1">&#39;AFFF&#39;</span>
+<span class="w">    </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">ncount</span><span class="o">==</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">CH1</span><span class="o">=</span><span class="n">line</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="n">con1</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">CH1</span><span class="o">&gt;=</span><span class="s1">&#39;a&#39;</span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="n">CH1</span><span class="o">&lt;=</span><span class="s1">&#39;z&#39;</span><span class="p">).</span><span class="nb">OR</span><span class="p">.(</span><span class="n">CH1</span><span class="o">&gt;=</span><span class="s1">&#39;A&#39;</span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="n">CH1</span><span class="o">&lt;=</span><span class="s1">&#39;Z&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="n">con2</span><span class="o">=</span><span class="w"> </span><span class="n">CH1</span><span class="o">&gt;=</span><span class="s1">&#39;0&#39;</span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="n">CH1</span><span class="o">&lt;=</span><span class="s1">&#39;9&#39;</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">con1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">seq</span><span class="o">=</span><span class="s1">&#39;AIFFF&#39;</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="n">con2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">seq</span><span class="o">=</span><span class="s1">&#39;IAFFF&#39;</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;string sequence in Aeronet file not supported&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       end if</span>
+<span class="k">    end if</span>
+
+<span class="k">    rewind</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nskip</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nskip</span>
+<span class="w">          </span><span class="k">read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">    end if</span>
+<span class="k">    </span><span class="n">ios</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">    </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">ios</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">       </span><span class="k">read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(a100)&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span><span class="w"> </span><span class="n">line</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ios</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">nstation</span><span class="o">=</span><span class="n">nstation</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">    </span><span class="k">end do</span>
+<span class="k">    </span><span class="n">sampler</span><span class="p">%</span><span class="n">nstation</span><span class="o">=</span><span class="n">nstation</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">station_id</span><span class="p">(</span><span class="n">nstation</span><span class="p">))</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">station_name</span><span class="p">(</span><span class="n">nstation</span><span class="p">))</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">station_fullname</span><span class="p">(</span><span class="n">nstation</span><span class="p">))</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="n">nstation</span><span class="p">))</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="n">nstation</span><span class="p">))</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">elevs</span><span class="p">(</span><span class="n">nstation</span><span class="p">))</span>
+
+<span class="w">    </span><span class="k">rewind</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nskip</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nskip</span>
+<span class="w">          </span><span class="k">read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">    end if</span>
+<span class="k">    do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nstation</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="n">seq</span><span class="o">==</span><span class="s1">&#39;IAFFF&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_id</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_name</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">       </span><span class="k">elseif</span><span class="p">(</span><span class="n">seq</span><span class="o">==</span><span class="s1">&#39;AIFFF&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_name</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_id</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">       </span><span class="k">elseif</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;AFF&#39;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;AFFF&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_name</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_id</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">i</span>
+<span class="w">       </span><span class="k">elseif</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;AFFFA&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">       </span><span class="c">! Ex: &#39;ZI000067991 -22.2170   30.0000  457.0 BEITBRIDGE 67991&#39;</span>
+<span class="w">          </span><span class="k">read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_name</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sampler</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_id</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">i</span>
+<span class="w">          </span><span class="k">backspace</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+<span class="w">          </span><span class="k">read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(a100)&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span><span class="w"> </span><span class="n">line</span>
+<span class="w">          </span><span class="n">j</span><span class="o">=</span><span class="nb">index</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">BACK</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+<span class="w">          </span><span class="n">line2</span><span class="o">=</span><span class="n">line</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">          </span><span class="n">k</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">line2</span><span class="p">)</span>
+<span class="w">          </span><span class="n">line</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">k</span>
+<span class="w">             </span><span class="n">CH1</span><span class="o">=</span><span class="n">line2</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
+<span class="w">             </span><span class="n">con1</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">CH1</span><span class="o">&gt;=</span><span class="s1">&#39;a&#39;</span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="n">CH1</span><span class="o">&lt;=</span><span class="s1">&#39;z&#39;</span><span class="p">).</span><span class="nb">OR</span><span class="p">.(</span><span class="n">CH1</span><span class="o">&gt;=</span><span class="s1">&#39;A&#39;</span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="n">CH1</span><span class="o">&lt;=</span><span class="s1">&#39;Z&#39;</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">con1</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">          enddo</span>
+<span class="k">          read</span><span class="p">(</span><span class="n">line2</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;(a100)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">line</span>
+<span class="w">          </span><span class="n">line2</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">          </span><span class="n">k</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">line2</span><span class="p">)</span>
+<span class="w">          </span><span class="n">line</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">k</span>
+<span class="w">             </span><span class="n">CH1</span><span class="o">=</span><span class="n">line2</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span>
+<span class="w">             </span><span class="n">con1</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">CH1</span><span class="o">&gt;=</span><span class="s1">&#39;0&#39;</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">CH1</span><span class="o">&lt;=</span><span class="s1">&#39;9&#39;</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">con1</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">          enddo</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="o">&gt;</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="n">k</span>
+<span class="w">          </span><span class="n">sampler</span><span class="p">%</span><span class="n">station_fullname</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">line2</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">    end do</span>
+<span class="k">    close</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+<span class="w">    </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;HISTORY.sampler&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;%a %i8&#39;</span><span class="p">,</span><span class="w">   </span><span class="s1">&#39;nstation=&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nstation</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;%a %a %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sampler%station_name(1:2) : &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="nb">trim</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">station_name</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">station_name</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+<span class="w">    </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;%a %f8.2 %f8.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sampler%lons(1:2) : &#39;</span><span class="p">,&amp;</span>
+<span class="w">         </span><span class="n">sampler</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">sampler</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="w">    </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;%a %f8.2 %f8.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sampler%lats(1:2) : &#39;</span><span class="p">,&amp;</span>
+<span class="w">         </span><span class="n">sampler</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">sampler</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="w">    </span><span class="c">!__ 2. create LocStreamFactory, then esmf_ls including route_handle</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="n">sampler</span><span class="p">%</span><span class="n">LSF</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">LocStreamFactory</span><span class="p">(</span><span class="n">sampler</span><span class="p">%</span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">sampler</span><span class="p">%</span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="n">sampler</span><span class="p">%</span><span class="n">esmf_ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sampler</span><span class="p">%</span><span class="n">LSF</span><span class="p">%</span><span class="n">create_locstream</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="c">! init ofile</span>
+<span class="w">    </span><span class="n">sampler</span><span class="p">%</span><span class="n">ofile</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+<span class="w">    </span><span class="n">sampler</span><span class="p">%</span><span class="n">obs_written</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end function </span><span class="n">new_StationSampler_readfile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-06T15:11:55.344614             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
