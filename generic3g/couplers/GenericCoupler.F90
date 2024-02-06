@@ -10,6 +10,7 @@ module mapl3g_GenericCoupler
    private
 
    public :: setServices
+   public :: make_coupler
 
    character(*), parameter :: COUPLER_PRIVATE_STATE = 'MAPL::CouplerMetaComponent::private'
 
@@ -18,7 +19,7 @@ contains
    function make_coupler(action, source, rc) result(coupler_gridcomp)
       type(ESMF_GridComp) :: coupler_gridcomp
       class(ExtensionAction), intent(in) :: action
-      type(GriddedComponentDriver), pointer, optional, intent(in) :: source
+      type(GriddedComponentDriver), target, optional, intent(in) :: source
       integer, optional, intent(out) :: rc
 
       integer :: status
