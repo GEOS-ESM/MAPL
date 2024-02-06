@@ -12,6 +12,7 @@
 module NCIOMod
 
   use FileIOSharedMod, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
+  use FileIOSharedMod, only: ArrayScatterShm
   use ESMF
   use MAPL_BaseMod
   use MAPL_CommsMod
@@ -852,6 +853,7 @@ module NCIOMod
     logical :: AM_WRITER
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
+    real :: t0, t1, maxtime
 
     if (present(arrdes)) then
        !if(arrdes%write_restart_by_oserver) then
@@ -926,8 +928,12 @@ module NCIOMod
           _VERIFY(STATUS)
        endif
 
+       t0 = mpi_wtime()
        call mpi_gatherv( a, size(a), MPI_REAL, recvbuf, recvcounts, displs, MPI_REAL, &
                       0, arrdes%iogathercomm, status )
+       _VERIFY(STATUS)
+       t1 = mpi_wtime()
+       call mpi_allreduce(t1-t0,maxtime,1, MPI_REAL, MPI_MAX, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
 
        if(myiorank==0) then
@@ -1240,11 +1246,14 @@ module NCIOMod
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(GVAR(Rsize), stat=status)
           _VERIFY(STATUS)
+          allocate(VAR(Rsize), stat=status)
+          _VERIFY(STATUS)
+          allocate(msk(Rsize), stat=status)
+          _VERIFY(STATUS)
+       else
+          allocate(VAR(0), msk(0), stat=status)
+          _VERIFY(STATUS)
        end if
-       allocate(VAR(Rsize), stat=status)
-       _VERIFY(STATUS)
-       allocate(msk(Rsize), stat=status)
-       _VERIFY(STATUS)
        allocate (recvcounts(0:npes-1), stat=status)
        _VERIFY(STATUS)
        allocate (r2g(0:nwrts-1), stat=status)
@@ -1808,6 +1817,7 @@ module NCIOMod
 
 ! Local variables
     real(kind=ESMF_KIND_R4),  allocatable :: VAR(:)
+    real(kind=ESMF_KIND_R4),  pointer     :: VR(:)=>null()
     integer                               :: IM_WORLD
     integer                               :: status
     character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarReadNCpar_R4_1d'
@@ -1829,6 +1839,7 @@ module NCIOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activesendcounts(:)
     integer                               :: start(4), cnt(4)
+    logical                               :: amIRoot
 
     logical :: AM_READER
 
@@ -1844,6 +1855,8 @@ module NCIOMod
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
+
+#ifdef USE_MAPL_ORIGINAL_TILE_HANDLING
 
        call mpi_comm_size(arrdes%ioscattercomm,npes ,status)
        _VERIFY(STATUS)
@@ -2048,6 +2061,56 @@ module NCIOMod
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           deallocate(idx)
        end if
+
+#else
+
+!if USE_MAPL_ORIGINAL_TILE_HANDLING
+
+       amIRoot = MAPL_am_i_root(layout)
+       if (.not. MAPL_ShmInitialized) then
+          if (amIRoot) then
+             allocate(VR(IM_WORLD), stat=status)
+             _VERIFY(STATUS)
+          else
+             allocate(VR(0), stat=status)
+             _VERIFY(STATUS)
+          end if
+       else
+          call MAPL_AllocNodeArray(vr,[IM_WORLD],_RC)
+       end if
+
+       if (amIRoot) then
+          start(1) = 1
+          start(2) = 1
+          start(3) = 1
+          if ( present(offset1) ) start(2) = offset1
+          if ( present(offset2) ) start(3) = offset2
+          start(4) = 1
+          cnt(1) = im_world
+          cnt(2) = 1
+          cnt(3) = 1
+          cnt(4) = 1
+
+          call formatter%get_var(trim(name),vr,start=start,count=cnt,rc=status)
+          if(status /= nf_noerr) then
+             print*,'Error reading variable ',status
+             print*, NF_STRERROR(status)
+             _VERIFY(STATUS)
+          endif
+       end if
+
+       if (.not. MAPL_ShmInitialized) then
+          call ArrayScatter(A, VR, arrdes%grid, mask=mask, rc=status)
+          _VERIFY(STATUS)
+
+          deallocate(VR)
+       else
+          call ArrayScatterShm(A, VR, arrdes%grid, mask=mask, rc=status)
+          _VERIFY(STATUS)
+          call MAPL_DeAllocNodeArray(VR,rc=STATUS)
+          _VERIFY(STATUS)
+       end if
+#endif
 
     else
 
@@ -2407,6 +2470,7 @@ module NCIOMod
     logical :: AM_WRITER
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
+    real :: t0, t1, maxtime
 
     if (present(arrdes)) then
        !if( arrdes%write_restart_by_oserver) then
@@ -2480,8 +2544,12 @@ module NCIOMod
           _VERIFY(STATUS)
        endif
 
+       t0 = mpi_wtime()
        call mpi_gatherv( a, size(a), MPI_DOUBLE_PRECISION, recvbuf, recvcounts, displs, &
                          MPI_DOUBLE_PRECISION, 0, arrdes%iogathercomm, status )
+       _VERIFY(STATUS)
+       t1 = mpi_wtime()
+       call mpi_allreduce(t1-t0,maxtime,1, MPI_REAL, MPI_MAX, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
 
        if(myiorank==0) then

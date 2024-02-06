@@ -56,6 +56,7 @@
    use pflogger, only: logging, Logger
    use MAPL_ExtDataLogger
    use MAPL_ExtDataConstants
+   use MAPL_MemUtilsMod
 
    IMPLICIT NONE
    PRIVATE
@@ -322,6 +323,8 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
+   call MAPL_MemUtilsWrite(vm, 'MAPL_ExtData:Initialize_: Begin ', rc = status)
+
    call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
    self%active = am_i_running(new_rc_file,_RC)
 
@@ -495,6 +498,7 @@ CONTAINS
 !  All done
 !  --------
 
+   call MAPL_MemUtilsWrite(vm, 'MAPL_ExtData:Initialize_: End ', rc = status) 
    call extdata_lgr%debug('ExtData Initialize_(): End')
 
    _RETURN(ESMF_SUCCESS)
@@ -567,13 +571,14 @@ CONTAINS
    integer :: idx,nitems
    type(ESMF_Config) :: cf_master
    type(ESMF_Time) :: adjusted_time
+   type(ESMF_VM) :: vm
 
    _UNUSED_DUMMY(IMPORT)
    _UNUSED_DUMMY(EXPORT)
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, _RC )
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, _RC )
 
 !  Extract relevant runtime information
 !  ------------------------------------
@@ -603,6 +608,7 @@ CONTAINS
 
    call extdata_lgr%debug('ExtData Rune_(): Start')
    call extdata_lgr%debug('ExtData Run_(): READ_LOOP: Start')
+   call MAPL_MemUtilsWrite(vm, 'MAPL_ExtData:Run:READ_LOOP Begin ', rc = status)
 
    READ_LOOP: do i=1,self%primary%import_names%size()
 
@@ -647,15 +653,19 @@ CONTAINS
 
    end do READ_LOOP
 
+   call MAPL_MemUtilsWrite(vm, 'MAPL_ExtData:Run:READ_LOOP Done ', rc = status)
    call extdata_lgr%debug('ExtData Run_: READ_LOOP: Done')
 
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IoBundles%end())
+      call MAPL_MemUtilsWrite(vm, 'MAPL_ExtData:Run:bundle_iter ', rc = status)
       io_bundle => bundle_iter%get()
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       file_Processed = io_bundle%file_name
       item => self%primary%item(entry_num)
+
+      call MAPL_MemUtilsWrite(vm, 'MAPL_ExtData:ESMF_FieldBundleCreate '//trim(io_bundle%file_name), rc = status)
 
       io_bundle%pbundle = ESMF_FieldBundleCreate(rc=status)
       _VERIFY(STATUS)
@@ -667,12 +677,12 @@ CONTAINS
 
    call MAPL_TimerOn(MAPLSTATE,"--PRead")
    call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
-   call MAPL_ExtDataCreateCFIO(IOBundles, rc=status)
+   call MAPL_ExtDataCreateCFIO(IOBundles, vm=vm, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
 
    call MAPL_TimerOn(MAPLSTATE,"---prefetch")
-   call MAPL_ExtDataPrefetch(IOBundles, rc=status)
+   call MAPL_ExtDataPrefetch(IOBundles, vm=vm, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---prefetch")
    _VERIFY(STATUS)
@@ -685,7 +695,7 @@ CONTAINS
    _VERIFY(STATUS)
 
    call MAPL_TimerOn(MAPLSTATE,"---read-prefetch")
-   call MAPL_ExtDataReadPrefetch(IOBundles,rc=status)
+   call MAPL_ExtDataReadPrefetch(IOBundles, vm=vm, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---read-prefetch")
    call MAPL_TimerOff(MAPLSTATE,"--PRead")
@@ -700,7 +710,7 @@ CONTAINS
       _VERIFY(status)
       call bundle_iter%next()
    enddo
-   call MAPL_ExtDataDestroyCFIO(IOBundles,rc=status)
+   call MAPL_ExtDataDestroyCFIO(IOBundles, vm=vm, rc=status)
    _VERIFY(status)
 
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
@@ -1408,8 +1418,9 @@ CONTAINS
 
   end subroutine MAPL_ExtDataPopulateBundle
 
-  subroutine MAPL_ExtDataCreateCFIO(IOBundles, rc)
+  subroutine MAPL_ExtDataCreateCFIO(IOBundles, vm, rc)
     type(IOBundleNGVector), target, intent(inout) :: IOBundles
+    type(ESMF_VM), optional, intent(in) :: vm
     integer, optional,      intent(out  ) :: rc
 
      type (IOBundleNGVectorIterator) :: bundle_iter
@@ -1419,6 +1430,7 @@ CONTAINS
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
+        If (present(vm)) call MAPL_MemUtilsWrite(vm, 'MAPL_ExtDataCreateCFIO '//trim(io_bundle%file_name), rc = status)
         call io_bundle%make_cfio(_RC)
         call bundle_iter%next()
      enddo
@@ -1427,8 +1439,9 @@ CONTAINS
 
   end subroutine MAPL_ExtDataCreateCFIO
 
-  subroutine MAPL_ExtDataDestroyCFIO(IOBundles,rc)
+  subroutine MAPL_ExtDataDestroyCFIO(IOBundles,vm,rc)
      type(IOBundleNGVector), target, intent(inout) :: IOBundles
+     type(ESMF_VM), optional, intent(in) :: vm
      integer, optional,      intent(out  ) :: rc
 
      type(IOBundleNGVectorIterator) :: bundle_iter
@@ -1438,6 +1451,7 @@ CONTAINS
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
+        If (present(vm)) call MAPL_MemUtilsWrite(vm, 'MAPL_ExtDataDestroyCFIO '//trim(io_bundle%file_name), rc = status)
         call io_bundle%clean(_RC)
         call bundle_iter%next
      enddo
@@ -1447,8 +1461,9 @@ CONTAINS
 
   end subroutine MAPL_ExtDataDestroyCFIO
 
-  subroutine MAPL_ExtDataPrefetch(IOBundles,rc)
+  subroutine MAPL_ExtDataPrefetch(IOBundles,vm,rc)
      type(IOBundleNGVector), target, intent(inout) :: IOBundles
+     type(ESMF_VM), optional, intent(in) :: vm
      integer, optional,      intent(out  ) :: rc
 
      integer :: n,nfiles
@@ -1459,6 +1474,7 @@ CONTAINS
 
      do n = 1, nfiles
         io_bundle => IOBundles%at(n)
+      If (present(vm)) call MAPL_MemUtilsWrite(vm, 'MAPL_ExtDataPrefetch '//trim(io_bundle%file_name), rc = status)
         call io_bundle%cfio%request_data_from_file(io_bundle%file_name,io_bundle%time_index,rc=status)
         _VERIFY(status)
      enddo
@@ -1467,8 +1483,9 @@ CONTAINS
 
   end subroutine MAPL_ExtDataPrefetch
 
-  subroutine MAPL_ExtDataReadPrefetch(IOBundles,rc)
+  subroutine MAPL_ExtDataReadPrefetch(IOBundles,vm,rc)
      type(IOBundleNGVector), target, intent(inout) :: IOBundles
+     type(ESMF_VM), optional, intent(in) :: vm
      integer, optional,      intent(out  ) :: rc
 
      integer :: nfiles, n
@@ -1479,6 +1496,7 @@ CONTAINS
      nfiles = IOBundles%size()
      do n=1, nfiles
         io_bundle => IOBundles%at(n)
+        If (present(vm)) call MAPL_MemUtilsWrite(vm, 'MAPL_ExtDataReadPrefetch '//trim(io_bundle%file_name), rc = status)
         call io_bundle%cfio%process_data_from_file(rc=status)
         _VERIFY(status)
      enddo
@@ -1818,7 +1836,7 @@ CONTAINS
            exit
         end if
      enddo
-     _ASSERT(found,"no item with that basename found")
+     _ASSERT(found,"no item with that basename found "//trim(base_name))
 
      item_index = -1
      if (num_rules == 1) then
@@ -1832,7 +1850,7 @@ CONTAINS
            endif
         enddo
      end if
-     _ASSERT(item_index/=-1,"did not find item")
+     _ASSERT(item_index/=-1,"did not find valid time item "//trim(base_name))
      _RETURN(_SUCCESS)
   end function get_item_index
 

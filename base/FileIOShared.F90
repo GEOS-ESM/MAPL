@@ -29,6 +29,7 @@ module FileIOSharedMod
 
   ! public interfaces
   public WRITE_PARALLEL
+  public ArrayScatterShm 
 
   ! public subroutines
   public MAPL_TileMaskGet
@@ -114,6 +115,10 @@ module FileIOSharedMod
      module procedure WRITE_PARALLEL_R8_1
      module procedure WRITE_PARALLEL_STRING_0
   end interface
+
+  interface ArrayScatterShm
+     module procedure ArrayScatterShmR4D1
+  end interface ArrayScatterShm
 
   contains
 
@@ -458,9 +463,13 @@ module FileIOSharedMod
          jminw(myid+1)=js
          jmaxw(myid+1)=je
          call MPI_AllReduce(MPI_IN_PLACE,iminw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         _VERIFY(STATUS)
          call MPI_AllReduce(MPI_IN_PLACE,imaxw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         _VERIFY(STATUS)
          call MPI_AllReduce(MPI_IN_PLACE,jminw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         _VERIFY(STATUS)
          call MPI_AllReduce(MPI_IN_PLACE,jmaxw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         _VERIFY(STATUS)
 
          call MAPL_Sort(iminw)
          call MAPL_Sort(imaxw)
@@ -615,5 +624,271 @@ module FileIOSharedMod
       if(present(lm_world)) ArrDes%lm_world = lm_world
 
     end subroutine ArrDescrSet
+
+    subroutine ArrDescrCreateWriterComm(arrdes, full_comm, num_writers, rc)
+       type(ArrDescr), intent(inout) :: arrdes
+       integer, intent(in) :: full_comm
+       integer, intent(in) :: num_writers
+       integer, optional, intent(out) :: rc
+
+       integer :: status, nx, ny, color, ny_by_writers, myid, j
+
+       nx = size(arrdes%i1)
+       ny = size(arrdes%j1)
+       _ASSERT(num_writers < ny,'num writers must be less than NY')
+       _ASSERT(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
+       call mpi_comm_rank(full_comm,myid, status)
+       _VERIFY(STATUS)
+       color =  arrdes%NX0
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
+       _VERIFY(STATUS)
+       color = arrdes%NY0
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status) 
+       _VERIFY(STATUS)
+       ny_by_writers = ny/num_writers
+       if (mod(myid,nx*ny/num_writers) == 0) then
+          color = 0
+       else
+          color = MPI_UNDEFINED
+       endif
+       call MPI_COMM_SPLIT(full_comm, color, myid, arrdes%writers_comm, status)
+       _VERIFY(STATUS)
+       if (num_writers==ny) then
+          arrdes%IOgathercomm = arrdes%Xcomm
+       else
+            j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_writers)
+          call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, status)
+          _VERIFY(STATUS)
+       endif
+
+
+       _RETURN(_SUCCESS)
+
+    end subroutine ArrDescrCreateWriterComm
+
+    subroutine ArrDescrCreateReaderComm(arrdes, full_comm, num_readers, rc)
+       type(ArrDescr), intent(inout) :: arrdes
+       integer, intent(in) :: full_comm
+       integer, intent(in) :: num_readers
+       integer, optional, intent(out) :: rc
+
+       integer :: status, nx, ny, color, ny_by_readers, myid, j
+
+       nx = size(arrdes%i1)
+       ny = size(arrdes%j1)
+       _ASSERT(num_readers < ny,'num readers must be less than NY')
+       _ASSERT(mod(ny,num_readers)==0,'num readers must evenly divide NY')
+
+       call mpi_comm_rank(full_comm,myid, status)
+       _VERIFY(STATUS)
+       color =  arrdes%NX0
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
+       _VERIFY(STATUS)
+       color = arrdes%NY0
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status) 
+       _VERIFY(STATUS)
+       ny_by_readers = ny/num_readers
+       if (mod(myid,nx*ny/num_readers) == 0) then
+          color = 0
+       else
+          color = MPI_UNDEFINED
+       endif
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%readers_comm, status)
+       _VERIFY(STATUS)
+       if (num_readers==ny) then
+          arrdes%IOscattercomm = arrdes%Xcomm
+       else
+          j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_readers)
+          call MPI_COMM_SPLIT(full_comm, j, MYID, arrdes%IOscattercomm, status)
+          _VERIFY(STATUS)
+       endif      
+
+       _RETURN(_SUCCESS)
+
+    end subroutine ArrDescrCreateReaderComm
+
+  subroutine ArrayScatterShmR4D1(local_array, global_array, grid, mask, rc)
+
+! Mask is really a permutation on the first dimension
+
+    real,         intent(  OUT) :: local_array(:)
+!    TYPE_(kind=EKIND_), target, intent(IN   ) :: global_array DIMENSIONS_
+    real, target                :: global_array(:)
+    type (ESMF_Grid)                          :: grid
+    integer, optional,          intent(IN   ) :: mask(:)
+    integer, optional,          intent(  OUT) :: rc
+
+! Local variables
+
+    integer                               :: status
+
+    real,    pointer        :: myglob(:) => null()
+    real,    pointer        :: VAR(:)
+    type (ESMF_DistGrid)                  :: distGrid
+    type(ESMF_DELayout)                   :: LAYOUT
+    type (ESMF_VM)                        :: vm
+    integer,               allocatable    :: AL(:,:)
+    integer,               allocatable    :: AU(:,:)
+    integer, dimension(:), allocatable    :: SENDCOUNTS, DISPLS
+    integer                               :: KK
+    integer                               :: nDEs
+    integer                               :: recvcount
+    integer                               :: I, K, II, deId
+    integer                               :: gridRank
+    integer                               :: LX
+    integer                               :: srcPE
+    integer                               :: ISZ
+    logical                               :: alloc_var
+    logical                               :: use_shmem
+
+! Works only on 1D and 2D arrays
+! Note: for tile variables the gridRank is 1
+! and the case RANK_=2 needs additional attention
+
+! use_shmem controls communication (bcastToNodes+local copy vs scatterv)
+    use_shmem = .true.
+
+    ! temporary Shmem restricted only to 1d and tile vars
+    if (.not.present(mask)) use_shmem = .false.
+
+! Optional change of source PE. Default=MAPL_Root
+
+    srcPE = MAPL_Root
+
+! Initialize
+    alloc_var = .true.
+
+! Get grid and layout information
+
+    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
+    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
+
+    if (use_shmem) then
+       srcPE = deId
+    end if
+
+    allocate (AL(gridRank,0:nDEs-1),  stat=status)
+    _VERIFY(STATUS)
+    allocate (AU(gridRank,0:nDEs-1),  stat=status)
+    _VERIFY(STATUS)
+    allocate (sendcounts(0:nDEs-1), stat=status)
+    _VERIFY(STATUS)
+    call MAPL_DistGridGet(distgrid, &
+         minIndex=AL, maxIndex=AU, rc=status)
+    _VERIFY(STATUS)
+
+    ISZ = size(GLOBAL_ARRAY,1)
+
+    if (use_shmem) then
+       call MAPL_SyncSharedMemory(rc=STATUS)
+       _VERIFY(STATUS)
+       call MAPL_BroadcastToNodes(global_array, N=ISZ, ROOT=MAPL_Root, rc=status)
+       _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(rc=STATUS)
+       _VERIFY(STATUS)
+    end if
+
+! Compute count to be sent to each PE
+
+    if(present(mask)) then
+       sendcounts = 0
+       do II = 1,ISZ
+          sendcounts(mask(ii)) = sendcounts(mask(ii)) + 1
+       enddo
+    else
+       do I = 0,nDEs-1
+          LX = AU(1,I) - AL(1,I) + 1
+          sendcounts(I) = LX
+       end do
+    end if
+
+! Count I will recieve
+
+    recvcount = sendcounts(deId)
+
+! Put VAR together at the srcPE
+
+    if (deId == srcPE) then
+
+       allocate(DISPLS(0:nDEs          ), stat=status)
+       _VERIFY(STATUS)
+
+! Compute displacements into the VAR vector
+
+       displs(0) = 0
+       do I = 1,nDEs
+          displs(I) = displs(I-1) + sendcounts(I-1)
+       end do
+
+       myglob => global_array
+
+! Fill the VAR vector
+
+       if (present(mask)) then
+          allocate(VAR(displs(deId):displs(deId+1)-1), stat=status)
+          _VERIFY(STATUS)
+          KK = DISPLS(deId)
+
+          do I=1,ISZ
+             K = MASK(I)
+             if(K == deId) then
+                II = KK
+                VAR(II) = MYGLOB(I)
+                KK = KK + 1
+             end if
+          end do
+
+       else
+
+          var => myglob
+          alloc_var = .false.
+
+       endif !  present(mask)
+
+     else
+        allocate(var(0:1), stat=status)
+        _VERIFY(STATUS)
+        allocate(DISPLS(0:nDEs), stat=status)
+        _VERIFY(STATUS)
+     end if !  I am srcPEa
+
+
+! Do the communications
+    if (use_shmem) then
+       ! copy my piece from var (var is local but was filled from shared array)
+       call MAPL_SyncSharedMemory(rc=STATUS)
+       _VERIFY(STATUS)
+       local_array = var(displs(deId):displs(deId+1)-1)
+       call MAPL_SyncSharedMemory(rc=STATUS)
+       _VERIFY(STATUS)
+    else
+       call MAPL_CommsScatterV(layout, var, sendcounts, displs, &
+                               local_array, recvcount, srcPE, status)
+       _VERIFY(STATUS)
+    end if
+
+! Clean-up
+
+    deallocate(displs, stat=status)
+    _VERIFY(STATUS)
+    if(alloc_var) then
+       deallocate(VAR, stat=status)
+       _VERIFY(STATUS)
+    end if
+
+    deallocate(sendcounts, stat=status)
+    _VERIFY(STATUS)
+    deallocate(AU,         stat=status)
+    _VERIFY(STATUS)
+    deallocate(AL,         stat=status)
+    _VERIFY(STATUS)
+
+! All done
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine ArrayScatterShmR4D1
 
 end module FileIOSharedMod
