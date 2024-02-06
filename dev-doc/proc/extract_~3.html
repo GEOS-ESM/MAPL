@@ -80,20 +80,20 @@
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip"
                  data-bs-placement="bottom" data-html="true"
-                 title=" 0.0% of total for procedures.">19 statements</a>
+                 title=" 0.0% of total for procedures.">35 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ExtDataGridCompNG.F90"> Source File</a>
+              <a href="../src/MAPL_OrbGridCompMod.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompng.f90.html'>ExtDataGridCompNG.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcomp2g.html'>MAPL_ExtDataGridComp2G</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_orbgridcompmod.f90.html'>MAPL_OrbGridCompMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_orbgridcompmod.html'>MAPL_OrbGridCompMod</a></li>
             <li class="breadcrumb-item active" aria-current="page">extract_</li>
           </ol>
         </nav>
@@ -145,7 +145,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine extract_(GC, self, CF, rc)  
+    <h2>private  subroutine extract_(GC, CLOCK, self, GRID, CF, Time, nymd, nhms, TimeInterval, rc)  
 </h2>
     
 
@@ -164,7 +164,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~96"></span>
+              <span class="anchor" id="variable-gc~21"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -179,8 +179,23 @@
         </tr>
         <tr>
             <td>
+              <span class="anchor" id="variable-clock~34"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
               <span class="anchor" id="variable-self~50"></span>
-              type(<a href='../type/mapl_extdata_state~2.html'>MAPL_ExtData_State</a>),
+              type(<a href='../type/orb_state.html'>Orb_State</a>),
             </td>
 <td></td>
               <td></td>            <td>
@@ -194,7 +209,22 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-cf~23"></span>
+              <span class="anchor" id="variable-grid~24"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GRID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cf~15"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_config.html'>ESMF_Config</a>),
             </td>
 <td>intent(out)</td>
@@ -209,7 +239,67 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2117"></span>
+              <span class="anchor" id="variable-time~4"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nymd~18"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nymd</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nhms~19"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nhms</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeinterval"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TimeInterval</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1458"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -237,145 +327,199 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~extract_~3~~CallsGraph Pages: 1 -->
-<svg id="procextract_3CallsGraph" width="641pt" height="106pt"
- viewBox="0.00 0.00 641.00 106.16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~extract_~3~~CallsGraph" class="graph" transform="scale(1.49 1.49) rotate(0) translate(4 154)">
+<svg id="procextract_3CallsGraph" width="641pt" height="194pt"
+ viewBox="0.00 0.00 641.00 193.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~extract_~3~~CallsGraph" class="graph" transform="scale(1.46 1.46) rotate(0) translate(4 280)">
 <title>proc~~extract_~3~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 950,-154 950,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 935,-280 935,4 -4,4"/>
 <!-- proc~extract_~3 -->
 <g id="proc~~extract_~3~~CallsGraph_node1" class="node">
 <title>proc~extract_~3</title>
-<polygon fill="none" stroke="black" points="207,-87 0,-87 0,-63 207,-63 207,-87"/>
-<text text-anchor="middle" x="103.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataGridComp2G::extract_</text>
+<polygon fill="none" stroke="black" points="192,-150 0,-150 0,-126 192,-126 192,-150"/>
+<text text-anchor="middle" x="96" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_OrbGridCompMod::extract_</text>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="proc~~extract_~3~~CallsGraph_node2" class="node">
+<title>ESMF_ClockGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="405.5,-276 275.5,-276 275.5,-252 405.5,-252 405.5,-276"/>
+<text text-anchor="middle" x="340.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ClockGet</text>
+</g>
+<!-- proc~extract_~3&#45;&gt;ESMF_ClockGet -->
+<g id="proc~~extract_~3~~CallsGraph_edge1" class="edge">
+<title>proc~extract_~3&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#255000" d="M107.94,-150.02C128.89,-172.25 177.15,-219.62 228,-243 239.69,-248.38 252.68,-252.38 265.54,-255.35"/>
+<polygon fill="#255000" stroke="#255000" points="264.82,-258.78 275.33,-257.43 266.28,-251.93 264.82,-258.78"/>
 </g>
 <!-- ESMF_GridCompGet -->
-<g id="proc~~extract_~3~~CallsGraph_node2" class="node">
+<g id="proc~~extract_~3~~CallsGraph_node3" class="node">
 <title>ESMF_GridCompGet</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="432.5,-150 278.5,-150 278.5,-126 432.5,-126 432.5,-150"/>
-<text text-anchor="middle" x="355.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompGet</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="417.5,-234 263.5,-234 263.5,-210 417.5,-210 417.5,-234"/>
+<text text-anchor="middle" x="340.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompGet</text>
 </g>
 <!-- proc~extract_~3&#45;&gt;ESMF_GridCompGet -->
-<g id="proc~~extract_~3~~CallsGraph_edge1" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge2" class="edge">
 <title>proc~extract_~3&#45;&gt;ESMF_GridCompGet</title>
-<path fill="none" stroke="#255000" d="M140.36,-87.04C168.15,-96.09 207.74,-108.36 243,-117 253.08,-119.47 263.73,-121.81 274.29,-123.97"/>
-<polygon fill="#255000" stroke="#255000" points="273.87,-127.46 284.36,-125.99 275.24,-120.6 273.87,-127.46"/>
+<path fill="none" stroke="#255000" d="M117.62,-150.02C142.85,-164.23 187.24,-187.62 228,-201 236.16,-203.68 244.77,-206.05 253.45,-208.15"/>
+<polygon fill="#255000" stroke="#255000" points="252.72,-211.58 263.25,-210.4 254.29,-204.75 252.72,-211.58"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~extract_~3~~CallsGraph_node4" class="node">
+<title>ESMF_TimeGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="404,-192 277,-192 277,-168 404,-168 404,-192"/>
+<text text-anchor="middle" x="340.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeGet</text>
+</g>
+<!-- proc~extract_~3&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~extract_~3~~CallsGraph_edge3" class="edge">
+<title>proc~extract_~3&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#255000" d="M166.49,-150.04C197.81,-155.46 234.8,-161.87 266.53,-167.36"/>
+<polygon fill="#255000" stroke="#255000" points="266.18,-170.85 276.63,-169.11 267.37,-163.96 266.18,-170.85"/>
 </g>
 <!-- ESMF_UserCompGetInternalState -->
-<g id="proc~~extract_~3~~CallsGraph_node3" class="node">
+<g id="proc~~extract_~3~~CallsGraph_node5" class="node">
 <title>ESMF_UserCompGetInternalState</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="468,-108 243,-108 243,-84 468,-84 468,-108"/>
-<text text-anchor="middle" x="355.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_UserCompGetInternalState</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="453,-150 228,-150 228,-126 453,-126 453,-150"/>
+<text text-anchor="middle" x="340.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_UserCompGetInternalState</text>
 </g>
 <!-- proc~extract_~3&#45;&gt;ESMF_UserCompGetInternalState -->
-<g id="proc~~extract_~3~~CallsGraph_edge2" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge4" class="edge">
 <title>proc~extract_~3&#45;&gt;ESMF_UserCompGetInternalState</title>
-<path fill="none" stroke="#255000" d="M207.27,-83.63C215.69,-84.34 224.25,-85.06 232.79,-85.78"/>
-<polygon fill="#255000" stroke="#255000" points="232.54,-89.27 242.79,-86.62 233.12,-82.29 232.54,-89.27"/>
+<path fill="none" stroke="#255000" d="M192.15,-138C200.54,-138 209.11,-138 217.68,-138"/>
+<polygon fill="#255000" stroke="#255000" points="217.73,-141.5 227.73,-138 217.73,-134.5 217.73,-141.5"/>
+</g>
+<!-- interface~mapl_packtime -->
+<g id="proc~~extract_~3~~CallsGraph_node6" class="node">
+<title>interface~mapl_packtime</title>
+<g id="a_proc~~extract_~3~~CallsGraph_node6"><a xlink:href="../interface/mapl_packtime.html" xlink:title="MAPL_Base::MAPL_PackTime">
+<polygon fill="#a7506f" stroke="#a7506f" points="423,-108 258,-108 258,-84 423,-84 423,-108"/>
+<text text-anchor="middle" x="340.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_PackTime</text>
+</a>
+</g>
+</g>
+<!-- proc~extract_~3&#45;&gt;interface~mapl_packtime -->
+<g id="proc~~extract_~3~~CallsGraph_edge5" class="edge">
+<title>proc~extract_~3&#45;&gt;interface~mapl_packtime</title>
+<path fill="none" stroke="#255000" d="M166.49,-125.96C195.66,-120.91 229.76,-115.01 259.93,-109.78"/>
+<polygon fill="#255000" stroke="#255000" points="260.74,-113.19 270,-108.04 259.55,-106.3 260.74,-113.19"/>
 </g>
 <!-- proc~mapl_return -->
-<g id="proc~~extract_~3~~CallsGraph_node4" class="node">
+<g id="proc~~extract_~3~~CallsGraph_node7" class="node">
 <title>proc~mapl_return</title>
-<g id="a_proc~~extract_~3~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="465.5,-66 245.5,-66 245.5,-42 465.5,-42 465.5,-66"/>
-<text text-anchor="middle" x="355.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+<g id="a_proc~~extract_~3~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="450.5,-66 230.5,-66 230.5,-42 450.5,-42 450.5,-66"/>
+<text text-anchor="middle" x="340.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~extract_~3&#45;&gt;proc~mapl_return -->
-<g id="proc~~extract_~3~~CallsGraph_edge3" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge6" class="edge">
 <title>proc~extract_~3&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M207.27,-66.37C216.46,-65.59 225.83,-64.81 235.15,-64.03"/>
-<polygon fill="#255000" stroke="#255000" points="235.57,-67.5 245.24,-63.18 234.98,-60.53 235.57,-67.5"/>
+<path fill="none" stroke="#255000" d="M117.62,-125.98C142.85,-111.77 187.24,-88.38 228,-75 235.52,-72.53 243.42,-70.32 251.4,-68.35"/>
+<polygon fill="#255000" stroke="#255000" points="252.23,-71.75 261.16,-66.06 250.63,-64.94 252.23,-71.75"/>
 </g>
 <!-- proc~mapl_verify -->
-<g id="proc~~extract_~3~~CallsGraph_node5" class="node">
+<g id="proc~~extract_~3~~CallsGraph_node8" class="node">
 <title>proc~mapl_verify</title>
-<g id="a_proc~~extract_~3~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="462.5,-24 248.5,-24 248.5,0 462.5,0 462.5,-24"/>
-<text text-anchor="middle" x="355.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+<g id="a_proc~~extract_~3~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="447.5,-24 233.5,-24 233.5,0 447.5,0 447.5,-24"/>
+<text text-anchor="middle" x="340.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~extract_~3&#45;&gt;proc~mapl_verify -->
-<g id="proc~~extract_~3~~CallsGraph_edge4" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge7" class="edge">
 <title>proc~extract_~3&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M140.36,-62.96C168.15,-53.91 207.74,-41.64 243,-33 253.08,-30.53 263.73,-28.19 274.29,-26.03"/>
-<polygon fill="#255000" stroke="#255000" points="275.24,-29.4 284.36,-24.01 273.87,-22.54 275.24,-29.4"/>
+<path fill="none" stroke="#255000" d="M107.94,-125.98C128.89,-103.75 177.15,-56.38 228,-33 232.69,-30.84 237.59,-28.91 242.6,-27.17"/>
+<polygon fill="#255000" stroke="#255000" points="243.89,-30.44 252.36,-24.07 241.77,-23.76 243.89,-30.44"/>
+</g>
+<!-- proc~mapl_packtime -->
+<g id="proc~~extract_~3~~CallsGraph_node10" class="node">
+<title>proc~mapl_packtime</title>
+<g id="a_proc~~extract_~3~~CallsGraph_node10"><a xlink:href="../proc/mapl_packtime.html" xlink:title="Base_Implementation::MAPL_PackTime">
+<polygon fill="#d9534f" stroke="#d9534f" points="726,-108 505,-108 505,-84 726,-84 726,-108"/>
+<text text-anchor="middle" x="615.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_PackTime</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_packtime&#45;&gt;proc~mapl_packtime -->
+<g id="proc~~extract_~3~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_packtime&#45;&gt;proc~mapl_packtime</title>
+<path fill="none" stroke="#014525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M423.04,-96C445.52,-96 470.38,-96 494.54,-96"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="494.85,-99.5 504.85,-96 494.85,-92.5 494.85,-99.5"/>
 </g>
 <!-- proc~get_error_message -->
-<g id="proc~~extract_~3~~CallsGraph_node6" class="node">
+<g id="proc~~extract_~3~~CallsGraph_node9" class="node">
 <title>proc~get_error_message</title>
-<g id="a_proc~~extract_~3~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="757,-66 504,-66 504,-42 757,-42 757,-66"/>
-<text text-anchor="middle" x="630.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+<g id="a_proc~~extract_~3~~CallsGraph_node9"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="742,-66 489,-66 489,-42 742,-42 742,-66"/>
+<text text-anchor="middle" x="615.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
-<g id="proc~~extract_~3~~CallsGraph_edge5" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge9" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M465.57,-54C474.84,-54 484.29,-54 493.73,-54"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="493.97,-57.5 503.97,-54 493.97,-50.5 493.97,-57.5"/>
+<path fill="none" stroke="#720255" d="M450.57,-54C459.84,-54 469.29,-54 478.73,-54"/>
+<polygon fill="#720255" stroke="#720255" points="478.97,-57.5 488.97,-54 478.97,-50.5 478.97,-57.5"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~extract_~3~~CallsGraph_node7" class="node">
+<g id="proc~~extract_~3~~CallsGraph_node11" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~extract_~3~~CallsGraph_node7"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="745,-24 516,-24 516,0 745,0 745,-24"/>
-<text text-anchor="middle" x="630.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~extract_~3~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="730,-24 501,-24 501,0 730,0 730,-24"/>
+<text text-anchor="middle" x="615.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~extract_~3~~CallsGraph_edge6" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge10" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M434.73,-41.96C468,-36.85 506.96,-30.85 541.25,-25.58"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="541.91,-29.02 551.26,-24.04 540.84,-22.1 541.91,-29.02"/>
+<path fill="none" stroke="#720255" d="M419.73,-41.96C453,-36.85 491.96,-30.85 526.25,-25.58"/>
+<polygon fill="#720255" stroke="#720255" points="526.91,-29.02 536.26,-24.04 525.84,-22.1 526.91,-29.02"/>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~extract_~3~~CallsGraph_edge7" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge11" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M462.83,-12C476.81,-12 491.22,-12 505.46,-12"/>
-<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="505.79,-15.5 515.79,-12 505.79,-8.5 505.79,-15.5"/>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M447.83,-12C461.81,-12 476.22,-12 490.46,-12"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="490.79,-15.5 500.79,-12 490.79,-8.5 490.79,-15.5"/>
 </g>
 <!-- at -->
-<g id="proc~~extract_~3~~CallsGraph_node8" class="node">
+<g id="proc~~extract_~3~~CallsGraph_node12" class="node">
 <title>at</title>
-<polygon fill="#777777" stroke="#777777" points="896.5,-108 842.5,-108 842.5,-84 896.5,-84 896.5,-108"/>
-<text text-anchor="middle" x="869.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+<polygon fill="#777777" stroke="#777777" points="881.5,-108 827.5,-108 827.5,-84 881.5,-84 881.5,-108"/>
+<text text-anchor="middle" x="854.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
 </g>
 <!-- proc~get_error_message&#45;&gt;at -->
-<g id="proc~~extract_~3~~CallsGraph_edge8" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge12" class="edge">
 <title>proc~get_error_message&#45;&gt;at</title>
-<path fill="none" stroke="#255000" d="M699.41,-66.04C742.55,-73.68 796.7,-83.28 831.93,-89.52"/>
-<polygon fill="#255000" stroke="#255000" points="831.76,-93.04 842.22,-91.34 832.98,-86.15 831.76,-93.04"/>
+<path fill="none" stroke="#255000" d="M689.87,-66.02C706.99,-68.9 725.14,-72 742,-75 767.28,-79.5 795.73,-84.86 817.56,-89.04"/>
+<polygon fill="#255000" stroke="#255000" points="816.91,-92.48 827.39,-90.93 818.23,-85.6 816.91,-92.48"/>
 </g>
 <!-- insert -->
-<g id="proc~~extract_~3~~CallsGraph_node9" class="node">
+<g id="proc~~extract_~3~~CallsGraph_node13" class="node">
 <title>insert</title>
-<polygon fill="#777777" stroke="#777777" points="896.5,-66 842.5,-66 842.5,-42 896.5,-42 896.5,-66"/>
-<text text-anchor="middle" x="869.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+<polygon fill="#777777" stroke="#777777" points="881.5,-66 827.5,-66 827.5,-42 881.5,-42 881.5,-66"/>
+<text text-anchor="middle" x="854.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
 </g>
 <!-- proc~get_error_message&#45;&gt;insert -->
-<g id="proc~~extract_~3~~CallsGraph_edge9" class="edge">
+<g id="proc~~extract_~3~~CallsGraph_edge13" class="edge">
 <title>proc~get_error_message&#45;&gt;insert</title>
-<path fill="none" stroke="#255000" d="M757.29,-54C784.83,-54 811.86,-54 832.36,-54"/>
-<polygon fill="#255000" stroke="#255000" points="832.46,-57.5 842.46,-54 832.46,-50.5 832.46,-57.5"/>
+<path fill="none" stroke="#255000" d="M742.29,-54C769.83,-54 796.86,-54 817.36,-54"/>
+<polygon fill="#255000" stroke="#255000" points="817.46,-57.5 827.46,-54 817.46,-50.5 817.46,-57.5"/>
 </g>
-<!-- proc~initialize~5 -->
-<g id="proc~~extract_~3~~CallsGraph_node10" class="node">
-<title>proc~initialize~5</title>
-<g id="a_proc~~extract_~3~~CallsGraph_node10"><a xlink:href="../proc/initialize~5.html" xlink:title="MAPL_ThrowMod::initialize">
-<polygon fill="#d9534f" stroke="#d9534f" points="946,-24 793,-24 793,0 946,0 946,-24"/>
-<text text-anchor="middle" x="869.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+<!-- proc~initialize~14 -->
+<g id="proc~~extract_~3~~CallsGraph_node14" class="node">
+<title>proc~initialize~14</title>
+<g id="a_proc~~extract_~3~~CallsGraph_node14"><a xlink:href="../proc/initialize~14.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="931,-24 778,-24 778,0 931,0 931,-24"/>
+<text text-anchor="middle" x="854.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
 </a>
 </g>
 </g>
-<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~5 -->
-<g id="proc~~extract_~3~~CallsGraph_edge10" class="edge">
-<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~5</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M745.14,-12C757.76,-12 770.46,-12 782.65,-12"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="782.77,-15.5 792.77,-12 782.77,-8.5 782.77,-15.5"/>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~14 -->
+<g id="proc~~extract_~3~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~14</title>
+<path fill="none" stroke="#002505" d="M730.14,-12C742.76,-12 755.46,-12 767.65,-12"/>
+<polygon fill="#002505" stroke="#002505" points="767.77,-15.5 777.77,-12 767.77,-8.5 767.77,-15.5"/>
 </g>
 </g>
 </svg>
@@ -475,61 +619,31 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~extract_~3~~CalledByGraph Pages: 1 -->
-<svg id="procextract_3CalledByGraph" width="465pt" height="116pt"
- viewBox="0.00 0.00 465.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~extract_~3~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<svg id="procextract_3CalledByGraph" width="411pt" height="32pt"
+ viewBox="0.00 0.00 411.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~extract_~3~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
 <title>proc~~extract_~3~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 461,-112 461,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 407,-28 407,4 -4,4"/>
 <!-- proc~extract_~3 -->
 <g id="proc~~extract_~3~~CalledByGraph_node1" class="node">
 <title>proc~extract_~3</title>
-<polygon fill="none" stroke="black" points="457,-66 250,-66 250,-42 457,-42 457,-66"/>
-<text text-anchor="middle" x="353.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataGridComp2G::extract_</text>
+<polygon fill="none" stroke="black" points="403,-24 211,-24 211,0 403,0 403,-24"/>
+<text text-anchor="middle" x="307" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_OrbGridCompMod::extract_</text>
 </g>
-<!-- proc~finalize_~3 -->
+<!-- proc~run_~4 -->
 <g id="proc~~extract_~3~~CalledByGraph_node2" class="node">
-<title>proc~finalize_~3</title>
-<g id="a_proc~~extract_~3~~CalledByGraph_node2"><a xlink:href="../proc/finalize_~3.html" xlink:title="MAPL_ExtDataGridComp2G::Finalize_">
-<polygon fill="#d9534f" stroke="#d9534f" points="212,-108 2,-108 2,-84 212,-84 212,-108"/>
-<text text-anchor="middle" x="107" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Finalize_</text>
+<title>proc~run_~4</title>
+<g id="a_proc~~extract_~3~~CalledByGraph_node2"><a xlink:href="../proc/run_~4.html" xlink:title="MAPL_OrbGridCompMod::Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="175,-24 0,-24 0,0 175,0 175,-24"/>
+<text text-anchor="middle" x="87.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod::Run_</text>
 </a>
 </g>
 </g>
-<!-- proc~finalize_~3&#45;&gt;proc~extract_~3 -->
+<!-- proc~run_~4&#45;&gt;proc~extract_~3 -->
 <g id="proc~~extract_~3~~CalledByGraph_edge1" class="edge">
-<title>proc~finalize_~3&#45;&gt;proc~extract_~3</title>
-<path fill="none" stroke="#255000" d="M178.06,-83.96C207.48,-78.91 241.85,-73.01 272.27,-67.78"/>
-<polygon fill="#255000" stroke="#255000" points="273.16,-71.18 282.43,-66.04 271.98,-64.28 273.16,-71.18"/>
-</g>
-<!-- proc~initialize_~5 -->
-<g id="proc~~extract_~3~~CalledByGraph_node3" class="node">
-<title>proc~initialize_~5</title>
-<g id="a_proc~~extract_~3~~CalledByGraph_node3"><a xlink:href="../proc/initialize_~5.html" xlink:title="MAPL_ExtDataGridComp2G::Initialize_">
-<polygon fill="#d9534f" stroke="#d9534f" points="214,-66 0,-66 0,-42 214,-42 214,-66"/>
-<text text-anchor="middle" x="107" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Initialize_</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize_~5&#45;&gt;proc~extract_~3 -->
-<g id="proc~~extract_~3~~CalledByGraph_edge2" class="edge">
-<title>proc~initialize_~5&#45;&gt;proc~extract_~3</title>
-<path fill="none" stroke="#255000" d="M214.17,-54C222.7,-54 231.32,-54 239.89,-54"/>
-<polygon fill="#255000" stroke="#255000" points="239.9,-57.5 249.9,-54 239.9,-50.5 239.9,-57.5"/>
-</g>
-<!-- proc~run_~5 -->
-<g id="proc~~extract_~3~~CalledByGraph_node4" class="node">
-<title>proc~run_~5</title>
-<g id="a_proc~~extract_~3~~CalledByGraph_node4"><a xlink:href="../proc/run_~5.html" xlink:title="MAPL_ExtDataGridComp2G::Run_">
-<polygon fill="#d9534f" stroke="#d9534f" points="202,-24 12,-24 12,0 202,0 202,-24"/>
-<text text-anchor="middle" x="107" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Run_</text>
-</a>
-</g>
-</g>
-<!-- proc~run_~5&#45;&gt;proc~extract_~3 -->
-<g id="proc~~extract_~3~~CalledByGraph_edge3" class="edge">
-<title>proc~run_~5&#45;&gt;proc~extract_~3</title>
-<path fill="none" stroke="#255000" d="M178.06,-24.04C207.48,-29.09 241.85,-34.99 272.27,-40.22"/>
-<polygon fill="#255000" stroke="#255000" points="271.98,-43.72 282.43,-41.96 273.16,-36.82 271.98,-43.72"/>
+<title>proc~run_~4&#45;&gt;proc~extract_~3</title>
+<path fill="none" stroke="#255000" d="M175.09,-12C183.52,-12 192.13,-12 200.72,-12"/>
+<polygon fill="#255000" stroke="#255000" points="200.77,-15.5 210.77,-12 200.77,-8.5 200.77,-15.5"/>
 </g>
 </g>
 </svg>
@@ -628,31 +742,39 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w"> </span><span class="k">subroutine </span><span class="n">extract_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">extract_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="p">,</span><span class="w"> </span><span class="n">timeinterval</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 
 <span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">           </span><span class="c">! Grid Comp object</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span><span class="w">        </span><span class="c">! Clock</span>
 
-<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_ExtData_state</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w">         </span><span class="c">! Legacy state</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">Orb_state</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w">         </span><span class="c">! Legacy state</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w">     </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID</span><span class="w">         </span><span class="c">! Grid</span>
 <span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">CF</span><span class="w">           </span><span class="c">! Universal Config</span>
-
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TIME</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="nb">Time</span><span class="w">         </span><span class="c">! Time</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TimeInterval</span><span class="w"> </span><span class="c">! Time Intervale</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="w">   </span><span class="c">! date, time</span>
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="c">!                            ---</span>
+<span class="c">!                                      ---</span>
 
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span>
-<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 
-<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_ExtData_Wrap</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span>
+<span class="w">                                 </span><span class="err">_</span><span class="n">Iam_</span><span class="p">(</span><span class="s1">&#39;extract_&#39;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">Orb_Wrap</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">iyr</span><span class="p">,</span><span class="w"> </span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">idd</span><span class="p">,</span><span class="w"> </span><span class="n">ihr</span><span class="p">,</span><span class="w"> </span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">isc</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 
 <span class="c">!   Get my name and set-up traceback handle</span>
 <span class="c">!   ---------------------------------------</span>
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">COMP_NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;::extract_&#39;</span>
 
-<span class="w">    </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w">  </span><span class="n">rc</span><span class="o">=</span><span class="n">ESMF_SUCCESS</span>
+<span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 
 <span class="c">!   Get my internal state</span>
 <span class="c">!   ---------------------</span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_UserCompGetInternalState</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MAPL_ExtData_state&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">WRAP</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_UserCompGetInternalState</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Orb_state&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">WRAP</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
 <span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
 <span class="w">    </span><span class="n">self</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">wrap</span><span class="p">%</span><span class="n">ptr</span>
 
@@ -660,10 +782,20 @@ large graphs.</div>
 <span class="c">!   ---------------------</span>
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="o">=</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
 
+<span class="c">!   Extract time as simple integers from clock</span>
+<span class="c">!   ------------------------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">currTIME</span><span class="o">=</span><span class="nb">TIME</span><span class="p">,</span><span class="n">timeStep</span><span class="o">=</span><span class="n">TimeInterval</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">TIME</span><span class="w"> </span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_PackTime</span><span class="p">(</span><span class="n">nymd</span><span class="p">,</span><span class="n">iyr</span><span class="p">,</span><span class="n">imm</span><span class="p">,</span><span class="n">idd</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_PackTime</span><span class="p">(</span><span class="n">nhms</span><span class="p">,</span><span class="n">ihr</span><span class="p">,</span><span class="n">imn</span><span class="p">,</span><span class="n">isc</span><span class="p">)</span>
+
+<span class="c">!   Extract the ESMF Grid</span>
+<span class="c">!   ---------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
 
-<span class="w">  </span><span class="k">end subroutine </span><span class="n">extract_</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">extract_</span>
 </pre></div>
 
     </section>
@@ -684,7 +816,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-02-06T15:11:55.344614             </p>
+ on 2024-02-06T15:14:32.011811             </p>
           </div>
         </div>
         <br>
