@@ -27,6 +27,8 @@ module mapl3g_OuterMetaComponent
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMapIterator
    use mapl3g_GriddedComponentDriverMap, only: operator(/=)
+   use mapl3g_ActualPtComponentDriverMap
+   use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INVALIDATE
    use mapl_ErrorHandling
    use mapl3g_VerticalGeom
    use gFTL2_StringVector
@@ -741,7 +743,7 @@ contains
 
 
    recursive subroutine run(this, clock, phase_name, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       type(ESMF_Clock) :: clock
       ! optional arguments
       character(len=*), optional, intent(in) :: phase_name
@@ -755,6 +757,10 @@ contains
       logical :: found
       integer :: phase
 
+      type(ActualPtComponentDriverMap), pointer :: export_Couplers
+      type(ActualPtComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: drvr
+
       run_phases => this%get_phases(ESMF_METHOD_RUN)
       phase = get_phase_index(run_phases, phase_name, found=found)
       if (found) then
@@ -767,6 +773,17 @@ contains
          call extension%run(_RC)
       end do
 
+      export_couplers => this%registry%get_export_couplers()
+      associate (e => export_couplers%ftn_end())
+        iter = export_couplers%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           drvr => iter%second()
+           call drvr%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
+        end do
+      end associate
+
+      
       _RETURN(ESMF_SUCCESS)
    end subroutine run
 

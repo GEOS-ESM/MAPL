@@ -28,8 +28,9 @@ contains
       coupler_gridcomp = ESMF_GridCompCreate(name='coupler', _RC)
       call attach_coupler_meta(coupler_gridcomp, _RC)
       coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
-
       coupler_meta = CouplerMetaComponent(action, source)
+
+      call ESMF_GridCompSetServices(coupler_gridComp, setServices, _RC)
 
       _RETURN(_SUCCESS)
    end function make_coupler
