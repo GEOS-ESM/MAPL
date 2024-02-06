@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
-- fixed memory leak affecting reginal masking. Temporary ESMF field was created but never destroyed
+- fixed memory leak affecting regional masking. Temporary ESMF field was created but never destroyed
 
 ### Removed
 
