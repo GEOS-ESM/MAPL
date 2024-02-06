@@ -140,7 +140,7 @@ contains
 
       allocate(character(len=max_len) :: string_C(str_size))
       do k = 1, str_size
-        string_C(k) = trim(string(k))//c_null_char
+        string_C(k) = trim(adjustl(string(k)))//c_null_char
       enddo
 
       status = c_f_pfio_put_var_string(ncid, varid, c_loc(string_C), max_len, str_size, c_loc(start_), c_loc(count_))
