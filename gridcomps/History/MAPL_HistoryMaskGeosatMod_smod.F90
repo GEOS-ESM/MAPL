@@ -147,89 +147,6 @@ contains
 
    end procedure initialize
 
-!!      module procedure create_new_bundle
-!!        type(GriddedIOitemVectorIterator) :: iter
-!!        type(GriddedIOitem), pointer :: item
-!!        type(ESMF_Field) :: src_field,dst_field
-!!        integer :: rank,lb(1),ub(1)
-!!        integer :: status
-!!
-!!        new_bundle = ESMF_FieldBundleCreate(_RC)
-!!        iter = this%items%begin()
-!!        do while (iter /= this%items%end())
-!!           item => iter%get()
-!!           if (item%itemType == ItemTypeScalar) then
-!!              call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-!!              call ESMF_FieldGet(src_field,rank=rank,_RC)
-!!              if (rank==2) then
-!!                 dst_field = ESMF_FieldCreate(this%LS_ds,name=trim(item%xname), &
-!!                      typekind=ESMF_TYPEKIND_R4,_RC)
-!!              else if (rank==3) then
-!!                 call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-!!                 if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
-!!                    lb(1)=1
-!!                    ub(1)=this%vdata%lm
-!!                 end if
-!!                 dst_field = ESMF_FieldCreate(this%LS_ds,name=trim(item%xname), &
-!!                      typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-!!              end if
-!!              call MAPL_FieldBundleAdd(new_bundle,dst_field,_RC)
-!!           else if (item%itemType == ItemTypeVector) then
-!!              _FAIL("ItemTypeVector not yet supported")
-!!           end if
-!!           call iter%next()
-!!        enddo
-!!        _RETURN(_SUCCESS)
-!!
-!!      end procedure create_new_bundle
-!!
-
-
-      module procedure create_metadata_variable
-        type(ESMF_Field) :: field
-        type(variable) :: v
-        logical :: is_present
-        integer :: field_rank, status
-        character(len=ESMF_MAXSTR) :: var_name,long_name,units,vdims
-        integer :: k, ig
-
-        call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
-        call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
-        call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
-        if ( is_present ) then
-           call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _RC)
-        else
-           long_name = var_name
-        endif
-        call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
-        if ( is_present ) then
-           call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _RC)
-        else
-           units = 'unknown'
-        endif
-        if (field_rank==2) then
-           vdims = this%index_name_loc
-        else if (field_rank==3) then
-           vdims = trim(this%index_name_loc)//",lev"
-        end if
-        v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-        call v%add_attribute('units',trim(units))
-        call v%add_attribute('long_name',trim(long_name))
-        call v%add_attribute('missing_value',MAPL_UNDEF)
-        call v%add_attribute('_FillValue',MAPL_UNDEF)
-        call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
-
-!!        do k = 1, this%nobs_type
-!!           do ig = 1, this%obs(k)%ngeoval
-!!              if (trim(var_name) == trim(this%obs(k)%geoval_name(ig))) then
-!!                 call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
-!!              endif
-!!           enddo
-!!        enddo
-
-         _RETURN(_SUCCESS)
-      end procedure create_metadata_variable
-
 
       module procedure create_file_handle
          integer :: status
@@ -559,8 +476,9 @@ contains
        ! Meta code:
        !   read ABI grid into LS_rt
        !   gen LS_ds with CS grid
-       !   find mask on each PET
-       !   determine CS_LS_ds
+       !   find mask points on each PET with halo
+       !   save 
+       !   
 
 
        if (mapl_am_i_root()) then
@@ -806,28 +724,34 @@ contains
 
        close(unit)
 
-
-
-       ! __ s4. round-2: initialize mask%LS_ds and mask%LS_rt
+       ! FINISH:  I have what I need
+       !          Fixed:  npt_mask  +  index_mask
+       !          I have index on each PET, 
+       !          The rest is station sampler, except
+       !          regridding is replaced by
+       !          - selecting masked data on PET
+       !          - mpi_gatherV
        !
-       call ESMF_GridGetCoord (grid, coordDim=1, localDE=0, &
-            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons_ptr, _RC)
-       call ESMF_GridGetCoord (grid, coordDim=2, localDE=0, &
-            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats_ptr, _RC)       
-       deallocate (lons, lats)
-       allocate (lons(this%npt_mask), lats(this%npt_mask))
-       do i=1, this%npt_mask
-          lons(i) = lons_ptr (this%index_mask(1,i))
-          lats(i) = lats_ptr (this%index_mask(2,i))          
-       end do
-       locstream_factory = LocStreamFactory(lons,lats,_RC)
-       this%LS_ds = locstream_factory%create_locstream(_RC)
-
 
        
-       
-       _FAIL('nail 1')
+!       ! __ s4. round-2: initialize mask%LS_ds and mask%LS_rt
+!       !
+!       call ESMF_GridGetCoord (grid, coordDim=1, localDE=0, &
+!            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons_ptr, _RC)
+!       call ESMF_GridGetCoord (grid, coordDim=2, localDE=0, &
+!            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats_ptr, _RC)       
+!       deallocate (lons, lats)
+!       allocate (lons(this%npt_mask), lats(this%npt_mask))
+!       do i=1, this%npt_mask
+!          lons(i) = lons_ptr (this%index_mask(1,i))
+!          lats(i) = lats_ptr (this%index_mask(2,i))          
+!       end do
+!       locstream_factory = LocStreamFactory(lons,lats,_RC)
+!       this%LS_ds = locstream_factory%create_locstream(_RC)
+!
 
+       
+      
        _RETURN(_SUCCESS)
      end procedure create_Geosat_grid_find_mask
 

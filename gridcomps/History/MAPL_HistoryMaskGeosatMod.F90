@@ -31,8 +31,14 @@ module MaskSamplerGeosatMod
      private
      !     character(len=:), allocatable :: grid_file_name
      character(len=ESMF_MAXSTR) :: grid_file_name
-     type (ESMF_LocStream) :: LS_rt
-     type (ESMF_LocStream) :: LS_ds     
+     !-- ygyu we donot need LS
+     !   
+     !   we need on each PET
+     !     npt_mask, index_mask(1:2,npt_mask)=[i,j]
+
+
+!     type (ESMF_LocStream) :: LS_rt
+!     type (ESMF_LocStream) :: LS_ds     
      !     type(obs_unit),    allocatable :: obs(:)
      !     type(ESMF_Time),   allocatable :: times(:)
      !     real(kind=REAL64), allocatable :: lons(:)
