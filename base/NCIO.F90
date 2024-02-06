@@ -847,6 +847,8 @@ module NCIOMod
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
 
+    real :: t0, t1, maxtime
+
     if (present(arrdes)) then
        if(present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
@@ -909,11 +911,17 @@ module NCIOMod
           _VERIFY(STATUS)
        endif
 
+       t0 = mpi_wtime()
        call mpi_gatherv( a, size(a), MPI_REAL, recvbuf, recvcounts, displs, MPI_REAL, &
                       0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
+       t1 = mpi_wtime()
+       call mpi_allreduce(t1-t0,maxtime,1, MPI_REAL, MPI_MAX, arrdes%iogathercomm, status )
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
+
+         !write(*,'(A,E11.4)') 'Max time spent in R4_2d mpi_gatherv (seconds) ', maxtime
 
           jprev = 0
           k=1
@@ -2384,6 +2392,8 @@ module NCIOMod
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
 
+    real :: t0, t1, maxtime
+
     if (present(arrdes)) then
        if(present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
@@ -2444,11 +2454,17 @@ module NCIOMod
           _VERIFY(STATUS)
        endif
 
+       t0 = mpi_wtime()
        call mpi_gatherv( a, size(a), MPI_DOUBLE_PRECISION, recvbuf, recvcounts, displs, &
                          MPI_DOUBLE_PRECISION, 0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
+       t1 = mpi_wtime()
+       call mpi_allreduce(t1-t0,maxtime,1, MPI_REAL, MPI_MAX, arrdes%iogathercomm, status )
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
+
+         !write(*,'(A,E11.4)') 'Max time spent in R8_2d mpi_gatherv (seconds) ', maxtime
 
           jprev = 0
           k=1
