@@ -80,20 +80,20 @@
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip"
                  data-bs-placement="bottom" data-html="true"
-                 title=" 0.0% of total for procedures.">36 statements</a>
+                 title=" 0.0% of total for procedures.">60 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/AbstractDataMessage.F90"> Source File</a>
+              <a href="../src/AbstractServer.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/abstractdatamessage.f90.html'>AbstractDataMessage.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/pfio_abstractdatamessagemod.html'>pFIO_AbstractDataMessageMod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/abstractserver.f90.html'>AbstractServer.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_abstractservermod.html'>pFIO_AbstractServerMod</a></li>
             <li class="breadcrumb-item active" aria-current="page">init</li>
           </ol>
         </nav>
@@ -145,13 +145,13 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine init(message, request_id, collection_id, file_name, var_name, data_reference, unusable, start, rc)  
+    <h2>private  subroutine init(this, comm, port_name, profiler_name, with_profiler, rc)  
 </h2>
     
 
 
     <h3>Type Bound</h3>
-    <p><a href='../type/abstractdatamessage.html'>AbstractDataMessage</a></p>
+    <p><a href='../type/abstractserver.html'>AbstractServer</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -166,22 +166,22 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-message~25"></span>
-              class(<a href='../type/abstractdatamessage.html'>AbstractDataMessage</a>)
+              <span class="anchor" id="variable-this~29"></span>
+              class(<a href='../type/abstractserver.html'>AbstractServer</a>),
             </td>
-<td></td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>message</strong></td>
+            <td><strong>this</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-request_id~2"></span>
+              <span class="anchor" id="variable-comm~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -189,29 +189,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>request_id</strong></td>
+            <td><strong>comm</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-collection_id~3"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>collection_id</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-file_name~6"></span>
+              <span class="anchor" id="variable-port_name"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -219,74 +204,44 @@
               
             </td>
             <td>::</td>
-            <td><strong>file_name</strong></td>
+            <td><strong>port_name</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-var_name~75"></span>
+              <span class="anchor" id="variable-profiler_name"></span>
               character(len=*),
             </td>
-<td>intent(in)</td>
-              <td></td>            <td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>var_name</strong></td>
+            <td><strong>profiler_name</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-data_reference"></span>
-              class(<a href='../type/abstractdatareference.html'>AbstractDataReference</a>),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>data_reference</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-unusable~139"></span>
-              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+              <span class="anchor" id="variable-with_profiler"></span>
+              logical,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>unusable</strong></td>
+            <td><strong>with_profiler</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-start~47"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>start</strong>(:)</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-rc~487"></span>
+              <span class="anchor" id="variable-rc~26"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -314,100 +269,322 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~init~~CallsGraph Pages: 1 -->
-<svg id="procinitCallsGraph" width="641pt" height="69pt"
- viewBox="0.00 0.00 641.00 69.30" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~init~~CallsGraph" class="graph" transform="scale(1.67 1.67) rotate(0) translate(4 112)">
+<svg id="procinitCallsGraph" width="641pt" height="199pt"
+ viewBox="0.00 0.00 641.00 199.43" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~init~~CallsGraph" class="graph" transform="scale(2.55 2.55) rotate(0) translate(4 505)">
 <title>proc~~init~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 1069,-112 1069,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-505 1632,-505 1632,4 -4,4"/>
 <!-- proc~init -->
 <g id="proc~~init~~CallsGraph_node1" class="node">
 <title>proc~init</title>
-<polygon fill="none" stroke="black" points="331,-45 0,-45 0,-21 331,-21 331,-45"/>
-<text text-anchor="middle" x="165.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_AbstractDataMessageMod::AbstractDataMessage%init</text>
+<polygon fill="none" stroke="black" points="257,-312 0,-312 0,-288 257,-288 257,-312"/>
+<text text-anchor="middle" x="128.5" y="-297.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_AbstractServerMod::AbstractServer%init</text>
+</g>
+<!-- mpi_allgather -->
+<g id="proc~~init~~CallsGraph_node2" class="node">
+<title>mpi_allgather</title>
+<polygon fill="#777777" stroke="#777777" points="476,-501 390,-501 390,-477 476,-477 476,-501"/>
+<text text-anchor="middle" x="433" y="-486.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_allgather</text>
+</g>
+<!-- proc~init&#45;&gt;mpi_allgather -->
+<g id="proc~~init~~CallsGraph_edge1" class="edge">
+<title>proc~init&#45;&gt;mpi_allgather</title>
+<path fill="none" stroke="#255000" d="M137.24,-312.34C158,-344.25 218.42,-429.7 293,-468 319.57,-481.64 352.49,-487.04 379.63,-488.96"/>
+<polygon fill="#255000" stroke="#255000" points="379.54,-492.46 389.72,-489.54 379.94,-485.47 379.54,-492.46"/>
+</g>
+<!-- mpi_barrier -->
+<g id="proc~~init~~CallsGraph_node3" class="node">
+<title>mpi_barrier</title>
+<polygon fill="#777777" stroke="#777777" points="470.5,-459 395.5,-459 395.5,-435 470.5,-435 470.5,-459"/>
+<text text-anchor="middle" x="433" y="-444.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
+</g>
+<!-- proc~init&#45;&gt;mpi_barrier -->
+<g id="proc~~init~~CallsGraph_edge2" class="edge">
+<title>proc~init&#45;&gt;mpi_barrier</title>
+<path fill="none" stroke="#255000" d="M140.82,-312.18C165.62,-338.01 227.74,-398.16 293,-426 322.06,-438.4 357.28,-443.63 384.99,-445.77"/>
+<polygon fill="#255000" stroke="#255000" points="385.01,-449.28 395.22,-446.45 385.47,-442.29 385.01,-449.28"/>
+</g>
+<!-- mpi_bcast -->
+<g id="proc~~init~~CallsGraph_node4" class="node">
+<title>mpi_bcast</title>
+<polygon fill="#777777" stroke="#777777" points="466.5,-417 399.5,-417 399.5,-393 466.5,-393 466.5,-417"/>
+<text text-anchor="middle" x="433" y="-402.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_bcast</text>
+</g>
+<!-- proc~init&#45;&gt;mpi_bcast -->
+<g id="proc~~init~~CallsGraph_edge3" class="edge">
+<title>proc~init&#45;&gt;mpi_bcast</title>
+<path fill="none" stroke="#255000" d="M148.25,-312.22C177.76,-330.84 237.42,-366.06 293,-384 324.3,-394.11 361.17,-399.39 389.07,-402.13"/>
+<polygon fill="#255000" stroke="#255000" points="389.02,-405.64 399.3,-403.06 389.66,-398.67 389.02,-405.64"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~init~~CallsGraph_node5" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="483.5,-375 382.5,-375 382.5,-351 483.5,-351 483.5,-375"/>
+<text text-anchor="middle" x="433" y="-360.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~init&#45;&gt;mpi_comm_rank -->
+<g id="proc~~init~~CallsGraph_edge4" class="edge">
+<title>proc~init&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#255000" d="M171.57,-312.06C204.43,-321.18 251.36,-333.53 293,-342 318.85,-347.26 347.66,-351.82 372.31,-355.34"/>
+<polygon fill="#255000" stroke="#255000" points="371.86,-358.81 382.25,-356.73 372.83,-351.88 371.86,-358.81"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~init~~CallsGraph_node6" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="481.5,-333 384.5,-333 384.5,-309 481.5,-309 481.5,-333"/>
+<text text-anchor="middle" x="433" y="-318.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~init&#45;&gt;mpi_comm_size -->
+<g id="proc~~init~~CallsGraph_edge5" class="edge">
+<title>proc~init&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#255000" d="M257.35,-308.88C297.94,-311.69 340.84,-314.67 373.97,-316.97"/>
+<polygon fill="#255000" stroke="#255000" points="374.14,-320.49 384.36,-317.69 374.63,-313.51 374.14,-320.49"/>
+</g>
+<!-- mpi_comm_split -->
+<g id="proc~~init~~CallsGraph_node7" class="node">
+<title>mpi_comm_split</title>
+<polygon fill="#777777" stroke="#777777" points="482.5,-291 383.5,-291 383.5,-267 482.5,-267 482.5,-291"/>
+<text text-anchor="middle" x="433" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_split</text>
+</g>
+<!-- proc~init&#45;&gt;mpi_comm_split -->
+<g id="proc~~init~~CallsGraph_edge6" class="edge">
+<title>proc~init&#45;&gt;mpi_comm_split</title>
+<path fill="none" stroke="#255000" d="M257.35,-291.12C297.51,-288.34 339.92,-285.39 372.89,-283.1"/>
+<polygon fill="#255000" stroke="#255000" points="373.52,-286.57 383.25,-282.38 373.04,-279.59 373.52,-286.57"/>
+</g>
+<!-- mpi_comm_split_type -->
+<g id="proc~~init~~CallsGraph_node8" class="node">
+<title>mpi_comm_split_type</title>
+<polygon fill="#777777" stroke="#777777" points="496.5,-249 369.5,-249 369.5,-225 496.5,-225 496.5,-249"/>
+<text text-anchor="middle" x="433" y="-234.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_split_type</text>
+</g>
+<!-- proc~init&#45;&gt;mpi_comm_split_type -->
+<g id="proc~~init~~CallsGraph_edge7" class="edge">
+<title>proc~init&#45;&gt;mpi_comm_split_type</title>
+<path fill="none" stroke="#255000" d="M171.57,-287.94C204.43,-278.82 251.36,-266.47 293,-258 314.47,-253.63 337.98,-249.74 359.45,-246.54"/>
+<polygon fill="#255000" stroke="#255000" points="360.1,-249.98 369.49,-245.07 359.09,-243.06 360.1,-249.98"/>
+</g>
+<!-- none~start~79 -->
+<g id="proc~~init~~CallsGraph_node9" class="node">
+<title>none~start~79</title>
+<g id="a_proc~~init~~CallsGraph_node9"><a xlink:href="../type/distributedprofiler.html#boundprocedure-start~79" xlink:title="MAPL_DistributedProfiler::DistributedProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="573,-130 293,-130 293,-106 573,-106 573,-130"/>
+<text text-anchor="middle" x="433" y="-115.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistributedProfiler::DistributedProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- proc~init&#45;&gt;none~start~79 -->
+<g id="proc~~init~~CallsGraph_edge8" class="edge">
+<title>proc~init&#45;&gt;none~start~79</title>
+<path fill="none" stroke="#255000" d="M138.22,-287.93C160.35,-258.26 222.05,-181.51 293,-145 302.46,-140.13 312.68,-136.14 323.15,-132.87"/>
+<polygon fill="#255000" stroke="#255000" points="324.2,-136.21 332.82,-130.06 322.24,-129.49 324.2,-136.21"/>
 </g>
 <!-- proc~mapl_return -->
-<g id="proc~~init~~CallsGraph_node2" class="node">
+<g id="proc~~init~~CallsGraph_node10" class="node">
 <title>proc~mapl_return</title>
-<g id="a_proc~~init~~CallsGraph_node2"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="587,-45 367,-45 367,-21 587,-21 587,-45"/>
-<text text-anchor="middle" x="477" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+<g id="a_proc~~init~~CallsGraph_node10"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1110,-171 890,-171 890,-147 1110,-147 1110,-171"/>
+<text text-anchor="middle" x="1000" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~init&#45;&gt;proc~mapl_return -->
-<g id="proc~~init~~CallsGraph_edge1" class="edge">
+<g id="proc~~init~~CallsGraph_edge9" class="edge">
 <title>proc~init&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M331.22,-33C339.74,-33 348.21,-33 356.55,-33"/>
-<polygon fill="#255000" stroke="#255000" points="356.64,-36.5 366.64,-33 356.64,-29.5 356.64,-36.5"/>
+<path fill="none" stroke="#255000" d="M141.2,-287.86C166.24,-262.82 228.05,-205.97 293,-184 398.15,-148.43 707.6,-150.66 879.84,-155.02"/>
+<polygon fill="#255000" stroke="#255000" points="879.88,-158.52 889.97,-155.29 880.07,-151.53 879.88,-158.52"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~init~~CallsGraph_node11" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~init~~CallsGraph_node11"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="835,-211 621,-211 621,-187 835,-187 835,-211"/>
+<text text-anchor="middle" x="728" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~init&#45;&gt;proc~mapl_verify -->
+<g id="proc~~init~~CallsGraph_edge10" class="edge">
+<title>proc~init&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M146.61,-287.98C175.29,-268.59 235.59,-231.08 293,-216 397.99,-188.42 522.13,-186.48 610.69,-190.07"/>
+<polygon fill="#255000" stroke="#255000" points="610.63,-193.57 620.77,-190.51 610.93,-186.58 610.63,-193.57"/>
+</g>
+<!-- proc~start_self -->
+<g id="proc~~init~~CallsGraph_node14" class="node">
+<title>proc~start_self</title>
+<g id="a_proc~~init~~CallsGraph_node14"><a xlink:href="../proc/start_self.html" xlink:title="mapl_BaseProfiler::BaseProfiler%start_self">
+<polygon fill="#d9534f" stroke="#d9534f" points="847,-129 609,-129 609,-105 847,-105 847,-129"/>
+<text text-anchor="middle" x="728" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%start_self</text>
+</a>
+</g>
+</g>
+<!-- none~start~79&#45;&gt;proc~start_self -->
+<g id="proc~~init~~CallsGraph_edge11" class="edge">
+<title>none~start~79&#45;&gt;proc~start_self</title>
+<path fill="none" stroke="#500255" stroke-dasharray="5,2" d="M573.21,-117.52C581.71,-117.5 590.24,-117.47 598.7,-117.44"/>
+<polygon fill="#500255" stroke="#500255" points="598.97,-120.94 608.96,-117.4 598.95,-113.94 598.97,-120.94"/>
 </g>
 <!-- proc~get_error_message -->
-<g id="proc~~init~~CallsGraph_node3" class="node">
+<g id="proc~~init~~CallsGraph_node12" class="node">
 <title>proc~get_error_message</title>
-<g id="a_proc~~init~~CallsGraph_node3"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="876,-66 623,-66 623,-42 876,-42 876,-66"/>
-<text text-anchor="middle" x="749.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+<g id="a_proc~~init~~CallsGraph_node12"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1422.5,-169 1169.5,-169 1169.5,-145 1422.5,-145 1422.5,-169"/>
+<text text-anchor="middle" x="1296" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
-<g id="proc~~init~~CallsGraph_edge2" class="edge">
+<g id="proc~~init~~CallsGraph_edge12" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
-<path fill="none" stroke="#255000" d="M587.24,-41.48C595.67,-42.14 604.25,-42.8 612.82,-43.47"/>
-<polygon fill="#255000" stroke="#255000" points="612.64,-46.96 622.88,-44.25 613.18,-39.98 612.64,-46.96"/>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M1110.06,-158.26C1126.03,-158.15 1142.64,-158.04 1159.06,-157.92"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1159.28,-161.42 1169.26,-157.86 1159.23,-154.42 1159.28,-161.42"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~init~~CallsGraph_node4" class="node">
+<g id="proc~~init~~CallsGraph_node13" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~init~~CallsGraph_node4"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="864,-24 635,-24 635,0 864,0 864,-24"/>
-<text text-anchor="middle" x="749.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<g id="a_proc~~init~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1410.5,-211 1181.5,-211 1181.5,-187 1410.5,-187 1410.5,-211"/>
+<text text-anchor="middle" x="1296" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~init~~CallsGraph_edge3" class="edge">
+<g id="proc~~init~~CallsGraph_edge13" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#255000" d="M587.24,-24.52C599.62,-23.56 612.3,-22.57 624.85,-21.6"/>
-<polygon fill="#255000" stroke="#255000" points="625.18,-25.08 634.88,-20.82 624.64,-18.11 625.18,-25.08"/>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M1089.21,-171C1123,-175.6 1161.75,-180.87 1196.45,-185.59"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1196.22,-189.09 1206.6,-186.97 1197.16,-182.16 1196.22,-189.09"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~init~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255015" stroke-opacity="0.007843" d="M835.13,-199C930.44,-199 1070.44,-199 1170.91,-199"/>
+<polygon fill="#255015" fill-opacity="0.007843" stroke="#255015" stroke-opacity="0.007843" points="1171.11,-202.5 1181.11,-199 1171.11,-195.5 1171.11,-202.5"/>
 </g>
 <!-- at -->
-<g id="proc~~init~~CallsGraph_node5" class="node">
+<g id="proc~~init~~CallsGraph_node15" class="node">
 <title>at</title>
-<polygon fill="#777777" stroke="#777777" points="1015.5,-108 961.5,-108 961.5,-84 1015.5,-84 1015.5,-108"/>
-<text text-anchor="middle" x="988.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+<polygon fill="#777777" stroke="#777777" points="1578.5,-169 1524.5,-169 1524.5,-145 1578.5,-145 1578.5,-169"/>
+<text text-anchor="middle" x="1551.5" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
 </g>
 <!-- proc~get_error_message&#45;&gt;at -->
-<g id="proc~~init~~CallsGraph_edge4" class="edge">
+<g id="proc~~init~~CallsGraph_edge15" class="edge">
 <title>proc~get_error_message&#45;&gt;at</title>
-<path fill="none" stroke="#255000" d="M818.41,-66.04C861.55,-73.68 915.7,-83.28 950.93,-89.52"/>
-<polygon fill="#255000" stroke="#255000" points="950.76,-93.04 961.22,-91.34 951.98,-86.15 950.76,-93.04"/>
+<path fill="none" stroke="#255000" d="M1422.64,-157C1456.04,-157 1489.55,-157 1513.87,-157"/>
+<polygon fill="#255000" stroke="#255000" points="1514.04,-160.5 1524.04,-157 1514.04,-153.5 1514.04,-160.5"/>
 </g>
 <!-- insert -->
-<g id="proc~~init~~CallsGraph_node6" class="node">
+<g id="proc~~init~~CallsGraph_node16" class="node">
 <title>insert</title>
-<polygon fill="#777777" stroke="#777777" points="1015.5,-66 961.5,-66 961.5,-42 1015.5,-42 1015.5,-66"/>
-<text text-anchor="middle" x="988.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+<polygon fill="#777777" stroke="#777777" points="1578.5,-127 1524.5,-127 1524.5,-103 1578.5,-103 1578.5,-127"/>
+<text text-anchor="middle" x="1551.5" y="-112.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
 </g>
 <!-- proc~get_error_message&#45;&gt;insert -->
-<g id="proc~~init~~CallsGraph_edge5" class="edge">
+<g id="proc~~init~~CallsGraph_edge16" class="edge">
 <title>proc~get_error_message&#45;&gt;insert</title>
-<path fill="none" stroke="#255000" d="M876.29,-54C903.83,-54 930.86,-54 951.36,-54"/>
-<polygon fill="#255000" stroke="#255000" points="951.46,-57.5 961.46,-54 951.46,-50.5 951.46,-57.5"/>
+<path fill="none" stroke="#255000" d="M1369.64,-144.96C1416.98,-137.12 1476.72,-127.22 1514.28,-121"/>
+<polygon fill="#255000" stroke="#255000" points="1514.96,-124.44 1524.26,-119.35 1513.82,-117.53 1514.96,-124.44"/>
 </g>
-<!-- proc~initialize~14 -->
-<g id="proc~~init~~CallsGraph_node7" class="node">
-<title>proc~initialize~14</title>
-<g id="a_proc~~init~~CallsGraph_node7"><a xlink:href="../proc/initialize~14.html" xlink:title="MAPL_ThrowMod::initialize">
-<polygon fill="#d9534f" stroke="#d9534f" points="1065,-24 912,-24 912,0 1065,0 1065,-24"/>
-<text text-anchor="middle" x="988.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+<!-- proc~initialize~11 -->
+<g id="proc~~init~~CallsGraph_node20" class="node">
+<title>proc~initialize~11</title>
+<g id="a_proc~~init~~CallsGraph_node20"><a xlink:href="../proc/initialize~11.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1628,-211 1475,-211 1475,-187 1628,-187 1628,-211"/>
+<text text-anchor="middle" x="1551.5" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
 </a>
 </g>
 </g>
-<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~14 -->
-<g id="proc~~init~~CallsGraph_edge6" class="edge">
-<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~14</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M864.14,-12C876.76,-12 889.46,-12 901.65,-12"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="901.77,-15.5 911.77,-12 901.77,-8.5 901.77,-15.5"/>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~11 -->
+<g id="proc~~init~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~11</title>
+<path fill="none" stroke="#025500" d="M1410.77,-199C1428.93,-199 1447.44,-199 1464.8,-199"/>
+<polygon fill="#025500" stroke="#025500" points="1464.88,-202.5 1474.88,-199 1464.88,-195.5 1464.88,-202.5"/>
+</g>
+<!-- proc~start_self&#45;&gt;proc~mapl_return -->
+<g id="proc~~init~~CallsGraph_edge21" class="edge">
+<title>proc~start_self&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002505" d="M806.37,-129.04C839.28,-134.15 877.8,-140.15 911.72,-145.42"/>
+<polygon fill="#002505" stroke="#002505" points="911.2,-148.88 921.62,-146.96 912.27,-141.97 911.2,-148.88"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~init~~CallsGraph_node17" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~init~~CallsGraph_node17"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1108.5,-45 891.5,-45 891.5,-21 1108.5,-21 1108.5,-45"/>
+<text text-anchor="middle" x="1000" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~start_self&#45;&gt;interface~mapl_assert -->
+<g id="proc~~init~~CallsGraph_edge18" class="edge">
+<title>proc~start_self&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#002505" d="M753.76,-104.98C783.72,-90.88 835.99,-67.71 883,-54 891.66,-51.48 900.77,-49.2 909.93,-47.16"/>
+<polygon fill="#002505" stroke="#002505" points="910.81,-50.55 919.86,-45.04 909.35,-43.7 910.81,-50.55"/>
+</g>
+<!-- none~start~4 -->
+<g id="proc~~init~~CallsGraph_node18" class="node">
+<title>none~start~4</title>
+<g id="a_proc~~init~~CallsGraph_node18"><a xlink:href="../type/baseprofiler.html#boundprocedure-start~4" xlink:title="mapl_BaseProfiler::BaseProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="1107,-129 893,-129 893,-105 1107,-105 1107,-129"/>
+<text text-anchor="middle" x="1000" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_BaseProfiler::BaseProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- proc~start_self&#45;&gt;none~start~4 -->
+<g id="proc~~init~~CallsGraph_edge19" class="edge">
+<title>proc~start_self&#45;&gt;none~start~4</title>
+<path fill="none" stroke="#002505" d="M847.03,-110.3C858.78,-110.23 870.69,-110.23 882.42,-110.31"/>
+<polygon fill="#002505" stroke="#002505" points="882.64,-113.81 892.67,-110.39 882.7,-106.81 882.64,-113.81"/>
+</g>
+<!-- proc~get_name~4 -->
+<g id="proc~~init~~CallsGraph_node19" class="node">
+<title>proc~get_name~4</title>
+<g id="a_proc~~init~~CallsGraph_node19"><a xlink:href="../proc/get_name~4.html" xlink:title="MAPL_MeterNode::MeterNode%get_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1117,-87 883,-87 883,-63 1117,-63 1117,-87"/>
+<text text-anchor="middle" x="1000" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MeterNode::MeterNode%get_name</text>
+</a>
+</g>
+</g>
+<!-- proc~start_self&#45;&gt;proc~get_name~4 -->
+<g id="proc~~init~~CallsGraph_edge20" class="edge">
+<title>proc~start_self&#45;&gt;proc~get_name~4</title>
+<path fill="none" stroke="#002505" d="M806.37,-104.96C839.28,-99.85 877.8,-93.85 911.72,-88.58"/>
+<polygon fill="#002505" stroke="#002505" points="912.27,-92.03 921.62,-87.04 911.2,-85.12 912.27,-92.03"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~init~~CallsGraph_node21" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~init~~CallsGraph_node21"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1432,-66 1160,-66 1160,-42 1432,-42 1432,-66"/>
+<text text-anchor="middle" x="1296" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~init~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1108.81,-40.7C1122.19,-41.66 1136.04,-42.65 1149.87,-43.63"/>
+<polygon fill="#025500" stroke="#025500" points="1149.71,-47.13 1159.93,-44.35 1150.21,-40.15 1149.71,-47.13"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~init~~CallsGraph_node22" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~init~~CallsGraph_node22"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1439,-24 1153,-24 1153,0 1439,0 1439,-24"/>
+<text text-anchor="middle" x="1296" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~init~~CallsGraph_edge23" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M1108.81,-25.3C1119.9,-24.51 1131.31,-23.69 1142.76,-22.87"/>
+<polygon fill="#025500" stroke="#025500" points="1143.11,-26.36 1152.83,-22.15 1142.61,-19.38 1143.11,-26.36"/>
+</g>
+<!-- none~start~4&#45;&gt;proc~start_self -->
+<g id="proc~~init~~CallsGraph_edge24" class="edge">
+<title>none~start~4&#45;&gt;proc~start_self</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M892.67,-123.61C881.08,-123.73 869.2,-123.77 857.39,-123.74"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="857.05,-120.24 847.03,-123.7 857.02,-127.24 857.05,-120.24"/>
 </g>
 </g>
 </svg>
@@ -507,151 +684,166 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~init~~CalledByGraph Pages: 1 -->
-<svg id="procinitCalledByGraph" width="641pt" height="57pt"
- viewBox="0.00 0.00 641.00 56.96" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~init~~CalledByGraph" class="graph" transform="scale(2.77 2.77) rotate(0) translate(4 154)">
+<svg id="procinitCalledByGraph" width="641pt" height="144pt"
+ viewBox="0.00 0.00 641.00 143.72" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~init~~CalledByGraph" class="graph" transform="scale(1.39 1.39) rotate(0) translate(4 196)">
 <title>proc~~init~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 1774,-154 1774,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 888,-196 888,4 -4,4"/>
 <!-- proc~init -->
 <g id="proc~~init~~CalledByGraph_node1" class="node">
 <title>proc~init</title>
-<polygon fill="none" stroke="black" points="1770,-66 1439,-66 1439,-42 1770,-42 1770,-66"/>
-<text text-anchor="middle" x="1604.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_AbstractDataMessageMod::AbstractDataMessage%init</text>
+<polygon fill="none" stroke="black" points="884,-108 627,-108 627,-84 884,-84 884,-108"/>
+<text text-anchor="middle" x="755.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_AbstractServerMod::AbstractServer%init</text>
 </g>
-<!-- proc~initcollective -->
+<!-- proc~new_mpiserver -->
 <g id="proc~~init~~CalledByGraph_node2" class="node">
-<title>proc~initcollective</title>
-<g id="a_proc~~init~~CalledByGraph_node2"><a xlink:href="../proc/initcollective.html" xlink:title="pFIO_AbstractCollectiveDataMessageMod::AbstractCollectiveDataMessage%initCollective">
-<polygon fill="#d9534f" stroke="#d9534f" points="1403,-108 915,-108 915,-84 1403,-84 1403,-108"/>
-<text text-anchor="middle" x="1159" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractCollectiveDataMessageMod::AbstractCollectiveDataMessage%initCollective</text>
+<title>proc~new_mpiserver</title>
+<g id="a_proc~~init~~CalledByGraph_node2"><a xlink:href="../proc/new_mpiserver.html" xlink:title="pFIO_MpiServerMod::new_MpiServer">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="549,-192 342,-192 342,-168 549,-168 549,-192"/>
+<text text-anchor="middle" x="445.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MpiServerMod::new_MpiServer</text>
 </a>
 </g>
 </g>
-<!-- proc~initcollective&#45;&gt;proc~init -->
+<!-- proc~new_mpiserver&#45;&gt;proc~init -->
 <g id="proc~~init~~CalledByGraph_edge1" class="edge">
-<title>proc~initcollective&#45;&gt;proc~init</title>
-<path fill="none" stroke="#255000" d="M1303.95,-83.99C1336.53,-81.16 1370.96,-78.06 1403,-75 1428.53,-72.56 1455.87,-69.8 1481.89,-67.09"/>
-<polygon fill="#255000" stroke="#255000" points="1482.6,-70.54 1492.18,-66.02 1481.87,-63.58 1482.6,-70.54"/>
+<title>proc~new_mpiserver&#45;&gt;proc~init</title>
+<path fill="none" stroke="#255000" d="M549.3,-167.95C563.41,-165.46 577.63,-162.5 591,-159 636.34,-147.13 686.32,-126.73 718.94,-112.37"/>
+<polygon fill="#255000" stroke="#255000" points="720.77,-115.38 728.48,-108.12 717.92,-108.99 720.77,-115.38"/>
 </g>
-<!-- proc~new_prefetchdatamessage -->
+<!-- proc~new_multicommserver -->
 <g id="proc~~init~~CalledByGraph_node3" class="node">
-<title>proc~new_prefetchdatamessage</title>
-<g id="a_proc~~init~~CalledByGraph_node3"><a xlink:href="../proc/new_prefetchdatamessage.html" xlink:title="pFIO_PrefetchDataMessageMod::new_PrefetchDataMessage">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="1324,-66 994,-66 994,-42 1324,-42 1324,-66"/>
-<text text-anchor="middle" x="1159" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_PrefetchDataMessageMod::new_PrefetchDataMessage</text>
+<title>proc~new_multicommserver</title>
+<g id="a_proc~~init~~CalledByGraph_node3"><a xlink:href="../proc/new_multicommserver.html" xlink:title="pFIO_MultiCommServerMod::new_MultiCommServer">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="591,-150 300,-150 300,-126 591,-126 591,-150"/>
+<text text-anchor="middle" x="445.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MultiCommServerMod::new_MultiCommServer</text>
 </a>
 </g>
 </g>
-<!-- proc~new_prefetchdatamessage&#45;&gt;proc~init -->
+<!-- proc~new_multicommserver&#45;&gt;proc~init -->
 <g id="proc~~init~~CalledByGraph_edge2" class="edge">
-<title>proc~new_prefetchdatamessage&#45;&gt;proc~init</title>
-<path fill="none" stroke="#255000" d="M1324.2,-54C1358.21,-54 1394.15,-54 1428.53,-54"/>
-<polygon fill="#255000" stroke="#255000" points="1428.66,-57.5 1438.66,-54 1428.66,-50.5 1428.66,-57.5"/>
+<title>proc~new_multicommserver&#45;&gt;proc~init</title>
+<path fill="none" stroke="#255000" d="M534.76,-125.96C572.7,-120.79 617.19,-114.72 656.18,-109.41"/>
+<polygon fill="#255000" stroke="#255000" points="657.06,-112.82 666.49,-108 656.11,-105.88 657.06,-112.82"/>
 </g>
-<!-- proc~new_stagedatamessage -->
+<!-- proc~new_multigroupserver -->
 <g id="proc~~init~~CalledByGraph_node4" class="node">
-<title>proc~new_stagedatamessage</title>
-<g id="a_proc~~init~~CalledByGraph_node4"><a xlink:href="../proc/new_stagedatamessage.html" xlink:title="pFIO_StageDataMessageMod::new_StageDataMessage">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="1311,-24 1007,-24 1007,0 1311,0 1311,-24"/>
-<text text-anchor="middle" x="1159" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StageDataMessageMod::new_StageDataMessage</text>
+<title>proc~new_multigroupserver</title>
+<g id="a_proc~~init~~CalledByGraph_node4"><a xlink:href="../proc/new_multigroupserver.html" xlink:title="pFIO_MultiGroupServerMod::new_MultiGroupServer">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="588,-108 303,-108 303,-84 588,-84 588,-108"/>
+<text text-anchor="middle" x="445.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MultiGroupServerMod::new_MultiGroupServer</text>
 </a>
 </g>
 </g>
-<!-- proc~new_stagedatamessage&#45;&gt;proc~init -->
+<!-- proc~new_multigroupserver&#45;&gt;proc~init -->
 <g id="proc~~init~~CalledByGraph_edge3" class="edge">
-<title>proc~new_stagedatamessage&#45;&gt;proc~init</title>
-<path fill="none" stroke="#255000" d="M1303.95,-24.01C1336.53,-26.84 1370.96,-29.94 1403,-33 1428.53,-35.44 1455.87,-38.2 1481.89,-40.91"/>
-<polygon fill="#255000" stroke="#255000" points="1481.87,-44.42 1492.18,-41.98 1482.6,-37.46 1481.87,-44.42"/>
+<title>proc~new_multigroupserver&#45;&gt;proc~init</title>
+<path fill="none" stroke="#255000" d="M588.33,-96C597.72,-96 607.17,-96 616.55,-96"/>
+<polygon fill="#255000" stroke="#255000" points="616.68,-99.5 626.68,-96 616.68,-92.5 616.68,-99.5"/>
 </g>
-<!-- interface~prefetchdatamessage -->
+<!-- proc~new_multilayerserver -->
 <g id="proc~~init~~CalledByGraph_node5" class="node">
-<title>interface~prefetchdatamessage</title>
-<g id="a_proc~~init~~CalledByGraph_node5"><a xlink:href="../interface/prefetchdatamessage.html" xlink:title="pFIO_PrefetchDataMessageMod::PrefetchDataMessage">
-<polygon fill="#a7506f" stroke="#a7506f" points="813,-66 510,-66 510,-42 813,-42 813,-66"/>
-<text text-anchor="middle" x="661.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_PrefetchDataMessageMod::PrefetchDataMessage</text>
+<title>proc~new_multilayerserver</title>
+<g id="a_proc~~init~~CalledByGraph_node5"><a xlink:href="../proc/new_multilayerserver.html" xlink:title="pFIO_MultiLayerServerMod::new_MultiLayerServer">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="585.5,-66 305.5,-66 305.5,-42 585.5,-42 585.5,-66"/>
+<text text-anchor="middle" x="445.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MultiLayerServerMod::new_MultiLayerServer</text>
 </a>
 </g>
 </g>
-<!-- interface~prefetchdatamessage&#45;&gt;proc~new_prefetchdatamessage -->
-<g id="proc~~init~~CalledByGraph_edge6" class="edge">
-<title>interface~prefetchdatamessage&#45;&gt;proc~new_prefetchdatamessage</title>
-<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M813.18,-54C866.93,-54 927.91,-54 983.48,-54"/>
-<polygon fill="#025500" stroke="#025500" points="983.8,-57.5 993.8,-54 983.8,-50.5 983.8,-57.5"/>
-</g>
-<!-- interface~stagedatamessage -->
-<g id="proc~~init~~CalledByGraph_node6" class="node">
-<title>interface~stagedatamessage</title>
-<g id="a_proc~~init~~CalledByGraph_node6"><a xlink:href="../interface/stagedatamessage.html" xlink:title="pFIO_StageDataMessageMod::StageDataMessage">
-<polygon fill="#a7506f" stroke="#a7506f" points="800,-24 523,-24 523,0 800,0 800,-24"/>
-<text text-anchor="middle" x="661.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StageDataMessageMod::StageDataMessage</text>
-</a>
-</g>
-</g>
-<!-- interface~stagedatamessage&#45;&gt;proc~new_stagedatamessage -->
-<g id="proc~~init~~CalledByGraph_edge7" class="edge">
-<title>interface~stagedatamessage&#45;&gt;proc~new_stagedatamessage</title>
-<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M800.2,-12C861.09,-12 933.11,-12 996.52,-12"/>
-<polygon fill="#002505" stroke="#002505" points="996.62,-15.5 1006.62,-12 996.62,-8.5 996.62,-15.5"/>
-</g>
-<!-- proc~new_collectiveprefetchdatamessage -->
-<g id="proc~~init~~CalledByGraph_node7" class="node">
-<title>proc~new_collectiveprefetchdatamessage</title>
-<g id="a_proc~~init~~CalledByGraph_node7"><a xlink:href="../proc/new_collectiveprefetchdatamessage.html" xlink:title="pFIO_CollectivePrefetchDataMessageMod::new_CollectivePrefetchDataMessage">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="879,-150 444,-150 444,-126 879,-126 879,-150"/>
-<text text-anchor="middle" x="661.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CollectivePrefetchDataMessageMod::new_CollectivePrefetchDataMessage</text>
-</a>
-</g>
-</g>
-<!-- proc~new_collectiveprefetchdatamessage&#45;&gt;proc~initcollective -->
+<!-- proc~new_multilayerserver&#45;&gt;proc~init -->
 <g id="proc~~init~~CalledByGraph_edge4" class="edge">
-<title>proc~new_collectiveprefetchdatamessage&#45;&gt;proc~initcollective</title>
-<path fill="none" stroke="#255000" d="M804.16,-125.99C867.28,-120.64 941.73,-114.33 1006.01,-108.88"/>
-<polygon fill="#255000" stroke="#255000" points="1006.57,-112.35 1016.24,-108.02 1005.98,-105.37 1006.57,-112.35"/>
+<title>proc~new_multilayerserver&#45;&gt;proc~init</title>
+<path fill="none" stroke="#255000" d="M534.76,-66.04C572.7,-71.21 617.19,-77.28 656.18,-82.59"/>
+<polygon fill="#255000" stroke="#255000" points="656.11,-86.12 666.49,-84 657.06,-79.18 656.11,-86.12"/>
 </g>
-<!-- proc~new_collectivestagedatamessage -->
-<g id="proc~~init~~CalledByGraph_node8" class="node">
-<title>proc~new_collectivestagedatamessage</title>
-<g id="a_proc~~init~~CalledByGraph_node8"><a xlink:href="../proc/new_collectivestagedatamessage.html" xlink:title="pFIO_CollectiveStageDataMessageMod::new_CollectiveStageDataMessage">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="866,-108 457,-108 457,-84 866,-84 866,-108"/>
-<text text-anchor="middle" x="661.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CollectiveStageDataMessageMod::new_CollectiveStageDataMessage</text>
+<!-- proc~new_openmpserver -->
+<g id="proc~~init~~CalledByGraph_node6" class="node">
+<title>proc~new_openmpserver</title>
+<g id="a_proc~~init~~CalledByGraph_node6"><a xlink:href="../proc/new_openmpserver.html" xlink:title="pFIO_OpenMPServerMod::new_OpenMPServer">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="573.5,-24 317.5,-24 317.5,0 573.5,0 573.5,-24"/>
+<text text-anchor="middle" x="445.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_OpenMPServerMod::new_OpenMPServer</text>
 </a>
 </g>
 </g>
-<!-- proc~new_collectivestagedatamessage&#45;&gt;proc~initcollective -->
+<!-- proc~new_openmpserver&#45;&gt;proc~init -->
 <g id="proc~~init~~CalledByGraph_edge5" class="edge">
-<title>proc~new_collectivestagedatamessage&#45;&gt;proc~initcollective</title>
-<path fill="none" stroke="#255000" d="M866.18,-96C878.82,-96 891.62,-96 904.43,-96"/>
-<polygon fill="#255000" stroke="#255000" points="904.71,-99.5 914.71,-96 904.71,-92.5 904.71,-99.5"/>
+<title>proc~new_openmpserver&#45;&gt;proc~init</title>
+<path fill="none" stroke="#255000" d="M549.3,-24.05C563.41,-26.54 577.63,-29.5 591,-33 636.34,-44.87 686.32,-65.27 718.94,-79.63"/>
+<polygon fill="#255000" stroke="#255000" points="717.92,-83.01 728.48,-83.88 720.77,-76.62 717.92,-83.01"/>
 </g>
-<!-- interface~collectiveprefetchdatamessage -->
+<!-- interface~mpiserver -->
+<g id="proc~~init~~CalledByGraph_node7" class="node">
+<title>interface~mpiserver</title>
+<g id="a_proc~~init~~CalledByGraph_node7"><a xlink:href="../interface/mpiserver.html" xlink:title="pFIO_MpiServerMod::MpiServer">
+<polygon fill="#a7506f" stroke="#a7506f" points="222,-192 42,-192 42,-168 222,-168 222,-192"/>
+<text text-anchor="middle" x="132" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MpiServerMod::MpiServer</text>
+</a>
+</g>
+</g>
+<!-- interface~mpiserver&#45;&gt;proc~new_mpiserver -->
+<g id="proc~~init~~CalledByGraph_edge6" class="edge">
+<title>interface~mpiserver&#45;&gt;proc~new_mpiserver</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M222.26,-180C256.36,-180 295.69,-180 331.7,-180"/>
+<polygon fill="#255000" stroke="#255000" points="331.77,-183.5 341.77,-180 331.77,-176.5 331.77,-183.5"/>
+</g>
+<!-- interface~multicommserver -->
+<g id="proc~~init~~CalledByGraph_node8" class="node">
+<title>interface~multicommserver</title>
+<g id="a_proc~~init~~CalledByGraph_node8"><a xlink:href="../interface/multicommserver.html" xlink:title="pFIO_MultiCommServerMod::MultiCommServer">
+<polygon fill="#a7506f" stroke="#a7506f" points="264,-150 0,-150 0,-126 264,-126 264,-150"/>
+<text text-anchor="middle" x="132" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MultiCommServerMod::MultiCommServer</text>
+</a>
+</g>
+</g>
+<!-- interface~multicommserver&#45;&gt;proc~new_multicommserver -->
+<g id="proc~~init~~CalledByGraph_edge7" class="edge">
+<title>interface~multicommserver&#45;&gt;proc~new_multicommserver</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M264.2,-138C272.69,-138 281.27,-138 289.85,-138"/>
+<polygon fill="transparent" stroke="transparent" points="289.92,-141.5 299.92,-138 289.92,-134.5 289.92,-141.5"/>
+</g>
+<!-- interface~multigroupserver -->
 <g id="proc~~init~~CalledByGraph_node9" class="node">
-<title>interface~collectiveprefetchdatamessage</title>
-<g id="a_proc~~init~~CalledByGraph_node9"><a xlink:href="../interface/collectiveprefetchdatamessage.html" xlink:title="pFIO_CollectivePrefetchDataMessageMod::CollectivePrefetchDataMessage">
-<polygon fill="#a7506f" stroke="#a7506f" points="408,-150 0,-150 0,-126 408,-126 408,-150"/>
-<text text-anchor="middle" x="204" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CollectivePrefetchDataMessageMod::CollectivePrefetchDataMessage</text>
+<title>interface~multigroupserver</title>
+<g id="a_proc~~init~~CalledByGraph_node9"><a xlink:href="../interface/multigroupserver.html" xlink:title="pFIO_MultiGroupServerMod::MultiGroupServer">
+<polygon fill="#a7506f" stroke="#a7506f" points="261,-108 3,-108 3,-84 261,-84 261,-108"/>
+<text text-anchor="middle" x="132" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MultiGroupServerMod::MultiGroupServer</text>
 </a>
 </g>
 </g>
-<!-- interface~collectiveprefetchdatamessage&#45;&gt;proc~new_collectiveprefetchdatamessage -->
+<!-- interface~multigroupserver&#45;&gt;proc~new_multigroupserver -->
 <g id="proc~~init~~CalledByGraph_edge8" class="edge">
-<title>interface~collectiveprefetchdatamessage&#45;&gt;proc~new_collectiveprefetchdatamessage</title>
-<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M408.11,-138C416.63,-138 425.2,-138 433.77,-138"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="433.83,-141.5 443.83,-138 433.83,-134.5 433.83,-141.5"/>
+<title>interface~multigroupserver&#45;&gt;proc~new_multigroupserver</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M261.05,-96C271.47,-96 282.07,-96 292.65,-96"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="292.77,-99.5 302.77,-96 292.77,-92.5 292.77,-99.5"/>
 </g>
-<!-- interface~collectivestagedatamessage -->
+<!-- interface~multilayerserver -->
 <g id="proc~~init~~CalledByGraph_node10" class="node">
-<title>interface~collectivestagedatamessage</title>
-<g id="a_proc~~init~~CalledByGraph_node10"><a xlink:href="../interface/collectivestagedatamessage.html" xlink:title="pFIO_CollectiveStageDataMessageMod::CollectiveStageDataMessage">
-<polygon fill="#a7506f" stroke="#a7506f" points="395,-108 13,-108 13,-84 395,-84 395,-108"/>
-<text text-anchor="middle" x="204" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CollectiveStageDataMessageMod::CollectiveStageDataMessage</text>
+<title>interface~multilayerserver</title>
+<g id="a_proc~~init~~CalledByGraph_node10"><a xlink:href="../interface/multilayerserver.html" xlink:title="pFIO_MultiLayerServerMod::MultiLayerServer">
+<polygon fill="#a7506f" stroke="#a7506f" points="258.5,-66 5.5,-66 5.5,-42 258.5,-42 258.5,-66"/>
+<text text-anchor="middle" x="132" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MultiLayerServerMod::MultiLayerServer</text>
 </a>
 </g>
 </g>
-<!-- interface~collectivestagedatamessage&#45;&gt;proc~new_collectivestagedatamessage -->
+<!-- interface~multilayerserver&#45;&gt;proc~new_multilayerserver -->
 <g id="proc~~init~~CalledByGraph_edge9" class="edge">
-<title>interface~collectivestagedatamessage&#45;&gt;proc~new_collectivestagedatamessage</title>
-<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M395.2,-96C412.23,-96 429.55,-96 446.76,-96"/>
-<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="446.87,-99.5 456.87,-96 446.87,-92.5 446.87,-99.5"/>
+<title>interface~multilayerserver&#45;&gt;proc~new_multilayerserver</title>
+<path fill="none" stroke="#010225" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M258.8,-54C270.81,-54 283.06,-54 295.25,-54"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="295.48,-57.5 305.48,-54 295.48,-50.5 295.48,-57.5"/>
+</g>
+<!-- interface~openmpserver -->
+<g id="proc~~init~~CalledByGraph_node11" class="node">
+<title>interface~openmpserver</title>
+<g id="a_proc~~init~~CalledByGraph_node11"><a xlink:href="../interface/openmpserver.html" xlink:title="pFIO_OpenMPServerMod::OpenMPServer">
+<polygon fill="#a7506f" stroke="#a7506f" points="246.5,-24 17.5,-24 17.5,0 246.5,0 246.5,-24"/>
+<text text-anchor="middle" x="132" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_OpenMPServerMod::OpenMPServer</text>
+</a>
+</g>
+</g>
+<!-- interface~openmpserver&#45;&gt;proc~new_openmpserver -->
+<g id="proc~~init~~CalledByGraph_edge10" class="edge">
+<title>interface~openmpserver&#45;&gt;proc~new_openmpserver</title>
+<path fill="none" stroke="#204025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M246.78,-12C266.41,-12 286.99,-12 307.16,-12"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="307.34,-15.5 317.34,-12 307.34,-8.5 307.34,-15.5"/>
 </g>
 </g>
 </svg>
@@ -754,44 +946,78 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">init</span><span class="p">(</span><span class="n">message</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
-<span class="w">        </span><span class="n">request_id</span><span class="p">,</span><span class="w"> </span><span class="n">collection_id</span><span class="p">,</span><span class="w"> </span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">        </span><span class="n">data_reference</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_id</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection_id</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_name</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataReference</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">data_reference</span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">start</span><span class="p">(:)</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">init</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">profiler_name</span><span class="p">,</span><span class="w"> </span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractServer</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">profiler_name</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">with_profiler</span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">k</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span><span class="p">,</span><span class="w"> </span><span class="n">MyColor</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p_name</span>
 
-<span class="w">      </span><span class="n">message</span><span class="p">%</span><span class="n">request_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request_id</span>
-<span class="w">      </span><span class="n">message</span><span class="p">%</span><span class="n">collection_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">collection_id</span>
-<span class="w">      </span><span class="n">message</span><span class="p">%</span><span class="n">file_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_name</span>
-<span class="w">      </span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var_name</span>
-<span class="w">      </span><span class="n">message</span><span class="p">%</span><span class="n">type_kind</span><span class="o">=</span><span class="w"> </span><span class="n">data_reference</span><span class="p">%</span><span class="n">type_kind</span>
-<span class="w">      </span><span class="n">message</span><span class="p">%</span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data_reference</span><span class="p">%</span><span class="nb">shape</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
 
-<span class="nb">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">start</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">message</span><span class="p">%</span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">num_clients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">all_backlog_is_empty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNALLOCATED</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_split_type</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_COMM_TYPE_SHARED</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INFO_NULL</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">InNode_Comm</span><span class="p">,</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">InNode_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">InNode_npes</span><span class="p">,</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">InNode_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">InNode_Rank</span><span class="p">,</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">MyColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">InNode_Rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">MyColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_COMM_SPLIT</span><span class="p">(</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">MyColor</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">NodeRoot_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MyColor</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">NodeRoot_Comm</span><span class="o">=</span><span class="n">MPI_COMM_NULL</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">message</span><span class="p">%</span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">data_reference</span><span class="p">%</span><span class="nb">shape</span><span class="p">))]</span>
-<span class="w">      </span><span class="k">end if</span>
-
-<span class="k">      </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">start</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="nb">count</span><span class="p">)</span>
-
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">message</span><span class="p">%</span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">message</span><span class="p">%</span><span class="nb">count</span><span class="p">,[(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">)]]</span>
-<span class="w">      </span><span class="k">endif </span>
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">message</span><span class="p">%</span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">message</span><span class="p">%</span><span class="n">start</span><span class="p">,[(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="n">k</span><span class="p">)]]</span>
+<span class="k">         call </span><span class="n">MPI_COMM_SIZE</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">NodeRoot_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Node_Num</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">NodeRoot_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Node_Rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
 <span class="w">      </span><span class="k">endif</span>
-<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="k">      call </span><span class="n">Mpi_Bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">Node_Rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">InNode_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">Mpi_Bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">Node_Num</span><span class="p">,</span><span class="w">  </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">InNode_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">This</span><span class="p">%</span><span class="n">Node_Ranks</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">this</span><span class="p">%</span><span class="n">npes</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">Mpi_AllGather</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">Node_Rank</span><span class="p">,</span><span class="w">  </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="n">this</span><span class="p">%</span><span class="n">Node_Ranks</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">profiler_name</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">p_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">profiler_name</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">p_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">port_name</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">with_profiler</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">with_profiler</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">ioserver_profiler</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               allocate</span><span class="p">(</span><span class="n">ioserver_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DistributedProfiler</span><span class="p">(</span><span class="n">p_name</span><span class="p">,</span><span class="w"> </span><span class="n">MpiTimerGauge</span><span class="p">(),</span><span class="w"> </span><span class="n">comm</span><span class="p">))</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ioserver_profiler</span><span class="p">%</span><span class="n">start</span><span class="p">()</span>
+<span class="w">            </span><span class="k">endif</span>
+<span class="k">         endif</span>
+<span class="k">      endif</span>
+
+<span class="k">      call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">init</span>
 </pre></div>
 
@@ -813,7 +1039,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-02-06T15:14:32.011811             </p>
+ on 2024-02-06T15:18:48.640569             </p>
           </div>
         </div>
         <br>

@@ -69,7 +69,7 @@
     <div class="container">
   <div class="row">
     <h1>initialize
-      <small>Module Procedure</small>
+      <small>Subroutine</small>
       
     </h1>
       <div class="container p-2 mb-4 bg-light border rounded-3">
@@ -80,20 +80,20 @@
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip"
                  data-bs-placement="bottom" data-html="true"
-                 title=" 0.0% of total for procedures.">92 statements</a>
+                 title=" 0.0% of total for procedures.">27 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/MAPL_HistoryTrajectoryMod_smod.F90"> Source File</a>
+              <a href="../src/ExtDataAbstractFileHandler.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/mapl_historytrajectorymod_smod.f90.html'>MAPL_HistoryTrajectoryMod_smod.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/historytrajectory_implement.html'>HistoryTrajectory_implement</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/extdataabstractfilehandler.f90.html'>ExtDataAbstractFileHandler.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdataabstractfilehandler.html'>MAPL_ExtdataAbstractFileHandler</a></li>
             <li class="breadcrumb-item active" aria-current="page">initialize</li>
           </ol>
         </nav>
@@ -132,6 +132,12 @@
   
   
   
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/initialize~6.html#src">initialize</a>
+      </div>
+    </div>
 
 
   </div>
@@ -139,12 +145,13 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>module procedure initialize <small>module subroutine initialize(this, items, bundle, timeInfo, vdata, reinitialize, rc)</small>  
-    <a href="../interface/initialize.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+    <h2>private  subroutine initialize(this, file_series, persist_closest, unusable, rc)  
 </h2>
     
 
 
+    <h3>Type Bound</h3>
+    <p><a href='../type/extdataabstractfilehandler.html'>ExtDataAbstractFileHandler</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -159,8 +166,8 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~2301"></span>
-              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+              <span class="anchor" id="variable-this~1922"></span>
+              class(<a href='../type/extdataabstractfilehandler.html'>ExtDataAbstractFileHandler</a>),
             </td>
 <td>intent(inout)</td>
               <td></td>            <td>
@@ -174,67 +181,22 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-items~14"></span>
-              type(<a href='../type/griddedioitemvector.html'>GriddedIOitemVector</a>),
+              <span class="anchor" id="variable-file_series"></span>
+              type(<a href='../type/extdatafilestream.html'>ExtDataFileStream</a>),
             </td>
-<td>intent(inout),</td>
-              <td>optional</td>            <td>
+<td>intent(in)</td>
+              <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>items</strong></td>
+            <td><strong>file_series</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-bundle~20"></span>
-              type(ESMF_FieldBundle),
-            </td>
-<td>intent(inout),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>bundle</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-timeinfo~2"></span>
-              type(<a href='../type/timedata.html'>timeData</a>),
-            </td>
-<td>intent(inout),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>timeInfo</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-vdata~3"></span>
-              type(<a href='../type/verticaldata.html'>verticalData</a>),
-            </td>
-<td>intent(inout),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>vdata</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-reinitialize"></span>
+              <span class="anchor" id="variable-persist_closest~2"></span>
               logical,
             </td>
 <td>intent(in),</td>
@@ -242,14 +204,29 @@
               
             </td>
             <td>::</td>
-            <td><strong>reinitialize</strong></td>
+            <td><strong>persist_closest</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~806"></span>
+              <span class="anchor" id="variable-unusable~151"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~781"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -268,7 +245,7 @@
     <br>
     <div class="card">
       <div class="card-header">
-  <h3 class="card-title">Calls</h3>
+  <h3 class="card-title">Called by</h3>
       </div>
       <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -276,292 +253,58 @@
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
-<!-- Title: proc~~initialize~6~~CallsGraph Pages: 1 -->
-<svg id="procinitialize6CallsGraph" width="641pt" height="717pt"
- viewBox="0.00 0.00 641.00 716.92" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~initialize~6~~CallsGraph" class="graph" transform="scale(1.04 1.04) rotate(0) translate(4 742)">
-<title>proc~~initialize~6~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-742 663,-742 663,4 -4,4"/>
+<!-- Title: proc~~initialize~6~~CalledByGraph Pages: 1 -->
+<svg id="procinitialize6CalledByGraph" width="641pt" height="19pt"
+ viewBox="0.00 0.00 641.00 18.91" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize~6~~CalledByGraph" class="graph" transform="scale(1.69 1.69) rotate(0) translate(4 28)">
+<title>proc~~initialize~6~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 1081,-28 1081,4 -4,4"/>
 <!-- proc~initialize~6 -->
-<g id="proc~~initialize~6~~CallsGraph_node1" class="node">
+<g id="proc~~initialize~6~~CalledByGraph_node1" class="node">
 <title>proc~initialize~6</title>
-<polygon fill="none" stroke="black" points="217,-381 0,-381 0,-357 217,-357 217,-381"/>
-<text text-anchor="middle" x="108.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50">HistoryTrajectory_implement::initialize</text>
+<polygon fill="none" stroke="black" points="1077,-24 677,-24 677,0 1077,0 1077,-24"/>
+<text text-anchor="middle" x="877" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtdataAbstractFileHandler::ExtDataAbstractFileHandler%initialize</text>
 </g>
-<!-- ESMF_ClockGet -->
-<g id="proc~~initialize~6~~CallsGraph_node2" class="node">
-<title>ESMF_ClockGet</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="521,-738 391,-738 391,-714 521,-714 521,-738"/>
-<text text-anchor="middle" x="456" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ClockGet</text>
-</g>
-<!-- proc~initialize~6&#45;&gt;ESMF_ClockGet -->
-<g id="proc~~initialize~6~~CallsGraph_edge1" class="edge">
-<title>proc~initialize~6&#45;&gt;ESMF_ClockGet</title>
-<path fill="none" stroke="#255000" d="M110.45,-381.12C115.09,-430.99 139.92,-621.62 253,-705 289.18,-731.68 339.42,-736.99 380.75,-735.61"/>
-<polygon fill="#255000" stroke="#255000" points="380.95,-739.1 390.77,-735.13 380.62,-732.11 380.95,-739.1"/>
-</g>
-<!-- esmf_fieldbundleget -->
-<g id="proc~~initialize~6~~CallsGraph_node3" class="node">
-<title>esmf_fieldbundleget</title>
-<polygon fill="#777777" stroke="#777777" points="516.5,-696 395.5,-696 395.5,-672 516.5,-672 516.5,-696"/>
-<text text-anchor="middle" x="456" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
-</g>
-<!-- proc~initialize~6&#45;&gt;esmf_fieldbundleget -->
-<g id="proc~~initialize~6~~CallsGraph_edge2" class="edge">
-<title>proc~initialize~6&#45;&gt;esmf_fieldbundleget</title>
-<path fill="none" stroke="#255000" d="M111.24,-381.18C118.52,-427.24 151.06,-591.73 253,-663 291.04,-689.6 343.37,-694.39 385.24,-692.78"/>
-<polygon fill="#255000" stroke="#255000" points="385.56,-696.26 395.37,-692.25 385.2,-689.27 385.56,-696.26"/>
-</g>
-<!-- interface~create_grid -->
-<g id="proc~~initialize~6~~CallsGraph_node4" class="node">
-<title>interface~create_grid</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node4"><a xlink:href="../interface/create_grid.html" xlink:title="HistoryTrajectoryMod::HistoryTrajectory%create_grid">
-<polygon fill="#a7506f" stroke="#a7506f" points="602,-654 310,-654 310,-630 602,-630 602,-654"/>
-<text text-anchor="middle" x="456" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryTrajectoryMod::HistoryTrajectory%create_grid</text>
+<!-- proc~fillin_primary -->
+<g id="proc~~initialize~6~~CalledByGraph_node2" class="node">
+<title>proc~fillin_primary</title>
+<g id="a_proc~~initialize~6~~CalledByGraph_node2"><a xlink:href="../proc/fillin_primary.html" xlink:title="MAPL_ExtDataOldTypesCreator::ExtDataOldTypesCreator%fillin_primary">
+<polygon fill="#d9534f" stroke="#d9534f" points="641,-24 250,-24 250,0 641,0 641,-24"/>
+<text text-anchor="middle" x="445.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataOldTypesCreator::ExtDataOldTypesCreator%fillin_primary</text>
 </a>
 </g>
 </g>
-<!-- proc~initialize~6&#45;&gt;interface~create_grid -->
-<g id="proc~~initialize~6~~CallsGraph_edge3" class="edge">
-<title>proc~initialize~6&#45;&gt;interface~create_grid</title>
-<path fill="none" stroke="#255000" d="M112.25,-381.18C122.38,-423.02 161.94,-561.55 253,-621 267.25,-630.3 283.31,-636.85 299.99,-641.34"/>
-<polygon fill="#255000" stroke="#255000" points="299.33,-644.78 309.88,-643.75 300.99,-637.98 299.33,-644.78"/>
+<!-- proc~fillin_primary&#45;&gt;proc~initialize~6 -->
+<g id="proc~~initialize~6~~CalledByGraph_edge1" class="edge">
+<title>proc~fillin_primary&#45;&gt;proc~initialize~6</title>
+<path fill="none" stroke="#255000" d="M641.14,-12C649.68,-12 658.26,-12 666.82,-12"/>
+<polygon fill="#255000" stroke="#255000" points="666.87,-15.5 676.87,-12 666.87,-8.5 666.87,-15.5"/>
 </g>
-<!-- interface~create_metadata_variable -->
-<g id="proc~~initialize~6~~CallsGraph_node5" class="node">
-<title>interface~create_metadata_variable</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node5"><a xlink:href="../interface/create_metadata_variable.html" xlink:title="HistoryTrajectoryMod::HistoryTrajectory%create_metadata_variable">
-<polygon fill="#a7506f" stroke="#a7506f" points="642,-612 270,-612 270,-588 642,-588 642,-612"/>
-<text text-anchor="middle" x="456" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryTrajectoryMod::HistoryTrajectory%create_metadata_variable</text>
+<!-- proc~initialize_~3 -->
+<g id="proc~~initialize~6~~CalledByGraph_node3" class="node">
+<title>proc~initialize_~3</title>
+<g id="a_proc~~initialize~6~~CalledByGraph_node3"><a xlink:href="../proc/initialize_~3.html" xlink:title="MAPL_ExtDataGridComp2G::Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="214,-24 0,-24 0,0 214,0 214,-24"/>
+<text text-anchor="middle" x="107" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Initialize_</text>
 </a>
 </g>
 </g>
-<!-- proc~initialize~6&#45;&gt;interface~create_metadata_variable -->
-<g id="proc~~initialize~6~~CallsGraph_edge4" class="edge">
-<title>proc~initialize~6&#45;&gt;interface~create_metadata_variable</title>
-<path fill="none" stroke="#255000" d="M113.63,-381.23C126.95,-418.51 172.58,-531.07 253,-579 255.71,-580.62 258.49,-582.15 261.31,-583.59"/>
-<polygon fill="#255000" stroke="#255000" points="259.94,-586.82 270.48,-587.94 262.94,-580.49 259.94,-586.82"/>
-</g>
-<!-- interface~create_new_bundle -->
-<g id="proc~~initialize~6~~CallsGraph_node6" class="node">
-<title>interface~create_new_bundle</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node6"><a xlink:href="../interface/create_new_bundle.html" xlink:title="HistoryTrajectoryMod::HistoryTrajectory%create_new_bundle">
-<polygon fill="#a7506f" stroke="#a7506f" points="623.5,-570 288.5,-570 288.5,-546 623.5,-546 623.5,-570"/>
-<text text-anchor="middle" x="456" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryTrajectoryMod::HistoryTrajectory%create_new_bundle</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;interface~create_new_bundle -->
-<g id="proc~~initialize~6~~CallsGraph_edge5" class="edge">
-<title>proc~initialize~6&#45;&gt;interface~create_new_bundle</title>
-<path fill="none" stroke="#255000" d="M115.53,-381.05C132.27,-413.02 182.71,-500.07 253,-537 261.19,-541.31 269.83,-544.95 278.74,-548.02"/>
-<polygon fill="#255000" stroke="#255000" points="277.91,-551.43 288.5,-551.13 280.03,-544.76 277.91,-551.43"/>
-</g>
-<!-- interface~mapl_am_i_root -->
-<g id="proc~~initialize~6~~CallsGraph_node7" class="node">
-<title>interface~mapl_am_i_root</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node7"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_CommsMod::MAPL_Am_I_Root">
-<polygon fill="#a7506f" stroke="#a7506f" points="559,-528 353,-528 353,-504 559,-504 559,-528"/>
-<text text-anchor="middle" x="456" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::MAPL_Am_I_Root</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;interface~mapl_am_i_root -->
-<g id="proc~~initialize~6~~CallsGraph_edge6" class="edge">
-<title>proc~initialize~6&#45;&gt;interface~mapl_am_i_root</title>
-<path fill="none" stroke="#255000" d="M118.68,-381.03C139.37,-407.1 192.55,-468.58 253,-495 280.72,-507.12 312.55,-513.47 342.62,-516.56"/>
-<polygon fill="#255000" stroke="#255000" points="342.46,-520.06 352.74,-517.49 343.1,-513.09 342.46,-520.06"/>
-</g>
-<!-- interface~mapl_assert -->
-<g id="proc~~initialize~6~~CallsGraph_node8" class="node">
-<title>interface~mapl_assert</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node8"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
-<polygon fill="#a7506f" stroke="#a7506f" points="564.5,-486 347.5,-486 347.5,-462 564.5,-462 564.5,-486"/>
-<text text-anchor="middle" x="456" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;interface~mapl_assert -->
-<g id="proc~~initialize~6~~CallsGraph_edge7" class="edge">
-<title>proc~initialize~6&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#255000" d="M125.19,-381.27C150.47,-400.3 202.52,-436.46 253,-453 279.56,-461.7 309.04,-467.03 337.08,-470.23"/>
-<polygon fill="#255000" stroke="#255000" points="337.03,-473.75 347.34,-471.32 337.76,-466.79 337.03,-473.75"/>
-</g>
-<!-- none~add_attribute~3 -->
-<g id="proc~~initialize~6~~CallsGraph_node9" class="node">
-<title>none~add_attribute~3</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node9"><a xlink:href="../type/variable.html#boundprocedure-add_attribute~3" xlink:title="pFIO_VariableMod::Variable%add_attribute">
-<polygon fill="#a7506f" stroke="#a7506f" points="576,-444 336,-444 336,-420 576,-420 576,-444"/>
-<text text-anchor="middle" x="456" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%add_attribute</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;none~add_attribute~3 -->
-<g id="proc~~initialize~6~~CallsGraph_edge8" class="edge">
-<title>proc~initialize~6&#45;&gt;none~add_attribute~3</title>
-<path fill="none" stroke="#255000" d="M144.15,-381.06C172.95,-390.62 215.18,-403.56 253,-411 276.41,-415.6 301.56,-419.24 325.9,-422.1"/>
-<polygon fill="#255000" stroke="#255000" points="325.57,-425.59 335.9,-423.24 326.36,-418.63 325.57,-425.59"/>
-</g>
-<!-- proc~add_dimension -->
-<g id="proc~~initialize~6~~CallsGraph_node10" class="node">
-<title>proc~add_dimension</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node10"><a xlink:href="../proc/add_dimension.html" xlink:title="pFIO_FileMetadataMod::FileMetadata%add_dimension">
-<polygon fill="#d9534f" stroke="#d9534f" points="605.5,-402 306.5,-402 306.5,-378 605.5,-378 605.5,-402"/>
-<text text-anchor="middle" x="456" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%add_dimension</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~add_dimension -->
-<g id="proc~~initialize~6~~CallsGraph_edge9" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~add_dimension</title>
-<path fill="none" stroke="#255000" d="M217.4,-375.56C242.42,-377.08 269.56,-378.73 296.25,-380.35"/>
-<polygon fill="#255000" stroke="#255000" points="296.26,-383.86 306.45,-380.97 296.68,-376.87 296.26,-383.86"/>
-</g>
-<!-- proc~add_variable -->
-<g id="proc~~initialize~6~~CallsGraph_node11" class="node">
-<title>proc~add_variable</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node11"><a xlink:href="../proc/add_variable.html" xlink:title="pFIO_FileMetadataMod::FileMetadata%add_variable">
-<polygon fill="#d9534f" stroke="#d9534f" points="599.5,-360 312.5,-360 312.5,-336 599.5,-336 599.5,-360"/>
-<text text-anchor="middle" x="456" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%add_variable</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~add_variable -->
-<g id="proc~~initialize~6~~CallsGraph_edge10" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~add_variable</title>
-<path fill="none" stroke="#255000" d="M217.4,-362.44C244.32,-360.81 273.7,-359.02 302.33,-357.28"/>
-<polygon fill="#255000" stroke="#255000" points="302.65,-360.77 312.42,-356.67 302.23,-353.78 302.65,-360.77"/>
-</g>
-<!-- proc~append_vertical_metadata -->
-<g id="proc~~initialize~6~~CallsGraph_node12" class="node">
-<title>proc~append_vertical_metadata</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node12"><a xlink:href="../proc/append_vertical_metadata.html" xlink:title="MAPL_VerticalDataMod::verticalData%append_vertical_metadata">
-<polygon fill="#d9534f" stroke="#d9534f" points="635.5,-318 276.5,-318 276.5,-294 635.5,-294 635.5,-318"/>
-<text text-anchor="middle" x="456" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VerticalDataMod::verticalData%append_vertical_metadata</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~append_vertical_metadata -->
-<g id="proc~~initialize~6~~CallsGraph_edge11" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~append_vertical_metadata</title>
-<path fill="none" stroke="#255000" d="M144.15,-356.94C172.95,-347.38 215.18,-334.44 253,-327 267.76,-324.1 283.21,-321.58 298.7,-319.4"/>
-<polygon fill="#255000" stroke="#255000" points="299.45,-322.83 308.89,-318.01 298.51,-315.89 299.45,-322.83"/>
-</g>
-<!-- proc~get_interpolating_variable -->
-<g id="proc~~initialize~6~~CallsGraph_node13" class="node">
-<title>proc~get_interpolating_variable</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node13"><a xlink:href="../proc/get_interpolating_variable.html" xlink:title="MAPL_VerticalDataMod::verticalData%get_interpolating_variable">
-<polygon fill="#d9534f" stroke="#d9534f" points="634,-276 278,-276 278,-252 634,-252 634,-276"/>
-<text text-anchor="middle" x="456" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VerticalDataMod::verticalData%get_interpolating_variable</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~get_interpolating_variable -->
-<g id="proc~~initialize~6~~CallsGraph_edge12" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~get_interpolating_variable</title>
-<path fill="none" stroke="#255000" d="M125.19,-356.73C150.47,-337.7 202.52,-301.54 253,-285 260.62,-282.5 268.49,-280.28 276.49,-278.31"/>
-<polygon fill="#255000" stroke="#255000" points="277.36,-281.7 286.31,-276.03 275.77,-274.88 277.36,-281.7"/>
-</g>
-<!-- proc~get_obsfile_tbracket_from_epoch -->
-<g id="proc~~initialize~6~~CallsGraph_node14" class="node">
-<title>proc~get_obsfile_tbracket_from_epoch</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node14"><a xlink:href="../proc/get_obsfile_tbracket_from_epoch.html" xlink:title="MAPL_ObsUtilMod::get_obsfile_Tbracket_from_epoch">
-<polygon fill="#d9534f" stroke="#d9534f" points="602,-234 310,-234 310,-210 602,-210 602,-234"/>
-<text text-anchor="middle" x="456" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ObsUtilMod::get_obsfile_Tbracket_from_epoch</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~get_obsfile_tbracket_from_epoch -->
-<g id="proc~~initialize~6~~CallsGraph_edge13" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~get_obsfile_tbracket_from_epoch</title>
-<path fill="none" stroke="#255000" d="M118.68,-356.97C139.37,-330.9 192.55,-269.42 253,-243 267.71,-236.57 283.59,-231.76 299.74,-228.2"/>
-<polygon fill="#255000" stroke="#255000" points="300.73,-231.57 309.83,-226.14 299.33,-224.71 300.73,-231.57"/>
-</g>
-<!-- proc~mapl_return -->
-<g id="proc~~initialize~6~~CallsGraph_node15" class="node">
-<title>proc~mapl_return</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node15"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="566,-192 346,-192 346,-168 566,-168 566,-192"/>
-<text text-anchor="middle" x="456" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~mapl_return -->
-<g id="proc~~initialize~6~~CallsGraph_edge14" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M115.53,-356.95C132.27,-324.98 182.71,-237.93 253,-201 278.13,-187.8 307.43,-180.82 335.79,-177.46"/>
-<polygon fill="#255000" stroke="#255000" points="336.2,-180.94 345.78,-176.42 335.47,-173.98 336.2,-180.94"/>
-</g>
-<!-- proc~mapl_verify -->
-<g id="proc~~initialize~6~~CallsGraph_node16" class="node">
-<title>proc~mapl_verify</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node16"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="563,-150 349,-150 349,-126 563,-126 563,-150"/>
-<text text-anchor="middle" x="456" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~mapl_verify -->
-<g id="proc~~initialize~6~~CallsGraph_edge15" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M113.63,-356.77C126.95,-319.49 172.58,-206.93 253,-159 278.58,-143.76 309.26,-136.28 338.9,-133.12"/>
-<polygon fill="#255000" stroke="#255000" points="339.27,-136.6 348.91,-132.2 338.63,-129.63 339.27,-136.6"/>
-</g>
-<!-- proc~v_begin~21 -->
-<g id="proc~~initialize~6~~CallsGraph_node17" class="node">
-<title>proc~v_begin~21</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node17"><a xlink:href="../proc/v_begin~21.html" xlink:title="MAPL_GriddedIOitemVectorMod::GriddedIOitemVector%v_begin">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="631.5,-108 280.5,-108 280.5,-84 631.5,-84 631.5,-108"/>
-<text text-anchor="middle" x="456" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemVectorMod::GriddedIOitemVector%v_begin</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~v_begin~21 -->
-<g id="proc~~initialize~6~~CallsGraph_edge16" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~v_begin~21</title>
-<path fill="none" stroke="#255000" d="M112.25,-356.82C122.38,-314.98 161.94,-176.45 253,-117 258.75,-113.24 264.8,-109.94 271.06,-107.04"/>
-<polygon fill="#255000" stroke="#255000" points="272.56,-110.21 280.39,-103.07 269.81,-103.76 272.56,-110.21"/>
-</g>
-<!-- proc~v_iter_get~21 -->
-<g id="proc~~initialize~6~~CallsGraph_node18" class="node">
-<title>proc~v_iter_get~21</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node18"><a xlink:href="../proc/v_iter_get~21.html" xlink:title="MAPL_GriddedIOitemVectorMod::GriddedIOitemVectorIterator%v_iter_get">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="656.5,-66 255.5,-66 255.5,-42 656.5,-42 656.5,-66"/>
-<text text-anchor="middle" x="456" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemVectorMod::GriddedIOitemVectorIterator%v_iter_get</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~v_iter_get~21 -->
-<g id="proc~~initialize~6~~CallsGraph_edge17" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~v_iter_get~21</title>
-<path fill="none" stroke="#255000" d="M111.24,-356.82C118.52,-310.76 151.06,-146.27 253,-75 254.88,-73.69 256.79,-72.43 258.74,-71.22"/>
-<polygon fill="#255000" stroke="#255000" points="260.51,-74.24 267.46,-66.24 257.04,-68.16 260.51,-74.24"/>
-</g>
-<!-- proc~v_iter_next~21 -->
-<g id="proc~~initialize~6~~CallsGraph_node19" class="node">
-<title>proc~v_iter_next~21</title>
-<g id="a_proc~~initialize~6~~CallsGraph_node19"><a xlink:href="../proc/v_iter_next~21.html" xlink:title="MAPL_GriddedIOitemVectorMod::GriddedIOitemVectorIterator%v_iter_next">
-<polygon fill="#d9534f" stroke="#d9534f" points="659,-24 253,-24 253,0 659,0 659,-24"/>
-<text text-anchor="middle" x="456" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemVectorMod::GriddedIOitemVectorIterator%v_iter_next</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~6&#45;&gt;proc~v_iter_next~21 -->
-<g id="proc~~initialize~6~~CallsGraph_edge18" class="edge">
-<title>proc~initialize~6&#45;&gt;proc~v_iter_next~21</title>
-<path fill="none" stroke="#255000" d="M110.45,-356.88C115.09,-307.01 139.92,-116.38 253,-33 254.65,-31.78 256.33,-30.61 258.03,-29.48"/>
-<polygon fill="#255000" stroke="#255000" points="260.04,-32.36 266.78,-24.19 256.41,-26.37 260.04,-32.36"/>
+<!-- proc~initialize_~3&#45;&gt;proc~fillin_primary -->
+<g id="proc~~initialize~6~~CalledByGraph_edge2" class="edge">
+<title>proc~initialize_~3&#45;&gt;proc~fillin_primary</title>
+<path fill="none" stroke="#255000" d="M214.01,-12C222.32,-12 230.86,-12 239.54,-12"/>
+<polygon fill="#255000" stroke="#255000" points="239.79,-15.5 249.79,-12 239.79,-8.5 239.79,-15.5"/>
 </g>
 </g>
 </svg>
 </div>                <script>
-                  var panprocinitialize6CallsGraph = svgPanZoom('#procinitialize6CallsGraph',
+                  var panprocinitialize6CalledByGraph = svgPanZoom('#procinitialize6CalledByGraph',
                     {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
                   );
                 </script>          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
           </div>
-          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -651,6 +394,36 @@ large graphs.</div>
 
 
     
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">file_series</span><span class="p">,</span><span class="n">persist_closest</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtDataAbstractFileHandler</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataFileStream</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_series</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">persist_closest</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">file_template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_series</span><span class="p">%</span><span class="n">file_template</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_series</span><span class="p">%</span><span class="n">frequency</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">reff_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_series</span><span class="p">%</span><span class="n">reff_time</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">file_series</span><span class="p">%</span><span class="n">valid_range</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">file_series</span><span class="p">%</span><span class="n">valid_range</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      </span><span class="n">this</span><span class="p">%</span><span class="n">collection_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_series</span><span class="p">%</span><span class="n">collection_id</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">persist_closest</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">persist_closest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">persist_closest</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">persist_closest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
+</pre></div>
+
+    </section>
+    <br>
     
     </div>
   </div>
@@ -667,7 +440,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-02-06T15:14:32.011811             </p>
+ on 2024-02-06T15:18:48.640569             </p>
           </div>
         </div>
         <br>
