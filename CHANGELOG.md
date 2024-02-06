@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change MAPL CMake to use `ESMF::ESMF` target instead of `esmf` or `ESMF` as the imported target name
   - Updated `FindESMF.cmake` to match that of ESMF `develop` as of commit `da8f410`. This will be in ESMF 8.6.1+
   - Requires ESMA_cmake 3.40.0 or later as this adds the `ESMF::ESMF` target ALIAS for Baselibs and non-Baselibs builds
+- Changed `CMakePresets.json`
+  - Updated to version 7 and required CMake 3.27.0 (the minimum version that supports CMakePresets.json v7)
+  - Changed build style on NCCS machines to by default put build and install directories in a user-specified directory so as not to
+    pollute swdev
 
 ### Fixed
 
