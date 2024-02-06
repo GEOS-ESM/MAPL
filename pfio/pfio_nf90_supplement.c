@@ -77,7 +77,7 @@ int pfio_get_var_string_len(int ncid, int varid, int *str_len, int str_size)
   return stat;
 }
 
-int pfio_get_var_string(int ncid, int varid, char* value, const size_t *start, const size_t *count)
+int pfio_get_var_string(int ncid, int varid, char* value, int max_len, const size_t *start, const size_t *count)
 {
   int stat;
 
@@ -101,10 +101,15 @@ int pfio_get_var_string(int ncid, int varid, char* value, const size_t *start, c
     j = 0;
     for (;;){
        if (*(p+j) == '\0'){
+          for (; j<max_len; j++){
+            *(value+alen) = ' ';
+            alen++;
+          }
           break;
        }
        *(value+alen) = *(p+j);
        alen ++;
+       if (j == max_len-1 ) break;
        j++;
     }
   }
@@ -113,7 +118,7 @@ int pfio_get_var_string(int ncid, int varid, char* value, const size_t *start, c
   return stat;
 }
 
-int pfio_put_var_string(int ncid, int varid, char* value, int str_len, int str_size, const size_t *start, const size_t *count)
+int pfio_put_var_string(int ncid, int varid, char* value, int max_len, int str_size, const size_t *start, const size_t *count)
 {
   int stat;
 
@@ -121,15 +126,9 @@ int pfio_put_var_string(int ncid, int varid, char* value, int str_len, int str_s
   int varid_C = varid - 1;
 
   char *string_in[str_size];
-  char *p;
   // re-arrange string
   for (int i=0; i<str_size; i++){
-    p = (char*)malloc((str_len+1)*sizeof(char));
-    for (int j = 0; j<str_len; j++){
-      *(p+j) = *(value+i*str_len+j);
-    }
-    *(p+str_len) = '\0' ;
-    string_in[i] = p;
+    string_in[i] = value + i*max_len;
   }
 
   int S0 = start[0];
@@ -137,6 +136,6 @@ int pfio_put_var_string(int ncid, int varid, char* value, int str_len, int str_s
   unsigned long start_C = S0-1;
   unsigned long count_C = C0; 
   stat = nc_put_vara_string(ncid, varid_C, &start_C, &count_C, (const char **) string_in ); pfio_check(stat);
-  stat = nc_free_string(str_size, string_in); pfio_check(stat);
+  //stat = nc_free_string(str_size, string_in); pfio_check(stat);
   return stat;
 }
