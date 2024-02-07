@@ -35,14 +35,10 @@ contains
       allocate(y8array, source=R8_ARRAY_DEFAULT)
       y4array = y4array + ADD_R4
       y8array = y8array + ADD_R8
-      XR4 = mk_field(R4_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4', _RC)
-      YR4 = mk_field(y4array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4', _RC)
-      XR8 = mk_field(R8_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
-      YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
+      XR4 = mk_field(R4_ARRAY_DEFAULT, name = 'XR4', _RC)
+      YR4 = mk_field(y4array, name = 'YR4', _RC)
+      XR8 = mk_field(R8_ARRAY_DEFAULT, name = 'XR8', _RC)
+      YR8 = mk_field(y8array, name = 'YR8', _RC)
       call ESMF_AttributeSet(xr4,name="missing_value",value=undef,_RC)
       call ESMF_AttributeSet(xr8,name="missing_value",value=undef,_RC)
       call ESMF_AttributeSet(yr4,name="missing_value",value=undef,_RC)
