@@ -47,7 +47,6 @@ module mapl3g_HierarchicalRegistry
       ! Hierarchy/tree aspect
       type(RegistryPtrMap) :: subregistries
 
-      type(ExtensionVector) :: extensions
       type(ActualPtComponentDriverMap) :: export_couplers
       type(ActualPtComponentDriverMap) :: import_couplers
 
@@ -64,7 +63,6 @@ module mapl3g_HierarchicalRegistry
       procedure :: has_subregistry
 
       procedure :: add_to_states
-      procedure :: get_extensions
       
       procedure :: add_subregistry
       procedure :: get_subregistry_comp
@@ -470,7 +468,6 @@ contains
       type(ESMF_GridComp) :: new_coupler
 
       action = src_spec%make_action(extension, _RC)
-      call this%extensions%push_back(StateExtension(action))
       new_coupler = make_coupler(action, source_coupler, _RC)
       new_driver = GriddedComponentDriver(new_coupler)
       call this%export_couplers%insert(extension_pt, new_driver)
@@ -675,13 +672,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine allocate
-
-   function get_extensions(this) result(extensions)
-      type(ExtensionVector) :: extensions
-      class(HierarchicalRegistry), intent(in) :: this
-
-      extensions = this%extensions
-   end function get_extensions
 
    subroutine add_to_states(this, multi_state, mode, rc)
       use esmf

@@ -95,7 +95,7 @@ contains
 !#      call this%propagate_attributes(_RC)
       call this%update_source(_RC)
       
-!#      call this%action%update(_RC)
+      call this%action%run(_RC)
       call this%set_up_to_date()
 
       _RETURN(_SUCCESS)
