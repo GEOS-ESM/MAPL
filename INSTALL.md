@@ -31,7 +31,6 @@ MAPL currently depends on many libraries for full use of its capabilities. These
   - netCDF-Fortran
     - netCDF-C
       - HDF5
-- UDUNITS2
 - GFE
   - gFTL
   - gFTL-shared
@@ -47,7 +46,6 @@ MAPL is currently tested with the following library versions:
 | HDF5           | v1.10.11       |
 | netCDF-C       | v4.9.2         |
 | netCDF-Fortran | v4.6.1         |
-| UDUNITS2       | v2.2.28        |
 | ESMF           | v8.6.0         |
 | GFE            | v1.12.0        |
 
