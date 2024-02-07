@@ -18,6 +18,7 @@ contains
       integer :: status, userRC
 
       call this%run_import_couplers(_RC)
+      
       associate ( &
            importState => this%states%importState, &
            exportState => this%states%exportState)

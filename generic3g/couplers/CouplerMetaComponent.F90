@@ -73,7 +73,7 @@ contains
    function new_CouplerMetaComponent(action, source) result (this)
       type(CouplerMetaComponent) :: this
       class(ExtensionAction), intent(in) :: action
-      type(GriddedComponentDriver), pointer, optional, intent(in) :: source
+      type(GriddedComponentDriver), target, optional, intent(in) :: source
 
       this%action = action
       if (present(source)) this%source => source
@@ -95,7 +95,7 @@ contains
 !#      call this%propagate_attributes(_RC)
       call this%update_source(_RC)
       
-!#      call this%action%update(_RC)
+      call this%action%run(_RC)
       call this%set_up_to_date()
 
       _RETURN(_SUCCESS)

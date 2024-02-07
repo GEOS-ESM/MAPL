@@ -1,9 +1,12 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_HierarchicalRegistry
+   use mapl3g_GenericCoupler
    use mapl3g_AbstractRegistry
    use mapl3g_StateItemSpec
    use mapl3g_ActualPtSpecPtrMap
+   use mapl3g_ActualPtComponentDriverMap
+   use mapl3g_GriddedComponentDriver
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
    use mapl3g_VirtualConnectionPtVector
@@ -23,6 +26,8 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
 
+   use esmf, only: ESMF_GridComp
+
    implicit none
    private
 
@@ -36,13 +41,14 @@ module mapl3g_HierarchicalRegistry
       character(:), allocatable :: name
       
       type(StateItemVector) :: local_specs ! specs for items "owned" by gridcomp
-      type(ActualPtSpecPtrMap) :: actual_specs_map ! all items in states of gridcomp
+      type(ActualPtSpecPtrMap) :: actual_specs_map ! all items in states of this gridcomp
       type(ActualPtVec_Map) :: virtual_pts     ! Grouping of items with shared virtual connection point
 
       ! Hierarchy/tree aspect
       type(RegistryPtrMap) :: subregistries
 
-      type(ExtensionVector) :: extensions
+      type(ActualPtComponentDriverMap) :: export_couplers
+      type(ActualPtComponentDriverMap) :: import_couplers
 
    contains
 
@@ -57,7 +63,6 @@ module mapl3g_HierarchicalRegistry
       procedure :: has_subregistry
 
       procedure :: add_to_states
-      procedure :: get_extensions
       
       procedure :: add_subregistry
       procedure :: get_subregistry_comp
@@ -91,6 +96,13 @@ module mapl3g_HierarchicalRegistry
       procedure :: add_connection
       procedure :: extend => extend_
       procedure :: add_state_extension
+
+      procedure :: get_import_couplers
+      procedure :: get_export_couplers
+
+      procedure :: get_export_coupler
+      procedure :: get_import_coupler
+      procedure :: add_import_coupler
 
       procedure :: allocate
 
@@ -408,23 +420,25 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+
       call conn%connect(this, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_connection
 
-
-   subroutine extend_(this, v_pt, spec, extension, rc)
+   function extend_(this, v_pt, spec, extension, source_coupler, rc) result(extension_pt)
+      type(ActualConnectionPt) :: extension_pt
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: v_pt
       class(StateItemSpec), intent(in) :: spec
       class(StateItemSpec), intent(in) :: extension
+      type(GriddedComponentDriver), optional, intent(in) :: source_coupler ! for chains of extensions
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ActualConnectionPt) :: extension_pt
       type(ActualPtVector), pointer :: actual_pts
       type(ActualConnectionPt), pointer :: actual_pt
+      class(ExtensionAction), allocatable :: action
 
       actual_pts => this%get_actual_pts(v_pt)
       _ASSERT(associated(actual_pts), 'No actual pts found for v_pt')
@@ -433,25 +447,31 @@ contains
       extension_pt = actual_pt%extend()
 
       call this%add_item_spec(v_pt, extension, extension_pt, _RC)
-
-      call this%add_state_extension(extension_pt, spec, extension, _RC)
+      call this%add_state_extension(extension_pt, spec, extension, source_coupler=source_coupler, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine extend_
+   end function extend_
 
-   subroutine add_state_extension(this, extension_pt, src_spec, extension, rc)
+
+   ! "this" is _source_ registry
+   subroutine add_state_extension(this, extension_pt, src_spec, extension, source_coupler, rc)
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(ActualConnectionPt), intent(in) :: extension_pt
       class(StateItemSpec), intent(in) :: src_spec
       class(StateItemSpec), intent(in) :: extension
+      type(GriddedComponentDriver), optional :: source_coupler
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(ExtensionAction), allocatable :: action
+      type(GriddedComponentDriver) :: new_driver
+      type(ESMF_GridComp) :: new_coupler
 
       action = src_spec%make_action(extension, _RC)
-      call this%extensions%push_back(StateExtension(action))
-
+      new_coupler = make_coupler(action, source_coupler, _RC)
+      new_driver = GriddedComponentDriver(new_coupler)
+      call this%export_couplers%insert(extension_pt, new_driver)
+      
       _RETURN(_SUCCESS)
    end subroutine add_state_extension
 
@@ -653,13 +673,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine allocate
 
-   function get_extensions(this) result(extensions)
-      type(ExtensionVector) :: extensions
-      class(HierarchicalRegistry), intent(in) :: this
-
-      extensions = this%extensions
-   end function get_extensions
-
    subroutine add_to_states(this, multi_state, mode, rc)
       use esmf
       use mapl3g_MultiState
@@ -830,5 +843,57 @@ contains
       end associate
 
    end function filter
+
+   function get_export_couplers(this) result(export_couplers)
+      type(ActualPtComponentDriverMap), pointer :: export_couplers
+      class(HierarchicalRegistry), target, intent(in) :: this
+
+      export_couplers => this%export_couplers
+   end function get_export_couplers
+      
+   function get_import_couplers(this) result(import_couplers)
+      type(ActualPtComponentDriverMap), pointer :: import_couplers
+      class(HierarchicalRegistry), target, intent(in) :: this
+
+      import_couplers => this%import_couplers
+   end function get_import_couplers
+
+   function get_export_coupler(this, actual_pt, rc) result(coupler)
+      type(GriddedComponentDriver), pointer :: coupler
+      class(HierarchicalRegistry), target, intent(in) :: this
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      coupler => this%export_couplers%at(actual_pt, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_export_coupler
+
+   function get_import_coupler(this, actual_pt, rc) result(coupler)
+      type(GriddedComponentDriver), pointer :: coupler
+      class(HierarchicalRegistry), target, intent(in) :: this
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      coupler => this%import_couplers%at(actual_pt, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_import_coupler
+
+
+   subroutine add_import_coupler(this, actual_pt, coupler)
+      class(HierarchicalRegistry), target, intent(inout) :: this
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      type(GriddedComponentDriver), intent(in) :: coupler
+
+      integer :: status
+
+      call this%import_couplers%insert(actual_pt, coupler)
+
+   end subroutine add_import_coupler
 
 end module mapl3g_HierarchicalRegistry

@@ -36,7 +36,6 @@ contains
       integer :: status
       ! TODO: move to place where only called
       call UDUNITS_GetConverter(action%converter, from=units_in, to=units_out, rc=status)
-
       action%f_in = f_in
       action%f_out = f_out
       
