@@ -18,6 +18,7 @@ module mapl3g_FieldSpec
    use mapl3g_NullAction
    use mapl3g_CopyAction
    use mapl3g_RegridAction
+   use mapl3g_ConvertUnitsAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
@@ -359,9 +360,10 @@ contains
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
 
+      logical :: can_convert_units_
       select type(src_spec)
       class is (FieldSpec)
-         can_connect_to = all ([ &
+          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
               this%ungridded_dims == src_spec%ungridded_dims, & 
@@ -498,7 +500,7 @@ contains
       if (update_item(extension%typekind, src_spec%typekind)) then
          return
       end if
-!#      if (update_item(extension%units, src_spec%units)) return
+      if (update_item(extension%units, src_spec%units)) return
 
     end function make_extension_safely
 
@@ -529,10 +531,10 @@ contains
             _RETURN(_SUCCESS)
          end if
          
-!#         if (this%units /= dst_spec%units) then
-!#            action = ChangeUnitsAction(this%payload, dst_spec%payload)
-!#            _RETURN(_SUCCESS)
-!#         end if
+         if (this%units /= dst_spec%units) then
+            action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
+            _RETURN(_SUCCESS)
+         end if
          
       class default
          _FAIL('Dst spec is incompatible with FieldSpec.')
