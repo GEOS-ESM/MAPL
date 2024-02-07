@@ -53,18 +53,6 @@ Note that in most cases, MAPL will support *higher* versions of these libraries
 (e.g., HDF5 1.14), it's just operationally we have not moved to them and fully
 tested it.
 
-#### GFE Library Versions
-
-While obtaining GFE libraries via GFE itself is simplest, GFE v1.12.0 is equivalent to the following library versions:
-
-| Package     | Version    |
-| :------     | :------    |
-| gFTL        | v1.11.0    |
-| gFTL-shared | v1.7.0     |
-| fArgParse   | v1.6.0     |
-| pFUnit      | v4.8.0     |
-| yaFyaml     | v1.2.0     |
-| pFlogger    | v1.11.0    |
 
 #### ESMA Baselibs
 
