@@ -154,20 +154,20 @@ module mapl3g_Generic
    end interface MAPL_ConnectAll
 
    ! MAPL_ResourceGet
-   !  This will have 4 specific procedures:
+   !  This will have at least 4 public specific procedures:
    !     scalar value from hconfig
-   !     scalar value from metacomp
    !     array value from hconfig
-   !     array value from metacomp
+   !     scalar value from gridcomp
+   !     array value from gridcomp
    !
-   !  For MAPL3, the messages for MAPL_ResourceGet will go to pflogger
+   !  For MAPL3, the messages for MAPL_ResourceGet go to pflogger
    !     instead of to standard output/error directly.
-   !  The 2 hconfig procedures will have an optional pflogger
-   !     pointer argument to write messages.
-   !  The 2 metacomp procedures will use the pflogger associated with
-   !     the metacomp to write messages.
+   !  The hconfig procedures use a message parameter instead of a logger.
+   !  The gridcomp procedures use the pflogger associated with
+   !     the gridcomp to write messages.
    interface MAPL_ResourceGet
       module procedure :: mapl_resource_get_scalar
+      module procedure :: mapl_resource_gridcomp_get_scalar
    end interface MAPL_ResourceGet
 
 contains
@@ -613,52 +613,74 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
-   subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, default, logger, is_default, found, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
+   ! Finds value given keystring. If default is present, a value is always found, and
+   ! is_default indicates whether the value equals the default. default, is_default, and
+   ! found are optional. If you don't pass a default, use the found flag to determine if
+   ! the value is found. Otherwise, if the value is not found, an exception occurs.
+   subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, is_default, found, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
-      class(Logger_t), optional, pointer, intent(inout) :: logger
-      logical, optional, intent(out) :: is_default
       logical, optional, intent(out) :: found
       integer, optional, intent(out) :: rc
-
       integer :: status
-      logical :: value_is_set, is_default_, found_
+      logical :: found_
+      type(ESMF_HConfig) :: hconfig
+      class(Logger_t), pointer :: logger
       character(len=:), allocatable :: message
 
-      _UNUSED_DUMMY(unusable)
-
-      is_default_ = .FALSE.
-      found_ = .FALSE.
-
       if(present(default)) then
+         ! If default is present, value and default must have the same type.
          _ASSERT(same_type_as(value, default), 'value and default are not the same type.')
       else
+         ! If default is not present, is_default cannot be present.
          _ASSERT(.not. present(is_default), 'is_default cannot be set without default.')
       end if
 
-      call MAPL_HConfigGet(hconfig, keystring, value, message, value_is_set=value_is_set, _RC)
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call MAPL_ResourceGet(hconfig, keystring, value, message, found=found_, _RC)
 
       if(present(default)) then
-         found_ = .TRUE.
-         if(value_is_set) then
+         if(found_) then
+            ! If a value matching keystring is found (and returned, above; value_is_set),
+            ! check if match matches default.
             is_default_ = (value == default)
          else
+            ! Use default value.
             value = default
             is_default_ = .TRUE.
          end if
+         ! If default is present, value is always set (found).
+         found_ = .TRUE.
       else
-         _ASSERT(value_is_set .or. present(found), 'Value was not found.')
-         found_ = value_is_set
+         ! If default is not present, found must be present to indicate whether value is found.
+         _ASSERT(present(found), 'Value was not found.')
       end if
 
       if(present(logger)) then
          call mapl_resource_logger(logger, message, _RC)
       end if
+
+      ! Set optional flags if they are present.
       if(present(is_default)) is_default = is_default_
       if(present(found)) found = found_
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      
+   end subroutine mapl_resource_gridcomp_get_scalar
+
+   subroutine mapl_resource_get_scalar(hconfig, keystring, value, message, found, rc)
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      character(len=*), intent(in) :: keystring
+      class(*), intent(inout) :: value
+      character(len=:), allocatable, intent(inout) :: message
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call MAPL_HConfigGet(hconfig, keystring, value, message, value_is_set=found, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -673,7 +695,7 @@ contains
 
       _ASSERT(len_trim(message) > 0, 'Log message is empty.')
 
-      ! Something amazing happens here with the logger.
+      call logger%info(message)
 
       _RETURN(_SUCCESS)
 

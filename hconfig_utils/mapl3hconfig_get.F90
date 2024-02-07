@@ -4,6 +4,7 @@ module mapl3hconfig_get
    use mapl3hconfig_get_private
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use :: esmf, only: ESMF_HConfig
 
    implicit none
 

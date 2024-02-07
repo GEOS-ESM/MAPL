@@ -5,7 +5,6 @@ module mapl3hconfig_get_private
    use :: esmf, only: ESMF_HConfigAsR4, ESMF_KIND_R4, ESMF_HConfigAsR8, ESMF_KIND_R8
    use :: esmf, only: ESMF_HConfigAsLogical, ESMF_HConfigAsString
    use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
 
    implicit none
 
@@ -84,23 +83,21 @@ contains
       integer, intent(in) :: valuerank
       character(len=*), parameter :: J_ = ', '
 
-      if(valuerank > 0) then
-         message = typestring //J_// keystring //J_// valuestring //J_// rankstring(valuerank)
-      else
-         message = typestring //J_// keystring //J_// valuestring
-      end if
+      message = typestring //J_// keystring //J_// valuestring
+      if(valuerank > 0) message = message //J_// rankstring(valuerank)
 
    end function form_message
       
-   function rankstring(valuerank) result(string)
+   function rankstring(valuerank) result(string, rc)
       character(len=:), allocatable :: string
       integer, intent(in) :: valuerank
+      integer, optional, intent(out) :: rc
+      integer :: status
 
-      if(valuerank > 0) then
-         string = '(:' // repeat(',:', valuerank-1) // ')'
-      else
-         string = ''
-      end if
+      ! This should never be called with rank < 1. Just in case ...
+      _ASSERT(valuerank > 0, 'Rank must be greater than 0.')
+      string = '(:' // repeat(',:', valuerank-1) // ')'
+      _RETURN(_RC)
 
    end function rankstring
 
