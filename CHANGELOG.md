@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added nf90 interface to read and write 1d string
 - Convert from ABI Fixed Grid to lon/lat coordinates used in MAPL_XYGridFactory (supporting geostationary GOES-R series)
 - Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
 - Modify swath sampler to handle two Epoch swath grids
@@ -33,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now required), NAG no longer needs this workaround.
 - Refactor the CircleCI workflows for more flexibility
 - Fix field utils issue - add npes argument to test subroutine decorators.
+- Changed `CMakePresets.json`
+  - Updated to version 7 and required CMake 3.27.0 (the minimum version that supports CMakePresets.json v7)
+  - Changed build style on NCCS machines to by default put build and install directories in a user-specified directory so as not to
+    pollute swdev
 
 ### Fixed
 
@@ -46,6 +51,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.43.2] - 2024-02-06
+
+### Fixed
+
+- Fixed memory leak affecting regional masking. Temporary ESMF field was created but never destroyed
 
 ## [2.43.1] - 2024-01-29
 
