@@ -20,13 +20,13 @@ module field_utils_setup
 
    integer :: i
    type(ESMF_Index_Flag), parameter :: INDEX_FLAG_DEFAULT = ESMF_INDEX_DELOCAL
-   integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2]
-   integer, parameter :: MAX_INDEX_DEFAULT(*) = [2, 2]
-   integer, parameter :: MIN_INDEX_DEFAULT(*) = [1, 1]
-   integer, parameter :: DIMR4_DEFAULT(*) = [4, 4]
-   integer, parameter :: DIMR8_DEFAULT(*) = [4, 4]
-   integer, parameter :: SIZE_R4 = 16
-   integer, parameter :: SIZE_R8 = 16
+!   integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2] !wdb delete
+!   integer, parameter :: MAX_INDEX_DEFAULT(*) = [2, 2] !wdb delete
+!   integer, parameter :: MIN_INDEX_DEFAULT(*) = [1, 1] !wdb delete
+!   integer, parameter :: DIMR4_DEFAULT(*) = [4, 4] !wdb delete
+!   integer, parameter :: DIMR8_DEFAULT(*) = [4, 4] !wdb delete
+!   integer, parameter :: SIZE_R4 = 16 !wdb delete
+!   integer, parameter :: SIZE_R8 = 16 !wdb delete
    real, parameter :: undef = 42.0
 
    real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, 4)], [2,2])
@@ -119,7 +119,6 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Grid) :: grid
       integer :: status
-      real, pointer :: fptr(:,:)
       
       grid = mk_grid(grid_name = name // GRID_SUFFIX, _RC)
       field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, ungriddedLBound = ungriddedLBound, ungriddedUBound = ungriddedUBound, _RC)
@@ -202,8 +201,7 @@ contains
 
       integer :: status
 
-      r4field = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = field_name, ungriddedLBound=[lbound],ungriddedUBound=[ubound],_RC)
+      r4field = mk_field_r4_ungrid(name = field_name, ungriddedLBound=[lbound],ungriddedUBound=[ubound],_RC)
 
       _RETURN(_SUCCESS)
 

@@ -8,7 +8,7 @@ module Test_FieldArithmetic
    use MAPL_FieldUtilities
    use MAPL_FieldPointerUtilities
    use ESMF
-   use funit
+   use pfunit
    use MAPL_ExceptionHandling
 
    implicit none
@@ -21,8 +21,8 @@ contains
    ! Making the fields should be done in the tests themselves so because
    ! of the npes argument.
    @Before
-   subroutine set_up_data()
-      implicit none
+   subroutine set_up_data(this)
+      class(MpiTestMethod), intent(inout) :: this
 
       integer :: status, rc
 
@@ -46,8 +46,14 @@ contains
 
    end subroutine set_up_data
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldAddR4()
+   @after
+   subroutine teardown(this)
+      class(MpiTestMethod), intent(inout) :: this
+   end subroutine teardown
+
+   @Test(npes=[4])
+   subroutine test_FieldAddR4(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
@@ -70,11 +76,9 @@ contains
 
    end subroutine test_FieldAddR4
 
-   ! Rather than use the fields created in setup, make the fields
-   ! in this subroutine to make sure that the npes match the
-   ! regDecomp.
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldAddR4_missing
+   @Test(npes=[4])
+   subroutine test_FieldAddR4_missing(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
@@ -94,8 +98,9 @@ contains
       @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR4_missing
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldAddR8()
+   @Test(npes=[4])
+   subroutine test_FieldAddR8(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       type(ESMF_Field) :: y
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:,:), y_ptr(:,:)
@@ -117,8 +122,9 @@ contains
       @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldPowR4()
+   @Test(npes=[4])
+   subroutine test_FieldPowR4(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
@@ -136,8 +142,9 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR4
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldPowR8()
+   @Test(npes=[4])
+   subroutine test_FieldPowR8(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:,:)
       real(kind=ESMF_KIND_R8), allocatable :: result_array(:,:)
@@ -155,8 +162,9 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR8
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldSinR4()
+   @Test(npes=[4])
+   subroutine test_FieldSinR4(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
@@ -172,8 +180,9 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldSinR4
 
-   @Test(npes=product(REG_DECOMP_DEFAULT))
-   subroutine test_FieldNegR4()
+   @Test(npes=[4])
+   subroutine test_FieldNegR4(this)
+      class(MpiTestMethod), intent(inout) :: this
       type(ESMF_Field) :: x
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
