@@ -27,17 +27,17 @@ MAPL requires MPI and has been tested to run with:
 
 MAPL currently depends on many libraries for full use of its capabilities. These include:
 
-- ESMF
-  - netCDF-Fortran
-    - netCDF-C
-      - HDF5
-- GFE
-  - gFTL
-  - gFTL-shared
-  - fArgParse
-  - pFUnit (for unit testing)
-  - yaFyaml
-  - pFlogger
+- [ESMF](https://github.com/esmf-org/esmf)
+  - [netCDF-Fortran](https://github.com/Unidata/netcdf-fortran)
+    - [netCDF-C](https://github.com/Unidata/netcdf-c)
+      - [HDF5](https://github.com/HDFGroup/hdf5)
+- [GFE](https://github.com/Goddard-Fortran-Ecosystem/GFE)
+  - [gFTL](https://github.com/Goddard-Fortran-Ecosystem/gFTL)
+  - [gFTL-shared](https://github.com/Goddard-Fortran-Ecosystem/gFTL-shared)
+  - [fArgParse](https://github.com/Goddard-Fortran-Ecosystem/fArgParse)
+  - [pFUnit](https://github.com/Goddard-Fortran-Ecosystem/pFUnit) (for unit testing)
+  - [yaFyaml](https://github.com/Goddard-Fortran-Ecosystem/yaFyaml)
+  - [pFlogger](https://github.com/Goddard-Fortran-Ecosystem/pFlogger)
 
 MAPL is currently tested with the following library versions:
 
