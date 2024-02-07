@@ -10,6 +10,7 @@ module Test_HierarchicalRegistry
    use mapl3g_SimpleConnection
    use mapl3g_ReexportConnection
    use mapl3g_ExtensionAction
+   use ESMF_TestMethod_mod
    use MockItemSpecMod
    implicit none
 
@@ -186,9 +187,11 @@ contains
    end subroutine test_get_subregistry_fail_not_found
 
 
-   @test
-   ! Very simple sibling connection
-   subroutine test_connect()
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Connect() now creates ESMF_GridComp objects (couplers)
+   ! under-theshood, and thus needs a proper vm.
+   subroutine test_connect(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_A, r_B ! child registries
       type(VirtualConnectionPt) :: cp_A, cp_B
@@ -305,13 +308,14 @@ contains
    end subroutine test_e2e_preserve_actual_pt
 
    
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    ! This procedure testss an "E-to-E" style connection that
    ! propagates an export from a child to a parent.  (Grandchild to
    ! component "A" in this case.)
    ! A sibling connection is then made at the grandparent level and we check
    ! that the original export is indeed activated.
-   subroutine test_connect_chain()
+   subroutine test_connect_chain(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_A, r_B, r_grandchild
       type(VirtualConnectionPt) :: vpt_1, vpt_2, vpt_3
@@ -348,9 +352,10 @@ contains
    end subroutine test_connect_chain
 
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    ! Verify that sibling connections set active status, but not others.
-   subroutine test_sibling_activation()
+   subroutine test_sibling_activation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(HierarchicalRegistry), target :: r
       type(HierarchicalRegistry), target :: r_A, r_B, r_P, r_C
       class(StateItemSpec), pointer :: spec
@@ -566,8 +571,9 @@ contains
    ! We expect B to have a virtual pt with 2 actual pts from children.
    ! We also expect export from A to satisfy both imports.
 
-   @test
-   subroutine test_multi_import()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_multi_import(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(HierarchicalRegistry), target :: r_C, r_D, r_A, r_B
       type(HierarchicalRegistry) :: r_P 
       type(VirtualConnectionPt) :: T_A, T_B, T_C, T_D
@@ -621,7 +627,7 @@ contains
    end subroutine test_multi_import
 
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    ! This functionality was referred to as "TerminateImport" in
    ! MAPL-2.  Under MAPL3, the parent must have an export and a proper
    ! "sibling" connection is made between parent and child.  The
@@ -629,7 +635,8 @@ contains
    ! child cannot share a pointer.  Grid-comps must be updated. (Level
    ! 0 compliance.)
    
-   subroutine test_import_from_parent()
+   subroutine test_import_from_parent(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(HierarchicalRegistry), target :: r_parent, r_child
       type(VirtualConnectionPt) :: vpt_parent, vpt_child
       type(SimpleConnection) :: conn
@@ -657,7 +664,7 @@ contains
       @assert_that(int(actual_pts%size()), is(2))
    end subroutine test_import_from_parent
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
 
    ! This functionality was implicit in MAPL2.  Parent components
    ! would either refer to fields in child components, or would use an
@@ -666,7 +673,8 @@ contains
    ! parent and child cannot share a pointer.  Grid comps will need to
    ! be updated. (Level 0 compliance.)
    
-   subroutine test_import_from_child()
+   subroutine test_import_from_child(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(HierarchicalRegistry), target :: r_parent, r_child
       type(VirtualConnectionPt) :: vpt_parent, vpt_child
       type(SimpleConnection) :: conn
