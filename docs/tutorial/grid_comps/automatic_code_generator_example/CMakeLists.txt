@@ -6,7 +6,7 @@ set (srcs
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE ${MAPL_LIBRARY_TYPE})
 
-target_link_libraries(${this} PRIVATE esmf)
+target_link_libraries(${this} PRIVATE ESMF::ESMF)
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
