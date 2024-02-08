@@ -35,7 +35,7 @@ module MAPL_ObsUtilMod
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
-     integer,           allocatable :: location_index_ioda(:)     
+     integer,           allocatable :: location_index_ioda(:)
      real(kind=REAL32), allocatable :: p2d(:)
      real(kind=REAL32), allocatable :: p3d(:,:)
   end type obs_unit
@@ -60,7 +60,7 @@ module MAPL_ObsUtilMod
 
   interface apply_order_index
      module procedure apply_order_index_R8
-     module procedure apply_order_index_I4     
+     module procedure apply_order_index_I4
   end interface apply_order_index
 
 contains
@@ -170,6 +170,28 @@ contains
 
     _RETURN(_SUCCESS)
   end subroutine time_real_to_ESMF
+
+  subroutine create_timeunit (time, datetime_units, input_unit, rc)
+    type(ESMF_Time), intent(in) :: time
+    character(len=*), intent(out) :: datetime_units
+    character(len=*), optional, intent(in) :: input_unit
+
+    integer, optional, intent(out) :: rc
+
+    integer :: i, len
+    integer :: status
+    character(len=20) :: string
+
+    call ESMF_timeget (time, timestring=string, _RC)
+    if (present(input_unit)) then
+       datetime_units = trim(input_unit)//' since '//trim(string)
+    else
+       datetime_units = 'seconds since '//trim(string)
+    end if
+    !!print*, 'datetime_units:', trim(datetime_units)
+
+    _RETURN(_SUCCESS)
+  end subroutine create_timeunit
 
 
   subroutine reset_times_to_current_day(current_time, times_1d, rc)
@@ -678,7 +700,7 @@ contains
     real(ESMF_KIND_R8), intent(in) :: X(:)
     integer, intent(out) :: IA(:)            ! index
     integer, optional, intent(out) :: rc
-    
+
     integer :: i, len
     integer(ESMF_KIND_I8), allocatable :: IX(:)
 
@@ -691,7 +713,7 @@ contains
     enddo
     call MAPL_Sort(IX,IA)
     _RETURN(_SUCCESS)
-    
+
   end subroutine sort_index
 
 

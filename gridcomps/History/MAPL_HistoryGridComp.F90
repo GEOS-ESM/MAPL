@@ -53,7 +53,7 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
-  use MaskSamplerGeosatMod  
+  use MaskSamplerGeosatMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -2419,7 +2419,7 @@ ENDDO PARSER
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
-          elseif (list(n)%sampler_spec == 'mask_geosat') then
+          elseif (list(n)%sampler_spec == 'mask') then
              list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,_RC)
              call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           elseif (list(n)%sampler_spec == 'station') then
@@ -3535,19 +3535,21 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-         elseif (list(n)%sampler_spec == 'mask') then
-            !!write(6,*) 'nail:  empty mask  metadata file_handle'
-!            if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-!               call list(n)%trajectory%create_file_handle(filename(n),_RC)
-               list(n)%currentFile = filename(n)
-               list(n)%unit = -1
-!            end if
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Station_data output to new file:",trim(filename(n)))
                call list(n)%station_sampler%close_file_handle(_RC)
                call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if
+         elseif (list(n)%sampler_spec == 'mask') then
+            if (list(n)%unit.eq.0) then
+               call lgr%debug('%a %a',&
+                    "Mask_data output to new file:",trim(filename(n)))
+               call list(n)%mask_sampler%close_file_handle(_RC)
+               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
@@ -3634,7 +3636,7 @@ ENDDO PARSER
 
          if (.not.list(n)%timeseries_output .AND. &
               list(n)%sampler_spec /= 'station' .AND. &
-              list(n)%sampler_spec /= 'mask') then              
+              list(n)%sampler_spec /= 'mask') then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
             else
@@ -3661,6 +3663,9 @@ ENDDO PARSER
          if (list(n)%sampler_spec == 'station') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call list(n)%station_sampler%append_file(current_time,_RC)
+         elseif (list(n)%sampler_spec == 'mask') then
+            call ESMF_ClockGet(clock,currTime=current_time,_RC)
+            call list(n)%mask_sampler%append_file(current_time,_RC)
          endif
 
       endif OUTTIME
@@ -3728,15 +3733,17 @@ ENDDO PARSER
             call list(n)%trajectory%close_file_handle(_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
-      elseif (list(n)%sampler_spec == 'mask') then
+      !! elseif (list(n)%sampler_spec == 'mask') then
 
          !! ygyu take action
          !  output to files
-!!         call list(n)%mask_sampler%find_mask(_RC)
-!         if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
-!            call list(n)%mask_sampler%append_file(current_time,_RC)
-!            call list(n)%mask_sampler%close_file_handle(_RC)
-!         end if
+
+         !  call list(n)%mask_sampler%find_mask(_RC)
+         !  if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
+         !     call list(n)%mask_sampler%append_file(current_time,_RC)
+         !     call list(n)%mask_sampler%close_file_handle(_RC)
+         !  end if
+
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then

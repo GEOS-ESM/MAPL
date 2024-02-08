@@ -17,6 +17,7 @@ module MaskSamplerGeosatMod
   use MAPL_StringTemplate
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
+  use MPI
   use pFIO_FileMetadataMod, only : FileMetadata
   use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
   use, intrinsic :: iso_fortran_env, only: REAL32
@@ -32,22 +33,12 @@ module MaskSamplerGeosatMod
      !     character(len=:), allocatable :: grid_file_name
      character(len=ESMF_MAXSTR) :: grid_file_name
      !-- ygyu we donot need LS
-     !   
+     !
      !   we need on each PET
      !     npt_mask, index_mask(1:2,npt_mask)=[i,j]
-
-
-!     type (ESMF_LocStream) :: LS_rt
-!     type (ESMF_LocStream) :: LS_ds     
-     !     type(obs_unit),    allocatable :: obs(:)
-     !     type(ESMF_Time),   allocatable :: times(:)
-     !     real(kind=REAL64), allocatable :: lons(:)
-     !     real(kind=REAL64), allocatable :: lats(:)
-     !     real(kind=REAL64), allocatable :: lons_ds(:)
-     !     real(kind=REAL64), allocatable :: lats_ds(:)     
-     !     real(kind=REAL64), allocatable :: times_R8(:)
+     !
      integer :: npt_mask
-     integer :: tot_npt_mask     
+     integer :: npt_mask_tot
      integer, allocatable :: index_mask(:,:)
      !
           type(ESMF_FieldBundle) :: bundle
@@ -59,20 +50,22 @@ module MaskSamplerGeosatMod
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
      logical :: do_vertical_regrid
-
+     character(len=ESMF_MAXSTR)     :: ofile
      type(TimeData)           :: time_info
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: epoch_frequency
-     type(FileMetadata), allocatable :: metadata
-     type(NetCDF4_FileFormatter), allocatable :: file_handle
+     type(FileMetadata)       :: metadata
+     type(NetCDF4_FileFormatter)    :: formatter
+
 
      integer                        :: nobs_type
-     integer                        :: nobs     
-     
+     integer                        :: nobs
+     integer                        :: obs_written
+
      character(len=ESMF_MAXSTR)     :: index_name_x
-     character(len=ESMF_MAXSTR)     :: index_name_y     
+     character(len=ESMF_MAXSTR)     :: index_name_y
      character(len=ESMF_MAXSTR)     :: index_name_location
      character(len=ESMF_MAXSTR)     :: index_name_lon
      character(len=ESMF_MAXSTR)     :: index_name_lat
@@ -91,6 +84,11 @@ module MaskSamplerGeosatMod
 
      integer                        :: epoch        ! unit: second
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
+     real(kind=REAL64), allocatable :: lons(:)
+     real(kind=REAL64), allocatable :: lats(:)
+     integer, allocatable :: recvcounts(:)
+     integer, allocatable :: displs(:)
+
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
      real(kind=ESMF_KIND_R8), allocatable:: t_alongtrack(:)
      integer                        :: nobs_dur
@@ -103,10 +101,10 @@ module MaskSamplerGeosatMod
      logical                        :: is_valid
    contains
      procedure :: initialize
-     procedure :: create_variable => create_metadata_variable
+     procedure :: add_metadata
      procedure :: create_file_handle
      procedure :: close_file_handle
-     procedure :: append_file
+     procedure :: append_file =>  regrid_accumulate_append_file
 !     procedure :: create_new_bundle
      procedure :: create_grid => create_Geosat_grid_find_mask
   end type MaskSamplerGeosat
@@ -146,15 +144,15 @@ module MaskSamplerGeosatMod
 !!       integer, optional, intent(out)          :: rc
 !!     end function create_new_bundle
 
-     module subroutine  create_metadata_variable(this,vname,rc)
+     !!     module subroutine  add_metadata(this,currTime,rc)
+     module subroutine  add_metadata(this,rc)
        class(MaskSamplerGeosat), intent(inout) :: this
-       character(len=*), intent(in)            :: vname
        integer, optional, intent(out)          :: rc
-     end subroutine create_metadata_variable
+     end subroutine add_metadata
 
-     module subroutine create_file_handle(this,filename_suffix,rc)
+     module subroutine create_file_handle(this,filename,rc)
        class(MaskSamplerGeosat), intent(inout) :: this
-       character(len=*), intent(in)            :: filename_suffix
+       character(len=*), intent(in)            :: filename
        integer, optional, intent(out)          :: rc
      end subroutine create_file_handle
 
@@ -163,11 +161,11 @@ module MaskSamplerGeosatMod
        integer, optional, intent(out)          :: rc
      end subroutine close_file_handle
 
-     module subroutine append_file(this,current_time,rc)
+     module subroutine regrid_accumulate_append_file(this,current_time,rc)
        class(MaskSamplerGeosat), intent(inout) :: this
        type(ESMF_Time), intent(inout)          :: current_time
        integer, optional, intent(out)          :: rc
-     end subroutine append_file
+     end subroutine regrid_accumulate_append_file
 
   end interface
 end module MaskSamplerGeosatMod

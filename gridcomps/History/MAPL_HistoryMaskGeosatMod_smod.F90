@@ -4,7 +4,7 @@
 submodule (MaskSamplerGeosatMod)  MaskSamplerGeosat_implement
   implicit none
 contains
-  
+
   module procedure MaskSamplerGeosat_from_config
   use BinIOMod
   use pflogger, only         :  Logger, logging
@@ -24,11 +24,11 @@ contains
   integer                    :: count
   integer                    :: unitr, unitw
   type(Logger), pointer :: lgr
-  
+
   mask%clock=clock
   mask%grid_file_name=''
   call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
-  if (mapl_am_I_root()) write(6,*) 'string', string  
+  if (mapl_am_I_root()) write(6,*) 'string', string
 
 
   call ESMF_ConfigGetAttribute(config, value=mask%grid_file_name,label=trim(string)//'obs_files:',    default="",  _RC)
@@ -71,13 +71,13 @@ contains
         write(6,105) 'obs_file_end provided:', trim(STR1)
      end if
   end if
-         
+
   call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
        label=trim(string) // 'obs_file_interval:', _RC)
   _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
   if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
-  
-  
+
+
   i= index( trim(STR1), ' ' )
   if (i>0) then
      symd=STR1(1:i-1)
@@ -87,18 +87,11 @@ contains
      shms=trim(STR1)
   endif
   call convert_twostring_2_esmfinterval (symd, shms,  mask%obsfile_interval, _RC)
-  
+
   mask%is_valid = .true.
-  
-         
-  ! __  metadata and file_handle
-  allocate (mask%metadata)
-  if (mapl_am_i_root()) then
-     allocate (mask%file_handle)
-  end if
-  
+
   _RETURN(_SUCCESS)
-  
+
 105 format (1x,a,2x,a)
 106 format (1x,a,2x,i8)
    end procedure MaskSamplerGeosat_from_config
@@ -125,278 +118,23 @@ contains
       else
          this%vdata=VerticalData(_RC)
       end if
-   else
-      if (reinitialize) then
-         allocate (this%metadata)
-         if (mapl_am_i_root()) then
-            allocate (this%file_handle)
-         end if
-      end if
    end if
 
-   !-- wrong, fix it later
-   call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC)
 
    this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
    if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
-   !call this%create_Geosat_grid_find_mask(_RC)
-   call this%create_grid(_RC)   
+   this%ofile = ''
+   this%obs_written = 0
+
+   call this%create_grid(_RC)
+
+   call this%add_metadata(_RC)
 
    _RETURN(_SUCCESS)
 
    end procedure initialize
 
-
-      module procedure create_file_handle
-         integer :: status
-         integer :: k
-         character(len=ESMF_MAXSTR) :: filename
-
-         if (.NOT. this%is_valid) then
-            _RETURN(ESMF_SUCCESS)
-         endif
-!!
-!!         do k=1, this%nobs_type
-!!            call this%obs(k)%metadata%modify_dimension(this%index_name_loc, this%obs(k)%nobs_epoch)
-!!         enddo
-!!         if (mapl_am_I_root()) then
-!!            do k=1, this%nobs_type
-!!               if (this%obs(k)%nobs_epoch > 0) then
-!!                  filename=trim(this%obs(k)%name)//trim(filename_suffix)
-!!                  call this%obs(k)%file_handle%create(trim(filename),_RC)
-!!                  call this%obs(k)%file_handle%write(this%obs(k)%metadata,_RC)
-!!                  write(6,*) "Sampling to new file : ",trim(filename)
-!!               end if
-!!            enddo
-!!         end if
-
-        _RETURN(_SUCCESS)
-      end procedure create_file_handle
-
-
-       module procedure close_file_handle
-          integer :: status
-          integer :: k
-
-          if (.NOT. this%is_valid) then
-             _RETURN(ESMF_SUCCESS)
-          endif
-
-!!         if (mapl_am_I_root()) then
-!!            do k=1, this%nobs_type
-!!               if (this%obs(k)%nobs_epoch > 0) then
-!!                  call this%obs(k)%file_handle%close(_RC)
-!!               end if
-!!            end do
-!!         end if
-
-          _RETURN(_SUCCESS)
-       end procedure close_file_handle
-
-
-      module procedure append_file
-         type(GriddedIOitemVectorIterator) :: iter
-         type(GriddedIOitem), pointer :: item
-         type(ESMF_RouteHandle) :: RH
-
-         type(ESMF_Field) :: src_field, dst_field
-         type(ESMF_Field) :: acc_field
-         type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
-         real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-         real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
-         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
-
-         integer :: is, ie, nx
-         integer :: lm
-         integer :: rank
-         integer :: status
-         integer :: j, k, ig
-         integer, allocatable :: ix(:)
-
-         if (.NOT. this%is_valid) then
-            _RETURN(ESMF_SUCCESS)
-         endif
-
-         if (this%nobs_dur_sum==0) then
-            rc=0
-            return
-         endif
-!
-!         is=1
-!         do k = 1, this%nobs_type
-!            !-- limit  nx < 2**32 (integer*4)
-!            nx=this%obs(k)%nobs_epoch
-!            if (nx >0) then
-!               if (mapl_am_i_root()) then
-!                  call this%obs(k)%file_handle%put_var(this%var_name_time, real(this%obs(k)%times_R8), &
-!                       start=[is], count=[nx], _RC)
-!                  call this%obs(k)%file_handle%put_var(this%var_name_lon, this%obs(k)%lons, &
-!                       start=[is], count=[nx], _RC)
-!                  call this%obs(k)%file_handle%put_var(this%var_name_lat, this%obs(k)%lats, &
-!                       start=[is], count=[nx], _RC)
-!               end if
-!            end if
-!         enddo
-!
-!         ! get RH from 2d field
-!         src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
-!         dst_field = ESMF_FieldCreate(this%LS_rt,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
-!         call ESMF_FieldRedistStore(src_field,dst_field,RH,_RC)
-!         call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
-!         call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
-!
-!         ! redist and put_var
-!         lm = this%vdata%lm
-!         acc_field_2d_rt = ESMF_FieldCreate (this%LS_rt, name='field_2d_rt', typekind=ESMF_TYPEKIND_R4, _RC)
-!         acc_field_3d_rt = ESMF_FieldCreate (this%LS_rt, name='field_3d_rt', typekind=ESMF_TYPEKIND_R4, &
-!              gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-!
-!         iter = this%items%begin()
-!         do while (iter /= this%items%end())
-!            item => iter%get()
-!            !!write(6, '(2x,a,2x,a)') 'item%xname', trim(item%xname)
-!
-!            if (item%itemType == ItemTypeScalar) then
-!               call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
-!               call ESMF_FieldGet(acc_field,rank=rank,_RC)
-!               if (rank==1) then
-!                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
-!                  call ESMF_FieldGet( acc_field_2d_rt, localDE=0, farrayPtr=p_acc_rt_2d, _RC)
-!                  call ESMF_FieldRedist( acc_field,  acc_field_2d_rt, RH, _RC)
-!                  if (mapl_am_i_root()) then
-!                     !
-!                     !-- pack fields to obs(k)%p2d and put_var
-!                     !
-!                     is=1
-!                     ie=this%epoch_index(2)-this%epoch_index(1)+1
-!                     do k=1, this%nobs_type
-!                        nx = this%obs(k)%nobs_epoch
-!                        allocate (this%obs(k)%p2d(nx))
-!                     enddo
-!
-!                     allocate(ix(this%nobs_type))
-!                     ix(:)=0
-!                     do j=is, ie
-!                        k = this%obstype_id(j)
-!                        ix(k) = ix(k) + 1
-!                        this%obs(k)%p2d(ix(k)) = p_acc_rt_2d(j)
-!                     enddo
-!
-!                     do k=1, this%nobs_type
-!                        if (ix(k) /= this%obs(k)%nobs_epoch) then
-!                           print*, 'obs_', k, ' : ix(k) /= this%obs(k)%nobs_epoch'
-!                           print*, 'obs_', k, ' : this%obs(k)%nobs_epoch, ix(k) =', this%obs(k)%nobs_epoch, ix(k)
-!                           _FAIL('test ix(k) failed')
-!                        endif
-!                     enddo
-!                     deallocate(ix)
-!                     do k=1, this%nobs_type
-!                        is = 1
-!                        nx = this%obs(k)%nobs_epoch
-!                        if (nx>0) then
-!                           do ig = 1, this%obs(k)%ngeoval
-!                              if (trim(item%xname) == trim(this%obs(k)%geoval_name(ig))) then
-!                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
-!                                      start=[is],count=[nx])
-!                              end if
-!                           enddo
-!                        endif
-!                     enddo
-!                  end if
-!               else if (rank==2) then
-!                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
-!                  call ESMF_FieldGet( acc_field_3d_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
-!
-!                  dst_field=ESMF_FieldCreate(this%LS_rt,typekind=ESMF_TYPEKIND_R4, &
-!                       gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-!                  src_field=ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4, &
-!                       gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-!
-!                  call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
-!                  call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
-!
-!                  p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
-!                  call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
-!                  p_acc_rt_3d=reshape(p_dst, shape(p_acc_rt_3d), order=[2,1])
-!
-!                  call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
-!                  call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
-!
-!                  if (mapl_am_i_root()) then
-!                     !
-!                     !-- pack fields to obs(k)%p3d and put_var
-!                     !
-!                     is=1
-!                     ie=this%epoch_index(2)-this%epoch_index(1)+1
-!                     do k=1, this%nobs_type
-!                        nx = this%obs(k)%nobs_epoch
-!                        allocate (this%obs(k)%p3d(nx, size(p_acc_rt_3d,2)))
-!                     enddo
-!                     allocate(ix(this%nobs_type))
-!                     ix(:)=0
-!                     do j=is, ie
-!                        k = this%obstype_id(j)
-!                        ix(k) = ix(k) + 1
-!                        this%obs(k)%p3d(ix(k),:) = p_acc_rt_3d(j,:)
-!                     enddo
-!                     deallocate(ix)
-!                     do k=1, this%nobs_type
-!                        is = 1
-!                        nx = this%obs(k)%nobs_epoch
-!                        if (nx>0) then
-!                           do ig = 1, this%obs(k)%ngeoval
-!                              if (trim(item%xname) == trim(this%obs(k)%geoval_name(ig))) then
-!                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
-!                                      start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
-!                              end if
-!                           end do
-!                        endif
-!                     enddo
-!                     !!write(6,'(10f8.2)') p_acc_rt_3d(:,:)
-!                     !!write(6,*) 'here in append_file:  put_var 3d'
-!                     !!call this%obs(k)%file_handle%put_var(trim(item%xname),p_acc_rt_3d(:,:),&
-!                     !!     start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
-!                  end if
-!               endif
-!            else if (item%itemType == ItemTypeVector) then
-!               _FAIL("ItemTypeVector not yet supported")
-!            end if
-!            call iter%next()
-!         enddo
-!         call ESMF_FieldDestroy(acc_field_2d_rt, noGarbage=.true., _RC)
-!         call ESMF_FieldDestroy(acc_field_3d_rt, noGarbage=.true., _RC)
-!         call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-!
-         _RETURN(_SUCCESS)
-       end procedure append_file
-
-
-
-       
-!!       module procedure find_mask
-!!       use pflogger, only: Logger, logging     
-!!       use BinIOMod, only: GETFILE
-!!       integer                 :: x_subset(2)
-!!       type(ESMF_Time)         :: timeset(2)
-!!       type(ESMF_Time)         :: current_time
-!!       type(ESMF_TimeInterval) :: dur
-!!       type(GriddedIOitemVectorIterator) :: iter
-!!       type(GriddedIOitem), pointer :: item
-!!
-!!       real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-!!       real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-!!       real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
-!!       real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-!!       integer :: is, ie
-!!       integer :: status
-!!       
-!!       lgr => logging%get_logger('HISTORY.sampler')
-!!
-!!       _RETURN(ESMF_SUCCESS)
-!!
-!!     end procedure find_mask
-         
 
 
   ! __ this code does not handle zero observations
@@ -408,13 +146,14 @@ contains
        real(ESMF_KIND_R8), pointer :: ptAT(:)
        type(ESMF_routehandle) :: RH
        type(ESMF_Grid) :: grid
-       integer :: mypet, petcount
+       integer :: mypet, npes
+       integer :: iroot, rootpet, ierr
        type (ESMF_LocStream) :: LS_rt
        type (ESMF_LocStream) :: LS_ds
        type (LocStreamFactory):: locstream_factory
        type (ESMF_Field) :: fieldA
        type (ESMF_Field) :: fieldB
-       
+
        integer :: i, j, k, L
        integer :: n1, n2
        integer :: nx, ny, nx_sum
@@ -448,7 +187,7 @@ contains
        integer :: tcount(2)
        integer(ESMF_KIND_I4), pointer :: farrayPtr(:,:)
        real(ESMF_KIND_R8), pointer :: ptA(:)
-       real(ESMF_KIND_R8), pointer :: ptB(:)       
+       real(ESMF_KIND_R8), pointer :: ptB(:)
 
        character(len=50) :: filename
        integer :: unit
@@ -458,17 +197,20 @@ contains
        real(REAL64), pointer :: y(:)
        real(REAL64) :: lambda0_deg, lambda0
        real(REAL64) :: x0, y0
-       real(REAL64) :: lon0, lat0      
+       real(REAL64) :: lon0, lat0
        real(REAL64) :: lam_sat
        integer      :: mask0
        character(len=ESMF_MAXSTR) :: fn, key_x, key_y, key_p, key_p_att
        integer      :: Xdim_true, Ydim_true
        integer      :: Xdim_red, Ydim_red
        real(REAL64), allocatable :: lons(:), lats(:)
-       real(REAL64), allocatable :: lons_ds(:), lats_ds(:)       
+       real(REAL64), allocatable :: lons_ds(:), lats_ds(:)
        integer,      allocatable :: mask(:,:)
 
-       real(ESMF_kind_R8), pointer :: lons_ptr(:), lats_ptr(:)
+       real(ESMF_kind_R8), pointer :: lons_ptr(:,:), lats_ptr(:,:)
+       integer :: nsend
+       integer, allocatable :: recvcounts_loc(:)
+       integer, allocatable :: displs_loc(:)
        integer :: status
 
        lgr => logging%get_logger('HISTORY.sampler')
@@ -477,8 +219,8 @@ contains
        !   read ABI grid into LS_rt
        !   gen LS_ds with CS grid
        !   find mask points on each PET with halo
-       !   save 
-       !   
+       !   save
+       !
 
 
        if (mapl_am_i_root()) then
@@ -498,7 +240,7 @@ contains
           xdim_red  = n1 / this%thin_factor
           ydim_red  = n2 / this%thin_factor
           allocate (x (xdim_true) )
-          allocate (y (xdim_true) )         
+          allocate (y (xdim_true) )
 
           call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
           call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
@@ -537,6 +279,7 @@ contains
        endif
 
        call ESMF_VMGetCurrent(vm,_RC)
+       call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=npes, localpet=mypet, _RC)
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
             count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
        this%nobs = nx
@@ -579,7 +322,7 @@ contains
 
        call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
-       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)       
+       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
 
        !- debug
        !       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, lons_ds(::1000)
@@ -600,12 +343,12 @@ contains
        !!       ! independent test
        !!       nx = 2
        !!       obs_lons = [ 0.d0 , 10.d0 ]
-       !!       obs_lats = [ 0.d0 , 10.d0 ]       
+       !!       obs_lats = [ 0.d0 , 10.d0 ]
 
        allocate ( II(nx), JJ(nx) )
        call MPI_Barrier(mpic, status)
        !!       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=this%lons_ds,lat=this%lats_ds,grid=Grid,_RC)
-       !!call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)              
+       !!call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
 
        call ESMF_VMBarrier (vm, _RC)
@@ -617,10 +360,6 @@ contains
        !!       end do
 
 
-       !       call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
-       !       call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
-       !       call ESMF_DELayoutGet(layout, VM=vm, _RC)
-       !       call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
        call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
        IM= COUNTS(1)
        JM= COUNTS(2)
@@ -670,9 +409,9 @@ contains
 
        k=0
        do i=eLB(1), eUB(1)
-          do j=eLB(2), eUB(2)          
+          do j=eLB(2), eUB(2)
              if ( farrayPtr(i,j)==0 .AND. ( &
-                  farrayPtr(i-1,j)==1 .OR. &                  
+                  farrayPtr(i-1,j)==1 .OR. &
                   farrayPtr(i+1,j)==1 .OR. &
                   farrayPtr(i,j-1)==1 .OR. &
                   farrayPtr(i,j+1)==1 )  ) then
@@ -683,13 +422,13 @@ contains
        end do
        allocate( mask(IM, JM))
        mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
-       
+
        this%npt_mask = k
        allocate( this%index_mask(2,k) )
        arr(1)=k
-       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=this%tot_npt_mask, &
+       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=this%npt_mask_tot, &
             count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
-       
+
        k=0
        do i=1, IM
           do j=1, JM
@@ -701,10 +440,10 @@ contains
           end do
        end do
 
-       
+
        !
        ! -- test and print mask locations
-       !       
+       !
        write(unit,'(2x,a,2x,i5)') 'connect pet=', mypet
        do j=tUB(2), tLB(2), -1
           write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
@@ -714,46 +453,378 @@ contains
           write(unit, '(2x,100i5)') mask(eLB(1):eUB(1), j)
        end do
 
-       write(6,'(2x,a,2x,7i10)')  'this%npt_mask, this%tot_npt_mask', this%npt_mask, this%tot_npt_mask
+       write(6,'(2x,a,2x,7i10)')  'this%npt_mask, this%npt_mask_tot', this%npt_mask, this%npt_mask_tot
        write(6,'(2x,a,2x,7i10)')  'this%index_mask(1,1:N)', this%index_mask(1,::5)
-       write(6,'(2x,a,2x,7i10)')  'this%index_mask(2,1:N)', this%index_mask(2,::5)       
-       
-       
-       !       _FAIL('nail 2')       
-       !       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, mask(::5,::5)       
+       write(6,'(2x,a,2x,7i10)')  'this%index_mask(2,1:N)', this%index_mask(2,::5)
+
+
+       !       _FAIL('nail 2')
+       !       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, mask(::5,::5)
 
        close(unit)
 
        ! FINISH:  I have what I need
        !          Fixed:  npt_mask  +  index_mask
-       !          I have index on each PET, 
+       !          I have index on each PET,
        !          The rest is station sampler, except
        !          regridding is replaced by
        !          - selecting masked data on PET
        !          - mpi_gatherV
        !
 
-       
-!       ! __ s4. round-2: initialize mask%LS_ds and mask%LS_rt
-!       !
-!       call ESMF_GridGetCoord (grid, coordDim=1, localDE=0, &
-!            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons_ptr, _RC)
-!       call ESMF_GridGetCoord (grid, coordDim=2, localDE=0, &
-!            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats_ptr, _RC)       
-!       deallocate (lons, lats)
-!       allocate (lons(this%npt_mask), lats(this%npt_mask))
-!       do i=1, this%npt_mask
-!          lons(i) = lons_ptr (this%index_mask(1,i))
-!          lats(i) = lats_ptr (this%index_mask(2,i))          
-!       end do
-!       locstream_factory = LocStreamFactory(lons,lats,_RC)
-!       this%LS_ds = locstream_factory%create_locstream(_RC)
-!
 
-       
-      
+       ! __ s4.1 round-2: find this%lons/lats on root
+       !
+       call ESMF_GridGetCoord (grid, coordDim=1, localDE=0, &
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons_ptr, _RC)
+       call ESMF_GridGetCoord (grid, coordDim=2, localDE=0, &
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats_ptr, _RC)
+       deallocate (lons, lats)
+       allocate (lons(this%npt_mask), lats(this%npt_mask))
+       do i=1, this%npt_mask
+          ix=this%index_mask(1,i)
+          jx=this%index_mask(2,i)
+          lons(i) = lons_ptr (ix, jx)
+          lats(i) = lats_ptr (ix, jx)
+       end do
+
+       if (mapl_am_i_root()) then
+          write(6,'(2x,10f8.1)')  lons(::5)
+          write(6,'(2x,10f8.1)')  lats(::5)
+          print*, 'end lons/lats'
+       end if
+
+       if (mapl_am_i_root()) then
+          iroot = mypet
+          rootpet = mypet
+          allocate (this%lons(this%npt_mask_tot), this%lats(this%npt_mask_tot))
+       else
+          iroot = 0
+          allocate (this%lons(0), this%lats(0))
+       end if
+
+
+       ! __ s4.2  find this%recvcounts / this%displs
+!       if (mapl_am_i_root()) then
+          allocate( this%recvcounts(npes), this%displs(npes) )
+          allocate( recvcounts_loc(npes), displs_loc(npes) )
+          recvcounts_loc(:)=1
+          displs_loc(1)=0
+          do i=2, npes
+             displs_loc(i) = displs_loc(i-1) + recvcounts_loc(i-1)
+          end do
+!       end if
+       call MPI_gatherv ( this%npt_mask, 1, MPI_INTEGER, &
+            this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
+            iroot, mpic, ierr )
+
+       if (.not. mapl_am_i_root()) then
+          this%recvcounts(:) = 0
+       end if
+       this%displs(1)=0
+       do i=2, npes
+          this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
+       end do
+
+       if (mapl_am_i_root()) then
+          write(6,'(2x,10i8)') this%recvcounts
+          write(6,'(2x,10i8)') this%displs
+       end if
+
+
+       ! __ s4.2  gatherv lons/lats
+       nsend=this%npt_mask
+       call MPI_gatherv ( lons, nsend, MPI_REAL8, &
+            this%lons, this%recvcounts, this%displs, MPI_REAL8,&
+            iroot, mpic, ierr )
+
+       call MPI_gatherv ( lats, nsend, MPI_REAL8, &
+            this%lats, this%recvcounts, this%displs, MPI_REAL8,&
+            iroot, mpic, ierr )
+
+       if (mapl_am_i_root()) then
+          write(6,'(2x,10f8.1)')  this%lons(::5)
+          write(6,'(2x,10f8.1)')  this%lats(::5)
+          print*, 'end lons/lats'
+       end if
+
+
        _RETURN(_SUCCESS)
      end procedure create_Geosat_grid_find_mask
 
-     
+
+module  procedure add_metadata
+    type(variable)   :: v
+    type(ESMF_Field) :: field
+    integer          :: fieldCount
+    integer          :: field_rank
+    integer          :: nstation
+    logical          :: is_present
+    integer          :: ub(ESMF_MAXDIM)
+    integer          :: lb(ESMF_MAXDIM)
+    logical          :: do_vertical_regrid
+    integer          :: status
+    integer          :: i
+
+    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
+    character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
+    character(len=40) :: datetime_units
+
+    !__ 1. metadata add_dimension,
+    !     add_variable for time, latlon, mask_points
+    !
+
+!!    call create_timeunit(currTime, datetime_units, input_unit='seconds', _RC)
+
+
+    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
+
+    call this%time_info%add_time_to_metadata(this%metadata,_RC)
+
+    call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
+
+    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    call v%add_attribute('long_name','longitude')
+    call v%add_attribute('unit','degree_east')
+    call this%metadata%add_variable('longitude',v)
+
+    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    call v%add_attribute('long_name','latitude')
+    call v%add_attribute('unit','degree_north')
+    call this%metadata%add_variable('latitude',v)
+
+    v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
+    call this%metadata%add_variable('mask_CS_Face_ID',v)
+
+    v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    call v%add_attribute('long_name','The Cubed Sphere Global Index I')
+    call this%metadata%add_variable('mask_CS_global_index_I',v)
+
+    v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    call v%add_attribute('long_name','The Cubed Sphere Global Index J')
+    call this%metadata%add_variable('mask_CS_global_index_J',v)
+
+
+    !__ 2. filemetadata: extract field from bundle, add_variable to metadata
+    !
+    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
+    allocate (fieldNameList(fieldCount))
+    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
+    do i=1, fieldCount
+       var_name=trim(fieldNameList(i))
+       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
+       call ESMF_FieldGet(field,rank=field_rank,_RC)
+       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+       if ( is_present ) then
+          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
+       else
+          long_name = var_name
+       endif
+       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+       if ( is_present ) then
+          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
+       else
+          units = 'unknown'
+       endif
+       if (field_rank==2) then
+          vdims = "mask_index,time"
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[this%npt_mask_tot,1])
+       else if (field_rank==3) then
+          vdims = "lev,mask_index,time"
+          call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[ub(1)-lb(1)+1,1,1])
+       end if
+       call v%add_attribute('units',         trim(units))
+       call v%add_attribute('long_name',     trim(long_name))
+       call v%add_attribute('missing_value', MAPL_UNDEF)
+       call v%add_attribute('_FillValue',    MAPL_UNDEF)
+       call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
+       call this%metadata%add_variable(trim(var_name),v,_RC)
+    end do
+    deallocate (fieldNameList)
+
+    _RETURN(_SUCCESS)
+  end procedure add_metadata
+
+
+  !  module procedure append_file(this,current_time,rc)
+    module procedure regrid_accumulate_append_file
+    !
+    implicit none
+    integer :: status
+    integer :: fieldCount
+    integer :: ub(1), lb(1)
+    type(ESMF_Field) :: src_field,dst_field
+    real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
+    real(kind=REAL32), allocatable :: p_dst_3d(:,:),p_dst_2d(:)
+    real(kind=REAL32), allocatable :: p_dst_3d_full(:,:),p_dst_2d_full(:)
+    real(kind=REAL32), allocatable :: arr(:,:)
+    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
+    character(len=ESMF_MAXSTR) :: xname
+    real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
+    integer :: i, j, k, rank
+    integer :: nx, nz
+    integer :: ix, iy
+    integer :: mypet, npes, nsend
+    integer :: iroot, ierr
+    integer :: mpic
+    type(GriddedIOitemVectorIterator) :: iter
+    type(GriddedIOitem), pointer :: item
+    type(ESMF_VM) :: vm
+
+
+    this%obs_written=this%obs_written+1
+
+    call ESMF_VMGetCurrent(vm,_RC)
+    call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=npes, localpet=mypet, _RC)
+    if (mapl_am_i_root()) then
+       iroot = mypet
+    else
+       iroot = 0
+    end if
+
+
+    ! -- fixed for all time
+    nsend = this%npt_mask
+    nx = this%npt_mask
+    allocate(p_dst_2d (nx))
+    if (mapl_am_i_root()) then
+       allocate ( p_dst_2d_full (this%npt_mask_tot) )
+    else
+       allocate (p_dst_2d_full (0) )
+    end if
+
+
+    !__ 1. put_var: time variable
+    !
+!    rtimes = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+!    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+!       call this%vdata%setup_eta_to_pressure(_RC)
+!    end if
+!    if (mapl_am_i_root()) then
+!       call this%formatter%put_var('time',rtimes(1:1),&
+!            start=[this%obs_written],count=[1],_RC)
+!    end if
+
+
+    !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
+    !
+
+    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+       call this%vdata%setup_eta_to_pressure(_RC)
+    endif
+
+    iter = this%items%begin()
+    do while (iter /= this%items%end())
+       item => iter%get()
+       if (item%itemType == ItemTypeScalar) then
+          call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
+          call ESMF_FieldGet(src_field,rank=rank,_RC)
+          if (rank==2) then
+             call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
+
+             do j=1, nx
+                ix = this%index_mask(1,j)
+                iy = this%index_mask(2,j)
+                p_dst_2d(j) = p_src_2d(ix, iy)   !  this must exist
+             end do
+             call MPI_Barrier(mpic, status)
+
+!!             write(6,'(2x,a,2x,i5,3x,10f8.1)') 'pet, p_dst_2d(j)', mypet, p_dst_2d(1:nx)
+
+
+             !
+             !-- for fields, I think ESMF field array is equv. to PFIO_REAL32
+             !
+             call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
+                  p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
+                  iroot, mpic, ierr )
+             call MPI_Barrier(mpic, status)
+
+
+             if (mapl_am_i_root()) then
+                write(6,'(2x,a,2x,a)') 'af gatherv, xname=', trim(item%xname)
+
+                call this%formatter%put_var(item%xname,p_dst_2d_full,&
+                     start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
+             end if
+
+
+          else if (rank==3) then
+!          call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+!          call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+!          if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
+!             lb(1)=1
+!             ub(1)=this%vdata%lm
+!          end if
+!          dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname,&
+!               typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+!          call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
+!          call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+!          if (mapl_am_i_root()) then
+!             nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx))
+!             arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
+!             call this%formatter%put_var(xname,arr,&
+!                  start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
+!             !note:     lev,station,time
+!             deallocate(arr)
+!          end if
+!          call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
+!       else
+!          _FAIL('grid2LS regridder: rank > 3 not implemented')
+          end if
+       end if
+
+       call iter%next()
+    end do
+
+
+
+    _RETURN(_SUCCESS)
+  end procedure regrid_accumulate_append_file
+
+
+  !  module  procedure create_file_handle(this,filename,rc)
+  module  procedure create_file_handle
+    type(variable) :: v
+    integer :: status, j
+
+
+    this%ofile = trim(filename)
+    v = this%time_info%define_time_variable(_RC)
+    call this%metadata%modify_variable('time',v,_RC)
+    this%obs_written = 0
+
+    if (.not. mapl_am_I_root()) then
+       _RETURN(_SUCCESS)
+    end if
+
+
+    call this%formatter%create(trim(filename),_RC)
+    call this%formatter%write(this%metadata,_RC)
+
+    call this%formatter%put_var('longitude',this%lons,_RC)
+    call this%formatter%put_var('latitude',this%lats,_RC)
+!    call this%formatter%put_var('mask_id',this%mask_id,_RC)
+!    call this%formatter%put_var('mask_name',this%mask_name,_RC)
+    !
+
+    _RETURN(_SUCCESS)
+  end procedure create_file_handle
+
+
+  !  module  procedure close_file_handle(this,rc)
+  module  procedure close_file_handle
+    integer :: status
+    if (trim(this%ofile) /= '') then
+       if (mapl_am_i_root()) then
+          call this%formatter%close(_RC)
+       end if
+    end if
+    _RETURN(_SUCCESS)
+  end procedure close_file_handle
+
+
+
 end submodule MaskSamplerGeosat_implement
