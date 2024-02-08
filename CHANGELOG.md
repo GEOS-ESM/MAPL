@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
 - Added capability in XY grid factory to add a mask to the grid any points are missing needed for geostationary input data
 - Added capability in the MAPL ESMF regridding wrapper to apply a destination mask if the destination grid contains a mask
+- Added `INSTALL.md` file to provide instructions on how to install MAPL
 
 ### Changed
 
