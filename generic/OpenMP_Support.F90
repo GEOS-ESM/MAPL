@@ -605,7 +605,6 @@ module MAPL_OpenMP_Support
           do while (iter /= e)
              wrapper => iter%second()
              do i = 1, n_multi
-                !call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=wrapper%userRoutine, _RC)
                 userRoutine => wrapper%userRoutine
                 call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=userRoutine, _RC)
              end do
