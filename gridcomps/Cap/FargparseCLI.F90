@@ -8,7 +8,7 @@ module MAPL_FargparseCLIMod
    use gFTL2_IntegerVector
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
-   use mapl_CapOptionsMod, only:  MAPL_CapOptions
+   use mapl_CapOptionsMod, only:  MAPL_CapOptions_ => MAPL_CapOptions !Rename is for backward compatibility. Remove renaming for 3.0
    implicit none
    private
 
@@ -44,7 +44,7 @@ contains
 
    function FargparseCLI(unusable, extra_options, cast_extras, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type (MAPL_CapOptions) :: cap_options
+      type (MAPL_CapOptions_) :: cap_options
       procedure(I_extraoptions), optional :: extra_options
       procedure(I_castextras), optional :: cast_extras
       integer, optional, intent(out) :: rc
@@ -219,7 +219,7 @@ contains
 
    subroutine fill_cap_options(fargparseCLI, cap_options, unusable, rc)
       class(FargparseCLI_Type), intent(inout) :: fargparseCLI
-      type(MAPL_CapOptions), intent(out) :: cap_options
+      type(MAPL_CapOptions_), intent(out) :: cap_options
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status

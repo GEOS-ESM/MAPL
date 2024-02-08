@@ -130,6 +130,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          enddo
 
 
+
          ! __ s2. find nobs  &&  distinguish design with vs wo  '------'
          nobs=0
          call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
@@ -230,6 +231,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          _RETURN(_SUCCESS)
 
+
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
        end procedure HistoryTrajectory_from_config
@@ -238,7 +240,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
        !
        !-- integrate both initialize and reinitialize
        !
-       module procedure initialize
+       module procedure initialize_
          integer :: status
          type(ESMF_Grid) :: grid
          type(variable) :: v
@@ -330,7 +332,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          _RETURN(_SUCCESS)
 
-       end procedure initialize
+       end procedure initialize_
 
 
 
@@ -644,8 +646,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call MAPL_CommsBcast(vm, this%datetime_units, N=ESMF_MAXSTR, ROOT=MAPL_Root, _RC)
 
 
+
          if (mapl_am_I_root()) then
-            call sort_multi_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
+            ! NVHPC dies with NVFORTRAN-S-0155-Could not resolve generic procedure sort_multi_arrays_by_time
+            call sort_four_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
             call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
             timeset(1) = current_time
             timeset(2) = current_time + this%epoch_frequency
