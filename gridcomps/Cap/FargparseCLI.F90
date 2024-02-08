@@ -8,7 +8,7 @@ module MAPL_FargparseCLIMod
    use gFTL2_IntegerVector
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
-   use mapl_CapOptionsMod, only:  MAPL_CapOptions
+   use mapl_CapOptionsMod, only:  MAPL_CapOptions_ => MAPL_CapOptions !Rename is for backward compatibility. Remove renaming for 3.0
    implicit none
    private
 
