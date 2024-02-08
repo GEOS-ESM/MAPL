@@ -51,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add explicit `Fortran_MODULE_DIRECTORY` to `CMakeLists.txt` in benchmarks to avoid race condition in Ninja builds
 - Add check to make sure ESMF was not built as `mpiuni`
 - Fixed failing tests for `field_utils`.
+- Various fixes for NVHPC work
+
 
 ### Removed
 
