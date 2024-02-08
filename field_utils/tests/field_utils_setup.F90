@@ -45,11 +45,7 @@ contains
 
       integer :: status
 
-<<<<<<< HEAD
-      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2,2], countsPerDeDim2=[2,2], indexflag = indexflag, name = grid_name, _RC)
-=======
       grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2,2], countsPerDeDim2=[2,2], indexflag=INDEX_FLAG_DEFAULT, name = grid_name, _RC)
->>>>>>> develop
 
       _RETURN(_SUCCESS)
    end function mk_grid
@@ -116,15 +112,8 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Grid) :: grid
       integer :: status
-<<<<<<< HEAD
-      real, pointer :: fptr(:,:)
-
-
-      grid = mk_grid(regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, grid_name = name // GRID_SUFFIX, _RC)
-=======
 
       grid = mk_grid(grid_name = name // GRID_SUFFIX, _RC)
->>>>>>> develop
       field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, ungriddedLBound = ungriddedLBound, ungriddedUBound = ungriddedUBound, _RC)
 
       _RETURN(_SUCCESS)
