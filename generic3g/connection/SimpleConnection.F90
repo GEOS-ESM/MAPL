@@ -99,7 +99,8 @@ contains
       integer :: i_extension
       integer :: cost, lowest_cost
       class(StateItemSpec), pointer :: best_spec
-      class(StateItemSpec), pointer :: old_spec
+      class(StateItemSpec), pointer :: last_spec
+      class(StateItemSpec), target, allocatable :: old_spec
       class(StateItemSpec), allocatable, target :: new_spec
       type(ActualConnectionPt) :: effective_pt
       type(ActualConnectionPt) :: extension_pt
@@ -148,15 +149,21 @@ contains
          ! Now build out sequence of extensions that form a chain to
          ! dst_spec.  This includes creating couplers (handled inside
          ! registry.)
-         old_spec => best_spec
+         last_spec => best_spec
+         old_spec = best_spec
          source_coupler => null()
          do i_extension = 1, lowest_cost
             new_spec = old_spec%make_extension(dst_spec, _RC)
             call new_spec%set_active()
             extension_pt = src_registry%extend(src_pt%v_pt, old_spec, new_spec, source_coupler=source_coupler, _RC)
             source_coupler => src_registry%get_export_coupler(extension_pt)
-            old_spec => new_spec
+            call move_alloc(from=new_spec, to=old_spec)
+            last_spec => old_spec
          end do
+
+
+
+
          call dst_spec%set_active()
 
          ! If couplers were needed, then the final coupler must also be
@@ -170,7 +177,7 @@ contains
          ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_esmf_name(), comp_name=src_pt%v_pt%get_comp_name()))
-         call dst_spec%connect_to(old_spec, effective_pt, _RC)
+         call dst_spec%connect_to(last_spec, effective_pt, _RC)
          call dst_spec%set_active()
             
       end do

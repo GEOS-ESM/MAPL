@@ -233,11 +233,10 @@ contains
        
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_GRIDSET) then
-
          call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
               ungriddedLBound= final_lbounds,  &
               ungriddedUBound= final_ubounds,  &
-              _RC)
+             _RC)
          call ESMF_FieldGet(this%payload, status=fstatus, _RC)
          _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
@@ -338,6 +337,7 @@ contains
       subroutine mirror(dst, src, rc)
          type(ESMF_TypeKind_Flag), intent(inout) :: dst, src
          integer, optional, intent(out) :: rc
+
          if (dst /= src) then
             if (dst == MAPL_TYPEKIND_MIRROR) then
                dst = src
@@ -488,19 +488,22 @@ contains
       _RETURN(_SUCCESS)
    end function make_extension
 
-   function make_extension_safely(this, src_spec) result(extension)
+   function make_extension_safely(this, dst_spec) result(extension)
       type(FieldSpec) :: extension
       class(FieldSpec), intent(in) :: this
-      type(FieldSpec), intent(in) :: src_spec
+      type(FieldSpec), intent(in) :: dst_spec
 
       logical :: found
 
       extension = this
-      if (update_item(extension%geom, src_spec%geom)) return
-      if (update_item(extension%typekind, src_spec%typekind)) then
+
+      if (update_item(extension%geom, dst_spec%geom)) return
+      if (update_item(extension%typekind, dst_spec%typekind)) then
          return
       end if
-      if (update_item(extension%units, src_spec%units)) return
+      if (update_item(extension%units, dst_spec%units)) then
+         return
+      end if
 
     end function make_extension_safely
 
@@ -549,11 +552,10 @@ contains
       integer :: status
 
       match = .false.
-
+      
       if (allocated(a) .and. allocated(b)) then
          match = MAPL_SameGeom(a, b)
       end if
-
 
    end function match_geom
 
