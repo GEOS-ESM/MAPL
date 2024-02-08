@@ -647,7 +647,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          if (mapl_am_I_root()) then
             ! NVHPC dies with NVFORTRAN-S-0155-Could not resolve generic procedure sort_multi_arrays_by_time
-            !call sort_multi_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
             call sort_four_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
             call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
             timeset(1) = current_time
