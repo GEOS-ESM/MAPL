@@ -18,20 +18,20 @@ module mapl3hconfig_get
 
 contains
 
-   subroutine hconfig_get_scalar(hconfig, keystring, value, message, unusable, value_is_set, rc)
+   subroutine hconfig_get_scalar(hconfig, keystring, value, message, unusable, found, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value
       character(len=:), allocatable, intent(inout) :: message
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(out) :: value_is_set
+      logical, optional, intent(out) :: found
       integer, optional, intent(out) :: rc
-      logical :: found
+      logical :: found_
 
       _UNUSED_DUMMY(unusable)
 
-      call get_value(hconfig, value, found, message, keystring, _RC)
-      if(present(value_is_set)) value_is_set = found
+      call get_value(hconfig, value, found_, message, keystring, _RC)
+      if(present(found)) found = found_
 
       _RETURN(_SUCCESS)
 

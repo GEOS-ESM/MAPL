@@ -613,59 +613,46 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
+   logical function implies(p, q)
+      logical, intent(in) :: p, q
+      implies = merge(q, .TRUE.,  p)
+   end function implies
    ! Finds value given keystring. If default is present, a value is always found, and
    ! is_default indicates whether the value equals the default. default, is_default, and
    ! found are optional. If you don't pass a default, use the found flag to determine if
    ! the value is found. Otherwise, if the value is not found, an exception occurs.
-   subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, is_default, found, rc)
+   subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, value_set, rc)
       type(ESMF_GridComp), intent(inout) :: gc
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
-      logical, optional, intent(out) :: found
+      logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+      character(len=*), parameter :: MISMATCH_MSG = 'value and default are not the same_type.'
+      character(len=*), parameter :: UNSET_MSG = 'Unable to set value'
       integer :: status
-      logical :: found_
+      logical :: found_ 
       type(ESMF_HConfig) :: hconfig
       class(Logger_t), pointer :: logger
       character(len=:), allocatable :: message
-
-      if(present(default)) then
-         ! If default is present, value and default must have the same type.
-         _ASSERT(same_type_as(value, default), 'value and default are not the same type.')
-      else
-         ! If default is not present, is_default cannot be present.
-         _ASSERT(.not. present(is_default), 'is_default cannot be set without default.')
-      end if
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       call MAPL_ResourceGet(hconfig, keystring, value, message, found=found_, _RC)
 
       if(present(default)) then
-         if(found_) then
-            ! If a value matching keystring is found (and returned, above; value_is_set),
-            ! check if match matches default.
-            is_default_ = (value == default)
-         else
-            ! Use default value.
-            value = default
-            is_default_ = .TRUE.
-         end if
-         ! If default is present, value is always set (found).
+         _ASSERT(found_ .or. same_type_as(value, default), MISMATCH_MSG)
+         if(.not. found_) value = default
          found_ = .TRUE.
       else
-         ! If default is not present, found must be present to indicate whether value is found.
-         _ASSERT(present(found), 'Value was not found.')
+         _ASSERT(found_ .or. present(value_set), UNSET_MSG)
       end if
 
+      if(present(value_set)) value_set = found_ 
       if(present(logger)) then
          call mapl_resource_logger(logger, message, _RC)
       end if
 
-      ! Set optional flags if they are present.
-      if(present(is_default)) is_default = is_default_
-      if(present(found)) found = found_
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       
@@ -680,7 +667,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call MAPL_HConfigGet(hconfig, keystring, value, message, value_is_set=found, _RC)
+      call MAPL_HConfigGet(hconfig, keystring, value, message, found=found, _RC)
 
       _RETURN(_SUCCESS)
 
