@@ -1,0 +1,1145 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>convert_NetCDF_DateTime_to_ESMF &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>convert_NetCDF_DateTime_to_ESMF
+      <small>Interface</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 72 statements,  0.0% of total for procedures.">4 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_NetCDF.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_netcdf.f90.html'>MAPL_NetCDF.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_netcdf.html'>MAPL_NetCDF</a></li>
+            <li class="breadcrumb-item active" aria-current="page">convert_NetCDF_DateTime_to_ESMF</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../interface/convert_netcdf_datetime_to_esmf.html#moduleprocedure-get_esmf_time_from_netcdf_datetime_integer">get_ESMF_Time_from_NetCDF_DateTime_integer</a>
+            <a class="list-group-item" href="../interface/convert_netcdf_datetime_to_esmf.html#moduleprocedure-get_esmf_time_from_netcdf_datetime_real">get_ESMF_Time_from_NetCDF_DateTime_real</a>
+        </div>
+      </div>
+    </div>
+
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <h2>public interface convert_NetCDF_DateTime_to_ESMF</h2>
+      
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Calls</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~convert_netcdf_datetime_to_esmf~~CallsGraph Pages: 1 -->
+<svg id="interfaceconvert_netcdf_datetime_to_esmfCallsGraph" width="641pt" height="203pt"
+ viewBox="0.00 0.00 641.00 203.24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph" class="graph" transform="scale(2.84 2.84) rotate(0) translate(4 574)">
+<title>interface~~convert_netcdf_datetime_to_esmf~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-574 1819,-574 1819,4 -4,4"/>
+<!-- interface~convert_netcdf_datetime_to_esmf -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node1" class="node">
+<title>interface~convert_netcdf_datetime_to_esmf</title>
+<polygon fill="none" stroke="black" points="285,-361 0,-361 0,-337 285,-337 285,-361"/>
+<text text-anchor="middle" x="142.5" y="-346.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_NetCDF::convert_NetCDF_DateTime_to_ESMF</text>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node2" class="node">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node2"><a xlink:href="../proc/get_esmf_time_from_netcdf_datetime_integer.html" xlink:title="MAPL_NetCDF::get_ESMF_Time_from_NetCDF_DateTime_integer">
+<polygon fill="#d9534f" stroke="#d9534f" points="672,-340 321,-340 321,-316 672,-316 672,-340"/>
+<text text-anchor="middle" x="496.5" y="-325.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NetCDF::get_ESMF_Time_from_NetCDF_DateTime_integer</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_netcdf_datetime_to_esmf&#45;&gt;proc~get_esmf_time_from_netcdf_datetime_integer -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge1" class="edge">
+<title>interface~convert_netcdf_datetime_to_esmf&#45;&gt;proc~get_esmf_time_from_netcdf_datetime_integer</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M285.15,-340.55C293.59,-340.05 302.15,-339.54 310.73,-339.02"/>
+<polygon fill="#255000" stroke="#255000" points="311.04,-342.51 320.81,-338.42 310.62,-335.52 311.04,-342.51"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node3" class="node">
+<title>proc~get_esmf_time_from_netcdf_datetime_real</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node3"><a xlink:href="../proc/get_esmf_time_from_netcdf_datetime_real.html" xlink:title="MAPL_NetCDF::get_ESMF_Time_from_NetCDF_DateTime_real">
+<polygon fill="#d9534f" stroke="#d9534f" points="663,-382 330,-382 330,-358 663,-358 663,-382"/>
+<text text-anchor="middle" x="496.5" y="-367.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NetCDF::get_ESMF_Time_from_NetCDF_DateTime_real</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_netcdf_datetime_to_esmf&#45;&gt;proc~get_esmf_time_from_netcdf_datetime_real -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge2" class="edge">
+<title>interface~convert_netcdf_datetime_to_esmf&#45;&gt;proc~get_esmf_time_from_netcdf_datetime_real</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M285.15,-357.45C296.53,-358.13 308.1,-358.82 319.68,-359.51"/>
+<polygon fill="#255000" stroke="#255000" points="319.66,-363.02 329.85,-360.12 320.07,-356.03 319.66,-363.02"/>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node4" class="node">
+<title>interface~convert_cf_time_to_datetime_duration</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node4"><a xlink:href="../interface/convert_cf_time_to_datetime_duration.html" xlink:title="MAPL_CF_Time::convert_CF_Time_to_datetime_duration">
+<polygon fill="#a7506f" stroke="#a7506f" points="1034.5,-322 725.5,-322 725.5,-298 1034.5,-298 1034.5,-322"/>
+<text text-anchor="middle" x="880" y="-307.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::convert_CF_Time_to_datetime_duration</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~convert_cf_time_to_datetime_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge3" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~convert_cf_time_to_datetime_duration</title>
+<path fill="none" stroke="#255000" d="M672.06,-319.76C686.35,-319.09 700.76,-318.41 714.97,-317.74"/>
+<polygon fill="#255000" stroke="#255000" points="715.45,-321.22 725.27,-317.25 715.12,-314.23 715.45,-321.22"/>
+</g>
+<!-- interface~extract_cf_time_unit -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node5" class="node">
+<title>interface~extract_cf_time_unit</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node5"><a xlink:href="../interface/extract_cf_time_unit.html" xlink:title="MAPL_CF_Time::extract_CF_Time_unit">
+<polygon fill="#a7506f" stroke="#a7506f" points="985.5,-259 774.5,-259 774.5,-235 985.5,-235 985.5,-259"/>
+<text text-anchor="middle" x="880" y="-244.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::extract_CF_Time_unit</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~extract_cf_time_unit -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge4" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~extract_cf_time_unit</title>
+<path fill="none" stroke="#255000" d="M554.2,-315.96C623.09,-301.33 739.15,-276.69 812.27,-261.17"/>
+<polygon fill="#255000" stroke="#255000" points="813.24,-264.54 822.3,-259.04 811.79,-257.69 813.24,-264.54"/>
+</g>
+<!-- interface~extract_iso8601_from_cf_time -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node6" class="node">
+<title>interface~extract_iso8601_from_cf_time</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node6"><a xlink:href="../interface/extract_iso8601_from_cf_time.html" xlink:title="MAPL_CF_Time::extract_ISO8601_from_CF_Time">
+<polygon fill="#a7506f" stroke="#a7506f" points="1013,-186 747,-186 747,-162 1013,-162 1013,-186"/>
+<text text-anchor="middle" x="880" y="-171.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::extract_ISO8601_from_CF_Time</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~extract_iso8601_from_cf_time -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge5" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~extract_iso8601_from_cf_time</title>
+<path fill="none" stroke="#255000" d="M519.42,-315.96C557.14,-295.57 637.1,-253.76 708,-226 745.47,-211.33 788.87,-198.17 822.57,-188.77"/>
+<polygon fill="#255000" stroke="#255000" points="823.54,-192.13 832.25,-186.09 821.68,-185.38 823.54,-192.13"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node7"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="988.5,-107 771.5,-107 771.5,-83 988.5,-83 988.5,-107"/>
+<text text-anchor="middle" x="880" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~mapl_assert -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge6" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M509.11,-315.6C539.14,-284.18 622.99,-200.59 708,-153 742.48,-133.7 784.47,-119.34 818.21,-109.74"/>
+<polygon fill="#255000" stroke="#255000" points="819.24,-113.09 827.94,-107.04 817.37,-106.34 819.24,-113.09"/>
+</g>
+<!-- interface~set_esmf_timeinterval -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node8" class="node">
+<title>interface~set_esmf_timeinterval</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node8"><a xlink:href="../interface/set_esmf_timeinterval.html" xlink:title="MAPL_DateTime_Parsing_ESMF::set_ESMF_TimeInterval">
+<polygon fill="#a7506f" stroke="#a7506f" points="1032,-520 728,-520 728,-496 1032,-496 1032,-520"/>
+<text text-anchor="middle" x="880" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DateTime_Parsing_ESMF::set_ESMF_TimeInterval</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~set_esmf_timeinterval -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge7" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;interface~set_esmf_timeinterval</title>
+<path fill="none" stroke="#255000" d="M659.92,-340.1C664.15,-342.75 668.19,-345.71 672,-349 718.32,-389.06 662.31,-441.22 708,-482 711.56,-485.18 715.34,-488.06 719.3,-490.68"/>
+<polygon fill="#255000" stroke="#255000" points="717.84,-493.88 728.22,-495.98 721.41,-487.86 717.84,-493.88"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node9" class="node">
+<title>proc~mapl_return</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node9"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1417,-528 1197,-528 1197,-504 1417,-504 1417,-528"/>
+<text text-anchor="middle" x="1307" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;proc~mapl_return -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge8" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M658.79,-340.06C663.4,-342.7 667.82,-345.67 672,-349 708.95,-378.43 670.91,-419.75 708,-449 768.4,-496.62 976.13,-474.42 1052,-487 1068.17,-489.68 1071.81,-492.43 1088,-495 1119.85,-500.05 1154.53,-504.06 1186.66,-507.17"/>
+<polygon fill="#255000" stroke="#255000" points="1186.71,-510.69 1197,-508.14 1187.37,-503.72 1186.71,-510.69"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node10" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node10"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1414,-444 1200,-444 1200,-420 1414,-420 1414,-444"/>
+<text text-anchor="middle" x="1307" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;proc~mapl_verify -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge9" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M672.27,-331.64C808.8,-336.72 986.07,-348.88 1052,-378 1071.85,-386.77 1068.17,-402.17 1088,-411 1119.45,-425.01 1155.94,-431.73 1189.95,-434.58"/>
+<polygon fill="#255000" stroke="#255000" points="1189.72,-438.07 1199.94,-435.31 1190.23,-431.09 1189.72,-438.07"/>
+</g>
+<!-- proc~set_esmf_time_from_iso8601 -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node11" class="node">
+<title>proc~set_esmf_time_from_iso8601</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node11"><a xlink:href="../proc/set_esmf_time_from_iso8601.html" xlink:title="MAPL_DateTime_Parsing_ESMF::set_ESMF_Time_from_ISO8601">
+<polygon fill="#d9534f" stroke="#d9534f" points="1052,-440 708,-440 708,-416 1052,-416 1052,-440"/>
+<text text-anchor="middle" x="880" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DateTime_Parsing_ESMF::set_ESMF_Time_from_ISO8601</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;proc~set_esmf_time_from_iso8601 -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge10" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_integer&#45;&gt;proc~set_esmf_time_from_iso8601</title>
+<path fill="none" stroke="#255000" d="M630.19,-340.08C644.41,-342.53 658.57,-345.47 672,-349 688.76,-353.41 691.88,-357.63 708,-364 751.33,-381.13 801.28,-399.69 835.96,-412.39"/>
+<polygon fill="#255000" stroke="#255000" points="835.17,-415.82 845.76,-415.97 837.57,-409.25 835.17,-415.82"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~convert_cf_time_to_datetime_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge11" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~convert_cf_time_to_datetime_duration</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M607.03,-357.95C628.6,-355.26 651.04,-352.23 672,-349 718.48,-341.83 770.5,-332.02 810.76,-324.04"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="811.61,-327.44 820.74,-322.05 810.24,-320.57 811.61,-327.44"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~extract_cf_time_unit -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge12" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~extract_cf_time_unit</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M655.91,-357.83C661.49,-355.25 666.88,-352.32 672,-349 698.1,-332.09 682.97,-307.46 708,-289 724.6,-276.76 744.32,-268.05 764.37,-261.87"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="765.59,-265.16 774.23,-259.03 763.65,-258.43 765.59,-265.16"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~extract_iso8601_from_cf_time -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge13" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~extract_iso8601_from_cf_time</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M659.83,-357.8C664.09,-355.18 668.16,-352.25 672,-349 715.46,-312.18 667.93,-266.49 708,-226 725.36,-208.46 748.44,-196.79 772.01,-189.05"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="773.23,-192.34 781.77,-186.07 771.18,-185.65 773.23,-192.34"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~mapl_assert -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge14" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M661.03,-357.8C664.89,-355.16 668.55,-352.24 672,-349 736.53,-288.34 650.09,-220.01 708,-153 726.17,-131.98 752.24,-118.56 778.58,-110.01"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="779.73,-113.32 788.28,-107.07 777.7,-106.62 779.73,-113.32"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~set_esmf_timeinterval -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge15" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;interface~set_esmf_timeinterval</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M515.15,-382.08C550.19,-405.45 631.77,-456.74 708,-482 722.5,-486.8 737.98,-490.72 753.49,-493.92"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="753.19,-497.43 763.68,-495.92 754.54,-490.56 753.19,-497.43"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;proc~mapl_return -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge16" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M508.22,-382.4C536.75,-414.33 618.55,-499.01 708,-529 793.48,-557.66 1038.11,-541.46 1186.67,-528.07"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1187.12,-531.54 1196.76,-527.15 1186.48,-524.57 1187.12,-531.54"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;proc~mapl_verify -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge17" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M663.25,-379.15C773.52,-385.7 921.54,-395.41 1052,-407 1068.04,-408.43 1071.99,-409.34 1088,-411 1120.99,-414.42 1156.81,-417.95 1189.69,-421.11"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1189.51,-424.61 1199.8,-422.08 1190.18,-417.64 1189.51,-424.61"/>
+</g>
+<!-- proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;proc~set_esmf_time_from_iso8601 -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge18" class="edge">
+<title>proc~get_esmf_time_from_netcdf_datetime_real&#45;&gt;proc~set_esmf_time_from_iso8601</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M576.55,-382.02C638.7,-391.47 725.27,-404.63 789.88,-414.45"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="789.64,-417.95 800.05,-416 790.69,-411.03 789.64,-417.95"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node13" class="node">
+<title>proc~convert_cf_time_to_datetime_duration_integer</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node13"><a xlink:href="../proc/convert_cf_time_to_datetime_duration_integer.html" xlink:title="MAPL_CF_Time::convert_CF_Time_to_datetime_duration_integer">
+<polygon fill="#d9534f" stroke="#d9534f" points="1483,-318 1131,-318 1131,-294 1483,-294 1483,-318"/>
+<text text-anchor="middle" x="1307" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::convert_CF_Time_to_datetime_duration_integer</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_integer -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge19" class="edge">
+<title>interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_integer</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1034.74,-308.55C1062.59,-308.29 1091.9,-308.02 1120.54,-307.75"/>
+<polygon fill="#255000" stroke="#255000" points="1120.68,-311.24 1130.64,-307.65 1120.61,-304.24 1120.68,-311.24"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node14" class="node">
+<title>proc~convert_cf_time_to_datetime_duration_integer_duration</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node14"><a xlink:href="../proc/convert_cf_time_to_datetime_duration_integer_duration.html" xlink:title="MAPL_CF_Time::convert_CF_Time_to_datetime_duration_integer_duration">
+<polygon fill="#d9534f" stroke="#d9534f" points="1508.5,-276 1105.5,-276 1105.5,-252 1508.5,-252 1508.5,-276"/>
+<text text-anchor="middle" x="1307" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::convert_CF_Time_to_datetime_duration_integer_duration</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_integer_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge20" class="edge">
+<title>interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_integer_duration</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M976.53,-297.97C1011.57,-293.69 1051.56,-288.95 1088,-285 1113.11,-282.27 1139.87,-279.55 1165.73,-277.01"/>
+<polygon fill="#255000" stroke="#255000" points="1166.36,-280.46 1175.97,-276.01 1165.68,-273.5 1166.36,-280.46"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node15" class="node">
+<title>proc~convert_cf_time_to_datetime_duration_real</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node15"><a xlink:href="../proc/convert_cf_time_to_datetime_duration_real.html" xlink:title="MAPL_CF_Time::convert_CF_Time_to_datetime_duration_real">
+<polygon fill="#d9534f" stroke="#d9534f" points="1474,-402 1140,-402 1140,-378 1474,-378 1474,-402"/>
+<text text-anchor="middle" x="1307" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::convert_CF_Time_to_datetime_duration_real</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_real -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge21" class="edge">
+<title>interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_real</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1013.61,-322.1C1026.92,-325.68 1039.95,-330.23 1052,-336 1071.58,-345.37 1068.17,-360.17 1088,-369 1101.26,-374.91 1115.42,-379.52 1129.91,-383.09"/>
+<polygon fill="#255000" stroke="#255000" points="1129.46,-386.58 1139.99,-385.4 1131.02,-379.76 1129.46,-386.58"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node16" class="node">
+<title>proc~convert_cf_time_to_datetime_duration_real_duration</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node16"><a xlink:href="../proc/convert_cf_time_to_datetime_duration_real_duration.html" xlink:title="MAPL_CF_Time::convert_CF_Time_to_datetime_duration_real_duration">
+<polygon fill="#d9534f" stroke="#d9534f" points="1499.5,-360 1114.5,-360 1114.5,-336 1499.5,-336 1499.5,-360"/>
+<text text-anchor="middle" x="1307" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::convert_CF_Time_to_datetime_duration_real_duration</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_real_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge22" class="edge">
+<title>interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_real_duration</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1015.47,-322.02C1062.02,-326.18 1114.36,-330.86 1161.66,-335.09"/>
+<polygon fill="#255000" stroke="#255000" points="1161.4,-338.59 1171.67,-335.99 1162.02,-331.61 1161.4,-338.59"/>
+</g>
+<!-- proc~extract_cf_time_unit_cf_time -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node17" class="node">
+<title>proc~extract_cf_time_unit_cf_time</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node17"><a xlink:href="../proc/extract_cf_time_unit_cf_time.html" xlink:title="MAPL_CF_Time::extract_CF_Time_unit_cf_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="1435,-234 1179,-234 1179,-210 1435,-210 1435,-234"/>
+<text text-anchor="middle" x="1307" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::extract_CF_Time_unit_cf_time</text>
+</a>
+</g>
+</g>
+<!-- interface~extract_cf_time_unit&#45;&gt;proc~extract_cf_time_unit_cf_time -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge23" class="edge">
+<title>interface~extract_cf_time_unit&#45;&gt;proc~extract_cf_time_unit_cf_time</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M985.51,-240.85C1040.69,-237.61 1109.1,-233.58 1168.53,-230.09"/>
+<polygon fill="transparent" stroke="transparent" points="1168.97,-233.57 1178.75,-229.49 1168.56,-226.58 1168.97,-233.57"/>
+</g>
+<!-- proc~extract_cf_time_unit_units -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node18" class="node">
+<title>proc~extract_cf_time_unit_units</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node18"><a xlink:href="../proc/extract_cf_time_unit_units.html" xlink:title="MAPL_CF_Time::extract_CF_Time_unit_units">
+<polygon fill="#d9534f" stroke="#d9534f" points="1428,-192 1186,-192 1186,-168 1428,-168 1428,-192"/>
+<text text-anchor="middle" x="1307" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::extract_CF_Time_unit_units</text>
+</a>
+</g>
+</g>
+<!-- interface~extract_cf_time_unit&#45;&gt;proc~extract_cf_time_unit_units -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge24" class="edge">
+<title>interface~extract_cf_time_unit&#45;&gt;proc~extract_cf_time_unit_units</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M927.55,-234.94C969.3,-224.53 1032.37,-209.83 1088,-201 1116.22,-196.52 1146.65,-192.86 1175.57,-189.93"/>
+<polygon fill="transparent" stroke="transparent" points="1176.12,-193.39 1185.73,-188.92 1175.43,-186.43 1176.12,-193.39"/>
+</g>
+<!-- proc~extract_iso8601_from_cf_time_cf_time -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node19" class="node">
+<title>proc~extract_iso8601_from_cf_time_cf_time</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node19"><a xlink:href="../proc/extract_iso8601_from_cf_time_cf_time.html" xlink:title="MAPL_CF_Time::extract_ISO8601_from_CF_Time_cf_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="1462,-150 1152,-150 1152,-126 1462,-126 1462,-150"/>
+<text text-anchor="middle" x="1307" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::extract_ISO8601_from_CF_Time_cf_time</text>
+</a>
+</g>
+</g>
+<!-- interface~extract_iso8601_from_cf_time&#45;&gt;proc~extract_iso8601_from_cf_time_cf_time -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge25" class="edge">
+<title>interface~extract_iso8601_from_cf_time&#45;&gt;proc~extract_iso8601_from_cf_time_cf_time</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1013.14,-162.81C1057.75,-159.03 1107.9,-154.78 1153.92,-150.88"/>
+<polygon fill="transparent" stroke="transparent" points="1154.32,-154.36 1163.98,-150.03 1153.73,-147.39 1154.32,-154.36"/>
+</g>
+<!-- proc~extract_iso8601_from_cf_time_units -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node20" class="node">
+<title>proc~extract_iso8601_from_cf_time_units</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node20"><a xlink:href="../proc/extract_iso8601_from_cf_time_units.html" xlink:title="MAPL_CF_Time::extract_ISO8601_from_CF_Time_units">
+<polygon fill="#d9534f" stroke="#d9534f" points="1455.5,-108 1158.5,-108 1158.5,-84 1455.5,-84 1455.5,-108"/>
+<text text-anchor="middle" x="1307" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CF_Time::extract_ISO8601_from_CF_Time_units</text>
+</a>
+</g>
+</g>
+<!-- interface~extract_iso8601_from_cf_time&#45;&gt;proc~extract_iso8601_from_cf_time_units -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge26" class="edge">
+<title>interface~extract_iso8601_from_cf_time&#45;&gt;proc~extract_iso8601_from_cf_time_units</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M917.2,-161.98C958.18,-148.86 1027.15,-128.22 1088,-117 1107.44,-113.41 1127.98,-110.42 1148.36,-107.92"/>
+<polygon fill="transparent" stroke="transparent" points="1148.83,-111.39 1158.35,-106.74 1148.01,-104.44 1148.83,-111.39"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node22" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node22"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1443,-66 1171,-66 1171,-42 1443,-42 1443,-66"/>
+<text text-anchor="middle" x="1307" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge27" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M988.7,-84.59C1020.66,-81.5 1055.75,-78.11 1088,-75 1114.88,-72.41 1143.63,-69.64 1171.13,-66.99"/>
+<polygon fill="#025563" stroke="#025563" points="1171.59,-70.46 1181.21,-66.02 1170.92,-63.49 1171.59,-70.46"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node23" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node23"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1450,-24 1164,-24 1164,0 1450,0 1450,-24"/>
+<text text-anchor="middle" x="1307" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge28" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M913.84,-82.99C954.25,-68.72 1025.23,-45.3 1088,-33 1109.11,-28.86 1131.54,-25.53 1153.68,-22.84"/>
+<polygon fill="#025563" stroke="#025563" points="1154.29,-26.3 1163.82,-21.66 1153.48,-19.34 1154.29,-26.3"/>
+</g>
+<!-- proc~set_esmf_timeinterval_from_datetime_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node25" class="node">
+<title>proc~set_esmf_timeinterval_from_datetime_duration</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node25"><a xlink:href="../proc/set_esmf_timeinterval_from_datetime_duration.html" xlink:title="MAPL_DateTime_Parsing_ESMF::set_ESMF_TimeInterval_from_datetime_duration">
+<polygon fill="#d9534f" stroke="#d9534f" points="1526,-570 1088,-570 1088,-546 1526,-546 1526,-570"/>
+<text text-anchor="middle" x="1307" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DateTime_Parsing_ESMF::set_ESMF_TimeInterval_from_datetime_duration</text>
+</a>
+</g>
+</g>
+<!-- interface~set_esmf_timeinterval&#45;&gt;proc~set_esmf_timeinterval_from_datetime_duration -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge29" class="edge">
+<title>interface~set_esmf_timeinterval&#45;&gt;proc~set_esmf_timeinterval_from_datetime_duration</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M961.01,-520.03C999.38,-525.59 1046.02,-532.04 1088,-537 1111.81,-539.81 1137.12,-542.52 1161.74,-544.99"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1161.58,-548.49 1171.88,-546 1162.27,-541.52 1161.58,-548.49"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node21" class="node">
+<title>proc~get_error_message</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node21"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1815,-528 1562,-528 1562,-504 1815,-504 1815,-528"/>
+<text text-anchor="middle" x="1688.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#063255" d="M1417,-516C1458.96,-516 1507.39,-516 1551.57,-516"/>
+<polygon fill="#063255" stroke="#063255" points="1551.82,-519.5 1561.82,-516 1551.82,-512.5 1551.82,-519.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node24" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node24"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1803,-465 1574,-465 1574,-441 1803,-441 1803,-465"/>
+<text text-anchor="middle" x="1688.5" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#063255" d="M1417.13,-508.9C1452.07,-505.72 1490.81,-501.23 1526,-495 1564.23,-488.23 1606.68,-477.04 1638.47,-467.91"/>
+<polygon fill="#063255" stroke="#063255" points="1639.77,-471.18 1648.39,-465.03 1637.81,-464.46 1639.77,-471.18"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1414.22,-437.88C1460.58,-440.44 1515.27,-443.47 1563.49,-446.14"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1563.5,-449.64 1573.67,-446.7 1563.88,-442.65 1563.5,-449.64"/>
+</g>
+<!-- proc~set_esmf_time_from_iso8601&#45;&gt;proc~mapl_return -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge34" class="edge">
+<title>proc~set_esmf_time_from_iso8601&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M1018.72,-440.12C1030.33,-443.75 1041.59,-448.31 1052,-454 1073.27,-465.64 1066.41,-483.95 1088,-495 1117.91,-510.31 1153.14,-517.55 1186.46,-520.47"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="1186.49,-523.99 1196.73,-521.25 1187.02,-517.01 1186.49,-523.99"/>
+</g>
+<!-- proc~set_esmf_time_from_iso8601&#45;&gt;proc~mapl_verify -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge35" class="edge">
+<title>proc~set_esmf_time_from_iso8601&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M1052.03,-429.61C1098.26,-430.04 1147.21,-430.51 1189.68,-430.91"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="1189.73,-434.41 1199.76,-431 1189.79,-427.41 1189.73,-434.41"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_node12" class="node">
+<title>ESMF_TimeSet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1369.5,-486 1244.5,-486 1244.5,-462 1369.5,-462 1369.5,-486"/>
+<text text-anchor="middle" x="1307" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeSet</text>
+</g>
+<!-- proc~set_esmf_time_from_iso8601&#45;&gt;ESMF_TimeSet -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CallsGraph_edge33" class="edge">
+<title>proc~set_esmf_time_from_iso8601&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M976.53,-440.03C1011.57,-444.31 1051.56,-449.05 1088,-453 1136.82,-458.3 1191.86,-463.6 1234.42,-467.54"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="1234.13,-471.03 1244.41,-468.47 1234.78,-464.06 1234.13,-471.03"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var paninterfaceconvert_netcdf_datetime_to_esmfCallsGraph = svgPanZoom('#interfaceconvert_netcdf_datetime_to_esmfCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Called by</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~convert_netcdf_datetime_to_esmf~~CalledByGraph Pages: 1 -->
+<svg id="interfaceconvert_netcdf_datetime_to_esmfCalledByGraph" width="542pt" height="32pt"
+ viewBox="0.00 0.00 542.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>interface~~convert_netcdf_datetime_to_esmf~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 538,-28 538,4 -4,4"/>
+<!-- interface~convert_netcdf_datetime_to_esmf -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CalledByGraph_node1" class="node">
+<title>interface~convert_netcdf_datetime_to_esmf</title>
+<polygon fill="none" stroke="black" points="534,-24 249,-24 249,0 534,0 534,-24"/>
+<text text-anchor="middle" x="391.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_NetCDF::convert_NetCDF_DateTime_to_ESMF</text>
+</g>
+<!-- proc~time_real_to_esmf -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CalledByGraph_node2" class="node">
+<title>proc~time_real_to_esmf</title>
+<g id="a_interface~~convert_netcdf_datetime_to_esmf~~CalledByGraph_node2"><a xlink:href="../proc/time_real_to_esmf.html" xlink:title="MAPL_ObsUtilMod::time_real_to_ESMF">
+<polygon fill="#d9534f" stroke="#d9534f" points="213,-24 0,-24 0,0 213,0 213,-24"/>
+<text text-anchor="middle" x="106.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ObsUtilMod::time_real_to_ESMF</text>
+</a>
+</g>
+</g>
+<!-- proc~time_real_to_esmf&#45;&gt;interface~convert_netcdf_datetime_to_esmf -->
+<g id="interface~~convert_netcdf_datetime_to_esmf~~CalledByGraph_edge1" class="edge">
+<title>proc~time_real_to_esmf&#45;&gt;interface~convert_netcdf_datetime_to_esmf</title>
+<path fill="none" stroke="#255000" d="M213.28,-12C221.63,-12 230.16,-12 238.74,-12"/>
+<polygon fill="#255000" stroke="#255000" points="238.82,-15.5 248.82,-12 238.82,-8.5 238.82,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+
+
+        <h2>Module Procedures</h2>
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_esmf_time_from_netcdf_datetime_integer"></span> <h3>private  subroutine <a href='../proc/get_esmf_time_from_netcdf_datetime_integer.html'>get_ESMF_Time_from_NetCDF_DateTime_integer</a>(duration, units_string, interval, basetime, unusable, time, time_unit, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-duration~20"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>duration</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-units_string~3"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>units_string</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interval~7"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interval</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-basetime"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>basetime</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~321"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~53"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time_unit~8"></span>
+              character(len=:),
+            </td>
+<td>intent(out),</td>
+              <td>optional,</td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>time_unit</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1660"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_esmf_time_from_netcdf_datetime_real"></span> <h3>private  subroutine <a href='../proc/get_esmf_time_from_netcdf_datetime_real.html'>get_ESMF_Time_from_NetCDF_DateTime_real</a>(duration, units_string, interval, basetime, unusable, time, time_unit, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-duration~21"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>duration</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-units_string~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>units_string</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interval~8"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interval</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-basetime~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>basetime</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~322"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~54"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time_unit~9"></span>
+              character(len=:),
+            </td>
+<td>intent(out),</td>
+              <td>optional,</td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>time_unit</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1661"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+</div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T14:21:56.067236             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

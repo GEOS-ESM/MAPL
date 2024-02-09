@@ -1,0 +1,1112 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ProtocolParser.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ProtocolParser.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for source files.">123 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ProtocolParser.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">ProtocolParser.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/pfio_protocolparsermod.html">pFIO_ProtocolParserMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/protocolparser.f90.html#src">ProtocolParser.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~protocolparser.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefileprotocolparserf90EfferentGraph" width="360pt" height="872pt"
+ viewBox="0.00 0.00 360.00 872.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 868)">
+<title>sourcefile~~protocolparser.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-868 356,-868 356,4 -4,4"/>
+<!-- sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~protocolparser.f90</title>
+<polygon fill="none" stroke="black" points="352,-444 242,-444 242,-420 352,-420 352,-444"/>
+<text text-anchor="middle" x="297" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50">ProtocolParser.F90</text>
+</g>
+<!-- sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractmessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractmessage.f90.html" xlink:title="AbstractMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="166,-864 40,-864 40,-840 166,-840 166,-864"/>
+<text text-anchor="middle" x="103" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~abstractmessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M295.01,-444.03C289.8,-504.49 263.52,-774.55 206,-831 197.72,-839.13 187.17,-844.5 176.02,-847.99"/>
+<polygon fill="#255000" stroke="#255000" points="174.9,-844.67 166.11,-850.59 176.67,-851.44 174.9,-844.67"/>
+</g>
+<!-- sourcefile~addextcollectionmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~addextcollectionmessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/addextcollectionmessage.f90.html" xlink:title="AddExtCollectionMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="189,-822 17,-822 17,-798 189,-798 189,-822"/>
+<text text-anchor="middle" x="103" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddExtCollectionMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~addextcollectionmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~addextcollectionmessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M294.65,-444.25C288.1,-501.18 257.95,-739.28 206,-789 203.52,-791.38 200.84,-793.51 198.02,-795.44"/>
+<polygon fill="#255000" stroke="#255000" points="196.03,-792.54 189.13,-800.58 199.53,-798.6 196.03,-792.54"/>
+</g>
+<!-- sourcefile~addhistcollectionmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~addhistcollectionmessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/addhistcollectionmessage.f90.html" xlink:title="AddHistCollectionMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="190.5,-780 15.5,-780 15.5,-756 190.5,-756 190.5,-780"/>
+<text text-anchor="middle" x="103" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddHistCollectionMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~addhistcollectionmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~addhistcollectionmessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M296.62,-444.21C298.27,-491.21 297.54,-662.11 206,-747 204.03,-748.83 201.94,-750.52 199.76,-752.07"/>
+<polygon fill="#255000" stroke="#255000" points="197.64,-749.26 190.91,-757.44 201.28,-755.24 197.64,-749.26"/>
+</g>
+<!-- sourcefile~collectiveprefetchdatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~collectiveprefetchdatamessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/collectiveprefetchdatamessage.f90.html" xlink:title="CollectivePrefetchDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="204.5,-738 1.5,-738 1.5,-714 204.5,-714 204.5,-738"/>
+<text text-anchor="middle" x="103" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CollectivePrefetchDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectiveprefetchdatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectiveprefetchdatamessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M296,-444.06C295.31,-486.9 286.86,-632.97 206,-705 204.65,-706.2 203.26,-707.34 201.82,-708.41"/>
+<polygon fill="#255000" stroke="#255000" points="199.67,-705.63 193.13,-713.97 203.44,-711.53 199.67,-705.63"/>
+</g>
+<!-- sourcefile~collectiveprefetchdonemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~collectiveprefetchdonemessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/collectiveprefetchdonemessage.f90.html" xlink:title="CollectivePrefetchDoneMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="206,-696 0,-696 0,-672 206,-672 206,-696"/>
+<text text-anchor="middle" x="103" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CollectivePrefetchDoneMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M295.19,-444.08C291.91,-482.65 276.21,-603.72 206,-663 204.45,-664.31 202.83,-665.55 201.16,-666.72"/>
+<polygon fill="#255000" stroke="#255000" points="199.19,-663.82 192.44,-671.98 202.81,-669.81 199.19,-663.82"/>
+</g>
+<!-- sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~collectivestagedatamessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/collectivestagedatamessage.f90.html" xlink:title="CollectiveStageDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="198,-654 8,-654 8,-630 198,-630 198,-654"/>
+<text text-anchor="middle" x="103" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CollectiveStageDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M294.06,-444.03C287.94,-477.82 265.78,-574.15 206,-621 204.21,-622.4 202.35,-623.72 200.42,-624.96"/>
+<polygon fill="#255000" stroke="#255000" points="198.67,-621.93 191.65,-629.86 202.09,-628.04 198.67,-621.93"/>
+</g>
+<!-- sourcefile~collectivestagedonemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~collectivestagedonemessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/collectivestagedonemessage.f90.html" xlink:title="CollectiveStageDoneMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="199.5,-612 6.5,-612 6.5,-588 199.5,-588 199.5,-612"/>
+<text text-anchor="middle" x="103" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CollectiveStageDoneMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectivestagedonemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectivestagedonemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M292.28,-444.23C282.9,-472.82 255.47,-544.26 206,-579 203.72,-580.6 201.35,-582.08 198.9,-583.46"/>
+<polygon fill="#255000" stroke="#255000" points="197.15,-580.42 189.73,-587.98 200.25,-586.7 197.15,-580.42"/>
+</g>
+<!-- sourcefile~donemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~donemessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/donemessage.f90.html" xlink:title="DoneMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="158,-570 48,-570 48,-546 158,-546 158,-570"/>
+<text text-anchor="middle" x="103" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DoneMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~donemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~donemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M289.38,-444.02C276.48,-466.23 245.71,-513.59 206,-537 194.52,-543.77 181.19,-548.38 168.04,-551.51"/>
+<polygon fill="#255000" stroke="#255000" points="167.1,-548.14 158.04,-553.64 168.55,-554.98 167.1,-548.14"/>
+</g>
+<!-- sourcefile~dummymessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~dummymessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/dummymessage.f90.html" xlink:title="DummyMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="165,-528 41,-528 41,-504 165,-504 165,-528"/>
+<text text-anchor="middle" x="103" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DummyMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~dummymessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~dummymessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M282.43,-444.21C265.69,-458.6 235.78,-482.17 206,-495 196.21,-499.22 185.52,-502.61 174.87,-505.33"/>
+<polygon fill="#255000" stroke="#255000" points="174.04,-501.92 165.12,-507.64 175.65,-508.74 174.04,-501.92"/>
+</g>
+<!-- sourcefile~filemetadata.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~filemetadata.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/filemetadata.f90.html" xlink:title="FileMetadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="154.5,-486 51.5,-486 51.5,-462 154.5,-462 154.5,-486"/>
+<text text-anchor="middle" x="103" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~filemetadata.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~filemetadata.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M245.6,-444.01C232.7,-447.01 218.85,-450.18 206,-453 192.57,-455.95 178.12,-459 164.44,-461.83"/>
+<polygon fill="#255000" stroke="#255000" points="163.73,-458.4 154.64,-463.85 165.14,-465.26 163.73,-458.4"/>
+</g>
+<!-- sourcefile~forwarddatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~forwarddatamessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/forwarddatamessage.f90.html" xlink:title="ForwardDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="178.5,-444 27.5,-444 27.5,-420 178.5,-420 178.5,-444"/>
+<text text-anchor="middle" x="103" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ForwardDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~forwarddatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~forwarddatamessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M241.75,-432C225.27,-432 206.74,-432 188.75,-432"/>
+<polygon fill="#255000" stroke="#255000" points="188.54,-428.5 178.54,-432 188.54,-435.5 188.54,-428.5"/>
+</g>
+<!-- sourcefile~handshakemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~handshakemessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/handshakemessage.f90.html" xlink:title="HandShakeMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="174.5,-402 31.5,-402 31.5,-378 174.5,-378 174.5,-402"/>
+<text text-anchor="middle" x="103" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HandShakeMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~handshakemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~handshakemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M245.6,-419.99C232.7,-416.99 218.85,-413.82 206,-411 195.52,-408.7 184.42,-406.34 173.55,-404.07"/>
+<polygon fill="#255000" stroke="#255000" points="174.16,-400.62 163.65,-402.01 172.73,-407.47 174.16,-400.62"/>
+</g>
+<!-- sourcefile~idmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~idmessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/idmessage.f90.html" xlink:title="IDMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="149.5,-360 56.5,-360 56.5,-336 149.5,-336 149.5,-360"/>
+<text text-anchor="middle" x="103" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IDMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~idmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~idmessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M282.43,-419.79C265.69,-405.4 235.78,-381.83 206,-369 191.49,-362.75 175.01,-358.32 159.59,-355.19"/>
+<polygon fill="#255000" stroke="#255000" points="160.11,-351.73 149.64,-353.32 158.82,-358.61 160.11,-351.73"/>
+</g>
+<!-- sourcefile~integermessagemap.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~integermessagemap.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/integermessagemap.f90.html" xlink:title="IntegerMessageMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="174,-318 32,-318 32,-294 174,-294 174,-318"/>
+<text text-anchor="middle" x="103" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IntegerMessageMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~integermessagemap.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~integermessagemap.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M289.38,-419.98C276.48,-397.77 245.71,-350.41 206,-327 199.08,-322.92 191.49,-319.62 183.67,-316.96"/>
+<polygon fill="#255000" stroke="#255000" points="184.63,-313.6 174.04,-314.02 182.58,-320.29 184.63,-313.6"/>
+</g>
+<!-- sourcefile~modifymetadatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~modifymetadatamessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/modifymetadatamessage.f90.html" xlink:title="ModifyMetadataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="186.5,-276 19.5,-276 19.5,-252 186.5,-252 186.5,-276"/>
+<text text-anchor="middle" x="103" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModifyMetadataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~modifymetadatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~modifymetadatamessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M292.28,-419.77C282.9,-391.18 255.47,-319.74 206,-285 202.86,-282.79 199.53,-280.81 196.08,-279.02"/>
+<polygon fill="#255000" stroke="#255000" points="197.22,-275.7 186.67,-274.75 194.32,-282.07 197.22,-275.7"/>
+</g>
+<!-- sourcefile~prefetchdatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~prefetchdatamessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/prefetchdatamessage.f90.html" xlink:title="PrefetchDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="178.5,-234 27.5,-234 27.5,-210 178.5,-210 178.5,-234"/>
+<text text-anchor="middle" x="103" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PrefetchDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~prefetchdatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~prefetchdatamessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M294.06,-419.97C287.94,-386.18 265.78,-289.85 206,-243 200.6,-238.77 194.56,-235.33 188.18,-232.54"/>
+<polygon fill="#255000" stroke="#255000" points="189.23,-229.19 178.64,-228.9 186.74,-235.73 189.23,-229.19"/>
+</g>
+<!-- sourcefile~prefetchdonemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~prefetchdonemessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/prefetchdonemessage.f90.html" xlink:title="PrefetchDoneMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="180,-192 26,-192 26,-168 180,-168 180,-192"/>
+<text text-anchor="middle" x="103" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PrefetchDoneMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~prefetchdonemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~prefetchdonemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M295.19,-419.92C291.91,-381.35 276.21,-260.28 206,-201 201.06,-196.83 195.51,-193.41 189.61,-190.62"/>
+<polygon fill="#255000" stroke="#255000" points="190.69,-187.28 180.11,-186.74 188.04,-193.76 190.69,-187.28"/>
+</g>
+<!-- sourcefile~replacemetadatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~replacemetadatamessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/replacemetadatamessage.f90.html" xlink:title="ReplaceMetadataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="190.5,-150 15.5,-150 15.5,-126 190.5,-126 190.5,-150"/>
+<text text-anchor="middle" x="103" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ReplaceMetadataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~replacemetadatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~replacemetadatamessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M296,-419.94C295.31,-377.1 286.86,-231.03 206,-159 203.99,-157.21 201.87,-155.56 199.66,-154.03"/>
+<polygon fill="#255000" stroke="#255000" points="201.12,-150.83 190.72,-148.76 197.56,-156.86 201.12,-150.83"/>
+</g>
+<!-- sourcefile~stagedatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~stagedatamessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/stagedatamessage.f90.html" xlink:title="StageDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="172,-108 34,-108 34,-84 172,-84 172,-108"/>
+<text text-anchor="middle" x="103" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StageDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~stagedatamessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~stagedatamessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M296.62,-419.79C298.27,-372.79 297.54,-201.89 206,-117 199.01,-110.52 190.58,-105.82 181.6,-102.44"/>
+<polygon fill="#255000" stroke="#255000" points="182.66,-99.1 172.07,-99.37 180.52,-105.77 182.66,-99.1"/>
+</g>
+<!-- sourcefile~stagedonemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~stagedonemessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/stagedonemessage.f90.html" xlink:title="StageDoneMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="173.5,-66 32.5,-66 32.5,-42 173.5,-42 173.5,-66"/>
+<text text-anchor="middle" x="103" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StageDoneMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~stagedonemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~stagedonemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M294.65,-419.75C288.1,-362.82 257.95,-124.72 206,-75 199.5,-68.78 191.67,-64.18 183.28,-60.81"/>
+<polygon fill="#255000" stroke="#255000" points="184.19,-57.43 173.6,-57.51 181.93,-64.05 184.19,-57.43"/>
+</g>
+<!-- sourcefile~terminatemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~terminatemessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/terminatemessage.f90.html" xlink:title="TerminateMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="170.5,-24 35.5,-24 35.5,0 170.5,0 170.5,-24"/>
+<text text-anchor="middle" x="103" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TerminateMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~terminatemessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~terminatemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M295.01,-419.97C289.8,-359.51 263.52,-89.45 206,-33 198.79,-25.92 189.87,-20.94 180.33,-17.46"/>
+<polygon fill="#255000" stroke="#255000" points="181.2,-14.07 170.62,-14.47 179.14,-20.76 181.2,-14.07"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~protocolparser.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefileprotocolparserf90AfferentGraph" width="641pt" height="509pt"
+ viewBox="0.00 0.00 641.00 508.94" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph" class="graph" transform="scale(1.04 1.04) rotate(0) translate(4 524)">
+<title>sourcefile~~protocolparser.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-524 661,-524 661,4 -4,4"/>
+<!-- sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~protocolparser.f90</title>
+<polygon fill="none" stroke="black" points="110,-124 0,-124 0,-100 110,-100 110,-124"/>
+<text text-anchor="middle" x="55" y="-109.6" font-family="Helvetica,sans-Serif" font-size="10.50">ProtocolParser.F90</text>
+</g>
+<!-- sourcefile~directoryservice.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~directoryservice.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/directoryservice.f90.html" xlink:title="DirectoryService.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="457,-104 333,-104 333,-80 457,-80 457,-104"/>
+<text text-anchor="middle" x="395" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M332.81,-86.83C296.92,-85.08 250.84,-85.05 210.5,-92"/>
+</g>
+<!-- sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~mpisocket.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/mpisocket.f90.html" xlink:title="MpiSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="254.5,-144 164.5,-144 164.5,-120 254.5,-120 254.5,-144"/>
+<text text-anchor="middle" x="209.5" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M338.94,-104C315.39,-109.14 287.97,-115.11 264.53,-120.22"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="263.78,-116.8 254.75,-122.35 265.27,-123.64 263.78,-116.8"/>
+</g>
+<!-- sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~messagevector.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/messagevector.f90.html" xlink:title="MessageVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="266.5,-331 152.5,-331 152.5,-307 266.5,-307 266.5,-331"/>
+<text text-anchor="middle" x="209.5" y="-316.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~messagevector.f90&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~messagevector.f90&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M199.64,-306.98C174.48,-272.82 102.36,-174.93 70.94,-132.28"/>
+<polygon fill="#255000" stroke="#255000" points="73.63,-130.03 64.88,-124.06 68,-134.18 73.63,-130.03"/>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M164.39,-126.22C150.6,-124.41 135.08,-122.37 120.2,-120.42"/>
+<polygon fill="#255000" stroke="#255000" points="120.4,-116.92 110.03,-119.09 119.49,-123.86 120.4,-116.92"/>
+</g>
+<!-- sourcefile~test_mpisocket.pf -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~test_mpisocket.pf</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/test_mpisocket.pf.html" xlink:title="Test_MpiSocket.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="448,-24 342,-24 342,0 448,0 448,-24"/>
+<text text-anchor="middle" x="395" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MpiSocket.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_mpisocket.pf&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~test_mpisocket.pf&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M352.08,-24.07C337.93,-28.98 322.34,-35.32 309,-43 290.95,-53.39 291.33,-63.11 273,-73 247.45,-86.79 239.11,-87.07 210.5,-92"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M208.5,-92C179.68,-96.96 147.61,-101.34 120.35,-104.72"/>
+<polygon fill="#255000" stroke="#255000" points="119.65,-101.28 110.15,-105.97 120.5,-108.23 119.65,-101.28"/>
+</g>
+<!-- sourcefile~test_mpisocket.pf&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~test_mpisocket.pf&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M341.77,-20.97C330.09,-24.79 318.4,-30.24 309,-38 282.63,-59.78 298.27,-82.97 273,-106 269.14,-109.52 264.73,-112.6 260.08,-115.29"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="258.23,-112.31 250.93,-120 261.43,-118.54 258.23,-112.31"/>
+</g>
+<!-- sourcefile~test_protocolparser.pf -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~test_protocolparser.pf</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/test_protocolparser.pf.html" xlink:title="Test_ProtocolParser.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="273,-64 146,-64 146,-40 273,-40 273,-64"/>
+<text text-anchor="middle" x="209.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ProtocolParser.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_protocolparser.pf&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~test_protocolparser.pf&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M177.64,-64.14C154.1,-73.4 121.49,-86.23 95.96,-96.28"/>
+<polygon fill="#255000" stroke="#255000" points="94.58,-93.06 86.55,-99.98 97.14,-99.57 94.58,-93.06"/>
+</g>
+<!-- sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~abstractserver.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/abstractserver.f90.html" xlink:title="AbstractServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="451.5,-394 338.5,-394 338.5,-370 451.5,-370 451.5,-394"/>
+<text text-anchor="middle" x="395" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractserver.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~abstractserver.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M339.67,-369.96C329.4,-367.3 318.8,-364.28 309,-361 287.23,-353.72 263.54,-343.69 244.86,-335.26"/>
+<polygon fill="transparent" stroke="transparent" points="246.13,-331.99 235.58,-331.02 243.22,-338.36 246.13,-331.99"/>
+</g>
+<!-- sourcefile~baseserver.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~baseserver.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/baseserver.f90.html" xlink:title="BaseServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="442.5,-268 347.5,-268 347.5,-244 442.5,-244 442.5,-268"/>
+<text text-anchor="middle" x="395" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M347.29,-266.11C334.74,-269.21 321.25,-272.9 309,-277 287.23,-284.28 263.54,-294.31 244.86,-302.74"/>
+<polygon fill="transparent" stroke="transparent" points="243.22,-299.64 235.58,-306.98 246.13,-306.01 243.22,-299.64"/>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M347.18,-249.4C334.24,-246.28 320.58,-241.7 309,-235 272.93,-214.11 241.67,-176.1 224.52,-152.56"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="227.3,-150.43 218.65,-144.31 221.6,-154.49 227.3,-150.43"/>
+</g>
+<!-- sourcefile~forwarddataandmessage.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~forwarddataandmessage.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/forwarddataandmessage.f90.html" xlink:title="ForwardDataAndMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="481,-352 309,-352 309,-328 481,-328 481,-352"/>
+<text text-anchor="middle" x="395" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ForwardDataAndMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~forwarddataandmessage.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~forwarddataandmessage.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M308.96,-330.27C298.21,-329.04 287.33,-327.79 276.92,-326.6"/>
+<polygon fill="transparent" stroke="transparent" points="277.02,-323.09 266.69,-325.43 276.22,-330.04 277.02,-323.09"/>
+</g>
+<!-- sourcefile~mocksocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~mocksocket.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/mocksocket.f90.html" xlink:title="MockSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="444.5,-310 345.5,-310 345.5,-286 444.5,-286 444.5,-310"/>
+<text text-anchor="middle" x="395" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mocksocket.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mocksocket.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M345.31,-303.57C324.31,-305.97 299.43,-308.82 276.79,-311.41"/>
+<polygon fill="transparent" stroke="transparent" points="276.11,-307.97 266.57,-312.58 276.91,-314.92 276.11,-307.97"/>
+</g>
+<!-- sourcefile~multicommserver.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~multicommserver.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/multicommserver.f90.html" xlink:title="MultiCommServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="460,-226 330,-226 330,-202 460,-202 460,-226"/>
+<text text-anchor="middle" x="395" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiCommServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multicommserver.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~multicommserver.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M331.04,-226.02C323.42,-228.5 315.9,-231.46 309,-235 276.84,-251.5 246.21,-280.43 227.88,-299.65"/>
+<polygon fill="transparent" stroke="transparent" points="225.3,-297.29 221.03,-306.99 230.42,-302.06 225.3,-297.29"/>
+</g>
+<!-- sourcefile~multicommserver.f90&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~multicommserver.f90&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M334.7,-201.88C325.93,-199.37 317.13,-196.42 309,-193 281.99,-181.63 253.82,-163.45 234.56,-149.89"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="236.54,-147 226.37,-144.02 232.47,-152.69 236.54,-147"/>
+</g>
+<!-- sourcefile~multigroupserver.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~multigroupserver.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/multigroupserver.f90.html" xlink:title="MultiGroupServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="458.5,-184 331.5,-184 331.5,-160 458.5,-160 458.5,-184"/>
+<text text-anchor="middle" x="395" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M331.18,-182.41C323.37,-185.15 315.76,-188.62 309,-193 267.93,-219.6 236.73,-269.28 221.27,-297.67"/>
+<polygon fill="transparent" stroke="transparent" points="218.05,-296.27 216.47,-306.75 224.24,-299.54 218.05,-296.27"/>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M338.94,-160C315.39,-154.86 287.97,-148.89 264.53,-143.78"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="265.27,-140.36 254.75,-141.65 263.78,-147.2 265.27,-140.36"/>
+</g>
+<!-- sourcefile~multilayerserver.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~multilayerserver.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/multilayerserver.f90.html" xlink:title="MultiLayerServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="457,-520 333,-520 333,-496 457,-496 457,-520"/>
+<text text-anchor="middle" x="395" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiLayerServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multilayerserver.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~multilayerserver.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M332.79,-499.21C324.29,-496.24 316.06,-492.27 309,-487 258.45,-449.26 229.26,-377.29 217.15,-341.03"/>
+<polygon fill="transparent" stroke="transparent" points="220.45,-339.86 214.06,-331.41 213.78,-342 220.45,-339.86"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="616,-73 558,-73 558,-49 616,-49 616,-73"/>
+<text text-anchor="middle" x="587" y="-58.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio.f90&#45;&gt;sourcefile~directoryservice.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~pfio.f90&#45;&gt;sourcefile~directoryservice.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M557.96,-65.57C534.12,-69.46 498.82,-75.22 467.26,-80.37"/>
+<polygon fill="#255000" stroke="#255000" points="466.47,-76.96 457.16,-82.02 467.6,-83.86 466.47,-76.96"/>
+</g>
+<!-- sourcefile~pfio.f90&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~pfio.f90&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M557.84,-55.62C506.12,-47.1 393.52,-34.89 309,-71 288.48,-79.77 291.63,-93.72 273,-106 267.59,-109.57 261.61,-112.8 255.56,-115.68"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="253.77,-112.65 246.07,-119.92 256.62,-119.04 253.77,-112.65"/>
+</g>
+<!-- sourcefile~pfio_writer.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~pfio_writer.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/pfio_writer.f90.html" xlink:title="pfio_writer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="440,-478 350,-478 350,-454 440,-454 440,-478"/>
+<text text-anchor="middle" x="395" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfio_writer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio_writer.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~pfio_writer.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M349.81,-460.84C335.95,-457.77 321.12,-452.85 309,-445 267.93,-418.4 236.73,-368.72 221.27,-340.33"/>
+<polygon fill="transparent" stroke="transparent" points="224.24,-338.46 216.47,-331.25 218.05,-341.73 224.24,-338.46"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="449,-436 341,-436 341,-412 449,-412 449,-436"/>
+<text text-anchor="middle" x="395" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~serverthread.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~serverthread.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M340.93,-414.92C330.03,-411.95 318.87,-408.07 309,-403 276.84,-386.5 246.21,-357.57 227.88,-338.35"/>
+<polygon fill="transparent" stroke="transparent" points="230.42,-335.94 221.03,-331.01 225.3,-340.71 230.42,-335.94"/>
+</g>
+<!-- sourcefile~test_directoryservice.pf -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~test_directoryservice.pf</title>
+<g id="a_sourcefile~~protocolparser.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/test_directoryservice.pf.html" xlink:title="Test_DirectoryService.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="657,-134 517,-134 517,-110 657,-110 657,-134"/>
+<text text-anchor="middle" x="587" y="-119.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_DirectoryService.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~directoryservice.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~directoryservice.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M516.87,-111.08C500.7,-108.53 483.45,-105.81 467.19,-103.24"/>
+<polygon fill="#255000" stroke="#255000" points="467.64,-99.77 457.22,-101.67 466.55,-106.68 467.64,-99.77"/>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~protocolparser.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M516.69,-123.85C444.07,-125.78 331.51,-128.78 264.99,-130.55"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="264.63,-127.06 254.73,-130.82 264.82,-134.05 264.63,-127.06"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefileprotocolparserf90AfferentGraph = svgPanZoom('#sourcefileprotocolparserf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;unused_dummy.H&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">pFIO_ProtocolParserMod</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractMessageMod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_IntegerMessageMapMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_FileMetadataMod</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_TerminateMessageMod</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_DoneMessageMod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_PrefetchDoneMessageMod</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_CollectivePrefetchDoneMessageMod</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_StageDoneMessageMod</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_CollectiveStageDoneMessageMod</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AddExtCollectionMessageMod</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AddHistCollectionMessageMod</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_IdMessageMod</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_PrefetchDataMessageMod</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_StageDataMessageMod</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_CollectivePrefetchDataMessageMod</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_CollectiveStageDataMessageMod</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_ModifyMetadataMessageMod</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_ReplaceMetadataMessageMod</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_HandShakeMessageMod</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_DummyMessageMod</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_ForwardDataMessageMod</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="k">   private</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ProtocolParser</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ProtocolParser</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="k">      type</span><span class="w"> </span><span class="p">(</span><span class="n">IntegerMessageMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prototypes</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_message</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">decode</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">encode</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="k">   end type </span><span class="n">ProtocolParser</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span><span class="k">interface </span><span class="n">ProtocolParser</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_ProtocolParser</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">end interface </span><span class="n">ProtocolParser</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="k">contains</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="k">   function </span><span class="n">new_ProtocolParser</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ProtocolParser</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">parser</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">initialize</span><span class="p">()</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_ProtocolParser</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ProtocolParser</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TerminateMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">terminate</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DoneMessage</span><span class="p">)</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">done</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">PrefetchDoneMessage</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">pdone</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CollectivePrefetchDoneMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cpdone</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StageDoneMessage</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">sdone</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CollectiveStageDoneMessage</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">csdone</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">AddExtCollectionMessage</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">addExtCollection</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">AddHistCollectionMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">addHistCollection</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">IdMessage</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">IDid</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">PrefetchDataMessage</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">PrefetchData</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StageDataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StageData</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CollectivePrefetchDataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CollectivePrefetchData</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CollectiveStageDataMessage</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">CollectiveStageData</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ModifyMetadataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ModifyMetadata</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ReplaceMetadataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ReplaceMetadata</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">HandShakeMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">handshake</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DummyMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dummy</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ForwardDataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ForwardData</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">initialized</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="k">      call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">terminate</span><span class="p">)</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">done</span><span class="p">)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">pdone</span><span class="p">)</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">cpdone</span><span class="p">)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">sdone</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">csdone</span><span class="p">)</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">addExtCollection</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="n">addHistCollection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AddHistCollectionMessage</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">())</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">addHistCollection</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">IDId</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">PrefetchData</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">CollectivePrefetchData</span><span class="p">)</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">StageData</span><span class="p">)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">CollectiveStageData</span><span class="p">)</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="n">ModifyMetaData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ModifyMetadataMessage</span><span class="p">(</span><span class="n">collection_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">ModifyMetadata</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="n">ReplaceMetaData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReplaceMetadataMessage</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">FileMetadata</span><span class="p">())</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">ReplaceMetadata</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">handshake</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">dummy</span><span class="p">)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="k">call </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">ForwardData</span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">initialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="k">      subroutine </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">prototypes</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">get_type_id</span><span class="p">(),</span><span class="w"> </span><span class="n">message</span><span class="p">)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">         </span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">add_prototype</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a>
+<a id="ln-114" name="ln-114" href="#ln-114"></a>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">   </span><span class="k">function </span><span class="n">make_message</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">type_id</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ProtocolParser</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">type_id</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prototype</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="n">prototype</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">prototypes</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">type_id</span><span class="p">)</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">prototype</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_message</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">   </span><span class="k">function encode</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ProtocolParser</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">length</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">%</span><span class="n">get_length</span><span class="p">()</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">length</span><span class="p">))</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="n">buffer</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">%</span><span class="n">get_type_id</span><span class="p">()</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">      </span><span class="k">call </span><span class="n">message</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">2</span><span class="p">:))</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="k">return </span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="k">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">   </span><span class="k">end function encode</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="k">   </span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="k">   function decode</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ProtocolParser</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">prototypes</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="k">call </span><span class="n">message</span><span class="p">%</span><span class="n">deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">2</span><span class="p">:))</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">      </span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">   </span><span class="k">end function decode</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="k">end module </span><span class="n">pFIO_ProtocolParserMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T14:21:56.067236             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

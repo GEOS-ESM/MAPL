@@ -1,0 +1,915 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ExtDataExtractIntegers &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ExtDataExtractIntegers
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">69 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataMasking.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatamasking.f90.html'>ExtDataMasking.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatamask.html'>MAPL_ExtDataMask</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ExtDataExtractIntegers</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/extdataextractintegers.html#src">ExtDataExtractIntegers</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine ExtDataExtractIntegers(string, iSize, iValues, delimiter, verbose, rc)  
+</h2>
+    
+
+    <p>Extract integers from a character-delimited string, for example, &ldquo;-1,45,256,7,10&rdquo;.  In the context
+ of Chem_Util, this is provided for determining the numerically indexed regions over which an
+ emission might be applied.</p>
+<p>In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
+ including the delimiter are taken as consecutive digits of an integer.  A negative sign (&ldquo;-&ldquo;) is
+ allowed.  After the first pass, each integer and its trailing delimiter are lopped of the head of
+ the (local copy of the) string, and the process is started over.</p>
+<p>The default delimiter is a comma (&ldquo;,&rdquo;).</p>
+<p>&ldquo;Unfilled&rdquo; iValues are zero.</p>
+<p>Return codes:
+1. Zero-length string.
+2. iSize needs to be increased.</p>
+<h4 id="assumptionsbugs">Assumptions/bugs:</h4>
+<p>A non-zero return code does not stop execution.
+ Allowed numerals are: 0,1,2,3,4,5,6,7,8,9.
+ A delimiter must be separated from another delimiter by at least one numeral.
+ The delimiter cannot be a numeral or a negative sign.
+ The character following a negative sign must be an allowed numeral.
+ The first character must be an allowed numeral or a negative sign.
+ The last character must be an allowed numeral.
+ The blank character (&rdquo; &ldquo;) cannot serve as a delimiter.</p>
+<h4 id="examples-of-strings-that-will-work">Examples of strings that will work:</h4>
+<div class="codehilite"><pre><span></span><code>  &quot;1&quot;
+  &quot;-1&quot;
+  &quot;-1,2004,-3&quot;
+  &quot;1+-2+3&quot;
+  &quot;-1A100A5&quot;
+</code></pre></div>
+
+<h4 id="examples-of-strings-that-will-not-work">Examples of strings that will not work:</h4>
+<div class="codehilite"><pre><span></span><code>  &quot;1,--2,3&quot;
+  &quot;1,,2,3&quot;
+  &quot;1,A,3&quot;
+  &quot;1,-,2&quot;
+  &quot;1,2,3,4,&quot;
+  &quot;+1&quot;
+  &quot;1 3 6&quot;
+</code></pre></div>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-string~23"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>string</strong></td>
+            <td>
+                <p>Character-delimited string of integers</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-isize"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iSize</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ivalues"></span>
+              integer,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iValues</strong>(iSize)</td>
+            <td>
+                <p>Space allocated for extracted integers</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-delimiter"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>delimiter</strong></td>
+            <td>
+                <p>1-character delimiter</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-verbose~2"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>verbose</strong></td>
+            <td>
+                <p>Let me know iValues as they are found.
+DEBUG directive turns on the message even
+if verbose is not present or if
+verbose = .FALSE.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~995"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Return code</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~extdataextractintegers~~CallsGraph Pages: 1 -->
+<svg id="procextdataextractintegersCallsGraph" width="641pt" height="77pt"
+ viewBox="0.00 0.00 641.00 77.49" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~extdataextractintegers~~CallsGraph" class="graph" transform="scale(2.04 2.04) rotate(0) translate(4 154)">
+<title>proc~~extdataextractintegers~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 1303,-154 1303,4 -4,4"/>
+<!-- proc~extdataextractintegers -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node1" class="node">
+<title>proc~extdataextractintegers</title>
+<polygon fill="none" stroke="black" points="246,-86 0,-86 0,-62 246,-62 246,-86"/>
+<text text-anchor="middle" x="123" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataMask::ExtDataExtractIntegers</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~extdataextractintegers~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="499,-66 282,-66 282,-42 499,-42 499,-66"/>
+<text text-anchor="middle" x="390.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~extdataextractintegers&#45;&gt;interface~mapl_assert -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge1" class="edge">
+<title>proc~extdataextractintegers&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M246.26,-64.79C254.68,-64.16 263.15,-63.52 271.55,-62.89"/>
+<polygon fill="#255000" stroke="#255000" points="272.03,-66.36 281.74,-62.12 271.5,-59.38 272.03,-66.36"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~extdataextractintegers~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="788,-108 568,-108 568,-84 788,-84 788,-108"/>
+<text text-anchor="middle" x="678" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~extdataextractintegers&#45;&gt;proc~mapl_return -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge2" class="edge">
+<title>proc~extdataextractintegers&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M246.04,-78.86C338.78,-82.54 465.66,-87.59 557.71,-91.25"/>
+<polygon fill="#255000" stroke="#255000" points="557.78,-94.76 567.91,-91.66 558.06,-87.77 557.78,-94.76"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node5" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~extdataextractintegers~~CallsGraph_node5"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="814,-24 542,-24 542,0 814,0 814,-24"/>
+<text text-anchor="middle" x="678" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge3" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M473.31,-41.96C508.26,-36.82 549.19,-30.8 585.17,-25.51"/>
+<polygon fill="#255000" stroke="#255000" points="585.79,-28.96 595.18,-24.04 584.77,-22.03 585.79,-28.96"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node6" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~extdataextractintegers~~CallsGraph_node6"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="821,-66 535,-66 535,-42 821,-42 821,-66"/>
+<text text-anchor="middle" x="678" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M499.03,-54C507.44,-54 516.02,-54 524.64,-54"/>
+<polygon fill="#255000" stroke="#255000" points="524.79,-57.5 534.79,-54 524.79,-50.5 524.79,-57.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node4" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~extdataextractintegers~~CallsGraph_node4"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1110,-108 857,-108 857,-84 1110,-84 1110,-108"/>
+<text text-anchor="middle" x="983.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M788.14,-96C807.1,-96 827.02,-96 846.59,-96"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="846.78,-99.5 856.78,-96 846.78,-92.5 846.78,-99.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~extdataextractintegers~~CallsGraph_node7"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1098,-66 869,-66 869,-42 1098,-42 1098,-66"/>
+<text text-anchor="middle" x="983.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M765.97,-83.96C803.36,-78.79 847.2,-72.72 885.62,-67.41"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="886.35,-70.84 895.78,-66 885.39,-63.9 886.35,-70.84"/>
+</g>
+<!-- at -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node8" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1249.5,-108 1195.5,-108 1195.5,-84 1249.5,-84 1249.5,-108"/>
+<text text-anchor="middle" x="1222.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge7" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1110.29,-96C1137.83,-96 1164.86,-96 1185.36,-96"/>
+<polygon fill="#255000" stroke="#255000" points="1185.46,-99.5 1195.46,-96 1185.46,-92.5 1185.46,-99.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node9" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1249.5,-150 1195.5,-150 1195.5,-126 1249.5,-126 1249.5,-150"/>
+<text text-anchor="middle" x="1222.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge8" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1052.41,-108.04C1095.55,-115.68 1149.7,-125.28 1184.93,-131.52"/>
+<polygon fill="#255000" stroke="#255000" points="1184.76,-135.04 1195.22,-133.34 1185.98,-128.15 1184.76,-135.04"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M765.97,-24.04C803.36,-29.21 847.2,-35.28 885.62,-40.59"/>
+<polygon fill="transparent" stroke="transparent" points="885.39,-44.1 895.78,-42 886.35,-37.16 885.39,-44.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M765.97,-66.04C803.36,-71.21 847.2,-77.28 885.62,-82.59"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="885.39,-86.1 895.78,-84 886.35,-79.16 885.39,-86.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M821.42,-54C833.81,-54 846.29,-54 858.52,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="858.72,-57.5 868.72,-54 858.72,-50.5 858.72,-57.5"/>
+</g>
+<!-- proc~initialize~7 -->
+<g id="proc~~extdataextractintegers~~CallsGraph_node10" class="node">
+<title>proc~initialize~7</title>
+<g id="a_proc~~extdataextractintegers~~CallsGraph_node10"><a xlink:href="../proc/initialize~7.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1299,-66 1146,-66 1146,-42 1299,-42 1299,-66"/>
+<text text-anchor="middle" x="1222.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~7 -->
+<g id="proc~~extdataextractintegers~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~7</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1098.14,-54C1110.76,-54 1123.46,-54 1135.65,-54"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1135.77,-57.5 1145.77,-54 1135.77,-50.5 1135.77,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocextdataextractintegersCallsGraph = svgPanZoom('#procextdataextractintegersCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~extdataextractintegers~~CalledByGraph Pages: 1 -->
+<svg id="procextdataextractintegersCalledByGraph" width="641pt" height="13pt"
+ viewBox="0.00 0.00 641.00 13.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~extdataextractintegers~~CalledByGraph" class="graph" transform="scale(2.4 2.4) rotate(0) translate(4 28)">
+<title>proc~~extdataextractintegers~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 1532,-28 1532,4 -4,4"/>
+<!-- proc~extdataextractintegers -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_node1" class="node">
+<title>proc~extdataextractintegers</title>
+<polygon fill="none" stroke="black" points="1528,-24 1282,-24 1282,0 1528,0 1528,-24"/>
+<text text-anchor="middle" x="1405" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataMask::ExtDataExtractIntegers</text>
+</g>
+<!-- proc~evaluate_region_mask -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_node2" class="node">
+<title>proc~evaluate_region_mask</title>
+<g id="a_proc~~extdataextractintegers~~CalledByGraph_node2"><a xlink:href="../proc/evaluate_region_mask.html" xlink:title="MAPL_ExtDataMask::ExtDataMask%evaluate_region_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="1246,-24 925,-24 925,0 1246,0 1246,-24"/>
+<text text-anchor="middle" x="1085.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataMask::ExtDataMask%evaluate_region_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~extdataextractintegers -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_edge1" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~extdataextractintegers</title>
+<path fill="none" stroke="#255000" d="M1246.18,-12C1254.63,-12 1263.08,-12 1271.43,-12"/>
+<polygon fill="#255000" stroke="#255000" points="1271.56,-15.5 1281.56,-12 1271.56,-8.5 1271.56,-15.5"/>
+</g>
+<!-- proc~evaluate_mask -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_node3" class="node">
+<title>proc~evaluate_mask</title>
+<g id="a_proc~~extdataextractintegers~~CalledByGraph_node3"><a xlink:href="../proc/evaluate_mask.html" xlink:title="MAPL_ExtDataMask::ExtDataMask%evaluate_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="889,-24 607,-24 607,0 889,0 889,-24"/>
+<text text-anchor="middle" x="748" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataMask::ExtDataMask%evaluate_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_region_mask -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_edge2" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_region_mask</title>
+<path fill="none" stroke="#255000" d="M889.34,-12C897.79,-12 906.34,-12 914.9,-12"/>
+<polygon fill="#255000" stroke="#255000" points="914.94,-15.5 924.94,-12 914.94,-8.5 914.94,-15.5"/>
+</g>
+<!-- proc~evaluate_derived_field -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_node4" class="node">
+<title>proc~evaluate_derived_field</title>
+<g id="a_proc~~extdataextractintegers~~CalledByGraph_node4"><a xlink:href="../proc/evaluate_derived_field.html" xlink:title="MAPL_ExtDataTypeDef::DerivedExport%evaluate_derived_field">
+<polygon fill="#d9534f" stroke="#d9534f" points="571,-24 226,-24 226,0 571,0 571,-24"/>
+<text text-anchor="middle" x="398.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataTypeDef::DerivedExport%evaluate_derived_field</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_derived_field&#45;&gt;proc~evaluate_mask -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_edge3" class="edge">
+<title>proc~evaluate_derived_field&#45;&gt;proc~evaluate_mask</title>
+<path fill="none" stroke="#255000" d="M571.21,-12C579.72,-12 588.24,-12 596.68,-12"/>
+<polygon fill="#255000" stroke="#255000" points="596.93,-15.5 606.93,-12 596.93,-8.5 596.93,-15.5"/>
+</g>
+<!-- proc~run_ -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_node5" class="node">
+<title>proc~run_</title>
+<g id="a_proc~~extdataextractintegers~~CalledByGraph_node5"><a xlink:href="../proc/run_.html" xlink:title="MAPL_ExtDataGridComp2G::Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="190,-24 0,-24 0,0 190,0 190,-24"/>
+<text text-anchor="middle" x="95" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~evaluate_derived_field -->
+<g id="proc~~extdataextractintegers~~CalledByGraph_edge4" class="edge">
+<title>proc~run_&#45;&gt;proc~evaluate_derived_field</title>
+<path fill="none" stroke="#255000" d="M190.16,-12C198.41,-12 206.94,-12 215.61,-12"/>
+<polygon fill="#255000" stroke="#255000" points="215.84,-15.5 225.84,-12 215.84,-8.5 215.84,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocextdataextractintegersCalledByGraph = svgPanZoom('#procextdataextractintegersCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">ExtDataExtractIntegers</span><span class="p">(</span><span class="n">string</span><span class="p">,</span><span class="n">iSize</span><span class="p">,</span><span class="n">iValues</span><span class="p">,</span><span class="n">delimiter</span><span class="p">,</span><span class="n">verbose</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">IMPLICIT NONE</span>
+
+<span class="k">  </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">string</span><span class="w">         </span><span class="c">!! Character-delimited string of integers</span>
+<span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">iSize</span>
+<span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">iValues</span><span class="p">(</span><span class="n">iSize</span><span class="p">)</span><span class="w"> </span><span class="c">!! Space allocated for extracted integers</span>
+<span class="w">  </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">delimiter</span><span class="w">      </span><span class="c">!! 1-character delimiter</span>
+<span class="w">  </span><span class="kt">LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">verbose</span><span class="w">        </span><span class="c">!! Let me know iValues as they are found.</span>
+<span class="w">                                                   </span><span class="c">!! DEBUG directive turns on the message even</span>
+<span class="w">                                                   </span><span class="c">!! if verbose is not present or if</span>
+<span class="w">                                                   </span><span class="c">!! verbose = .FALSE.</span>
+<span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">             </span><span class="c">!! Return code</span>
+
+<span class="w"> </span><span class="kt">INTEGER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="nb">count</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">iDash</span><span class="p">,</span><span class="n">last</span><span class="p">,</span><span class="n">lenStr</span>
+<span class="w"> </span><span class="kt">INTEGER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">multiplier</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">posDelim</span><span class="p">,</span><span class="nb">sign</span>
+<span class="nb"> </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">str</span>
+<span class="w"> </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">char</span><span class="p">,</span><span class="n">delimChar</span>
+<span class="w"> </span><span class="kt">LOGICAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Done</span>
+<span class="w"> </span><span class="kt">LOGICAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tellMe</span>
+
+<span class="c">! Initializations</span>
+<span class="c">! ---------------</span>
+<span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w"> </span><span class="n">Done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w"> </span><span class="n">iValues</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ICHAR</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+<span class="w"> </span><span class="n">iDash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ICHAR</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+<span class="c">! Determine verbosity, letting the DEBUG</span>
+<span class="c">! directive override local specification</span>
+<span class="c">! --------------------------------------</span>
+<span class="w">  </span><span class="n">tellMe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">  </span><span class="k">IF</span><span class="p">(</span><span class="nb">PRESENT</span><span class="p">(</span><span class="n">verbose</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">   IF</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span><span class="w"> </span><span class="n">tellMe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="w"> </span><span class="k">END IF</span>
+<span class="cp">#ifdef DEBUG</span>
+<span class="w">  </span><span class="n">tellMe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="cp">#endif</span>
+<span class="c">! Check for zero-length string</span>
+<span class="c">! ----------------------------</span>
+<span class="w"> </span><span class="n">lenStr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+<span class="w"> </span><span class="k">IF</span><span class="p">(</span><span class="n">lenStr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">  </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;ERROR - Found zero-length string.&quot;</span><span class="p">)</span>
+<span class="w"> </span><span class="k">END IF</span>
+
+<span class="c">! Default delimiter is a comma</span>
+<span class="c">! ----------------------------</span>
+<span class="w"> </span><span class="n">delimChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;,&quot;</span>
+<span class="w"> </span><span class="k">IF</span><span class="p">(</span><span class="nb">PRESENT</span><span class="p">(</span><span class="n">delimiter</span><span class="p">))</span><span class="w"> </span><span class="n">delimChar</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delimiter</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c">! Work on a local copy</span>
+<span class="c">! --------------------</span>
+<span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+<span class="c">! One pass for each delimited integer</span>
+<span class="c">! -----------------------------------</span>
+<span class="w"> </span><span class="n">Parse</span><span class="p">:</span><span class="w"> </span><span class="k">DO</span>
+
+<span class="k">  </span><span class="n">lenStr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">str</span><span class="p">)</span>
+
+<span class="c">! Parse the string for the delimiter</span>
+<span class="c">! ----------------------------------</span>
+<span class="w">  </span><span class="n">posDelim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">INDEX</span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">str</span><span class="p">),</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">delimChar</span><span class="p">))</span>
+
+<span class="c">! If the delimiter does not exist,</span>
+<span class="c">! one integer remains to be extracted.</span>
+<span class="c">! ------------------------------------</span>
+<span class="w">  </span><span class="k">IF</span><span class="p">(</span><span class="n">posDelim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">   </span><span class="n">Done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="w">   </span><span class="n">last</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lenStr</span>
+<span class="w">  </span><span class="k">ELSE</span>
+<span class="k">   </span><span class="n">last</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">posDelim</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">  </span><span class="k">END IF</span>
+<span class="k">  </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="o">**</span><span class="n">last</span>
+
+<span class="c">! Examine the characters of this integer</span>
+<span class="c">! --------------------------------------</span>
+<span class="w">  </span><span class="n">Extract</span><span class="p">:</span><span class="w"> </span><span class="k">DO </span><span class="n">pos</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">last</span>
+
+<span class="w">   </span><span class="nb">char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">str</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span><span class="n">pos</span><span class="p">)</span>
+<span class="w">   </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ICHAR</span><span class="p">(</span><span class="nb">char</span><span class="p">)</span>
+
+<span class="c">! Account for a leading &quot;-&quot;</span>
+<span class="c">! -------------------------</span>
+<span class="w">   </span><span class="k">IF</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">    IF</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">iDash</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">     </span><span class="nb">sign</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">    </span><span class="k">ELSE</span>
+<span class="k">     </span><span class="nb">sign</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="k">END IF</span>
+<span class="k">   END IF</span>
+
+<span class="c">! &quot;Power&quot; of 10 for this character</span>
+<span class="c">! --------------------------------</span>
+<span class="w">   </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">multiplier</span><span class="o">/</span><span class="mi">10</span>
+
+<span class="w">   </span><span class="k">IF</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="nb">sign</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">CYCLE </span><span class="n">Extract</span>
+
+<span class="c">! Integer comes from remaining characters</span>
+<span class="c">! ---------------------------------------</span>
+<span class="w">   </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="n">base</span><span class="p">)</span><span class="o">*</span><span class="n">multiplier</span>
+<span class="w">   </span><span class="n">iValues</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iValues</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="o">+</span><span class="n">i</span>
+<span class="w">   </span><span class="k">IF</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">last</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">    </span><span class="n">iValues</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iValues</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="o">*</span><span class="nb">sign</span>
+<span class="nb">   </span><span class="k">END IF</span>
+
+<span class="k">  END DO </span><span class="n">Extract</span>
+<span class="w">  </span><span class="k">IF</span><span class="p">(</span><span class="n">Done</span><span class="p">)</span><span class="w"> </span><span class="k">EXIT</span>
+
+<span class="c">! Lop off the leading integer and try again</span>
+<span class="c">! -----------------------------------------</span>
+<span class="w">  </span><span class="n">str</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">lenStr</span><span class="o">-</span><span class="n">posDelim</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">str</span><span class="p">(</span><span class="n">posDelim</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">lenStr</span><span class="p">)</span>
+<span class="w">  </span><span class="n">str</span><span class="p">(</span><span class="n">lenStr</span><span class="o">-</span><span class="n">posDelim</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot; &quot;</span>
+<span class="w">  </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="o">+</span><span class="mi">1</span>
+
+<span class="c">! Check size</span>
+<span class="c">! ----------</span>
+<span class="w">  </span><span class="k">IF</span><span class="p">(</span><span class="nb">count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">iSize</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">   </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;ERROR - iValues does not have enough elements.&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">END IF</span>
+
+<span class="k"> END DO </span><span class="n">Parse</span>
+
+<span class="w"> </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w"> </span><span class="k">END SUBROUTINE </span><span class="n">ExtDataExtractIntegers</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T14:21:56.067236             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,847 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>parse_time_string &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>parse_time_string
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">72 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_TimeMethods.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_timemethods.f90.html'>MAPL_TimeMethods.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_timedatamod.html'>MAPL_TimeDataMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">parse_time_string</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/parse_time_string.html#src">parse_time_string</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function parse_time_string(timeUnits, rc) result(time)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeunits~8"></span>
+              character(len=*),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeUnits</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1580"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-time~51"></span>
+          type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~parse_time_string~~CallsGraph Pages: 1 -->
+<svg id="procparse_time_stringCallsGraph" width="641pt" height="79pt"
+ viewBox="0.00 0.00 641.00 78.88" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~parse_time_string~~CallsGraph" class="graph" transform="scale(2 2) rotate(0) translate(4 154)">
+<title>proc~~parse_time_string~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 1280,-154 1280,4 -4,4"/>
+<!-- proc~parse_time_string -->
+<g id="proc~~parse_time_string~~CallsGraph_node1" class="node">
+<title>proc~parse_time_string</title>
+<polygon fill="none" stroke="black" points="223,-66 0,-66 0,-42 223,-42 223,-66"/>
+<text text-anchor="middle" x="111.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_TimeDataMod::parse_time_string</text>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~parse_time_string~~CallsGraph_node2" class="node">
+<title>ESMF_TimeSet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="430,-108 305,-108 305,-84 430,-84 430,-108"/>
+<text text-anchor="middle" x="367.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeSet</text>
+</g>
+<!-- proc~parse_time_string&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~parse_time_string~~CallsGraph_edge1" class="edge">
+<title>proc~parse_time_string&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#255000" d="M185.29,-66.04C219.71,-71.73 260.67,-78.5 294.94,-84.17"/>
+<polygon fill="#255000" stroke="#255000" points="294.44,-87.63 304.88,-85.81 295.58,-80.73 294.44,-87.63"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~parse_time_string~~CallsGraph_node3" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~parse_time_string~~CallsGraph_node3"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="476,-66 259,-66 259,-42 476,-42 476,-66"/>
+<text text-anchor="middle" x="367.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_time_string&#45;&gt;interface~mapl_assert -->
+<g id="proc~~parse_time_string~~CallsGraph_edge2" class="edge">
+<title>proc~parse_time_string&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M223.17,-54C231.53,-54 239.99,-54 248.4,-54"/>
+<polygon fill="#255000" stroke="#255000" points="248.62,-57.5 258.62,-54 248.62,-50.5 248.62,-57.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~parse_time_string~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~parse_time_string~~CallsGraph_node4"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="762,-24 548,-24 548,0 762,0 762,-24"/>
+<text text-anchor="middle" x="655" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_time_string&#45;&gt;proc~mapl_verify -->
+<g id="proc~~parse_time_string~~CallsGraph_edge3" class="edge">
+<title>proc~parse_time_string&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M187.25,-41.97C210.21,-38.63 235.6,-35.29 259,-33 352.37,-23.84 458.58,-18.48 537.33,-15.47"/>
+<polygon fill="#255000" stroke="#255000" points="537.91,-18.95 547.77,-15.08 537.64,-11.95 537.91,-18.95"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~parse_time_string~~CallsGraph_node5" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~parse_time_string~~CallsGraph_node5"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="791,-66 519,-66 519,-42 791,-42 791,-66"/>
+<text text-anchor="middle" x="655" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~parse_time_string~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M476.03,-54C486.68,-54 497.61,-54 508.56,-54"/>
+<polygon fill="#025500" stroke="#025500" points="508.61,-57.5 518.61,-54 508.61,-50.5 508.61,-57.5"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~parse_time_string~~CallsGraph_node6" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~parse_time_string~~CallsGraph_node6"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="798,-108 512,-108 512,-84 798,-84 798,-108"/>
+<text text-anchor="middle" x="655" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~parse_time_string~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M450.31,-66.04C485.26,-71.18 526.19,-77.2 562.17,-82.49"/>
+<polygon fill="#025500" stroke="#025500" points="561.77,-85.97 572.18,-83.96 562.79,-79.04 561.77,-85.97"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~parse_time_string~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~parse_time_string~~CallsGraph_node7"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1075,-66 846,-66 846,-42 1075,-42 1075,-66"/>
+<text text-anchor="middle" x="960.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~parse_time_string~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M742.97,-24.04C780.36,-29.21 824.2,-35.28 862.62,-40.59"/>
+<polygon fill="#002505" stroke="#002505" points="862.39,-44.1 872.78,-42 863.35,-37.16 862.39,-44.1"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~parse_time_string~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255000" d="M791.33,-54C806.1,-54 821.08,-54 835.7,-54"/>
+<polygon fill="#255000" stroke="#255000" points="835.76,-57.5 845.76,-54 835.76,-50.5 835.76,-57.5"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~parse_time_string~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M742.97,-83.96C780.36,-78.79 824.2,-72.72 862.62,-67.41"/>
+<polygon fill="#025500" stroke="#025500" points="863.35,-70.84 872.78,-66 862.39,-63.9 863.35,-70.84"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~parse_time_string~~CallsGraph_node8" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~parse_time_string~~CallsGraph_node8"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1087,-108 834,-108 834,-84 1087,-84 1087,-108"/>
+<text text-anchor="middle" x="960.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~parse_time_string~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025500" d="M798.42,-96C806.85,-96 815.32,-96 823.72,-96"/>
+<polygon fill="#025500" stroke="#025500" points="823.93,-99.5 833.93,-96 823.93,-92.5 823.93,-99.5"/>
+</g>
+<!-- proc~initialize~7 -->
+<g id="proc~~parse_time_string~~CallsGraph_node9" class="node">
+<title>proc~initialize~7</title>
+<g id="a_proc~~parse_time_string~~CallsGraph_node9"><a xlink:href="../proc/initialize~7.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1276,-66 1123,-66 1123,-42 1276,-42 1276,-66"/>
+<text text-anchor="middle" x="1199.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~7 -->
+<g id="proc~~parse_time_string~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~7</title>
+<path fill="none" stroke="#002505" d="M1075.14,-54C1087.76,-54 1100.46,-54 1112.65,-54"/>
+<polygon fill="#002505" stroke="#002505" points="1112.77,-57.5 1122.77,-54 1112.77,-50.5 1112.77,-57.5"/>
+</g>
+<!-- at -->
+<g id="proc~~parse_time_string~~CallsGraph_node10" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1226.5,-108 1172.5,-108 1172.5,-84 1226.5,-84 1226.5,-108"/>
+<text text-anchor="middle" x="1199.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~parse_time_string~~CallsGraph_edge11" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1087.29,-96C1114.83,-96 1141.86,-96 1162.36,-96"/>
+<polygon fill="#255000" stroke="#255000" points="1162.46,-99.5 1172.46,-96 1162.46,-92.5 1162.46,-99.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~parse_time_string~~CallsGraph_node11" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1226.5,-150 1172.5,-150 1172.5,-126 1226.5,-126 1226.5,-150"/>
+<text text-anchor="middle" x="1199.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~parse_time_string~~CallsGraph_edge12" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1029.41,-108.04C1072.55,-115.68 1126.7,-125.28 1161.93,-131.52"/>
+<polygon fill="#255000" stroke="#255000" points="1161.76,-135.04 1172.22,-133.34 1162.98,-128.15 1161.76,-135.04"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocparse_time_stringCallsGraph = svgPanZoom('#procparse_time_stringCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~parse_time_string~~CalledByGraph Pages: 1 -->
+<svg id="procparse_time_stringCalledByGraph" width="641pt" height="39pt"
+ viewBox="0.00 0.00 641.00 38.84" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~parse_time_string~~CalledByGraph" class="graph" transform="scale(2.45 2.45) rotate(0) translate(4 91)">
+<title>proc~~parse_time_string~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-91 1564,-91 1564,4 -4,4"/>
+<!-- proc~parse_time_string -->
+<g id="proc~~parse_time_string~~CalledByGraph_node1" class="node">
+<title>proc~parse_time_string</title>
+<polygon fill="none" stroke="black" points="1560,-66 1337,-66 1337,-42 1560,-42 1560,-66"/>
+<text text-anchor="middle" x="1448.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_TimeDataMod::parse_time_string</text>
+</g>
+<!-- proc~capture -->
+<g id="proc~~parse_time_string~~CalledByGraph_node2" class="node">
+<title>proc~capture</title>
+<g id="a_proc~~parse_time_string~~CalledByGraph_node2"><a xlink:href="../proc/capture.html" xlink:title="MAPL_GenericMod::capture">
+<polygon fill="#d9534f" stroke="#d9534f" points="1249,-87 1090,-87 1090,-63 1249,-63 1249,-87"/>
+<text text-anchor="middle" x="1169.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::capture</text>
+</a>
+</g>
+</g>
+<!-- proc~capture&#45;&gt;proc~parse_time_string -->
+<g id="proc~~parse_time_string~~CalledByGraph_edge1" class="edge">
+<title>proc~capture&#45;&gt;proc~parse_time_string</title>
+<path fill="none" stroke="#255000" d="M1249.14,-69.04C1273.32,-67.21 1300.51,-65.14 1326.84,-63.15"/>
+<polygon fill="#255000" stroke="#255000" points="1327.17,-66.63 1336.87,-62.39 1326.64,-59.65 1327.17,-66.63"/>
+</g>
+<!-- proc~get_start_time -->
+<g id="proc~~parse_time_string~~CalledByGraph_node3" class="node">
+<title>proc~get_start_time</title>
+<g id="a_proc~~parse_time_string~~CalledByGraph_node3"><a xlink:href="../proc/get_start_time.html" xlink:title="MAPL_TimeDataMod::timeData%get_start_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1301,-45 1038,-45 1038,-21 1301,-21 1301,-45"/>
+<text text-anchor="middle" x="1169.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimeDataMod::timeData%get_start_time</text>
+</a>
+</g>
+</g>
+<!-- proc~get_start_time&#45;&gt;proc~parse_time_string -->
+<g id="proc~~parse_time_string~~CalledByGraph_edge2" class="edge">
+<title>proc~get_start_time&#45;&gt;proc~parse_time_string</title>
+<path fill="none" stroke="#255000" d="M1301.29,-42.92C1309.76,-43.56 1318.26,-44.2 1326.68,-44.84"/>
+<polygon fill="#255000" stroke="#255000" points="1326.65,-48.35 1336.89,-45.61 1327.18,-41.37 1326.65,-48.35"/>
+</g>
+<!-- proc~compute_time_vector -->
+<g id="proc~~parse_time_string~~CalledByGraph_node4" class="node">
+<title>proc~compute_time_vector</title>
+<g id="a_proc~~parse_time_string~~CalledByGraph_node4"><a xlink:href="../proc/compute_time_vector.html" xlink:title="MAPL_TimeDataMod::timeData%compute_time_vector">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1002,-45 699,-45 699,-21 1002,-21 1002,-45"/>
+<text text-anchor="middle" x="850.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimeDataMod::timeData%compute_time_vector</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;proc~get_start_time -->
+<g id="proc~~parse_time_string~~CalledByGraph_edge4" class="edge">
+<title>proc~compute_time_vector&#45;&gt;proc~get_start_time</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1002.11,-33C1010.72,-33 1019.36,-33 1027.93,-33"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1027.96,-36.5 1037.96,-33 1027.96,-29.5 1027.96,-36.5"/>
+</g>
+<!-- proc~record_component -->
+<g id="proc~~parse_time_string~~CalledByGraph_node5" class="node">
+<title>proc~record_component</title>
+<g id="a_proc~~parse_time_string~~CalledByGraph_node5"><a xlink:href="../proc/record_component.html" xlink:title="MAPL_GenericMod::record_component">
+<polygon fill="#d9534f" stroke="#d9534f" points="960,-87 741,-87 741,-63 960,-63 960,-87"/>
+<text text-anchor="middle" x="850.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::record_component</text>
+</a>
+</g>
+</g>
+<!-- proc~record_component&#45;&gt;proc~capture -->
+<g id="proc~~parse_time_string~~CalledByGraph_edge3" class="edge">
+<title>proc~record_component&#45;&gt;proc~capture</title>
+<path fill="none" stroke="#255000" d="M960.15,-75C998.98,-75 1042.25,-75 1079.25,-75"/>
+<polygon fill="#255000" stroke="#255000" points="1079.51,-78.5 1089.51,-75 1079.51,-71.5 1079.51,-78.5"/>
+</g>
+<!-- proc~bundlepost -->
+<g id="proc~~parse_time_string~~CalledByGraph_node6" class="node">
+<title>proc~bundlepost</title>
+<g id="a_proc~~parse_time_string~~CalledByGraph_node6"><a xlink:href="../proc/bundlepost.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%bundlepost">
+<polygon fill="#d9534f" stroke="#d9534f" points="663,-45 376,-45 376,-21 663,-21 663,-45"/>
+<text text-anchor="middle" x="519.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%bundlepost</text>
+</a>
+</g>
+</g>
+<!-- proc~bundlepost&#45;&gt;proc~compute_time_vector -->
+<g id="proc~~parse_time_string~~CalledByGraph_edge5" class="edge">
+<title>proc~bundlepost&#45;&gt;proc~compute_time_vector</title>
+<path fill="none" stroke="#255000" d="M663.37,-33C671.84,-33 680.4,-33 688.94,-33"/>
+<polygon fill="#255000" stroke="#255000" points="688.95,-36.5 698.95,-33 688.95,-29.5 688.95,-36.5"/>
+</g>
+<!-- proc~mapl_genericwrapper -->
+<g id="proc~~parse_time_string~~CalledByGraph_node7" class="node">
+<title>proc~mapl_genericwrapper</title>
+<g id="a_proc~~parse_time_string~~CalledByGraph_node7"><a xlink:href="../proc/mapl_genericwrapper.html" xlink:title="MAPL_GenericMod::MAPL_GenericWrapper">
+<polygon fill="#d9534f" stroke="#d9534f" points="639.5,-87 399.5,-87 399.5,-63 639.5,-63 639.5,-87"/>
+<text text-anchor="middle" x="519.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericWrapper</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericwrapper&#45;&gt;proc~record_component -->
+<g id="proc~~parse_time_string~~CalledByGraph_edge6" class="edge">
+<title>proc~mapl_genericwrapper&#45;&gt;proc~record_component</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M639.74,-75C669.27,-75 700.91,-75 730.43,-75"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="730.77,-78.5 740.77,-75 730.77,-71.5 730.77,-78.5"/>
+</g>
+<!-- proc~run~2 -->
+<g id="proc~~parse_time_string~~CalledByGraph_node8" class="node">
+<title>proc~run~2</title>
+<g id="a_proc~~parse_time_string~~CalledByGraph_node8"><a xlink:href="../proc/run~2.html" xlink:title="MAPL_HistoryGridCompMod::Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="264,-66 76,-66 76,-42 264,-42 264,-66"/>
+<text text-anchor="middle" x="170" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~2&#45;&gt;proc~bundlepost -->
+<g id="proc~~parse_time_string~~CalledByGraph_edge7" class="edge">
+<title>proc~run~2&#45;&gt;proc~bundlepost</title>
+<path fill="none" stroke="#255000" d="M264.12,-48.37C295.32,-46.49 330.98,-44.33 365.52,-42.24"/>
+<polygon fill="#255000" stroke="#255000" points="365.94,-45.73 375.71,-41.63 365.52,-38.74 365.94,-45.73"/>
+</g>
+<!-- proc~write_to_file -->
+<g id="proc~~parse_time_string~~CalledByGraph_node9" class="node">
+<title>proc~write_to_file</title>
+<g id="a_proc~~parse_time_string~~CalledByGraph_node9"><a xlink:href="../proc/write_to_file.html" xlink:title="MAPL_ESMFFieldBundleWrite::FieldBundleWriter%write_to_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="340,-24 0,-24 0,0 340,0 340,-24"/>
+<text text-anchor="middle" x="170" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::FieldBundleWriter%write_to_file</text>
+</a>
+</g>
+</g>
+<!-- proc~write_to_file&#45;&gt;proc~bundlepost -->
+<g id="proc~~parse_time_string~~CalledByGraph_edge8" class="edge">
+<title>proc~write_to_file&#45;&gt;proc~bundlepost</title>
+<path fill="none" stroke="#255000" d="M340.17,-22.22C348.64,-22.73 357.12,-23.25 365.53,-23.76"/>
+<polygon fill="#255000" stroke="#255000" points="365.57,-27.26 375.76,-24.37 365.99,-20.28 365.57,-27.26"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocparse_time_stringCalledByGraph = svgPanZoom('#procparse_time_stringCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">function </span><span class="n">parse_time_string</span><span class="p">(</span><span class="n">timeUnits</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="nb">time</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeUnits</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">    </span><span class="kt">integer        </span><span class="n">year</span><span class="w">               </span><span class="c">! 4-digit year</span>
+<span class="w">    </span><span class="kt">integer        </span><span class="n">month</span><span class="w">              </span><span class="c">! month</span>
+<span class="w">    </span><span class="kt">integer        </span><span class="n">day</span><span class="w">                </span><span class="c">! day</span>
+<span class="w">    </span><span class="kt">integer        </span><span class="n">hour</span><span class="w">               </span><span class="c">! hour</span>
+<span class="w">    </span><span class="kt">integer        </span><span class="nb">min</span><span class="w">                </span><span class="c">! minute</span>
+<span class="w">    </span><span class="kt">integer        </span><span class="n">sec</span><span class="w">                </span><span class="c">! second</span>
+
+<span class="w">    </span><span class="kt">integer </span><span class="n">ypos</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">dpos</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">spos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">integer </span><span class="n">strlen</span>
+<span class="w">    </span><span class="kt">integer </span><span class="n">firstdash</span><span class="p">,</span><span class="w"> </span><span class="n">lastdash</span>
+<span class="w">    </span><span class="kt">integer </span><span class="n">firstcolon</span><span class="p">,</span><span class="w"> </span><span class="n">lastcolon</span>
+<span class="w">    </span><span class="kt">integer </span><span class="n">lastspace</span>
+<span class="w">    </span><span class="n">strlen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN_TRIM</span><span class="w"> </span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">firstdash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">lastdash</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">BACK</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">firstdash</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">lastdash</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;time string is not a valid format&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">    </span><span class="n">ypos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstdash</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstdash</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">ypos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ypos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span>
+
+<span class="w">    </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastdash</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">dpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastdash</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">dpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">    </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">ypos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">ypos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">year</span>
+<span class="w">    </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">month</span>
+<span class="w">    </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">dpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">dpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">day</span>
+
+<span class="w">    </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">firstcolon</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">       </span><span class="c">! If no colons, check for hour.</span>
+
+<span class="w">       </span><span class="c">! Logic below assumes a null character or something else is after the hour</span>
+<span class="w">       </span><span class="c">! if we do not find a null character add one so that it correctly parses time</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">strlen</span><span class="p">:</span><span class="n">strlen</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">TimeUnits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">)</span><span class="o">//</span><span class="nb">char</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">          </span><span class="n">strlen</span><span class="o">=</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">)</span>
+<span class="w">       </span><span class="k">endif</span>
+<span class="k">       </span><span class="n">lastspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">BACK</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">strlen</span><span class="o">-</span><span class="n">lastspace</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">2</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">strlen</span><span class="o">-</span><span class="n">lastspace</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastspace</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strlen</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">hour</span>
+<span class="w">          </span><span class="nb">min</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">          </span><span class="n">sec</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">hour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">          </span><span class="nb">min</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">          </span><span class="n">sec</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">endif</span>
+<span class="k">    else</span>
+<span class="k">       </span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">       </span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">       </span><span class="n">lastcolon</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="nb">index</span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">BACK</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">lastcolon</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">hour</span>
+<span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="nb">min</span>
+<span class="nb">          </span><span class="n">sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">firstcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastcolon</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="n">spos</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="n">spos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastcolon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">hpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">hpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">hour</span>
+<span class="w">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">mpos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">mpos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="nb">min</span>
+<span class="nb">          </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">TimeUnits</span><span class="p">(</span><span class="n">spos</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span><span class="n">spos</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">sec</span>
+<span class="w">       </span><span class="k">endif</span>
+<span class="k">    endif</span>
+
+<span class="k">    call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">sec</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end function </span><span class="n">parse_time_string</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T14:21:56.067236             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

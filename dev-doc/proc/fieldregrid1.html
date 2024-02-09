@@ -1,0 +1,642 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>FieldRegrid1 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>FieldRegrid1
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">42 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMFL_Mod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmfl_mod.f90.html'>ESMFL_Mod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmfl_mod.html'>ESMFL_MOD</a></li>
+            <li class="breadcrumb-item active" aria-current="page">FieldRegrid1</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/fieldregrid1.html#src">FieldRegrid1</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine FieldRegrid1(srcFLD, Sgrid2D, dstFLD, Dgrid2D, vm, rh, fname, rc)  
+</h2>
+    
+
+    <p>The subroutine <code>FieldRegrid1</code> regrids 3D fields using ESMF_FieldRegrid.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>17Oct2005  Cruz  Initial code.</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-srcfld~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>srcFLD</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sgrid2d"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Sgrid2D</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dstfld~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dstFLD</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dgrid2d"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Dgrid2D</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vm~15"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_vm.html'>ESMF_VM</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rh~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_routehandle.html'>ESMF_RouteHandle</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fname~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fname</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~490"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~fieldregrid1~~CalledByGraph Pages: 1 -->
+<svg id="procfieldregrid1CalledByGraph" width="355pt" height="32pt"
+ viewBox="0.00 0.00 355.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~fieldregrid1~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~fieldregrid1~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 351,-28 351,4 -4,4"/>
+<!-- proc~fieldregrid1 -->
+<g id="proc~~fieldregrid1~~CalledByGraph_node1" class="node">
+<title>proc~fieldregrid1</title>
+<polygon fill="none" stroke="black" points="347,-24 196,-24 196,0 347,0 347,-24"/>
+<text text-anchor="middle" x="271.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMFL_MOD::FieldRegrid1</text>
+</g>
+<!-- interface~esmfl_regrid -->
+<g id="proc~~fieldregrid1~~CalledByGraph_node2" class="node">
+<title>interface~esmfl_regrid</title>
+<g id="a_proc~~fieldregrid1~~CalledByGraph_node2"><a xlink:href="../interface/esmfl_regrid.html" xlink:title="ESMFL_MOD::ESMFL_Regrid">
+<polygon fill="#a7506f" stroke="#a7506f" points="160,-24 0,-24 0,0 160,0 160,-24"/>
+<text text-anchor="middle" x="80" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_MOD::ESMFL_Regrid</text>
+</a>
+</g>
+</g>
+<!-- interface~esmfl_regrid&#45;&gt;proc~fieldregrid1 -->
+<g id="proc~~fieldregrid1~~CalledByGraph_edge1" class="edge">
+<title>interface~esmfl_regrid&#45;&gt;proc~fieldregrid1</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M160.27,-12C168.63,-12 177.16,-12 185.59,-12"/>
+<polygon fill="#255000" stroke="#255000" points="185.79,-15.5 195.79,-12 185.79,-8.5 185.79,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">FieldRegrid1</span><span class="w"> </span><span class="p">(</span><span class="n">srcFLD</span><span class="p">,</span><span class="w"> </span><span class="n">Sgrid2D</span><span class="p">,</span><span class="w"> </span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">Dgrid2D</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                   </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="p">,</span><span class="w"> </span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="w">  </span><span class="k">implicit NONE</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">srcFLD</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">dstFLD</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">Sgrid2D</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">Dgrid2D</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_RouteHandle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rh</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+<span class="w">   </span><span class="c">! assumes name of src and dst are the same!!</span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">fname</span>
+<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="c">!</span>
+<span class="c">!-------------------------------------------------------------------------</span>
+
+<span class="c">! local vars</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">srcFLD</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">dstFLD</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">Sgrid2D</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">Dgrid2D</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rh</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+<span class="cp">#if 0</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">dstFLD2D</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">srcFLD2D</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Array</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">srcARR</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Array</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">dstARR</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Array</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">newSrcARR</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Array</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">newDstARR</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">grid3D</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldDataMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dmap</span>
+<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:),</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">sptr</span><span class="p">,</span><span class="w"> </span><span class="n">dptr</span>
+<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:),</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">sptr2d</span><span class="p">,</span><span class="w"> </span><span class="n">dptr2d</span>
+<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:,:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sptr3d</span><span class="p">,</span><span class="w"> </span><span class="n">dptr3d</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sCPD</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">dCPD</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="c">! localCellCountPerDim</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">deid</span><span class="p">,</span><span class="w"> </span><span class="n">kmax</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+
+<span class="c">! begin</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">localPet</span><span class="o">=</span><span class="n">deid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! get rank (get from any FLD)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGetArray</span><span class="p">(</span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">RANK</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! datamap - with rank=2!</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldDataMapSetDefault</span><span class="p">(</span><span class="n">dmap</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! get sCPD from srcFLD, Sgrid2D does not have correct 3rd dim</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">srcFLD</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid3D</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_GridGetDELocalInfo</span><span class="p">(</span><span class="n">grid3D</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">horzRelLoc</span><span class="o">=</span><span class="n">ESMF_CELL_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">vertRelLoc</span><span class="o">=</span><span class="n">ESMF_CELL_CELL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">sCPD</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="c">! get dCPD from Dgrid2D</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid3D</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_GridGetDELocalInfo</span><span class="p">(</span><span class="n">grid3D</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">horzRelLoc</span><span class="o">=</span><span class="n">ESMF_CELL_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">vertRelLoc</span><span class="o">=</span><span class="n">ESMF_CELL_CELL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">dCPD</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! for MAPL and GSI sCPD(3) = dCPD(3)</span>
+
+<span class="w">   </span><span class="c">! assume 2D field</span>
+<span class="w">   </span><span class="n">kmax</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">   </span><span class="c">! if rank is three then km = # levels in srcFLD</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">kmax</span><span class="o">=</span><span class="n">sCPD</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! get array from srcFLD and dstFLD</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGetArray</span><span class="p">(</span><span class="n">srcFLD</span><span class="p">,</span><span class="w"> </span><span class="n">srcARR</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGetArray</span><span class="p">(</span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! allocate f90 pointer to hold data</span>
+<span class="w">   </span><span class="c">! note halo width = 0</span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">     call </span><span class="n">ESMF_ArrayGetData</span><span class="p">(</span><span class="n">srcARR</span><span class="p">,</span><span class="w"> </span><span class="n">sptr3d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_ArrayGetData</span><span class="p">(</span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">dptr3d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="k">else</span>
+<span class="k">     call </span><span class="n">ESMF_ArrayGetData</span><span class="p">(</span><span class="n">srcARR</span><span class="p">,</span><span class="w"> </span><span class="n">sptr2d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_ArrayGetData</span><span class="p">(</span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">dptr2d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end if</span>
+
+<span class="w">   </span><span class="c">! these are 2d pointers used to create 2d fields</span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">sptr</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">sCPD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">:</span><span class="n">sCPD</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">dptr</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">dCPD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">:</span><span class="n">dCPD</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="c">! 2d ESMF arrays associated with pointers sptr and dptr</span>
+<span class="w">   </span><span class="n">newSrcARR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ArrayCreate</span><span class="p">(</span><span class="n">sptr</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_DATA_REF</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="n">newDstARR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ArrayCreate</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_DATA_REF</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! local fields built with 2d sized arrays and 2D grids</span>
+<span class="w">   </span><span class="n">srcFLD2D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">Sgrid2D</span><span class="p">,</span><span class="w"> </span><span class="n">newSrcARR</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">horzRelloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_CELL_CENTER</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="c">!                 vertRelloc = ESMF_CELL_CELL,         &amp;</span>
+<span class="w">                 </span><span class="n">datamap</span><span class="o">=</span><span class="n">dmap</span><span class="p">,</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">haloWidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">name</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="n">dstFLD2D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">Dgrid2D</span><span class="p">,</span><span class="w"> </span><span class="n">newDstARR</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">horzRelloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_CELL_CENTER</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="c">!                 vertRelloc = ESMF_CELL_CELL,         &amp;</span>
+<span class="w">                 </span><span class="n">datamap</span><span class="o">=</span><span class="n">dmap</span><span class="p">,</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">haloWidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">name</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! loop over field&#39;s vertical levels</span>
+<span class="w">   </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">kmax</span>
+
+<span class="w">     </span><span class="c">! modify field&#39;s pointer by reference</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">sptr</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sptr3d</span><span class="p">(:,:,</span><span class="n">k</span><span class="p">)</span>
+<span class="w">     </span><span class="k">else</span>
+<span class="k">       </span><span class="n">sptr</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sptr2d</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="k">end if</span>
+
+<span class="k">     call </span><span class="n">ESMF_FieldRegrid</span><span class="p">(</span><span class="n">srcFLD2D</span><span class="p">,</span><span class="w"> </span><span class="n">dstFLD2D</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">     </span><span class="c">!  Update contents (array pointer) of dstFLD</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldGetArray</span><span class="p">(</span><span class="n">dstFLD2D</span><span class="p">,</span><span class="w"> </span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_ArrayGetData</span><span class="p">(</span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">dptr3d</span><span class="p">(:,:,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dptr</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="k">else</span>
+<span class="k">       </span><span class="n">dptr2d</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dptr</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="k">end if</span>
+
+<span class="k">   end do</span>
+
+<span class="k">   deallocate</span><span class="p">(</span><span class="n">sptr</span><span class="p">,</span><span class="w"> </span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="cp">#endif</span>
+
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">   </span><span class="k">end if</span>
+
+<span class="k">   end subroutine </span><span class="n">FieldRegrid1</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T14:21:56.067236             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

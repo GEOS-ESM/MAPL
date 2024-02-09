@@ -1,0 +1,1019 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>getNodeComm &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>getNodeComm
+      <small>Module Procedure</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">115 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Shmem_implementation.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/shmem_implementation.f90.html'>Shmem_implementation.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/shmem_implementation.html'>Shmem_implementation</a></li>
+            <li class="breadcrumb-item active" aria-current="page">getNodeComm</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>module procedure getNodeComm <small>module function getNodeComm(Comm, rc) result(NodeComm)</small>  
+    <a href="../interface/getnodecomm.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_sortmod.html'>MAPL_SortMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~getnodecomm~~UsesGraph Pages: 1 -->
+<svg id="procgetnodecommUsesGraph" width="641pt" height="71pt"
+ viewBox="0.00 0.00 641.00 71.06" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~getnodecomm~~UsesGraph" class="graph" transform="scale(1.35 1.35) rotate(0) translate(4 92)">
+<title>proc~~getnodecomm~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-92 862,-92 862,4 -4,4"/>
+<!-- proc~getnodecomm -->
+<g id="proc~~getnodecomm~~UsesGraph_node1" class="node">
+<title>proc~getnodecomm</title>
+<polygon fill="none" stroke="black" points="858,-67 626,-67 626,-43 858,-43 858,-67"/>
+<text text-anchor="middle" x="742" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50">Shmem_implementation::getNodeComm</text>
+</g>
+<!-- module~mapl_sortmod -->
+<g id="proc~~getnodecomm~~UsesGraph_node2" class="node">
+<title>module~mapl_sortmod</title>
+<g id="a_proc~~getnodecomm~~UsesGraph_node2"><a xlink:href="../module/mapl_sortmod.html" xlink:title="MAPL_SortMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="590,-67 499,-67 499,-43 590,-43 590,-67"/>
+<text text-anchor="middle" x="544.5" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod</text>
+</a>
+</g>
+</g>
+<!-- proc~getnodecomm&#45;&gt;module~mapl_sortmod -->
+<g id="proc~~getnodecomm~~UsesGraph_edge1" class="edge">
+<title>proc~getnodecomm&#45;&gt;module~mapl_sortmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M625.86,-55C617,-55 608.34,-55 600.18,-55"/>
+<polygon fill="#255000" stroke="#255000" points="600.13,-51.5 590.13,-55 600.13,-58.5 600.13,-51.5"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="proc~~getnodecomm~~UsesGraph_node3" class="node">
+<title>iso_fortran_env</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="436.5,-88 342.5,-88 342.5,-64 436.5,-64 436.5,-88"/>
+<text text-anchor="middle" x="389.5" y="-73.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</g>
+<!-- module~mapl_sortmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~getnodecomm~~UsesGraph_edge2" class="edge">
+<title>module~mapl_sortmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M498.83,-61.13C482.47,-63.38 463.73,-65.95 446.5,-68.31"/>
+<polygon fill="#255000" stroke="#255000" points="445.98,-64.85 436.55,-69.68 446.93,-71.79 445.98,-64.85"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="proc~~getnodecomm~~UsesGraph_node4" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_proc~~getnodecomm~~UsesGraph_node4"><a xlink:href="../module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="463,-46 316,-46 316,-22 463,-22 463,-46"/>
+<text text-anchor="middle" x="389.5" y="-31.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_sortmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="proc~~getnodecomm~~UsesGraph_edge3" class="edge">
+<title>module~mapl_sortmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M498.83,-48.87C490.7,-47.75 481.97,-46.55 473.14,-45.34"/>
+<polygon fill="#255000" stroke="#255000" points="473.53,-41.86 463.14,-43.97 472.57,-48.8 473.53,-41.86"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="proc~~getnodecomm~~UsesGraph_node5" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_proc~~getnodecomm~~UsesGraph_node5"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="280,-26 137,-26 137,-2 280,-2 280,-26"/>
+<text text-anchor="middle" x="208.5" y="-11.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="proc~~getnodecomm~~UsesGraph_edge4" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M315.95,-25.89C307.45,-24.94 298.74,-23.97 290.15,-23.01"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="290.45,-19.52 280.12,-21.89 289.67,-26.48 290.45,-19.52"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="proc~~getnodecomm~~UsesGraph_node6" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_proc~~getnodecomm~~UsesGraph_node6"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-66 0,-66 0,-42 101,-42 101,-66"/>
+<text text-anchor="middle" x="50.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod -->
+<g id="proc~~getnodecomm~~UsesGraph_edge5" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M315.79,-38.32C254.77,-41.94 168.65,-47.05 111.5,-50.44"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="110.95,-46.97 101.18,-51.05 111.37,-53.95 110.95,-46.97"/>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
+<g id="proc~~getnodecomm~~UsesGraph_edge6" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M160.69,-26C144.26,-30.21 125.62,-34.99 108.45,-39.4"/>
+<polygon fill="#255000" stroke="#255000" points="107.36,-36.06 98.54,-41.94 109.1,-42.84 107.36,-36.06"/>
+</g>
+<!-- mpi -->
+<g id="proc~~getnodecomm~~UsesGraph_node7" class="node">
+<title>mpi</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-24 23.5,-24 23.5,0 77.5,0 77.5,-24"/>
+<text text-anchor="middle" x="50.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
+<g id="proc~~getnodecomm~~UsesGraph_edge7" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M136.8,-13.09C119.81,-12.88 102.34,-12.65 87.68,-12.46"/>
+<polygon fill="#255000" stroke="#255000" points="87.59,-8.96 77.55,-12.33 87.5,-15.96 87.59,-8.96"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocgetnodecommUsesGraph = svgPanZoom('#procgetnodecommUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1321"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-nodecomm"></span>
+          integer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~getnodecomm~~CallsGraph Pages: 1 -->
+<svg id="procgetnodecommCallsGraph" width="641pt" height="577pt"
+ viewBox="0.00 0.00 641.00 577.47" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~getnodecomm~~CallsGraph" class="graph" transform="scale(1.4 1.4) rotate(0) translate(4 805)">
+<title>proc~~getnodecomm~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-805 894,-805 894,4 -4,4"/>
+<!-- proc~getnodecomm -->
+<g id="proc~~getnodecomm~~CallsGraph_node1" class="node">
+<title>proc~getnodecomm</title>
+<polygon fill="none" stroke="black" points="232,-255 0,-255 0,-231 232,-231 232,-255"/>
+<text text-anchor="middle" x="116" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">Shmem_implementation::getNodeComm</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~getnodecomm~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="516.5,-759 299.5,-759 299.5,-735 516.5,-735 516.5,-759"/>
+<text text-anchor="middle" x="408" y="-744.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~getnodecomm&#45;&gt;interface~mapl_assert -->
+<g id="proc~~getnodecomm~~CallsGraph_edge1" class="edge">
+<title>proc~getnodecomm&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M124.17,-255.46C162.8,-322.6 346.26,-641.44 395.06,-726.24"/>
+<polygon fill="#255000" stroke="#255000" points="392.06,-728.05 400.08,-734.98 398.13,-724.56 392.06,-728.05"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~getnodecomm~~CallsGraph_node3" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node3"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_SortMod::MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="485,-444 331,-444 331,-420 485,-420 485,-444"/>
+<text text-anchor="middle" x="408" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~getnodecomm&#45;&gt;interface~mapl_sort -->
+<g id="proc~~getnodecomm~~CallsGraph_edge2" class="edge">
+<title>proc~getnodecomm&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#255000" d="M123.89,-255.34C142.44,-287.25 196.88,-372.67 268,-411 284.04,-419.65 302.55,-425.03 320.73,-428.33"/>
+<polygon fill="#255000" stroke="#255000" points="320.34,-431.81 330.77,-429.95 321.46,-424.9 320.34,-431.81"/>
+</g>
+<!-- mpi_allgather -->
+<g id="proc~~getnodecomm~~CallsGraph_node4" class="node">
+<title>mpi_allgather</title>
+<polygon fill="#777777" stroke="#777777" points="451,-402 365,-402 365,-378 451,-378 451,-402"/>
+<text text-anchor="middle" x="408" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_allgather</text>
+</g>
+<!-- proc~getnodecomm&#45;&gt;mpi_allgather -->
+<g id="proc~~getnodecomm~~CallsGraph_edge3" class="edge">
+<title>proc~getnodecomm&#45;&gt;mpi_allgather</title>
+<path fill="none" stroke="#255000" d="M127.25,-255.2C149.73,-281.06 206.35,-341.27 268,-369 295.14,-381.21 327.96,-386.55 354.89,-388.8"/>
+<polygon fill="#255000" stroke="#255000" points="354.67,-392.29 364.9,-389.52 355.17,-385.31 354.67,-392.29"/>
+</g>
+<!-- mpi_allreduce -->
+<g id="proc~~getnodecomm~~CallsGraph_node5" class="node">
+<title>mpi_allreduce</title>
+<polygon fill="#777777" stroke="#777777" points="452,-360 364,-360 364,-336 452,-336 452,-360"/>
+<text text-anchor="middle" x="408" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_allreduce</text>
+</g>
+<!-- proc~getnodecomm&#45;&gt;mpi_allreduce -->
+<g id="proc~~getnodecomm~~CallsGraph_edge4" class="edge">
+<title>proc~getnodecomm&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#255000" d="M134.16,-255.27C161.21,-273.97 216.04,-309.27 268,-327 295.43,-336.36 327.31,-341.55 353.62,-344.43"/>
+<polygon fill="#255000" stroke="#255000" points="353.48,-347.94 363.78,-345.46 354.19,-340.97 353.48,-347.94"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~getnodecomm~~CallsGraph_node6" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="458.5,-318 357.5,-318 357.5,-294 458.5,-294 458.5,-318"/>
+<text text-anchor="middle" x="408" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~getnodecomm&#45;&gt;mpi_comm_rank -->
+<g id="proc~~getnodecomm~~CallsGraph_edge5" class="edge">
+<title>proc~getnodecomm&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#255000" d="M155.47,-255.09C185.8,-264.29 229.28,-276.72 268,-285 293.8,-290.52 322.6,-295.12 347.26,-298.59"/>
+<polygon fill="#255000" stroke="#255000" points="346.82,-302.07 357.2,-299.97 347.77,-295.13 346.82,-302.07"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~getnodecomm~~CallsGraph_node7" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="456.5,-276 359.5,-276 359.5,-252 456.5,-252 456.5,-276"/>
+<text text-anchor="middle" x="408" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~getnodecomm&#45;&gt;mpi_comm_size -->
+<g id="proc~~getnodecomm~~CallsGraph_edge6" class="edge">
+<title>proc~getnodecomm&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#255000" d="M232.03,-251.33C272.3,-254.25 315.8,-257.4 349.35,-259.83"/>
+<polygon fill="#255000" stroke="#255000" points="349.2,-263.32 359.43,-260.56 349.71,-256.34 349.2,-263.32"/>
+</g>
+<!-- mpi_comm_split -->
+<g id="proc~~getnodecomm~~CallsGraph_node8" class="node">
+<title>mpi_comm_split</title>
+<polygon fill="#777777" stroke="#777777" points="457.5,-234 358.5,-234 358.5,-210 457.5,-210 457.5,-234"/>
+<text text-anchor="middle" x="408" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_split</text>
+</g>
+<!-- proc~getnodecomm&#45;&gt;mpi_comm_split -->
+<g id="proc~~getnodecomm~~CallsGraph_edge7" class="edge">
+<title>proc~getnodecomm&#45;&gt;mpi_comm_split</title>
+<path fill="none" stroke="#255000" d="M232.03,-234.67C271.87,-231.79 314.87,-228.67 348.27,-226.25"/>
+<polygon fill="#255000" stroke="#255000" points="348.59,-229.74 358.31,-225.53 348.09,-222.76 348.59,-229.74"/>
+</g>
+<!-- mpi_get_processor_name -->
+<g id="proc~~getnodecomm~~CallsGraph_node9" class="node">
+<title>mpi_get_processor_name</title>
+<polygon fill="#777777" stroke="#777777" points="482,-192 334,-192 334,-168 482,-168 482,-192"/>
+<text text-anchor="middle" x="408" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_get_processor_name</text>
+</g>
+<!-- proc~getnodecomm&#45;&gt;mpi_get_processor_name -->
+<g id="proc~~getnodecomm~~CallsGraph_edge8" class="edge">
+<title>proc~getnodecomm&#45;&gt;mpi_get_processor_name</title>
+<path fill="none" stroke="#255000" d="M155.47,-230.91C185.8,-221.71 229.28,-209.28 268,-201 285.92,-197.17 305.29,-193.78 323.71,-190.9"/>
+<polygon fill="#255000" stroke="#255000" points="324.48,-194.32 333.84,-189.35 323.42,-187.4 324.48,-194.32"/>
+</g>
+<!-- none~get_logger~2 -->
+<g id="proc~~getnodecomm~~CallsGraph_node10" class="node">
+<title>none~get_logger~2</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node10"><a xlink:href="../type/loggermanager.html#boundprocedure-get_logger~2" xlink:title="PFL_LoggerManager::LoggerManager%get_logger">
+<polygon fill="#a7506f" stroke="#a7506f" points="548,-150 268,-150 268,-126 548,-126 548,-150"/>
+<text text-anchor="middle" x="408" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager::LoggerManager%get_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~getnodecomm&#45;&gt;none~get_logger~2 -->
+<g id="proc~~getnodecomm~~CallsGraph_edge9" class="edge">
+<title>proc~getnodecomm&#45;&gt;none~get_logger~2</title>
+<path fill="none" stroke="#255000" d="M134.16,-230.73C161.21,-212.03 216.04,-176.73 268,-159 275.31,-156.51 282.93,-154.31 290.69,-152.37"/>
+<polygon fill="#255000" stroke="#255000" points="291.62,-155.75 300.56,-150.05 290.02,-148.93 291.62,-155.75"/>
+</g>
+<!-- proc~info -->
+<g id="proc~~getnodecomm~~CallsGraph_node11" class="node">
+<title>proc~info</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node11"><a xlink:href="../proc/info.html" xlink:title="PFL_Logger::Logger%info">
+<polygon fill="#d9534f" stroke="#d9534f" points="482,-108 334,-108 334,-84 482,-84 482,-108"/>
+<text text-anchor="middle" x="408" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger::Logger%info</text>
+</a>
+</g>
+</g>
+<!-- proc~getnodecomm&#45;&gt;proc~info -->
+<g id="proc~~getnodecomm~~CallsGraph_edge10" class="edge">
+<title>proc~getnodecomm&#45;&gt;proc~info</title>
+<path fill="none" stroke="#255000" d="M127.25,-230.8C149.73,-204.94 206.35,-144.73 268,-117 285.26,-109.24 304.83,-104.25 323.71,-101.07"/>
+<polygon fill="#255000" stroke="#255000" points="324.45,-104.49 333.81,-99.52 323.39,-97.58 324.45,-104.49"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~getnodecomm~~CallsGraph_node12" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node12"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="518,-66 298,-66 298,-42 518,-42 518,-66"/>
+<text text-anchor="middle" x="408" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~getnodecomm&#45;&gt;proc~mapl_return -->
+<g id="proc~~getnodecomm~~CallsGraph_edge11" class="edge">
+<title>proc~getnodecomm&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M123.89,-230.66C142.44,-198.75 196.88,-113.33 268,-75 274.43,-71.54 281.25,-68.6 288.28,-66.1"/>
+<polygon fill="#255000" stroke="#255000" points="289.55,-69.37 297.99,-62.98 287.4,-62.71 289.55,-69.37"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~getnodecomm~~CallsGraph_node13" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node13"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="515,-24 301,-24 301,0 515,0 515,-24"/>
+<text text-anchor="middle" x="408" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~getnodecomm&#45;&gt;proc~mapl_verify -->
+<g id="proc~~getnodecomm~~CallsGraph_edge12" class="edge">
+<title>proc~getnodecomm&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M121.65,-230.92C136.52,-194.08 186.78,-82.65 268,-33 275.26,-28.56 283.12,-24.94 291.28,-22"/>
+<polygon fill="#255000" stroke="#255000" points="292.55,-25.27 300.98,-18.86 290.39,-18.61 292.55,-25.27"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~getnodecomm~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node16"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="873,-801 601,-801 601,-777 873,-777 873,-801"/>
+<text text-anchor="middle" x="737" y="-786.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~getnodecomm~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M502.71,-759.04C543.24,-764.24 590.82,-770.35 632.41,-775.69"/>
+<polygon fill="#255000" stroke="#255000" points="632.2,-779.2 642.56,-777 633.09,-772.25 632.2,-779.2"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~getnodecomm~~CallsGraph_node17" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node17"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="880,-759 594,-759 594,-735 880,-735 880,-759"/>
+<text text-anchor="middle" x="737" y="-744.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~getnodecomm~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M516.52,-747C538.09,-747 561.14,-747 583.88,-747"/>
+<polygon fill="#255000" stroke="#255000" points="583.96,-750.5 593.96,-747 583.96,-743.5 583.96,-750.5"/>
+</g>
+<!-- proc~sort1ld -->
+<g id="proc~~getnodecomm~~CallsGraph_node19" class="node">
+<title>proc~sort1ld</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node19"><a xlink:href="../proc/sort1ld.html" xlink:title="MAPL_SortMod::SORT1LD">
+<polygon fill="#d9534f" stroke="#d9534f" points="811,-717 663,-717 663,-693 811,-693 811,-717"/>
+<text text-anchor="middle" x="737" y="-702.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ld -->
+<g id="proc~~getnodecomm~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ld</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M413.3,-444.13C428.77,-485.79 485.95,-623.81 584,-684 604.36,-696.5 629.11,-702.82 652.68,-705.75"/>
+<polygon fill="transparent" stroke="transparent" points="652.38,-709.24 662.69,-706.81 653.11,-702.28 652.38,-709.24"/>
+</g>
+<!-- proc~sort1lr -->
+<g id="proc~~getnodecomm~~CallsGraph_node20" class="node">
+<title>proc~sort1lr</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node20"><a xlink:href="../proc/sort1lr.html" xlink:title="MAPL_SortMod::SORT1LR">
+<polygon fill="#d9534f" stroke="#d9534f" points="810.5,-675 663.5,-675 663.5,-651 810.5,-651 810.5,-675"/>
+<text text-anchor="middle" x="737" y="-660.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1lr -->
+<g id="proc~~getnodecomm~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1lr</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M414.94,-444.15C433.75,-481.2 496.03,-593.18 584,-642 604.89,-653.59 629.8,-659.64 653.35,-662.61"/>
+<polygon fill="transparent" stroke="transparent" points="653.02,-666.09 663.34,-663.7 653.78,-659.13 653.02,-666.09"/>
+</g>
+<!-- proc~sort1ls -->
+<g id="proc~~getnodecomm~~CallsGraph_node21" class="node">
+<title>proc~sort1ls</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node21"><a xlink:href="../proc/sort1ls.html" xlink:title="MAPL_SortMod::SORT1LS">
+<polygon fill="#d9534f" stroke="#d9534f" points="810,-633 664,-633 664,-609 810,-609 810,-633"/>
+<text text-anchor="middle" x="737" y="-618.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ls -->
+<g id="proc~~getnodecomm~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ls</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M417.48,-444.39C440.18,-476.44 505.92,-562.17 584,-600 605.3,-610.32 630.13,-616.01 653.46,-619.03"/>
+<polygon fill="transparent" stroke="transparent" points="653.38,-622.54 663.71,-620.21 654.17,-615.59 653.38,-622.54"/>
+</g>
+<!-- proc~sort1sd -->
+<g id="proc~~getnodecomm~~CallsGraph_node22" class="node">
+<title>proc~sort1sd</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node22"><a xlink:href="../proc/sort1sd.html" xlink:title="MAPL_SortMod::SORT1SD">
+<polygon fill="#d9534f" stroke="#d9534f" points="811,-591 663,-591 663,-567 811,-567 811,-591"/>
+<text text-anchor="middle" x="737" y="-576.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1sd -->
+<g id="proc~~getnodecomm~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1sd</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M421.28,-444.23C448.13,-470.15 515.18,-530.46 584,-558 605.44,-566.58 629.78,-571.76 652.61,-574.85"/>
+<polygon fill="transparent" stroke="transparent" points="652.27,-578.34 662.63,-576.09 653.13,-571.39 652.27,-578.34"/>
+</g>
+<!-- proc~sort1sr -->
+<g id="proc~~getnodecomm~~CallsGraph_node23" class="node">
+<title>proc~sort1sr</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node23"><a xlink:href="../proc/sort1sr.html" xlink:title="MAPL_SortMod::SORT1SR">
+<polygon fill="#d9534f" stroke="#d9534f" points="811,-549 663,-549 663,-525 811,-525 811,-549"/>
+<text text-anchor="middle" x="737" y="-534.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1sr -->
+<g id="proc~~getnodecomm~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1sr</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M428.91,-444.11C460.55,-462.74 524.78,-498.17 584,-516 605.89,-522.59 630.18,-527.12 652.8,-530.23"/>
+<polygon fill="transparent" stroke="transparent" points="652.36,-533.7 662.72,-531.52 653.26,-526.76 652.36,-533.7"/>
+</g>
+<!-- proc~sort1ss -->
+<g id="proc~~getnodecomm~~CallsGraph_node24" class="node">
+<title>proc~sort1ss</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node24"><a xlink:href="../proc/sort1ss.html" xlink:title="MAPL_SortMod::SORT1SS">
+<polygon fill="#d9534f" stroke="#d9534f" points="810.5,-507 663.5,-507 663.5,-483 810.5,-483 810.5,-507"/>
+<text text-anchor="middle" x="737" y="-492.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ss -->
+<g id="proc~~getnodecomm~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ss</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M453.7,-444.01C488.9,-453.16 539.33,-465.57 584,-474 606.36,-478.22 630.72,-481.96 653.26,-485.07"/>
+<polygon fill="transparent" stroke="transparent" points="653.09,-488.58 663.47,-486.46 654.03,-481.64 653.09,-488.58"/>
+</g>
+<!-- proc~sort2al -->
+<g id="proc~~getnodecomm~~CallsGraph_node25" class="node">
+<title>proc~sort2al</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node25"><a xlink:href="../proc/sort2al.html" xlink:title="MAPL_SortMod::SORT2AL">
+<polygon fill="#d9534f" stroke="#d9534f" points="810.5,-465 663.5,-465 663.5,-441 810.5,-441 810.5,-465"/>
+<text text-anchor="middle" x="737" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2AL</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2al -->
+<g id="proc~~getnodecomm~~CallsGraph_edge21" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2al</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.25,-436.9C535.59,-440.13 601.53,-444.36 653.15,-447.68"/>
+<polygon fill="transparent" stroke="transparent" points="653.07,-451.18 663.28,-448.33 653.52,-444.2 653.07,-451.18"/>
+</g>
+<!-- proc~sort2as -->
+<g id="proc~~getnodecomm~~CallsGraph_node26" class="node">
+<title>proc~sort2as</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node26"><a xlink:href="../proc/sort2as.html" xlink:title="MAPL_SortMod::SORT2AS">
+<polygon fill="#d9534f" stroke="#d9534f" points="811,-423 663,-423 663,-399 811,-399 811,-423"/>
+<text text-anchor="middle" x="737" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2AS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2as -->
+<g id="proc~~getnodecomm~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2as</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.25,-427.1C535.5,-423.88 601.3,-419.65 652.88,-416.34"/>
+<polygon fill="transparent" stroke="transparent" points="653.24,-419.82 663,-415.69 652.8,-412.84 653.24,-419.82"/>
+</g>
+<!-- proc~sort2ld -->
+<g id="proc~~getnodecomm~~CallsGraph_node27" class="node">
+<title>proc~sort2ld</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node27"><a xlink:href="../proc/sort2ld.html" xlink:title="MAPL_SortMod::SORT2LD">
+<polygon fill="#d9534f" stroke="#d9534f" points="811,-381 663,-381 663,-357 811,-357 811,-381"/>
+<text text-anchor="middle" x="737" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ld -->
+<g id="proc~~getnodecomm~~CallsGraph_edge23" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ld</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.29,-425.75C506.02,-422.64 528.21,-417.98 548,-411 565.47,-404.84 566.49,-396.05 584,-390 605.71,-382.5 630.05,-377.67 652.77,-374.56"/>
+<polygon fill="transparent" stroke="transparent" points="653.26,-378.02 662.74,-373.29 652.38,-371.08 653.26,-378.02"/>
+</g>
+<!-- proc~sort2lr -->
+<g id="proc~~getnodecomm~~CallsGraph_node28" class="node">
+<title>proc~sort2lr</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node28"><a xlink:href="../proc/sort2lr.html" xlink:title="MAPL_SortMod::SORT2LR">
+<polygon fill="#d9534f" stroke="#d9534f" points="810.5,-339 663.5,-339 663.5,-315 810.5,-315 810.5,-339"/>
+<text text-anchor="middle" x="737" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2lr -->
+<g id="proc~~getnodecomm~~CallsGraph_edge24" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2lr</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.32,-432.67C507.07,-429.77 529.78,-423.49 548,-411 574.6,-392.77 557.28,-366.06 584,-348 604.08,-334.42 629.09,-327.84 652.99,-325.01"/>
+<polygon fill="transparent" stroke="transparent" points="653.54,-328.47 663.15,-324.01 652.86,-321.5 653.54,-328.47"/>
+</g>
+<!-- proc~sort2ls -->
+<g id="proc~~getnodecomm~~CallsGraph_node29" class="node">
+<title>proc~sort2ls</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node29"><a xlink:href="../proc/sort2ls.html" xlink:title="MAPL_SortMod::SORT2LS">
+<polygon fill="#d9534f" stroke="#d9534f" points="810,-297 664,-297 664,-273 810,-273 810,-297"/>
+<text text-anchor="middle" x="737" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ls -->
+<g id="proc~~getnodecomm~~CallsGraph_edge25" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ls</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.1,-434.98C507.46,-432.29 530.57,-425.54 548,-411 585.88,-379.4 545.92,-337.36 584,-306 603.34,-290.07 628.98,-283.02 653.69,-280.46"/>
+<polygon fill="transparent" stroke="transparent" points="654.14,-283.93 663.83,-279.65 653.58,-276.96 654.14,-283.93"/>
+</g>
+<!-- proc~sort2sd -->
+<g id="proc~~getnodecomm~~CallsGraph_node30" class="node">
+<title>proc~sort2sd</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node30"><a xlink:href="../proc/sort2sd.html" xlink:title="MAPL_SortMod::SORT2SD">
+<polygon fill="#d9534f" stroke="#d9534f" points="811,-255 663,-255 663,-231 811,-231 811,-255"/>
+<text text-anchor="middle" x="737" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2sd -->
+<g id="proc~~getnodecomm~~CallsGraph_edge26" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2sd</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.19,-436C507.82,-433.42 531.06,-426.47 548,-411 597.66,-365.63 534.05,-309.05 584,-264 602.6,-247.22 628.05,-239.93 652.8,-237.43"/>
+<polygon fill="transparent" stroke="transparent" points="653.27,-240.91 662.97,-236.66 652.74,-233.93 653.27,-240.91"/>
+</g>
+<!-- proc~sort2sr -->
+<g id="proc~~getnodecomm~~CallsGraph_node31" class="node">
+<title>proc~sort2sr</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node31"><a xlink:href="../proc/sort2sr.html" xlink:title="MAPL_SortMod::SORT2SR">
+<polygon fill="#d9534f" stroke="#d9534f" points="811,-213 663,-213 663,-189 811,-189 811,-213"/>
+<text text-anchor="middle" x="737" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2sr -->
+<g id="proc~~getnodecomm~~CallsGraph_edge27" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2sr</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.32,-436.57C508.09,-434.04 531.38,-426.99 548,-411 609.61,-351.7 522.02,-280.91 584,-222 602.25,-204.66 627.73,-197.26 652.62,-194.82"/>
+<polygon fill="transparent" stroke="transparent" points="653.13,-198.3 662.85,-194.09 652.63,-191.31 653.13,-198.3"/>
+</g>
+<!-- proc~sort2ss -->
+<g id="proc~~getnodecomm~~CallsGraph_node32" class="node">
+<title>proc~sort2ss</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node32"><a xlink:href="../proc/sort2ss.html" xlink:title="MAPL_SortMod::SORT2SS">
+<polygon fill="#d9534f" stroke="#d9534f" points="810.5,-171 663.5,-171 663.5,-147 810.5,-147 810.5,-171"/>
+<text text-anchor="middle" x="737" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ss -->
+<g id="proc~~getnodecomm~~CallsGraph_edge28" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ss</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.28,-436.94C508.19,-434.47 531.57,-427.36 548,-411 621.64,-337.7 509.89,-252.83 584,-180 602.2,-162.11 628.06,-154.67 653.3,-152.36"/>
+<polygon fill="transparent" stroke="transparent" points="653.55,-155.85 663.3,-151.7 653.09,-148.87 653.55,-155.85"/>
+</g>
+<!-- proc~get_logger_root -->
+<g id="proc~~getnodecomm~~CallsGraph_node15" class="node">
+<title>proc~get_logger_root</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node15"><a xlink:href="../proc/get_logger_root.html" xlink:title="PFL_LoggerManager::LoggerManager%get_logger_root">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="890,-129 584,-129 584,-105 890,-105 890,-129"/>
+<text text-anchor="middle" x="737" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager::LoggerManager%get_logger_root</text>
+</a>
+</g>
+</g>
+<!-- none~get_logger~2&#45;&gt;proc~get_logger_root -->
+<g id="proc~~getnodecomm~~CallsGraph_edge29" class="edge">
+<title>none~get_logger~2&#45;&gt;proc~get_logger_root</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M548.15,-129.06C556.65,-128.52 565.23,-127.97 573.81,-127.42"/>
+<polygon fill="#002505" stroke="#002505" points="574.12,-130.9 583.88,-126.77 573.68,-123.92 574.12,-130.9"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~getnodecomm~~CallsGraph_node14" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node14"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="863.5,-66 610.5,-66 610.5,-42 863.5,-42 863.5,-66"/>
+<text text-anchor="middle" x="737" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~getnodecomm~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M518.34,-54C544.63,-54 573.03,-54 600.36,-54"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="600.37,-57.5 610.37,-54 600.37,-50.5 600.37,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~getnodecomm~~CallsGraph_node18" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~getnodecomm~~CallsGraph_node18"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="851.5,-24 622.5,-24 622.5,0 851.5,0 851.5,-24"/>
+<text text-anchor="middle" x="737" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~getnodecomm~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M502.71,-41.96C543.24,-36.76 590.82,-30.65 632.41,-25.31"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="633.09,-28.75 642.56,-24 632.2,-21.8 633.09,-28.75"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~getnodecomm~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255012" stroke-opacity="0.027451" d="M515.17,-12C546.13,-12 580.23,-12 612.19,-12"/>
+<polygon fill="#255012" fill-opacity="0.027451" stroke="#255012" stroke-opacity="0.027451" points="612.48,-15.5 622.48,-12 612.48,-8.5 612.48,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocgetnodecommCallsGraph = svgPanZoom('#procgetnodecommCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T14:21:56.067236             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

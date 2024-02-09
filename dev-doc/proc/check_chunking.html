@@ -1,0 +1,705 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>check_chunking &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>check_chunking
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">39 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_EpochSwathMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_epochswathmod.f90.html'>MAPL_EpochSwathMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_epochswathmod.html'>MAPL_EpochSwathMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">check_chunking</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/check_chunking.html#src">check_chunking</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine check_chunking(this, lev_size, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/sampler.html'>sampler</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~318"></span>
+              class(<a href='../type/sampler.html'>sampler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lev_size"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lev_size</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~92"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~check_chunking~~CallsGraph Pages: 1 -->
+<svg id="proccheck_chunkingCallsGraph" width="641pt" height="125pt"
+ viewBox="0.00 0.00 641.00 124.68" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~check_chunking~~CallsGraph" class="graph" transform="scale(2.42 2.42) rotate(0) translate(4 297.88)">
+<title>proc~~check_chunking~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-297.88 1548,-297.88 1548,4 -4,4"/>
+<!-- proc~check_chunking -->
+<g id="proc~~check_chunking~~CallsGraph_node1" class="node">
+<title>proc~check_chunking</title>
+<polygon fill="none" stroke="black" points="280,-204.88 0,-204.88 0,-180.88 280,-180.88 280,-204.88"/>
+<text text-anchor="middle" x="140" y="-190.48" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_EpochSwathMod::sampler%check_chunking</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~check_chunking~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="744,-282.88 527,-282.88 527,-258.88 744,-258.88 744,-282.88"/>
+<text text-anchor="middle" x="635.5" y="-268.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~check_chunking&#45;&gt;interface~mapl_assert -->
+<g id="proc~~check_chunking~~CallsGraph_edge1" class="edge">
+<title>proc~check_chunking&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M174.04,-204.94C208.86,-217.11 265.53,-235.43 316,-244.88 381.72,-257.19 456.16,-263.67 516.54,-267.08"/>
+<polygon fill="#255000" stroke="#255000" points="516.69,-270.6 526.87,-267.65 517.08,-263.61 516.69,-270.6"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~check_chunking~~CallsGraph_node3" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node3"><a xlink:href="../proc/mapl_gridget.html" xlink:title="mapl_MaplGrid::MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="491,-146.88 316,-146.88 316,-122.88 491,-122.88 491,-146.88"/>
+<text text-anchor="middle" x="403.5" y="-132.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~check_chunking&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~check_chunking~~CallsGraph_edge2" class="edge">
+<title>proc~check_chunking&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#255000" d="M195.18,-180.86C236.82,-171.63 294.45,-158.84 338.38,-149.1"/>
+<polygon fill="#255000" stroke="#255000" points="339.38,-152.46 348.39,-146.88 337.87,-145.63 339.38,-152.46"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~check_chunking~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1033,-41.88 813,-41.88 813,-17.88 1033,-17.88 1033,-41.88"/>
+<text text-anchor="middle" x="923" y="-27.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~check_chunking&#45;&gt;proc~mapl_return -->
+<g id="proc~~check_chunking~~CallsGraph_edge3" class="edge">
+<title>proc~check_chunking&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M159.24,-180.85C212.82,-146.34 375.52,-47.29 527,-13.88 638.19,10.65 771.16,-3.34 850.98,-16.22"/>
+<polygon fill="#255000" stroke="#255000" points="850.49,-19.68 860.92,-17.86 851.63,-12.78 850.49,-19.68"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~check_chunking~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1030,-209.88 816,-209.88 816,-185.88 1030,-185.88 1030,-209.88"/>
+<text text-anchor="middle" x="923" y="-195.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~check_chunking&#45;&gt;proc~mapl_verify -->
+<g id="proc~~check_chunking~~CallsGraph_edge4" class="edge">
+<title>proc~check_chunking&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M280.18,-193.77C429.92,-194.73 665.39,-196.24 805.65,-197.13"/>
+<polygon fill="#255000" stroke="#255000" points="805.97,-200.64 816,-197.2 806.02,-193.64 805.97,-200.64"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~check_chunking~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node9"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1059,-293.88 787,-293.88 787,-269.88 1059,-269.88 1059,-293.88"/>
+<text text-anchor="middle" x="923" y="-279.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~check_chunking~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M744.03,-275.02C754.68,-275.43 765.61,-275.85 776.56,-276.28"/>
+<polygon fill="#255000" stroke="#255000" points="776.48,-279.78 786.61,-276.66 776.75,-272.78 776.48,-279.78"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~check_chunking~~CallsGraph_node10" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node10"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1066,-251.88 780,-251.88 780,-227.88 1066,-227.88 1066,-251.88"/>
+<text text-anchor="middle" x="923" y="-237.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~check_chunking~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M744.03,-259.2C762.65,-257.18 782.13,-255.07 801.08,-253.01"/>
+<polygon fill="#255000" stroke="#255000" points="801.68,-256.47 811.24,-251.91 800.92,-249.51 801.68,-256.47"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~check_chunking~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M436.08,-122.81C460.59,-113.81 495.57,-101.76 527,-93.88 637.63,-66.14 667.36,-68.78 780,-50.88 795.69,-48.39 812.38,-45.83 828.59,-43.4"/>
+<polygon fill="transparent" stroke="transparent" points="829.23,-46.84 838.61,-41.91 828.2,-39.92 829.23,-46.84"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~check_chunking~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="transparent" d="M462.9,-146.89C483.14,-150.77 506.01,-154.85 527,-157.88 620.2,-171.32 726.42,-181.81 805.22,-188.67"/>
+<polygon fill="transparent" stroke="transparent" points="805.4,-192.2 815.66,-189.57 806,-185.22 805.4,-192.2"/>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~check_chunking~~CallsGraph_node6" class="node">
+<title>ESMF_AttributeGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="708.5,-46.88 562.5,-46.88 562.5,-22.88 708.5,-22.88 708.5,-46.88"/>
+<text text-anchor="middle" x="635.5" y="-32.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeGet</text>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~check_chunking~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="transparent" d="M420.68,-122.87C443.34,-106.58 486.33,-77.61 527,-60.88 537.64,-56.5 549.2,-52.75 560.65,-49.56"/>
+<polygon fill="transparent" stroke="transparent" points="561.89,-52.86 570.66,-46.91 560.1,-46.09 561.89,-52.86"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~check_chunking~~CallsGraph_node7" class="node">
+<title>ESMF_GridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="984.5,-167.88 861.5,-167.88 861.5,-143.88 984.5,-143.88 984.5,-167.88"/>
+<text text-anchor="middle" x="923" y="-153.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGet</text>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~check_chunking~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="transparent" d="M491.12,-138.39C592.21,-142.5 757.45,-149.2 851.2,-153.01"/>
+<polygon fill="transparent" stroke="transparent" points="851.3,-156.51 861.44,-153.42 851.59,-149.52 851.3,-156.51"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~check_chunking~~CallsGraph_node11" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node11"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="mapl_MaplGrid::MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="731.5,-126.88 539.5,-126.88 539.5,-102.88 731.5,-102.88 731.5,-126.88"/>
+<text text-anchor="middle" x="635.5" y="-112.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~check_chunking~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="transparent" d="M491.13,-127.35C503.58,-126.26 516.52,-125.14 529.29,-124.03"/>
+<polygon fill="transparent" stroke="transparent" points="529.83,-127.5 539.48,-123.14 529.22,-120.52 529.83,-127.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~check_chunking~~CallsGraph_node8" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node8"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1355,-115.88 1102,-115.88 1102,-91.88 1355,-91.88 1355,-115.88"/>
+<text text-anchor="middle" x="1228.5" y="-101.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~check_chunking~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1020.67,-41.91C1035.92,-44.46 1051.45,-47.44 1066,-50.88 1107.77,-60.75 1154.21,-76.51 1186.53,-88.29"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1185.49,-91.63 1196.09,-91.8 1187.91,-85.06 1185.49,-91.63"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~check_chunking~~CallsGraph_node12" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node12"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1343,-230.88 1114,-230.88 1114,-206.88 1343,-206.88 1343,-230.88"/>
+<text text-anchor="middle" x="1228.5" y="-216.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~check_chunking~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1033.06,-34.71C1044.87,-38.44 1056.15,-43.66 1066,-50.88 1095.5,-72.5 1078.71,-96.68 1102,-124.88 1128.79,-157.31 1168.97,-184.84 1196.61,-201.57"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1195.07,-204.73 1205.46,-206.82 1198.64,-198.71 1195.07,-204.73"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~check_chunking~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1030.15,-205.22C1053.96,-206.87 1079.43,-208.63 1103.88,-210.33"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1103.71,-213.82 1113.92,-211.02 1104.19,-206.84 1103.71,-213.82"/>
+</g>
+<!-- at -->
+<g id="proc~~check_chunking~~CallsGraph_node15" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1494.5,-94.88 1440.5,-94.88 1440.5,-70.88 1494.5,-70.88 1494.5,-94.88"/>
+<text text-anchor="middle" x="1467.5" y="-80.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~check_chunking~~CallsGraph_edge15" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#722550" d="M1355.29,-92.73C1382.83,-90.29 1409.86,-87.9 1430.36,-86.08"/>
+<polygon fill="#722550" stroke="#722550" points="1430.81,-89.56 1440.46,-85.19 1430.19,-82.58 1430.81,-89.56"/>
+</g>
+<!-- insert -->
+<g id="proc~~check_chunking~~CallsGraph_node16" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1494.5,-136.88 1440.5,-136.88 1440.5,-112.88 1494.5,-112.88 1494.5,-136.88"/>
+<text text-anchor="middle" x="1467.5" y="-122.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~check_chunking~~CallsGraph_edge16" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#722550" d="M1355.29,-115.03C1382.83,-117.47 1409.86,-119.86 1430.36,-121.68"/>
+<polygon fill="#722550" stroke="#722550" points="1430.19,-125.18 1440.46,-122.57 1430.81,-118.2 1430.19,-125.18"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~check_chunking~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M1015.54,-269.82C1032.38,-267.19 1049.76,-264.18 1066,-260.88 1103.27,-253.3 1144.79,-242.45 1176.4,-233.67"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="1177.61,-236.97 1186.3,-230.9 1175.72,-230.23 1177.61,-236.97"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~check_chunking~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M1038.43,-227.83C1047.91,-225.37 1057.22,-222.42 1066,-218.88 1081.09,-212.8 1161.97,-152.98 1203.24,-122.11"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="1205.5,-124.79 1211.41,-116 1201.3,-119.19 1205.5,-124.79"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~check_chunking~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M1066.42,-230.03C1078.81,-229.17 1091.29,-228.3 1103.52,-227.46"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="1103.99,-230.93 1113.72,-226.75 1103.5,-223.95 1103.99,-230.93"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~check_chunking~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#720255" d="M710.95,-102.82C722.45,-99.3 733.86,-94.75 744,-88.88 764.13,-77.22 759.36,-61.61 780,-50.88 787.23,-47.12 794.93,-43.98 802.86,-41.36"/>
+<polygon fill="#720255" stroke="#720255" points="804.07,-44.65 812.64,-38.41 802.05,-37.94 804.07,-44.65"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~check_chunking~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#720255" d="M659.18,-126.89C686.91,-141.05 735.63,-164.25 780,-176.88 789.26,-179.51 798.95,-181.83 808.75,-183.87"/>
+<polygon fill="#720255" stroke="#720255" points="808.07,-187.3 818.56,-185.81 809.43,-180.44 808.07,-187.3"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~check_chunking~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#720255" d="M720.23,-126.9C761.85,-132.88 811.6,-140.03 851.29,-145.72"/>
+<polygon fill="#720255" stroke="#720255" points="851.02,-149.22 861.41,-147.18 852.01,-142.29 851.02,-149.22"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~check_chunking~~CallsGraph_node13" class="node">
+<title>ESMF_DELayoutGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="998.5,-83.88 847.5,-83.88 847.5,-59.88 998.5,-59.88 998.5,-83.88"/>
+<text text-anchor="middle" x="923" y="-69.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DELayoutGet</text>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~check_chunking~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#720255" d="M714.31,-102.87C735.61,-99.61 758.69,-96.09 780,-92.88 798.49,-90.1 818.33,-87.14 837.15,-84.35"/>
+<polygon fill="#720255" stroke="#720255" points="837.81,-87.79 847.19,-82.87 836.78,-80.87 837.81,-87.79"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~check_chunking~~CallsGraph_node14" class="node">
+<title>ESMF_DistGridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="994.5,-125.88 851.5,-125.88 851.5,-101.88 994.5,-101.88 994.5,-125.88"/>
+<text text-anchor="middle" x="923" y="-111.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DistGridGet</text>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~check_chunking~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#720255" d="M731.57,-114.55C767,-114.42 806.85,-114.28 840.91,-114.16"/>
+<polygon fill="#720255" stroke="#720255" points="841.29,-117.66 851.28,-114.13 841.27,-110.66 841.29,-117.66"/>
+</g>
+<!-- proc~initialize~7 -->
+<g id="proc~~check_chunking~~CallsGraph_node17" class="node">
+<title>proc~initialize~7</title>
+<g id="a_proc~~check_chunking~~CallsGraph_node17"><a xlink:href="../proc/initialize~7.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1544,-230.88 1391,-230.88 1391,-206.88 1544,-206.88 1544,-230.88"/>
+<text text-anchor="middle" x="1467.5" y="-216.48" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~7 -->
+<g id="proc~~check_chunking~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~7</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M1343.14,-218.88C1355.76,-218.88 1368.46,-218.88 1380.65,-218.88"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="1380.77,-222.38 1390.77,-218.88 1380.77,-215.38 1380.77,-222.38"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccheck_chunkingCallsGraph = svgPanZoom('#proccheck_chunkingCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">     </span><span class="k">subroutine </span><span class="n">check_chunking</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">lev_size</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">        </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">sampler</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lev_size</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">global_dim</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">global_dim</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">global_dim</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">6</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">global_dim</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           write</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">global_dim</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="k">write</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">global_dim</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Chunk for Xdim &quot;</span><span class="o">//</span><span class="n">c1</span><span class="o">//</span><span class="s2">&quot; must be less than or equal to &quot;</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span>
+<span class="w">           </span><span class="k">write</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">global_dim</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Chunk for Ydim &quot;</span><span class="o">//</span><span class="n">c1</span><span class="o">//</span><span class="s2">&quot; must be less than or equal to &quot;</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Chunksize for face dimension must be 6 or less&quot;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lev_size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              write</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">lev_size</span>
+<span class="w">              </span><span class="k">write</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lev_size</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Chunk for level size &quot;</span><span class="o">//</span><span class="n">c1</span><span class="o">//</span><span class="s2">&quot; must be less than or equal to &quot;</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">           </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Time must have chunk size of 1&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           write</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">global_dim</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="k">write</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">global_dim</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Chunk for lon &quot;</span><span class="o">//</span><span class="n">c1</span><span class="o">//</span><span class="s2">&quot; must be less than or equal to &quot;</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span>
+<span class="w">           </span><span class="k">write</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">global_dim</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">           </span><span class="k">write</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">global_dim</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Chunk for lat &quot;</span><span class="o">//</span><span class="n">c1</span><span class="o">//</span><span class="s2">&quot; must be less than or equal to &quot;</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lev_size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              write</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">lev_size</span>
+<span class="w">              </span><span class="k">write</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="s1">&#39;(I5)&#39;</span><span class="p">)</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lev_size</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Chunk for level size &quot;</span><span class="o">//</span><span class="n">c1</span><span class="o">//</span><span class="s2">&quot; must be less than or equal to &quot;</span><span class="o">//</span><span class="n">c2</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">           </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Time must have chunk size of 1&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="k">endif</span>
+<span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">end subroutine </span><span class="n">check_chunking</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T14:21:56.067236             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
