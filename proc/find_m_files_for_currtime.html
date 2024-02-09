@@ -80,7 +80,7 @@
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip"
                  data-bs-placement="bottom" data-html="true"
-                 title=" 0.1% of total for procedures.">59 statements</a>
+                 title=" 0.1% of total for procedures.">60 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -164,7 +164,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-currtime~24"></span>
+              <span class="anchor" id="variable-currtime~18"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
             </td>
 <td>intent(in)</td>
@@ -224,7 +224,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-epoch_frequency~4"></span>
+              <span class="anchor" id="variable-epoch_frequency~3"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
             </td>
 <td>intent(in)</td>
@@ -239,7 +239,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-file_template~5"></span>
+              <span class="anchor" id="variable-file_template~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -254,7 +254,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-m~14"></span>
+              <span class="anchor" id="variable-m~9"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -299,7 +299,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1853"></span>
+              <span class="anchor" id="variable-rc~1309"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -727,6 +727,7 @@ large graphs.</div>
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n1</span><span class="p">,</span><span class="w"> </span><span class="n">n2</span>
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span>
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exist</span>
 
 <span class="w">    </span><span class="c">!__ s1.  Arithmetic index list based on s,e,interval</span>
 <span class="w">    </span><span class="c">!</span>
@@ -771,13 +772,13 @@ large graphs.</div>
 <span class="c">!    print*, &#39;2nd n1, n2&#39;, n1, n2</span>
 
 <span class="w">    </span><span class="c">!__ s2.  further test file existence</span>
-<span class="w">    </span><span class="c">!    </span>
+<span class="w">    </span><span class="c">!</span>
 <span class="w">    </span><span class="n">j</span><span class="o">=</span><span class="mi">0</span>
 <span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="w"> </span><span class="n">n1</span><span class="p">,</span><span class="w"> </span><span class="n">n2</span>
 <span class="w">       </span><span class="n">test_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_filename_from_template_use_index</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">            </span><span class="p">(</span><span class="n">obsfile_start_time</span><span class="p">,</span><span class="w"> </span><span class="n">obsfile_interval</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">            </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">file_template</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">test_file</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">file_template</span><span class="p">,</span><span class="w"> </span><span class="n">exist</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">exist</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">          </span><span class="n">j</span><span class="o">=</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">          </span><span class="n">filenames</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_file</span>
 <span class="w">       </span><span class="k">end if</span>
@@ -786,7 +787,6 @@ large graphs.</div>
 
 <span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;code crash, number of files exceeds upper bound&#39;</span><span class="p">)</span>
 <span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="w"> </span><span class="p">(</span><span class="n">M</span><span class="o">/=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;M is zero, no files found for currTime&#39;</span><span class="p">)</span>
-<span class="w">    </span>
 
 <span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 
@@ -811,7 +811,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-02-06T15:18:54.674919             </p>
+ on 2024-02-09T13:36:18.755892             </p>
           </div>
         </div>
         <br>

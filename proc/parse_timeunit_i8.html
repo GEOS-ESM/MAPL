@@ -281,7 +281,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-tunit~10"></span>
+              <span class="anchor" id="variable-tunit~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -296,7 +296,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-n~754"></span>
+              <span class="anchor" id="variable-n~4"></span>
               integer(kind=ESMF_KIND_I8),
             </td>
 <td>intent(in)</td>
@@ -311,7 +311,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-t0~6"></span>
+              <span class="anchor" id="variable-t0~2"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
             </td>
 <td>intent(out)</td>
@@ -326,7 +326,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-dt~10"></span>
+              <span class="anchor" id="variable-dt~4"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
             </td>
 <td>intent(out)</td>
@@ -341,7 +341,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2203"></span>
+              <span class="anchor" id="variable-rc~14"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -816,11 +816,14 @@ large graphs.</div>
 <span class="w">    </span><span class="k">read</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(i4,a1,i2,a1,i2)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">d</span>
 <span class="w">    </span><span class="k">read</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(i2,a1,i2,a1,i2)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">sec</span>
 
+<span class="c">!    write(6,*) &#39;y, c1, m, c1, d&#39;,  y, c1, m, c1, d</span>
+<span class="c">!    write(6,*) &#39;hour, c1, min, c1, sec&#39;, hour, c1, min, c1, sec</span>
+
 <span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">s_unit</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;seconds&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;s_unit /= &#39;seconds&#39; is not handled&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="n">isec</span><span class="o">=</span><span class="n">n</span>
 
 <span class="w">    </span><span class="n">gregorianCalendar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_CalendarCreate</span><span class="p">(</span><span class="n">ESMF_CALKIND_GREGORIAN</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Gregorian_obs&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_timeSet</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">m</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">m</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">sec</span><span class="p">,&amp;</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_timeSet</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">m</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">sec</span><span class="p">,&amp;</span>
 <span class="w">         </span><span class="n">calendar</span><span class="o">=</span><span class="n">gregorianCalendar</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_timeintervalSet</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s_i8</span><span class="o">=</span><span class="n">isec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
@@ -847,7 +850,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-02-06T15:18:54.674919             </p>
+ on 2024-02-09T13:36:18.755892             </p>
           </div>
         </div>
         <br>

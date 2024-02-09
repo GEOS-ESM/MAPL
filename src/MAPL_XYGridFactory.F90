@@ -8,9 +8,14 @@ module MAPL_XYGridFactoryMod
    use MAPL_ExceptionHandling
    use MAPL_ShmemMod
    use MAPL_Constants
+   use MAPL_CommsMod
+   use MAPL_BaseMod
    use ESMF
    use pFIO
    use NetCDF
+   !   use Plain_netCDF_Time, only : get_ncfile_dimension
+   use Plain_netCDF_Time
+   use MAPL_ObsUtilMod, only : ABI_XY_2_lonlat
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -36,13 +41,24 @@ module MAPL_XYGridFactoryMod
       logical :: has_corners
 
       logical :: initialized_from_metadata = .false.
+
+      character(len=ESMF_MAXSTR) :: index_name_x
+      character(len=ESMF_MAXSTR) :: index_name_y
+      character(len=ESMF_MAXSTR) :: var_name_x
+      character(len=ESMF_MAXSTR) :: var_name_y
+      character(len=ESMF_MAXSTR) :: var_name_proj
+      character(len=ESMF_MAXSTR) :: att_name_proj
+
+      integer :: xdim_true
+      integer :: ydim_true
+      integer :: thin_factor
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
       procedure :: add_horz_coordinates_from_file
+      procedure :: add_horz_coordinates_from_ABIfile
       procedure :: init_halo
       procedure :: halo
-
 
       procedure :: initialize_from_file_metadata
       procedure :: initialize_from_config_with_prefix
@@ -65,6 +81,7 @@ module MAPL_XYGridFactoryMod
       procedure :: decomps_are_equal
       procedure :: physical_params_are_equal
       procedure :: file_has_corners
+      procedure :: add_mask
    end type XYGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_XYGridFactory::'
@@ -101,7 +118,6 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'XYGridFactory_from_parameters'
 
-
       if (present(unusable)) print*,shape(unusable)
 
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
@@ -113,12 +129,8 @@ contains
       call set_with_default(factory%jm_world, jm_world, MAPL_UNDEFINED_INTEGER)
       call set_with_default(factory%lm, lm, MAPL_UNDEFINED_INTEGER)
 
-
-
-
       call factory%check_and_fill_consistency(rc=status)
       _VERIFY(status)
-
       _RETURN(_SUCCESS)
 
    end function XYGridFactory_from_parameters
@@ -135,11 +147,13 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      grid = this%create_basic_grid(rc=status)
-      _VERIFY(status)
-
-      call this%add_horz_coordinates_from_file(grid, rc=status)
-      _VERIFY(status)
+      grid = this%create_basic_grid(_RC)
+      if ( index(trim(adjustl(this%grid_name)), 'ABI') == 0 ) then
+         call this%add_horz_coordinates_from_file(grid, _RC)
+      else
+         call this%add_horz_coordinates_from_ABIfile(grid, _RC)
+      end if
+      call this%add_mask(grid,_RC)
 
       _RETURN(_SUCCESS)
 
@@ -167,8 +181,7 @@ contains
             gridEdgeUWidth=[0,1], &
             coordDep1=[1,2], &
             coordDep2=[1,2], &
-            coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
-      _VERIFY(status)
+            coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
 
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
@@ -180,15 +193,14 @@ contains
       _VERIFY(status)
 
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-         _VERIFY(status)
+         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType', 'XY', rc=status)
-      _VERIFY(status)
+      call ESMF_AttributeSet(grid, 'GridType', 'XY', _RC)
 
       _RETURN(_SUCCESS)
    end function create_basic_grid
+
 
    subroutine add_horz_coordinates_from_file(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior, MAPL_gridget
@@ -214,7 +226,6 @@ contains
       character(len=:), allocatable :: lon_center_name, lat_center_name, lon_corner_name, lat_corner_name
 
       _UNUSED_DUMMY(unusable)
-
 
        lon_center_name = "lons"
        lat_center_name = "lats"
@@ -253,7 +264,7 @@ contains
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,centers)
           _VERIFY(status)
-          centers=centers*MAPL_DEGREES_TO_RADIANS_R8
+          where(centers /= MAPL_UNDEF) centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
 
@@ -269,7 +280,7 @@ contains
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,centers)
           _VERIFY(status)
-           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
+          where(centers /= MAPL_UNDEF) centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
 
@@ -296,7 +307,7 @@ contains
              _VERIFY(status)
              status = nf90_get_var(ncid,varid,corners)
              _VERIFY(status)
-             corners=corners*MAPL_DEGREES_TO_RADIANS_R8
+             where(corners /= MAPL_UNDEF) corners=corners*MAPL_DEGREES_TO_RADIANS_R8
           end if
           call MAPL_SyncSharedMemory(_RC)
 
@@ -312,7 +323,7 @@ contains
              _VERIFY(status)
              status = nf90_get_var(ncid,varid,corners)
              _VERIFY(status)
-             corners=corners*MAPL_DEGREES_TO_RADIANS_R8
+             where(corners /= MAPL_UNDEF) corners=corners*MAPL_DEGREES_TO_RADIANS_R8
           end if
           call MAPL_SyncSharedMemory(_RC)
 
@@ -337,6 +348,86 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine add_horz_coordinates_from_file
+
+
+   subroutine add_horz_coordinates_from_ABIfile(this, grid, unusable, rc)
+      use MAPL_CommsMod
+      use MAPL_IOMod
+      use MAPL_Constants
+      class (XYGridFactory), intent(in) :: this
+      type (ESMF_Grid), intent(inout) :: grid
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      type(ESMF_VM) :: vm
+      integer :: i, j
+      integer :: ix, jx
+      integer :: i_1, i_n, j_1, j_n
+      real(REAL64), pointer :: fptr_x(:,:)   ! lon
+      real(REAL64), pointer :: fptr_y(:,:)   ! lat
+      real(REAL64), pointer :: x(:)
+      real(REAL64), pointer :: y(:)
+      real(REAL64), pointer :: lambda0(:)
+      real(REAL64) :: lambda0_deg
+      real(REAL64) :: x0, y0
+      real(REAL64) :: lam_sat
+      character(len=ESMF_MAXSTR) :: fn, key_x, key_y, key_p, key_p_att
+
+      _UNUSED_DUMMY(unusable)
+
+      call MAPL_Grid_Interior (grid, i_1, i_n, j_1, j_n)
+      call MAPL_AllocateShared(x,[this%Xdim_true],transroot=.true.,_RC)
+      call MAPL_AllocateShared(y,[this%Ydim_true],transroot=.true.,_RC)
+      call MAPL_AllocateShared(lambda0,[1],transroot=.true.,_RC)
+      call MAPL_SyncSharedMemory(_RC)
+
+      if (mapl_am_i_root()) then
+         fn    = this%grid_file_name
+         key_x = this%var_name_x
+         key_y = this%var_name_y
+         key_p = this%var_name_proj
+         key_p_att = this%att_name_proj
+         call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
+         call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
+         call get_att_real_netcdf (fn, key_p, key_p_att, lambda0_deg, _RC)
+         lambda0 = lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
+      end if
+      call MAPL_SyncSharedMemory(_RC)
+
+      call ESMF_VMGetCurrent(vm, _RC)
+      call MAPL_BcastShared (vm, data=x, N=this%Xdim_true, Root=MAPL_ROOT, RootOnly=.false., _RC)
+      call MAPL_BcastShared (vm, data=y, N=this%Ydim_true, Root=MAPL_ROOT, RootOnly=.false., _RC)
+      call MAPL_BcastShared (vm, data=lambda0, N=1,        Root=MAPL_ROOT, RootOnly=.false., _RC)
+
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr_x, _RC)
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr_y, _RC)
+      lam_sat = lambda0(1)
+      do i = i_1, i_n
+         ix = i - i_1 + 1
+         do j= j_1, j_n
+            jx = j - j_1 + 1
+            x0 = x( i * this%thin_factor )
+            y0 = y( j * this%thin_factor )
+            call ABI_XY_2_lonlat (x0, y0, lam_sat, fptr_x(ix, jx), fptr_y(ix, jx) )
+         end do
+      end do
+      call MAPL_SyncSharedMemory(_RC)
+
+      if(MAPL_ShmInitialized) then
+         call MAPL_DeAllocNodeArray(x,_RC)
+         call MAPL_DeAllocNodeArray(y,_RC)
+      else
+         deallocate(x)
+         deallocate(y)
+      end if
+
+      _RETURN(_SUCCESS)
+
+    end subroutine add_horz_coordinates_from_ABIfile
+
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
@@ -389,27 +480,50 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME//'make_geos_grid_from_config'
       character(len=ESMF_MAXSTR) :: tmp
+      integer :: n1, n2
+      integer :: arr(2)
+      type(ESMF_VM) :: vm
 
       if (present(unusable)) print*,shape(unusable)
 
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT, _RC)
       this%grid_name = trim(tmp)
-
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDSPEC:', rc=status)
-      _VERIFY(status)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRID_FILENAME:', default='', _RC)
       this%grid_file_name = trim(tmp)
 
-      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER, _RC)
+      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER, _RC)
+      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER, _RC)
+
+      call ESMF_ConfigGetAttribute(config, this%index_name_x, label=prefix//'index_name_x:', default="x", _RC)
+      call ESMF_ConfigGetAttribute(config, this%index_name_y, label=prefix//'index_name_y:', default="y", _RC)
+      call ESMF_ConfigGetAttribute(config, this%var_name_x,   label=prefix//'var_name_x:',   default="x", _RC)
+      call ESMF_ConfigGetAttribute(config, this%var_name_y,   label=prefix//'var_name_y:',   default="y", _RC)
+      call ESMF_ConfigGetAttribute(config, this%var_name_proj,label=prefix//'var_name_proj:',default="",  _RC)
+      call ESMF_ConfigGetAttribute(config, this%att_name_proj,label=prefix//'att_name_proj:',default="",  _RC)
+      call ESMF_ConfigGetAttribute(config, this%thin_factor,  label=prefix//'thin_factor:',  default=1,   _RC)
+
+      if (mapl_am_i_root()) then
+         call get_ncfile_dimension(this%grid_file_name, nlon=n1, nlat=n2, &
+              key_lon=this%index_name_x, key_lat=this%index_name_y, _RC)
+         arr(1)=n1
+         arr(2)=n2
+      end if
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMBroadcast (vm, arr, 2, 0, _RC)
+      !
+      ! use thin_factor to reduce regridding matrix size
+      !
+      this%xdim_true = arr(1)
+      this%ydim_true = arr(2)
+      this%im_world  = arr(1) / this%thin_factor
+      this%jm_world  = arr(2) / this%thin_factor
 
       call this%check_and_fill_consistency(rc=status)
 
       _RETURN(_SUCCESS)
 
-   contains
+    contains
 
       subroutine get_multi_integer(values, label, rc)
          integer, allocatable, intent(out) :: values(:)
@@ -483,8 +597,8 @@ contains
          this%grid_name = MAPL_GRID_NAME_DEFAULT
       end if
       ! local extents
-      call verify(this%nx, this%im_world, this%ims, rc=status)
-      call verify(this%ny, this%jm_world, this%jms, rc=status)
+      call verify(this%nx, this%im_world, this%ims, _RC)
+      call verify(this%ny, this%jm_world, this%jms, _RC)
       call this%file_has_corners(_RC)
 
       _RETURN(_SUCCESS)
@@ -515,13 +629,11 @@ contains
             end if
 
          else
-
             _ASSERT(n /= MAPL_UNDEFINED_INTEGER,"needs message")
             _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,"needs message")
             allocate(ms(n), stat=status)
             _VERIFY(status)
             call MAPL_DecomposeDim(m_world, ms, n)
-
          end if
 
          _RETURN(_SUCCESS)
@@ -893,5 +1005,39 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine
+
+   subroutine add_mask(this,grid,rc)
+      class(XYGridFactory), intent(in) :: this
+      type(ESMF_Grid), intent(inout) :: grid
+      integer, intent(out), optional :: rc
+
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      real(ESMF_KIND_R8), pointer :: fptr(:,:)
+      integer :: status
+      type(ESMF_VM) :: vm
+      integer :: has_undef, local_has_undef
+
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+         staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
+      local_has_undef = 0
+      if (any(fptr == MAPL_UNDEF)) local_has_undef = 1
+
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+         staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
+      if (any(fptr == MAPL_UNDEF)) local_has_undef = local_has_undef + 1
+
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMAllFullReduce(vm, [local_has_undef], has_undef, 1, ESMF_REDUCE_MAX, _RC)
+      _RETURN_IF(has_undef == 0)
+
+      call ESMF_GridAddItem(grid,staggerLoc=ESMF_STAGGERLOC_CENTER,itemflag=ESMF_GRIDITEM_MASK,_RC)
+      call ESMF_GridGetItem(grid,localDE=0,staggerLoc=ESMF_STAGGERLOC_CENTER, &
+          itemflag=ESMF_GRIDITEM_MASK,farrayPtr=mask,_RC)
+
+      mask = MAPL_MASK_IN
+      where(fptr==MAPL_UNDEF) mask = MAPL_MASK_OUT
+
+      _RETURN(_SUCCESS)
+    end subroutine add_mask
 
 end module MAPL_XYGridFactoryMod

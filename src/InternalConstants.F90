@@ -173,6 +173,11 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_Quantize_GranularBR
       enumerator MAPL_Quantize_BitRound
    endenum
+   ! Constant masking
+   enum, bind(c)
+      enumerator MAPL_MASK_OUT
+      enumerator MAPL_MASK_IN
+   endenum
 !EOP
 
 end module MAPL_InternalConstantsMod

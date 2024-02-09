@@ -338,7 +338,7 @@ CONTAINS
 
     subroutine main()
 
-   type(regrid_support) :: support
+   type(regrid_support), target :: support
 
    type(ESMF_VM)       :: vm             ! ESMF Virtual Machine
 

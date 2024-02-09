@@ -120,7 +120,8 @@
       </a>
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../type/historytrajectory.html#variable-alarm~2">alarm</a>
+            <a class="list-group-item" href="../type/historytrajectory.html#variable-alarm">alarm</a>
+            <a class="list-group-item" href="../type/historytrajectory.html#variable-epoch_frequency">epoch_frequency</a>
         </div>
       </div>
     </div>
@@ -161,13 +162,13 @@
             <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-append_file~2">append_file</a>
             <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-close_file_handle~2">close_file_handle</a>
             <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-create_file_handle~2">create_file_handle</a>
-            <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-create_grid~3">create_grid</a>
+            <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-create_grid~2">create_grid</a>
             <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-create_new_bundle">create_new_bundle</a>
-            <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-create_variable~2">create_variable</a>
+            <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-create_variable">create_variable</a>
             <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-destroy_rh_regen_ls">destroy_rh_regen_LS</a>
             <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-get_x_subset">get_x_subset</a>
-            <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-initialize~13">initialize</a>
-            <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-regrid_accumulate~2">regrid_accumulate</a>
+            <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-initialize~11">initialize</a>
+            <a class="list-group-item" href="../type/historytrajectory.html#boundprocedure-regrid_accumulate">regrid_accumulate</a>
         </div>
       </div>
     </div>
@@ -867,7 +868,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-alarm~2"></span>
+              <span class="anchor" id="variable-alarm"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_alarm.html'>ESMF_Alarm</a>),
             </td>
               <td>public</td>
@@ -876,6 +877,23 @@ large graphs.</div>
             </td>
             <td>::</td>
             <td><strong>alarm</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-epoch_frequency"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>epoch_frequency</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -1157,7 +1175,7 @@ large graphs.</div>
           <div class="row">
               <div class="card mt-3">
     <div class="card-header codesum">
-      <span class="anchor" id="boundprocedure-create_grid~3"></span>
+      <span class="anchor" id="boundprocedure-create_grid~2"></span>
       <h3>
           procedure, public ::
   <strong>create_grid</strong>
@@ -1300,7 +1318,7 @@ large graphs.</div>
           <div class="row">
               <div class="card mt-3">
     <div class="card-header codesum">
-      <span class="anchor" id="boundprocedure-create_variable~2"></span>
+      <span class="anchor" id="boundprocedure-create_variable"></span>
       <h3>
           procedure, public ::
   <strong>create_variable</strong> => create_metadata_variable
@@ -1552,10 +1570,10 @@ large graphs.</div>
           <div class="row">
               <div class="card mt-3">
     <div class="card-header codesum">
-      <span class="anchor" id="boundprocedure-initialize~13"></span>
+      <span class="anchor" id="boundprocedure-initialize~11"></span>
       <h3>
           procedure, public ::
-  <strong>initialize</strong>
+  <strong>initialize</strong> => initialize_
         
       </h3>
     </div>
@@ -1563,7 +1581,7 @@ large graphs.</div>
         <li class="list-group-item">
               <h3>interface </h3>
                   <h3>
-    private module subroutine initialize(this, items, bundle, timeInfo, vdata, reinitialize, rc)  
+    private module subroutine initialize_(this, items, bundle, timeInfo, vdata, reinitialize, rc)  
 </h3>
 
   
@@ -1696,7 +1714,7 @@ large graphs.</div>
           <div class="row">
               <div class="card mt-3">
     <div class="card-header codesum">
-      <span class="anchor" id="boundprocedure-regrid_accumulate~2"></span>
+      <span class="anchor" id="boundprocedure-regrid_accumulate"></span>
       <h3>
           procedure, public ::
   <strong>regrid_accumulate</strong> => regrid_accumulate_on_xsubset
@@ -1793,16 +1811,21 @@ large graphs.</div>
 <span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
 <span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Alarm</span><span class="p">),</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">alarm</span>
 <span class="nb">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">RingTime</span>
-<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">epoch_frequency</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">public</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">epoch_frequency</span>
 
 <span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">nobs_type</span>
-<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">nc_index</span>
-<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">nc_time</span>
-<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">nc_latitude</span>
-<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">nc_longitude</span>
+<span class="c">!     character(len=ESMF_MAXSTR)     :: nc_index</span>
+<span class="c">!     character(len=ESMF_MAXSTR)     :: nc_time</span>
+<span class="c">!     character(len=ESMF_MAXSTR)     :: nc_latitude</span>
+<span class="c">!     character(len=ESMF_MAXSTR)     :: nc_longitude</span>
+
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">index_name_x</span>
 <span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_time</span>
 <span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_lat</span>
 <span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_lon</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_time_full</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_lat_full</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_lon_full</span>
 <span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">datetime_units</span>
 <span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">epoch</span><span class="w">        </span><span class="c">! unit: second</span>
 <span class="w">     </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I8</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -1814,9 +1837,9 @@ large graphs.</div>
 <span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">obsfile_interval</span>
 <span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">obsfile_Ts_index</span><span class="w">     </span><span class="c">! for epoch</span>
 <span class="w">     </span><span class="kt">integer</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">obsfile_Te_index</span>
-<span class="w">     </span><span class="kt">logical</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">is_valid</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">active</span>
 <span class="w">   </span><span class="k">contains</span>
-<span class="k">     procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span>
+<span class="k">     procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">initialize_</span>
 <span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create_variable</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">create_metadata_variable</span>
 <span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create_file_handle</span>
 <span class="w">     </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">close_file_handle</span>
@@ -1846,7 +1869,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-02-06T15:18:54.674919             </p>
+ on 2024-02-09T13:36:18.755892             </p>
           </div>
         </div>
         <br>

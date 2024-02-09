@@ -80,7 +80,7 @@
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip"
                  data-bs-placement="bottom" data-html="true"
-                 title=" 0.1% of total for procedures.">75 statements</a>
+                 title=" 0.3% of total for procedures.">141 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -145,7 +145,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine read_M_files_4_swath(filenames, Xdim, Ydim, index_name_lon, index_name_lat, var_name_lon, var_name_lat, var_name_time, lon, lat, time, rc)  
+    <h2>public  subroutine read_M_files_4_swath(filenames, Xdim, Ydim, index_name_lon, index_name_lat, var_name_lon, var_name_lat, var_name_time, lon, lat, time, Tfilter, rc)  
 </h2>
         <div class="card mb-4">
       <h3 class="card-header card-title bg-light">Uses</h3>
@@ -379,6 +379,16 @@ large graphs.</div>
     </div>
 
 
+    <div class="codehilite"><pre><span></span><code>      write(6,*) &#39;af ith, filename&#39;, i, trim(filename)
+</code></pre></div>
+
+<p>write(6,&rsquo;(2x,a,10i10)&rsquo;) &lsquo;true  Xdim, Ydim:&rsquo;, Xdim, Ydim
+write(6,&rsquo;(2x,a,10i10)&rsquo;) &lsquo;false Xdim, Ydim:&rsquo;, nlon, j2</p>
+<p>write(6,&rsquo;(2x,a,10i6)&rsquo;)  &lsquo;M, i, nlon, nlat:&rsquo;, M, i, nlon, nlat
+write(6,&rsquo;(2x,a)&rsquo;) &lsquo;time_loc_r8&rsquo;</p>
+<p>write(6,&rsquo;(5f20.2)&rsquo;) time_loc_R8(1,j)
+write(6,&rsquo;(2x,a,10i10)&rsquo;) &lsquo;end of file id&rsquo;, i
+write(6,*)</p>
 
 
     <h3>Arguments</h3>
@@ -409,7 +419,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-xdim~4"></span>
+              <span class="anchor" id="variable-xdim~7"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -424,7 +434,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ydim~4"></span>
+              <span class="anchor" id="variable-ydim~7"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -469,7 +479,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-var_name_lon~2"></span>
+              <span class="anchor" id="variable-var_name_lon~3"></span>
               character(len=ESMF_MAXSTR),
             </td>
 <td>intent(in),</td>
@@ -484,7 +494,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-var_name_lat~2"></span>
+              <span class="anchor" id="variable-var_name_lat~3"></span>
               character(len=ESMF_MAXSTR),
             </td>
 <td>intent(in),</td>
@@ -499,7 +509,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-var_name_time~2"></span>
+              <span class="anchor" id="variable-var_name_time~3"></span>
               character(len=ESMF_MAXSTR),
             </td>
 <td>intent(in),</td>
@@ -514,12 +524,12 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lon~34"></span>
-              real,
+              <span class="anchor" id="variable-lon~19"></span>
+              real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(inout),</td>
-              <td>optional</td>            <td>
-              
+              <td>optional,</td>            <td>
+              allocatable
             </td>
             <td>::</td>
             <td><strong>lon</strong>(:,:)</td>
@@ -529,27 +539,27 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lat~34"></span>
-              real,
+              <span class="anchor" id="variable-lat~19"></span>
+              real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(inout),</td>
-              <td>optional</td>            <td>
-              
+              <td>optional,</td>            <td>
+              allocatable
             </td>
             <td>::</td>
             <td><strong>lat</strong>(:,:)</td>
             <td>
-                <p>real(ESMF_KIND_R8), optional, intent(inout) :: time_R8(:,:)</p>
+                
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-time~64"></span>
-              real,
+              <span class="anchor" id="variable-time~41"></span>
+              real(kind=ESMF_KIND_R8),
             </td>
 <td>intent(inout),</td>
-              <td>optional</td>            <td>
-              
+              <td>optional,</td>            <td>
+              allocatable
             </td>
             <td>::</td>
             <td><strong>time</strong>(:,:)</td>
@@ -559,7 +569,22 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1854"></span>
+              <span class="anchor" id="variable-tfilter"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Tfilter</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1310"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -587,310 +612,316 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~read_m_files_4_swath~~CallsGraph Pages: 1 -->
-<svg id="procread_m_files_4_swathCallsGraph" width="641pt" height="241pt"
- viewBox="0.00 0.00 641.00 241.05" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~read_m_files_4_swath~~CallsGraph" class="graph" transform="scale(2.05 2.05) rotate(0) translate(4 489.01)">
+<svg id="procread_m_files_4_swathCallsGraph" width="641pt" height="243pt"
+ viewBox="0.00 0.00 641.00 243.04" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~read_m_files_4_swath~~CallsGraph" class="graph" transform="scale(2.05 2.05) rotate(0) translate(4 493.07)">
 <title>proc~~read_m_files_4_swath~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-489.01 1307,-489.01 1307,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-493.07 1307,-493.07 1307,4 -4,4"/>
 <!-- proc~read_m_files_4_swath -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node1" class="node">
 <title>proc~read_m_files_4_swath</title>
-<polygon fill="none" stroke="black" points="227,-251 0,-251 0,-227 227,-227 227,-251"/>
-<text text-anchor="middle" x="113.5" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ObsUtilMod::read_M_files_4_swath</text>
+<polygon fill="none" stroke="black" points="227,-362.69 0,-362.69 0,-338.69 227,-338.69 227,-362.69"/>
+<text text-anchor="middle" x="113.5" y="-348.29" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ObsUtilMod::read_M_files_4_swath</text>
 </g>
 <!-- interface~mapl_assert -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node2" class="node">
 <title>interface~mapl_assert</title>
 <g id="a_proc~~read_m_files_4_swath~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
-<polygon fill="#a7506f" stroke="#a7506f" points="1036.5,-413 819.5,-413 819.5,-389 1036.5,-389 1036.5,-413"/>
-<text text-anchor="middle" x="928" y="-398.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="1036.5,-471.69 819.5,-471.69 819.5,-447.69 1036.5,-447.69 1036.5,-471.69"/>
+<text text-anchor="middle" x="928" y="-457.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
 </a>
 </g>
 </g>
 <!-- proc~read_m_files_4_swath&#45;&gt;interface~mapl_assert -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge1" class="edge">
 <title>proc~read_m_files_4_swath&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#255000" d="M122.21,-251.02C141.85,-280.62 196.91,-357.39 263,-396 383.63,-466.47 429.34,-454.98 568,-472 662.4,-483.58 689.34,-493.47 782,-472 826.16,-461.77 872.39,-436.13 900.45,-418.63"/>
-<polygon fill="#255000" stroke="#255000" points="902.68,-421.36 909.24,-413.05 898.93,-415.46 902.68,-421.36"/>
+<path fill="none" stroke="#255000" d="M131.85,-362.81C158.66,-380.89 212.34,-414.64 263,-431.69 482.48,-505.52 550.87,-491.98 782,-477.69 799.04,-476.63 817.14,-474.89 834.56,-472.89"/>
+<polygon fill="#255000" stroke="#255000" points="835.21,-476.34 844.73,-471.69 834.39,-469.39 835.21,-476.34"/>
 </g>
-<!-- none~debug~3 -->
+<!-- none~debug~2 -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node3" class="node">
-<title>none~debug~3</title>
-<g id="a_proc~~read_m_files_4_swath~~CallsGraph_node3"><a xlink:href="../type/logger.html#boundprocedure-debug~3" xlink:title="PFL_Logger::Logger%debug">
-<polygon fill="#a7506f" stroke="#a7506f" points="478.5,-146 316.5,-146 316.5,-122 478.5,-122 478.5,-146"/>
-<text text-anchor="middle" x="397.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger::Logger%debug</text>
+<title>none~debug~2</title>
+<g id="a_proc~~read_m_files_4_swath~~CallsGraph_node3"><a xlink:href="../type/logger.html#boundprocedure-debug~2" xlink:title="PFL_Logger::Logger%debug">
+<polygon fill="#a7506f" stroke="#a7506f" points="478.5,-422.69 316.5,-422.69 316.5,-398.69 478.5,-398.69 478.5,-422.69"/>
+<text text-anchor="middle" x="397.5" y="-408.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger::Logger%debug</text>
 </a>
 </g>
 </g>
-<!-- proc~read_m_files_4_swath&#45;&gt;none~debug~3 -->
+<!-- proc~read_m_files_4_swath&#45;&gt;none~debug~2 -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge2" class="edge">
-<title>proc~read_m_files_4_swath&#45;&gt;none~debug~3</title>
-<path fill="none" stroke="#255000" d="M131.35,-226.76C157.93,-208.1 211.82,-172.84 263,-155 276.68,-150.23 291.53,-146.54 306.19,-143.69"/>
-<polygon fill="#255000" stroke="#255000" points="307.08,-147.08 316.28,-141.84 305.82,-140.2 307.08,-147.08"/>
+<title>proc~read_m_files_4_swath&#45;&gt;none~debug~2</title>
+<path fill="none" stroke="#255000" d="M165.27,-362.74C193.91,-369.44 230.4,-377.78 263,-384.69 282.28,-388.77 303.17,-392.95 322.58,-396.74"/>
+<polygon fill="#255000" stroke="#255000" points="322.1,-400.21 332.58,-398.68 323.43,-393.34 322.1,-400.21"/>
 </g>
 <!-- proc~get_ncfile_dimension -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node4" class="node">
 <title>proc~get_ncfile_dimension</title>
 <g id="a_proc~~read_m_files_4_swath~~CallsGraph_node4"><a xlink:href="../proc/get_ncfile_dimension.html" xlink:title="Plain_netCDF_Time::get_ncfile_dimension">
-<polygon fill="#d9534f" stroke="#d9534f" points="514.5,-292 280.5,-292 280.5,-268 514.5,-268 514.5,-292"/>
-<text text-anchor="middle" x="397.5" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Plain_netCDF_Time::get_ncfile_dimension</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="514.5,-342.69 280.5,-342.69 280.5,-318.69 514.5,-318.69 514.5,-342.69"/>
+<text text-anchor="middle" x="397.5" y="-328.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Plain_netCDF_Time::get_ncfile_dimension</text>
 </a>
 </g>
 </g>
 <!-- proc~read_m_files_4_swath&#45;&gt;proc~get_ncfile_dimension -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge3" class="edge">
 <title>proc~read_m_files_4_swath&#45;&gt;proc~get_ncfile_dimension</title>
-<path fill="none" stroke="#255000" d="M197.2,-251.02C230.63,-255.88 269.37,-261.52 303.75,-266.52"/>
-<polygon fill="#255000" stroke="#255000" points="303.4,-270 313.8,-267.98 304.41,-263.07 303.4,-270"/>
+<path fill="none" stroke="#255000" d="M227.17,-342.7C241.24,-341.7 255.71,-340.67 269.98,-339.66"/>
+<polygon fill="#255000" stroke="#255000" points="270.59,-343.12 280.32,-338.93 270.1,-336.14 270.59,-343.12"/>
 </g>
 <!-- proc~get_var_from_name_w_group -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node5" class="node">
 <title>proc~get_var_from_name_w_group</title>
 <g id="a_proc~~read_m_files_4_swath~~CallsGraph_node5"><a xlink:href="../proc/get_var_from_name_w_group.html" xlink:title="MAPL_ObsUtilMod::get_var_from_name_w_group">
-<polygon fill="#d9534f" stroke="#d9534f" points="532,-188 263,-188 263,-164 532,-164 532,-188"/>
-<text text-anchor="middle" x="397.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ObsUtilMod::get_var_from_name_w_group</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="532,-220.69 263,-220.69 263,-196.69 532,-196.69 532,-220.69"/>
+<text text-anchor="middle" x="397.5" y="-206.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ObsUtilMod::get_var_from_name_w_group</text>
 </a>
 </g>
 </g>
 <!-- proc~read_m_files_4_swath&#45;&gt;proc~get_var_from_name_w_group -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge4" class="edge">
 <title>proc~read_m_files_4_swath&#45;&gt;proc~get_var_from_name_w_group</title>
-<path fill="none" stroke="#255000" d="M164.27,-226.95C193.07,-220.05 230.04,-211.34 263,-204 283.96,-199.33 306.81,-194.46 327.6,-190.11"/>
-<polygon fill="#255000" stroke="#255000" points="328.54,-193.49 337.62,-188.02 327.11,-186.64 328.54,-193.49"/>
+<path fill="none" stroke="#255000" d="M138.54,-338.58C189.01,-313.17 306.06,-254.23 363.5,-225.3"/>
+<polygon fill="#255000" stroke="#255000" points="365.16,-228.39 372.52,-220.76 362.01,-222.13 365.16,-228.39"/>
 </g>
 <!-- proc~mapl_return -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node6" class="node">
 <title>proc~mapl_return</title>
 <g id="a_proc~~read_m_files_4_swath~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="1038,-271 818,-271 818,-247 1038,-247 1038,-271"/>
-<text text-anchor="middle" x="928" y="-256.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="1038,-301.69 818,-301.69 818,-277.69 1038,-277.69 1038,-301.69"/>
+<text text-anchor="middle" x="928" y="-287.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
 </a>
 </g>
 </g>
 <!-- proc~read_m_files_4_swath&#45;&gt;proc~mapl_return -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge5" class="edge">
 <title>proc~read_m_files_4_swath&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#255000" d="M133.35,-251.18C193.58,-289.3 387.98,-406.03 568,-445 660.96,-465.12 700.06,-493.29 782,-445 810.45,-428.23 798.82,-406.89 818,-380 845.58,-341.33 883.91,-301.3 907,-278.35"/>
-<polygon fill="#255000" stroke="#255000" points="909.54,-280.76 914.2,-271.25 904.62,-275.78 909.54,-280.76"/>
+<path fill="none" stroke="#255000" d="M123.36,-338.3C144.72,-309.11 201.79,-234.95 263,-187.69 384.16,-94.13 419.37,-64.31 568,-27.69 660.35,-4.93 700.07,20.61 782,-27.69 872.94,-81.29 910.84,-214.7 922.63,-267.58"/>
+<polygon fill="#255000" stroke="#255000" points="919.25,-268.53 924.76,-277.59 926.1,-267.08 919.25,-268.53"/>
 </g>
 <!-- proc~mapl_verify -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node7" class="node">
 <title>proc~mapl_verify</title>
 <g id="a_proc~~read_m_files_4_swath~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="782,-188 568,-188 568,-164 782,-164 782,-188"/>
-<text text-anchor="middle" x="675" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="782,-468.69 568,-468.69 568,-444.69 782,-444.69 782,-468.69"/>
+<text text-anchor="middle" x="675" y="-454.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~read_m_files_4_swath&#45;&gt;proc~mapl_verify -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge6" class="edge">
 <title>proc~read_m_files_4_swath&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#255000" d="M227.18,-229.1C311.29,-221.36 428.98,-209.79 532,-197 549.84,-194.78 568.9,-192.15 587.08,-189.51"/>
-<polygon fill="#255000" stroke="#255000" points="587.69,-192.96 597.08,-188.04 586.67,-186.03 587.69,-192.96"/>
+<path fill="none" stroke="#255000" d="M227.02,-351.29C332.46,-353.62 481.21,-361.94 532,-389.69 554.78,-402.13 545.88,-422.09 568,-435.69 570.97,-437.51 574.06,-439.18 577.25,-440.71"/>
+<polygon fill="#255000" stroke="#255000" points="575.88,-443.93 586.45,-444.65 578.63,-437.49 575.88,-443.93"/>
 </g>
 <!-- proc~get_ncfile_dimension&#45;&gt;proc~mapl_return -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge12" class="edge">
 <title>proc~get_ncfile_dimension&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#025500" d="M514.89,-285C591,-287.12 692.54,-287.75 782,-281 804.79,-279.28 829.42,-276.06 851.8,-272.61"/>
-<polygon fill="#025500" stroke="#025500" points="852.58,-276.03 861.91,-271.01 851.49,-269.11 852.58,-276.03"/>
+<path fill="none" stroke="#025500" d="M486.35,-318.66C512.58,-315.37 541.42,-312.07 568,-309.69 647.7,-302.54 737.61,-297.53 807.51,-294.32"/>
+<polygon fill="#025500" stroke="#025500" points="807.84,-297.81 817.67,-293.86 807.52,-290.81 807.84,-297.81"/>
 </g>
 <!-- proc~get_ncfile_dimension&#45;&gt;proc~mapl_verify -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge13" class="edge">
 <title>proc~get_ncfile_dimension&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#025500" d="M447.08,-267.97C473.45,-260.13 505.89,-248.31 532,-232 550.93,-220.18 548.24,-207.37 568,-197 571.78,-195.01 575.73,-193.21 579.79,-191.58"/>
-<polygon fill="#025500" stroke="#025500" points="581.22,-194.79 589.42,-188.08 578.83,-188.21 581.22,-194.79"/>
+<path fill="none" stroke="#025500" d="M508.06,-342.77C516.64,-346.42 524.77,-350.98 532,-356.69 562.3,-380.58 537.74,-411.74 568,-435.69 569.79,-437.11 571.66,-438.44 573.58,-439.69"/>
+<polygon fill="#025500" stroke="#025500" points="571.92,-442.77 582.35,-444.65 575.37,-436.68 571.92,-442.77"/>
 </g>
 <!-- nf90_close -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node10" class="node">
 <title>nf90_close</title>
-<polygon fill="#777777" stroke="#777777" points="710,-352 640,-352 640,-328 710,-328 710,-352"/>
-<text text-anchor="middle" x="675" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+<polygon fill="#777777" stroke="#777777" points="710,-262.69 640,-262.69 640,-238.69 710,-238.69 710,-262.69"/>
+<text text-anchor="middle" x="675" y="-248.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
 </g>
 <!-- proc~get_ncfile_dimension&#45;&gt;nf90_close -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge7" class="edge">
 <title>proc~get_ncfile_dimension&#45;&gt;nf90_close</title>
-<path fill="none" stroke="#025500" d="M453.92,-292.07C505.74,-303.36 582.12,-319.99 629.91,-330.4"/>
-<polygon fill="#025500" stroke="#025500" points="629.44,-333.88 639.95,-332.58 630.93,-327.04 629.44,-333.88"/>
+<path fill="none" stroke="#025500" d="M434,-318.6C468.15,-307.16 521.33,-289.83 568,-276.69 588.25,-270.98 610.88,-265.34 630.01,-260.77"/>
+<polygon fill="#025500" stroke="#025500" points="631.03,-264.13 639.95,-258.42 629.42,-257.31 631.03,-264.13"/>
 </g>
 <!-- nf90_inq_dimid -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node12" class="node">
 <title>nf90_inq_dimid</title>
-<polygon fill="#777777" stroke="#777777" points="722,-436 628,-436 628,-412 722,-412 722,-436"/>
-<text text-anchor="middle" x="675" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
+<polygon fill="#777777" stroke="#777777" points="722,-384.69 628,-384.69 628,-360.69 722,-360.69 722,-384.69"/>
+<text text-anchor="middle" x="675" y="-370.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
 </g>
 <!-- proc~get_ncfile_dimension&#45;&gt;nf90_inq_dimid -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge8" class="edge">
 <title>proc~get_ncfile_dimension&#45;&gt;nf90_inq_dimid</title>
-<path fill="none" stroke="#025500" d="M410.9,-292.02C437.37,-316.95 502.36,-374.34 568,-403 583.52,-409.78 601.27,-414.38 617.76,-417.51"/>
-<polygon fill="#025500" stroke="#025500" points="617.37,-421 627.82,-419.27 618.58,-414.1 617.37,-421"/>
+<path fill="none" stroke="#025500" d="M477.45,-342.72C522.3,-349.56 577.4,-357.96 617.83,-364.12"/>
+<polygon fill="#025500" stroke="#025500" points="617.37,-367.59 627.78,-365.64 618.42,-360.67 617.37,-367.59"/>
 </g>
 <!-- nf90_inquire_dimension -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node15" class="node">
 <title>nf90_inquire_dimension</title>
-<polygon fill="#777777" stroke="#777777" points="744.5,-394 605.5,-394 605.5,-370 744.5,-370 744.5,-394"/>
-<text text-anchor="middle" x="675" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
+<polygon fill="#777777" stroke="#777777" points="744.5,-426.69 605.5,-426.69 605.5,-402.69 744.5,-402.69 744.5,-426.69"/>
+<text text-anchor="middle" x="675" y="-412.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
 </g>
 <!-- proc~get_ncfile_dimension&#45;&gt;nf90_inquire_dimension -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge9" class="edge">
 <title>proc~get_ncfile_dimension&#45;&gt;nf90_inquire_dimension</title>
-<path fill="none" stroke="#025500" d="M419.45,-292.14C450.78,-309.79 512.13,-342.44 568,-361 576.85,-363.94 586.27,-366.53 595.69,-368.8"/>
-<polygon fill="#025500" stroke="#025500" points="594.96,-372.22 605.49,-371.04 596.52,-365.4 594.96,-372.22"/>
+<path fill="none" stroke="#025500" d="M497.14,-342.78C509.28,-346.31 521.2,-350.85 532,-356.69 552.18,-367.6 547.84,-382.74 568,-393.69 576.59,-398.35 586.08,-401.99 595.75,-404.82"/>
+<polygon fill="#025500" stroke="#025500" points="594.88,-408.21 605.44,-407.39 596.67,-401.45 594.88,-408.21"/>
 </g>
 <!-- nf90_open -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node16" class="node">
 <title>nf90_open</title>
-<polygon fill="#777777" stroke="#777777" points="709.5,-272 640.5,-272 640.5,-248 709.5,-248 709.5,-272"/>
-<text text-anchor="middle" x="675" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
+<polygon fill="#777777" stroke="#777777" points="709.5,-220.69 640.5,-220.69 640.5,-196.69 709.5,-196.69 709.5,-220.69"/>
+<text text-anchor="middle" x="675" y="-206.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
 </g>
 <!-- proc~get_ncfile_dimension&#45;&gt;nf90_open -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge10" class="edge">
 <title>proc~get_ncfile_dimension&#45;&gt;nf90_open</title>
-<path fill="none" stroke="#025500" d="M514.54,-271.58C555.5,-268.6 599.08,-265.44 630.31,-263.17"/>
-<polygon fill="#025500" stroke="#025500" points="630.69,-266.65 640.41,-262.44 630.18,-259.67 630.69,-266.65"/>
+<path fill="none" stroke="#025500" d="M414.37,-318.66C443.3,-297.35 507.24,-253.01 568,-229.69 587.75,-222.11 610.66,-217.13 630.12,-213.93"/>
+<polygon fill="#025500" stroke="#025500" points="630.88,-217.36 640.24,-212.38 629.82,-210.44 630.88,-217.36"/>
 </g>
 <!-- proc~check_nc_status -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node17" class="node">
 <title>proc~check_nc_status</title>
 <g id="a_proc~~read_m_files_4_swath~~CallsGraph_node17"><a xlink:href="../proc/check_nc_status.html" xlink:title="Plain_netCDF_Time::check_nc_status">
-<polygon fill="#d9534f" stroke="#d9534f" points="779,-230 571,-230 571,-206 779,-206 779,-230"/>
-<text text-anchor="middle" x="675" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Plain_netCDF_Time::check_nc_status</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="779,-342.69 571,-342.69 571,-318.69 779,-318.69 779,-342.69"/>
+<text text-anchor="middle" x="675" y="-328.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Plain_netCDF_Time::check_nc_status</text>
 </a>
 </g>
 </g>
 <!-- proc~get_ncfile_dimension&#45;&gt;proc~check_nc_status -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_edge11" class="edge">
 <title>proc~get_ncfile_dimension&#45;&gt;proc~check_nc_status</title>
-<path fill="none" stroke="#025500" d="M445.87,-267.98C479.79,-259.51 526.6,-248.1 568,-239 578.66,-236.66 589.95,-234.29 601.04,-232.04"/>
-<polygon fill="#025500" stroke="#025500" points="602.02,-235.41 611.13,-230 600.64,-228.55 602.02,-235.41"/>
+<path fill="none" stroke="#025500" d="M514.54,-330.69C529.71,-330.69 545.25,-330.69 560.38,-330.69"/>
+<polygon fill="#025500" stroke="#025500" points="560.78,-334.19 570.78,-330.69 560.78,-327.19 560.78,-334.19"/>
 </g>
 <!-- proc~get_var_from_name_w_group&#45;&gt;proc~mapl_return -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge19" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge20" class="edge">
 <title>proc~get_var_from_name_w_group&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M478.93,-163.98C507.04,-160.32 538.85,-156.8 568,-155 662.93,-149.14 702.48,-102.82 782,-155 815.62,-177.06 786.63,-212.84 818,-238 819.63,-239.31 821.33,-240.55 823.07,-241.72"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="821.76,-245 832.16,-246.99 825.27,-238.95 821.76,-245"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M407.42,-196.39C430.12,-166.32 493.55,-89.47 568,-61.69 657.11,-28.43 698.63,-15.91 782,-61.69 864,-106.71 906.23,-219.94 920.9,-267.79"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="917.57,-268.87 923.76,-277.47 924.28,-266.89 917.57,-268.87"/>
 </g>
 <!-- proc~get_var_from_name_w_group&#45;&gt;proc~mapl_verify -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge20" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge21" class="edge">
 <title>proc~get_var_from_name_w_group&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M532.21,-176C540.69,-176 549.19,-176 557.59,-176"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="557.76,-179.5 567.76,-176 557.76,-172.5 557.76,-179.5"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M422.8,-220.71C452.9,-236.85 503.66,-268.33 532,-309.69 564.92,-357.73 525.15,-396.24 568,-435.69 569.16,-436.76 570.37,-437.78 571.61,-438.76"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="569.99,-441.89 580.23,-444.57 573.9,-436.08 569.99,-441.89"/>
+</g>
+<!-- proc~get_var_from_name_w_group&#45;&gt;nf90_close -->
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge14" class="edge">
+<title>proc~get_var_from_name_w_group&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M477.45,-220.72C526.99,-228.27 589.03,-237.73 630.01,-243.98"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="629.54,-247.45 639.95,-245.5 630.59,-240.53 629.54,-247.45"/>
 </g>
 <!-- nf90_get_var -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node11" class="node">
 <title>nf90_get_var</title>
-<polygon fill="#777777" stroke="#777777" points="716,-24 634,-24 634,0 716,0 716,-24"/>
-<text text-anchor="middle" x="675" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+<polygon fill="#777777" stroke="#777777" points="716,-94.69 634,-94.69 634,-70.69 716,-70.69 716,-94.69"/>
+<text text-anchor="middle" x="675" y="-80.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
 </g>
 <!-- proc~get_var_from_name_w_group&#45;&gt;nf90_get_var -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge14" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge15" class="edge">
 <title>proc~get_var_from_name_w_group&#45;&gt;nf90_get_var</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M519.48,-163.97C523.92,-161.38 528.12,-158.4 532,-155 574.5,-117.73 526.24,-71.11 568,-33 582.99,-19.32 604.23,-13.45 623.77,-11.24"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="624.12,-14.72 633.79,-10.39 623.53,-7.75 624.12,-14.72"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M413.83,-196.5C442.41,-174.44 506.48,-127.91 568,-103.69 585.59,-96.76 605.76,-92.03 623.75,-88.85"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="624.48,-92.27 633.77,-87.19 623.34,-85.37 624.48,-92.27"/>
 </g>
 <!-- nf90_inq_ncid -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node13" class="node">
 <title>nf90_inq_ncid</title>
-<polygon fill="#777777" stroke="#777777" points="718,-108 632,-108 632,-84 718,-84 718,-108"/>
-<text text-anchor="middle" x="675" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_ncid</text>
+<polygon fill="#777777" stroke="#777777" points="718,-178.69 632,-178.69 632,-154.69 718,-154.69 718,-178.69"/>
+<text text-anchor="middle" x="675" y="-164.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_ncid</text>
 </g>
 <!-- proc~get_var_from_name_w_group&#45;&gt;nf90_inq_ncid -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge15" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge16" class="edge">
 <title>proc~get_var_from_name_w_group&#45;&gt;nf90_inq_ncid</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M509,-163.93C516.96,-161.46 524.71,-158.51 532,-155 551.55,-145.58 548.86,-132.24 568,-122 584.48,-113.18 604,-107.3 621.77,-103.4"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="622.88,-106.74 631.99,-101.33 621.49,-99.88 622.88,-106.74"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M477.45,-196.65C523.77,-189.59 581.01,-180.86 621.75,-174.65"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="622.37,-178.1 631.73,-173.13 621.32,-171.18 622.37,-178.1"/>
 </g>
 <!-- nf90_inq_varid -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node14" class="node">
 <title>nf90_inq_varid</title>
-<polygon fill="#777777" stroke="#777777" points="720.5,-66 629.5,-66 629.5,-42 720.5,-42 720.5,-66"/>
-<text text-anchor="middle" x="675" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+<polygon fill="#777777" stroke="#777777" points="720.5,-136.69 629.5,-136.69 629.5,-112.69 720.5,-112.69 720.5,-136.69"/>
+<text text-anchor="middle" x="675" y="-122.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
 </g>
 <!-- proc~get_var_from_name_w_group&#45;&gt;nf90_inq_varid -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge16" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge17" class="edge">
 <title>proc~get_var_from_name_w_group&#45;&gt;nf90_inq_varid</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M517.67,-163.94C522.71,-161.38 527.52,-158.42 532,-155 562.99,-131.34 537.48,-99.27 568,-75 582.43,-63.53 601.4,-57.77 619.3,-55.03"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="619.89,-58.48 629.38,-53.77 619.02,-51.53 619.89,-58.48"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M426.53,-196.68C459.77,-182.82 517.1,-160.09 568,-145.69 584.44,-141.03 602.61,-137.03 619.18,-133.81"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="620.09,-137.2 629.27,-131.9 618.79,-130.32 620.09,-137.2"/>
 </g>
 <!-- proc~get_var_from_name_w_group&#45;&gt;nf90_open -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge17" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge18" class="edge">
 <title>proc~get_var_from_name_w_group&#45;&gt;nf90_open</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M426.53,-188C459.77,-201.86 517.1,-224.6 568,-239 588.2,-244.71 610.99,-249.45 630.25,-252.96"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="629.8,-256.44 640.26,-254.74 631.02,-249.54 629.8,-256.44"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M532.21,-208.69C567.68,-208.69 603.5,-208.69 630.26,-208.69"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="630.42,-212.19 640.42,-208.69 630.42,-205.19 630.42,-212.19"/>
 </g>
 <!-- proc~get_var_from_name_w_group&#45;&gt;proc~check_nc_status -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge18" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge19" class="edge">
 <title>proc~get_var_from_name_w_group&#45;&gt;proc~check_nc_status</title>
-<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M477.45,-188.04C511.02,-193.15 550.33,-199.15 584.94,-204.42"/>
-<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="584.63,-207.92 595.04,-205.96 585.68,-201 584.63,-207.92"/>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M425.67,-220.72C475.46,-242.77 581.35,-289.66 637.42,-314.49"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="636.07,-317.72 646.63,-318.56 638.9,-311.31 636.07,-317.72"/>
 </g>
 <!-- at -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node8" class="node">
 <title>at</title>
-<polygon fill="#777777" stroke="#777777" points="1215.5,-260 1161.5,-260 1161.5,-236 1215.5,-236 1215.5,-260"/>
-<text text-anchor="middle" x="1188.5" y="-245.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+<polygon fill="#777777" stroke="#777777" points="1215.5,-317.69 1161.5,-317.69 1161.5,-293.69 1215.5,-293.69 1215.5,-317.69"/>
+<text text-anchor="middle" x="1188.5" y="-303.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
 </g>
 <!-- proc~mapl_return&#45;&gt;at -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge21" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge22" class="edge">
 <title>proc~mapl_return&#45;&gt;at</title>
-<path fill="none" stroke="#002505" d="M1038.25,-254.35C1078.63,-252.63 1121.67,-250.8 1151.11,-249.55"/>
-<polygon fill="#002505" stroke="#002505" points="1151.46,-253.04 1161.3,-249.11 1151.16,-246.04 1151.46,-253.04"/>
+<path fill="none" stroke="#002505" d="M1038.25,-296.45C1078.63,-298.95 1121.67,-301.61 1151.11,-303.43"/>
+<polygon fill="#002505" stroke="#002505" points="1151.11,-306.94 1161.3,-304.06 1151.54,-299.95 1151.11,-306.94"/>
 </g>
 <!-- insert -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node9" class="node">
 <title>insert</title>
-<polygon fill="#777777" stroke="#777777" points="1215.5,-302 1161.5,-302 1161.5,-278 1215.5,-278 1215.5,-302"/>
-<text text-anchor="middle" x="1188.5" y="-287.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+<polygon fill="#777777" stroke="#777777" points="1215.5,-275.69 1161.5,-275.69 1161.5,-251.69 1215.5,-251.69 1215.5,-275.69"/>
+<text text-anchor="middle" x="1188.5" y="-261.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
 </g>
 <!-- proc~mapl_return&#45;&gt;insert -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge22" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge23" class="edge">
 <title>proc~mapl_return&#45;&gt;insert</title>
-<path fill="none" stroke="#002505" d="M1029.31,-271.03C1072.28,-276.18 1119.75,-281.88 1151.37,-285.67"/>
-<polygon fill="#002505" stroke="#002505" points="1151.11,-289.16 1161.45,-286.88 1151.94,-282.21 1151.11,-289.16"/>
+<path fill="none" stroke="#002505" d="M1038.25,-278.7C1078.63,-274.64 1121.67,-270.31 1151.11,-267.35"/>
+<polygon fill="#002505" stroke="#002505" points="1151.71,-270.8 1161.3,-266.32 1151,-263.84 1151.71,-270.8"/>
 </g>
 <!-- proc~mapl_throw_exception -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node18" class="node">
 <title>proc~mapl_throw_exception</title>
 <g id="a_proc~~read_m_files_4_swath~~CallsGraph_node18"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="1303,-208 1074,-208 1074,-184 1303,-184 1303,-208"/>
-<text text-anchor="middle" x="1188.5" y="-193.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="1303,-379.69 1074,-379.69 1074,-355.69 1303,-355.69 1303,-379.69"/>
+<text text-anchor="middle" x="1188.5" y="-365.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
 </a>
 </g>
 </g>
 <!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge23" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge24" class="edge">
 <title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#002505" d="M997.56,-246.94C1011.03,-244.25 1025,-241.23 1038,-238 1054.24,-233.97 1057.93,-231.65 1074,-227 1092.96,-221.51 1113.78,-215.75 1132.35,-210.71"/>
-<polygon fill="#002505" stroke="#002505" points="1133.39,-214.05 1142.12,-208.06 1131.56,-207.3 1133.39,-214.05"/>
+<path fill="none" stroke="#002505" d="M1003.74,-301.74C1015.32,-304.28 1027.06,-307.25 1038,-310.69 1054.7,-315.93 1057.76,-320.15 1074,-326.69 1096.4,-335.7 1121.64,-344.9 1142.61,-352.3"/>
+<polygon fill="#002505" stroke="#002505" points="1141.64,-355.67 1152.23,-355.68 1143.95,-349.07 1141.64,-355.67"/>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge24" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge25" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M782.29,-180.16C864.23,-183.36 977.69,-187.8 1063.71,-191.16"/>
-<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1063.67,-194.66 1073.8,-191.55 1063.94,-187.67 1063.67,-194.66"/>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M744.98,-444.68C839.5,-428.24 1008.84,-398.77 1108.38,-381.45"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1109.13,-384.87 1118.39,-379.71 1107.93,-377.98 1109.13,-384.87"/>
 </g>
 <!-- proc~check_nc_status&#45;&gt;interface~mapl_assert -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge25" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge26" class="edge">
 <title>proc~check_nc_status&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M762.25,-230C769.15,-232.47 775.82,-235.44 782,-239 803.01,-251.11 801.88,-261.88 818,-280 849.77,-315.72 887.12,-357.03 908.82,-380.97"/>
-<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="906.5,-383.62 915.81,-388.68 911.68,-378.92 906.5,-383.62"/>
+<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M756.76,-342.75C765.45,-345.2 774.03,-348.15 782,-351.69 831.92,-373.85 880.96,-415.78 907.26,-440.36"/>
+<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="905.01,-443.05 914.67,-447.4 909.83,-437.97 905.01,-443.05"/>
 </g>
 <!-- proc~check_nc_status&#45;&gt;proc~mapl_return -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge27" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge28" class="edge">
 <title>proc~check_nc_status&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M749.61,-230.02C778.98,-234.82 812.96,-240.37 843.26,-245.32"/>
-<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="842.96,-248.82 853.39,-246.98 844.08,-241.91 842.96,-248.82"/>
+<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M749.61,-318.66C778.98,-313.86 812.96,-308.31 843.26,-303.36"/>
+<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="844.08,-306.78 853.39,-301.71 842.96,-299.87 844.08,-306.78"/>
 </g>
 <!-- nf90_strerror -->
 <g id="proc~~read_m_files_4_swath~~CallsGraph_node19" class="node">
 <title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="968.5,-229 887.5,-229 887.5,-205 968.5,-205 968.5,-229"/>
-<text text-anchor="middle" x="928" y="-214.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+<polygon fill="#777777" stroke="#777777" points="968.5,-343.69 887.5,-343.69 887.5,-319.69 968.5,-319.69 968.5,-343.69"/>
+<text text-anchor="middle" x="928" y="-329.29" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
 </g>
 <!-- proc~check_nc_status&#45;&gt;nf90_strerror -->
-<g id="proc~~read_m_files_4_swath~~CallsGraph_edge26" class="edge">
+<g id="proc~~read_m_files_4_swath~~CallsGraph_edge27" class="edge">
 <title>proc~check_nc_status&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M779.18,-217.59C812.99,-217.45 849.03,-217.31 877.06,-217.2"/>
-<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="877.41,-220.7 887.39,-217.16 877.38,-213.7 877.41,-220.7"/>
+<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M779.18,-331.1C812.99,-331.23 849.03,-331.38 877.06,-331.49"/>
+<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="877.38,-334.99 887.39,-331.53 877.41,-327.99 877.38,-334.99"/>
 </g>
 </g>
 </svg>
@@ -995,8 +1026,8 @@ large graphs.</div>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">read_M_files_4_swath</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">filenames</span><span class="p">,</span><span class="w"> </span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">       </span><span class="n">index_name_lon</span><span class="p">,</span><span class="w"> </span><span class="n">index_name_lat</span><span class="p">,&amp;</span>
-<span class="w">       </span><span class="n">var_name_lon</span><span class="p">,</span><span class="w"> </span><span class="n">var_name_lat</span><span class="p">,</span><span class="w"> </span><span class="n">var_name_time</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w">       </span>
-<span class="w">       </span><span class="n">lon</span><span class="p">,</span><span class="w"> </span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="n">var_name_lon</span><span class="p">,</span><span class="w"> </span><span class="n">var_name_lat</span><span class="p">,</span><span class="w"> </span><span class="n">var_name_time</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">       </span><span class="n">lon</span><span class="p">,</span><span class="w"> </span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">Tfilter</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
 <span class="w">    </span><span class="k">use </span><span class="n">pFlogger</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">logging</span><span class="p">,</span><span class="w"> </span><span class="n">Logger</span>
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filenames</span><span class="p">(:)</span>
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Xdim</span>
@@ -1005,17 +1036,15 @@ large graphs.</div>
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">index_name_lat</span>
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_lon</span>
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_lat</span>
-<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_time</span><span class="w">    </span>
-
-<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon</span><span class="p">(:,:)</span>
-<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lat</span><span class="p">(:,:)</span>
-<span class="w">    </span><span class="c">!!    real(ESMF_KIND_R8), optional, intent(inout) :: time_R8(:,:)</span>
-<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span><span class="p">(:,:)</span><span class="w">    </span>
-
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name_time</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lat</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w">  </span><span class="n">Tfilter</span>
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">M</span>
-<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">jx</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">jx</span><span class="p">,</span><span class="w"> </span><span class="n">j2</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span>
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">ncid2</span>
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grp1</span><span class="p">,</span><span class="w"> </span><span class="n">grp2</span>
@@ -1033,7 +1062,7 @@ large graphs.</div>
 <span class="w">    </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
 <span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">M</span><span class="o">/=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;M is zero, no files found&#39;</span><span class="p">)</span>
 <span class="w">    </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL.Sampler&#39;</span><span class="p">)</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">nlons</span><span class="p">(</span><span class="n">M</span><span class="p">),</span><span class="w"> </span><span class="n">nlats</span><span class="p">(</span><span class="n">M</span><span class="p">))</span>
 <span class="w">    </span><span class="n">jx</span><span class="o">=</span><span class="mi">0</span>
 <span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M</span>
@@ -1043,45 +1072,140 @@ large graphs.</div>
 <span class="w">       </span><span class="n">nlons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">nlon</span>
 <span class="w">       </span><span class="n">nlats</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">nlat</span>
 <span class="w">       </span><span class="n">jx</span><span class="o">=</span><span class="n">jx</span><span class="o">+</span><span class="n">nlat</span>
-<span class="w">       </span>
+
 <span class="w">       </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Input filename: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 <span class="w">       </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Input file    : nlon, nlat= %i6  %i6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">)</span>
 <span class="w">    </span><span class="k">end do</span>
-<span class="k">    </span><span class="n">Xdim</span><span class="o">=</span><span class="n">nlon</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="c">! __ output results wo filter</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="n">Xdim</span><span class="o">=</span><span class="n">nlon</span>
 <span class="w">    </span><span class="n">Ydim</span><span class="o">=</span><span class="n">jx</span>
-
+<span class="w">    </span><span class="n">j2</span><span class="o">=</span><span class="n">jx</span>
 
 <span class="w">    </span><span class="c">!__ s2. get fields</span>
-<span class="w">    </span><span class="n">jx</span><span class="o">=</span><span class="mi">0</span>
-<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M</span>
-<span class="w">       </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filenames</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="w">       </span><span class="n">nlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="w">       </span><span class="n">nlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlats</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">var_name_time</span><span class="p">).</span><span class="nb">AND</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="w"> </span><span class="p">(</span><span class="n">time_loc_R8</span><span class="p">(</span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">))</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">Tfilter</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">Tfilter</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;when Tfilter present, time/lon/lat must also present&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="c">! -- determine jx</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="n">jx</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M</span>
+<span class="w">          </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filenames</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">nlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">nlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlats</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">time_loc_R8</span><span class="p">(</span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">))</span>
 <span class="w">          </span><span class="k">call </span><span class="n">get_var_from_name_w_group</span><span class="w"> </span><span class="p">(</span><span class="n">var_name_time</span><span class="p">,</span><span class="w"> </span><span class="n">time_loc_R8</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">          </span><span class="nb">time</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">jx</span><span class="o">+</span><span class="n">nlat</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_loc_R8</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">nlat</span><span class="p">)</span>
-<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">time_loc_R8</span><span class="p">)</span>
-<span class="w">       </span><span class="k">end if</span>
+<span class="c">!!          write(6,*) &#39;af ith, filename&#39;, i, trim(filename)</span>
 
-<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">var_name_lon</span><span class="p">).</span><span class="nb">AND</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lon_loc</span><span class="p">(</span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">))</span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span>
+<span class="w">             </span><span class="c">!</span>
+<span class="w">             </span><span class="c">! -- filter, e.g., eliminate -9999</span>
+<span class="w">             </span><span class="c">!</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">time_loc_R8</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">jx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">          end do</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="n">time_loc_R8</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">       </span><span class="n">Xdim</span><span class="o">=</span><span class="n">nlon</span>
+<span class="w">       </span><span class="n">Ydim</span><span class="o">=</span><span class="n">jx</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="nb">time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="nb">time</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="nb">time</span><span class="p">(</span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">))</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="n">lon</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lon</span><span class="p">(</span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">))</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="n">lat</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lat</span><span class="p">(</span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">))</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="c">!!write(6,&#39;(2x,a,10i10)&#39;) &#39;true  Xdim, Ydim:&#39;, Xdim, Ydim</span>
+<span class="w">       </span><span class="c">!!write(6,&#39;(2x,a,10i10)&#39;) &#39;false Xdim, Ydim:&#39;, nlon, j2</span>
+<span class="w">       </span><span class="c">!</span>
+
+
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="c">! -- determine true time/lon/lat by filtering T &lt; 0</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="n">jx</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M</span>
+<span class="w">          </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filenames</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">nlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">nlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlats</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="c">!!write(6,&#39;(2x,a,10i6)&#39;)  &#39;M, i, nlon, nlat:&#39;, M, i, nlon, nlat</span>
+<span class="w">          </span><span class="c">!!write(6,&#39;(2x,a)&#39;) &#39;time_loc_r8&#39;</span>
+<span class="w">          </span><span class="c">!</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">time_loc_R8</span><span class="p">(</span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">))</span>
+<span class="w">          </span><span class="k">call </span><span class="n">get_var_from_name_w_group</span><span class="w"> </span><span class="p">(</span><span class="n">var_name_time</span><span class="p">,</span><span class="w"> </span><span class="n">time_loc_R8</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lon_loc</span><span class="p">(</span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">))</span>
 <span class="w">          </span><span class="k">call </span><span class="n">get_var_from_name_w_group</span><span class="w"> </span><span class="p">(</span><span class="n">var_name_lon</span><span class="p">,</span><span class="w"> </span><span class="n">lon_loc</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">          </span><span class="n">lon</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">jx</span><span class="o">+</span><span class="n">nlat</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lon_loc</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">nlat</span><span class="p">)</span>
-<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">lon_loc</span><span class="p">)</span>
-<span class="w">       </span><span class="k">end if</span>
-
-<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">var_name_lat</span><span class="p">).</span><span class="nb">AND</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lat_loc</span><span class="p">(</span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">))</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lat_loc</span><span class="p">(</span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">))</span>
 <span class="w">          </span><span class="k">call </span><span class="n">get_var_from_name_w_group</span><span class="w"> </span><span class="p">(</span><span class="n">var_name_lat</span><span class="p">,</span><span class="w"> </span><span class="n">lat_loc</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">          </span><span class="n">lat</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">jx</span><span class="o">+</span><span class="n">nlat</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lat_loc</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">nlat</span><span class="p">)</span>
+<span class="w">          </span><span class="c">!</span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span>
+<span class="w">             </span><span class="c">!</span>
+<span class="w">             </span><span class="c">! -- filter, e.g., eliminate -9999</span>
+<span class="w">             </span><span class="c">!</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">time_loc_R8</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">jx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                </span><span class="nb">time</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_loc_R8</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">                </span><span class="n">lon</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lon_loc</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">                </span><span class="n">lat</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lat_loc</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="w">             </span><span class="c">!!write(6,&#39;(5f20.2)&#39;) time_loc_R8(1,j)</span>
+<span class="w">          </span><span class="k">end do</span>
+
+<span class="w">          </span><span class="c">!!write(6,&#39;(2x,a,10i10)&#39;) &#39;end of file id&#39;, i</span>
+<span class="w">          </span><span class="c">!!write(6,*)</span>
+
+<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">time_loc_R8</span><span class="p">)</span>
+<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">lon_loc</span><span class="p">)</span>
 <span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">lat_loc</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+
+<span class="k">    else</span>
+
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="nb">time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="nb">time</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="nb">time</span><span class="p">(</span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">))</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="n">lon</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lon</span><span class="p">(</span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">))</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="n">lat</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lat</span><span class="p">(</span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">))</span>
 <span class="w">       </span><span class="k">end if</span>
 
-<span class="k">       </span><span class="n">jx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nlat</span>
+<span class="k">       </span><span class="n">jx</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M</span>
+<span class="w">          </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filenames</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">nlon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">nlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlats</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 
-<span class="w">    </span><span class="k">end do</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">var_name_time</span><span class="p">).</span><span class="nb">AND</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="nb">time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">get_var_from_name_w_group</span><span class="w"> </span><span class="p">(</span><span class="n">var_name_time</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">jx</span><span class="o">+</span><span class="n">nlat</span><span class="p">),</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">var_name_lon</span><span class="p">).</span><span class="nb">AND</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">get_var_from_name_w_group</span><span class="w"> </span><span class="p">(</span><span class="n">var_name_lon</span><span class="p">,</span><span class="w"> </span><span class="n">lon</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">jx</span><span class="o">+</span><span class="n">nlat</span><span class="p">),</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">var_name_lat</span><span class="p">).</span><span class="nb">AND</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">get_var_from_name_w_group</span><span class="w"> </span><span class="p">(</span><span class="n">var_name_lat</span><span class="p">,</span><span class="w"> </span><span class="n">lat</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">nlon</span><span class="p">,</span><span class="n">jx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">jx</span><span class="o">+</span><span class="n">nlat</span><span class="p">),</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+
+<span class="k">          </span><span class="n">jx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nlat</span>
+<span class="w">       </span><span class="k">end do</span>
+
+<span class="k">    end if</span>
 
 <span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <span class="w">  </span><span class="k">end subroutine </span><span class="n">read_M_files_4_swath</span>
@@ -1105,7 +1229,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-02-06T15:18:54.674919             </p>
+ on 2024-02-09T13:36:18.755892             </p>
           </div>
         </div>
         <br>

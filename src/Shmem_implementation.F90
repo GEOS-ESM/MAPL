@@ -796,6 +796,23 @@ contains
 
     end procedure MAPL_AllocateShared_1DR8
 
+    module procedure MAPL_AllocateShared_2DI4
+      integer :: status
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray(Ptr, Shp, lbd, _RC)
+      else
+         if (TransRoot) then
+            allocate(Ptr(Shp(1),Shp(2)),stat=status)
+         else
+            allocate(Ptr(0,0),stat=status)
+         end if
+         _VERIFY(STATUS)
+      endif
+
+      _RETURN(STATUS)
+
+    end procedure MAPL_AllocateShared_2DI4
+
     module procedure MAPL_AllocateShared_2DR4
 
 
