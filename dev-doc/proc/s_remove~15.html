@@ -1,0 +1,661 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>s_remove &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>s_remove
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">8 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_HistoryCollection.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_historycollection.f90.html'>MAPL_HistoryCollection.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_stringfieldsetmapmod.html'>MAPL_StringFieldSetMapMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">s_remove</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine s_remove(this, value)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/set2~20.html'>set2</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4610"></span>
+              class(<a href='../type/set2~20.html'>set2</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~613"></span>
+              type(<a href='../type/pair~19.html'>pair</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~s_remove~15~~CallsGraph Pages: 1 -->
+<svg id="procs_remove15CallsGraph" width="641pt" height="120pt"
+ viewBox="0.00 0.00 641.00 119.79" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~s_remove~15~~CallsGraph" class="graph" transform="scale(2.8 2.8) rotate(0) translate(4 332)">
+<title>proc~~s_remove~15~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-332 1794,-332 1794,4 -4,4"/>
+<!-- proc~s_remove~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node1" class="node">
+<title>proc~s_remove~15</title>
+<polygon fill="none" stroke="black" points="256,-103 0,-103 0,-79 256,-79 256,-103"/>
+<text text-anchor="middle" x="128" y="-88.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_StringFieldSetMapMod::set2%s_remove</text>
+</g>
+<!-- none~erase~64 -->
+<g id="proc~~s_remove~15~~CallsGraph_node2" class="node">
+<title>none~erase~64</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node2"><a xlink:href="../type/set2~20.html#boundprocedure-erase~64" xlink:title="MAPL_StringFieldSetMapMod::set2%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="527,-142 292,-142 292,-118 527,-118 527,-142"/>
+<text text-anchor="middle" x="409.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%erase</text>
+</a>
+</g>
+</g>
+<!-- proc~s_remove~15&#45;&gt;none~erase~64 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge1" class="edge">
+<title>proc~s_remove~15&#45;&gt;none~erase~64</title>
+<path fill="none" stroke="#255000" d="M215.14,-103.02C245.82,-107.3 280.57,-112.15 312.06,-116.54"/>
+<polygon fill="#255000" stroke="#255000" points="311.78,-120.04 322.16,-117.95 312.74,-113.1 311.78,-120.04"/>
+</g>
+<!-- proc~s_find~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node3" class="node">
+<title>proc~s_find~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node3"><a xlink:href="../proc/s_find~15.html" xlink:title="MAPL_StringFieldSetMapMod::set2%s_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="527,-64 292,-64 292,-40 527,-40 527,-64"/>
+<text text-anchor="middle" x="409.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%s_find</text>
+</a>
+</g>
+</g>
+<!-- proc~s_remove~15&#45;&gt;proc~s_find~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge2" class="edge">
+<title>proc~s_remove~15&#45;&gt;proc~s_find~15</title>
+<path fill="none" stroke="#255000" d="M215.14,-78.98C245.82,-74.7 280.57,-69.85 312.06,-65.46"/>
+<polygon fill="#255000" stroke="#255000" points="312.74,-68.9 322.16,-64.05 311.78,-61.96 312.74,-68.9"/>
+</g>
+<!-- proc~s_erase_multi~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node5" class="node">
+<title>proc~s_erase_multi~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node5"><a xlink:href="../proc/s_erase_multi~15.html" xlink:title="MAPL_StringFieldSetMapMod::set2%s_erase_multi">
+<polygon fill="#d9534f" stroke="#d9534f" points="840,-184 563,-184 563,-160 840,-160 840,-184"/>
+<text text-anchor="middle" x="701.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%s_erase_multi</text>
+</a>
+</g>
+</g>
+<!-- none~erase~64&#45;&gt;proc~s_erase_multi~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge3" class="edge">
+<title>none~erase~64&#45;&gt;proc~s_erase_multi~15</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M493.6,-142.04C529.17,-147.19 570.86,-153.22 607.46,-158.52"/>
+<polygon fill="#255000" stroke="#255000" points="607.24,-162.03 617.64,-160 608.24,-155.1 607.24,-162.03"/>
+</g>
+<!-- proc~s_erase_one~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node6" class="node">
+<title>proc~s_erase_one~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node6"><a xlink:href="../proc/s_erase_one~15.html" xlink:title="MAPL_StringFieldSetMapMod::set2%s_erase_one">
+<polygon fill="#d9534f" stroke="#d9534f" points="837,-142 566,-142 566,-118 837,-118 837,-142"/>
+<text text-anchor="middle" x="701.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%s_erase_one</text>
+</a>
+</g>
+</g>
+<!-- none~erase~64&#45;&gt;proc~s_erase_one~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge4" class="edge">
+<title>none~erase~64&#45;&gt;proc~s_erase_one~15</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M527.2,-123.37C536.66,-123.29 546.29,-123.25 555.92,-123.25"/>
+<polygon fill="#255000" stroke="#255000" points="555.94,-126.75 565.94,-123.27 555.95,-119.75 555.94,-126.75"/>
+</g>
+<!-- proc~findnode~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_node4" class="node">
+<title>proc~findnode~2</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node4"><a xlink:href="../proc/findnode~2.html" xlink:title="MAPL_StringFieldSetMapMod::set2%findnode">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="827.5,-64 575.5,-64 575.5,-40 827.5,-40 827.5,-64"/>
+<text text-anchor="middle" x="701.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%findnode</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~15&#45;&gt;proc~findnode~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge5" class="edge">
+<title>proc~s_find~15&#45;&gt;proc~findnode~2</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M527.2,-52C539.62,-52 552.33,-52 564.94,-52"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="565.02,-55.5 575.02,-52 565.02,-48.5 565.02,-55.5"/>
+</g>
+<!-- proc~s_ordereq~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node7" class="node">
+<title>proc~s_ordereq~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node7"><a xlink:href="../proc/s_ordereq~15.html" xlink:title="MAPL_StringFieldSetMapMod::s_orderEq">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1126.5,-24 900.5,-24 900.5,0 1126.5,0 1126.5,-24"/>
+<text text-anchor="middle" x="1013.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::s_orderEq</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~15&#45;&gt;proc~s_ordereq~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge6" class="edge">
+<title>proc~s_find~15&#45;&gt;proc~s_ordereq~15</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M487.53,-39.95C511.64,-36.57 538.38,-33.21 563,-31 673.41,-21.09 799.56,-16.33 890.06,-14.05"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="890.17,-17.55 900.08,-13.8 890,-10.55 890.17,-17.55"/>
+</g>
+<!-- proc~findnode~2&#45;&gt;proc~s_ordereq~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge9" class="edge">
+<title>proc~findnode~2&#45;&gt;proc~s_ordereq~15</title>
+<path fill="none" stroke="#255000" d="M795.51,-40C831.29,-35.38 872.35,-30.08 909.06,-25.35"/>
+<polygon fill="#255000" stroke="#255000" points="909.82,-28.78 919.29,-24.03 908.92,-21.84 909.82,-28.78"/>
+</g>
+<!-- proc~s_child~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_node10" class="node">
+<title>proc~s_child~2</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node10"><a xlink:href="../proc/s_child~2.html" xlink:title="MAPL_StringFieldSetMapMod::node%s_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1767,-224 1522,-224 1522,-200 1767,-200 1767,-224"/>
+<text text-anchor="middle" x="1644.5" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::node%s_child</text>
+</a>
+</g>
+</g>
+<!-- proc~findnode~2&#45;&gt;proc~s_child~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge7" class="edge">
+<title>proc~findnode~2&#45;&gt;proc~s_child~2</title>
+<path fill="none" stroke="#255000" d="M827.52,-54.71C1012.01,-59.83 1347.78,-73.78 1463,-109 1523.81,-127.59 1586.45,-169.4 1619.57,-193.65"/>
+<polygon fill="#255000" stroke="#255000" points="1617.6,-196.55 1627.72,-199.7 1621.78,-190.93 1617.6,-196.55"/>
+</g>
+<!-- proc~s_lessthan~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node11" class="node">
+<title>proc~s_lessthan~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node11"><a xlink:href="../proc/s_lessthan~15.html" xlink:title="MAPL_StringFieldSetMapMod::s_lessThan">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1440,-43 1210,-43 1210,-19 1440,-19 1440,-43"/>
+<text text-anchor="middle" x="1325" y="-28.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::s_lessThan</text>
+</a>
+</g>
+</g>
+<!-- proc~findnode~2&#45;&gt;proc~s_lessthan~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge8" class="edge">
+<title>proc~findnode~2&#45;&gt;proc~s_lessthan~15</title>
+<path fill="none" stroke="#255000" d="M827.52,-47.78C935.78,-44.12 1091.53,-38.86 1199.6,-35.2"/>
+<polygon fill="#255000" stroke="#255000" points="1200.03,-38.69 1209.91,-34.86 1199.79,-31.69 1200.03,-38.69"/>
+</g>
+<!-- proc~erasenonleaf~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_node8" class="node">
+<title>proc~erasenonleaf~2</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node8"><a xlink:href="../proc/erasenonleaf~2.html" xlink:title="MAPL_StringFieldSetMapMod::set2%erasenonleaf">
+<polygon fill="#d9534f" stroke="#d9534f" points="1151,-224 876,-224 876,-200 1151,-200 1151,-224"/>
+<text text-anchor="middle" x="1013.5" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%erasenonleaf</text>
+</a>
+</g>
+</g>
+<!-- proc~s_erase_multi~15&#45;&gt;proc~erasenonleaf~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge10" class="edge">
+<title>proc~s_erase_multi~15&#45;&gt;proc~erasenonleaf~2</title>
+<path fill="none" stroke="transparent" d="M795.51,-184C831.29,-188.62 872.35,-193.92 909.06,-198.65"/>
+<polygon fill="transparent" stroke="transparent" points="908.92,-202.16 919.29,-199.97 909.82,-195.22 908.92,-202.16"/>
+</g>
+<!-- proc~rebalance~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node9" class="node">
+<title>proc~rebalance~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node9"><a xlink:href="../proc/rebalance~15.html" xlink:title="MAPL_StringFieldSetMapMod::set2%rebalance">
+<polygon fill="#d9534f" stroke="#d9534f" points="1454,-306 1196,-306 1196,-282 1454,-282 1454,-306"/>
+<text text-anchor="middle" x="1325" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%rebalance</text>
+</a>
+</g>
+</g>
+<!-- proc~s_erase_multi~15&#45;&gt;proc~rebalance~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge11" class="edge">
+<title>proc~s_erase_multi~15&#45;&gt;proc~rebalance~15</title>
+<path fill="none" stroke="transparent" d="M720.81,-184.03C751.45,-203.47 815.74,-241.31 876,-258 977.19,-286.02 1095.78,-294.53 1185.52,-296.3"/>
+<polygon fill="transparent" stroke="transparent" points="1185.71,-299.81 1195.77,-296.48 1185.83,-292.81 1185.71,-299.81"/>
+</g>
+<!-- proc~s_next~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node12" class="node">
+<title>proc~s_next~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node12"><a xlink:href="../proc/s_next~15.html" xlink:title="MAPL_StringFieldSetMapMod::s_iterator%s_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="1146,-142 881,-142 881,-118 1146,-118 1146,-142"/>
+<text text-anchor="middle" x="1013.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::s_iterator%s_next</text>
+</a>
+</g>
+</g>
+<!-- proc~s_erase_multi~15&#45;&gt;proc~s_next~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge12" class="edge">
+<title>proc~s_erase_multi~15&#45;&gt;proc~s_next~15</title>
+<path fill="none" stroke="transparent" d="M791.33,-159.96C829.6,-154.78 874.49,-148.7 913.79,-143.37"/>
+<polygon fill="transparent" stroke="transparent" points="914.48,-146.81 923.92,-142 913.54,-139.88 914.48,-146.81"/>
+</g>
+<!-- proc~s_setchild~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_node13" class="node">
+<title>proc~s_setchild~2</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node13"><a xlink:href="../proc/s_setchild~2.html" xlink:title="MAPL_StringFieldSetMapMod::node%s_setchild">
+<polygon fill="#d9534f" stroke="#d9534f" points="1455.5,-264 1194.5,-264 1194.5,-240 1455.5,-240 1455.5,-264"/>
+<text text-anchor="middle" x="1325" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::node%s_setchild</text>
+</a>
+</g>
+</g>
+<!-- proc~s_erase_multi~15&#45;&gt;proc~s_setchild~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge13" class="edge">
+<title>proc~s_erase_multi~15&#45;&gt;proc~s_setchild~2</title>
+<path fill="none" stroke="transparent" d="M728.86,-184.04C762.29,-198.65 822.07,-222.62 876,-233 977.95,-252.63 1095.25,-256.97 1184.25,-256.61"/>
+<polygon fill="transparent" stroke="transparent" points="1184.43,-260.11 1194.41,-256.55 1184.39,-253.11 1184.43,-260.11"/>
+</g>
+<!-- proc~s_whichchild~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_node14" class="node">
+<title>proc~s_whichchild~2</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node14"><a xlink:href="../proc/s_whichchild~2.html" xlink:title="MAPL_StringFieldSetMapMod::node%s_whichchild">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1463,-184 1187,-184 1187,-160 1463,-160 1463,-184"/>
+<text text-anchor="middle" x="1325" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::node%s_whichchild</text>
+</a>
+</g>
+</g>
+<!-- proc~s_erase_multi~15&#45;&gt;proc~s_whichchild~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge14" class="edge">
+<title>proc~s_erase_multi~15&#45;&gt;proc~s_whichchild~2</title>
+<path fill="none" stroke="transparent" d="M840.05,-172C939.87,-172 1074.74,-172 1176.74,-172"/>
+<polygon fill="transparent" stroke="transparent" points="1176.82,-175.5 1186.82,-172 1176.82,-168.5 1176.82,-175.5"/>
+</g>
+<!-- proc~s_erase_one~15&#45;&gt;none~erase~64 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge15" class="edge">
+<title>proc~s_erase_one~15&#45;&gt;none~erase~64</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M565.94,-136.73C556.44,-136.76 546.88,-136.75 537.42,-136.7"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="537.22,-133.2 527.2,-136.63 537.18,-140.2 537.22,-133.2"/>
+</g>
+<!-- proc~s_erase_one~15&#45;&gt;proc~s_next~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge16" class="edge">
+<title>proc~s_erase_one~15&#45;&gt;proc~s_next~15</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M837.12,-130C848.25,-130 859.53,-130 870.71,-130"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="870.95,-133.5 880.95,-130 870.95,-126.5 870.95,-133.5"/>
+</g>
+<!-- proc~s_ordereq~15&#45;&gt;proc~s_lessthan~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge17" class="edge">
+<title>proc~s_ordereq~15&#45;&gt;proc~s_lessthan~15</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1126.67,-18.89C1150.36,-20.34 1175.5,-21.88 1199.61,-23.36"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1199.67,-26.87 1209.87,-23.99 1200.1,-19.89 1199.67,-26.87"/>
+</g>
+<!-- proc~erasenonleaf~2&#45;&gt;proc~rebalance~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge19" class="edge">
+<title>proc~erasenonleaf~2&#45;&gt;proc~rebalance~15</title>
+<path fill="none" stroke="#255000" d="M1043.29,-224.06C1077.13,-237.79 1135.24,-260 1187,-273 1197.65,-275.67 1208.86,-278.06 1220.08,-280.18"/>
+<polygon fill="#255000" stroke="#255000" points="1219.47,-283.63 1229.94,-281.97 1220.73,-276.74 1219.47,-283.63"/>
+</g>
+<!-- proc~erasenonleaf~2&#45;&gt;proc~s_child~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge20" class="edge">
+<title>proc~erasenonleaf~2&#45;&gt;proc~s_child~2</title>
+<path fill="none" stroke="#255000" d="M1151.37,-212C1258.33,-212 1406.07,-212 1511.7,-212"/>
+<polygon fill="#255000" stroke="#255000" points="1511.79,-215.5 1521.79,-212 1511.79,-208.5 1511.79,-215.5"/>
+</g>
+<!-- proc~erasenonleaf~2&#45;&gt;proc~s_setchild~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge21" class="edge">
+<title>proc~erasenonleaf~2&#45;&gt;proc~s_setchild~2</title>
+<path fill="none" stroke="#255000" d="M1107.36,-224C1143.08,-228.62 1184.08,-233.92 1220.73,-238.65"/>
+<polygon fill="#255000" stroke="#255000" points="1220.57,-242.16 1230.94,-239.97 1221.47,-235.22 1220.57,-242.16"/>
+</g>
+<!-- proc~erasenonleaf~2&#45;&gt;proc~s_whichchild~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge22" class="edge">
+<title>proc~erasenonleaf~2&#45;&gt;proc~s_whichchild~2</title>
+<path fill="none" stroke="#255000" d="M1107.36,-200C1143.08,-195.38 1184.08,-190.08 1220.73,-185.35"/>
+<polygon fill="#255000" stroke="#255000" points="1221.47,-188.78 1230.94,-184.03 1220.57,-181.84 1221.47,-188.78"/>
+</g>
+<!-- proc~advpos~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node15" class="node">
+<title>proc~advpos~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node15"><a xlink:href="../proc/advpos~15.html" xlink:title="MAPL_StringFieldSetMapMod::set2%advpos">
+<polygon fill="#d9534f" stroke="#d9534f" points="1446.5,-142 1203.5,-142 1203.5,-118 1446.5,-118 1446.5,-142"/>
+<text text-anchor="middle" x="1325" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%advpos</text>
+</a>
+</g>
+</g>
+<!-- proc~erasenonleaf~2&#45;&gt;proc~advpos~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge18" class="edge">
+<title>proc~erasenonleaf~2&#45;&gt;proc~advpos~15</title>
+<path fill="none" stroke="#255000" d="M1043.29,-199.94C1077.13,-186.21 1135.24,-164 1187,-151 1197.65,-148.33 1208.86,-145.94 1220.08,-143.82"/>
+<polygon fill="#255000" stroke="#255000" points="1220.73,-147.26 1229.94,-142.03 1219.47,-140.37 1220.73,-147.26"/>
+</g>
+<!-- proc~rebalance~15&#45;&gt;proc~s_child~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge24" class="edge">
+<title>proc~rebalance~15&#45;&gt;proc~s_child~2</title>
+<path fill="none" stroke="transparent" d="M1430.54,-281.94C1441.64,-279.49 1452.64,-276.54 1463,-273 1480.32,-267.08 1482.08,-259.99 1499,-253 1524.85,-242.32 1554.41,-233.39 1580.02,-226.62"/>
+<polygon fill="transparent" stroke="transparent" points="1581.2,-229.93 1590,-224.04 1579.44,-223.16 1581.2,-229.93"/>
+</g>
+<!-- proc~rot~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_node16" class="node">
+<title>proc~rot~15</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node16"><a xlink:href="../proc/rot~15.html" xlink:title="MAPL_StringFieldSetMapMod::set2%rot">
+<polygon fill="#d9534f" stroke="#d9534f" points="1754,-286 1535,-286 1535,-262 1754,-262 1754,-286"/>
+<text text-anchor="middle" x="1644.5" y="-271.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::set2%rot</text>
+</a>
+</g>
+</g>
+<!-- proc~rebalance~15&#45;&gt;proc~rot~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge23" class="edge">
+<title>proc~rebalance~15&#45;&gt;proc~rot~15</title>
+<path fill="none" stroke="transparent" d="M1454.22,-285.92C1477.54,-284.45 1501.76,-282.93 1524.79,-281.48"/>
+<polygon fill="transparent" stroke="transparent" points="1525.16,-284.96 1534.92,-280.84 1524.72,-277.98 1525.16,-284.96"/>
+</g>
+<!-- proc~s_updateheight~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_node17" class="node">
+<title>proc~s_updateheight~2</title>
+<g id="a_proc~~s_remove~15~~CallsGraph_node17"><a xlink:href="../proc/s_updateheight~2.html" xlink:title="MAPL_StringFieldSetMapMod::node%s_updateheight">
+<polygon fill="#d9534f" stroke="#d9534f" points="1790,-328 1499,-328 1499,-304 1790,-304 1790,-328"/>
+<text text-anchor="middle" x="1644.5" y="-313.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringFieldSetMapMod::node%s_updateheight</text>
+</a>
+</g>
+</g>
+<!-- proc~rebalance~15&#45;&gt;proc~s_updateheight~2 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge25" class="edge">
+<title>proc~rebalance~15&#45;&gt;proc~s_updateheight~2</title>
+<path fill="none" stroke="transparent" d="M1454.22,-302.88C1465.61,-303.67 1477.2,-304.48 1488.77,-305.28"/>
+<polygon fill="transparent" stroke="transparent" points="1488.71,-308.78 1498.93,-305.98 1489.19,-301.8 1488.71,-308.78"/>
+</g>
+<!-- proc~s_next~15&#45;&gt;proc~advpos~15 -->
+<g id="proc~~s_remove~15~~CallsGraph_edge26" class="edge">
+<title>proc~s_next~15&#45;&gt;proc~advpos~15</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M1146.2,-130C1161.73,-130 1177.56,-130 1193.07,-130"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="1193.21,-133.5 1203.21,-130 1193.21,-126.5 1193.21,-133.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocs_remove15CallsGraph = svgPanZoom('#procs_remove15CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T13:36:12.339955             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

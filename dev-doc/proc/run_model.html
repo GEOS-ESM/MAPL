@@ -1,0 +1,1372 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>run_model &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>run_model
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">75 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Cap.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_cap.f90.html'>MAPL_Cap.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_capmod.html'>MAPL_CapMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">run_model</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/run_model.html#src">run_model</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine run_model(this, comm, unusable, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/pflogger.html'>pflogger</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~run_model~~UsesGraph Pages: 1 -->
+<svg id="procrun_modelUsesGraph" width="641pt" height="128pt"
+ viewBox="0.00 0.00 641.00 128.03" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~run_model~~UsesGraph" class="graph" transform="scale(1.2 1.2) rotate(0) translate(4 150)">
+<title>proc~~run_model~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-150 767,-150 767,4 -4,4"/>
+<!-- proc~run_model -->
+<g id="proc~~run_model~~UsesGraph_node1" class="node">
+<title>proc~run_model</title>
+<polygon fill="none" stroke="black" points="763,-84 544,-84 544,-60 763,-60 763,-84"/>
+<text text-anchor="middle" x="653.5" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CapMod::MAPL_Cap%run_model</text>
+</g>
+<!-- module~pflogger -->
+<g id="proc~~run_model~~UsesGraph_node2" class="node">
+<title>module~pflogger</title>
+<g id="a_proc~~run_model~~UsesGraph_node2"><a xlink:href="../module/pflogger.html" xlink:title="pflogger">
+<polygon fill="#337ab7" stroke="#337ab7" points="508,-84 450,-84 450,-60 508,-60 508,-84"/>
+<text text-anchor="middle" x="479" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;module~pflogger -->
+<g id="proc~~run_model~~UsesGraph_edge1" class="edge">
+<title>proc~run_model&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M543.74,-72C534.77,-72 526.15,-72 518.3,-72"/>
+<polygon fill="#255000" stroke="#255000" points="518.12,-68.5 508.12,-72 518.12,-75.5 518.12,-68.5"/>
+</g>
+<!-- module~pfl_keywordenforcermod -->
+<g id="proc~~run_model~~UsesGraph_node3" class="node">
+<title>module~pfl_keywordenforcermod</title>
+<g id="a_proc~~run_model~~UsesGraph_node3"><a xlink:href="../module/pfl_keywordenforcermod.html" xlink:title="PFL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-146 0,-146 0,-122 148,-122 148,-146"/>
+<text text-anchor="middle" x="74" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="proc~~run_model~~UsesGraph_edge2" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M352.5,-132C287.79,-141.67 213.65,-141.64 158.29,-139.49"/>
+<polygon fill="#255000" stroke="#255000" points="158.32,-135.99 148.18,-139.06 158.02,-142.98 158.32,-135.99"/>
+</g>
+<!-- module~pfl_logger -->
+<g id="proc~~run_model~~UsesGraph_node4" class="node">
+<title>module~pfl_logger</title>
+<g id="a_proc~~run_model~~UsesGraph_node4"><a xlink:href="../module/pfl_logger.html" xlink:title="PFL_Logger">
+<polygon fill="#337ab7" stroke="#337ab7" points="257,-104 184,-104 184,-80 257,-80 257,-104"/>
+<text text-anchor="middle" x="220.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_logger -->
+<g id="proc~~run_model~~UsesGraph_edge3" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M461.84,-84.03C449.3,-92.95 431.2,-104.92 414,-113 388.88,-124.81 381.96,-127.9 354.5,-132"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M352.5,-132C316.47,-137.38 276.65,-122 250.48,-108.78"/>
+<polygon fill="#255000" stroke="#255000" points="251.97,-105.61 241.49,-104.05 248.71,-111.8 251.97,-105.61"/>
+</g>
+<!-- module~pfl_loggermanager -->
+<g id="proc~~run_model~~UsesGraph_node5" class="node">
+<title>module~pfl_loggermanager</title>
+<g id="a_proc~~run_model~~UsesGraph_node5"><a xlink:href="../module/pfl_loggermanager.html" xlink:title="PFL_LoggerManager">
+<polygon fill="#337ab7" stroke="#337ab7" points="414,-104 293,-104 293,-80 414,-80 414,-104"/>
+<text text-anchor="middle" x="353.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_loggermanager -->
+<g id="proc~~run_model~~UsesGraph_edge4" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_loggermanager</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M449.98,-76.54C442.14,-77.81 433.25,-79.25 424.13,-80.72"/>
+<polygon fill="#255000" stroke="#255000" points="423.5,-77.28 414.18,-82.33 424.61,-84.19 423.5,-77.28"/>
+</g>
+<!-- module~pfl_severitylevels -->
+<g id="proc~~run_model~~UsesGraph_node6" class="node">
+<title>module~pfl_severitylevels</title>
+<g id="a_proc~~run_model~~UsesGraph_node6"><a xlink:href="../module/pfl_severitylevels.html" xlink:title="PFL_SeverityLevels">
+<polygon fill="#337ab7" stroke="#337ab7" points="130.5,-62 17.5,-62 17.5,-38 130.5,-38 130.5,-62"/>
+<text text-anchor="middle" x="74" y="-47.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_SeverityLevels</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_severitylevels -->
+<g id="proc~~run_model~~UsesGraph_edge5" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M449.98,-70.47C386.47,-67 230.16,-58.47 140.68,-53.59"/>
+<polygon fill="#255000" stroke="#255000" points="140.82,-50.09 130.64,-53.04 140.44,-57.08 140.82,-50.09"/>
+</g>
+<!-- module~pfl_wraparray -->
+<g id="proc~~run_model~~UsesGraph_node7" class="node">
+<title>module~pfl_wraparray</title>
+<g id="a_proc~~run_model~~UsesGraph_node7"><a xlink:href="../module/pfl_wraparray.html" xlink:title="PFL_WrapArray">
+<polygon fill="#337ab7" stroke="#337ab7" points="400,-24 307,-24 307,0 400,0 400,-24"/>
+<text text-anchor="middle" x="353.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_WrapArray</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_wraparray -->
+<g id="proc~~run_model~~UsesGraph_edge6" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_wraparray</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M456.29,-59.94C444,-53.24 428.27,-44.9 414,-38 407.23,-34.73 399.95,-31.4 392.89,-28.26"/>
+<polygon fill="#255000" stroke="#255000" points="394.02,-24.93 383.45,-24.12 391.21,-31.34 394.02,-24.93"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="proc~~run_model~~UsesGraph_edge8" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M183.87,-102.51C172.42,-105.87 159.68,-109.61 148,-113 141.12,-115 133.88,-117.1 126.73,-119.16"/>
+<polygon fill="transparent" stroke="transparent" points="125.73,-115.8 117.09,-121.94 127.67,-122.53 125.73,-115.8"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_severitylevels -->
+<g id="proc~~run_model~~UsesGraph_edge9" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M183.87,-81.49C172.42,-78.13 159.68,-74.39 148,-71 141.12,-69 133.88,-66.9 126.73,-64.84"/>
+<polygon fill="transparent" stroke="transparent" points="127.67,-61.47 117.09,-62.06 125.73,-68.2 127.67,-61.47"/>
+</g>
+<!-- gFTL_StringUnlimitedMap -->
+<g id="proc~~run_model~~UsesGraph_node8" class="node">
+<title>gFTL_StringUnlimitedMap</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-104 0,-104 0,-80 148,-80 148,-104"/>
+<text text-anchor="middle" x="74" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringUnlimitedMap</text>
+</g>
+<!-- module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap -->
+<g id="proc~~run_model~~UsesGraph_edge7" class="edge">
+<title>module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M183.78,-92C175.89,-92 167.2,-92 158.29,-92"/>
+<polygon fill="transparent" stroke="transparent" points="158.16,-88.5 148.16,-92 158.16,-95.5 158.16,-88.5"/>
+</g>
+<!-- module~pfl_loggermanager&#45;&gt;module~pfl_logger -->
+<g id="proc~~run_model~~UsesGraph_edge10" class="edge">
+<title>module~pfl_loggermanager&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M292.75,-92C284.21,-92 275.54,-92 267.32,-92"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="267.2,-88.5 257.2,-92 267.2,-95.5 267.2,-88.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocrun_modelUsesGraph = svgPanZoom('#procrun_modelUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/mapl_cap.html'>MAPL_Cap</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2011"></span>
+              class(<a href='../type/mapl_cap.html'>MAPL_Cap</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~118"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~172"></span>
+              class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~713"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~run_model~~CallsGraph Pages: 1 -->
+<svg id="procrun_modelCallsGraph" width="641pt" height="340pt"
+ viewBox="0.00 0.00 641.00 340.42" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~run_model~~CallsGraph" class="graph" transform="scale(2.03 2.03) rotate(0) translate(4 688)">
+<title>proc~~run_model~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-688 1299,-688 1299,4 -4,4"/>
+<!-- proc~run_model -->
+<g id="proc~~run_model~~CallsGraph_node1" class="node">
+<title>proc~run_model</title>
+<polygon fill="none" stroke="black" points="219,-356 0,-356 0,-332 219,-332 219,-356"/>
+<text text-anchor="middle" x="109.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CapMod::MAPL_Cap%run_model</text>
+</g>
+<!-- ESMF_Finalize -->
+<g id="proc~~run_model~~CallsGraph_node2" class="node">
+<title>ESMF_Finalize</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="503.5,-684 382.5,-684 382.5,-660 503.5,-660 503.5,-684"/>
+<text text-anchor="middle" x="443" y="-669.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_Finalize</text>
+</g>
+<!-- proc~run_model&#45;&gt;ESMF_Finalize -->
+<g id="proc~~run_model~~CallsGraph_edge1" class="edge">
+<title>proc~run_model&#45;&gt;ESMF_Finalize</title>
+<path fill="none" stroke="#255000" d="M112.02,-356.03C118.65,-403.05 149.63,-575.56 255,-651 288.39,-674.9 334.06,-680.4 371.92,-679.8"/>
+<polygon fill="#255000" stroke="#255000" points="372.48,-683.28 382.37,-679.48 372.27,-676.28 372.48,-683.28"/>
+</g>
+<!-- ESMF_Initialize -->
+<g id="proc~~run_model~~CallsGraph_node3" class="node">
+<title>ESMF_Initialize</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="506,-642 380,-642 380,-618 506,-618 506,-642"/>
+<text text-anchor="middle" x="443" y="-627.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_Initialize</text>
+</g>
+<!-- proc~run_model&#45;&gt;ESMF_Initialize -->
+<g id="proc~~run_model~~CallsGraph_edge2" class="edge">
+<title>proc~run_model&#45;&gt;ESMF_Initialize</title>
+<path fill="none" stroke="#255000" d="M112.97,-356.16C122.42,-399.27 160.62,-545.57 255,-609 288.21,-631.32 332.45,-637.09 369.56,-637.04"/>
+<polygon fill="#255000" stroke="#255000" points="369.88,-640.53 379.83,-636.87 369.77,-633.53 369.88,-640.53"/>
+</g>
+<!-- ESMF_MeshSetMOAB -->
+<g id="proc~~run_model~~CallsGraph_node4" class="node">
+<title>ESMF_MeshSetMOAB</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="522.5,-600 363.5,-600 363.5,-576 522.5,-576 522.5,-600"/>
+<text text-anchor="middle" x="443" y="-585.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_MeshSetMOAB</text>
+</g>
+<!-- proc~run_model&#45;&gt;ESMF_MeshSetMOAB -->
+<g id="proc~~run_model~~CallsGraph_edge3" class="edge">
+<title>proc~run_model&#45;&gt;ESMF_MeshSetMOAB</title>
+<path fill="none" stroke="#255000" d="M114.2,-356.11C126.68,-394.7 171.23,-515.2 255,-567 283.96,-584.91 320.33,-591.71 353.28,-593.49"/>
+<polygon fill="#255000" stroke="#255000" points="353.26,-596.99 363.39,-593.89 353.53,-590 353.26,-596.99"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~run_model~~CallsGraph_node5" class="node">
+<title>ESMF_VMGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="501.5,-558 384.5,-558 384.5,-534 501.5,-534 501.5,-558"/>
+<text text-anchor="middle" x="443" y="-543.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGet</text>
+</g>
+<!-- proc~run_model&#45;&gt;ESMF_VMGet -->
+<g id="proc~~run_model~~CallsGraph_edge4" class="edge">
+<title>proc~run_model&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#255000" d="M116.27,-356C132.71,-388.74 183.26,-479.8 255,-520 290.94,-540.14 336.66,-546.77 373.9,-548.3"/>
+<polygon fill="#255000" stroke="#255000" points="374.06,-551.81 384.16,-548.61 374.27,-544.81 374.06,-551.81"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~run_model~~CallsGraph_node6" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~run_model~~CallsGraph_node6"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="928.5,-566 711.5,-566 711.5,-542 928.5,-542 928.5,-566"/>
+<text text-anchor="middle" x="820" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;interface~mapl_assert -->
+<g id="proc~~run_model~~CallsGraph_edge5" class="edge">
+<title>proc~run_model&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M118.47,-356.35C137.82,-385.14 190.51,-456.6 255,-487 406.93,-558.61 465.17,-498.29 631,-525 647.18,-527.61 650.87,-530.1 667,-533 681.84,-535.67 697.55,-538.19 713.02,-540.48"/>
+<polygon fill="#255000" stroke="#255000" points="712.73,-543.98 723.13,-541.96 713.75,-537.05 712.73,-543.98"/>
+</g>
+<!-- mpi_bcast -->
+<g id="proc~~run_model~~CallsGraph_node7" class="node">
+<title>mpi_bcast</title>
+<polygon fill="#777777" stroke="#777777" points="476.5,-150 409.5,-150 409.5,-126 476.5,-126 476.5,-150"/>
+<text text-anchor="middle" x="443" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_bcast</text>
+</g>
+<!-- proc~run_model&#45;&gt;mpi_bcast -->
+<g id="proc~~run_model~~CallsGraph_edge6" class="edge">
+<title>proc~run_model&#45;&gt;mpi_bcast</title>
+<path fill="none" stroke="#255000" d="M116.19,-331.73C132.42,-298.26 182.51,-205.15 255,-164 299.48,-138.75 359.22,-134.62 399.09,-135.25"/>
+<polygon fill="#255000" stroke="#255000" points="399.19,-138.75 409.27,-135.52 399.37,-131.75 399.19,-138.75"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~run_model~~CallsGraph_node8" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="493.5,-108 392.5,-108 392.5,-84 493.5,-84 493.5,-108"/>
+<text text-anchor="middle" x="443" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~run_model&#45;&gt;mpi_comm_rank -->
+<g id="proc~~run_model~~CallsGraph_edge7" class="edge">
+<title>proc~run_model&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#255000" d="M114.04,-331.95C126.19,-292.99 170.18,-169.93 255,-117 292.65,-93.5 343.01,-89.03 381.98,-90.01"/>
+<polygon fill="#255000" stroke="#255000" points="382.01,-93.51 392.14,-90.39 382.28,-86.52 382.01,-93.51"/>
+</g>
+<!-- none~get_logger~3 -->
+<g id="proc~~run_model~~CallsGraph_node9" class="node">
+<title>none~get_logger~3</title>
+<g id="a_proc~~run_model~~CallsGraph_node9"><a xlink:href="../type/loggermanager.html#boundprocedure-get_logger~3" xlink:title="PFL_LoggerManager::LoggerManager%get_logger">
+<polygon fill="#a7506f" stroke="#a7506f" points="583,-66 303,-66 303,-42 583,-42 583,-66"/>
+<text text-anchor="middle" x="443" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager::LoggerManager%get_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;none~get_logger~3 -->
+<g id="proc~~run_model~~CallsGraph_edge8" class="edge">
+<title>proc~run_model&#45;&gt;none~get_logger~3</title>
+<path fill="none" stroke="#255000" d="M112.84,-331.96C121.97,-288.61 159.5,-139.61 255,-75 266.54,-67.19 279.42,-61.4 292.89,-57.18"/>
+<polygon fill="#255000" stroke="#255000" points="294.11,-60.47 302.78,-54.37 292.2,-53.73 294.11,-60.47"/>
+</g>
+<!-- proc~finalize~13 -->
+<g id="proc~~run_model~~CallsGraph_node10" class="node">
+<title>proc~finalize~13</title>
+<g id="a_proc~~run_model~~CallsGraph_node10"><a xlink:href="../proc/finalize~13.html" xlink:title="MAPL_CapGridCompMod::MAPL_CapGridComp%finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="597,-398 289,-398 289,-374 597,-374 597,-398"/>
+<text text-anchor="middle" x="443" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod::MAPL_CapGridComp%finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~finalize~13 -->
+<g id="proc~~run_model~~CallsGraph_edge9" class="edge">
+<title>proc~run_model&#45;&gt;proc~finalize~13</title>
+<path fill="none" stroke="#255000" d="M189.93,-356.02C211.06,-359.08 233.88,-362.28 255,-365 275.84,-367.68 298.01,-370.34 319.53,-372.82"/>
+<polygon fill="#255000" stroke="#255000" points="319.36,-376.33 329.7,-373.99 320.16,-369.37 319.36,-376.33"/>
+</g>
+<!-- proc~get_model_duration -->
+<g id="proc~~run_model~~CallsGraph_node11" class="node">
+<title>proc~get_model_duration</title>
+<g id="a_proc~~run_model~~CallsGraph_node11"><a xlink:href="../proc/get_model_duration.html" xlink:title="MAPL_CapGridCompMod::MAPL_CapGridComp%get_model_duration">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="631,-356 255,-356 255,-332 631,-332 631,-356"/>
+<text text-anchor="middle" x="443" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod::MAPL_CapGridComp%get_model_duration</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~get_model_duration -->
+<g id="proc~~run_model~~CallsGraph_edge10" class="edge">
+<title>proc~run_model&#45;&gt;proc~get_model_duration</title>
+<path fill="none" stroke="#255000" d="M219.05,-344C227.39,-344 235.96,-344 244.65,-344"/>
+<polygon fill="#255000" stroke="#255000" points="244.89,-347.5 254.89,-344 244.89,-340.5 244.89,-347.5"/>
+</g>
+<!-- proc~info -->
+<g id="proc~~run_model~~CallsGraph_node12" class="node">
+<title>proc~info</title>
+<g id="a_proc~~run_model~~CallsGraph_node12"><a xlink:href="../proc/info.html" xlink:title="PFL_Logger::Logger%info">
+<polygon fill="#d9534f" stroke="#d9534f" points="517,-24 369,-24 369,0 517,0 517,-24"/>
+<text text-anchor="middle" x="443" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger::Logger%info</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~info -->
+<g id="proc~~run_model~~CallsGraph_edge11" class="edge">
+<title>proc~run_model&#45;&gt;proc~info</title>
+<path fill="none" stroke="#255000" d="M111.96,-331.82C118.38,-284.2 148.69,-109.51 255,-33 284.56,-11.72 323.85,-5 358.77,-4.18"/>
+<polygon fill="#255000" stroke="#255000" points="359,-7.68 368.98,-4.1 358.95,-0.68 359,-7.68"/>
+</g>
+<!-- proc~initialize_cap_gc -->
+<g id="proc~~run_model~~CallsGraph_node13" class="node">
+<title>proc~initialize_cap_gc</title>
+<g id="a_proc~~run_model~~CallsGraph_node13"><a xlink:href="../proc/initialize_cap_gc.html" xlink:title="MAPL_CapMod::MAPL_Cap%initialize_cap_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="567.5,-478 318.5,-478 318.5,-454 567.5,-454 567.5,-478"/>
+<text text-anchor="middle" x="443" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapMod::MAPL_Cap%initialize_cap_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~initialize_cap_gc -->
+<g id="proc~~run_model~~CallsGraph_edge12" class="edge">
+<title>proc~run_model&#45;&gt;proc~initialize_cap_gc</title>
+<path fill="none" stroke="#255000" d="M124.07,-356.14C148.38,-377.11 201.77,-419.83 255,-440 271.89,-446.4 290.17,-451.25 308.46,-454.92"/>
+<polygon fill="#255000" stroke="#255000" points="307.84,-458.36 318.31,-456.79 309.14,-451.49 307.84,-458.36"/>
+</g>
+<!-- proc~initialize~13 -->
+<g id="proc~~run_model~~CallsGraph_node14" class="node">
+<title>proc~initialize~13</title>
+<g id="a_proc~~run_model~~CallsGraph_node14"><a xlink:href="../proc/initialize~13.html" xlink:title="MAPL_CapGridCompMod::MAPL_CapGridComp%initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="600,-314 286,-314 286,-290 600,-290 600,-314"/>
+<text text-anchor="middle" x="443" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod::MAPL_CapGridComp%initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~initialize~13 -->
+<g id="proc~~run_model~~CallsGraph_edge13" class="edge">
+<title>proc~run_model&#45;&gt;proc~initialize~13</title>
+<path fill="none" stroke="#255000" d="M189.93,-331.98C211.06,-328.92 233.88,-325.72 255,-323 275.84,-320.32 298.01,-317.66 319.53,-315.18"/>
+<polygon fill="#255000" stroke="#255000" points="320.16,-318.63 329.7,-314.01 319.36,-311.67 320.16,-318.63"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~run_model~~CallsGraph_node15" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~run_model~~CallsGraph_node15"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="930,-356 710,-356 710,-332 930,-332 930,-356"/>
+<text text-anchor="middle" x="820" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~mapl_return -->
+<g id="proc~~run_model~~CallsGraph_edge14" class="edge">
+<title>proc~run_model&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M131.13,-356.26C158.38,-371.67 208.38,-397.28 255,-407 336.8,-424.06 555.09,-441.91 631,-407 653.34,-396.73 645.42,-376.78 667,-365 677.23,-359.42 688.4,-355.13 699.9,-351.85"/>
+<polygon fill="#255000" stroke="#255000" points="700.81,-355.23 709.61,-349.34 699.06,-348.45 700.81,-355.23"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~run_model~~CallsGraph_node16" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~run_model~~CallsGraph_node16"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="927,-272 713,-272 713,-248 927,-248 927,-272"/>
+<text text-anchor="middle" x="820" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~mapl_verify -->
+<g id="proc~~run_model~~CallsGraph_edge15" class="edge">
+<title>proc~run_model&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M117.63,-331.76C135.89,-301.81 187.67,-225.23 255,-197 332.06,-164.69 555.09,-162.09 631,-197 653.34,-207.27 645.42,-227.22 667,-239 678.07,-245.04 690.24,-249.57 702.74,-252.93"/>
+<polygon fill="#255000" stroke="#255000" points="702.26,-256.42 712.81,-255.39 703.92,-249.62 702.26,-256.42"/>
+</g>
+<!-- proc~run~19 -->
+<g id="proc~~run_model~~CallsGraph_node17" class="node">
+<title>proc~run~19</title>
+<g id="a_proc~~run_model~~CallsGraph_node17"><a xlink:href="../proc/run~19.html" xlink:title="MAPL_CapGridCompMod::MAPL_CapGridComp%run">
+<polygon fill="#d9534f" stroke="#d9534f" points="587,-230 299,-230 299,-206 587,-206 587,-230"/>
+<text text-anchor="middle" x="443" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod::MAPL_CapGridComp%run</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~run~19 -->
+<g id="proc~~run_model~~CallsGraph_edge16" class="edge">
+<title>proc~run_model&#45;&gt;proc~run~19</title>
+<path fill="none" stroke="#255000" d="M122.31,-331.99C145.41,-309.33 199.2,-260.65 255,-239 265.83,-234.8 277.25,-231.36 288.9,-228.55"/>
+<polygon fill="#255000" stroke="#255000" points="289.74,-231.95 298.73,-226.34 288.21,-225.12 289.74,-231.95"/>
+</g>
+<!-- proc~set_services~2 -->
+<g id="proc~~run_model~~CallsGraph_node18" class="node">
+<title>proc~set_services~2</title>
+<g id="a_proc~~run_model~~CallsGraph_node18"><a xlink:href="../proc/set_services~2.html" xlink:title="MAPL_CapGridCompMod::MAPL_CapGridComp%set_services">
+<polygon fill="#d9534f" stroke="#d9534f" points="610,-272 276,-272 276,-248 610,-248 610,-272"/>
+<text text-anchor="middle" x="443" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod::MAPL_CapGridComp%set_services</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~set_services~2 -->
+<g id="proc~~run_model~~CallsGraph_edge17" class="edge">
+<title>proc~run_model&#45;&gt;proc~set_services~2</title>
+<path fill="none" stroke="#255000" d="M132.76,-331.78C160.51,-317.14 209.79,-293.1 255,-281 265.21,-278.27 275.82,-275.89 286.58,-273.82"/>
+<polygon fill="#255000" stroke="#255000" points="287.28,-277.25 296.49,-272.01 286.02,-270.37 287.28,-277.25"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~run_model~~CallsGraph_node27" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~run_model~~CallsGraph_node27"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1288,-587 1016,-587 1016,-563 1288,-563 1288,-587"/>
+<text text-anchor="middle" x="1152" y="-572.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~run_model~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M928.6,-560.85C953.17,-562.41 979.69,-564.1 1005.55,-565.74"/>
+<polygon fill="transparent" stroke="transparent" points="1005.61,-569.25 1015.81,-566.4 1006.06,-562.27 1005.61,-569.25"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~run_model~~CallsGraph_node28" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~run_model~~CallsGraph_node28"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1295,-545 1009,-545 1009,-521 1295,-521 1295,-545"/>
+<text text-anchor="middle" x="1152" y="-530.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~run_model~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M928.6,-547.15C950.98,-545.73 974.97,-544.2 998.62,-542.7"/>
+<polygon fill="transparent" stroke="transparent" points="998.97,-546.18 1008.72,-542.05 998.52,-539.2 998.97,-546.18"/>
+</g>
+<!-- proc~get_logger_root -->
+<g id="proc~~run_model~~CallsGraph_node26" class="node">
+<title>proc~get_logger_root</title>
+<g id="a_proc~~run_model~~CallsGraph_node26"><a xlink:href="../proc/get_logger_root.html" xlink:title="PFL_LoggerManager::LoggerManager%get_logger_root">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="973,-66 667,-66 667,-42 973,-42 973,-66"/>
+<text text-anchor="middle" x="820" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager::LoggerManager%get_logger_root</text>
+</a>
+</g>
+</g>
+<!-- none~get_logger~3&#45;&gt;proc~get_logger_root -->
+<g id="proc~~run_model~~CallsGraph_edge20" class="edge">
+<title>none~get_logger~3&#45;&gt;proc~get_logger_root</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M583.1,-54C607.1,-54 632.24,-54 656.78,-54"/>
+<polygon fill="transparent" stroke="transparent" points="656.89,-57.5 666.89,-54 656.89,-50.5 656.89,-57.5"/>
+</g>
+<!-- proc~finalize~13&#45;&gt;proc~mapl_return -->
+<g id="proc~~run_model~~CallsGraph_edge22" class="edge">
+<title>proc~finalize~13&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025520" stroke-opacity="0.035294" d="M551.21,-373.99C598.19,-368.73 653.47,-362.54 701.56,-357.15"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="702.16,-360.61 711.71,-356.02 701.38,-353.65 702.16,-360.61"/>
+</g>
+<!-- proc~finalize~13&#45;&gt;proc~mapl_verify -->
+<g id="proc~~run_model~~CallsGraph_edge23" class="edge">
+<title>proc~finalize~13&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025520" stroke-opacity="0.035294" d="M597.25,-382.69C609.32,-378.37 620.77,-372.6 631,-365 663.61,-340.78 634.7,-305.63 667,-281 677.63,-272.89 689.94,-267.15 702.86,-263.17"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="704.11,-266.46 712.84,-260.46 702.27,-259.7 704.11,-266.46"/>
+</g>
+<!-- ESMF_GridCompFinalize -->
+<g id="proc~~run_model~~CallsGraph_node19" class="node">
+<title>ESMF_GridCompFinalize</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="907.5,-398 732.5,-398 732.5,-374 907.5,-374 907.5,-398"/>
+<text text-anchor="middle" x="820" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompFinalize</text>
+</g>
+<!-- proc~finalize~13&#45;&gt;ESMF_GridCompFinalize -->
+<g id="proc~~run_model~~CallsGraph_edge21" class="edge">
+<title>proc~finalize~13&#45;&gt;ESMF_GridCompFinalize</title>
+<path fill="none" stroke="#025520" stroke-opacity="0.035294" d="M597.07,-386C639.36,-386 684.08,-386 722.2,-386"/>
+<polygon fill="#025520" fill-opacity="0.035294" stroke="#025520" stroke-opacity="0.035294" points="722.26,-389.5 732.26,-386 722.26,-382.5 722.26,-389.5"/>
+</g>
+<!-- proc~get_model_duration&#45;&gt;proc~mapl_return -->
+<g id="proc~~run_model~~CallsGraph_edge24" class="edge">
+<title>proc~get_model_duration&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#020925" stroke-opacity="0.019608" d="M631.23,-344C654.48,-344 677.75,-344 699.59,-344"/>
+<polygon fill="#020925" fill-opacity="0.019608" stroke="#020925" stroke-opacity="0.019608" points="699.85,-347.5 709.85,-344 699.85,-340.5 699.85,-347.5"/>
+</g>
+<!-- proc~initialize_cap_gc&#45;&gt;interface~mapl_assert -->
+<g id="proc~~run_model~~CallsGraph_edge25" class="edge">
+<title>proc~initialize_cap_gc&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#029255" d="M567.66,-470.56C589.64,-474.84 611.67,-481.58 631,-492 652.35,-503.5 645.65,-521.51 667,-533 677.74,-538.78 689.49,-543.16 701.56,-546.46"/>
+<polygon fill="#029255" stroke="#029255" points="700.74,-549.87 711.29,-548.89 702.43,-543.07 700.74,-549.87"/>
+</g>
+<!-- proc~initialize_cap_gc&#45;&gt;proc~mapl_return -->
+<g id="proc~~run_model~~CallsGraph_edge29" class="edge">
+<title>proc~initialize_cap_gc&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#029255" d="M567.84,-466.1C590.41,-461.49 612.6,-453.43 631,-440 660.86,-418.2 637.13,-386.79 667,-365 676.84,-357.82 688,-352.54 699.72,-348.7"/>
+<polygon fill="#029255" stroke="#029255" points="701.04,-351.96 709.66,-345.81 699.08,-345.24 701.04,-351.96"/>
+</g>
+<!-- proc~initialize_cap_gc&#45;&gt;proc~mapl_verify -->
+<g id="proc~~run_model~~CallsGraph_edge30" class="edge">
+<title>proc~initialize_cap_gc&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#029255" d="M542.21,-453.9C574.21,-445.45 607.5,-431.15 631,-407 671.62,-365.26 623.02,-319.18 667,-281 677.44,-271.94 689.9,-265.68 703.12,-261.48"/>
+<polygon fill="#029255" stroke="#029255" points="704.17,-264.82 712.87,-258.76 702.29,-258.07 704.17,-264.82"/>
+</g>
+<!-- proc~get_cap_rc_file -->
+<g id="proc~~run_model~~CallsGraph_node23" class="node">
+<title>proc~get_cap_rc_file</title>
+<g id="a_proc~~run_model~~CallsGraph_node23"><a xlink:href="../proc/get_cap_rc_file.html" xlink:title="MAPL_CapMod::MAPL_Cap%get_cap_rc_file">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="940.5,-524 699.5,-524 699.5,-500 940.5,-500 940.5,-524"/>
+<text text-anchor="middle" x="820" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapMod::MAPL_Cap%get_cap_rc_file</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_cap_gc&#45;&gt;proc~get_cap_rc_file -->
+<g id="proc~~run_model~~CallsGraph_edge26" class="edge">
+<title>proc~initialize_cap_gc&#45;&gt;proc~get_cap_rc_file</title>
+<path fill="none" stroke="#029255" d="M542.04,-478.03C593.82,-484.38 657.49,-492.19 710.73,-498.72"/>
+<polygon fill="#029255" stroke="#029255" points="710.53,-502.22 720.88,-499.96 711.39,-495.27 710.53,-502.22"/>
+</g>
+<!-- proc~get_egress_file -->
+<g id="proc~~run_model~~CallsGraph_node24" class="node">
+<title>proc~get_egress_file</title>
+<g id="a_proc~~run_model~~CallsGraph_node24"><a xlink:href="../proc/get_egress_file.html" xlink:title="MAPL_CapMod::MAPL_Cap%get_egress_file">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="940.5,-482 699.5,-482 699.5,-458 940.5,-458 940.5,-482"/>
+<text text-anchor="middle" x="820" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapMod::MAPL_Cap%get_egress_file</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_cap_gc&#45;&gt;proc~get_egress_file -->
+<g id="proc~~run_model~~CallsGraph_edge27" class="edge">
+<title>proc~initialize_cap_gc&#45;&gt;proc~get_egress_file</title>
+<path fill="none" stroke="#029255" d="M567.57,-467.32C606.54,-467.73 649.69,-468.19 689.09,-468.61"/>
+<polygon fill="#029255" stroke="#029255" points="689.25,-472.12 699.29,-468.72 689.32,-465.12 689.25,-472.12"/>
+</g>
+<!-- proc~mapl_capgridcompcreate -->
+<g id="proc~~run_model~~CallsGraph_node29" class="node">
+<title>proc~mapl_capgridcompcreate</title>
+<g id="a_proc~~run_model~~CallsGraph_node29"><a xlink:href="../proc/mapl_capgridcompcreate.html" xlink:title="MAPL_CapGridCompMod::MAPL_CapGridCompCreate">
+<polygon fill="#d9534f" stroke="#d9534f" points="967.5,-440 672.5,-440 672.5,-416 967.5,-416 967.5,-440"/>
+<text text-anchor="middle" x="820" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod::MAPL_CapGridCompCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_cap_gc&#45;&gt;proc~mapl_capgridcompcreate -->
+<g id="proc~~run_model~~CallsGraph_edge28" class="edge">
+<title>proc~initialize_cap_gc&#45;&gt;proc~mapl_capgridcompcreate</title>
+<path fill="none" stroke="#029255" d="M562.65,-453.98C603.29,-449.86 648.94,-445.23 690.33,-441.04"/>
+<polygon fill="#029255" stroke="#029255" points="690.88,-444.5 700.48,-440.01 690.17,-437.54 690.88,-444.5"/>
+</g>
+<!-- proc~initialize~13&#45;&gt;proc~mapl_return -->
+<g id="proc~~run_model~~CallsGraph_edge32" class="edge">
+<title>proc~initialize~13&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#600255" d="M551.21,-314.01C598.19,-319.27 653.47,-325.46 701.56,-330.85"/>
+<polygon fill="#600255" stroke="#600255" points="701.38,-334.35 711.71,-331.98 702.16,-327.39 701.38,-334.35"/>
+</g>
+<!-- proc~initialize~13&#45;&gt;proc~mapl_verify -->
+<g id="proc~~run_model~~CallsGraph_edge33" class="edge">
+<title>proc~initialize~13&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#600255" d="M551.21,-289.99C598.5,-284.7 654.18,-278.46 702.49,-273.05"/>
+<polygon fill="#600255" stroke="#600255" points="703.14,-276.5 712.68,-271.91 702.36,-269.54 703.14,-276.5"/>
+</g>
+<!-- ESMF_GridCompInitialize -->
+<g id="proc~~run_model~~CallsGraph_node20" class="node">
+<title>ESMF_GridCompInitialize</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="910,-314 730,-314 730,-290 910,-290 910,-314"/>
+<text text-anchor="middle" x="820" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompInitialize</text>
+</g>
+<!-- proc~initialize~13&#45;&gt;ESMF_GridCompInitialize -->
+<g id="proc~~run_model~~CallsGraph_edge31" class="edge">
+<title>proc~initialize~13&#45;&gt;ESMF_GridCompInitialize</title>
+<path fill="none" stroke="#600255" d="M600.05,-302C640.49,-302 682.94,-302 719.58,-302"/>
+<polygon fill="#600255" stroke="#600255" points="719.75,-305.5 729.75,-302 719.75,-298.5 719.75,-305.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~run_model~~CallsGraph_node25" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~run_model~~CallsGraph_node25"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1278.5,-356 1025.5,-356 1025.5,-332 1278.5,-332 1278.5,-356"/>
+<text text-anchor="middle" x="1152" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~run_model~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#149025" stroke-opacity="0.019608" d="M930.43,-344C957.5,-344 986.83,-344 1014.99,-344"/>
+<polygon fill="#149025" fill-opacity="0.019608" stroke="#149025" stroke-opacity="0.019608" points="1015.31,-347.5 1025.31,-344 1015.31,-340.5 1015.31,-347.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~run_model~~CallsGraph_node30" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~run_model~~CallsGraph_node30"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1266.5,-293 1037.5,-293 1037.5,-269 1266.5,-269 1266.5,-293"/>
+<text text-anchor="middle" x="1152" y="-278.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~run_model~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#149025" stroke-opacity="0.019608" d="M918.12,-331.98C936.4,-329.32 955.32,-326.3 973,-323 1014.19,-315.31 1060.22,-304.39 1095.15,-295.61"/>
+<polygon fill="#149025" fill-opacity="0.019608" stroke="#149025" stroke-opacity="0.019608" points="1096.32,-298.92 1105.15,-293.08 1094.6,-292.14 1096.32,-298.92"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~run_model~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#240025" stroke-opacity="0.019608" d="M927.23,-266.76C959.08,-268.79 994.28,-271.03 1027.16,-273.12"/>
+<polygon fill="#240025" fill-opacity="0.019608" stroke="#240025" stroke-opacity="0.019608" points="1027.08,-276.62 1037.28,-273.76 1027.52,-269.64 1027.08,-276.62"/>
+</g>
+<!-- proc~run~19&#45;&gt;proc~mapl_return -->
+<g id="proc~~run_model~~CallsGraph_edge38" class="edge">
+<title>proc~run~19&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M587.39,-218.13C603.07,-222.66 618.02,-229.36 631,-239 663.61,-263.22 634.7,-298.37 667,-323 676.86,-330.52 688.16,-336 700.05,-339.93"/>
+<polygon fill="transparent" stroke="transparent" points="699.12,-343.31 709.7,-342.77 701.09,-336.59 699.12,-343.31"/>
+</g>
+<!-- proc~run~19&#45;&gt;proc~mapl_verify -->
+<g id="proc~~run_model~~CallsGraph_edge39" class="edge">
+<title>proc~run~19&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="transparent" d="M551.21,-230.01C598.5,-235.3 654.18,-241.54 702.49,-246.95"/>
+<polygon fill="transparent" stroke="transparent" points="702.36,-250.46 712.68,-248.09 703.14,-243.5 702.36,-250.46"/>
+</g>
+<!-- ESMF_GridCompRun -->
+<g id="proc~~run_model~~CallsGraph_node21" class="node">
+<title>ESMF_GridCompRun</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="898,-188 742,-188 742,-164 898,-164 898,-188"/>
+<text text-anchor="middle" x="820" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompRun</text>
+</g>
+<!-- proc~run~19&#45;&gt;ESMF_GridCompRun -->
+<g id="proc~~run_model~~CallsGraph_edge37" class="edge">
+<title>proc~run~19&#45;&gt;ESMF_GridCompRun</title>
+<path fill="none" stroke="transparent" d="M551.21,-205.99C608.35,-199.59 677.76,-191.82 731.59,-185.79"/>
+<polygon fill="transparent" stroke="transparent" points="732.25,-189.24 741.8,-184.65 731.47,-182.28 732.25,-189.24"/>
+</g>
+<!-- proc~set_services~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~run_model~~CallsGraph_edge41" class="edge">
+<title>proc~set_services~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255090" d="M610.24,-271.78C617.4,-274.43 624.36,-277.48 631,-281 652.73,-292.51 645.42,-311.22 667,-323 677.23,-328.58 688.4,-332.87 699.9,-336.15"/>
+<polygon fill="#255090" stroke="#255090" points="699.06,-339.55 709.61,-338.66 700.81,-332.77 699.06,-339.55"/>
+</g>
+<!-- proc~set_services~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~run_model~~CallsGraph_edge42" class="edge">
+<title>proc~set_services~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255090" d="M610.12,-260C641.31,-260 673.31,-260 702.59,-260"/>
+<polygon fill="#255090" stroke="#255090" points="702.82,-263.5 712.82,-260 702.82,-256.5 702.82,-263.5"/>
+</g>
+<!-- esmf_gridcompsetservices -->
+<g id="proc~~run_model~~CallsGraph_node22" class="node">
+<title>esmf_gridcompsetservices</title>
+<polygon fill="#777777" stroke="#777777" points="897,-230 743,-230 743,-206 897,-206 897,-230"/>
+<text text-anchor="middle" x="820" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_gridcompsetservices</text>
+</g>
+<!-- proc~set_services~2&#45;&gt;esmf_gridcompsetservices -->
+<g id="proc~~run_model~~CallsGraph_edge40" class="edge">
+<title>proc~set_services~2&#45;&gt;esmf_gridcompsetservices</title>
+<path fill="none" stroke="#255090" d="M551.21,-247.99C608.76,-241.55 678.75,-233.71 732.74,-227.66"/>
+<polygon fill="#255090" stroke="#255090" points="733.42,-231.11 742.97,-226.52 732.64,-224.15 733.42,-231.11"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocrun_modelCallsGraph = svgPanZoom('#procrun_modelCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~run_model~~CalledByGraph Pages: 1 -->
+<svg id="procrun_modelCalledByGraph" width="641pt" height="21pt"
+ viewBox="0.00 0.00 641.00 20.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~run_model~~CalledByGraph" class="graph" transform="scale(1.54 1.54) rotate(0) translate(4 28)">
+<title>proc~~run_model~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 980,-28 980,4 -4,4"/>
+<!-- proc~run_model -->
+<g id="proc~~run_model~~CalledByGraph_node1" class="node">
+<title>proc~run_model</title>
+<polygon fill="none" stroke="black" points="976,-24 757,-24 757,0 976,0 976,-24"/>
+<text text-anchor="middle" x="866.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CapMod::MAPL_Cap%run_model</text>
+</g>
+<!-- proc~run_member -->
+<g id="proc~~run_model~~CalledByGraph_node2" class="node">
+<title>proc~run_member</title>
+<g id="a_proc~~run_model~~CalledByGraph_node2"><a xlink:href="../proc/run_member.html" xlink:title="MAPL_CapMod::MAPL_Cap%run_member">
+<polygon fill="#d9534f" stroke="#d9534f" points="721,-24 490,-24 490,0 721,0 721,-24"/>
+<text text-anchor="middle" x="605.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapMod::MAPL_Cap%run_member</text>
+</a>
+</g>
+</g>
+<!-- proc~run_member&#45;&gt;proc~run_model -->
+<g id="proc~~run_model~~CalledByGraph_edge1" class="edge">
+<title>proc~run_member&#45;&gt;proc~run_model</title>
+<path fill="none" stroke="#255000" d="M721.23,-12C729.6,-12 738.05,-12 746.45,-12"/>
+<polygon fill="#255000" stroke="#255000" points="746.65,-15.5 756.65,-12 746.65,-8.5 746.65,-15.5"/>
+</g>
+<!-- proc~run_ensemble -->
+<g id="proc~~run_model~~CalledByGraph_node3" class="node">
+<title>proc~run_ensemble</title>
+<g id="a_proc~~run_model~~CalledByGraph_node3"><a xlink:href="../proc/run_ensemble.html" xlink:title="MAPL_CapMod::MAPL_Cap%run_ensemble">
+<polygon fill="#d9534f" stroke="#d9534f" points="454,-24 216,-24 216,0 454,0 454,-24"/>
+<text text-anchor="middle" x="335" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapMod::MAPL_Cap%run_ensemble</text>
+</a>
+</g>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~run_member -->
+<g id="proc~~run_model~~CalledByGraph_edge2" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~run_member</title>
+<path fill="none" stroke="#255000" d="M454.16,-12C462.56,-12 471.05,-12 479.49,-12"/>
+<polygon fill="#255000" stroke="#255000" points="479.75,-15.5 489.75,-12 479.75,-8.5 479.75,-15.5"/>
+</g>
+<!-- proc~run~6 -->
+<g id="proc~~run_model~~CalledByGraph_node4" class="node">
+<title>proc~run~6</title>
+<g id="a_proc~~run_model~~CalledByGraph_node4"><a xlink:href="../proc/run~6.html" xlink:title="MAPL_CapMod::MAPL_Cap%run">
+<polygon fill="#d9534f" stroke="#d9534f" points="180,-24 0,-24 0,0 180,0 180,-24"/>
+<text text-anchor="middle" x="90" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapMod::MAPL_Cap%run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~6&#45;&gt;proc~run_ensemble -->
+<g id="proc~~run_model~~CalledByGraph_edge3" class="edge">
+<title>proc~run~6&#45;&gt;proc~run_ensemble</title>
+<path fill="none" stroke="#255000" d="M180.1,-12C188.48,-12 197.07,-12 205.71,-12"/>
+<polygon fill="#255000" stroke="#255000" points="205.86,-15.5 215.86,-12 205.86,-8.5 205.86,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocrun_modelCalledByGraph = svgPanZoom('#procrun_modelCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">run_model</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">pFlogger</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">logging</span><span class="p">,</span><span class="w"> </span><span class="n">Logger</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_Cap</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">start_tick</span><span class="p">,</span><span class="w"> </span><span class="n">stop_tick</span><span class="p">,</span><span class="w"> </span><span class="n">tick_rate</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_exists</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esmfComm</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">start_timer</span><span class="p">()</span>
+
+<span class="w">      </span><span class="c">! Look for a file called &quot;ESMF.rc&quot; but we want to do this on root and then</span>
+<span class="w">      </span><span class="c">! broadcast the result to the other ranks</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         inquire</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;ESMF.rc&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">exist</span><span class="o">=</span><span class="n">file_exists</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      call </span><span class="n">MPI_BCAST</span><span class="p">(</span><span class="n">file_exists</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! If the file exists, we pass it into ESMF_Initialize, else, we</span>
+<span class="w">      </span><span class="c">! use the one from the command line arguments</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">file_exists</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_Initialize</span><span class="w"> </span><span class="p">(</span><span class="n">configFileName</span><span class="o">=</span><span class="s1">&#39;ESMF.rc&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mpiCommunicator</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">vm</span><span class="o">=</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">ESMF_Initialize</span><span class="w"> </span><span class="p">(</span><span class="n">logKindFlag</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">cap_options</span><span class="p">%</span><span class="n">esmf_logging_mode</span><span class="p">,</span><span class="w"> </span><span class="n">mpiCommunicator</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">vm</span><span class="o">=</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! We check to see if ESMF_COMM was built as mpiuni which is not allowed for MAPL</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VmGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">esmfComm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">esmfComm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="w"> </span><span class="n">esmfComm</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;mpiuni&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ESMF_COMM=mpiuni is not allowed for MAPL&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Note per ESMF this is a temporary routine as eventually MOAB will</span>
+<span class="w">      </span><span class="c">! be the only mesh generator. But until then, this allows us to</span>
+<span class="w">      </span><span class="c">! test it</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_MeshSetMOAB</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">cap_options</span><span class="p">%</span><span class="n">with_esmf_moab</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running with MOAB library for ESMF Mesh: %l1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cap_options</span><span class="p">%</span><span class="n">with_esmf_moab</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">initialize_cap_gc</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">cap_gc</span><span class="p">%</span><span class="n">set_services</span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">cap_gc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">cap_gc</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">cap_gc</span><span class="p">%</span><span class="n">finalize</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_Finalize</span><span class="p">(</span><span class="n">endflag</span><span class="o">=</span><span class="n">ESMF_END_KEEPMPI</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">stop_timer</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">report_throughput</span><span class="p">()</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">      subroutine </span><span class="n">start_timer</span><span class="p">()</span>
+<span class="w">         </span><span class="k">call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">start_tick</span><span class="p">,</span><span class="w"> </span><span class="n">count_rate</span><span class="o">=</span><span class="n">tick_rate</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">start_timer</span>
+
+<span class="w">      </span><span class="k">subroutine </span><span class="n">stop_timer</span><span class="p">()</span>
+<span class="w">         </span><span class="k">call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">stop_tick</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">stop_timer</span>
+
+<span class="w">      </span><span class="k">subroutine </span><span class="n">report_throughput</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">model_duration</span><span class="p">,</span><span class="w"> </span><span class="n">wall_time</span><span class="p">,</span><span class="w"> </span><span class="n">model_days_per_day</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">comm_world</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">model_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cap_gc</span><span class="p">%</span><span class="n">get_model_duration</span><span class="p">()</span>
+<span class="w">            </span><span class="n">wall_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">stop_tick</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_tick</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">tick_rate</span><span class="p">,</span><span class="w"> </span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">model_days_per_day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model_duration</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">wall_time</span>
+
+
+<span class="w">            </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL.profiler&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model Throughput: %f12.3 days per day&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">model_days_per_day</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">      end subroutine </span><span class="n">report_throughput</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">run_model</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T13:36:12.339955             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,1027 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>write_const_variables &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>write_const_variables
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">53 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/NetCDF4_FileFormatter.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/netcdf4_fileformatter.f90.html'>NetCDF4_FileFormatter.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_netcdf4_fileformattermod.html'>pFIO_NetCDF4_FileFormatterMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">write_const_variables</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/write_const_variables.html#src">write_const_variables</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine write_const_variables(this, cf, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1395"></span>
+              class(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cf~11"></span>
+              type(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cf</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~85"></span>
+              class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~465"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_const_variables~~CallsGraph Pages: 1 -->
+<svg id="procwrite_const_variablesCallsGraph" width="641pt" height="154pt"
+ viewBox="0.00 0.00 641.00 153.94" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_const_variables~~CallsGraph" class="graph" transform="scale(3.4 3.4) rotate(0) translate(4 519.54)">
+<title>proc~~write_const_variables~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-519.54 2176,-519.54 2176,4 -4,4"/>
+<!-- proc~write_const_variables -->
+<g id="proc~~write_const_variables~~CallsGraph_node1" class="node">
+<title>proc~write_const_variables</title>
+<polygon fill="none" stroke="black" points="442,-230 0,-230 0,-206 442,-206 442,-230"/>
+<text text-anchor="middle" x="221" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%write_const_variables</text>
+</g>
+<!-- none~put_var~21 -->
+<g id="proc~~write_const_variables~~CallsGraph_node2" class="node">
+<title>none~put_var~21</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node2"><a xlink:href="../type/netcdf4_fileformatter.html#boundprocedure-put_var~21" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%put_var">
+<polygon fill="#a7506f" stroke="#a7506f" points="845,-230 478,-230 478,-206 845,-206 845,-230"/>
+<text text-anchor="middle" x="661.5" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%put_var</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;none~put_var~21 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge1" class="edge">
+<title>proc~write_const_variables&#45;&gt;none~put_var~21</title>
+<path fill="none" stroke="#255000" d="M442.21,-218C450.71,-218 459.21,-218 467.65,-218"/>
+<polygon fill="#255000" stroke="#255000" points="467.92,-221.5 477.92,-218 467.92,-214.5 467.92,-221.5"/>
+</g>
+<!-- proc~get_const_value -->
+<g id="proc~~write_const_variables~~CallsGraph_node3" class="node">
+<title>proc~get_const_value</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node3"><a xlink:href="../proc/get_const_value.html" xlink:title="pFIO_VariableMod::Variable%get_const_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="788.5,-150 534.5,-150 534.5,-126 788.5,-126 788.5,-150"/>
+<text text-anchor="middle" x="661.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%get_const_value</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~get_const_value -->
+<g id="proc~~write_const_variables~~CallsGraph_edge2" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~get_const_value</title>
+<path fill="none" stroke="#255000" d="M274.26,-205.91C325.86,-194.23 407.1,-176.51 478,-164 503.6,-159.48 531.32,-155.21 557.25,-151.49"/>
+<polygon fill="#255000" stroke="#255000" points="558.06,-154.91 567.47,-150.04 557.08,-147.98 558.06,-154.91"/>
+</g>
+<!-- proc~get_shape -->
+<g id="proc~~write_const_variables~~CallsGraph_node4" class="node">
+<title>proc~get_shape</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node4"><a xlink:href="../proc/get_shape.html" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%get_shape">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1239,-436 941,-436 941,-412 1239,-412 1239,-436"/>
+<text text-anchor="middle" x="1090" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%get_shape</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~get_shape -->
+<g id="proc~~write_const_variables~~CallsGraph_edge3" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~get_shape</title>
+<path fill="none" stroke="#255000" d="M239.99,-230.1C280.51,-256.68 382.8,-320.19 478,-350 627.17,-396.7 805.38,-414.19 930.72,-420.61"/>
+<polygon fill="#255000" stroke="#255000" points="930.63,-424.11 940.79,-421.11 930.97,-417.12 930.63,-424.11"/>
+</g>
+<!-- proc~get_values -->
+<g id="proc~~write_const_variables~~CallsGraph_node5" class="node">
+<title>proc~get_values</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node5"><a xlink:href="../proc/get_values.html" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%get_values">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1240.5,-394 939.5,-394 939.5,-370 1240.5,-370 1240.5,-394"/>
+<text text-anchor="middle" x="1090" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%get_values</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~get_values -->
+<g id="proc~~write_const_variables~~CallsGraph_edge4" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~get_values</title>
+<path fill="none" stroke="#255000" d="M247.11,-230.09C292.2,-251.24 390.37,-294.7 478,-316 653.13,-358.56 701.79,-341.95 881,-361 905.77,-363.63 932.21,-366.36 957.65,-368.95"/>
+<polygon fill="#255000" stroke="#255000" points="957.42,-372.45 967.72,-369.97 958.12,-365.48 957.42,-372.45"/>
+</g>
+<!-- proc~get_variables -->
+<g id="proc~~write_const_variables~~CallsGraph_node6" class="node">
+<title>proc~get_variables</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node6"><a xlink:href="../proc/get_variables.html" xlink:title="pFIO_FileMetadataMod::FileMetadata%get_variables">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1234.5,-352 945.5,-352 945.5,-328 1234.5,-328 1234.5,-352"/>
+<text text-anchor="middle" x="1090" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%get_variables</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~get_variables -->
+<g id="proc~~write_const_variables~~CallsGraph_edge5" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~get_variables</title>
+<path fill="none" stroke="#255000" d="M262.85,-230C313.06,-244.3 401.07,-267.89 478,-281 632.42,-307.31 810.95,-322.86 934.99,-331.33"/>
+<polygon fill="#255000" stroke="#255000" points="935.11,-334.85 945.32,-332.03 935.58,-327.86 935.11,-334.85"/>
+</g>
+<!-- proc~is_empty -->
+<g id="proc~~write_const_variables~~CallsGraph_node7" class="node">
+<title>proc~is_empty</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node7"><a xlink:href="../proc/is_empty.html" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%is_empty">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="807,-272 516,-272 516,-248 807,-248 807,-272"/>
+<text text-anchor="middle" x="661.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%is_empty</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~is_empty -->
+<g id="proc~~write_const_variables~~CallsGraph_edge6" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~is_empty</title>
+<path fill="none" stroke="#255000" d="M347.36,-230.01C402.88,-235.32 468.29,-241.59 524.94,-247.02"/>
+<polygon fill="#255000" stroke="#255000" points="524.76,-250.51 535.04,-247.98 525.42,-243.55 524.76,-250.51"/>
+</g>
+<!-- proc~m_begin~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_node8" class="node">
+<title>proc~m_begin~19</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node8"><a xlink:href="../proc/m_begin~19.html" xlink:title="pFIO_StringVariableMapMod::StringVariableMap%m_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="822.5,-66 500.5,-66 500.5,-42 822.5,-42 822.5,-66"/>
+<text text-anchor="middle" x="661.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::StringVariableMap%m_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~m_begin~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge7" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~m_begin~19</title>
+<path fill="none" stroke="#255000" d="M238.3,-205.81C277.32,-177.35 380.13,-106.57 478,-75 485.85,-72.47 493.98,-70.23 502.26,-68.26"/>
+<polygon fill="#255000" stroke="#255000" points="503.03,-71.67 512.02,-66.06 501.5,-64.84 503.03,-71.67"/>
+</g>
+<!-- proc~m_key~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_node9" class="node">
+<title>proc~m_key~19</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node9"><a xlink:href="../proc/m_key~19.html" xlink:title="pFIO_StringVariableMapMod::StringVariableMapIterator%m_key">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="837,-24 486,-24 486,0 837,0 837,-24"/>
+<text text-anchor="middle" x="661.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::StringVariableMapIterator%m_key</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~m_key~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge8" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~m_key~19</title>
+<path fill="none" stroke="#255000" d="M233.91,-205.78C268.14,-171.53 371.16,-74.46 478,-33 483.85,-30.73 489.89,-28.68 496.04,-26.84"/>
+<polygon fill="#255000" stroke="#255000" points="497.1,-30.18 505.79,-24.11 495.21,-23.44 497.1,-30.18"/>
+</g>
+<!-- proc~m_next~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_node10" class="node">
+<title>proc~m_next~19</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node10"><a xlink:href="../proc/m_next~19.html" xlink:title="pFIO_StringVariableMapMod::StringVariableMapIterator%m_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="839,-108 484,-108 484,-84 839,-84 839,-108"/>
+<text text-anchor="middle" x="661.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::StringVariableMapIterator%m_next</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~m_next~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge9" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~m_next~19</title>
+<path fill="none" stroke="#255000" d="M246.36,-205.89C291.06,-184.23 389.7,-139.09 478,-117 489.12,-114.22 500.71,-111.8 512.43,-109.71"/>
+<polygon fill="#255000" stroke="#255000" points="513.02,-113.16 522.29,-108.02 511.84,-106.26 513.02,-113.16"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~write_const_variables~~CallsGraph_node11" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node11"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1576,-334 1356,-334 1356,-310 1576,-310 1576,-334"/>
+<text text-anchor="middle" x="1466" y="-319.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_const_variables~~CallsGraph_edge10" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M234.53,-230.2C269.55,-263.45 372.79,-355.88 478,-396 819.55,-526.23 951.89,-559.59 1299,-445 1360.96,-424.55 1418.68,-371.06 1446.9,-341.81"/>
+<polygon fill="#255000" stroke="#255000" points="1449.72,-343.92 1454.06,-334.25 1444.64,-339.11 1449.72,-343.92"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~write_const_variables~~CallsGraph_node12" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node12"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1573,-190 1359,-190 1359,-166 1573,-166 1573,-190"/>
+<text text-anchor="middle" x="1466" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~write_const_variables&#45;&gt;proc~mapl_verify -->
+<g id="proc~~write_const_variables~~CallsGraph_edge11" class="edge">
+<title>proc~write_const_variables&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M349.18,-205.99C390.26,-202.53 436.02,-199.12 478,-197 792.51,-181.09 1164.01,-178.23 1348.67,-177.88"/>
+<polygon fill="#255000" stroke="#255000" points="1348.67,-181.38 1358.67,-177.87 1348.66,-174.38 1348.67,-181.38"/>
+</g>
+<!-- proc~put_var_real64_4 -->
+<g id="proc~~write_const_variables~~CallsGraph_node16" class="node">
+<title>proc~put_var_real64_4</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node16"><a xlink:href="../proc/put_var_real64_4.html" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%put_var_real64_4">
+<polygon fill="#d9534f" stroke="#d9534f" points="1299,-230 881,-230 881,-206 1299,-206 1299,-230"/>
+<text text-anchor="middle" x="1090" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%put_var_real64_4</text>
+</a>
+</g>
+</g>
+<!-- none~put_var~21&#45;&gt;proc~put_var_real64_4 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge12" class="edge">
+<title>none~put_var~21&#45;&gt;proc~put_var_real64_4</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M845.23,-218C853.68,-218 862.2,-218 870.72,-218"/>
+<polygon fill="#255000" stroke="#255000" points="870.73,-221.5 880.73,-218 870.73,-214.5 870.73,-221.5"/>
+</g>
+<!-- proc~get_shape&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_const_variables~~CallsGraph_edge13" class="edge">
+<title>proc~get_shape&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M1239.09,-415.56C1259.44,-412.51 1279.89,-408.44 1299,-403 1350.37,-388.38 1405.16,-358.5 1437.18,-339.4"/>
+<polygon fill="transparent" stroke="transparent" points="1439.23,-342.25 1445.97,-334.08 1435.6,-336.26 1439.23,-342.25"/>
+</g>
+<!-- proc~get_values&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_const_variables~~CallsGraph_edge14" class="edge">
+<title>proc~get_values&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#922550" d="M1234.55,-369.98C1256.21,-367.45 1278.24,-364.47 1299,-361 1336.84,-354.67 1378.91,-344.76 1411.23,-336.51"/>
+<polygon fill="#922550" stroke="#922550" points="1412.12,-339.89 1420.93,-334.01 1410.37,-333.11 1412.12,-339.89"/>
+</g>
+<!-- proc~get_variables&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_const_variables~~CallsGraph_edge15" class="edge">
+<title>proc~get_variables&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025546" d="M1234.53,-333.09C1271.18,-331.33 1310.2,-329.45 1345.5,-327.75"/>
+<polygon fill="#025546" stroke="#025546" points="1346.02,-331.23 1355.84,-327.25 1345.69,-324.24 1346.02,-331.23"/>
+</g>
+<!-- proc~is_empty&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_const_variables~~CallsGraph_edge17" class="edge">
+<title>proc~is_empty&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025518" stroke-opacity="0.019608" d="M781.81,-272.03C813.99,-275.12 848.81,-278.32 881,-281 1041.79,-294.37 1227.74,-306.92 1345.81,-314.53"/>
+<polygon fill="#025518" fill-opacity="0.019608" stroke="#025518" stroke-opacity="0.019608" points="1345.75,-318.04 1355.96,-315.19 1346.2,-311.05 1345.75,-318.04"/>
+</g>
+<!-- proc~get_value -->
+<g id="proc~~write_const_variables~~CallsGraph_node14" class="node">
+<title>proc~get_value</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node14"><a xlink:href="../proc/get_value.html" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%get_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1237.5,-272 942.5,-272 942.5,-248 1237.5,-248 1237.5,-272"/>
+<text text-anchor="middle" x="1090" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%get_value</text>
+</a>
+</g>
+</g>
+<!-- proc~is_empty&#45;&gt;proc~get_value -->
+<g id="proc~~write_const_variables~~CallsGraph_edge16" class="edge">
+<title>proc~is_empty&#45;&gt;proc~get_value</title>
+<path fill="none" stroke="#025518" stroke-opacity="0.019608" d="M807.19,-260C847.47,-260 891.41,-260 932.35,-260"/>
+<polygon fill="#025518" fill-opacity="0.019608" stroke="#025518" stroke-opacity="0.019608" points="932.41,-263.5 942.41,-260 932.41,-256.5 932.41,-263.5"/>
+</g>
+<!-- proc~s_begin~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_node17" class="node">
+<title>proc~s_begin~19</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node17"><a xlink:href="../proc/s_begin~19.html" xlink:title="pFIO_StringVariableMapMod::set2%s_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1211,-67 969,-67 969,-43 1211,-43 1211,-67"/>
+<text text-anchor="middle" x="1090" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::set2%s_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~m_begin~19&#45;&gt;proc~s_begin~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge18" class="edge">
+<title>proc~m_begin~19&#45;&gt;proc~s_begin~19</title>
+<path fill="none" stroke="#018525" stroke-opacity="0.019608" d="M822.53,-54.38C867.39,-54.48 915.6,-54.59 958.52,-54.69"/>
+<polygon fill="#018525" fill-opacity="0.019608" stroke="#018525" stroke-opacity="0.019608" points="958.73,-58.19 968.74,-54.72 958.75,-51.19 958.73,-58.19"/>
+</g>
+<!-- proc~s_next~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_node18" class="node">
+<title>proc~s_next~19</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node18"><a xlink:href="../proc/s_next~19.html" xlink:title="pFIO_StringVariableMapMod::s_iterator%s_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="1597,-87 1335,-87 1335,-63 1597,-63 1597,-87"/>
+<text text-anchor="middle" x="1466" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::s_iterator%s_next</text>
+</a>
+</g>
+</g>
+<!-- proc~m_next~19&#45;&gt;proc~s_next~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge19" class="edge">
+<title>proc~m_next~19&#45;&gt;proc~s_next~19</title>
+<path fill="none" stroke="#920255" d="M839.11,-91.38C985.2,-87.56 1189.92,-82.2 1324.91,-78.67"/>
+<polygon fill="#920255" stroke="#920255" points="1325.01,-82.16 1334.91,-78.4 1324.82,-75.17 1325.01,-82.16"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~write_const_variables~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1886,-334 1633,-334 1633,-310 1886,-310 1886,-334"/>
+<text text-anchor="middle" x="1759.5" y="-319.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~write_const_variables~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M1576.37,-322C1591.48,-322 1607.15,-322 1622.66,-322"/>
+<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="1622.83,-325.5 1632.83,-322 1622.83,-318.5 1622.83,-325.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~write_const_variables~~CallsGraph_node15" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node15"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1874,-252 1645,-252 1645,-228 1874,-228 1874,-252"/>
+<text text-anchor="middle" x="1759.5" y="-237.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~write_const_variables~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M1509.7,-309.99C1561.76,-295.34 1649.75,-270.59 1705.93,-254.79"/>
+<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="1707.01,-258.12 1715.69,-252.04 1705.11,-251.38 1707.01,-258.12"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~write_const_variables~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255013" stroke-opacity="0.035294" d="M1548.34,-190C1564.51,-192.71 1581.33,-195.75 1597,-199 1633.55,-206.58 1674.28,-216.93 1705.7,-225.34"/>
+<polygon fill="#255013" fill-opacity="0.035294" stroke="#255013" stroke-opacity="0.035294" points="1704.99,-228.77 1715.56,-227.99 1706.81,-222.01 1704.99,-228.77"/>
+</g>
+<!-- at -->
+<g id="proc~~write_const_variables~~CallsGraph_node19" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="2074,-356 2020,-356 2020,-332 2074,-332 2074,-356"/>
+<text text-anchor="middle" x="2047" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~write_const_variables~~CallsGraph_edge23" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1886.14,-331.68C1931.17,-335.15 1978.5,-338.8 2009.86,-341.22"/>
+<polygon fill="#255000" stroke="#255000" points="2009.62,-344.71 2019.86,-341.99 2010.16,-337.73 2009.62,-344.71"/>
+</g>
+<!-- insert -->
+<g id="proc~~write_const_variables~~CallsGraph_node20" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="2074,-314 2020,-314 2020,-290 2074,-290 2074,-314"/>
+<text text-anchor="middle" x="2047" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~write_const_variables~~CallsGraph_edge24" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1886.14,-313.2C1931.17,-310.04 1978.5,-306.73 2009.86,-304.53"/>
+<polygon fill="#255000" stroke="#255000" points="2010.13,-308.02 2019.86,-303.83 2009.64,-301.04 2010.13,-308.02"/>
+</g>
+<!-- proc~get_value&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_const_variables~~CallsGraph_edge25" class="edge">
+<title>proc~get_value&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M1201.92,-272C1233.38,-275.91 1267.61,-280.65 1299,-286 1334.41,-292.04 1373.71,-300.48 1405.18,-307.68"/>
+<polygon fill="transparent" stroke="transparent" points="1404.57,-311.13 1415.1,-309.96 1406.14,-304.31 1404.57,-311.13"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~write_const_variables~~CallsGraph_node24" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node24"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="2123.5,-252 1970.5,-252 1970.5,-228 2123.5,-228 2123.5,-252"/>
+<text text-anchor="middle" x="2047" y="-237.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#025500" d="M1874.16,-240C1902.84,-240 1933.15,-240 1960.21,-240"/>
+<polygon fill="#025500" stroke="#025500" points="1960.4,-243.5 1970.4,-240 1960.4,-236.5 1960.4,-243.5"/>
+</g>
+<!-- proc~put_var_real64_4&#45;&gt;proc~mapl_return -->
+<g id="proc~~write_const_variables~~CallsGraph_edge29" class="edge">
+<title>proc~put_var_real64_4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1279.6,-230.08C1286.27,-232.69 1292.76,-235.65 1299,-239 1321.26,-250.95 1313.98,-268.98 1335,-283 1350.87,-293.58 1369.7,-301.38 1388.03,-307.08"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1387.27,-310.5 1397.85,-309.96 1389.24,-303.79 1387.27,-310.5"/>
+</g>
+<!-- proc~put_var_real64_4&#45;&gt;proc~mapl_verify -->
+<g id="proc~~write_const_variables~~CallsGraph_edge30" class="edge">
+<title>proc~put_var_real64_4&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1203.21,-206C1249.22,-201.08 1302.45,-195.38 1348.86,-190.42"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1349.38,-193.89 1358.95,-189.34 1348.64,-186.93 1349.38,-193.89"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~write_const_variables~~CallsGraph_node21" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="1511.5,-274 1420.5,-274 1420.5,-250 1511.5,-250 1511.5,-274"/>
+<text text-anchor="middle" x="1466" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~put_var_real64_4&#45;&gt;nf90_inq_varid -->
+<g id="proc~~write_const_variables~~CallsGraph_edge27" class="edge">
+<title>proc~put_var_real64_4&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1217.58,-230.02C1244.48,-232.79 1272.69,-235.85 1299,-239 1336.15,-243.45 1377.86,-249.23 1410.17,-253.88"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1409.92,-257.38 1420.32,-255.35 1410.92,-250.46 1409.92,-257.38"/>
+</g>
+<!-- nf90_put_var -->
+<g id="proc~~write_const_variables~~CallsGraph_node22" class="node">
+<title>nf90_put_var</title>
+<polygon fill="#777777" stroke="#777777" points="1507,-232 1425,-232 1425,-208 1507,-208 1507,-232"/>
+<text text-anchor="middle" x="1466" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_var</text>
+</g>
+<!-- proc~put_var_real64_4&#45;&gt;nf90_put_var -->
+<g id="proc~~write_const_variables~~CallsGraph_edge28" class="edge">
+<title>proc~put_var_real64_4&#45;&gt;nf90_put_var</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1299.05,-219.11C1342.35,-219.34 1384.13,-219.57 1414.93,-219.73"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1414.93,-223.23 1424.95,-219.79 1414.97,-216.23 1414.93,-223.23"/>
+</g>
+<!-- proc~s_begin~19&#45;&gt;proc~s_next~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge31" class="edge">
+<title>proc~s_begin~19&#45;&gt;proc~s_next~19</title>
+<path fill="none" stroke="#002505" d="M1211.14,-61.42C1247.26,-63.36 1287.21,-65.49 1324.52,-67.49"/>
+<polygon fill="#002505" stroke="#002505" points="1324.8,-71.01 1334.97,-68.05 1325.17,-64.02 1324.8,-71.01"/>
+</g>
+<!-- proc~advpos~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_node23" class="node">
+<title>proc~advpos~19</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node23"><a xlink:href="../proc/advpos~19.html" xlink:title="pFIO_StringVariableMapMod::set2%advpos">
+<polygon fill="#d9534f" stroke="#d9534f" points="1879.5,-87 1639.5,-87 1639.5,-63 1879.5,-63 1879.5,-87"/>
+<text text-anchor="middle" x="1759.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::set2%advpos</text>
+</a>
+</g>
+</g>
+<!-- proc~s_next~19&#45;&gt;proc~advpos~19 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge32" class="edge">
+<title>proc~s_next~19&#45;&gt;proc~advpos~19</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1597.4,-75C1607.97,-75 1618.65,-75 1629.21,-75"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1629.29,-78.5 1639.29,-75 1629.29,-71.5 1629.29,-78.5"/>
+</g>
+<!-- none~at~321 -->
+<g id="proc~~write_const_variables~~CallsGraph_node25" class="node">
+<title>none~at~321</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node25"><a xlink:href="../type/ivector~11.html#boundprocedure-at~321" xlink:title="pFIO_StringVariableMapMod::iVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="2160,-150 1934,-150 1934,-126 2160,-126 2160,-150"/>
+<text text-anchor="middle" x="2047" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::iVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~19&#45;&gt;none~at~321 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge33" class="edge">
+<title>proc~advpos~19&#45;&gt;none~at~321</title>
+<path fill="none" stroke="#002505" d="M1802.76,-87.06C1835.21,-96.06 1881.21,-108.26 1922,-117 1933.88,-119.54 1946.45,-121.98 1958.85,-124.22"/>
+<polygon fill="#002505" stroke="#002505" points="1958.28,-127.68 1968.74,-125.98 1959.51,-120.78 1958.28,-127.68"/>
+</g>
+<!-- proc~exists~17 -->
+<g id="proc~~write_const_variables~~CallsGraph_node26" class="node">
+<title>proc~exists~17</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node26"><a xlink:href="../proc/exists~17.html" xlink:title="pFIO_StringVariableMapMod::exists">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2146.5,-108 1947.5,-108 1947.5,-84 2146.5,-84 2146.5,-108"/>
+<text text-anchor="middle" x="2047" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::exists</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~19&#45;&gt;proc~exists~17 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge34" class="edge">
+<title>proc~advpos~19&#45;&gt;proc~exists~17</title>
+<path fill="none" stroke="#002505" d="M1879.51,-83.75C1898.58,-85.16 1918.22,-86.6 1937.04,-87.99"/>
+<polygon fill="#002505" stroke="#002505" points="1936.86,-91.48 1947.09,-88.72 1937.38,-84.5 1936.86,-91.48"/>
+</g>
+<!-- proc~get_child~18 -->
+<g id="proc~~write_const_variables~~CallsGraph_node27" class="node">
+<title>proc~get_child~18</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node27"><a xlink:href="../proc/get_child~18.html" xlink:title="pFIO_StringVariableMapMod::set2%get_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2172,-66 1922,-66 1922,-42 2172,-42 2172,-66"/>
+<text text-anchor="middle" x="2047" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::set2%get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~19&#45;&gt;proc~get_child~18 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge35" class="edge">
+<title>proc~advpos~19&#45;&gt;proc~get_child~18</title>
+<path fill="none" stroke="#002505" d="M1879.51,-66.25C1890.06,-65.47 1900.79,-64.68 1911.46,-63.9"/>
+<polygon fill="#002505" stroke="#002505" points="1911.94,-67.37 1921.66,-63.15 1911.43,-60.39 1911.94,-67.37"/>
+</g>
+<!-- proc~opposite~17 -->
+<g id="proc~~write_const_variables~~CallsGraph_node28" class="node">
+<title>proc~opposite~17</title>
+<g id="a_proc~~write_const_variables~~CallsGraph_node28"><a xlink:href="../proc/opposite~17.html" xlink:title="pFIO_StringVariableMapMod::opposite">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2154.5,-24 1939.5,-24 1939.5,0 2154.5,0 2154.5,-24"/>
+<text text-anchor="middle" x="2047" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::opposite</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~19&#45;&gt;proc~opposite~17 -->
+<g id="proc~~write_const_variables~~CallsGraph_edge36" class="edge">
+<title>proc~advpos~19&#45;&gt;proc~opposite~17</title>
+<path fill="none" stroke="#002505" d="M1802.76,-62.94C1835.21,-53.94 1881.21,-41.74 1922,-33 1933.88,-30.46 1946.45,-28.02 1958.85,-25.78"/>
+<polygon fill="#002505" stroke="#002505" points="1959.51,-29.22 1968.74,-24.02 1958.28,-22.32 1959.51,-29.22"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocwrite_const_variablesCallsGraph = svgPanZoom('#procwrite_const_variablesCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_const_variables~~CalledByGraph Pages: 1 -->
+<svg id="procwrite_const_variablesCalledByGraph" width="641pt" height="24pt"
+ viewBox="0.00 0.00 641.00 24.42" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_const_variables~~CalledByGraph" class="graph" transform="scale(1.31 1.31) rotate(0) translate(4 28)">
+<title>proc~~write_const_variables~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 836,-28 836,4 -4,4"/>
+<!-- proc~write_const_variables -->
+<g id="proc~~write_const_variables~~CalledByGraph_node1" class="node">
+<title>proc~write_const_variables</title>
+<polygon fill="none" stroke="black" points="832,-24 390,-24 390,0 832,0 832,-24"/>
+<text text-anchor="middle" x="611" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%write_const_variables</text>
+</g>
+<!-- proc~write -->
+<g id="proc~~write_const_variables~~CalledByGraph_node2" class="node">
+<title>proc~write</title>
+<g id="a_proc~~write_const_variables~~CalledByGraph_node2"><a xlink:href="../proc/write.html" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%write">
+<polygon fill="#d9534f" stroke="#d9534f" points="354,-24 0,-24 0,0 354,0 354,-24"/>
+<text text-anchor="middle" x="177" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%write</text>
+</a>
+</g>
+</g>
+<!-- proc~write&#45;&gt;proc~write_const_variables -->
+<g id="proc~~write_const_variables~~CalledByGraph_edge1" class="edge">
+<title>proc~write&#45;&gt;proc~write_const_variables</title>
+<path fill="none" stroke="#255000" d="M354.02,-12C362.5,-12 371.05,-12 379.64,-12"/>
+<polygon fill="#255000" stroke="#255000" points="379.74,-15.5 389.74,-12 379.74,-8.5 379.74,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocwrite_const_variablesCalledByGraph = svgPanZoom('#procwrite_const_variablesCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">write_const_variables</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">cf</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">NetCDF4_FileFormatter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cf</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVariableMap</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vars</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVariableMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_iter</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">const_value_ptr</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Variable</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">shp</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_values</span><span class="p">(:)</span>
+
+
+<span class="w">      </span><span class="n">vars</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">cf</span><span class="p">%</span><span class="n">get_variables</span><span class="p">()</span>
+
+<span class="w">      </span><span class="n">var_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vars</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">var_iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">vars</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">         </span><span class="n">var_name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var_iter</span><span class="p">%</span><span class="n">key</span><span class="p">()</span>
+<span class="w">         </span><span class="n">var</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var_iter</span><span class="p">%</span><span class="k">value</span><span class="p">()</span>
+<span class="w">         </span><span class="n">const_value_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var</span><span class="p">%</span><span class="n">get_const_value</span><span class="p">()</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">const_value_ptr</span><span class="p">%</span><span class="n">is_empty</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">shp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">const_value_ptr</span><span class="p">%</span><span class="n">get_shape</span><span class="p">()</span>
+<span class="w">            </span><span class="n">var_values</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">const_value_ptr</span><span class="p">%</span><span class="n">get_values</span><span class="p">()</span>
+<span class="w">            </span><span class="k">select type</span><span class="p">(</span><span class="n">q</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var_values</span><span class="p">)</span>
+<span class="w">            </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="kt">integer</span><span class="p">(</span><span class="n">INT32</span><span class="p">))</span>
+<span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">var_name</span><span class="p">),</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="n">shp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="kt">integer</span><span class="p">(</span><span class="n">INT64</span><span class="p">))</span>
+<span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">var_name</span><span class="p">),</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="n">shp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">REAL32</span><span class="p">))</span>
+<span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">var_name</span><span class="p">),</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="n">shp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">))</span>
+<span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">var_name</span><span class="p">),</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="n">shp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">class </span><span class="n">default</span>
+<span class="w">               </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">_</span><span class="n">FAILURE</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end select</span>
+<span class="k">         end if</span>
+<span class="k">         call </span><span class="n">var_iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">      </span><span class="k">enddo</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">write_const_variables</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-02-09T13:36:12.339955             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
