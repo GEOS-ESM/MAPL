@@ -657,43 +657,44 @@ module  procedure add_metadata
     integer :: ub(1), lb(1)
     type(ESMF_Field) :: src_field,dst_field
     real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-    real(kind=REAL32), allocatable :: p_dst_3d(:,:),p_dst_2d(:)
-    real(kind=REAL32), allocatable :: p_dst_3d_full(:,:),p_dst_2d_full(:)
+    real(kind=REAL32), allocatable :: p_dst_3d(:),p_dst_2d(:)
+    real(kind=REAL32), allocatable :: p_dst_3d_full(:),p_dst_2d_full(:)
     real(kind=REAL32), allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: xname
     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
     integer :: i, j, k, rank
     integer :: nx, nz
-    integer :: ix, iy
+    integer :: ix, iy, m
     integer :: mypet, npes, nsend
     integer :: iroot, ierr
     integer :: mpic
+    integer, allocatable :: recvcounts_3d(:)
+    integer, allocatable :: displs_3d(:)
     type(GriddedIOitemVectorIterator) :: iter
     type(GriddedIOitem), pointer :: item
     type(ESMF_VM) :: vm
 
-
     this%obs_written=this%obs_written+1
 
+    ! -- fixed for all fields
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=npes, localpet=mypet, _RC)
-    if (mapl_am_i_root()) then
-       iroot = mypet
-    else
-       iroot = 0
-    end if
-
-
-    ! -- fixed for all time
-    nsend = this%npt_mask
+    iroot=0
     nx = this%npt_mask
+    nz = this%vdata%lm
     allocate(p_dst_2d (nx))
+    allocate(p_dst_3d (nx * nz))
     if (mapl_am_i_root()) then
        allocate ( p_dst_2d_full (this%npt_mask_tot) )
+       allocate ( p_dst_3d_full (this%npt_mask_tot * nz) )
     else
-       allocate (p_dst_2d_full (0) )
+       allocate ( p_dst_2d_full (0) )
+       allocate ( p_dst_3d_full (0) )
     end if
+    allocate( recvcounts_3d(npes), displs_3d(npes) )
+    recvcounts_3d(:) = nz * this%recvcounts(:)
+    displs_3d(:)     = nz * this%displs(:)
 
 
     !__ 1. put_var: time variable
@@ -711,9 +712,9 @@ module  procedure add_metadata
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
 
-    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-       call this%vdata%setup_eta_to_pressure(_RC)
-    endif
+!    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+!       call this%vdata%setup_eta_to_pressure(_RC)
+!    endif
 
     iter = this%items%begin()
     do while (iter /= this%items%end())
@@ -723,56 +724,49 @@ module  procedure add_metadata
           call ESMF_FieldGet(src_field,rank=rank,_RC)
           if (rank==2) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
-
              do j=1, nx
                 ix = this%index_mask(1,j)
                 iy = this%index_mask(2,j)
-                p_dst_2d(j) = p_src_2d(ix, iy)   !  this must exist
+                p_dst_2d(j) = p_src_2d(ix, iy)
              end do
              call MPI_Barrier(mpic, status)
-
-!!             write(6,'(2x,a,2x,i5,3x,10f8.1)') 'pet, p_dst_2d(j)', mypet, p_dst_2d(1:nx)
-
-
-             !
-             !-- for fields, I think ESMF field array is equv. to PFIO_REAL32
-             !
+             nsend = nx
              call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
                   p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
                   iroot, mpic, ierr )
-             call MPI_Barrier(mpic, status)
-
-
              if (mapl_am_i_root()) then
-                write(6,'(2x,a,2x,a)') 'af gatherv, xname=', trim(item%xname)
-
                 call this%formatter%put_var(item%xname,p_dst_2d_full,&
                      start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
              end if
-
-
           else if (rank==3) then
-!          call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-!          call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-!          if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
-!             lb(1)=1
-!             ub(1)=this%vdata%lm
-!          end if
-!          dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname,&
-!               typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-!          call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-!          call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-!          if (mapl_am_i_root()) then
-!             nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx))
-!             arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
-!             call this%formatter%put_var(xname,arr,&
-!                  start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
-!             !note:     lev,station,time
-!             deallocate(arr)
-!          end if
-!          call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
-!       else
-!          _FAIL('grid2LS regridder: rank > 3 not implemented')
+             call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+             call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+             _ASSERT (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
+             m=0
+             do j=1, nx
+                ix = this%index_mask(1,j)
+                iy = this%index_mask(2,j)
+                do k= lb(1), ub(1)
+                   m = m + 1
+                   p_dst_3d(m) = p_src_3d(ix, iy, k)   !  this must exist
+                end do
+             end do
+             call MPI_Barrier(mpic, status)
+             !! write(6,'(2x,a,2x,i5,3x,10f8.1)') 'pet, p_dst_3d(j)', mypet, p_dst_3d(::10)
+             nsend = nx * nz
+             call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
+                  p_dst_3d_full, recvcounts_3d, displs_3d, MPI_REAL,&
+                  iroot, mpic, ierr )
+             if (mapl_am_i_root()) then
+                allocate(arr(nz, this%npt_mask_tot))
+                arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
+                call this%formatter%put_var(item%xname,arr,&
+                     start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
+                !note:     lev,station,time
+                deallocate(arr)
+             end if
+          else
+             _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
        end if
 
