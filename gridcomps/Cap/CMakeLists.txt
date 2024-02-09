@@ -23,7 +23,7 @@ if (DUSTY)
                 PROPERTY COMPILE_FLAGS ${DUSTY})
 endif ()
 
-target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
+target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ESMF::ESMF NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran
                                $<$<BOOL:${BUILD_WITH_FLAP}>:FLAP::FLAP>
                                $<$<BOOL:${BUILD_WITH_FARGPARSE}>:FARGPARSE::fargparse>)

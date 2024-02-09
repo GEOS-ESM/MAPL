@@ -57,6 +57,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.44.0] - 2024-02-08
+
+### Added
+
+- Added nf90 interface to read and write 1d string
 - Convert from ABI Fixed Grid to lon/lat coordinates used in MAPL_XYGridFactory (supporting geostationary GOES-R series)
 - Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
 - Modify swath sampler to handle two Epoch swath grids
@@ -68,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
 - Added capability in XY grid factory to add a mask to the grid any points are missing needed for geostationary input data
 - Added capability in the MAPL ESMF regridding wrapper to apply a destination mask if the destination grid contains a mask
+- Added `INSTALL.md` file to provide instructions on how to install MAPL
 
 ### Changed
 
@@ -81,6 +95,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now required), NAG no longer needs this workaround.
 - Refactor the CircleCI workflows for more flexibility
 - Fix field utils issue - add npes argument to test subroutine decorators.
+- Change MAPL CMake to use `ESMF::ESMF` target instead of `esmf` or `ESMF` as the imported target name
+  - Updated `FindESMF.cmake` to match that of ESMF `develop` as of commit `da8f410`. This will be in ESMF 8.6.1+
+  - Requires ESMA_cmake 3.40.0 or later as this adds the `ESMF::ESMF` target ALIAS for Baselibs and non-Baselibs builds
+- Changed `CMakePresets.json`
+  - Updated to version 7 and required CMake 3.27.0 (the minimum version that supports CMakePresets.json v7)
+  - Changed build style on NCCS machines to by default put build and install directories in a user-specified directory so as not to
+    pollute swdev
 
 ### Fixed
 
@@ -89,10 +110,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   we anticipate this here
 - Add explicit `Fortran_MODULE_DIRECTORY` to `CMakeLists.txt` in benchmarks to avoid race condition in Ninja builds
 - Add check to make sure ESMF was not built as `mpiuni`
+- Fixed failing tests for `field_utils`.
+- Various fixes for NVHPC work
 
-### Removed
+## [2.43.2] - 2024-02-06
 
-### Deprecated
+### Fixed
+
+- Fixed memory leak affecting regional masking. Temporary ESMF field was created but never destroyed
 
 ## [2.43.1] - 2024-01-29
 

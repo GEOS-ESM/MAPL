@@ -2,6 +2,7 @@ target_sources(MAPL.generic3g PRIVATE
 
   # containers
   ActualPtSpecPtrMap.F90
+  ActualPtComponentDriverMap.F90
   VirtualPtStateItemPtrMap.F90
   VirtualPtStateItemSpecMap.F90
   ActualPtStateItemSpecMap.F90

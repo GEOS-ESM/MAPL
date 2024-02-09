@@ -27,6 +27,9 @@ module mapl3g_OuterMetaComponent
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMapIterator
    use mapl3g_GriddedComponentDriverMap, only: operator(/=)
+   use mapl3g_ActualPtComponentDriverMap
+   use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INVALIDATE
+   use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling
    use mapl3g_VerticalGeom
    use gFTL2_StringVector
@@ -57,7 +60,6 @@ module mapl3g_OuterMetaComponent
       ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(HierarchicalRegistry) :: registry
-      type(ExtensionVector) :: state_extensions
  
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
@@ -586,7 +588,6 @@ contains
 
       user_states = this%user_component%get_states()
       call this%registry%add_to_states(user_states, mode='user', _RC)
-      this%state_extensions = this%registry%get_extensions()
       
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
@@ -741,7 +742,7 @@ contains
 
 
    recursive subroutine run(this, clock, phase_name, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       type(ESMF_Clock) :: clock
       ! optional arguments
       character(len=*), optional, intent(in) :: phase_name
@@ -755,18 +756,38 @@ contains
       logical :: found
       integer :: phase
 
+      type(ActualPtComponentDriverMap), pointer :: export_Couplers
+      type(ActualPtComponentDriverMap), pointer :: import_Couplers
+      type(ActualPtComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: drvr
+
       run_phases => this%get_phases(ESMF_METHOD_RUN)
       phase = get_phase_index(run_phases, phase_name, found=found)
-      if (found) then
-         call this%user_component%run(phase_idx=phase, _RC)
-      end if
+      _RETURN_UNLESS(found)
+      
+      import_couplers => this%registry%get_import_couplers()
+      associate (e => import_couplers%ftn_end())
+        iter = import_couplers%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           drvr => iter%second()
+           call drvr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+        end do
+      end associate
+      
+      call this%user_component%run(phase_idx=phase, _RC)
+   
+      export_couplers => this%registry%get_export_couplers()
+      associate (e => export_couplers%ftn_end())
+        iter = export_couplers%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           drvr => iter%second()
+           call drvr%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
+        end do
+      end associate
 
-      ! TODO:  extensions should depend on phase ...
-      do i = 1, this%state_extensions%size()
-         extension => this%state_extensions%of(i)
-         call extension%run(_RC)
-      end do
-
+      
       _RETURN(ESMF_SUCCESS)
    end subroutine run
 

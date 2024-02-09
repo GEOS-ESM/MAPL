@@ -8,6 +8,7 @@ module mapl3g_SimpleConnection
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
+   use mapl3g_GriddedComponentDriver
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -85,7 +86,7 @@ contains
 
    subroutine connect_sibling(this, dst_registry, src_registry, unusable, rc)
       class(SimpleConnection), intent(in) :: this
-      type(HierarchicalRegistry), target, intent(in) :: dst_registry
+      type(HierarchicalRegistry), target, intent(inout) :: dst_registry
       type(HierarchicalRegistry), target, intent(inout) :: src_registry
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -101,52 +102,76 @@ contains
       class(StateItemSpec), pointer :: old_spec
       class(StateItemSpec), allocatable, target :: new_spec
       type(ActualConnectionPt) :: effective_pt
+      type(ActualConnectionPt) :: extension_pt
 
+
+      type(GriddedComponentDriver), pointer :: source_coupler
+      type(ActualPtVector), pointer :: src_actual_pts
+      type(ActualConnectionPt), pointer :: best_pt
+      
       src_pt = this%get_source()
       dst_pt = this%get_destination()
 
       dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pt%v_pt, _RC)
       src_specs = src_registry%get_actual_pt_SpecPtrs(src_pt%v_pt, _RC)
-          
+
+      src_actual_pts => src_registry%get_actual_pts(src_pt%v_pt)
+      _ASSERT(src_actual_pts%size() > 0, 'Empty virtual point?  This should not happen.')
+
       do i = 1, size(dst_specs)
          dst_spec => dst_specs(i)%ptr
 
-         ! Connection is transitive, so we can just check the 1st item
+         ! Connection is transitive -- if any src_specs can connect, all can connect.
+         ! So we can just check this property on the 1st item.
          src_spec => src_specs(1)%ptr
          _ASSERT(dst_spec%can_connect_to(src_spec), "impossible connection")
 
          ! Loop through possible specific exports to find best match.
-         best_spec => src_spec
-         lowest_cost = dst_spec%extension_cost(src_spec, _RC)
-         find_best_source: do j = 2, size(src_specs)
+         best_spec => src_specs(1)%ptr
+         best_pt => src_actual_pts%of(1)
+         lowest_cost = dst_spec%extension_cost(best_spec, _RC)
+         find_best_src_spec: do j = 2, size(src_specs)
             if (lowest_cost == 0) exit
 
             src_spec => src_specs(j)%ptr
             cost = dst_spec%extension_cost(src_spec)
-
             if (cost < lowest_cost) then
                lowest_cost = cost
                best_spec => src_spec
+               best_pt => src_actual_pts%of(j)
             end if
 
-         end do find_best_source
+         end do find_best_src_spec
 
          call best_spec%set_active()
 
+         ! Now build out sequence of extensions that form a chain to
+         ! dst_spec.  This includes creating couplers (handled inside
+         ! registry.)
          old_spec => best_spec
+         source_coupler => null()
          do i_extension = 1, lowest_cost
             new_spec = old_spec%make_extension(dst_spec, _RC)
             call new_spec%set_active()
-            call src_registry%extend(src_pt%v_pt, old_spec, new_spec, _RC)
+            extension_pt = src_registry%extend(src_pt%v_pt, old_spec, new_spec, source_coupler=source_coupler, _RC)
+            source_coupler => src_registry%get_export_coupler(extension_pt)
             old_spec => new_spec
          end do
-
          call dst_spec%set_active()
 
-         ! This step (kludge) is for wildcard specs
+         ! If couplers were needed, then the final coupler must also be
+         ! referenced in the dst registry so that gridcomps can do update()
+         ! requests.
+         if (lowest_cost >= 1) then
+            call dst_registry%add_import_coupler(ActualConnectionPt(dst_pt%v_pt), source_coupler)
+         end if
+
+         ! In the case of wildcard specs, we need to pass an actual_pt to
+         ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_esmf_name(), comp_name=src_pt%v_pt%get_comp_name()))
-        call dst_spec%connect_to(old_spec, effective_pt, _RC)
+         call dst_spec%connect_to(old_spec, effective_pt, _RC)
+         call dst_spec%set_active()
             
       end do
          
