@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 module mapl3hconfig_get
 
-   use mapl3hconfig_get_private
+   use mapl3hconfig_get_private, only: get_value
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use :: esmf, only: ESMF_HConfig
