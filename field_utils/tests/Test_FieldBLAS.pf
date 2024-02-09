@@ -28,18 +28,12 @@ contains
       allocate(y8array, source=R8_ARRAY_DEFAULT)
       y4array = y4array + ADD_R4
       y8array = y8array + ADD_R8
-      XR4 = mk_field(R4_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4', _RC)
-      YR4 = mk_field(y4array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4', _RC)
-      XR8 = mk_field(R8_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
-      YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
-      XR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_RC)
-      YR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
-         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _RC)
+      XR4 = mk_field(R4_ARRAY_DEFAULT, name = 'XR4', _RC)
+      YR4 = mk_field(y4array, name = 'YR4', _RC)
+      XR8 = mk_field(R8_ARRAY_DEFAULT, name = 'XR8', _RC)
+      YR8 = mk_field(y8array, name = 'YR8', _RC)
+      XR4_3D = mk_field_r4_ungrid(name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_RC)
+      YR4_3D = mk_field_r4_ungrid(name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _RC)
 
    end subroutine set_up_data
 
@@ -212,7 +206,6 @@ contains
       call FieldAXPY(a, x, y, _RC)
       call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
       call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
-!      @assertEqual(y_ptr, a*x_array+y_array) !wdb fixme Temporarily disabled
 
    end subroutine test_FieldAXPY_R8
 
@@ -334,7 +327,6 @@ contains
 
    end subroutine test_FieldsAreSameTypeKind
 
-!wdb fixme Enable assertEqual
    @Test(npes=[4])
    subroutine test_FieldConvertPrec_R4R8(this)
        class(MpiTestMethod), intent(inout) :: this
@@ -350,12 +342,8 @@ contains
       call initialize_array(r4_data, 0.0, 1.0)
       r8_data = 0.0
       r8_converted = r4_data
-      r4_field = mk_field(r4_data, regDecomp = REG_DECOMP_DEFAULT, minIndex = [1, 1], &
-         maxIndex = [NROWS, NCOLS], indexflag = INDEX_FLAG_DEFAULT, &
-         name = 'XR4', _RC)
-      r8_field = mk_field(r8_data, regDecomp = REG_DECOMP_DEFAULT, minIndex = [1, 1], &
-         maxIndex = [NROWS, NCOLS], indexflag = INDEX_FLAG_DEFAULT, &
-         name = 'YR8', _RC)
+      r4_field = mk_field(r4_data, name = 'XR4', _RC)
+      r8_field = mk_field(r8_data, name = 'YR8', _RC)
       call FieldConvertPrec(r4_field, r8_field, _RC)
       call ESMF_FieldGet(r8_field, farrayPtr = r8_pointer, _RC)
       @assertEqual(r8_converted, r8_pointer)
@@ -427,47 +415,3 @@ contains
    end subroutine test_almost_equal_array
 
 end module Test_FieldBLAS
-!   @Test(npes=product(REG_DECOMP_DEFAULT))
-!   !
-!   subroutine test_FieldGEMV_R4()
-!      real(kind=ESMF_KIND_R4), parameter :: alpha = 3.0
-!      real(kind=ESMF_KIND_R4), parameter :: A(*,*,*)
-!      type(ESMF_Field) :: x
-!      real(kind=ESMF_KIND_R4), parameter :: beta = 2.0
-!      type(ESMF_Field) :: y
-!      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
-!      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
-!      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: y_array
-!      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
-!      integer :: status, rc
-
-!      allocate(x_array, source = R4_ARRAY_DEFAULT)
-!      allocate(y_array, source = R4_ARRAY_DEFAULT)
-!      y_array = y_array + 100
-
-!      do while(.TRUE.)
-!         x = mk_field(x_array, _RC)
-!         if(status /= ESMF_SUCCESS) exit
-
-!         y = mk_field(y_array, _RC)
-!         if(status /= ESMF_SUCCESS) exit
-
-!         call FieldAXPY(a, x, y, _RC)
-!         if(status /= ESMF_SUCCESS) exit
-!
-!         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
-!         if(status /= ESMF_SUCCESS) exit
-
-!         call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
-!         if(status /= ESMF_SUCCESS) exit
-
-!         @assertEqual(y_ptr, a*x_array+y_array)
-!         exit
-!      end do
-!
-!   end subroutine test_FieldGEMV_R4
-
-!   @Test(npes=product(REG_DECOMP_DEFAULT))
-!   !
-!   subroutine test_FieldSpread()
-!   end subroutine test_FieldSpread
