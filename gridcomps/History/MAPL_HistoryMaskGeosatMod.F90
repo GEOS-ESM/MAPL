@@ -57,7 +57,7 @@ module MaskSamplerGeosatMod
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: epoch_frequency
      type(FileMetadata)       :: metadata
-     type(NetCDF4_FileFormatter)    :: formatter
+     type(NetCDF4_FileFormatter) :: formatter
 
 
      integer                        :: nobs_type
@@ -168,11 +168,11 @@ module MaskSamplerGeosatMod
        integer, optional, intent(out)          :: rc
      end subroutine regrid_accumulate_append_file
 
-     module function compute_time_for_current(this,current_time,rc) result(rtimes)
+     module function compute_time_for_current(this,current_time,rc) result(rtime)
        class(MaskSamplerGeosat), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
        integer, optional, intent(out) :: rc
-       real(ESMF_KIND_R8), allocatable :: rtimes(:)
+       real(kind=ESMF_KIND_R8) :: rtime
      end function compute_time_for_current
 
   end interface

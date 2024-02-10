@@ -699,7 +699,8 @@ module  procedure add_metadata
 
     !__ 1. put_var: time variable
     !
-    rtimes = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    allocate( rtimes(1) )
+    rtimes(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
     if (mapl_am_i_root()) then
        call this%formatter%put_var('time',rtimes(1:1),&
             start=[this%obs_written],count=[1],_RC)
@@ -708,7 +709,6 @@ module  procedure add_metadata
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
-
 !    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
 !       call this%vdata%setup_eta_to_pressure(_RC)
 !    endif
@@ -817,7 +817,7 @@ module  procedure add_metadata
   end procedure close_file_handle
 
 
-  module procedure compute_time_for_current(this,current_time,rc) result(rtimes)
+  module procedure compute_time_for_current
     use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
     integer :: status
     type(ESMF_TimeInterval) :: t_interval
@@ -826,31 +826,24 @@ module  procedure add_metadata
     class(*), pointer :: pTimeUnits
     character(len=ESMF_MAXSTR) :: datetime_units
     character(len=ESMF_MAXSTR) :: tunit
-
-    type(ESMF_Time) :: times_esmf_1d(:)
-
-    var => this%formatter%get_variable('time',_RC)
+    type(ESMF_time), allocatable :: esmf_time_1d(:)
+    real(kind=ESMF_KIND_R8), allocatable :: rtime_1d(:)
+    
+    var => this%metadata%get_variable('time',_RC)
     attr => var%get_attribute('units')
     ptimeUnits => attr%get_value()
-    datetime_units = ptimeUnits
-
-    time_esmf_1d(1) = current_time
-    call time_ESMF_to_real ( rtime,  times_esmf_1d, datetime_units, _RC)
-
-
-    allocate(rtimes(1),_STAT)
-
-    t_interval = current_time-file_start_time
-    select case(trim(tunit))
-    case ('days')
-       call ESMF_TimeIntervalGet(t_interval,d_r8=rtimes(1),_RC)
-    case ('hours')
-       call ESMF_TimeIntervalGet(t_interval,h_r8=rtimes(1),_RC)
-    case ('minutes')
-       call ESMF_TimeIntervalGet(t_interval,m_r8=rtimes(1),_RC)
-    case default
-       _FAIL('illegal value for tunit: '//trim(tunit))
+    select type(pTimeUnits)
+    type is (character(*))
+       datetime_units = ptimeUnits
+       print*, 'datetime_units=', trim(datetime_units)
+    class default
+       _FAIL("Time unit must be character")
     end select
+    allocate (  esmf_time_1d(1), rtime_1d(1) )
+    esmf_time_1d(1)= current_time
+    call time_ESMF_to_real ( rtime_1d, esmf_time_1d, datetime_units, _RC )
+    rtime =  rtime_1d(1)
+
     _RETURN(_SUCCESS)
   end procedure compute_time_for_current
 
