@@ -107,6 +107,7 @@ module MaskSamplerGeosatMod
      procedure :: append_file =>  regrid_accumulate_append_file
 !     procedure :: create_new_bundle
      procedure :: create_grid => create_Geosat_grid_find_mask
+     procedure :: compute_time_for_current
   end type MaskSamplerGeosat
 
   interface MaskSamplerGeosat
@@ -166,6 +167,13 @@ module MaskSamplerGeosatMod
        type(ESMF_Time), intent(inout)          :: current_time
        integer, optional, intent(out)          :: rc
      end subroutine regrid_accumulate_append_file
+
+     module function compute_time_for_current(this,current_time,rc) result(rtimes)
+       class(MaskSamplerGeosat), intent(inout) :: this
+       type(ESMF_Time), intent(in) :: current_time
+       integer, optional, intent(out) :: rc
+       real(ESMF_KIND_R8), allocatable :: rtimes(:)
+     end function compute_time_for_current
 
   end interface
 end module MaskSamplerGeosatMod

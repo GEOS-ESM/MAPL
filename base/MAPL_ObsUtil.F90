@@ -171,6 +171,53 @@ contains
     _RETURN(_SUCCESS)
   end subroutine time_real_to_ESMF
 
+
+  subroutine time_ESMF_to_real (times_R8_1d, times_esmf_1d, datetime_units, rc)
+    use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
+
+    type(ESMF_Time), intent(in) :: times_esmf_1d(:)
+    real(kind=REAL64), intent(inout) :: times_R8_1d(:)
+    character(len=*), intent(in) :: datetime_units
+    integer, optional, intent(out) :: rc
+
+    type(ESMF_TimeInterval) :: interval
+    type(ESMF_Time) :: time0
+    type(ESMF_Time) :: time1
+    character(len=:), allocatable :: tunit
+
+    integer :: i, len
+    integer :: int_time
+    integer :: status
+
+    len = size (times_esmf_1d)
+    int_time = 0
+    call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, &
+         time0, time=time1, time_unit=tunit, _RC)
+
+    do i=1, len
+       interval = times_esmf_1d(i) - time1
+       select case(trim(tunit))
+       case ('days')
+          call ESMF_TimeIntervalGet(t_interval,d_r8=rtimes(1),_RC)
+       case ('hours')
+          call ESMF_TimeIntervalGet(t_interval,h_r8=rtimes(1),_RC)
+       case ('minutes')
+          call ESMF_TimeIntervalGet(t_interval,m_r8=rtimes(1),_RC)
+       case default
+          _FAIL('illegal value for tunit: '//trim(tunit))
+       end select
+
+       times_R8_1d(i) =
+
+
+    enddo
+
+    _RETURN(_SUCCESS)
+  end subroutine
+
+
+
+
   subroutine create_timeunit (time, datetime_units, input_unit, rc)
     type(ESMF_Time), intent(in) :: time
     character(len=*), intent(out) :: datetime_units
