@@ -595,6 +595,7 @@ module MAPL_OpenMP_Support
        type(CallbackMethodWrapper), pointer :: wrapper
        type(CallbackMap), pointer :: callbacks
        type(CallbackMapIterator) :: iter
+       procedure(), pointer :: userRoutine
 
        n_multi = size(multi_states)
        call get_callbacks(state, callbacks, _RC)
@@ -604,7 +605,8 @@ module MAPL_OpenMP_Support
           do while (iter /= e)
              wrapper => iter%second()
              do i = 1, n_multi
-                call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=wrapper%userRoutine, _RC)
+                userRoutine => wrapper%userRoutine
+                call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=userRoutine, _RC)
              end do
              call iter%next()
           end do

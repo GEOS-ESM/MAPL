@@ -12,6 +12,10 @@ module MAPL_TileIOMod
 
    private
 
+   type tile_buffer
+      real, allocatable :: ptr(:)
+   end type
+
    type, public :: MAPL_TileIO
      private
       type(ESMF_FieldBundle) :: bundle
@@ -21,10 +25,6 @@ module MAPL_TileIOMod
          procedure :: request_data_from_file
          procedure :: process_data_from_file
    end type MAPL_TileIO
-
-   type tile_buffer
-      real, allocatable :: ptr(:)
-   end type
 
    interface MAPL_TileIO
       module procedure new_MAPL_TileIO
@@ -40,13 +40,13 @@ module MAPL_TileIOMod
          TileIO%bundle = bundle
          TileIO%read_collection_id = read_collection_id
       end function
-  
+
       subroutine request_data_from_file(this,filename,timeindex,rc)
          class(MAPL_TileIO), intent(inout) :: this
          character(len=*), intent(in) :: filename
          integer, intent(in) :: timeindex
          integer, intent(out), optional :: rc
-    
+
          integer :: status
          integer :: num_vars,i,rank
          type(ArrayReference) :: ref
@@ -76,10 +76,10 @@ module MAPL_TileIOMod
                   allocate(this%tile_buffer(i)%ptr((0)),_STAT)
                end if
                ref = ArrayReference(this%tile_buffer(i)%ptr)
-               call i_clients%collective_prefetch_data(this%read_collection_id, filename, trim(names(i)), ref,  & 
+               call i_clients%collective_prefetch_data(this%read_collection_id, filename, trim(names(i)), ref,  &
                   start=local_start, global_start=global_start, global_count = global_count)
-               deallocate(local_start,global_start,global_count) 
-            else 
+               deallocate(local_start,global_start,global_count)
+            else
                _FAIL("rank >1 tile fields not supported")
             end if
          end do
@@ -117,5 +117,5 @@ module MAPL_TileIOMod
          deallocate(this%tile_buffer)
          _RETURN(_SUCCESS)
       end subroutine
-       
+
 end module

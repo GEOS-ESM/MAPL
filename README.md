@@ -32,6 +32,12 @@ MAPL also has a variety of other auxiliary directories:
 8. **benchmarks** - miscellaneous benchmarking scripts
 9. **docs** - documentation
 
+## Installing MAPL
+
+Please see the [INSTALL.md](INSTALL.md) file for instructions on how to install
+MAPL. This also contains information on how to install the required dependencies
+including subrepositories MAPL expects.
+
 ## Using MAPL
 
 You can find simple examples on how to use MAPL components in ESMF applications at:

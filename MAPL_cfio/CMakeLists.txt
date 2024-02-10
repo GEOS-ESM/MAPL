@@ -44,7 +44,7 @@ endif ()
 
 esma_add_library (${lib}
   SRCS ${srcs}
-  DEPENDENCIES esmf NetCDF::NetCDF_Fortran
+  DEPENDENCIES ESMF::ESMF NetCDF::NetCDF_Fortran
   TYPE ${LIBRARY_TYPE}
   )
 
