@@ -120,7 +120,6 @@ contains
       end if
    end if
 
-
    this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
    if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
@@ -128,7 +127,6 @@ contains
    this%obs_written = 0
 
    call this%create_grid(_RC)
-
    call this%add_metadata(_RC)
 
    _RETURN(_SUCCESS)
@@ -136,10 +134,7 @@ contains
    end procedure initialize
 
 
-
-  ! __ this code does not handle zero observations
-  !
-       module procedure create_Geosat_grid_find_mask
+   module procedure create_Geosat_grid_find_mask
        use pflogger, only: Logger, logging
        implicit none
        type(Logger), pointer :: lgr
@@ -215,13 +210,12 @@ contains
 
        lgr => logging%get_logger('HISTORY.sampler')
 
-       ! Meta code:
+       ! Metacode:
        !   read ABI grid into LS_rt
-       !   gen LS_ds with CS grid
+       !   gen LS_ds with CS background grid
        !   find mask points on each PET with halo
-       !   save
+       !   prepare recvcounts + displs for gatherv
        !
-
 
        if (mapl_am_i_root()) then
           ! __s1.  SAT file
@@ -296,7 +290,6 @@ contains
 
        ! __ s2. set distributed LS
        !
-
        locstream_factory = LocStreamFactory(lons,lats,_RC)
        LS_rt = locstream_factory%create_locstream(_RC)
        call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
@@ -323,34 +316,21 @@ contains
        call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
        call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
-
-!       !- debug
-!       !       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, lons_ds(::1000)
-!       write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, lats_ds(::2000)
-!
-!       !       write(6,'(2x,a,i5,100f10.1)') 'lons_rt pet=', mypet, lons(::20)
-!       !       write(6,'(2x,a,i5,100f10.1)') 'lats_rt pet=', mypet, lats(::5)
        call ESMF_VMBarrier (vm, _RC)
 
+       !!- debug
+       !! write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, lons_ds(::1000)
+       !! write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, lats_ds(::2000)
 
-       ! __ s3. round-1: find n.n. CS pts for LS_ds
+
+       ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
        obs_lons = lons_ds
        obs_lats = lats_ds
-
        nx = size ( lons_ds )
-
-       !!       ! independent test
-       !!       nx = 2
-       !!       obs_lons = [ 0.d0 , 10.d0 ]
-       !!       obs_lats = [ 0.d0 , 10.d0 ]
-
        allocate ( II(nx), JJ(nx) )
        call MPI_Barrier(mpic, status)
-       !!       call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=this%lons_ds,lat=this%lats_ds,grid=Grid,_RC)
-       !!call MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
-
        call ESMF_VMBarrier (vm, _RC)
 
        !! write(6,*) 'nx', nx
@@ -359,17 +339,13 @@ contains
        !!               obs_lons(i),obs_lats(i),II(i),JJ(i)
        !!       end do
 
-
+       !
+       ! __  halo for mask
+       !
        call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
        IM= COUNTS(1)
        JM= COUNTS(2)
        LM= COUNTS(3)
-       if (mapl_am_i_root()) write(6,'(2x,a,2x,10i5)') 'grid counts(1:3)', counts(1:3)
-
-
-       !
-       ! __  halo for mask
-       !
        useableHalo_width = 1
        fieldI4 = ESMF_FieldCreate (grid, ESMF_TYPEKIND_I4, &
             totalLwidth=[useableHalo_width,useableHalo_width],&
@@ -380,7 +356,7 @@ contains
             computationalLBound=cLB, computationalUBound=cUB, computationalCount=ccount, &
             _RC)
        call ESMF_FieldGet (fieldI4, farrayPtr=farrayPtr,  _RC)
-       farrayPtr = 0
+       farrayPtr(:,:) = 0
        do i=1, nx
           if ( II(i)>0 .AND. JJ(i)>0 ) then
              farrayPtr( II(i), JJ(i) ) = 1
@@ -405,7 +381,6 @@ contains
 !       do j=tUB(2), tLB(2), -1
 !          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
 !       end do
-       call MPI_Barrier(mpic, status)
 
        k=0
        do i=eLB(1), eUB(1)
@@ -469,7 +444,7 @@ contains
        !
 
 
-       ! __ s4.1 round-2: find this%lons/lats on root
+       ! __ s4.1 find this%lons/lats on root for NC output
        !
        call ESMF_GridGetCoord (grid, coordDim=1, localDE=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons_ptr, _RC)
@@ -484,36 +459,32 @@ contains
           lats(i) = lats_ptr (ix, jx)
        end do
 
-!       if (mapl_am_i_root()) then
-!          write(6,'(2x,10f8.1)')  lons(::5)
-!          write(6,'(2x,10f8.1)')  lats(::5)
-!          print*, 'end lons/lats'
-!       end if
+       !if (mapl_am_i_root()) then
+       !   write(6,'(2x,10f8.1)')  lons(::5)
+       !   write(6,'(2x,10f8.1)')  lats(::5)
+       !   print*, 'end lons/lats'
+       !end if
 
+       iroot=0
        if (mapl_am_i_root()) then
-          iroot = mypet
-          rootpet = mypet
           allocate (this%lons(this%npt_mask_tot), this%lats(this%npt_mask_tot))
        else
-          iroot = 0
           allocate (this%lons(0), this%lats(0))
        end if
 
 
        ! __ s4.2  find this%recvcounts / this%displs
-!       if (mapl_am_i_root()) then
-          allocate( this%recvcounts(npes), this%displs(npes) )
-          allocate( recvcounts_loc(npes), displs_loc(npes) )
-          recvcounts_loc(:)=1
-          displs_loc(1)=0
-          do i=2, npes
-             displs_loc(i) = displs_loc(i-1) + recvcounts_loc(i-1)
-          end do
-!       end if
+       !
+       allocate( this%recvcounts(npes), this%displs(npes) )
+       allocate( recvcounts_loc(npes), displs_loc(npes) )
+       recvcounts_loc(:)=1
+       displs_loc(1)=0
+       do i=2, npes
+          displs_loc(i) = displs_loc(i-1) + recvcounts_loc(i-1)
+       end do
        call MPI_gatherv ( this%npt_mask, 1, MPI_INTEGER, &
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
-
        if (.not. mapl_am_i_root()) then
           this%recvcounts(:) = 0
        end if
@@ -522,27 +493,16 @@ contains
           this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
        end do
 
-!       if (mapl_am_i_root()) then
-!          write(6,'(2x,10i8)') this%recvcounts
-!          write(6,'(2x,10i8)') this%displs
-!       end if
 
-
-       ! __ s4.2  gatherv lons/lats
+       ! __ s4.3  gatherv lons/lats
+       !
        nsend=this%npt_mask
        call MPI_gatherv ( lons, nsend, MPI_REAL8, &
             this%lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-
        call MPI_gatherv ( lats, nsend, MPI_REAL8, &
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-
-!       if (mapl_am_i_root()) then
-!          write(6,'(2x,10f8.1)')  this%lons(::5)
-!          write(6,'(2x,10f8.1)')  this%lats(::5)
-!          print*, 'end lons/lats'
-!       end if
 
        _RETURN(_SUCCESS)
      end procedure create_Geosat_grid_find_mask
@@ -568,14 +528,8 @@ module  procedure add_metadata
     !__ 1. metadata add_dimension,
     !     add_variable for time, latlon, mask_points
     !
-
-!!    call create_timeunit(currTime, datetime_units, input_unit='seconds', _RC)
-
-
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
-
     call this%time_info%add_time_to_metadata(this%metadata,_RC)
-
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
 
     v = Variable(type=pFIO_REAL64, dimensions='mask_index')
@@ -588,17 +542,18 @@ module  procedure add_metadata
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
 
-    v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
-    call this%metadata%add_variable('mask_CS_Face_ID',v)
-
-    v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    call v%add_attribute('long_name','The Cubed Sphere Global Index I')
-    call this%metadata%add_variable('mask_CS_global_index_I',v)
-
-    v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    call v%add_attribute('long_name','The Cubed Sphere Global Index J')
-    call this%metadata%add_variable('mask_CS_global_index_J',v)
+    ! To be added when values are available
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
+    !call this%metadata%add_variable('mask_CS_Face_ID',v)
+    !
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Index I')
+    !call this%metadata%add_variable('mask_CS_global_index_I',v)
+    !
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Index J')
+    !call this%metadata%add_variable('mask_CS_global_index_J',v)
 
 
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
@@ -643,7 +598,6 @@ module  procedure add_metadata
   end procedure add_metadata
 
 
-  !  module procedure append_file(this,current_time,rc)
     module procedure regrid_accumulate_append_file
     !
     implicit none
@@ -704,9 +658,12 @@ module  procedure add_metadata
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
-!    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-!       call this%vdata%setup_eta_to_pressure(_RC)
-!    endif
+    !   Currently mask only pickup values
+    !   It does not support vertical regridding
+    !
+    !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+    !   call this%vdata%setup_eta_to_pressure(_RC)
+    !endif
 
     iter = this%items%begin()
     do while (iter /= this%items%end())
@@ -740,7 +697,7 @@ module  procedure add_metadata
                 iy = this%index_mask(2,j)
                 do k= lb(1), ub(1)
                    m = m + 1
-                   p_dst_3d(m) = p_src_3d(ix, iy, k)   !  this must exist
+                   p_dst_3d(m) = p_src_3d(ix, iy, k)
                 end do
              end do
              call MPI_Barrier(mpic, status)
@@ -765,17 +722,14 @@ module  procedure add_metadata
        call iter%next()
     end do
 
-
-
     _RETURN(_SUCCESS)
   end procedure regrid_accumulate_append_file
 
 
-  !  module  procedure create_file_handle(this,filename,rc)
+
   module  procedure create_file_handle
     type(variable) :: v
     integer :: status, j
-
 
     this%ofile = trim(filename)
     v = this%time_info%define_time_variable(_RC)
@@ -786,7 +740,6 @@ module  procedure add_metadata
        _RETURN(_SUCCESS)
     end if
 
-
     call this%formatter%create(trim(filename),_RC)
     call this%formatter%write(this%metadata,_RC)
 
@@ -794,13 +747,11 @@ module  procedure add_metadata
     call this%formatter%put_var('latitude',this%lats,_RC)
 !    call this%formatter%put_var('mask_id',this%mask_id,_RC)
 !    call this%formatter%put_var('mask_name',this%mask_name,_RC)
-    !
 
     _RETURN(_SUCCESS)
   end procedure create_file_handle
 
 
-  !  module  procedure close_file_handle(this,rc)
   module  procedure close_file_handle
     integer :: status
     if (trim(this%ofile) /= '') then
@@ -830,7 +781,6 @@ module  procedure add_metadata
     select type(pTimeUnits)
     type is (character(*))
        datetime_units = ptimeUnits
-       !! print*, 'datetime_units=', trim(datetime_units)
     class default
        _FAIL("Time unit must be character")
     end select
