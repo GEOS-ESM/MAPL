@@ -1653,6 +1653,9 @@ ENDDO PARSER
        if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
           call ESMF_TimeIntervalGet(Hsampler%Frequency_epoch, s=sec, _RC)
        end if
+       if (list(n)%sampler_spec == 'station' .OR. list(n)%sampler_spec == 'mask') then
+          sec = MAPL_nsecf(list(n)%frequency)
+       end if
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
     end do
 

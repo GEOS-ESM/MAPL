@@ -324,12 +324,12 @@ contains
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
        call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
 
-       !- debug
-       !       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, lons_ds(::1000)
-       write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, lats_ds(::2000)
-
-       !       write(6,'(2x,a,i5,100f10.1)') 'lons_rt pet=', mypet, lons(::20)
-       !       write(6,'(2x,a,i5,100f10.1)') 'lats_rt pet=', mypet, lats(::5)
+!       !- debug
+!       !       write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, lons_ds(::1000)
+!       write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, lats_ds(::2000)
+!
+!       !       write(6,'(2x,a,i5,100f10.1)') 'lons_rt pet=', mypet, lons(::20)
+!       !       write(6,'(2x,a,i5,100f10.1)') 'lats_rt pet=', mypet, lats(::5)
        call ESMF_VMBarrier (vm, _RC)
 
 
@@ -353,7 +353,7 @@ contains
 
        call ESMF_VMBarrier (vm, _RC)
 
-       write(6,*) 'nx', nx
+       !! write(6,*) 'nx', nx
        !!       do i=1,nx,20
        !!          write(6,'(2x,a,i5,i10,2f12.2,10i5)') 'pet,i,lon,lat,II,JJ=', mypet,i,&
        !!               obs_lons(i),obs_lats(i),II(i),JJ(i)
@@ -387,24 +387,24 @@ contains
           endif
        enddo
 
-       write(6,'(2x,a,2x,i5)') 'pet=', mypet
-       do j=tUB(2), tLB(2), -1
-          write(6, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-       end do
+! debug       
+!       write(6,'(2x,a,2x,i5)') 'pet=', mypet
+!       do j=tUB(2), tLB(2), -1
+!          write(6, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+!       end do
 
        call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_VMBarrier (vm, _RC)
 
-       write(filename, '(i5)') mypet
-       filename='t.'//trim(adjustl(filename))
-       open(newunit=unit,  file=trim(filename), status='unknown', _IOSTAT)
-       write(6,'(2x,a,2x,5i20)') 'pet,unit', mypet, unit
-
-       write(unit,'(2x,a,2x,i5)') 'AF pet=', mypet
-       do j=tUB(2), tLB(2), -1
-          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-       end do
+!       write(filename, '(i5)') mypet
+!       filename='t.'//trim(adjustl(filename))
+!       open(newunit=unit,  file=trim(filename), status='unknown', _IOSTAT)
+!       write(6,'(2x,a,2x,5i20)') 'pet,unit', mypet, unit
+!       write(unit,'(2x,a,2x,i5)') 'AF pet=', mypet
+!       do j=tUB(2), tLB(2), -1
+!          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+!       end do
        call MPI_Barrier(mpic, status)
 
        k=0
@@ -440,29 +440,25 @@ contains
           end do
        end do
 
-
-       !
-       ! -- test and print mask locations
-       !
-       write(unit,'(2x,a,2x,i5)') 'connect pet=', mypet
-       do j=tUB(2), tLB(2), -1
-          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-       end do
-       write(unit,'(2x,a,2x,i5)') 'mask pet=', mypet
-       do j=eUB(2), eLB(2), -1
-          write(unit, '(2x,100i5)') mask(eLB(1):eUB(1), j)
-       end do
-
-       write(6,'(2x,a,2x,7i10)')  'this%npt_mask, this%npt_mask_tot', this%npt_mask, this%npt_mask_tot
-       write(6,'(2x,a,2x,7i10)')  'this%index_mask(1,1:N)', this%index_mask(1,::5)
-       write(6,'(2x,a,2x,7i10)')  'this%index_mask(2,1:N)', this%index_mask(2,::5)
-
-
-       !       _FAIL('nail 2')
-       !       write(6,'(2x,a,i5,100i5)') 'lats_rt pet=', mypet, mask(::5,::5)
-
-       close(unit)
-
+!       !
+!       ! -- test and print mask locations
+!       !
+!       write(unit,'(2x,a,2x,i5)') 'connect pet=', mypet
+!       do j=tUB(2), tLB(2), -1
+!          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
+!       end do
+!       write(unit,'(2x,a,2x,i5)') 'mask pet=', mypet
+!       do j=eUB(2), eLB(2), -1
+!          write(unit, '(2x,100i5)') mask(eLB(1):eUB(1), j)
+!       end do
+!
+!       write(6,'(2x,a,2x,7i10)')  'this%npt_mask, this%npt_mask_tot', this%npt_mask, this%npt_mask_tot
+!       write(6,'(2x,a,2x,7i10)')  'this%index_mask(1,1:N)', this%index_mask(1,::5)
+!       write(6,'(2x,a,2x,7i10)')  'this%index_mask(2,1:N)', this%index_mask(2,::5)
+!
+!       close(unit)
+!
+       
        ! FINISH:  I have what I need
        !          Fixed:  npt_mask  +  index_mask
        !          I have index on each PET,
@@ -488,11 +484,11 @@ contains
           lats(i) = lats_ptr (ix, jx)
        end do
 
-       if (mapl_am_i_root()) then
-          write(6,'(2x,10f8.1)')  lons(::5)
-          write(6,'(2x,10f8.1)')  lats(::5)
-          print*, 'end lons/lats'
-       end if
+!       if (mapl_am_i_root()) then
+!          write(6,'(2x,10f8.1)')  lons(::5)
+!          write(6,'(2x,10f8.1)')  lats(::5)
+!          print*, 'end lons/lats'
+!       end if
 
        if (mapl_am_i_root()) then
           iroot = mypet
@@ -526,10 +522,10 @@ contains
           this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
        end do
 
-       if (mapl_am_i_root()) then
-          write(6,'(2x,10i8)') this%recvcounts
-          write(6,'(2x,10i8)') this%displs
-       end if
+!       if (mapl_am_i_root()) then
+!          write(6,'(2x,10i8)') this%recvcounts
+!          write(6,'(2x,10i8)') this%displs
+!       end if
 
 
        ! __ s4.2  gatherv lons/lats
@@ -542,12 +538,11 @@ contains
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
 
-       if (mapl_am_i_root()) then
-          write(6,'(2x,10f8.1)')  this%lons(::5)
-          write(6,'(2x,10f8.1)')  this%lats(::5)
-          print*, 'end lons/lats'
-       end if
-
+!       if (mapl_am_i_root()) then
+!          write(6,'(2x,10f8.1)')  this%lons(::5)
+!          write(6,'(2x,10f8.1)')  this%lats(::5)
+!          print*, 'end lons/lats'
+!       end if
 
        _RETURN(_SUCCESS)
      end procedure create_Geosat_grid_find_mask
@@ -835,7 +830,7 @@ module  procedure add_metadata
     select type(pTimeUnits)
     type is (character(*))
        datetime_units = ptimeUnits
-       print*, 'datetime_units=', trim(datetime_units)
+       !! print*, 'datetime_units=', trim(datetime_units)
     class default
        _FAIL("Time unit must be character")
     end select

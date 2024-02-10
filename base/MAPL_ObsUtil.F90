@@ -210,7 +210,6 @@ contains
        end select
     enddo
 
-    print*, 'rtime', times_R8_1d(1)
     _RETURN(_SUCCESS)
   end subroutine time_ESMF_to_real
 
