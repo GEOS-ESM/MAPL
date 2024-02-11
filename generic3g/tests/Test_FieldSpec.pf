@@ -21,17 +21,17 @@ contains
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn')
+           standard_name='A', long_name='AA', units='m')
       spec_r8 = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R8, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn')
+           standard_name='A', long_name='AA', units='m')
       spec_mirror = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=MAPL_TYPEKIND_MIRROR, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn')
+           standard_name='A', long_name='AA', units='m')
 
       @assert_that(spec_r4%can_connect_to(spec_r4), is(true()))
       @assert_that(spec_r4%can_connect_to(spec_r8), is(true()))
@@ -60,13 +60,13 @@ contains
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn', &
+           standard_name='A', long_name='AA', units='m', &
            attributes=import_attributes)
       export_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn', &
+           standard_name='A', long_name='AA', units='m', &
            attributes=export_attributes)
 
       @assert_that(import_spec%can_connect_to(export_spec), is(false()))
@@ -89,13 +89,13 @@ contains
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn', &
+           standard_name='A', long_name='AA', units='m', &
            attributes=import_attributes)
       export_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn', &
+           standard_name='A', long_name='AA', units='m', &
            attributes=export_attributes)
 
       @assert_that(import_spec%can_connect_to(export_spec), is(true()))
@@ -123,13 +123,13 @@ contains
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn', &
+           standard_name='A', long_name='AA', units='m', &
            attributes=import_attributes)
       export_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
-           standard_name='A', long_name='AA', units='barn', &
+           standard_name='A', long_name='AA', units='m', &
            attributes=export_attributes)
 
       @assert_that(import_spec%can_connect_to(export_spec), is(true()))
@@ -195,14 +195,14 @@ contains
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
-           units='barn')
+           units='m')
 
       export_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
-           units='barn')
+           units='m')
 
       @assert_that(import_spec%can_connect_to(export_spec), is(true()))
       
@@ -225,7 +225,7 @@ contains
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDimsSpec(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
-           units='barn')
+           units='m')
 
       @assert_that(import_spec%can_connect_to(export_spec), is(true()))
       

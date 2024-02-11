@@ -56,10 +56,11 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_connect
 
-      logical function I_can_connect(this, src_spec)
+      logical function I_can_connect(this, src_spec, rc)
          import StateItemSpec
          class(StateItemSpec), intent(in) :: this
          class(StateItemSpec), intent(in) :: src_spec
+         integer, optional, intent(out) :: rc
       end function I_can_connect
 
       ! Will use ESMF so cannot be PURE

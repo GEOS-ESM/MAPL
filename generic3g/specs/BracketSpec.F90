@@ -159,9 +159,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_dependencies
 
-   logical function can_connect_to(this, src_spec)
+   logical function can_connect_to(this, src_spec, rc)
       class(BracketSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
 
       select type(src_spec)
       class is (BracketSpec)
@@ -173,6 +174,7 @@ contains
          can_connect_to = .false.
       end select
 
+      _RETURN(_SUCCESS)
    contains
 
       ! At least one of src/dst must have allocated a bracket size.

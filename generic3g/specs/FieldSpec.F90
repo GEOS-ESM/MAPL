@@ -356,23 +356,30 @@ contains
 
 
 
-   logical function can_connect_to(this, src_spec)
+   logical function can_connect_to(this, src_spec, rc)
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
 
       logical :: can_convert_units_
+      integer :: status
+
       select type(src_spec)
       class is (FieldSpec)
+         can_convert_units_ = can_connect_units(this%units, src_spec%units, _RC)
           can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
               this%ungridded_dims == src_spec%ungridded_dims, & 
               includes(this%attributes, src_spec%attributes), &
-              can_connect_units(this%units, src_spec%units) &
+              can_convert_units_ &
+               &
               ])
       class default
          can_connect_to = .false.
       end select
+      _RETURN(_SUCCESS)
+
    contains
 
       logical function includes(mandatory, provided)
@@ -574,20 +581,21 @@ contains
       end if
    end function match_string
 
-   logical function can_connect_units(dst_units, src_units)
+   logical function can_connect_units(dst_units, src_units, rc)
       character(:), allocatable, intent(in) :: dst_units
       character(:), allocatable, intent(in) :: src_units
+      integer, optional, intent(out) :: rc
 
       integer :: status
 
       ! If mirror or same, we can connect without a coupler
       can_connect_units = match(dst_units, src_units)
-      if (can_connect_units) return
-      ! Otherwise need a coupler, but need to check
-      ! if units are convertible
-      can_connect_units = UDUNITS_are_convertible(src_units, dst_units, rc=status)
-      ! Ignore status for now (sigh)
-      
+      _RETURN_IF(can_connect_units)
+
+      ! Otherwise need a coupler, but need to check if units are convertible
+      can_connect_units = UDUNITS_are_convertible(src_units, dst_units, _RC)
+
+      _RETURN(_SUCCESS)
    end function can_connect_units
 
    integer function get_cost_geom(a, b) result(cost)

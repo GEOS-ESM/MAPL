@@ -132,8 +132,10 @@ contains
 
          integer :: status
          class(StateItemSpec), pointer :: spec
+         logical :: can_connect
 
-         _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
+         can_connect = this%can_connect_to(src_spec, _RC)
+         _ASSERT(can_connect, 'illegal connection')
          _ASSERT(this%matched_items%count(actual_pt) == 0, 'duplicate connection pt')
          
          call this%matched_items%insert(actual_pt, this%reference_spec)
@@ -146,12 +148,15 @@ contains
    end subroutine connect_to
 
 
-   logical function can_connect_to(this, src_spec)
+   logical function can_connect_to(this, src_spec, rc)
       class(WildcardSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
 
-      can_connect_to = this%reference_spec%can_connect_to(src_spec)
+      integer :: status
+      can_connect_to = this%reference_spec%can_connect_to(src_spec, _RC)
 
+      _RETURN(_SUCCESS)
    end function can_connect_to
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
