@@ -103,11 +103,13 @@ contains
    end subroutine connect_to
 
 
-   logical function can_connect_to(this, src_spec)
+   logical function can_connect_to(this, src_spec, rc)
       class(InvalidSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
 
       can_connect_to = .false.
+      _RETURN(_SUCCESS)
 
    end function can_connect_to
 

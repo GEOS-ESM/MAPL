@@ -157,8 +157,10 @@ contains
       integer :: fieldCount
       type(ESMF_Field), allocatable :: fieldList(:)
       integer :: status
+      logical :: can_connect
 
-      _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
+      can_connect = this%can_connect_to(src_spec, _RC)
+      _ASSERT(can_connect, 'illegal connection')
 
       select type (src_spec)
       class is (ServiceSpec)
@@ -167,13 +169,15 @@ contains
          _FAIL('Cannot connect field spec to non field spec.')
       end select
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
-    logical function can_connect_to(this, src_spec)
+    logical function can_connect_to(this, src_spec, rc)
       class(ServiceSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+
 
       select type(src_spec)
       class is (ServiceSpec)
@@ -182,6 +186,7 @@ contains
          can_connect_to = .false.
       end select
 
+      _RETURN(_SUCCESS)
    end function can_connect_to
 
 

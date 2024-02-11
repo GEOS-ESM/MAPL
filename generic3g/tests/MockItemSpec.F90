@@ -106,10 +106,13 @@ contains
       class(MockItemSpec), intent(inout) :: this
       class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
-
       integer, optional, intent(out) :: rc
 
-      _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
+      integer :: status
+      logical :: can_connect
+
+      can_connect = this%can_connect_to(src_spec, _RC)
+      _ASSERT(can_connect, 'illegal connection')
 
       select type (src_spec)
       class is (MockItemSpec)
@@ -122,14 +125,15 @@ contains
          _FAIL('Cannot connect field spec to non field spec.')
       end select
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
 
-   logical function can_connect_to(this, src_spec)
+   logical function can_connect_to(this, src_spec, rc)
       class(MockItemSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
 
       select type(src_spec)
       class is (MockItemSpec)
@@ -138,6 +142,7 @@ contains
          can_connect_to = .false.
       end select
 
+      _RETURN(_SUCCESS)
    end function can_connect_to
 
 
