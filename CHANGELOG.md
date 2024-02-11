@@ -55,10 +55,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- implemented a new algorthm to read tile files
 
 ### Changed
 
 ### Fixed
+- removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
 
 ### Removed
 
