@@ -851,7 +851,6 @@ contains
    function get_export_couplers(this) result(export_couplers)
       type(ActualPtComponentDriverMap), pointer :: export_couplers
       class(HierarchicalRegistry), target, intent(in) :: this
-
       export_couplers => this%export_couplers
    end function get_export_couplers
       

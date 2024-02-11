@@ -84,14 +84,14 @@ contains
       _RETURN(_SUCCESS)
    end subroutine connect
 
-   subroutine connect_sibling(this, dst_registry, src_registry, unusable, rc)
+   recursive subroutine connect_sibling(this, dst_registry, src_registry, unusable, rc)
       class(SimpleConnection), intent(in) :: this
       type(HierarchicalRegistry), target, intent(inout) :: dst_registry
       type(HierarchicalRegistry), target, intent(inout) :: src_registry
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(StateItemSpecPtr), allocatable :: src_specs(:), dst_specs(:)
+      type(StateItemSpecPtr), target, allocatable :: src_specs(:), dst_specs(:)
       class(StateItemSpec), pointer :: src_spec, dst_spec
       integer :: i, j
       integer :: status
@@ -110,6 +110,7 @@ contains
       type(ActualPtVector), pointer :: src_actual_pts
       type(ActualConnectionPt), pointer :: best_pt
       
+
       src_pt = this%get_source()
       dst_pt = this%get_destination()
 
@@ -127,23 +128,7 @@ contains
          src_spec => src_specs(1)%ptr
          _ASSERT(dst_spec%can_connect_to(src_spec), "impossible connection")
 
-         ! Loop through possible specific exports to find best match.
-         best_spec => src_specs(1)%ptr
-         best_pt => src_actual_pts%of(1)
-         lowest_cost = dst_spec%extension_cost(best_spec, _RC)
-         find_best_src_spec: do j = 2, size(src_specs)
-            if (lowest_cost == 0) exit
-
-            src_spec => src_specs(j)%ptr
-            cost = dst_spec%extension_cost(src_spec)
-            if (cost < lowest_cost) then
-               lowest_cost = cost
-               best_spec => src_spec
-               best_pt => src_actual_pts%of(j)
-            end if
-
-         end do find_best_src_spec
-
+         call find_closest_spec(dst_spec, src_specs, src_actual_pts, closest_spec=best_spec, closest_pt=best_pt, lowest_cost=lowest_cost, _RC)
          call best_spec%set_active()
 
          ! Now build out sequence of extensions that form a chain to
@@ -157,12 +142,14 @@ contains
             call new_spec%set_active()
             extension_pt = src_registry%extend(src_pt%v_pt, old_spec, new_spec, source_coupler=source_coupler, _RC)
             source_coupler => src_registry%get_export_coupler(extension_pt)
-            call move_alloc(from=new_spec, to=old_spec)
+            ! ifort 2021.6 does something odd with the following move_alloc
+!!$            call move_alloc(from=new_spec, to=old_spec)
+            deallocate(old_spec)
+            allocate(old_spec, source=new_spec)
+            deallocate(new_spec)
+
             last_spec => old_spec
          end do
-
-
-
 
          call dst_spec%set_active()
 
@@ -186,4 +173,37 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling
 
- end module mapl3g_SimpleConnection
+   subroutine find_closest_spec(goal_spec, candidate_specs, candidate_pts, closest_spec, closest_pt, lowest_cost, rc)
+      class(StateItemSpec), intent(in) :: goal_spec
+      type(StateItemSpecPtr), target, intent(in) :: candidate_specs(:)
+      type(ActualPtVector), target, intent(in) :: candidate_pts
+      class(StateItemSpec), pointer :: closest_Spec
+      type(ActualConnectionPt), pointer :: closest_pt
+      integer, intent(out) :: lowest_cost
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemSpec), pointer :: spec
+      integer :: cost
+      integer :: j
+      
+      _ASSERT(size(candidate_specs) > 0, 'no candidates found')
+
+      closest_spec => candidate_specs(1)%ptr
+      closest_pt => candidate_pts%of(1)
+      lowest_cost = goal_spec%extension_cost(closest_spec, _RC)
+      do j = 2, size(candidate_specs)
+         if (lowest_cost == 0) exit
+
+         spec => candidate_specs(j)%ptr
+         cost = goal_spec%extension_cost(spec)
+         if (cost < lowest_cost) then
+            lowest_cost = cost
+            closest_spec => spec
+            closest_pt => candidate_pts%of(j)
+            _HERE, 'closest pt', closest_pt, ' cost is ', cost
+         end if
+
+      end do
+   end subroutine find_closest_spec
+end module mapl3g_SimpleConnection

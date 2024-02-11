@@ -484,7 +484,6 @@ contains
          extension=this
          _FAIL('Unsupported subclass.')
       end select find_mismatch
-
       _RETURN(_SUCCESS)
    end function make_extension
 
@@ -498,12 +497,8 @@ contains
       extension = this
 
       if (update_item(extension%geom, dst_spec%geom)) return
-      if (update_item(extension%typekind, dst_spec%typekind)) then
-         return
-      end if
-      if (update_item(extension%units, dst_spec%units)) then
-         return
-      end if
+      if (update_item(extension%typekind, dst_spec%typekind)) return
+      if (update_item(extension%units, dst_spec%units)) return
 
     end function make_extension_safely
 
@@ -535,6 +530,7 @@ contains
          end if
          
          if (this%units /= dst_spec%units) then
+            deallocate(action)
             action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
             _RETURN(_SUCCESS)
          end if

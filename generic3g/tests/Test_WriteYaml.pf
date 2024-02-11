@@ -6,14 +6,17 @@ module Test_WriteYaml
    implicit none
    private
 
+! Gfortran 12.3 cannot write DTIO to an interfal file apparently.
+#ifndef __GFORTRAN__
    public :: test_write_scalar
    public :: test_write_sequence
    public :: test_write_mapping
    public :: test_write_kitchen_sink
+#endif
 
 contains
 
-   @test
+   @test(ifndef=__GFORTRAN__)
    subroutine test_write_scalar()
       type(ESMF_HConfig) :: hconfig
       character(10) :: buffer
@@ -43,7 +46,7 @@ contains
 
    end subroutine test_write_scalar
 
-   @test
+   @test(ifndef=__GFORTRAN__)
    subroutine test_write_sequence()
       type(ESMF_HConfig) :: hconfig
       character(100) :: buffer
@@ -66,7 +69,7 @@ contains
 
    end subroutine test_write_sequence
 
-   @test
+   @test(ifndef=__GFORTRAN__)
    subroutine test_write_mapping()
       type(ESMF_HConfig) :: hconfig
       character(100) :: buffer
@@ -92,7 +95,7 @@ contains
 
    end subroutine test_write_mapping
 
-   @test
+   @test(ifndef=__GFORTRAN__)
    subroutine test_write_kitchen_sink()
       type(ESMF_HConfig) :: hconfig
       character(100) :: buffer
