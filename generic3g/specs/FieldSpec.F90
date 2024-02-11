@@ -373,7 +373,6 @@ contains
               this%ungridded_dims == src_spec%ungridded_dims, & 
               includes(this%attributes, src_spec%attributes), &
               can_convert_units_ &
-               &
               ])
       class default
          can_connect_to = .false.
