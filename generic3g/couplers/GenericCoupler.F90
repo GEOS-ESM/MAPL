@@ -68,7 +68,7 @@ contains
    end subroutine initialize
 
 
-   subroutine update(gridcomp, importState, exportState, clock, rc)
+   recursive subroutine update(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -85,7 +85,7 @@ contains
    end subroutine update
 
    
-   subroutine invalidate(gridcomp, importState, exportState, clock, rc)
+   recursive subroutine invalidate(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -102,7 +102,7 @@ contains
    end subroutine invalidate
 
 
-   subroutine clock_advance(gridcomp, importState, exportState, clock, rc)
+   recursive subroutine clock_advance(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState

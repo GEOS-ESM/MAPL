@@ -18,6 +18,7 @@ module mapl3g_FieldSpec
    use mapl3g_NullAction
    use mapl3g_CopyAction
    use mapl3g_RegridAction
+   use mapl3g_ConvertUnitsAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
@@ -232,11 +233,10 @@ contains
        
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_GRIDSET) then
-
          call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
               ungriddedLBound= final_lbounds,  &
               ungriddedUBound= final_ubounds,  &
-              _RC)
+             _RC)
          call ESMF_FieldGet(this%payload, status=fstatus, _RC)
          _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
@@ -337,6 +337,7 @@ contains
       subroutine mirror(dst, src, rc)
          type(ESMF_TypeKind_Flag), intent(inout) :: dst, src
          integer, optional, intent(out) :: rc
+
          if (dst /= src) then
             if (dst == MAPL_TYPEKIND_MIRROR) then
                dst = src
@@ -359,9 +360,10 @@ contains
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
 
+      logical :: can_convert_units_
       select type(src_spec)
       class is (FieldSpec)
-         can_connect_to = all ([ &
+          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
               this%ungridded_dims == src_spec%ungridded_dims, & 
@@ -482,23 +484,21 @@ contains
          extension=this
          _FAIL('Unsupported subclass.')
       end select find_mismatch
-
       _RETURN(_SUCCESS)
    end function make_extension
 
-   function make_extension_safely(this, src_spec) result(extension)
+   function make_extension_safely(this, dst_spec) result(extension)
       type(FieldSpec) :: extension
       class(FieldSpec), intent(in) :: this
-      type(FieldSpec), intent(in) :: src_spec
+      type(FieldSpec), intent(in) :: dst_spec
 
       logical :: found
 
       extension = this
-      if (update_item(extension%geom, src_spec%geom)) return
-      if (update_item(extension%typekind, src_spec%typekind)) then
-         return
-      end if
-!#      if (update_item(extension%units, src_spec%units)) return
+
+      if (update_item(extension%geom, dst_spec%geom)) return
+      if (update_item(extension%typekind, dst_spec%typekind)) return
+      if (update_item(extension%units, dst_spec%units)) return
 
     end function make_extension_safely
 
@@ -529,10 +529,11 @@ contains
             _RETURN(_SUCCESS)
          end if
          
-!#         if (this%units /= dst_spec%units) then
-!#            action = ChangeUnitsAction(this%payload, dst_spec%payload)
-!#            _RETURN(_SUCCESS)
-!#         end if
+         if (this%units /= dst_spec%units) then
+            deallocate(action)
+            action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
+            _RETURN(_SUCCESS)
+         end if
          
       class default
          _FAIL('Dst spec is incompatible with FieldSpec.')
@@ -547,11 +548,10 @@ contains
       integer :: status
 
       match = .false.
-
+      
       if (allocated(a) .and. allocated(b)) then
          match = MAPL_SameGeom(a, b)
       end if
-
 
    end function match_geom
 

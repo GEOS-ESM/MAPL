@@ -314,7 +314,7 @@ contains
       @assert_that(check(states, 'export', field_name='child_A/E_A1'), is(0))
       @assert_that(check(states, 'export', field_name='child_A/Z_A1'), is(0))
       @assert_that(check(states, 'export', field_name='child_B/E_B1'), is(0))
-      @assert_that(check(states, 'export', field_name='child_B/Z_B1'), is(not(0)))
+      @assert_that(check(states, 'export', field_name='child_B/Z_B1'), is(5))
 
 
    contains
@@ -325,7 +325,9 @@ contains
          character(*), intent(in) :: field_name
 
          type(ESMF_Field) :: f
-         type(ESMF_State) :: state
+         type(ESMF_State) :: state, substate
+         type(ESMF_StateItem_Flag) :: itemtype
+         integer :: idx
 
          status = 1
 
@@ -335,7 +337,30 @@ contains
             return
          end if
 
+         idx = scan(field_name, '/')
+         if (status /= 0) then
+            status = 6
+            return
+         end if
 
+         call ESMF_StateGet(state, field_name(:idx-1), substate, rc=status)
+         if (status /= 0) then
+            status = 7
+            return
+         end if
+         
+         
+         call ESMF_StateGet(substate, field_name(idx+1:), itemtype, rc=status)
+         if (status /= 0) then
+            status = 4
+            return
+         end if
+         if (itemtype == ESMF_STATEITEM_NOTFOUND) then
+            print*,__FILE__,__LINE__, field_name
+            status = 5
+            return
+         end if
+         ! This interface allows ESMF to dive down substate, but the checks above do not.
          call ESMF_StateGet(state, field_name, f, rc=status)
          if (status /= 0) then
             status = 3
