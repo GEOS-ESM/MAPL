@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.44.1] - 2024-02-12
+
+### Fixed
+
+- Fixed non-Baselibs build using `ESMF::ESMF` target
+
 ## [2.44.0] - 2024-02-08
 
 ### Added
