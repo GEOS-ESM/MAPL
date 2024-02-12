@@ -4,6 +4,7 @@ module mapl3hconfig_get_private
    use :: esmf, only: ESMF_HConfigAsI4, ESMF_KIND_I4, ESMF_HConfigAsI8, ESMF_KIND_I8
    use :: esmf, only: ESMF_HConfigAsR4, ESMF_KIND_R4, ESMF_HConfigAsR8, ESMF_KIND_R8
    use :: esmf, only: ESMF_HConfigAsLogical, ESMF_HConfigAsString
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
 
    implicit none
@@ -43,7 +44,7 @@ contains
 
       is_found = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
       if(.not. is_found) then
-         _ASSERT(present(found), 'Key "' // trim(keystring) '" was not found.')
+         _ASSERT(present(found), 'Key "' //trim(keystring)// '" was not found.')
          _RETURN(_SUCCESS)
       end if
 
