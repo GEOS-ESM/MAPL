@@ -154,7 +154,6 @@ if (NOT Baselibs_FOUND)
     # MAPL and GEOS use lowercase target due to historical reasons but
     # the latest FindESMF.cmake file from ESMF produces an ESMF target.
     add_library(esmf ALIAS ESMF::ESMF)
-    add_library(ESMF ALIAS ESMF::ESMF)
   endif ()
 else ()
   # This is an ESMF version test when using Baselibs which doesn't use the
