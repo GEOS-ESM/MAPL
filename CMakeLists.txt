@@ -147,7 +147,7 @@ if (NOT Baselibs_FOUND)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
 
-  if (NOT TARGET ESMF)
+  if (NOT TARGET ESMF::ESMF)
     find_package(ESMF 8.6.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
