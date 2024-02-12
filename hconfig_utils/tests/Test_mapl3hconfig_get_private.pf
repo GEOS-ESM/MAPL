@@ -11,6 +11,8 @@ module Test_mapl3hconfig_get_private
    character(len=*), parameter :: ERROR_ADD_FAIL = 'Add failed.'
    character(len=*), parameter :: ERROR_NOT_FOUND = 'Find failed for: '
    character(len=*), parameter :: ERROR_MESSAGE_MISMATCH = 'Message does not match.'
+   character(len=*), parameter :: ERROR_TYPESTRING_MISMATCH = 'Typestring does not match.'
+   character(len=*), parameter :: ERROR_VALUESTRING_MISMATCH = 'Valuestring does not match.'
    character, parameter :: SPACE = ' '
 
    ! instance variables
@@ -22,144 +24,138 @@ contains
    @Test
    subroutine test_get_i4()
       character(len=*), parameter :: KEY = 'inv_alpha'
-      character(len=*), parameter :: TYPESTRING = 'I4'
-      character(len=*), parameter :: VALUESTRING = '137'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'I4'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '137'
       integer(kind=ESMF_KIND_I4), parameter :: EXPECTED = 137
       integer(kind=ESMF_KIND_I4) :: actual
-      character(len=MAXSTRLEN) :: expected_message
-      character(len=:), allocatable :: message
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
       logical :: found
       integer :: status
 
-      expected_message = make_expected_message(TYPESTRING, KEY, VALUESTRING)
-      @assertFalse(is_blank(expected_message), ERROR_EXPECTED_MESSAGE_BLANK)
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call get_value(hconfig, actual, found, message, KEY, rc=status)
+      call get_value(hconfig, actual, KEY, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(expected_message, message, ERROR_MESSAGE_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
 
    end subroutine test_get_i4
 
    @Test
    subroutine test_get_i8()
       character(len=*), parameter :: KEY = 'num_h_on_pinhead'
-      character(len=*), parameter :: TYPESTRING = 'I8'
-      character(len=*), parameter :: VALUESTRING = '50000000000'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'I8'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '50000000000'
       integer(kind=ESMF_KIND_I8), parameter :: EXPECTED = 50000000000
       integer(kind=ESMF_KIND_I8) :: actual
-      character(len=MAXSTRLEN) :: expected_message
-      character(len=:), allocatable :: message
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
       logical :: found
       integer :: status
 
-      expected_message = make_expected_message(TYPESTRING, KEY, VALUESTRING)
-      @assertFalse(is_blank(expected_message), ERROR_EXPECTED_MESSAGE_BLANK)
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call get_value(hconfig, actual, found, message, KEY, rc=status)
+      call get_value(hconfig, actual, KEY, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(expected_message, message, ERROR_MESSAGE_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
 
    end subroutine test_get_i8
    
    @Test
    subroutine test_get_r4()
       character(len=*), parameter :: KEY = 'plank_mass'
-      character(len=*), parameter :: TYPESTRING = 'R4'
-      character(len=*), parameter :: VALUESTRING = '0.18590000E-08'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'R4'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '0.18590000E-08'
       real(kind=ESMF_KIND_R4), parameter :: EXPECTED =   1.8590000E-9_ESMF_KIND_R4
       real(kind=ESMF_KIND_R4) :: actual
-      character(len=MAXSTRLEN) :: expected_message
-      character(len=:), allocatable :: message
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
       logical :: found
       integer :: status
 
-      expected_message = make_expected_message(TYPESTRING, KEY, VALUESTRING)
-      @assertFalse(is_blank(expected_message), ERROR_EXPECTED_MESSAGE_BLANK)
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call get_value(hconfig, actual, found, message, KEY, rc=status)
+      call get_value(hconfig, actual, KEY, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(expected_message, message, ERROR_MESSAGE_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
 
    end subroutine test_get_r4
    
    @Test
    subroutine test_get_r8()
       character(len=*), parameter :: KEY = 'mu_mass'
-      character(len=*), parameter :: TYPESTRING = 'R8'
-      character(len=*), parameter :: VALUESTRING =   '-0.9284764704320000E-23'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'R8'
+      character(len=*), parameter :: EXPECTED_VALUESTRING =   '-0.9284764704320000E-23'
       real(kind=ESMF_KIND_R8), parameter :: EXPECTED = -9.284764704320000E-24_ESMF_KIND_R8
       real(kind=ESMF_KIND_R8) :: actual
-      character(len=MAXSTRLEN) :: expected_message
-      character(len=:), allocatable :: message
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
       logical :: found
       integer :: status
 
-      expected_message = make_expected_message(TYPESTRING, KEY, VALUESTRING)
-      @assertFalse(is_blank(expected_message), ERROR_EXPECTED_MESSAGE_BLANK)
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call get_value(hconfig, actual, found, message, KEY, rc=status)
+      call get_value(hconfig, actual, KEY, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(expected_message, message, ERROR_MESSAGE_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
 
    end subroutine test_get_r8
 
    @Test
    subroutine test_get_logical()
       character(len=*), parameter :: KEY = 'p_or_np'
-      character(len=*), parameter :: TYPESTRING = 'L'
-      character(len=*), parameter :: VALUESTRING = 'T'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'L'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = 'T'
       logical, parameter :: EXPECTED = .TRUE.
       logical :: actual
-      character(len=MAXSTRLEN) :: expected_message
-      character(len=:), allocatable :: message
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
       logical :: found
       integer :: status
 
-      expected_message = make_expected_message(TYPESTRING, KEY, VALUESTRING)
-      @assertFalse(is_blank(expected_message) > 0, ERROR_EXPECTED_MESSAGE_BLANK)
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call get_value(hconfig, actual, found, message, KEY, rc=status)
+      call get_value(hconfig, actual, KEY, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(expected_message, message, ERROR_MESSAGE_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
 
    end subroutine test_get_logical
 
    @Test
    subroutine test_get_string()
       character(len=*), parameter :: KEY = 'newton'
-      character(len=*), parameter :: TYPESTRING = 'CH'
-      character(len=*), parameter :: VALUESTRING = 'Fg = Gm1m2/r^2'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'CH'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = 'Fg = Gm1m2/r^2'
       character(len=*), parameter :: EXPECTED = 'Fg = Gm1m2/r^2'
       character(len=MAXSTRLEN) :: actual
-      character(len=MAXSTRLEN) :: expected_message
-      character(len=:), allocatable :: message
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
       logical :: found
       integer :: status
 
-      expected_message = make_expected_message(TYPESTRING, KEY, VALUESTRING)
-      @assertFalse(is_blank(expected_message) > 0, ERROR_EXPECTED_MESSAGE_BLANK)
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call get_value(hconfig, actual, found, message, KEY, rc=status)
+      call get_value(hconfig, actual, KEY, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(expected_message, message, ERROR_MESSAGE_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
 
    end subroutine test_get_string
 
@@ -186,21 +182,6 @@ contains
       @assertFalse(hconfig_is_created, 'HConfig was not destroyed.')
 
    end subroutine tear_down
-
-   function make_expected_message(typestring, keystring, valuestring, rankstring)&
-         result(expected_message)
-      character(len=:), allocatable :: expected_message
-      character(len=*), intent(in) :: typestring, keystring, valuestring
-      character(len=*), optional, intent(in) :: rankstring
-      character(len=*), parameter :: J_ = ', '
-
-      if(present(rankstring)) then
-         expected_message = typestring //J_// keystring //J_// valuestring //J_// rankstring
-      else
-         expected_message = typestring //J_// keystring //J_// valuestring
-      end if
-
-   end function make_expected_message
 
    function make_mismatch_error_message(actual, expected, prolog, bridge, epilog) result(error_message)
       character(len=:), allocatable :: error_message
@@ -266,12 +247,5 @@ contains
       end if
       
    end function write_valuestring
-
-   logical function is_blank(string)
-      character(len=*), intent(in) :: string
-
-      is_blank = (len_trim(string) == 0)
-
-   end function is_blank
 
 end module Test_hconfig_get
