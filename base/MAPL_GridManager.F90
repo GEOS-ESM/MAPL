@@ -515,7 +515,7 @@ contains
       logical :: hasLongitude = .FALSE.
       logical :: hasLat       = .FALSE.
       logical :: hasLatitude  = .FALSE.
-      logical :: splitByface  = .FALSE.
+      logical :: SplitCubedSphere  = .FALSE.
 
       _UNUSED_DUMMY(unused)
 
@@ -531,7 +531,7 @@ contains
       call file_formatter%close(rc=status)
       _VERIFY(status)
 
-      splitByface = file_metadata%has_attribute("Cubed_Sphere_Face_Index")
+      SplitCubedSphere = file_metadata%has_attribute("Split_Cubed_Sphere")
 
       im = 0
       hasXdim = file_metadata%has_dimension('Xdim')
@@ -567,7 +567,7 @@ contains
          if (status == _SUCCESS) then
             jm = file_metadata%get_dimension('Ydim',rc=status)
             _VERIFY(status)
-            if (jm == 6*im .or. splitByface) then
+            if (jm == 6*im .or. SplitCubedSphere) then
                allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
                if (file_metadata%has_dimension('nf')) then
@@ -589,7 +589,7 @@ contains
             end if
          end if
 
-         if (jm == 6*im .or. splitByface) then ! old-format cubed-sphere
+         if (jm == 6*im .or. SplitCubedSphere) then ! old-format cubed-sphere
             allocate(factory, source=this%make_clone('Cubed-Sphere'))
 !!$        elseif (...) then ! something that is true for tripolar?
 !!$           factory = this%make_clone('tripolar')
