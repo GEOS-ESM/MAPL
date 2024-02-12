@@ -432,7 +432,7 @@ contains
       type(VirtualConnectionPt), intent(in) :: v_pt
       class(StateItemSpec), intent(in) :: spec
       class(StateItemSpec), intent(in) :: extension
-      type(GriddedComponentDriver), optional, intent(in) :: source_coupler ! for chains of extensions
+      type(GriddedComponentDriver), optional, target, intent(in) :: source_coupler ! for chains of extensions
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -459,18 +459,22 @@ contains
       type(ActualConnectionPt), intent(in) :: extension_pt
       class(StateItemSpec), intent(in) :: src_spec
       class(StateItemSpec), intent(in) :: extension
-      type(GriddedComponentDriver), optional :: source_coupler
+      type(GriddedComponentDriver), target, optional, intent(in) :: source_coupler
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(ExtensionAction), allocatable :: action
-      type(GriddedComponentDriver) :: new_driver
+      type(GriddedComponentDriver), pointer :: new_driver
       type(ESMF_GridComp) :: new_coupler
 
       action = src_spec%make_action(extension, _RC)
       new_coupler = make_coupler(action, source_coupler, _RC)
-      new_driver = GriddedComponentDriver(new_coupler)
+      ! Need to ensure the stored copy of driver is kept and others are just pointers.
+      allocate(new_driver)
       call this%export_couplers%insert(extension_pt, new_driver)
+      deallocate(new_driver)
+      new_driver => this%export_couplers%of(extension_pt)
+      new_driver = GriddedComponentDriver(new_coupler)
       
       _RETURN(_SUCCESS)
    end subroutine add_state_extension
@@ -847,7 +851,6 @@ contains
    function get_export_couplers(this) result(export_couplers)
       type(ActualPtComponentDriverMap), pointer :: export_couplers
       class(HierarchicalRegistry), target, intent(in) :: this
-
       export_couplers => this%export_couplers
    end function get_export_couplers
       

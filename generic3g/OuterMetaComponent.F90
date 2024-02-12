@@ -234,7 +234,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_child_by_name
 
-   subroutine run_child_by_name(this, child_name, unusable, phase_name, rc)
+   recursive subroutine run_child_by_name(this, child_name, unusable, phase_name, rc)
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
       class(KE), optional, intent(in) :: unusable
@@ -259,7 +259,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
 
-   subroutine run_children_(this, unusable, phase_name, rc)
+   recursive subroutine run_children_(this, unusable, phase_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name

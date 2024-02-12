@@ -81,7 +81,7 @@ contains
    end function new_CouplerMetaComponent
 
 
-   subroutine update(this, importState, exportState, clock, rc)
+   recursive subroutine update(this, importState, exportState, clock, rc)
       class(CouplerMetaComponent), intent(inout) :: this
       type(ESMF_State), intent(inout) :: importState
       type(ESMF_State), intent(inout) :: exportState
@@ -101,7 +101,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update
 
-   subroutine update_source(this, rc)
+   recursive subroutine update_source(this, rc)
       class(CouplerMetaComponent) :: this
       integer, intent(out) :: rc
 
@@ -113,7 +113,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_source
 
-   subroutine invalidate(this, sourceState, exportState, clock, rc)
+   recursive subroutine invalidate(this, sourceState, exportState, clock, rc)
         class(CouplerMetaComponent) :: this
         type(ESMF_State) :: sourceState
         type(ESMF_State) :: exportState
@@ -131,7 +131,7 @@ contains
         _RETURN(_SUCCESS)
     end subroutine invalidate
       
-   subroutine invalidate_consumers(this, rc)
+    recursive subroutine invalidate_consumers(this, rc)
       class(CouplerMetaComponent), target :: this
       integer, intent(out) :: rc
 
@@ -147,7 +147,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine invalidate_consumers
 
-   subroutine clock_advance(this, sourceState, exportState, clock, rc)
+   recursive subroutine clock_advance(this, sourceState, exportState, clock, rc)
         class(CouplerMetaComponent), intent(inout) :: this
         type(ESMF_State), intent(inout) :: sourceState
         type(ESMF_State), intent(inout) :: exportState

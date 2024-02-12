@@ -1,11 +1,4 @@
-#define _VERIFY(status) \
-   if(status /= 0) then; \
-      call assert_that(status, is(0), location=SourceLocation(__FILE__,__LINE__)); \
-      if (anyExceptions()) return; \
-   endif
-#define _RC rc=status); _VERIFY(status
-
-#define _HERE print*,__FILE__,__LINE__
+#include "MAPL_TestErr.h"
 
 module Test_Scenarios
    use mapl3g_Generic
@@ -177,12 +170,12 @@ contains
            end associate
         end do
 
-        if (this%scenario_name == 'precision_extension') then
+!#        if (this%scenario_name == 'precision_extension') then
            call ESMF_GridCompRun(outer_gc, & 
                   importState=importState, exportState=exportState, clock=clock, &
                   userRC=user_status, _RC)
            _VERIFY(user_status)
-        end if
+!#        end if
 
       end associate
 
@@ -465,12 +458,11 @@ contains
 
       msg = description
 
-      call ESMF_StateGet(state, short_name, itemtype=itemtype)
+      itemtype = get_itemtype(state, short_name, _RC)
       if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
          rc = 0
          return
       end if
-
 
      if (.not. ESMF_HConfigIsDefined(expectations,keyString='value')) then 
          rc = 0

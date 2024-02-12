@@ -30,9 +30,9 @@ module mapl_MaplGrid
       integer                                  :: readers_comm, IOscattercomm
       integer                                  :: writers_comm, IOgathercomm
       integer                                  :: num_readers, num_writers
-      logical                                  :: write_restart_by_face = .false. ! only apply to cubed-sphere grid
+      logical                                  :: split_checkpoint = .false. ! only apply to cubed-sphere grid
+      logical                                  :: split_restart = .false. ! only apply to cubed-sphere grid
       logical                                  :: write_restart_by_oserver = .false.
-      logical                                  :: read_restart_by_face = .false. ! only apply to cubed-sphere grid
       integer, allocatable                      :: i1(:), in(:), j1(:), jn(:)
 
    contains

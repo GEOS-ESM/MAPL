@@ -39,7 +39,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine setservices
 
-   subroutine run(gc, importState, exportState, clock, rc)
+   recursive subroutine run(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -57,7 +57,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run
    
-   subroutine run_extra(gc, importState, exportState, clock, rc)
+   recursive subroutine run_extra(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -70,7 +70,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run_extra
 
-   subroutine init(gc, importState, exportState, clock, rc)
+   recursive subroutine init(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -82,7 +82,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine init
    
-   subroutine finalize(gc, importState, exportState, clock, rc)
+   recursive subroutine finalize(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
