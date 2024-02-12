@@ -58,7 +58,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
-   use hconfig3g
+   use hconfig3g, only: MAPL_HConfigGet
    use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -166,7 +166,7 @@ module mapl3g_Generic
    !  The gridcomp procedures use the pflogger associated with
    !     the gridcomp to write messages.
    interface MAPL_ResourceGet
-      module procedure :: mapl_resource_get_scalar
+      module procedure :: MAPL_HConfigGet
       module procedure :: mapl_resource_gridcomp_get_scalar
    end interface MAPL_ResourceGet
 
@@ -613,10 +613,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
-   logical function implies(p, q)
-      logical, intent(in) :: p, q
-      implies = merge(q, .TRUE.,  p)
-   end function implies
    ! Finds value given keystring. If default is present, a value is always found, and
    ! is_default indicates whether the value equals the default. default, is_default, and
    ! found are optional. If you don't pass a default, use the found flag to determine if
@@ -630,50 +626,38 @@ contains
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: MISMATCH_MSG = 'value and default are not the same_type.'
-      character(len=*), parameter :: UNSET_MSG = 'Unable to set value'
+      character(len=*), parameter :: DEFAULT_OR_VALUE_SET_MSG = 'default or value_set must be present.'
       integer :: status
-      logical :: found_ 
+      logical :: found 
       type(ESMF_HConfig) :: hconfig
       class(Logger_t), pointer :: logger
-      character(len=:), allocatable :: message
-
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
-      call MAPL_ResourceGet(hconfig, keystring, value, message, found=found_, _RC)
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
 
       if(present(default)) then
-         _ASSERT(found_ .or. same_type_as(value, default), MISMATCH_MSG)
-         if(.not. found_) value = default
-         found_ = .TRUE.
+         _ASSERT(same_type_as(value, default), MISMATCH_MSG)
       else
-         _ASSERT(found_ .or. present(value_set), UNSET_MSG)
+         _ASSERT(present(value_set), DEFAULT_OR_VALUE_SET_MSG)
       end if
 
-      if(present(value_set)) value_set = found_ 
-      if(present(logger)) then
-         call mapl_resource_logger(logger, message, _RC)
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
+         typestring=typestring, valuestring, _RC)
+
+      if(present(default)) then
+         if(.not. found) value = default
+         found = .TRUE.
       end if
 
+      call log_resource_message(logger, form_message(typestring, keystring, valuestring), _RC)
+
+      if(present(value_set)) value_set = found 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       
    end subroutine mapl_resource_gridcomp_get_scalar
 
-   subroutine mapl_resource_get_scalar(hconfig, keystring, value, message, found, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
-      character(len=*), intent(in) :: keystring
-      class(*), intent(inout) :: value
-      character(len=:), allocatable, intent(inout) :: message
-      logical, intent(out) :: found
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      call MAPL_HConfigGet(hconfig, keystring, value, message, found=found, _RC)
-
-      _RETURN(_SUCCESS)
-
-   end subroutine mapl_resource_get_scalar
-
-   subroutine mapl_resource_logger(logger, message, rc)
+   subroutine log_resource_message(logger, message, rc)
       class(Logger_t), intent(inout) :: logger
       character(len=*), intent(in) :: message
       integer, optional, intent(out) :: rc
@@ -681,11 +665,61 @@ contains
       integer :: status
 
       _ASSERT(len_trim(message) > 0, 'Log message is empty.')
-
       call logger%info(message)
-
       _RETURN(_SUCCESS)
 
-   end subroutine mapl_resource_logger
+   end subroutine log_resource_message
+
+   function form_message(typestring, keystring, valuestring) result(message)
+      character(len=:), allocatable :: message
+      character(len=*), intent(in) :: typestring
+      character(len=*), intent(in) :: keystring
+      character(len=*), intent(in) :: valuestring
+
+      message = typestring //' '// keystring //' = '// valuestring
+
+   end function form_message
+
+   function form_array_message(typestring, keystring, valuestring, valuerank, rc) result(message)
+      character(len=:), allocatable :: message
+      character(len=*), intent(in) :: typestring
+      character(len=*), intent(in) :: keystring
+      character(len=*), intent(in) :: valuestring
+      integer, intent(in) :: valuerank
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(valuerank > 0, 'Rank must be greater than 0.')
+      message = form_message(typestring, keystring //rankstring(valuerank), valuestring)
+      _RETURN(_SUCCESS)
+
+   end function form_array_message
+      
+   function rankstring(valuerank) result(string)
+      character(len=:), allocatable :: string
+      integer, intent(in) :: valuerank
+
+      string = '(:' // repeat(',:', valuerank-1) // ')'
+
+   end function rankstring
 
 end module mapl3g_Generic
+
+!   subroutine mapl_resource_get_scalar(hconfig, keystring, value, found, &
+!         unusable, typestring, valuestring, rc)
+!      type(ESMF_HConfig), intent(inout) :: hconfig
+!      character(len=*), intent(in) :: keystring
+!      class(*), intent(inout) :: value  
+!      logical, intent(out) :: found
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      character(len=:), allocatable, optional, intent(inout) :: typestring
+!      character(len=:), allocatable, optional, intent(inout) :: valuestring
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!
+!      call MAPL_HConfigGet(hconfig, keystring, value, found=found, &
+!         typestring=typestring, valuestring=valuestring, _RC)
+!      _RETURN(_SUCCESS)
+!      _UNUSED_DUMMY(unusable)
+!
+!   end subroutine mapl_resource_get_scalar

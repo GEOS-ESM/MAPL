@@ -13,7 +13,6 @@ set(srcs
 
   CoordinateAxis.F90
   CoordinateAxis_smod.F90
-  HConfigUtils.F90
 
   latlon/LonAxis.F90
   latlon/LonAxis_smod.F90
@@ -40,7 +39,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.pfio MAPL.base MAPL.shared MAPL.field_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.pfio MAPL.base MAPL.shared MAPL.field_utils GFTL::gftl-v2 MAPL.hconfig_utils
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 
