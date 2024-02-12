@@ -53,6 +53,7 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
+  use MaskSamplerGeosatMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -901,11 +902,14 @@ contains
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
-       if (rc==0) then
-          if (nline > 0) then
-             list(n)%timeseries_output = .true.
-          endif
-       endif
+       if (list(n)%sampler_spec == 'trajectory') then
+          list(n)%timeseries_output = .true.
+       end if
+!!       if (rc==0) then
+!!          if (nline > 0) then
+!!             list(n)%timeseries_output = .true.
+!!          endif
+!!       endif
 
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
@@ -1648,6 +1652,9 @@ ENDDO PARSER
        endif
        if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
           call ESMF_TimeIntervalGet(Hsampler%Frequency_epoch, s=sec, _RC)
+       end if
+       if (list(n)%sampler_spec == 'station' .OR. list(n)%sampler_spec == 'mask') then
+          sec = MAPL_nsecf(list(n)%frequency)
        end if
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
     end do
@@ -2415,6 +2422,9 @@ ENDDO PARSER
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
+          elseif (list(n)%sampler_spec == 'mask') then
+             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,_RC)
+             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3386,6 +3396,10 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
+         !! ygyu delete it
+         !! mask: use frequency
+         !!      else if (list(n)%sampler_spec == 'mask') then
+         !!         Writing(n) = ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm )
       else if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
@@ -3533,6 +3547,15 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
+         elseif (list(n)%sampler_spec == 'mask') then
+            if (list(n)%unit.eq.0) then
+               call lgr%debug('%a %a',&
+                    "Mask_data output to new file:",trim(filename(n)))
+               call list(n)%mask_sampler%close_file_handle(_RC)
+               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
@@ -3614,7 +3637,9 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         if (.not.list(n)%timeseries_output .AND. list(n)%sampler_spec /= 'station') then
+         if (.not.list(n)%timeseries_output .AND. &
+              list(n)%sampler_spec /= 'station' .AND. &
+              list(n)%sampler_spec /= 'mask') then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
             else
@@ -3641,6 +3666,9 @@ ENDDO PARSER
          if (list(n)%sampler_spec == 'station') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call list(n)%station_sampler%append_file(current_time,_RC)
+         elseif (list(n)%sampler_spec == 'mask') then
+            call ESMF_ClockGet(clock,currTime=current_time,_RC)
+            call list(n)%mask_sampler%append_file(current_time,_RC)
          endif
 
       endif OUTTIME
@@ -3708,6 +3736,17 @@ ENDDO PARSER
             call list(n)%trajectory%close_file_handle(_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
+      !! elseif (list(n)%sampler_spec == 'mask') then
+
+         !! ygyu take action
+         !  output to files
+
+         !  call list(n)%mask_sampler%find_mask(_RC)
+         !  if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
+         !     call list(n)%mask_sampler%append_file(current_time,_RC)
+         !     call list(n)%mask_sampler%close_file_handle(_RC)
+         !  end if
+
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
@@ -5262,6 +5301,8 @@ ENDDO PARSER
   ! __ for each collection: find union fields, write to collection.rcx
   ! __ note: this subroutine is called by MPI root only
   !
+  ! __ note: this subroutine is called by MPI root only
+  !
   subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
     use  MAPL_scan_pattern_in_file
     use MAPL_ObsUtilMod, only : obs_platform, union_platform
@@ -5395,15 +5436,12 @@ ENDDO PARSER
        nseg_ub=0
        do while (ios == 0)
           read (unitr, '(A)' ) line
-          con = .not.(adjustl(trim(line))=='::')
-          if (con) then
-             ngeoval = ngeoval + 1
-             call  split_string_by_space (line, length_mx, mxseg, &
-                  nseg, str_piece, status)
-             nseg_ub = max(nseg_ub, nseg)
-          else
-             exit
-          endif
+          con = (adjustl(trim(line))=='::')
+          if (con) exit
+          ngeoval = ngeoval + 1
+          call  split_string_by_space (line, length_mx, mxseg, &
+               nseg, str_piece, status)
+          nseg_ub = max(nseg_ub, nseg)
        enddo
        PLFS(k)%ngeoval = ngeoval
        PLFS(k)%nentry_name = nseg_ub
@@ -5493,13 +5531,14 @@ ENDDO PARSER
           allocate (str_piece(mxseg))
           i = index(line2, ':')
           line = adjustl ( line2(i+1:) )
-          write(6,*) 'line for obsplatforms=', trim(line)
           call split_string_by_space (line, length_mx, mxseg, &
                nplatform, str_piece, status)
 
+          !! to do: add debug
+          !!write(6,*) 'line for obsplatforms=', trim(line)
+          !!write(6,*) 'split string,  nplatform=', nplatform
+          !!write(6,*) 'nplf=', nplf
 
-          write(6,*) 'split string,  nplatform=', nplatform
-          write(6,*) 'nplf=', nplf
           !!write(6,*) 'str_piece=', str_piece(1:nplatform)
           !!do j=1, nplf
           !!   write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
@@ -5554,8 +5593,8 @@ ENDDO PARSER
           write(unitw,'(a,/)') '::'
           write(unitw,'(a)') trim(string)//'obs_files:     # table start from next line'
 
-
-          write(6,*) 'nplatform', nplatform
+          !! TODO: add debug
+          !! write(6,*) 'nplatform', nplatform
           do i2=1, nplatform
              k=map(i2)
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))

@@ -87,7 +87,7 @@ contains
        end do
     end if
     read(unit, '(a100)', IOSTAT=ios) line
-    call count_substring(line, ',', ncount)
+    call count_substring(line, ',', ncount, _RC)
     con1= (ncount>=2 .AND. ncount<=4).OR.(ncount==0)
     _ASSERT(con1, 'string sequence in Aeronet file not supported')
     if (ncount==0) then
@@ -141,26 +141,31 @@ contains
           read(unit, *) &
                sampler%station_id(i), &
                sampler%station_name(i), &
-               sampler%lats(i), &
-               sampler%lons(i)
+               sampler%lons(i), &
+               sampler%lats(i)
        elseif(seq=='AIFFF') then
           read(unit, *) &
                sampler%station_name(i), &
                sampler%station_id(i), &
-               sampler%lats(i), &
-               sampler%lons(i)
+               sampler%lons(i), &
+               sampler%lats(i)
        elseif(trim(seq)=='AFF' .OR. trim(seq)=='AFFF') then
-          read(unit, *) &
+          !!write(6,*) 'i=', i
+          line=''
+          read(unit, '(a100)')  line
+          !!write(6,*) 'line=', trim(line)
+          call CSV_read_line_with_CH_I_R(line, &
                sampler%station_name(i), &
-               sampler%lats(i), &
-               sampler%lons(i)
+               sampler%lons(i), &
+               sampler%lats(i), _RC)
           sampler%station_id(i)=i
        elseif(trim(seq)=='AFFFA') then
        ! Ex: 'ZI000067991 -22.2170   30.0000  457.0 BEITBRIDGE 67991'
           read(unit, *) &
                sampler%station_name(i), &
-               sampler%lats(i), &
-               sampler%lons(i)
+               sampler%lons(i), &
+               sampler%lats(i)
+
           sampler%station_id(i)=i
           backspace(unit)
           read(unit, '(a100)', IOSTAT=ios) line
@@ -265,6 +270,9 @@ contains
 
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
+    v = Variable(type=pFIO_STRING, dimensions='station_index')
+    call v%add_attribute('long_name','station name')
+    call this%fmd%add_variable('station_name',v)
 
 
     !__ 2. filemetadata: extract field from bundle, add_variable
@@ -401,7 +409,7 @@ contains
     character(len=*), intent(inout) :: filename  ! for ouput nc
     integer, optional, intent(out) :: rc
     type(variable) :: v
-    integer :: status
+    integer :: status, j
 
     this%ofile = trim(filename)
     v = this%time_info%define_time_variable(_RC)
@@ -416,6 +424,7 @@ contains
     call this%formatter%put_var('longitude',this%lons,_RC)
     call this%formatter%put_var('latitude',this%lats,_RC)
     call this%formatter%put_var('station_id',this%station_id,_RC)
+    call this%formatter%put_var('station_name',this%station_name,_RC)
 
     _RETURN(_SUCCESS)
   end subroutine create_file_handle
@@ -562,11 +571,13 @@ contains
   end subroutine get_file_start_time
 
   ! TODO: delete and use system utilities when available
-  Subroutine count_substring (str, t, ncount)
+  Subroutine count_substring (str, t, ncount, rc)
     character (len=*), intent(in) :: str
     character (len=*), intent(in) :: t
     integer, intent(out) :: ncount
+    integer, optional, intent(out) :: rc
     integer :: i, k, lt
+    integer :: status
     ncount=0
     k=1
     lt = len(t) - 1
@@ -576,6 +587,45 @@ contains
        ncount = ncount + 1
        k=k+i+lt
     end do
+    _RETURN(_SUCCESS)
   end subroutine count_substring
+
+
+  subroutine CSV_read_line_with_CH_I_R(line, name, lon, lat, rc)
+    character (len=*), intent(in) :: line
+    character (len=*), intent(out) :: name
+    real(kind=REAL64), intent(out) :: lon, lat
+    integer, optional, intent(out) :: rc
+    integer :: n
+    integer :: i, j, k
+    integer :: status
+
+    i=index(line, ',')
+    j=index(line(i+1:), ',')
+    _ASSERT (i>0, 'not CSV format')
+    _ASSERT (j>0, 'CSV format: find only 1 comma, should be > 1')
+    j=i+j
+
+    read(line(1:i-1), '(a100)')  name
+    k=index(line(i+1:j-1), '.')
+    if (k > 0) then
+       read(line(i+1:j-1), *) lon
+    else
+       read(line(i+1:j-1), *) i
+       lon = i
+    endif
+
+    k=index(line(j+1:), '.')
+    if (k > 0) then
+       read(line(j+1:), *) lat
+    else
+       read(line(j+1:), *) i
+       lat = i
+    endif
+
+    !!write(6,*) trim(name), lon, lat
+    _RETURN(_SUCCESS)
+
+  end subroutine CSV_read_line_with_CH_I_R
 
 end module StationSamplerMod

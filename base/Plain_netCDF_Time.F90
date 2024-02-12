@@ -245,14 +245,14 @@ contains
     real(REAL64), intent(inout) :: array(:)
     character(len=*), optional, intent(in) :: att_name
     real(REAL64), optional, intent(out) :: att_value
-    character(len=*), optional, intent(out) :: group_name    
+    character(len=*), optional, intent(out) :: group_name
     integer, optional, intent(out) :: rc
 
     integer :: status, iret
     integer :: ncid, ncid_grp, ncid_sv
-    integer :: varid    
+    integer :: varid
     real(REAL32) :: scale_factor, add_offset
-    
+
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
@@ -272,7 +272,7 @@ contains
     if(present(att_name)) then
        call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
     end if
-    
+
     call check_nc_status(nf90_close(ncid_sv), _RC)
 
     _RETURN(_SUCCESS)
@@ -287,12 +287,12 @@ contains
     character(len=*), intent(in) :: varname
     character(len=*), intent(in) :: att_name
     real(REAL64), intent(out) :: att_value
-    character(len=*), optional, intent(out) :: group_name    
+    character(len=*), optional, intent(out) :: group_name
     integer, optional, intent(out) :: rc
     integer :: status
     integer :: ncid, ncid_grp, ncid_sv
-    integer :: varid    
-    
+    integer :: varid
+
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
@@ -307,7 +307,7 @@ contains
     _RETURN(_SUCCESS)
 
   end subroutine get_att_real_netcdf
-  
+
   subroutine get_att_char_netcdf(filename, varname, att_name, att_value, group_name, rc)
     use netcdf
     implicit none
@@ -315,12 +315,12 @@ contains
     character(len=*), intent(in) :: varname
     character(len=*), intent(in) :: att_name
     character(len=*), intent(out) :: att_value
-    character(len=*), optional, intent(out) :: group_name    
+    character(len=*), optional, intent(out) :: group_name
     integer, optional, intent(out) :: rc
     integer :: status
     integer :: ncid, ncid_grp, ncid_sv
-    integer :: varid    
-    
+    integer :: varid
+
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
@@ -335,7 +335,7 @@ contains
     _RETURN(_SUCCESS)
 
   end subroutine get_att_char_netcdf
-  
+
 
   subroutine check_nc_status(status, rc)
     use netcdf
@@ -396,12 +396,12 @@ contains
     call parse_timeunit(tunit, n, time0, dt, _RC)
     dt = time - time0
 
-!    ! test
-!    write(6, '(2x,a,2x,a)') 'tunit=', trim(tunit)
-!    call ESMF_TimeGet(time, timestring=STR1, _RC)
-!    write(6, '(2x,a,2x,a)') 'time=', trim(STR1)
-!    call ESMF_TimeGet(time0, timestring=STR1, _RC)
-!    write(6, '(2x,a,2x,a)') 'time0=', trim(STR1)
+    !! test
+    !!write(6, '(2x,a,2x,a)') 'tunit=', trim(tunit)
+    !!call ESMF_TimeGet(time, timestring=STR1, _RC)
+    !!write(6, '(2x,a,2x,a)') 'time=', trim(STR1)
+    !!call ESMF_TimeGet(time0, timestring=STR1, _RC)
+    !!write(6, '(2x,a,2x,a)') 'time0=', trim(STR1)
 
     ! assume unit is second
     !
@@ -432,7 +432,6 @@ contains
     character(len=1) :: c1
     integer :: y,m,d,hour,min,sec
     integer :: isec
-    type(ESMF_Calendar) :: gregorianCalendar
 
     i=index(trim(tunit), 'since')
     s_time=trim(tunit(i+5:))
@@ -441,12 +440,17 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
-    _ASSERT(trim(s_unit) == 'seconds', "s_unit /= 'seconds' is not handled")
-    isec=n
+    if (trim(s_unit) == 'seconds') then
+       isec=n
+    elseif (trim(s_unit) == 'minutes') then
+       isec=n * 60
+    elseif (trim(s_unit) == 'hours') then
+       isec=n * 3600
+    else
+       _FAIL ('time_unit not implemented')
+    end if
 
-    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', _RC)
-    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,&
-         calendar=gregorianCalendar, _RC)
+    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,_RC)
     call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s=isec, _RC)
 
    _RETURN(_SUCCESS)
@@ -470,7 +474,6 @@ contains
     character(len=1) :: c1
     integer :: y,m,d,hour,min,sec
     integer(ESMF_KIND_I8) :: isec
-    type(ESMF_Calendar) :: gregorianCalendar
 
     i=index(trim(tunit), 'since')
     s_time=trim(tunit(i+5:))
@@ -482,17 +485,69 @@ contains
 !    write(6,*) 'y, c1, m, c1, d',  y, c1, m, c1, d
 !    write(6,*) 'hour, c1, min, c1, sec', hour, c1, min, c1, sec
 
-    _ASSERT(trim(s_unit) == 'seconds', "s_unit /= 'seconds' is not handled")
-    isec=n
+    if (trim(s_unit) == 'seconds') then
+       isec=n
+    elseif (trim(s_unit) == 'minutes') then
+       isec=n * 60
+    elseif (trim(s_unit) == 'hours') then
+       isec=n * 3600
+    else
+       _FAIL ('time_unit not implemented')
+    end if
 
-    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', _RC)
-    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,&
-         calendar=gregorianCalendar, _RC)
+    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec, _RC)
     call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s_i8=isec, _RC)
 
     _RETURN(_SUCCESS)
 
   end subroutine parse_timeunit_i8
+
+  subroutine diff_two_timeunits (tunit1, tunit2, x, rc)
+    character(len=*), intent(in) :: tunit1
+    character(len=*), intent(in) :: tunit2
+    real(ESMF_KIND_R8), intent(out) :: x
+    integer, intent(out), optional     :: rc
+
+    type(ESMF_Time) :: t1_base
+    type(ESMF_TimeInterval) :: dt1
+    type(ESMF_Time) :: t2_base
+    type(ESMF_TimeInterval) :: dt2
+    type(ESMF_TimeInterval) :: deltaT_base
+    integer(ESMF_KIND_I8) :: n1
+    integer(ESMF_KIND_I8) :: n2
+    character(len=20) :: s_unit
+    integer :: i, status, sec
+
+    n1=0; n2=0
+    call parse_timeunit (tunit1, n1, t1_base, dt1, _RC)
+    call parse_timeunit (tunit2, n2, t2_base, dt2, _RC)
+    deltaT_base = t2_base - t1_base
+
+    i=index(trim(tunit1), 'since')
+    s_unit=trim(tunit1(1:i-1))
+
+    !!    call ESMF_TimeIntervalGet(deltaT_base, s_r8=x, _RC)
+    call ESMF_TimeIntervalGet(deltaT_base, s=sec, _RC)
+    if (trim(s_unit) == 'seconds') then
+       x = sec
+       ! pass
+    elseif (trim(s_unit) == 'minutes') then
+       x = sec / 60.d0
+    elseif (trim(s_unit) == 'hours') then
+       x = sec /3600.d0
+    else
+       _FAIL ('time_unit not implemented')
+    end if
+
+    !!write(6,*) 'tunit1=', tunit1
+    !!write(6,*) 'tunit2=', tunit2
+    !!write(6,*) 'del sec', sec
+    !!write(6,*) 'del x',  x
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine diff_two_timeunits
+
+
 
 
   subroutine ESMF_time_to_two_integer(time, itime, rc)
