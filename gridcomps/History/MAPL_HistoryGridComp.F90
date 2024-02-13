@@ -905,11 +905,6 @@ contains
        if (list(n)%sampler_spec == 'trajectory') then
           list(n)%timeseries_output = .true.
        end if
-!!       if (rc==0) then
-!!          if (nline > 0) then
-!!             list(n)%timeseries_output = .true.
-!!          endif
-!!       endif
 
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
