@@ -149,11 +149,7 @@ if (NOT Baselibs_FOUND)
 
   if (NOT TARGET ESMF::ESMF)
     find_package(ESMF 8.6.0 MODULE REQUIRED)
-
     target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
-    # MAPL and GEOS use lowercase target due to historical reasons but
-    # the latest FindESMF.cmake file from ESMF produces an ESMF target.
-    add_library(esmf ALIAS ESMF::ESMF)
   endif ()
 else ()
   # This is an ESMF version test when using Baselibs which doesn't use the
