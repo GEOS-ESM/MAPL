@@ -32,38 +32,26 @@ module MaskSamplerGeosatMod
      private
      !     character(len=:), allocatable :: grid_file_name
      character(len=ESMF_MAXSTR) :: grid_file_name
-     !-- ygyu we donot need LS
-     !
      !   we need on each PET
      !     npt_mask, index_mask(1:2,npt_mask)=[i,j]
      !
      integer :: npt_mask
      integer :: npt_mask_tot
      integer, allocatable :: index_mask(:,:)
-     !
-          type(ESMF_FieldBundle) :: bundle
-          type(ESMF_FieldBundle) :: output_bundle
-     !     type(ESMF_FieldBundle) :: acc_bundle
-     !     type(ESMF_Field)       :: fieldA
-     !     type(ESMF_Field)       :: fieldB
-
+     type(ESMF_FieldBundle) :: bundle
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
      logical :: do_vertical_regrid
-     character(len=ESMF_MAXSTR)     :: ofile
      type(TimeData)           :: time_info
      type(ESMF_Clock)         :: clock
-     type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: epoch_frequency
      type(FileMetadata)       :: metadata
      type(NetCDF4_FileFormatter) :: formatter
-
-
-     integer                        :: nobs_type
+     character(len=ESMF_MAXSTR)     :: ofile
+     !
      integer                        :: nobs
      integer                        :: obs_written
-
      character(len=ESMF_MAXSTR)     :: index_name_x
      character(len=ESMF_MAXSTR)     :: index_name_y
      character(len=ESMF_MAXSTR)     :: index_name_location

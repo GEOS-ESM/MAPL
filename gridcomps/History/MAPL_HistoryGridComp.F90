@@ -3396,10 +3396,6 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
-         !! ygyu delete it
-         !! mask: use frequency
-         !!      else if (list(n)%sampler_spec == 'mask') then
-         !!         Writing(n) = ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm )
       else if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
@@ -3736,17 +3732,6 @@ ENDDO PARSER
             call list(n)%trajectory%close_file_handle(_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
-      !! elseif (list(n)%sampler_spec == 'mask') then
-
-         !! ygyu take action
-         !  output to files
-
-         !  call list(n)%mask_sampler%find_mask(_RC)
-         !  if( ESMF_AlarmIsRinging ( list(n)%mask_sampler%alarm ) ) then
-         !     call list(n)%mask_sampler%append_file(current_time,_RC)
-         !     call list(n)%mask_sampler%close_file_handle(_RC)
-         !  end if
-
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
