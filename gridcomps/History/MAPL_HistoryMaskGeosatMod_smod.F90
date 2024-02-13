@@ -120,8 +120,8 @@ contains
       end if
    end if
 
-   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
-   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
+!   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
+!   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
    this%ofile = ''
    this%obs_written = 0
@@ -181,8 +181,8 @@ contains
        integer :: ccount(2)
        integer :: tcount(2)
        integer(ESMF_KIND_I4), pointer :: farrayPtr(:,:)
-       real(ESMF_KIND_R8), pointer :: ptA(:)
-       real(ESMF_KIND_R8), pointer :: ptB(:)
+       real(ESMF_KIND_R8), pointer :: ptA(:) => NULL()
+       real(ESMF_KIND_R8), pointer :: ptB(:) => NULL()
 
        character(len=50) :: filename
        integer :: unit
@@ -239,7 +239,7 @@ contains
           call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
           call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
           call get_att_real_netcdf (fn, key_p, key_p_att, lambda0_deg, _RC)
-          lam_sat = lambda0_deg*MAPL_DEGREES_TO_RADIANS_R8
+          lam_sat = lambda0_deg * MAPL_DEGREES_TO_RADIANS_R8
 
           nx=0
           do i=1, xdim_red
@@ -261,8 +261,8 @@ contains
                 call ABI_XY_2_lonlat (x0, y0, lam_sat, lon0, lat0, mask=mask0)
                 if (mask0 > 0) then
                    nx=nx+1
-                   lons(nx) = lon0
-                   lats(nx) = lat0
+                   lons(nx) = lon0 * MAPL_RADIANS_TO_DEGREES
+                   lats(nx) = lat0 * MAPL_RADIANS_TO_DEGREES
                 end if
              end do
           end do
@@ -316,28 +316,17 @@ contains
        call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
        call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
-       call ESMF_VMBarrier (vm, _RC)
-
-       !!- debug
-       !! write(6,'(2x,a,i5,100f10.1)') 'lons_ds pet=', mypet, lons_ds(::1000)
-       !! write(6,'(2x,a,i5,100f10.1)') 'lats_ds pet=', mypet, lats_ds(::2000)
 
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
-       obs_lons = lons_ds
-       obs_lats = lats_ds
+       obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
+       obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
        nx = size ( lons_ds )
        allocate ( II(nx), JJ(nx) )
        call MPI_Barrier(mpic, status)
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call ESMF_VMBarrier (vm, _RC)
-
-       !! write(6,*) 'nx', nx
-       !!       do i=1,nx,20
-       !!          write(6,'(2x,a,i5,i10,2f12.2,10i5)') 'pet,i,lon,lat,II,JJ=', mypet,i,&
-       !!               obs_lons(i),obs_lats(i),II(i),JJ(i)
-       !!       end do
 
        !
        ! __  halo for mask
@@ -363,24 +352,9 @@ contains
           endif
        enddo
 
-! debug       
-!       write(6,'(2x,a,2x,i5)') 'pet=', mypet
-!       do j=tUB(2), tLB(2), -1
-!          write(6, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-!       end do
-
        call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_VMBarrier (vm, _RC)
-
-!       write(filename, '(i5)') mypet
-!       filename='t.'//trim(adjustl(filename))
-!       open(newunit=unit,  file=trim(filename), status='unknown', _IOSTAT)
-!       write(6,'(2x,a,2x,5i20)') 'pet,unit', mypet, unit
-!       write(unit,'(2x,a,2x,i5)') 'AF pet=', mypet
-!       do j=tUB(2), tLB(2), -1
-!          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-!       end do
 
        k=0
        do i=eLB(1), eUB(1)
@@ -415,32 +389,11 @@ contains
           end do
        end do
 
-!       !
-!       ! -- test and print mask locations
-!       !
-!       write(unit,'(2x,a,2x,i5)') 'connect pet=', mypet
-!       do j=tUB(2), tLB(2), -1
-!          write(unit, '(2x,100i5)') farrayPtr(tLB(1):tUB(1), j)
-!       end do
-!       write(unit,'(2x,a,2x,i5)') 'mask pet=', mypet
-!       do j=eUB(2), eLB(2), -1
-!          write(unit, '(2x,100i5)') mask(eLB(1):eUB(1), j)
-!       end do
-!
-!       write(6,'(2x,a,2x,7i10)')  'this%npt_mask, this%npt_mask_tot', this%npt_mask, this%npt_mask_tot
-!       write(6,'(2x,a,2x,7i10)')  'this%index_mask(1,1:N)', this%index_mask(1,::5)
-!       write(6,'(2x,a,2x,7i10)')  'this%index_mask(2,1:N)', this%index_mask(2,::5)
-!
-!       close(unit)
-!
-       
-       ! FINISH:  I have what I need
-       !          Fixed:  npt_mask  +  index_mask
-       !          I have index on each PET,
-       !          The rest is station sampler, except
-       !          regridding is replaced by
-       !          - selecting masked data on PET
-       !          - mpi_gatherV
+
+       ! ----
+       !  regridding is replaced by
+       !  - selecting masked data on PET
+       !  - mpi_gatherV
        !
 
 
@@ -458,12 +411,7 @@ contains
           lons(i) = lons_ptr (ix, jx)
           lats(i) = lats_ptr (ix, jx)
        end do
-
-       !if (mapl_am_i_root()) then
-       !   write(6,'(2x,10f8.1)')  lons(::5)
-       !   write(6,'(2x,10f8.1)')  lats(::5)
-       !   print*, 'end lons/lats'
-       !end if
+       call ESMF_VMBarrier (vm, _RC)
 
        iroot=0
        if (mapl_am_i_root()) then
@@ -730,6 +678,8 @@ module  procedure add_metadata
   module  procedure create_file_handle
     type(variable) :: v
     integer :: status, j
+    real(kind=REAL64), allocatable :: x(:)
+    integer :: nx
 
     this%ofile = trim(filename)
     v = this%time_info%define_time_variable(_RC)
@@ -743,8 +693,12 @@ module  procedure add_metadata
     call this%formatter%create(trim(filename),_RC)
     call this%formatter%write(this%metadata,_RC)
 
-    call this%formatter%put_var('longitude',this%lons,_RC)
-    call this%formatter%put_var('latitude',this%lats,_RC)
+    nx = size (this%lons)
+    allocate ( x(nx) )
+    x(:) = this%lons(:) * MAPL_RADIANS_TO_DEGREES
+    call this%formatter%put_var('longitude',x,_RC)
+    x(:) = this%lats(:) * MAPL_RADIANS_TO_DEGREES
+    call this%formatter%put_var('latitude',x,_RC)
 !    call this%formatter%put_var('mask_id',this%mask_id,_RC)
 !    call this%formatter%put_var('mask_name',this%mask_name,_RC)
 
@@ -774,7 +728,7 @@ module  procedure add_metadata
     character(len=ESMF_MAXSTR) :: tunit
     type(ESMF_time), allocatable :: esmf_time_1d(:)
     real(kind=ESMF_KIND_R8), allocatable :: rtime_1d(:)
-    
+
     var => this%metadata%get_variable('time',_RC)
     attr => var%get_attribute('units')
     ptimeUnits => attr%get_value()
