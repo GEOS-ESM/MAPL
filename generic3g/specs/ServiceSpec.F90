@@ -51,18 +51,14 @@ module mapl3g_ServiceSpec
 
 contains
 
-   function new_ServiceSpec(item_names, rc) result(spec)
+   function new_ServiceSpec(item_names) result(spec)
       type(ServiceSpec) :: spec
-      type(StringVector), optional, intent(in) :: item_names
-      integer, optional, intent(out) :: rc
+      type(StringVector), intent(in) :: item_names
 
       integer :: status
 
-      if (present(item_names)) then
-         spec%item_names = item_names
-      end if
-      
-      _RETURN(_SUCCESS)
+      spec%item_names = item_names
+
    end function new_ServiceSpec
 
    subroutine create(this, dependency_specs, rc)

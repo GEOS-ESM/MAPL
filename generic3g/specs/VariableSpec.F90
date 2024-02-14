@@ -179,11 +179,12 @@ contains
    ! This implementation ensures that an object is at least created
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
-   function make_ItemSpec(this, geom, vertical_geom, rc) result(item_spec)
+   function make_ItemSpec(this, geom, vertical_geom, registry, rc) result(item_spec)
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
+      type(HierarchicalRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -197,7 +198,7 @@ contains
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
       case (MAPL_STATEITEM_SERVICE%ot)
          allocate(ServiceSpec::item_spec)
-         item_spec = this%make_ServiceSpec(_RC)
+         item_spec = this%make_ServiceSpec(registry, _RC)
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(WildcardSpec::item_spec)
          item_spec = this%make_WildcardSpec(geom, vertical_geom,  _RC)
@@ -333,9 +334,10 @@ contains
 
    end function make_FieldSpec
 
-   function make_ServiceSpec(this, rc) result(service_spec)
+   function make_ServiceSpec(this, registry, rc) result(service_spec)
       type(ServiceSpec) :: service_spec
       class(VariableSpec), intent(in) :: this
+      type(HierarchicalRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -345,6 +347,11 @@ contains
          _RETURN(_FAILURE)
       end if
 
+!#      do i = 1, this%service_items%size()
+!#         a_pt = ActualConnectionPt(...)
+!#         list(i)%ptr => registry%get_item_spec(a_pt, _RC)
+!#      end do
+!#      service_spec = ServiceSpec(list)
       service_spec = ServiceSpec(this%service_items)
       _RETURN(_SUCCESS)
 

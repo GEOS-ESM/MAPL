@@ -524,7 +524,7 @@ contains
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-         item_spec = var_spec%make_ItemSpec(geom, vertical_geom, _RC)
+         item_spec = var_spec%make_ItemSpec(geom, vertical_geom, registry, _RC)
          dependencies = item_spec%get_dependencies(_RC)
          associate (n => dependencies%size())
            allocate(dependency_specs(n))
