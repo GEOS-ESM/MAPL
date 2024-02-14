@@ -13,6 +13,7 @@ module mapl3g_VariableSpec
    use mapl3g_ServiceSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
+   use mapl3g_ActualConnectionPt
    use mapl3g_VerticalGeom
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
@@ -334,6 +335,11 @@ contains
 
    end function make_FieldSpec
 
+   ! ------
+   ! ServiceSpec needs reference to the specs of the fields that are to be
+   ! handled by the service.   Shallow copy of these will appear in the FieldBundle in the
+   ! import state of the requesting gridcomp.
+   ! ------
    function make_ServiceSpec(this, registry, rc) result(service_spec)
       type(ServiceSpec) :: service_spec
       class(VariableSpec), intent(in) :: this
@@ -341,18 +347,24 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: units
+      integer :: i, n
+      type(StateItemSpecPtr), allocatable :: specs(:)
+      type(ActualConnectionPt) :: a_pt
 
       if (.not. valid(this)) then
          _RETURN(_FAILURE)
       end if
 
-!#      do i = 1, this%service_items%size()
-!#         a_pt = ActualConnectionPt(...)
-!#         list(i)%ptr => registry%get_item_spec(a_pt, _RC)
-!#      end do
-!#      service_spec = ServiceSpec(list)
-      service_spec = ServiceSpec(this%service_items)
+      n = this%service_items%size()
+      allocate(specs(n))
+
+      do i = 1, n
+         a_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, this%service_items%of(i)))
+         specs(i)%ptr => registry%get_item_spec(a_pt, _RC)
+      end do
+      service_spec = ServiceSpec(specs, this%service_items)
+      deallocate(specs)
+
       _RETURN(_SUCCESS)
 
    contains

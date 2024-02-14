@@ -51,8 +51,9 @@ module mapl3g_ServiceSpec
 
 contains
 
-   function new_ServiceSpec(item_names) result(spec)
+   function new_ServiceSpec(service_item_specs, item_names) result(spec)
       type(ServiceSpec) :: spec
+      type(StateItemSpecPtr), intent(in) :: service_item_specs(:)
       type(StringVector), intent(in) :: item_names
 
       integer :: status
