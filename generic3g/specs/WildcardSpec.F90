@@ -56,9 +56,8 @@ contains
    end function new_WildcardSpec
 
    ! No-op
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(WildcardSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -140,7 +139,7 @@ contains
          
          call this%matched_items%insert(actual_pt, this%reference_spec)
          spec => this%matched_items%of(actual_pt)
-         call spec%create([StateItemSpecPtr::], _RC)
+         call spec%create(_RC)
          call spec%connect_to(src_spec, actual_pt, _RC)
 
          _RETURN(ESMF_SUCCESS)

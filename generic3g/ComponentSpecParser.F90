@@ -142,7 +142,7 @@ contains
          type(ESMF_StateItem_Flag), allocatable :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
-         type(StringVector), allocatable :: service_items
+         type(StringVector) :: service_items
          integer :: status
          logical :: has_state
          logical :: has_standard_name
@@ -368,7 +368,7 @@ contains
       end subroutine to_itemtype
       
       subroutine to_service_items(service_items, attributes, rc)
-         type(StringVector), allocatable, intent(out) :: service_items
+         type(StringVector), intent(out) :: service_items
          type(ESMF_HConfig), target, intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
@@ -381,8 +381,6 @@ contains
          has_service_items = ESMF_HConfigIsDefined(attributes,keyString='items',_RC)
          _RETURN_UNLESS(has_service_items)
          
-         allocate(service_items)
-       
          seq = ESMF_HConfigCreateAt(attributes,keyString='items',_RC)
          _ASSERT(ESMF_HConfigIsSequence(seq),"items must be a sequence")
          num_items = ESMF_HConfigGetSize(seq,_RC) 

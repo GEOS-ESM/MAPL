@@ -42,14 +42,9 @@ contains
   
 
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(InvalidSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
-
-      integer :: status
-      
-      _FAIL('Attempt to use invalid spec')
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create

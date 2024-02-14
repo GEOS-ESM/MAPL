@@ -13,6 +13,7 @@ module mapl3g_VariableSpec
    use mapl3g_ServiceSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
+   use mapl3g_ActualConnectionPt
    use mapl3g_VerticalGeom
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
@@ -179,11 +180,12 @@ contains
    ! This implementation ensures that an object is at least created
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
-   function make_ItemSpec(this, geom, vertical_geom, rc) result(item_spec)
+   function make_ItemSpec(this, geom, vertical_geom, registry, rc) result(item_spec)
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
+      type(HierarchicalRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -197,7 +199,7 @@ contains
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
       case (MAPL_STATEITEM_SERVICE%ot)
          allocate(ServiceSpec::item_spec)
-         item_spec = this%make_ServiceSpec(_RC)
+         item_spec = this%make_ServiceSpec(registry, _RC)
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(WildcardSpec::item_spec)
          item_spec = this%make_WildcardSpec(geom, vertical_geom,  _RC)
@@ -333,19 +335,36 @@ contains
 
    end function make_FieldSpec
 
-   function make_ServiceSpec(this, rc) result(service_spec)
+   ! ------
+   ! ServiceSpec needs reference to the specs of the fields that are to be
+   ! handled by the service.   Shallow copy of these will appear in the FieldBundle in the
+   ! import state of the requesting gridcomp.
+   ! ------
+   function make_ServiceSpec(this, registry, rc) result(service_spec)
       type(ServiceSpec) :: service_spec
       class(VariableSpec), intent(in) :: this
+      type(HierarchicalRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: units
+      integer :: i, n
+      type(StateItemSpecPtr), allocatable :: specs(:)
+      type(ActualConnectionPt) :: a_pt
 
       if (.not. valid(this)) then
          _RETURN(_FAILURE)
       end if
 
-      service_spec = ServiceSpec(this%service_items)
+      n = this%service_items%size()
+      allocate(specs(n))
+
+      do i = 1, n
+         a_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, this%service_items%of(i)))
+         specs(i)%ptr => registry%get_item_spec(a_pt, _RC)
+      end do
+      service_spec = ServiceSpec(specs)
+      deallocate(specs)
+
       _RETURN(_SUCCESS)
 
    contains

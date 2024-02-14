@@ -63,9 +63,8 @@ contains
 
    end function new_MockItemSpec
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(MockItemSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       call this%set_created()

@@ -62,7 +62,6 @@ contains
       type(BracketSpec) :: spec_1, spec_1b, spec_2, spec_mirror
       type(ESMF_Geom) :: geom
       type(ActualConnectionPt) :: actual_pt
-      type(StateItemSpecPtr) :: dependency_specs(0)
 
       integer :: status
       type(ESMF_Grid) :: grid
@@ -95,7 +94,7 @@ contains
            ungridded_dims = UngriddedDimsSpec(), &
            standard_name='A', long_name='AA', units='barn'))
 
-      call spec_mirror%create(dependency_specs, rc=status)
+      call spec_mirror%create(rc=status)
       @assert_that(status, is(0))
       call spec_mirror%connect_to(spec_1, actual_pt, rc=status)
       @assert_that(status, is(0))

@@ -77,9 +77,8 @@ contains
    end function get_item
 
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(StateSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
