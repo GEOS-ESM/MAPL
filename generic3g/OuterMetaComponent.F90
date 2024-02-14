@@ -519,20 +519,11 @@ contains
          class(StateItemSpec), allocatable :: item_spec
          type(VirtualConnectionPt) :: virtual_pt
          integer :: i
-         type(ActualPtVector) :: dependencies
-         type(StateItemSpecPtr), allocatable :: dependency_specs(:)
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
          item_spec = var_spec%make_ItemSpec(geom, vertical_geom, registry, _RC)
-         dependencies = item_spec%get_dependencies(_RC)
-         associate (n => dependencies%size())
-           allocate(dependency_specs(n))
-           do i = 1, n
-              dependency_specs(i)%ptr =>  registry%get_item_spec(dependencies%of(i), _RC)
-           end do
-           call item_spec%create(dependency_specs, _RC)
-         end associate
+         call item_spec%create(_RC)
 
          virtual_pt = var_spec%make_virtualPt()
          call registry%add_item_spec(virtual_pt, item_spec)

@@ -146,9 +146,8 @@ contains
 !#   end function new_FieldSpec_defaults
 !#
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(FieldSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -485,7 +484,7 @@ contains
       find_mismatch: select type (dst_spec)
       type is (FieldSpec)
          allocate(extension, source=this%make_extension_safely(dst_spec))
-         call extension%create([StateItemSpecPtr::], _RC)
+         call extension%create(_RC)
       class default
          extension=this
          _FAIL('Unsupported subclass.')

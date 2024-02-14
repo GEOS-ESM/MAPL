@@ -64,11 +64,9 @@ module mapl3g_StateItemSpec
       end function I_can_connect
 
       ! Will use ESMF so cannot be PURE
-      subroutine I_create(this, dependency_specs, rc)
+      subroutine I_create(this, rc)
          import StateItemSpec
-         import StateItemSpecPtr
          class(StateItemSpec), intent(inout) :: this
-         type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
          integer, optional, intent(out) :: rc
       end subroutine I_create
 

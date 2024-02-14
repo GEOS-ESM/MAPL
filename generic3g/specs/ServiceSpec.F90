@@ -60,9 +60,8 @@ contains
 
    end function new_ServiceSpec
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(ServiceSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
