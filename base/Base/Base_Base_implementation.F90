@@ -2817,10 +2817,8 @@ contains
     II = -1
     JJ = -1
 
-    ! when npts=0 on localDE, return here
-    if (npts == 0 ) then
-      _RETURN(_SUCCESS)
-    endif
+    ! Return if no local points
+   _RETURN_IF(npts == 0)
 
     ! The edge points are assigned in the order of face 1,2,3,4,5,6
     call calculate(x,y,z,II,JJ)
