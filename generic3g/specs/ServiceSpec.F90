@@ -26,7 +26,6 @@ module mapl3g_ServiceSpec
       private
       type(ESMF_Typekind_Flag), allocatable :: typekind
       type(ESMF_FieldBundle) :: payload
-      type(StringVector) :: item_names
       type(StateItemSpecPtr), allocatable :: dependency_specs(:)
 
    contains
@@ -51,14 +50,13 @@ module mapl3g_ServiceSpec
 
 contains
 
-   function new_ServiceSpec(service_item_specs, item_names) result(spec)
+   function new_ServiceSpec(service_item_specs) result(spec)
       type(ServiceSpec) :: spec
       type(StateItemSpecPtr), intent(in) :: service_item_specs(:)
-      type(StringVector), intent(in) :: item_names
 
       integer :: status
 
-      spec%item_names = item_names
+      spec%dependency_specs = service_item_specs
 
    end function new_ServiceSpec
 
@@ -70,7 +68,6 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldBundleCreate(_RC)
-      this%dependency_specs = dependency_specs
 
       _RETURN(_SUCCESS)
    end subroutine create
@@ -84,10 +81,7 @@ contains
       integer :: i
       type(ActualConnectionPt) :: a_pt
 
-      do i = 1, this%item_names%size()
-         a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='internal', short_name=this%item_names%of(i)))
-         call dependencies%push_back(a_pt)
-      end do
+      dependencies = ActualPtVector()
 
       _RETURN(_SUCCESS)
    end function get_dependencies

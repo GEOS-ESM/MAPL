@@ -362,7 +362,7 @@ contains
          a_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, this%service_items%of(i)))
          specs(i)%ptr => registry%get_item_spec(a_pt, _RC)
       end do
-      service_spec = ServiceSpec(specs, this%service_items)
+      service_spec = ServiceSpec(specs)
       deallocate(specs)
 
       _RETURN(_SUCCESS)
