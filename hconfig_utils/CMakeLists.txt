@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.hconfig)
+esma_set_this (OVERRIDE MAPL.hconfig_utils)
 
 set(srcs
   mapl3hconfig_get.F90
