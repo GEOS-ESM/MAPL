@@ -13,6 +13,7 @@ set(srcs
 
   CoordinateAxis.F90
   CoordinateAxis_smod.F90
+  HConfigUtils.F90
 
   latlon/LonAxis.F90
   latlon/LonAxis_smod.F90

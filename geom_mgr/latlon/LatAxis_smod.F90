@@ -1,10 +1,11 @@
+#include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_LatAxis) LatAxis_smod
    use mapl_RangeMod
    use mapl_ErrorHandling
-   use hconfig3g, only: MAPL_HConfigGet
-   use esmf, only: ESMF_HConfig
+!   use hconfig3g, only: MAPL_HConfigGet
+   use esmf
    implicit none
 
    integer, parameter :: R8 = ESMF_KIND_R8
@@ -77,8 +78,12 @@ contains
       integer :: jm_world
       real(kind=R8), allocatable :: centers(:), corners(:)
       type(AxisRanges) :: ranges
+      logical :: has_jm_world
 
-      call MAPL_HConfigGet(hconfig, 'jm_world', jm_world, _RC)
+      has_jm_world = ESMF_HConfigIsDefined(hconfig, keystring='jm_world', _RC)
+      _ASSERT(has_jm_world, 'Kestring "jm_world" not found')
+!      call MAPL_HConfigGet(hconfig, 'jm_world', jm_world, _RC)
+      jm_world = ESMF_HConfigAsI4(hconfig, keystring='jm_world', _RC)
       _ASSERT(jm_world > 0, 'jm_world must be greater than 1')
 
       ranges = get_lat_range(hconfig, jm_world, _RC)
@@ -132,11 +137,14 @@ contains
       logical :: has_range
       logical :: has_pole
 
-      call MAPL_HConfigGet(hconfig, 'lat_range', t_range, found=has_range, _RC)
-      call MAPL_HConfigGet(hconfig, 'pole', pole, found=has_pole, _RC)
+      has_range = ESMF_HConfigIsDefined(hconfig, keystring='lat_range', _RC)
+!      call MAPL_HConfigGet(hconfig, 'lat_range', t_range, found=has_range, _RC) !wdb fixme deleteme 
+      has_pole = ESMF_HConfigIsDefined(hconfig, keystring='pole', _RC)
+!      call MAPL_HConfigGet(hconfig, 'pole', pole, found=has_pole, _RC) !wdb fixme deleteme 
       _ASSERT(has_range .neqv. has_pole, 'Exactly one of lat_range or pole must be defined in hconfig')
 
       if (has_range) then ! is_regional
+         t_range = ESMF_HConfigAsR4Seq(hconfig, keystring='lat_range', _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(range(1) < range(2), 'illegal lat_range')
          delta = (range(2) - range(1)) / jm_world
@@ -148,6 +156,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
+      pole = ESMF_HConfigAsString(hconfig, keystring='pole', _RC)
       select case (pole)
       case ('PE')
          delta = 180.d0 / jm_world

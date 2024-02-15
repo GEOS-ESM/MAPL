@@ -5,6 +5,7 @@ submodule (mapl3g_CoordinateAxis) CoordinateAxis_smod
    use mapl_ErrorHandling
    use gftl_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   use esmf
 
 contains
    

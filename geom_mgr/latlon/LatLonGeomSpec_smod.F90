@@ -7,8 +7,8 @@ submodule (mapl3g_LatLonGeomSpec) LatLonGeomSpec_smod
    use MAPL_RangeMod
    use MAPLBase_Mod
    use mapl_ErrorHandling
-   use hconfig3g
-   use esmf, only: ESMF_HConfig
+!   use hconfig3g
+   use esmf
    implicit none
    
 contains
@@ -73,20 +73,28 @@ contains
       integer :: status
       logical :: has_ims, has_jms, has_nx, has_ny
 
-      call MAPL_HConfigGet(hconfig, 'ims', ims, found=has_ims, _RC)
-      call MAPL_HConfigGet(hconfig, 'jms', jms, found=has_jms, _RC)
+      has_ims = ESMF_HConfigIsDefined(hconfig, keystring='ims', _RC)
+      has_jms = ESMF_HConfigIsDefined(hconfig, keystring='jms', _RC)
+!      call MAPL_HConfigGet(hconfig, 'ims', ims, found=has_ims, _RC)
+!      call MAPL_HConfigGet(hconfig, 'jms', jms, found=has_jms, _RC)
       _ASSERT(has_ims .eqv. has_jms, 'ims and jms must be both defined or both undefined')
 
       if (has_ims) then
+         ims = ESMF_HConfigAsI4Seq(hconfig, keystring='ims', _RC) 
+         jms = ESMF_HConfigAsI4Seq(hconfig, keystring='jms', _RC)
          decomp = LatLonDecomposition(ims, jms)
          _RETURN(_SUCCESS)
       end if
 
-      call MAPL_HConfigGet(hconfig, 'nx', nx, found=has_nx, _RC)
-      call MAPL_HConfigGet(hconfig, 'ny', ny, found=has_ny, _RC)
+      has_nx = ESMF_HConfigIsDefined(hconfig, keystring = 'nx', _RC)
+      has_ny = ESMF_HConfigIsDefined(hconfig, keystring = 'ny', _RC)
+!      call MAPL_HConfigGet(hconfig, 'nx', nx, found=has_nx, _RC)
+!      call MAPL_HConfigGet(hconfig, 'ny', ny, found=has_ny, _RC)
       _ASSERT(has_nx .eqv. has_ny, 'nx and ny must be both defined or both undefined')
 
       if (has_nx) then
+         nx = ESMF_HConfigAsI4(hconfig, keystring= 'nx', _RC)
+         ny = ESMF_HConfigAsI4(hconfig, keystring= 'ny', _RC)
          decomp = LatLonDecomposition(dims, topology=[nx, ny])
          _RETURN(_SUCCESS)
       end if
@@ -196,9 +204,13 @@ contains
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
       character(:), allocatable :: geom_schema
+      logical :: has_schema
 
       ! Mandatory entry: "class: latlon"
-      call MAPL_HConfigGet(hconfig, 'schema', geom_schema, found=supports, _RC)
+      has_schema = ESMF_HConfigIsDefined(hconfig, keystring = 'schema', _RC)
+      _ASSERT(has_schema, 'Keystring "schema" not found.')
+!      call MAPL_HConfigGet(hconfig, 'schema', geom_schema, found=supports, _RC)
+      geom_schema = ESMF_HConfigAsString(hconfig, keystring= 'schema', _RC)
       _RETURN_UNLESS(supports)
 
       supports = (geom_schema == 'latlon')
