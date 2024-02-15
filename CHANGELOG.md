@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Added
+- Add debug logger call to print out the name of the container being read from `ExtData.rc`
 
 ### Changed
 
