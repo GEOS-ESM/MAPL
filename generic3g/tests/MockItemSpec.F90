@@ -25,7 +25,6 @@ module MockItemSpecMod
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -90,16 +89,6 @@ contains
       
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
-
-   function get_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
-      class(MockItemSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      dependencies = ActualPtVector()
-
-      _RETURN(_SUCCESS)
-   end function get_dependencies
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(MockItemSpec), intent(inout) :: this
@@ -207,10 +196,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-
+      type(MockItemSpec) :: tmp
+      
       select type(dst_spec)
       type is (MockItemSpec)
-         extension = this%make_extension_typesafe(dst_spec, rc)
+         tmp = this%make_extension_typesafe(dst_spec, _RC)
+         allocate(extension, source=tmp)
       class default
          _FAIL('incompatible spec')
       end select
@@ -226,7 +217,7 @@ contains
 
       integer :: status
 
-      if (this%name /= src_spec%name) then
+     if (this%name /= src_spec%name) then
          extension%name = src_spec%name
          _RETURN(_SUCCESS)
       end if
@@ -238,6 +229,7 @@ contains
          end if
       end if
 
+      _RETURN(_SUCCESS)
    end function make_extension_typesafe
 
    integer function extension_cost(this, src_spec, rc) result(cost)

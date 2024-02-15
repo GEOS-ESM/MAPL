@@ -32,7 +32,6 @@ module mapl3g_ServiceSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -70,20 +69,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine create
-
-   function get_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
-      class(ServiceSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: i
-      type(ActualConnectionPt) :: a_pt
-
-      dependencies = ActualPtVector()
-
-      _RETURN(_SUCCESS)
-   end function get_dependencies
 
    subroutine allocate(this, rc)
       class(ServiceSpec), intent(inout) :: this

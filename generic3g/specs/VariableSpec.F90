@@ -16,6 +16,7 @@ module mapl3g_VariableSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_VerticalGeom
    use mapl_KeywordEnforcerMod
+   use mapl3g_ActualPtVector
    use mapl_ErrorHandling
    use mapl3g_HierarchicalRegistry
    use esmf
@@ -50,6 +51,7 @@ module mapl3g_VariableSpec
       type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
       type(HorizontalDimsSpec) :: horizontal_dims_spec ! none, geom
       type(UngriddedDimsSpec) :: ungridded_dims
+      type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
       procedure :: make_ItemSpec
@@ -57,6 +59,8 @@ module mapl3g_VariableSpec
       procedure :: make_FieldSpec
       procedure :: make_ServiceSpec
       procedure :: make_WildcardSpec
+
+      procedure :: make_dependencies
 !!$      procedure :: make_StateSpec
 !!$      procedure :: make_BundleSpec
 !!$      procedure :: initialize
@@ -72,7 +76,8 @@ contains
         state_intent, short_name, unusable, standard_name, &
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
-        bracket_size) result(var_spec)
+        bracket_size, &
+        dependencies) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -90,6 +95,7 @@ contains
       real, optional, intent(in) :: default_value
       type(StringVector), optional, intent(in) :: attributes
       integer, optional, intent(in) :: bracket_size
+      type(StringVector), optional, intent(in) :: dependencies
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -110,6 +116,7 @@ contains
       _SET_OPTIONAL(ungridded_dims)
       _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
+      _SET_OPTIONAL(dependencies)
 
    end function new_VariableSpec
 
@@ -189,6 +196,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ActualPtVector) :: dependencies
 
       select case (this%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)
@@ -212,9 +220,11 @@ contains
          _FAIL('Unsupported type.')
       end select
 
+      dependencies = this%make_dependencies(_RC)
+      call item_spec%set_dependencies(dependencies)
+
       _RETURN(_SUCCESS)
    end function make_ItemSpec
-
    
    function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
       type(BracketSpec) :: bracket_spec
@@ -363,7 +373,6 @@ contains
          specs(i)%ptr => registry%get_item_spec(a_pt, _RC)
       end do
       service_spec = ServiceSpec(specs)
-      deallocate(specs)
 
       _RETURN(_SUCCESS)
 
@@ -411,4 +420,21 @@ contains
       end function valid
    end function make_WildcardSpec
 
+   function make_dependencies(this, rc) result(dependencies)
+      type(ActualPtVector) :: dependencies
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      type(ActualConnectionPt) :: a_pt
+
+      dependencies = ActualPtVector()
+      do i = 1, this%dependencies%size()
+         a_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, this%dependencies%of(i)))
+         call dependencies%push_back(a_pt)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function make_dependencies
  end module mapl3g_VariableSpec
