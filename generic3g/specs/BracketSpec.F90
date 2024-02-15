@@ -40,7 +40,6 @@ module mapl3g_BracketSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -147,16 +146,6 @@ contains
 
    end subroutine destroy
 
-
-   function get_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
-      class(BracketSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      dependencies = ActualPtVector()
-
-      _RETURN(_SUCCESS)
-   end function get_dependencies
 
    logical function can_connect_to(this, src_spec, rc)
       class(BracketSpec), intent(in) :: this

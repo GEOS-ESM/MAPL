@@ -11,6 +11,7 @@ module mapl3g_SimpleConnection
    use mapl3g_GriddedComponentDriver
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+   use gFTL2_StringVector, only: StringVector
    use esmf
 
    implicit none
@@ -130,6 +131,7 @@ contains
 
          call find_closest_spec(dst_spec, src_specs, src_actual_pts, closest_spec=best_spec, closest_pt=best_pt, lowest_cost=lowest_cost, _RC)
          call best_spec%set_active()
+         call activate_dependencies(best_spec, src_registry, _RC)
 
          ! Now build out sequence of extensions that form a chain to
          ! dst_spec.  This includes creating couplers (handled inside
@@ -173,6 +175,25 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling
 
+   subroutine activate_dependencies(spec, registry, rc)
+      class(StateItemSpec), intent(in) :: spec
+      type(HierarchicalRegistry), target, intent(in) :: registry
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      type(ActualPtVector) :: dependencies
+      class(StateItemSpec), pointer :: dep_spec
+
+      dependencies = spec%get_dependencies()
+      do i = 1, dependencies%size()
+         dep_spec => registry%get_item_spec(dependencies%of(i), _RC)
+         call dep_spec%set_active()
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine activate_dependencies
+
    subroutine find_closest_spec(goal_spec, candidate_specs, candidate_pts, closest_spec, closest_pt, lowest_cost, rc)
       class(StateItemSpec), intent(in) :: goal_spec
       type(StateItemSpecPtr), target, intent(in) :: candidate_specs(:)
@@ -201,9 +222,10 @@ contains
             lowest_cost = cost
             closest_spec => spec
             closest_pt => candidate_pts%of(j)
-            _HERE, 'closest pt', closest_pt, ' cost is ', cost
          end if
 
       end do
+
    end subroutine find_closest_spec
+
 end module mapl3g_SimpleConnection

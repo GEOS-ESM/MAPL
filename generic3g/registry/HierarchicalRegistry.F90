@@ -181,7 +181,6 @@ contains
       type(StateItemSpecPtr), pointer :: wrap
 
       spec => null()
-
       wrap => this%actual_specs_map%at(actual_pt, _RC)
       if (associated(wrap)) spec => wrap%ptr
 

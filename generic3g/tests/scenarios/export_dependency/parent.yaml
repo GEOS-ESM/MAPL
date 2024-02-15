@@ -1,0 +1,24 @@
+mapl:
+  geom:
+    schema: latlon
+    im_world: 12
+    jm_world: 13
+    pole: PC
+    dateline: DC
+
+  children:
+    child_A:
+      sharedObj:  libsimple_leaf_gridcomp
+      setServices: setservices_
+      config_file: scenarios/export_dependency/child_A.yaml
+    child_B:
+      dso:  libsimple_leaf_gridcomp
+      config_file: scenarios/export_dependency/child_B.yaml
+
+  states: {}
+
+  connections:
+    - src_name: E1
+      dst_name: I1
+      src_comp: child_A
+      dst_comp: child_B
