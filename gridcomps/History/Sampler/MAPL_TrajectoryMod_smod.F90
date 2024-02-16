@@ -306,11 +306,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call v%add_attribute('long_name', 'dateTime')
             call this%obs(k)%metadata%add_variable(this%var_name_time,v)
 
-            v = Variable(type=PFIO_INT32,dimensions=this%index_name_x)            
+            v = Variable(type=PFIO_INT32,dimensions=this%index_name_x)
             call v%add_attribute('units', '1')
             call v%add_attribute('long_name', 'Location index in corresponding IODA file')
             call this%obs(k)%metadata%add_variable(this%location_index_name,v)
-            
+
             v = variable(type=PFIO_REAL64,dimensions=this%index_name_x)
             call v%add_attribute('units','degrees_east')
             call v%add_attribute('long_name','longitude')
@@ -501,7 +501,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          real(kind=REAL64), allocatable :: times_R8_full(:)
          real(kind=REAL64)              :: t_shift
          integer,           allocatable :: obstype_id_full(:)
-         integer,           allocatable :: location_index_ioda_full(:)         
+         integer,           allocatable :: location_index_ioda_full(:)
          integer,           allocatable :: IA_full(:)
 
          real(ESMF_KIND_R8), pointer :: ptAT(:)
@@ -559,7 +559,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          i=index(this%var_name_time_full, '/')
          this%var_name_time= this%var_name_time_full(i+1:)
          this%location_index_name = 'location_index_in_iodafile'
-         
+
          call lgr%debug('%a', 'grp_name,this%index_name_x,this%var_name_lon,this%var_name_lat,this%var_name_time')
          call lgr%debug('%a %a %a %a %a', &
               trim(grp_name),trim(this%index_name_x),trim(this%var_name_lon),&
@@ -599,7 +599,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate(lons_full(len),lats_full(len),_STAT)
                allocate(times_R8_full(len),_STAT)
                allocate(obstype_id_full(len),_STAT)
-               allocate(location_index_ioda_full(len),_STAT)               
+               allocate(location_index_ioda_full(len),_STAT)
                allocate(IA_full(len),_STAT)
                call lgr%debug('%a %i12', 'nobs from input file:', len)
                len = 0
@@ -642,7 +642,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate(this%lons(0),this%lats(0),_STAT)
             allocate(this%times_R8(0),_STAT)
             allocate(this%obstype_id(0),_STAT)
-            allocate(this%location_index_ioda(0),_STAT)            
+            allocate(this%location_index_ioda(0),_STAT)
             this%epoch_index(1:2) = 0
             this%nobs_epoch = 0
             this%nobs_epoch_sum = 0
@@ -665,7 +665,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          if (mapl_am_I_root()) then
             call sort_index (times_R8_full, IA_full, _RC)
-            call apply_order_index (location_index_ioda_full, IA_full, _RC)
+            location_index_ioda_full(:) = IA_full(:)
             ! NVHPC dies with NVFORTRAN-S-0155-Could not resolve generic procedure sort_multi_arrays_by_time
             call sort_four_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
             call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
@@ -709,7 +709,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
                allocate(this%obstype_id(0),_STAT)
-               allocate(this%location_index_ioda(0),_STAT)            
+               allocate(this%location_index_ioda(0),_STAT)
                this%epoch_index(1:2)=0
                this%nobs_epoch = 0
                nx=0
@@ -739,7 +739,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate(this%lons(nx),this%lats(nx),_STAT)
                allocate(this%times_R8(nx),_STAT)
                allocate(this%obstype_id(nx),_STAT)
-               allocate(this%location_index_ioda(nx),_STAT)               
+               allocate(this%location_index_ioda(nx),_STAT)
 
                j=this%epoch_index(1)
                do i=1, nx
@@ -747,7 +747,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   this%lats(i) = lats_full(j)
                   this%times_R8(i) = times_R8_full(j)
                   this%obstype_id(i) = obstype_id_full(j)
-                  this%location_index_ioda(i) = location_index_ioda_full(j)                  
+                  this%location_index_ioda(i) = location_index_ioda_full(j)
                   j=j+1
                enddo
                arr(1)=nx
@@ -765,7 +765,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   allocate (this%obs(k)%lons(nx2))
                   allocate (this%obs(k)%lats(nx2))
                   allocate (this%obs(k)%times_R8(nx2))
-                  allocate (this%obs(k)%location_index_ioda(nx2))                  
+                  allocate (this%obs(k)%location_index_ioda(nx2))
                enddo
 
                allocate(ix(this%nobs_type))
@@ -777,7 +777,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   this%obs(k)%lons(ix(k)) = lons_full(j)
                   this%obs(k)%lats(ix(k)) = lats_full(j)
                   this%obs(k)%times_R8(ix(k)) = times_R8_full(j)
-                  this%obs(k)%location_index_ioda(ix(k)) = location_index_ioda_full(j)                  
+                  this%obs(k)%location_index_ioda(ix(k)) = location_index_ioda_full(j)
                   !if (mod(k,10**8)==1) then
                   !   write(6,*) 'this%obs(k)%times_R8(ix(k))', this%obs(k)%times_R8(ix(k))
                   !endif
@@ -810,7 +810,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%nobs_epoch_sum = nx_sum
          call lgr%debug('%a %i20', 'nobservation points=', nx_sum)
 
-         
+
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
@@ -883,7 +883,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call this%obs(k)%file_handle%put_var(this%var_name_lat, this%obs(k)%lats, &
                        start=[is], count=[nx], _RC)
                   call this%obs(k)%file_handle%put_var(this%location_index_name, this%obs(k)%location_index_ioda, &
-                       start=[is], count=[nx], _RC)                  
+                       start=[is], count=[nx], _RC)
                end if
             end if
          enddo

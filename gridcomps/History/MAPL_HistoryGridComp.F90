@@ -5346,7 +5346,8 @@ ENDDO PARSER
     do k=1, count
        call scan_begin(unitr, 'PLATFORM.', .false.)
        backspace(unitr)
-       read(unitr, '(a)') line
+       read(unitr, '(a)', iostat=ios) line
+       _ASSERT (ios==0, 'read line failed')
        i=index(line, '.')
        j=index(line, ':')
        _ASSERT(i>1 .AND. j>1, 'keyword PLATFORM.X is not found')
@@ -5357,35 +5358,40 @@ ENDDO PARSER
        call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'index_name_x:', .false.)
        backspace(unitr)
-       read(unitr, '(a)') line
+       read(unitr, '(a)', iostat=ios) line
+       _ASSERT (ios==0, 'read line failed')
        i=index(line, ':')
        PLFS(k)%index_name_x = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'var_name_lon:', .false.)
        backspace(unitr)
-       read(unitr, '(a)') line
+       read(unitr, '(a)', iostat=ios) line
+       _ASSERT (ios==0, 'read line failed')
        i=index(line, ':')
        PLFS(k)%var_name_lon = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'var_name_lat:', .false.)
        backspace(unitr)
-       read(unitr, '(a)') line
+       read(unitr, '(a)', iostat=ios) line
+       _ASSERT (ios==0, 'read line failed')
        i=index(line, ':')
        PLFS(k)%var_name_lat = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'var_name_time:', .false.)
        backspace(unitr)
-       read(unitr, '(a)') line
+       read(unitr, '(a)', iostat=ios) line
+       _ASSERT (ios==0, 'read line failed')
        i=index(line, ':')
        PLFS(k)%var_name_time = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'file_name_template:', .false.)
        backspace(unitr)
-       read(unitr, '(a)') line
+       read(unitr, '(a)', iostat=ios) line
+       _ASSERT (ios==0, 'read line failed')
        i=index(line, ':')
        PLFS(k)%file_name_template = trim(line(i+1:))
 
@@ -5405,7 +5411,8 @@ ENDDO PARSER
     do k=1, count
        call scan_begin(unitr, 'PLATFORM.', .false.)
        backspace(unitr)
-       read(unitr, '(a)') line
+       read(unitr, '(a)', iostat=ios) line
+       _ASSERT (ios==0, 'read line failed')
        i=index(line, 'PLATFORM.')
        j=index(line, ':')
        marker=line(1:j)
@@ -5415,7 +5422,8 @@ ENDDO PARSER
        ngeoval=0
        nseg_ub=0
        do while (ios == 0)
-          read (unitr, '(A)' ) line
+          read (unitr, '(A)', iostat=ios) line
+          _ASSERT (ios==0, 'read line failed')
           con = (adjustl(trim(line))=='::')
           if (con) exit
           ngeoval = ngeoval + 1
@@ -5437,7 +5445,8 @@ ENDDO PARSER
     do k=1, count
        call scan_begin(unitr, 'PLATFORM.', .false.)
        backspace(unitr)
-       read(unitr, '(a)') line
+       read(unitr, '(a)', iostat=ios) line
+       _ASSERT (ios==0, 'read line failed')
        i=index(line, 'PLATFORM.')
        j=index(line, ':')
        marker=line(1:j)
@@ -5447,7 +5456,8 @@ ENDDO PARSER
        ios=0
        ngeoval=0
        do while (ios == 0)
-          read (unitr, '(A)', iostat = ios) line
+          read (unitr, '(A)', iostat=ios) line
+          _ASSERT (ios==0, 'read line failed')
           !! write(6,*) 'k in count, line', k, trim(line)
           con = .not.(adjustl(trim(line))=='::')
           if (con) then
@@ -5484,7 +5494,8 @@ ENDDO PARSER
        contLine = .false.
        obs_flag = .false.
        do while (.true.)
-          read(unitr, '(A)', end=1236) line
+          read(unitr, '(A)', iostat=ios, end=1236) line
+          _ASSERT (ios==0, 'read line failed')
           j = index( adjustl(line), trim(adjustl(string)) )
           match = (j == 1)
           if (match) then

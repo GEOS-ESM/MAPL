@@ -58,11 +58,6 @@ module MAPL_ObsUtilMod
      module procedure sort_four_arrays_by_time
   end interface sort_multi_arrays_by_time
 
-  interface apply_order_index
-     module procedure apply_order_index_R8
-     module procedure apply_order_index_I4
-  end interface apply_order_index
-
 contains
 
   subroutine get_obsfile_Tbracket_from_epoch(currTime, &
@@ -218,19 +213,16 @@ contains
     type(ESMF_Time), intent(in) :: time
     character(len=*), intent(out) :: datetime_units
     character(len=*), optional, intent(in) :: input_unit
-
     integer, optional, intent(out) :: rc
 
     integer :: i, len
     integer :: status
-    character(len=20) :: string
+    character(len=ESMF_MAXSTR) :: string
 
     call ESMF_timeget (time, timestring=string, _RC)
-    if (present(input_unit)) then
-       datetime_units = trim(input_unit)//' since '//trim(string)
-    else
-       datetime_units = 'seconds since '//trim(string)
-    end if
+    datetime_units = 'seconds'
+    if (present(input_unit)) datetime_units = trim(input_unit)
+    datetime_units = trim(datetime_units) // trim(string)
     !!print*, 'datetime_units:', trim(datetime_units)
 
     _RETURN(_SUCCESS)
@@ -313,27 +305,15 @@ contains
     call ESMF_TimeIntervalGet(dT1, s_r8=dT1_s, rc=status)
     call ESMF_TimeIntervalGet(dT2, s_r8=dT2_s, rc=status)
 
-    n1 = floor (dT1_s / dT0_s)
+    n1 = floor (dT1_s / dT0_s) - 1  ! downshift by 1, as filename does not guarantee accurate time
     n2 = floor (dT2_s / dT0_s)
 
 !    print*, 'ck dT0_s, dT1_s, dT2_s', dT0_s, dT1_s, dT2_s
 !    print*, '1st n1, n2', n1, n2
 
-    obsfile_Ts_index = n1 - 1   ! downshift by 1
+    obsfile_Ts_index = n1
     obsfile_Te_index = n2
-!    if ( dT2_s - n2*dT0_s < 1 ) then
-!       obsfile_Te_index = n2 - 1
-!    else
-!       obsfile_Te_index = n2
-!    end if
 
-
-    ! put back
-    n1 = obsfile_Ts_index
-    n2 = obsfile_Te_index
-
-!    print*, __LINE__, __FILE__
-!    print*, '2nd n1, n2', n1, n2
 
     !__ s2.  further test file existence
     !
@@ -757,46 +737,6 @@ contains
 
   end subroutine sort_index
 
-
-  subroutine apply_order_index_R8 (X, IA, rc)
-    use MAPL_SortMod
-    real(ESMF_KIND_R8), intent(inout) :: X(:)
-    integer, intent(in) :: IA(:)            ! index
-    integer, optional, intent(out) :: rc
-
-    integer :: i, len
-    real(ESMF_KIND_R8), allocatable :: XX(:)
-
-    _ASSERT (size(X)==size(IA), 'X and IA (its index) differ in dimension')
-    len = size (X)
-    allocate (XX(len))
-    XX(:) = X(:)
-    do i=1, len
-       X(i) = XX(IA(i))
-    enddo
-    _RETURN(_SUCCESS)
-
-  end subroutine apply_order_index_R8
-
-  subroutine apply_order_index_I4 (X, IA, rc)
-    use MAPL_SortMod
-    integer, intent(inout) :: X(:)
-    integer, intent(in) :: IA(:)            ! index
-    integer, optional, intent(out) :: rc
-
-    integer :: i, len
-    integer, allocatable :: XX(:)
-
-    _ASSERT (size(X)==size(IA), 'X and IA (its index) differ in dimension')
-    len = size (X)
-    allocate (XX(len))
-    XX(:) = X(:)
-    do i=1, len
-       X(i) = XX(IA(i))
-    enddo
-    _RETURN(_SUCCESS)
-
-  end subroutine apply_order_index_I4
 
   function copy_platform_nckeys(a, rc)
     type(obs_platform) :: copy_platform_nckeys

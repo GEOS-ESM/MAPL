@@ -577,7 +577,6 @@ contains
     integer, intent(out) :: ncount
     integer, optional, intent(out) :: rc
     integer :: i, k, lt
-    integer :: status
     ncount=0
     k=1
     lt = len(t) - 1
@@ -598,7 +597,7 @@ contains
     integer, optional, intent(out) :: rc
     integer :: n
     integer :: i, j, k
-    integer :: status
+    integer :: ios
 
     i=index(line, ',')
     j=index(line(i+1:), ',')
@@ -606,22 +605,26 @@ contains
     _ASSERT (j>0, 'CSV format: find only 1 comma, should be > 1')
     j=i+j
 
-    read(line(1:i-1), '(a100)')  name
+    read(line(1:i-1), '(a100)', iostat=ios)  name
+    _ASSERT (ios==0, 'read error')
     k=index(line(i+1:j-1), '.')
     if (k > 0) then
-       read(line(i+1:j-1), *) lon
+       read(line(i+1:j-1), *, iostat=ios) lon
     else
-       read(line(i+1:j-1), *) i
+       read(line(i+1:j-1), *, iostat=ios) i
        lon = i
     endif
+    _ASSERT (ios==0, 'read error')
+
 
     k=index(line(j+1:), '.')
     if (k > 0) then
-       read(line(j+1:), *) lat
+       read(line(j+1:), *, iostat=ios) lat
     else
-       read(line(j+1:), *) i
+       read(line(j+1:), *, iostat=ios) i
        lat = i
     endif
+    _ASSERT (ios==0, 'read error')
 
     !!write(6,*) trim(name), lon, lat
     _RETURN(_SUCCESS)

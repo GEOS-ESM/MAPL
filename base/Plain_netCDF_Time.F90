@@ -389,19 +389,9 @@ contains
     type(ESMF_Time) :: time0
     type(ESMF_TimeInterval) :: dt
 
-    character(len=ESMF_MAXSTR) :: STR1
-
-
     n=0
     call parse_timeunit(tunit, n, time0, dt, _RC)
     dt = time - time0
-
-    !! test
-    !!write(6, '(2x,a,2x,a)') 'tunit=', trim(tunit)
-    !!call ESMF_TimeGet(time, timestring=STR1, _RC)
-    !!write(6, '(2x,a,2x,a)') 'time=', trim(STR1)
-    !!call ESMF_TimeGet(time0, timestring=STR1, _RC)
-    !!write(6, '(2x,a,2x,a)') 'time0=', trim(STR1)
 
     ! assume unit is second
     !
@@ -426,33 +416,10 @@ contains
     type(ESMF_TimeInterval), intent(out) :: dt
     integer, optional, intent(out) :: rc
     integer :: status
+    integer(ESMF_KIND_I8) :: n8
 
-    integer :: i
-    character(len=ESMF_MAXSTR) :: s1, s2, s_time, s_unit
-    character(len=1) :: c1
-    integer :: y,m,d,hour,min,sec
-    integer :: isec
-
-    i=index(trim(tunit), 'since')
-    s_time=trim(tunit(i+5:))
-    s_unit=trim(tunit(1:i-1))
-    read(s_time,*) s1, s2
-    read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
-    read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
-
-    if (trim(s_unit) == 'seconds') then
-       isec=n
-    elseif (trim(s_unit) == 'minutes') then
-       isec=n * 60
-    elseif (trim(s_unit) == 'hours') then
-       isec=n * 3600
-    else
-       _FAIL ('time_unit not implemented')
-    end if
-
-    call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec,_RC)
-    call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s=isec, _RC)
-
+    n8 = n
+    call parse_timeunit(tunit, n8, t0, dt, _RC)
    _RETURN(_SUCCESS)
 
   end subroutine parse_timeunit_i4
@@ -497,15 +464,16 @@ contains
 
     call ESMF_timeSet(t0, yy=y,mm=m,dd=d,h=hour,m=min,s=sec, _RC)
     call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s_i8=isec, _RC)
-
     _RETURN(_SUCCESS)
 
   end subroutine parse_timeunit_i8
 
-  subroutine diff_two_timeunits (tunit1, tunit2, x, rc)
+
+  subroutine diff_two_timeunits (tunit1, tunit2, x, dt_esmf, rc)
     character(len=*), intent(in) :: tunit1
     character(len=*), intent(in) :: tunit2
     real(ESMF_KIND_R8), intent(out) :: x
+    type(ESMF_TimeInterval), optional, intent(out) :: dt_esmf
     integer, intent(out), optional     :: rc
 
     type(ESMF_Time) :: t1_base
@@ -522,15 +490,14 @@ contains
     call parse_timeunit (tunit1, n1, t1_base, dt1, _RC)
     call parse_timeunit (tunit2, n2, t2_base, dt2, _RC)
     deltaT_base = t2_base - t1_base
+    if (present(dt_esmf)) dt_esmf = deltaT_base
 
     i=index(trim(tunit1), 'since')
     s_unit=trim(tunit1(1:i-1))
 
-    !!    call ESMF_TimeIntervalGet(deltaT_base, s_r8=x, _RC)
     call ESMF_TimeIntervalGet(deltaT_base, s=sec, _RC)
     if (trim(s_unit) == 'seconds') then
        x = sec
-       ! pass
     elseif (trim(s_unit) == 'minutes') then
        x = sec / 60.d0
     elseif (trim(s_unit) == 'hours') then
@@ -546,8 +513,6 @@ contains
 
     _RETURN(ESMF_SUCCESS)
   end subroutine diff_two_timeunits
-
-
 
 
   subroutine ESMF_time_to_two_integer(time, itime, rc)
