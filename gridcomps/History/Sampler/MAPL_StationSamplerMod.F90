@@ -160,12 +160,12 @@ contains
                sampler%lats(i), _RC)
           sampler%station_id(i)=i
        elseif(trim(seq)=='AFFFA') then
-       ! Ex: 'ZI000067991 -22.2170   30.0000  457.0 BEITBRIDGE 67991'
+       ! NOAA GHCNd
+       ! Ex: 'CHM00054511  39.9330  116.2830   55.0    BEIJING   GSN     54511'
           read(unit, *) &
                sampler%station_name(i), &
-               sampler%lons(i), &
-               sampler%lats(i)
-
+               sampler%lats(i), &
+               sampler%lons(i)
           sampler%station_id(i)=i
           backspace(unit)
           read(unit, '(a100)', IOSTAT=ios) line
