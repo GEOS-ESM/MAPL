@@ -1,11 +1,11 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_CoordinateAxis) CoordinateAxis_smod
-!   use mapl3g_HConfigUtils
+!   use mapl3g_HConfigUtils !wdb fixme delete me
    use mapl_ErrorHandling
    use gftl_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-   use esmf
+   use esmf, only: ESMF_UtilStringLowerCase !wdb fixme Merge back in to release/MAPL-v3
 
 contains
    

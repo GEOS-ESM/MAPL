@@ -4,7 +4,7 @@
 submodule (mapl3g_LatAxis) LatAxis_smod
    use mapl_RangeMod
    use mapl_ErrorHandling
-!   use hconfig3g, only: MAPL_HConfigGet
+!   use hconfig3g, only: MAPL_HConfigGet !wdb fixme deleteme 
    use esmf
    implicit none
 

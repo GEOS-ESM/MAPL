@@ -47,17 +47,16 @@ contains
       found = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
       _RETURN_UNLESS(found .or. present(default))
 
-      ! fct(hconfig, keystring, value, found, typestring, valuestring, unusable, default, rc)
-         type(ESMF_HConfig), intent(inout) :: hconfig
-         character(len=*), intent(in) :: keystring
-         integer(kind=ESMF_KIND_I4), intent(out) :: value
-         logical, intent(inout) :: found
-         character(len=:), allocatable, intent(out) :: typestring
-         character(len=:), allocatable, intent(out) :: valuestring
-         class(KeywordEnforcer), optional, intent(in) :: unusable
-         class(*), optional, intent(in) :: default
-         integer, optional, intent(out) :: rc
-         integer :: status
+      ! fct(hconfig, keystring, value, found, typestring, valuestring, default, rc)
+!         type(ESMF_HConfig), intent(inout) :: hconfig
+!         character(len=*), intent(in) :: keystring
+!         integer(kind=ESMF_KIND_I4), intent(out) :: value
+!         logical, intent(inout) :: found
+!         character(len=:), allocatable, intent(out) :: typestring
+!         character(len=:), allocatable, intent(out) :: valuestring
+!         class(*), optional, intent(in) :: default
+!         integer, optional, intent(out) :: rc
+!         integer :: status
 
          ! found and present(default): get hconfig & compare
          ! not found and present(default): value = default & compare true
@@ -76,7 +75,6 @@ contains
          type is (integer(kind=ESMF_KIND_I4))
             select type(default)
             type is (integer(kind=ESMF_KIND_I4))
-               
                value = default
             end select
          type is (integer(kind=ESMF_KIND_I8))
