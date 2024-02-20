@@ -61,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Bypassed the I-Server reading call when there is no extdata
+
 ### Fixed
 - removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
 
