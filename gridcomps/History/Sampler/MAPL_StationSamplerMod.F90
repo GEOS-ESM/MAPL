@@ -35,6 +35,7 @@ module StationSamplerMod
      type(TimeData)                 :: time_info
      character(LEN=ESMF_MAXPATHLEN) :: ofile
      integer                        :: obs_written
+     type(MAPL_MetaComp), pointer   :: GENSTATE
    contains
      procedure                      :: add_metadata_route_handle
      procedure                      :: create_file_handle
@@ -214,8 +215,9 @@ contains
   end function new_StationSampler_readfile
 
 
-  subroutine add_metadata_route_handle (this,bundle,timeInfo,vdata,rc)
+  subroutine add_metadata_route_handle (this,gc,bundle,timeInfo,vdata,rc)
     class(StationSampler),  intent(inout)       :: this
+    type(ESMF_GridComp), intent(inout)          :: gc       ! for debug
     type(ESMF_FieldBundle), intent(in)          :: bundle
     type(TimeData),         intent(inout)       :: timeInfo
     type(VerticalData), optional, intent(inout) :: vdata
@@ -233,6 +235,8 @@ contains
     logical          :: do_vertical_regrid
     integer          :: status
     integer          :: i
+
+
 
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
@@ -320,6 +324,10 @@ contains
     this%regridder = LocStreamRegridder(grid,this%esmf_ls,_RC)
 
 
+    !__ 4. for timer
+    !
+    call MAPL_GetObjectFromGC ( gc, this%GENSTATE, _RC)
+    
     _RETURN(_SUCCESS)
   end subroutine add_metadata_route_handle
 
