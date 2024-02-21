@@ -249,6 +249,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Time)            :: currTime
          integer :: k
 
+!         if (mapl_am_i_root())  write(6,'(2x,a,10(2x,L5))') &
+!              'traj initialize_ :  present(reinitialize), reinitialize =',  &
+!              present(reinitialize), reinitialize
          if (.not. present(reinitialize)) then
             if(present(bundle))   this%bundle=bundle
             if(present(items))    this%items=items
@@ -258,6 +261,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             else
                this%vdata=VerticalData(_RC)
             end if
+            !if (mapl_am_i_root())  write(6,'(2x,a,10(2x,L5))') &
+            !      'traj initialize_ : initialize : not present '
          else
             if (reinitialize) then
                do k=1, this%nobs_type
@@ -266,6 +271,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      allocate (this%obs(k)%file_handle)
                   end if
                end do
+            !if (mapl_am_i_root())  write(6,'(2x,a,10(2x,L5))') &
+            !     'traj initialize_ : initialize : TRUE'
             end if
          end if
 
@@ -326,6 +333,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
+
+!!            print*, 'list item%xname', trim(item%xname)
+
             if (item%itemType == ItemTypeScalar) then
                call this%create_variable(item%xname,_RC)
             else if (item%itemType == ItemTypeVector) then
@@ -334,6 +344,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
             call iter%next()
          enddo
+
 
          _RETURN(_SUCCESS)
 
@@ -379,6 +390,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            do ig = 1, this%obs(k)%ngeoval
               if (trim(var_name) == trim(this%obs(k)%geoval_name(ig))) then
                  call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
+
+!!              if (mapl_am_i_root()) write(6, '(2x,a,/,10(2x,a))') &
+!!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_name(ig)', &
+!!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_name(ig))
+
+
               endif
            enddo
         enddo
@@ -904,7 +921,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
-            !!write(6, '(2x,a,2x,a)') 'item%xname', trim(item%xname)
+            if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'item%xname', trim(item%xname)
 
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)

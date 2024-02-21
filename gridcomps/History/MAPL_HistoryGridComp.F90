@@ -5298,7 +5298,7 @@ ENDDO PARSER
 
     character(len=ESMF_MAXSTR) :: HIST_CF
     integer :: n, unitr, unitw
-    logical :: match, contLine, con
+    logical :: match, contLine, con, con2
     integer :: status
 
     character (len=ESMF_MAXSTR) :: marker
@@ -5327,14 +5327,13 @@ ENDDO PARSER
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
 
-    call scan_count_match_bgn (unitr, 'PLATFORM.', count, .false.)
+    call scan_count_match_bgn (unitr, 'PLATFORM.', nplf, .false.)
     rewind(unitr)
-    call lgr%debug('%a %i8','count PLATFORM.', count)
-    if (count==0) then
+
+    if (nplf==0) then
        rc = 0
        return
     endif
-    nplf = count
     allocate (PLFS(nplf))
     allocate (map(nplf))
 
@@ -5342,8 +5341,9 @@ ENDDO PARSER
     length_mx = ESMF_MAXSTR2
     mxseg = 100
 
+
     ! __ s1. scan get  platform name + index_name_x  var_name_lat/lon/time
-    do k=1, count
+    do k=1, nplf
        call scan_begin(unitr, 'PLATFORM.', .false.)
        backspace(unitr)
        read(unitr, '(a)', iostat=ios) line
@@ -5354,7 +5354,6 @@ ENDDO PARSER
        PLFS(k)%name = line(i+1:j-1)
        marker=line(1:j)
 
-       call lgr%debug('%a %a', 'marker=', trim(marker))
        call scan_contain(unitr, marker, .true.)
        call scan_contain(unitr, 'index_name_x:', .false.)
        backspace(unitr)
@@ -5405,18 +5404,12 @@ ENDDO PARSER
     end do
 
 
-    ! __ s2.1 scan fields: get ngeoval / nentry_name = nword
+
+    ! __ s2.1 scan fields: only determine ngeoval / nentry_name = nword
     allocate (str_piece(mxseg))
     rewind(unitr)
-    do k=1, count
+    do k=1, nplf
        call scan_begin(unitr, 'PLATFORM.', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, 'PLATFORM.')
-       j=index(line, ':')
-       marker=line(1:j)
-       call scan_begin(unitr, marker, .true.)
        call scan_contain(unitr, 'geovals_fields:', .false.)
        ios=0
        ngeoval=0
@@ -5426,23 +5419,26 @@ ENDDO PARSER
           _ASSERT (ios==0, 'read line failed')
           con = (adjustl(trim(line))=='::')
           if (con) exit
-          ngeoval = ngeoval + 1
-          call  split_string_by_space (line, length_mx, mxseg, &
-               nseg, str_piece, status)
-          nseg_ub = max(nseg_ub, nseg)
+          !! print *, 'line, con', trim(line), con
+          con2= (index ( adjustl(line), '#' ) == 1)    ! skip comment line
+          if ( .not. con2 ) then
+             ngeoval = ngeoval + 1
+             call  split_string_by_space (line, length_mx, mxseg, &
+                  nseg, str_piece, status)
+             nseg_ub = max(nseg_ub, nseg)
+          end if
        enddo
        PLFS(k)%ngeoval = ngeoval
        PLFS(k)%nentry_name = nseg_ub
-!!       call lgr%debug('%a %i','ngeoval=', ngeoval)
        allocate ( PLFS(k)%field_name (nseg_ub, ngeoval) )
        PLFS(k)%field_name = ''
-!!       nentry_name = nseg_ub   ! assume the same for each field_name
+       !! print*, 'k, ngeoval, nentry_name', k, ngeoval, nseg_ub
     end do
 
 
     ! __ s2.2 scan fields: get splitted PLFS(k)%field_name
     rewind(unitr)
-    do k=1, count
+    do k=1, nplf
        call scan_begin(unitr, 'PLATFORM.', .false.)
        backspace(unitr)
        read(unitr, '(a)', iostat=ios) line
@@ -5458,29 +5454,39 @@ ENDDO PARSER
        do while (ios == 0)
           read (unitr, '(A)', iostat=ios) line
           _ASSERT (ios==0, 'read line failed')
-          !! write(6,*) 'k in count, line', k, trim(line)
-          con = .not.(adjustl(trim(line))=='::')
-          if (con) then
+          !! write(6,*) 'k in nplf, line', k, trim(line)
+          con = (adjustl(trim(line))=='::')
+          if (con) exit
+          con2= (index ( adjustl(line), '#' ) == 1)    ! skip comment line
+          if (.NOT.con2) then
              ngeoval = ngeoval + 1
              call  split_string_by_space (line, length_mx, mxseg, &
                   nseg, str_piece, status)
              do m=1, nseg
                 PLFS(k)%field_name (m, ngeoval) = trim(str_piece(m))
              end do
-          else
-             exit
           endif
        enddo
     end do
     deallocate(str_piece)
     rewind(unitr)
 
-    !!do k=1, nplf
-    !!   do i=1, ngeoval
-    !!      write(6,*) 'PLFS(k)%field_name (1:nseg, ngeoval)=', PLFS(k)%field_name (1:nseg,1)
-    !!   enddo
-    !!enddo
-    !!write(6,*) 'nlist=', nlist
+
+    call lgr%debug('%a %i8','count PLATFORM.', nplf)
+    if (mapl_am_i_root()) then
+       do k=1, nplf
+          write(6, '(10x,a,i3,a,2x,a)') 'PLFS(', k, ') =',  trim(PLFS(k)%name)
+          do i=1, size(PLFS(k)%field_name, 2)
+             line=''
+             do j=1, size(PLFS(k)%field_name, 1)
+                write(line2, '(a)')  trim(PLFS(k)%field_name(j,i))
+                line=trim(line)//trim(line2)
+             end do
+             write(6, '(24x,a)') trim(line)
+          enddo
+       enddo
+    end if
+!!    write(6,*) 'nlist=', nlist
 
 
     ! __ s3: Add more entry:  'obs_files:' and 'fields:' to rcx
@@ -5511,14 +5517,13 @@ ENDDO PARSER
           if ( index(adjustl(line), trim(string)//'ObsPlatforms:') == 1 ) then
              obs_flag =.true.
              line2 = line
-             write(6,*) 'first line for ObsPlatforms:=', trim(line)
-
+             !! write(6,*) 'first line for ObsPlatforms:=', trim(line)
           endif
        end do
 1236   continue
 
-       if (obs_flag) then
 
+       if (obs_flag) then
           allocate (str_piece(mxseg))
           i = index(line2, ':')
           line = adjustl ( line2(i+1:) )
@@ -5526,14 +5531,10 @@ ENDDO PARSER
                nplatform, str_piece, status)
 
           !! to do: add debug
-          !!write(6,*) 'line for obsplatforms=', trim(line)
-          !!write(6,*) 'split string,  nplatform=', nplatform
-          !!write(6,*) 'nplf=', nplf
-
-          !!write(6,*) 'str_piece=', str_piece(1:nplatform)
-          !!do j=1, nplf
-          !!   write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
-          !!enddo
+          !write(6,*) 'line for obsplatforms=', trim(line)
+          !write(6,*) 'split string,  nplatform=', nplatform
+          !write(6,*) 'nplf=', nplf
+          !write(6,*) 'str_piece=', str_piece(1:nplatform)
 
 
           !
