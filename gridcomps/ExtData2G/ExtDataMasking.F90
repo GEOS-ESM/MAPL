@@ -186,6 +186,7 @@ module MAPL_ExtDataMask
           enddo
        end if
        deallocate( mask)
+       call ESMF_FieldDestroy(temp_field, noGarbage=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine evaluate_region_mask
@@ -256,6 +257,7 @@ module MAPL_ExtDataMask
              where(limitS <= lats .and. lats <=limitN) var3d(:,:,i) = rvar3d(:,:,i)
           enddo
        end if
+       call ESMF_FieldDestroy(temp_field, noGarbage=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine evaluate_zone_mask
@@ -424,6 +426,7 @@ module MAPL_ExtDataMask
           end if
           deallocate(temp2d)
        end if
+       call ESMF_FieldDestroy(temp_field, noGarbage=.true., _RC)
 
        _RETURN(_SUCCESS)
   end subroutine evaluate_box_mask
