@@ -5,7 +5,7 @@ function construct_hconfig_value_LT_(default) result(this)
       select type(default)
       type is(TYPE_)
          this%default_ = default
-      end select type
+      end select
    end if
    this%typestring_ = TYPESTRING_
 end function construct_hconfig_value_LT_
