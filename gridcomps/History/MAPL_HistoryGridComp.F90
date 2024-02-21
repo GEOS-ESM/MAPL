@@ -3348,8 +3348,9 @@ ENDDO PARSER
 ! Couplers are done here for now
 !-------------------------------
 
-    call MAPL_TimerOn(GENSTATE,"Couplers")
     do n = 1, nlist
+       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
+       call MAPL_TimerOn(GENSTATE,"Couplers")
        if(Ignore(n)) cycle
        if (.not.list(n)%disabled .and. IntState%average(n)) then
           ! R8 to R4 copy (if needed!)
@@ -3367,8 +3368,9 @@ ENDDO PARSER
                                 userRC=STATUS)
           _VERIFY(STATUS)
        end if
+       call MAPL_TimerOff(GENSTATE,"Couplers")
+       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
     end do
-    call MAPL_TimerOff(GENSTATE,"Couplers")
 
 ! Check for History Output
 ! ------------------------
