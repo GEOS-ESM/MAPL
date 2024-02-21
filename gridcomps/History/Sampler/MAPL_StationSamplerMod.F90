@@ -4,6 +4,7 @@ module StationSamplerMod
   use MAPL_ErrorHandlingMod
   use LocStreamFactoryMod
   use pFIO
+  use MAPL_GenericMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
   use MAPL_BaseMod
@@ -363,6 +364,9 @@ contains
             start=[this%obs_written],count=[1],_RC)
     end if
 
+
+    call MAPL_TimerOn(this%GENSTATE,"-station:regrid")    
+
     !__ 2. put_var: ungridded_dim from src to dst [regrid]
     !
     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
@@ -373,17 +377,30 @@ contains
        call ESMF_FieldBundleGet(this%bundle,xname,field=src_field,_RC)
        call ESMF_FieldGet(src_field,rank=rank,_RC)
        if (rank==2) then
+
+          !!call MAPL_TimerOn(this%GENSTATE,"-station:regrid")
+
           call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
           dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname, &
                typekind=ESMF_TYPEKIND_R4,_RC)
           call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
           call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
+
+          !!call MAPL_TimerOff(this%GENSTATE,"-station:regrid")          
+
+          call MAPL_TimerOn(this%GENSTATE,"-station:put_var")          
           if (mapl_am_i_root()) then
              call this%formatter%put_var(xname,p_dst_2d,&
                   start=[1,this%obs_written],count=[this%nstation,1],_RC)
           end if
+          call MAPL_TimerOff(this%GENSTATE,"-station:put_var")          
+
+          
           call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
        else if (rank==3) then
+
+          !!call MAPL_TimerOn(this%GENSTATE,"-station:regrid")
+          
           call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
           call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
           if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
@@ -394,6 +411,9 @@ contains
                typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
           call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
           call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+          !! call MAPL_TimerOff(this%GENSTATE,"-station:regrid")
+          
+          call MAPL_TimerOn(this%GENSTATE,"-station:put_var")          
           if (mapl_am_i_root()) then
              nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx))
              arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
@@ -402,11 +422,16 @@ contains
              !note:     lev,station,time
              deallocate(arr)
           end if
+          call MAPL_TimerOff(this%GENSTATE,"-station:put_var")          
+          
           call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
        else
           _FAIL('grid2LS regridder: rank > 3 not implemented')
        end if
     end do
+
+    call MAPL_TimerOff(this%GENSTATE,"-station:regrid")        
+
     deallocate (fieldNameList)
     _RETURN(_SUCCESS)
   end subroutine append_file

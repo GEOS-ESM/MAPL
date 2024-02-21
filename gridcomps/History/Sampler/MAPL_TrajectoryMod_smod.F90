@@ -913,6 +913,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
                   call ESMF_FieldGet( acc_field_2d_rt, localDE=0, farrayPtr=p_acc_rt_2d, _RC)
                   call ESMF_FieldRedist( acc_field,  acc_field_2d_rt, RH, _RC)
+
+                  !
+                  ! - add timer
+                  !
+                  call MAPL_TimerOn(this%GENSTATE,"-traj:put_var")
                   if (mapl_am_i_root()) then
                      !
                      !-- pack fields to obs(k)%p2d and put_var
@@ -956,6 +961,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         deallocate (this%obs(k)%p2d)
                      enddo
                   end if
+                  call MAPL_TimerOff(this%GENSTATE,"-traj:put_var")                  
+
                else if (rank==2) then
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   call ESMF_FieldGet( acc_field_3d_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
@@ -975,6 +982,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
 
+                  call MAPL_TimerOn(this%GENSTATE,"-traj:put_var")
                   if (mapl_am_i_root()) then
                      !
                      !-- pack fields to obs(k)%p3d and put_var
@@ -1014,6 +1022,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         deallocate (this%obs(k)%p3d)
                      enddo
                   end if
+                  call MAPL_TimerOff(this%GENSTATE,"-traj:put_var")                  
                endif
             else if (item%itemType == ItemTypeVector) then
                _FAIL("ItemTypeVector not yet supported")
