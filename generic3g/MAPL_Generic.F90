@@ -614,24 +614,26 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
-   subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, found, typestring, valuestring, rc)
+   subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, found, default, typestring, valuestring, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: found
+      class(*), optional, intent(in) :: default
       character(len=:), optional, allocatable, intent(inout) :: typestring
       character(len=:), optional, allocatable, intent(inout) :: valuestring
       integer, optional, intent(out) :: rc
       integer :: status
 
       call MAPL_HConfigGet(hconfig, keystring, value, found=found, &
-         typestring=typestring, valuestring=valuestring, _RC)
+         default=default, typestring=typestring, valuestring=valuestring, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
    end subroutine mapl_resource_get_scalar
+
    ! Finds value given keystring. If default is present, a value is always found, and
    ! is_default indicates whether the value equals the default. default, is_default, and
    ! found are optional. If you don't pass a default, use the found flag to determine if
@@ -653,23 +655,24 @@ contains
       character(len=:), allocatable :: typestring
       character(len=:), allocatable :: valuestring
 
-      if(present(default)) then
-         _ASSERT(same_type_as(value, default), MISMATCH_MSG)
-      else
-         _ASSERT(present(value_set), DEFAULT_OR_VALUE_SET_MSG)
-      end if
+!      if(present(default)) then
+!         _ASSERT(same_type_as(value, default), MISMATCH_MSG)
+!      else
+!         _ASSERT(present(value_set), DEFAULT_OR_VALUE_SET_MSG)
+!      end if
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
          typestring=typestring, valuestring=valuestring, _RC)
 
-      if(present(default) .and. .not. found) then
-         found = .TRUE.
-      end if
+!      if(present(default) .and. .not. found) then
+!         found = .TRUE.
+!      end if
 
       call log_resource_message(logger, form_message(typestring, keystring, valuestring), _RC)
 
-      if(present(value_set)) value_set = found 
+      if(present(value_set)) value_set = merge(.TRUE., found, present(default))
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       
