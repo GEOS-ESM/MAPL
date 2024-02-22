@@ -14,6 +14,7 @@ module Test_mapl3hconfig_get_private
    character(len=*), parameter :: ERROR_TYPESTRING_MISMATCH = 'Typestring does not match.'
    character(len=*), parameter :: ERROR_VALUESTRING_MISMATCH = 'Valuestring does not match.'
    character, parameter :: SPACE = ' '
+   integer, parameter :: MAXSTRLEN = ESMF_MAXSTR
 
    ! instance variables
    logical :: hconfig_is_created = .FALSE.
@@ -130,7 +131,7 @@ contains
       call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
-      @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
+      @assertEquivalent(EXPECTED, actual, make_mismatch_error_message(actual, EXPECTED)) 
       @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
       @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
 
@@ -248,4 +249,4 @@ contains
       
    end function write_valuestring
 
-end module Test_hconfig_get
+end module Test_mapl3hconfig_get_private
