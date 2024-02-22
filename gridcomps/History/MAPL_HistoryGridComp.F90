@@ -3325,7 +3325,7 @@ ENDDO PARSER
    do n=1,nlist
     if(Ignore(n)) cycle
     if ( Any(list(n)%ReWrite) ) then
-     call MAPL_TimerOn(GENSTATE,"-ParserRun")
+     call MAPL_TimerOn(GENSTATE,"ParserRun")
      if( (.not.list(n)%disabled .and. IntState%average(n)) ) then
       call MAPL_RunExpression(IntState%CIM(n),list(n)%field_set%fields,list(n)%tmpfields, &
          list(n)%ReWrite,list(n)%field_set%nfields,_RC)
@@ -3334,7 +3334,7 @@ ENDDO PARSER
       call MAPL_RunExpression(IntState%GIM(n),list(n)%field_set%fields,list(n)%tmpfields, &
          list(n)%ReWrite,list(n)%field_set%nfields,_RC)
      end if
-     call MAPL_TimerOff(GENSTATE,"-ParserRun")
+     call MAPL_TimerOff(GENSTATE,"ParserRun")
     endif
    end do
 
@@ -3353,8 +3353,9 @@ ENDDO PARSER
 ! Couplers are done here for now
 !-------------------------------
 
-    call MAPL_TimerOn(GENSTATE,"--Couplers")
     do n = 1, nlist
+       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
+       call MAPL_TimerOn(GENSTATE,"Couplers")
        if(Ignore(n)) cycle
        if (.not.list(n)%disabled .and. IntState%average(n)) then
           ! R8 to R4 copy (if needed!)
@@ -3372,8 +3373,9 @@ ENDDO PARSER
                                 userRC=STATUS)
           _VERIFY(STATUS)
        end if
+       call MAPL_TimerOff(GENSTATE,"Couplers")
+       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
     end do
-    call MAPL_TimerOff(GENSTATE,"--Couplers")
 
 ! Check for History Output
 ! ------------------------
@@ -3439,6 +3441,8 @@ ENDDO PARSER
 
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
+      call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
+      call MAPL_TimerOn(GENSTATE,"SwathGen")
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
 
@@ -3465,18 +3469,18 @@ ENDDO PARSER
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
          endif
       end if
+      call MAPL_TimerOff(GENSTATE,"SwathGen")
+      call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_grid_case
 
 ! Write Id and time
 ! -----------------
 
-   call MAPL_TimerOn(GENSTATE,"--I/O")
-
-   call MAPL_TimerOn(GENSTATE,"----IO Create")
-
    if (any(writing)) call o_Clients%set_optimal_server(count(writing))
 
    OPENLOOP: do n=1,nlist
+      call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
+      call MAPL_TimerOn(GENSTATE,"IO Create")
       if( Writing(n) ) then
 
          call get_DateStamp ( clock, DateStamp=DateStamp,  &
@@ -3564,13 +3568,14 @@ ENDDO PARSER
 
       end if
 !
+      call MAPL_TimerOff(GENSTATE,"IO Create")
+      call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    enddo OPENLOOP
-   call MAPL_TimerOff(GENSTATE,"----IO Create")
 
 
-   call MAPL_TimerOn(GENSTATE,"----IO Write")
-   call MAPL_TimerOn(GENSTATE,"-----IO Post")
    POSTLOOP: do n=1,nlist
+      call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
+      call MAPL_TimerOn(GENSTATE,"IO Post")
 
       OUTTIME: if( Writing(n) ) then
 
@@ -3657,23 +3662,23 @@ ENDDO PARSER
          list(n)%unit = 0
        endif
 
+      call MAPL_TimerOff(GENSTATE,"IO Post")
+      call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    enddo POSTLOOP
 
 
+   call MAPL_TimerOn(GENSTATE,"Done Wait")
    if (any(writing)) then
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
    endif
-   call MAPL_TimerOff(GENSTATE,"-----IO Post")
-   call MAPL_TimerOff(GENSTATE,"----IO Write")
-
-   call MAPL_TimerOn(GENSTATE,"----IO Write")
-   call MAPL_TimerOn(GENSTATE,"-----IO Wait")
-
+   call MAPL_TimerOff(GENSTATE,"Done Wait")
 
   ! destroy ogrid/RH/acc_bundle, regenerate them
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
+      call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
+      call MAPL_TimerOn(GENSTATE,"Swath regen")
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
 
@@ -3686,6 +3691,8 @@ ENDDO PARSER
             if( MAPL_AM_I_ROOT() )  write(6,'(//)')
          endif
       end if
+      call MAPL_TimerOff(GENSTATE,"Swath regen")
+      call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_regen_grid
 
 
@@ -3698,14 +3705,10 @@ ENDDO PARSER
 
    enddo WAITLOOP
 
-   call MAPL_TimerOff(GENSTATE,"-----IO Wait")
-   call MAPL_TimerOff(GENSTATE,"----IO Write")
-
-   call MAPL_TimerOn(GENSTATE,"----IO Write")
-   call MAPL_TimerOn(GENSTATE,"-----IO Write")
-
    WRITELOOP: do n=1,nlist
 
+      call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
+      call MAPL_TimerOn(GENSTATE,"Write Timeseries")
       if (list(n)%timeseries_output) then
          call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
@@ -3721,12 +3724,9 @@ ENDDO PARSER
 
       end if
 
+      call MAPL_TimerOff(GENSTATE,"Write Timeseries")
+      call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    enddo WRITELOOP
-
-   call MAPL_TimerOff(GENSTATE,"-----IO Write")
-   call MAPL_TimerOff(GENSTATE,"----IO Write")
-
-   call MAPL_TimerOff(GENSTATE,"--I/O"       )
 
    if(any(Writing)) call WRITE_PARALLEL("")
 
