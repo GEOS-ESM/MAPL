@@ -26,14 +26,12 @@ module mapl3g_ServiceSpec
       private
       type(ESMF_Typekind_Flag), allocatable :: typekind
       type(ESMF_FieldBundle) :: payload
-      type(StringVector) :: item_names
       type(StateItemSpecPtr), allocatable :: dependency_specs(:)
 
    contains
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -51,49 +49,26 @@ module mapl3g_ServiceSpec
 
 contains
 
-   function new_ServiceSpec(item_names, rc) result(spec)
+   function new_ServiceSpec(service_item_specs) result(spec)
       type(ServiceSpec) :: spec
-      type(StringVector), optional, intent(in) :: item_names
-      integer, optional, intent(out) :: rc
+      type(StateItemSpecPtr), intent(in) :: service_item_specs(:)
 
       integer :: status
 
-      if (present(item_names)) then
-         spec%item_names = item_names
-      end if
-      
-      _RETURN(_SUCCESS)
+      spec%dependency_specs = service_item_specs
+
    end function new_ServiceSpec
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(ServiceSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       this%payload = ESMF_FieldBundleCreate(_RC)
-      this%dependency_specs = dependency_specs
 
       _RETURN(_SUCCESS)
    end subroutine create
-
-   function get_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
-      class(ServiceSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: i
-      type(ActualConnectionPt) :: a_pt
-
-      do i = 1, this%item_names%size()
-         a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='internal', short_name=this%item_names%of(i)))
-         call dependencies%push_back(a_pt)
-      end do
-
-      _RETURN(_SUCCESS)
-   end function get_dependencies
 
    subroutine allocate(this, rc)
       class(ServiceSpec), intent(inout) :: this

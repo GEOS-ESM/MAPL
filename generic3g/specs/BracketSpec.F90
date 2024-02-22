@@ -40,7 +40,6 @@ module mapl3g_BracketSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -70,9 +69,8 @@ contains
    end function new_BracketSpec_geom
 
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(BracketSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -149,16 +147,6 @@ contains
    end subroutine destroy
 
 
-   function get_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
-      class(BracketSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      dependencies = ActualPtVector()
-
-      _RETURN(_SUCCESS)
-   end function get_dependencies
-
    logical function can_connect_to(this, src_spec, rc)
       class(BracketSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
@@ -198,7 +186,6 @@ contains
 
       integer :: status
       integer :: i
-      type(StateItemSpecPtr) :: dependency_specs(0)
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
 
@@ -213,7 +200,7 @@ contains
            src_spec%field_specs = [(src_spec%reference_spec, i=1,n)]
            
            do i = 1, this%bracket_size
-              call this%field_specs(i)%create(dependency_specs, _RC)
+              call this%field_specs(i)%create(_RC)
               call this%field_specs(i)%connect_to(src_spec%field_specs(i), actual_pt, _RC)
            end do
          end associate

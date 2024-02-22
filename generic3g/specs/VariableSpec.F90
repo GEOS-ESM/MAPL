@@ -13,8 +13,10 @@ module mapl3g_VariableSpec
    use mapl3g_ServiceSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
+   use mapl3g_ActualConnectionPt
    use mapl3g_VerticalGeom
    use mapl_KeywordEnforcerMod
+   use mapl3g_ActualPtVector
    use mapl_ErrorHandling
    use mapl3g_HierarchicalRegistry
    use esmf
@@ -49,6 +51,7 @@ module mapl3g_VariableSpec
       type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
       type(HorizontalDimsSpec) :: horizontal_dims_spec ! none, geom
       type(UngriddedDimsSpec) :: ungridded_dims
+      type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
       procedure :: make_ItemSpec
@@ -56,6 +59,8 @@ module mapl3g_VariableSpec
       procedure :: make_FieldSpec
       procedure :: make_ServiceSpec
       procedure :: make_WildcardSpec
+
+      procedure :: make_dependencies
 !!$      procedure :: make_StateSpec
 !!$      procedure :: make_BundleSpec
 !!$      procedure :: initialize
@@ -71,7 +76,8 @@ contains
         state_intent, short_name, unusable, standard_name, &
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
-        bracket_size) result(var_spec)
+        bracket_size, &
+        dependencies) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -89,6 +95,7 @@ contains
       real, optional, intent(in) :: default_value
       type(StringVector), optional, intent(in) :: attributes
       integer, optional, intent(in) :: bracket_size
+      type(StringVector), optional, intent(in) :: dependencies
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -109,6 +116,7 @@ contains
       _SET_OPTIONAL(ungridded_dims)
       _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
+      _SET_OPTIONAL(dependencies)
 
    end function new_VariableSpec
 
@@ -179,14 +187,16 @@ contains
    ! This implementation ensures that an object is at least created
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
-   function make_ItemSpec(this, geom, vertical_geom, rc) result(item_spec)
+   function make_ItemSpec(this, geom, vertical_geom, registry, rc) result(item_spec)
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
+      type(HierarchicalRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ActualPtVector) :: dependencies
 
       select case (this%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)
@@ -197,7 +207,7 @@ contains
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
       case (MAPL_STATEITEM_SERVICE%ot)
          allocate(ServiceSpec::item_spec)
-         item_spec = this%make_ServiceSpec(_RC)
+         item_spec = this%make_ServiceSpec(registry, _RC)
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(WildcardSpec::item_spec)
          item_spec = this%make_WildcardSpec(geom, vertical_geom,  _RC)
@@ -210,9 +220,11 @@ contains
          _FAIL('Unsupported type.')
       end select
 
+      dependencies = this%make_dependencies(_RC)
+      call item_spec%set_dependencies(dependencies)
+
       _RETURN(_SUCCESS)
    end function make_ItemSpec
-
    
    function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
       type(BracketSpec) :: bracket_spec
@@ -333,19 +345,35 @@ contains
 
    end function make_FieldSpec
 
-   function make_ServiceSpec(this, rc) result(service_spec)
+   ! ------
+   ! ServiceSpec needs reference to the specs of the fields that are to be
+   ! handled by the service.   Shallow copy of these will appear in the FieldBundle in the
+   ! import state of the requesting gridcomp.
+   ! ------
+   function make_ServiceSpec(this, registry, rc) result(service_spec)
       type(ServiceSpec) :: service_spec
       class(VariableSpec), intent(in) :: this
+      type(HierarchicalRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: units
+      integer :: i, n
+      type(StateItemSpecPtr), allocatable :: specs(:)
+      type(ActualConnectionPt) :: a_pt
 
       if (.not. valid(this)) then
          _RETURN(_FAILURE)
       end if
 
-      service_spec = ServiceSpec(this%service_items)
+      n = this%service_items%size()
+      allocate(specs(n))
+
+      do i = 1, n
+         a_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, this%service_items%of(i)))
+         specs(i)%ptr => registry%get_item_spec(a_pt, _RC)
+      end do
+      service_spec = ServiceSpec(specs)
+
       _RETURN(_SUCCESS)
 
    contains
@@ -392,4 +420,21 @@ contains
       end function valid
    end function make_WildcardSpec
 
+   function make_dependencies(this, rc) result(dependencies)
+      type(ActualPtVector) :: dependencies
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      type(ActualConnectionPt) :: a_pt
+
+      dependencies = ActualPtVector()
+      do i = 1, this%dependencies%size()
+         a_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, this%dependencies%of(i)))
+         call dependencies%push_back(a_pt)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function make_dependencies
  end module mapl3g_VariableSpec

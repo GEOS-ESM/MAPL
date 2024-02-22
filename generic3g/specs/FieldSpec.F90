@@ -58,7 +58,6 @@ module mapl3g_FieldSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: get_dependencies
       procedure :: get_payload
 
       procedure :: connect_to
@@ -146,9 +145,8 @@ contains
 !#   end function new_FieldSpec_defaults
 !#
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(FieldSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -296,16 +294,6 @@ contains
          end subroutine set_field_default
             
    end subroutine allocate
-
-   function get_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
-      class(FieldSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      dependencies = ActualPtVector()
-
-      _RETURN(_SUCCESS)
-   end function get_dependencies
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(FieldSpec), intent(inout) :: this
@@ -485,7 +473,7 @@ contains
       find_mismatch: select type (dst_spec)
       type is (FieldSpec)
          allocate(extension, source=this%make_extension_safely(dst_spec))
-         call extension%create([StateItemSpecPtr::], _RC)
+         call extension%create(_RC)
       class default
          extension=this
          _FAIL('Unsupported subclass.')

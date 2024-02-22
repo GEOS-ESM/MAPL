@@ -142,12 +142,13 @@ contains
          type(ESMF_StateItem_Flag), allocatable :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
-         type(StringVector), allocatable :: service_items
+         type(StringVector) :: service_items
          integer :: status
          logical :: has_state
          logical :: has_standard_name
          logical :: has_units
          type(ESMF_HConfig) :: subcfg
+         type(StringVector) :: dependencies
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
          _RETURN_UNLESS(has_state)
@@ -181,6 +182,8 @@ contains
             call to_itemtype(itemtype, attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
+            dependencies = to_dependencies(attributes, _RC)
+
             esmf_state_intent = to_esmf_state_intent(state_intent)
              
             var_spec = VariableSpec(esmf_state_intent, short_name=short_name, &
@@ -192,7 +195,8 @@ contains
                  substate=substate, &
                  default_value=default_value, &
                  vertical_dim_spec=vertical_dim_spec, &
-                 ungridded_dims=ungridded_dim_specs &
+                 ungridded_dims=ungridded_dim_specs, &
+                 dependencies=dependencies &
                  )
 
             call var_specs%push_back(var_spec)
@@ -368,7 +372,7 @@ contains
       end subroutine to_itemtype
       
       subroutine to_service_items(service_items, attributes, rc)
-         type(StringVector), allocatable, intent(out) :: service_items
+         type(StringVector), intent(out) :: service_items
          type(ESMF_HConfig), target, intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
@@ -381,8 +385,6 @@ contains
          has_service_items = ESMF_HConfigIsDefined(attributes,keyString='items',_RC)
          _RETURN_UNLESS(has_service_items)
          
-         allocate(service_items)
-       
          seq = ESMF_HConfigCreateAt(attributes,keyString='items',_RC)
          _ASSERT(ESMF_HConfigIsSequence(seq),"items must be a sequence")
          num_items = ESMF_HConfigGetSize(seq,_RC) 
@@ -394,6 +396,33 @@ contains
          _RETURN(_SUCCESS)
       end subroutine to_service_items
       
+      function to_dependencies(attributes, rc) result(dependencies)
+         type(StringVector) :: dependencies
+         type(ESMF_HConfig), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
+         logical :: has_dependencies
+         type(ESMF_HConfig) :: dependencies_hconfig
+         integer :: i, n_dependencies
+         character(:), allocatable :: name
+
+         dependencies = StringVector()
+         has_dependencies = ESMF_HConfigIsDefined(attributes, keyString='dependencies', _RC)
+         _RETURN_UNLESS(has_dependencies)
+         
+         dependencies_hconfig = ESMF_HConfigCreateAt(attributes, keyString='dependencies', _RC)
+         _ASSERT(ESMF_HConfigIsSequence(dependencies_hconfig), 'expected sequence for attribute <dependencies>')
+         n_dependencies = ESMF_HConfigGetSize(dependencies_hconfig, _RC)
+
+         do i = 1, n_dependencies
+            name = ESMF_HConfigAsString(dependencies_hconfig, index=i, _RC)
+            call dependencies%push_back(name)
+         end do
+
+         _RETURN(_SUCCESS)
+      end function to_dependencies
+
    end function parse_var_specs
 
 

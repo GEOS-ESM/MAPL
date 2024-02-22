@@ -1437,6 +1437,15 @@ CONTAINS
 
    call lgr%debug('ExtData Run_: READ_LOOP: Done')
 
+   if (IOBundles%size() == 0) then
+      deallocate(doUpdate)
+      deallocate(useTime)
+      if (hasRun .eqv. .false.) hasRun = .true.
+      call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
+      call MAPL_TimerOff(MAPLSTATE,"Run")
+      _RETURN(ESMF_SUCCESS)
+   endif
+
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IoBundles%end())
       io_bundle => bundle_iter%get()

@@ -27,7 +27,6 @@ module mapl3g_WildcardSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -56,9 +55,8 @@ contains
    end function new_WildcardSpec
 
    ! No-op
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(WildcardSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -102,16 +100,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
 
-   function get_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
-      class(WildcardSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      dependencies = ActualPtVector()
-
-      _RETURN(_SUCCESS)
-   end function get_dependencies
-
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(WildcardSpec), intent(inout) :: this
       class(StateItemSpec), intent(inout) :: src_spec
@@ -140,7 +128,7 @@ contains
          
          call this%matched_items%insert(actual_pt, this%reference_spec)
          spec => this%matched_items%of(actual_pt)
-         call spec%create([StateItemSpecPtr::], _RC)
+         call spec%create(_RC)
          call spec%connect_to(src_spec, actual_pt, _RC)
 
          _RETURN(ESMF_SUCCESS)

@@ -81,7 +81,7 @@ contains
                allocate(import_spec, source=export_spec)
 
                ! Need new payload ... (but maybe not as it will get tossed at connect() anyway.)
-               call import_spec%create([StateItemSpecPtr::], _RC)
+               call import_spec%create(_RC)
                call registry%add_item_spec(import_v_pt, import_spec)
 
                ! And now connect

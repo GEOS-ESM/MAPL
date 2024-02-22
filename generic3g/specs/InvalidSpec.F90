@@ -25,7 +25,6 @@ module mapl3g_InvalidSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: get_dependencies
       
       procedure :: connect_to
       procedure :: can_connect_to
@@ -42,14 +41,9 @@ contains
   
 
 
-   subroutine create(this, dependency_specs, rc)
+   subroutine create(this, rc)
       class(InvalidSpec), intent(inout) :: this
-      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
-
-      integer :: status
-      
-      _FAIL('Attempt to use invalid spec')
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -78,16 +72,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
 
-
-   function get_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
-      class(InvalidSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      dependencies = ActualPtVector()
-
-      _RETURN(_SUCCESS)
-   end function get_dependencies
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(InvalidSpec), intent(inout) :: this

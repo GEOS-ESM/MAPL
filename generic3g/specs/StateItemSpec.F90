@@ -2,6 +2,7 @@
 
 module mapl3g_StateItemSpec
    use mapl_ErrorHandling
+   use mapl3g_ActualPtVector
    implicit none
    private
 
@@ -14,13 +15,13 @@ module mapl3g_StateItemSpec
       logical :: active = .false.
       logical :: created = .false.
       logical :: allocated = .false.
+      type(ActualPtVector) :: dependencies
 
    contains
 
       procedure(I_create), deferred :: create
       procedure(I_destroy), deferred :: destroy
       procedure(I_allocate), deferred :: allocate
-      procedure(I_get_dependencies), deferred :: get_dependencies
 
       procedure(I_connect), deferred :: connect_to
       procedure(I_can_connect), deferred :: can_connect_to
@@ -38,7 +39,9 @@ module mapl3g_StateItemSpec
       procedure, non_overridable :: set_active
 
       procedure :: make_action
-   end type StateItemSpec
+      procedure :: get_dependencies
+      procedure :: set_dependencies
+  end type StateItemSpec
 
    type :: StateItemSpecPtr
       class(StateItemSpec), pointer :: ptr
@@ -64,11 +67,9 @@ module mapl3g_StateItemSpec
       end function I_can_connect
 
       ! Will use ESMF so cannot be PURE
-      subroutine I_create(this, dependency_specs, rc)
+      subroutine I_create(this, rc)
          import StateItemSpec
-         import StateItemSpecPtr
          class(StateItemSpec), intent(inout) :: this
-         type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
          integer, optional, intent(out) :: rc
       end subroutine I_create
 
@@ -84,14 +85,6 @@ module mapl3g_StateItemSpec
          class(StateItemSpec), intent(inout) :: this
          integer, optional, intent(out) :: rc
       end subroutine I_allocate
-
-      function I_get_dependencies(this, rc) result(dependencies)
-         use mapl3g_ActualPtVector
-         import StateItemSpec
-         type(ActualPtVector) :: dependencies
-         class(StateItemSpec), intent(in) :: this
-         integer, optional, intent(out) :: rc
-      end function I_get_dependencies
 
       function I_make_extension(this, dst_spec, rc) result(extension)
          import StateItemSpec
@@ -202,5 +195,17 @@ contains
       action = NullAction()
       _FAIL('Subclass has not implemented make_action')
    end function make_action
+
+   function get_dependencies(this) result(dependencies)
+      type(ActualPtVector) :: dependencies
+      class(StateItemSpec), intent(in) :: this
+      dependencies = this%dependencies
+   end function get_dependencies
+
+   subroutine set_dependencies(this, dependencies)
+      class(StateItemSpec), intent(inout) :: this
+      type(ActualPtVector), intent(in):: dependencies
+      this%dependencies = dependencies
+   end subroutine set_dependencies
 
 end module mapl3g_StateItemSpec
