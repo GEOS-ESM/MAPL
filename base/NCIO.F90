@@ -329,6 +329,7 @@ module NCIOMod
 
     have_oclients = present(oClients)
 
+
     call ESMF_InfoGetFromHost(field,infoh,rc=status)
     _VERIFY(STATUS)
     call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
@@ -346,7 +347,10 @@ module NCIOMod
     _VERIFY(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
     _VERIFY(STATUS)
-    call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
+    _VERIFY(STATUS)
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
