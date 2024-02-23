@@ -24,7 +24,8 @@ contains
       integer(ESMF_KIND_I4), target :: value
       class(*), optional, intent(in) :: default
       this%value_ptr => value
-      if(present(default)) then
+      this%has_default_ = present(default)
+      if(this%has_default_) then
          select type(default)
          type is(integer(ESMF_KIND_I4))
             this%default_ = default
@@ -35,7 +36,8 @@ contains
 
    logical function value_equals_default_i4(this) result(lval)
       class(HConfigValueI4), intent(in) :: this
-      lval = merge(this%value_ptr == this%default_, .FALSE., allocated(this%default_))
+      lval = this%has_default_
+      if(lval) lval = (this%value_ptr == this%default_)
    end function value_equals_default_i4
 
    subroutine set_from_hconfig_i4(this)

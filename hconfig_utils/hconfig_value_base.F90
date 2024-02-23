@@ -10,6 +10,7 @@ module hconfig_value_base
       integer, allocatable :: last_status_
       character(len=:), allocatable :: typestring_
       logical, allocatable :: value_equals_default_
+      logical, allocatable :: has_default_
    contains
       procedure(ValueSetter), deferred :: set_from_default
       procedure(ValueSetter), deferred :: set_from_hconfig

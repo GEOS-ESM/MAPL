@@ -23,7 +23,8 @@ contains
       VTYPE, target :: value
       class(*), optional, intent(in) :: default
       this%value_ptr => value
-      if(present(default)) then
+      this%has_default_ = present(default)
+      if(this%has_default_) then
          select type(default)
          type is(VTYPE)
             this%default_ = default
@@ -34,7 +35,8 @@ contains
 
    logical function value_equals_default_UCTYPE(this) result(lval)
       class(DTYPE), intent(in) :: this
-      lval = merge(this%value_ptr == this%default_, .FALSE., allocated(this%default_))
+      lval = this%has_default_
+      if(lval) lval = (this%value_ptr == this%default_)
    end function value_equals_default_UCTYPE
 
    subroutine set_from_hconfig_UCTYPE(this)
