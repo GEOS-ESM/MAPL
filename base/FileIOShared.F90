@@ -645,7 +645,7 @@ module FileIOSharedMod
 
        nx = size(arrdes%i1)
        ny = size(arrdes%j1)
-       _ASSERT(num_readers < ny,'num readers must be less than NY')
+       _ASSERT(num_readers <= ny,'num readers must be less than or equal to NY')
        _ASSERT(mod(ny,num_readers)==0,'num readers must evenly divide NY')
 
        call mpi_comm_rank(full_comm,myid, _IERROR)

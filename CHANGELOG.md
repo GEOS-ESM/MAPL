@@ -58,14 +58,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add per-collection timer output for History
 - Add python utilities to split and recombine restarts
 - Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer wit the base checkpoint name being a control file that tells how many files were written to. On reading if this control file is provided as the restart file name, it will automatically trigger reading the individual files
-- implemented a new algorthm to read tile files
+- Implemented a new algorthm to read tile files
 
 ### Changed
 
 - Bypassed the I-Server reading call when there is no extdata
 
 ### Fixed
-- removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
+
+- Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
+- Fixes to allow SCM model to run
 
 ### Removed
 
