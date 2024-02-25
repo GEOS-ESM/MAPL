@@ -228,9 +228,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             _ASSERT(j>0, '% is not found,  template is wrong')
             traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
          end do
-
+         
          _RETURN(_SUCCESS)
-
 
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)

@@ -3689,7 +3689,7 @@ ENDDO PARSER
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
-         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
 
             key_grid_label = list(n)%output_grid_label
             call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
@@ -3725,7 +3725,9 @@ ENDDO PARSER
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%close_file_handle(_RC)
-            call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+            if ( .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
+               call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+            end if
          end if
       end if
 
