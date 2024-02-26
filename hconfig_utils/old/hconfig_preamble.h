@@ -14,5 +14,4 @@
 #undef TYPESTR
 #endif
 
-#define CONCAT(A_, B_) A_B_
-#define M
+#define CONCAT(A, B) A##B

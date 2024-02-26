@@ -1,25 +1,26 @@
-#include "hconfig_procedure_template.h"
-
    use hconfig_value_base
    implicit none
+
+   private
+   public :: DTYPE_
 
    type, extends(HConfigValue) :: DTYPE
      VTYPE, pointer :: value_ptr
      VTYPE, allocatable :: default_
    contains
-     module procedure :: set_from_hconfig => SET_HCONFIG_
-     module procedure :: set_from_default => SET_DEF_
-     module procedure :: value_equals_default => VAL_EQ_DEF_
-     module procedure :: get_valuestring => GET_VALSTRING_
+     module procedure :: set_from_hconfig
+     module procedure :: set_from_default
+     module procedure :: value_equals_default
+     module procedure :: get_valuestring
    end type DTYPE
 
    interface DTYPE
-     module procedure :: CONSTRUCT_HCONFIGVAL_
+     module procedure :: construct_hconfig
    end interface DTYPE
 
 contains
 
-   function CONSTRUCT_HCONFIGVAL_(value, default) result(this)
+   function construct_hconfig(value, default) result(this)
       type(DTYPE) :: this
       VTYPE, target :: value
       class(*), optional, intent(in) :: default
@@ -32,27 +33,27 @@ contains
          end select
       end if
       this%typestring_ = TYPESTR
-   end function CONSTRUCT_HCONFIGVAL_
+   end function construct_hconfig
 
-   logical function VAL_EQ_DEF_(this) result(lval)
+   logical function value_equals_default(this) result(lval)
       class(DTYPE), intent(in) :: this
       lval = this%has_default_
       if(lval) lval = (this%value_ptr == this%default_)
-   end function VAL_EQ_DEF_
+   end function value_equals_default
 
-   subroutine SET_HCONFIG_(this)
+   subroutine set_from_hconfig(this)
       class(DTYPE), intent(inout) :: this
       integer :: status
-      this%value_ptr = HCONFIG_AS_(this)
+      this%value_ptr = ESMF_HCONFIG_AS_(this)
       this%last_status_ = status
-   end subroutine SET_HCONFIG_
+   end subroutine set_from_hconfig
 
-   subroutine SET_DEF_(this)
+   subroutine set_from_default(this)
       class(DTYPE), intent(inout) :: this
       this%value_ptr = this%default_
-   end subroutine SET_DEF_
+   end subroutine set_from_default
 
-   subroutine GET_VALSTRING_(this, string)
+   subroutine get_valuestring(this, string)
       character(len=*), parameter :: FMT = TFMT
       class(DTYPE), intent(inout) :: this
       character(len=:), allocatable, intent(out) :: string
@@ -61,5 +62,4 @@ contains
       write(raw, fmt=FMT, iostat=ios) this%value_ptr
       this%last_status_ = ios
       if(ios == 0) string = trim(adjustl(raw))
-   end subroutine GET_VALSTRING_
-
+   end subroutine get_valuestring

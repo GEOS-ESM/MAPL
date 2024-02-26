@@ -1,0 +1,94 @@
+!   subroutine construct_hconfig_value(hconfig, keystring, value, hconfig_value, default, rc)
+!      type(ESMF_HConfig), intent(inout) :: hconfig
+!      character(len=*), intent(in) :: keystring
+!      class(*), intent(inout) :: value
+!      class(HConfigValue) :: hconfig_value
+!      class(*), optional, intent(in) :: default
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      
+!      if(present(default) then
+!         _ASSERT(same_type_as(value, default), 'value and default are not the same type.')
+!      end if
+!
+!      select type(value)
+!      type is (integer(kind=ESMF_KIND_I4))
+!         hconfig_value = make_hconfigI4(value, default)
+
+!   subroutine set_value(this, hconfig, hconfig_sub, default_sub, keystring, rc)
+!      class(HConfigValueI4), intent(in) :: this
+!      type(ESMF_HConfig), intent(inout) :: hconfig
+!      procedure :: hconfig_sub
+!      procedure :: default_sub
+!      character(len=*), intent(in) :: keystring
+!      if(present(default)) then
+!         select type(value)
+!         type is (integer(kind=ESMF_KIND_I4))
+!            select type(default)
+!            type is (integer(kind=ESMF_KIND_I4))
+!               value = default
+!            end select
+!         type is (integer(kind=ESMF_KIND_I8))
+!            select type(default)
+!            type is (integer(kind=ESMF_KIND_I8))
+!               value = default
+!            end select
+!         type is (real(kind=ESMF_KIND_R4))
+!            select type(default)
+!            type is (integer(kind=ESMF_KIND_R4))
+!               value = default
+!            end select
+!         type is (real(kind=ESMF_KIND_R8))
+!            select type(default)
+!            type is (integer(kind=ESMF_KIND_R8))
+!               value = default
+!            end select
+!         type is (logical)
+!            select type(default)
+!            type is (logical)
+!               value = default
+!            end select
+!         type is (character(len=*))
+!            select type(default)
+!            type is (character(len=*))
+!               value = default
+!            end select
+!         class default
+!            _FAIL('Unsupported type for conversion')
+!         end select
+!      else
+!         select type(value)
+!         type is (integer(kind=ESMF_KIND_I4))
+!            value = ESMF_HConfigAsI4(hconfig, keyString=keystring, _RC)
+!            write(rawstring, fmt='(I12)', iostat=ios) value
+!            typestring_ = TYPESTRING_I4
+!         type is (integer(kind=ESMF_KIND_I8))
+!            value = ESMF_HConfigAsI8(hconfig, keyString=keystring, _RC)
+!            write(rawstring, fmt='(I22)', iostat=ios) value
+!            typestring_ = TYPESTRING_I8
+!         type is (real(kind=ESMF_KIND_R4))
+!            value = ESMF_HConfigAsR4(hconfig, keyString=keystring, _RC)
+!            write(rawstring, fmt='(G17.8)', iostat=ios) value
+!            typestring_ = TYPESTRING_R4
+!         type is (real(kind=ESMF_KIND_R8))
+!            value = ESMF_HConfigAsR8(hconfig, keyString=keystring, _RC)
+!            write(rawstring, fmt='(G24.16)', iostat=ios) value
+!            typestring_ = TYPESTRING_R8
+!         type is (logical)
+!            value = ESMF_HConfigAsLogical(hconfig, keyString=keystring, _RC)
+!            write(rawstring, fmt='(L1)', iostat=ios) value
+!            typestring_ = TYPESTRING_L
+!         type is (character(len=*))
+!            value = ESMF_HConfigAsString(hconfig, keyString=keystring, _RC)
+!            rawstring = value
+!            typestring_ = TYPESTRING_CH
+!         class default
+!            _FAIL('Unsupported type for conversion')
+!         end select
+!      end if
+!
+!      _ASSERT(ios == 0, 'Failed to write value to rawstring')
+!      valuestring_ = trim(adjustl(rawstring))
+!      _ASSERT(len(valuestring) > 0, 'valuestring is empty.')
+!      if(present(valuestring)) valuestring = valuestring_
+!      if(present(typestring)) typestring = typestring_
