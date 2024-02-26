@@ -314,7 +314,7 @@ module NCIOMod
     integer                            :: J,K
     type (ESMF_DistGrid)               :: distGrid
     type (LocalMemReference) :: lMemRef
-    type (LocalMemReference) :: lMemRef_vec(6)
+    type (LocalMemReference), allocatable :: lMemRef_vec(:)
     integer :: size_1d
     logical :: have_oclients
     character(len=:), allocatable :: fname_by_writer
@@ -328,6 +328,7 @@ module NCIOMod
     _VERIFY(STATUS)
 
     have_oclients = present(oClients)
+
 
     call ESMF_InfoGetFromHost(field,infoh,rc=status)
     _VERIFY(STATUS)
@@ -345,6 +346,10 @@ module NCIOMod
     call ESMF_FieldGet(field, Array=array, rc=status)
     _VERIFY(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
@@ -370,8 +375,25 @@ module NCIOMod
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ArrayGather(var_1d, gvar_1d, grid, mask=mask, rc=status)
                 endif
-                call oClients%collective_stage_data(arrdes%collection_id(1), trim(arrdes%filename), name, lMemRef, start=[1], &
-                             global_start=[1], global_count=[size_1d])
+                if (dims == MAPL_DimsVertOnly .and. arrdes%split_checkpoint) then
+                   allocate(lMemRef_vec(arrdes%num_writers))
+                   do j=1,arrdes%num_writers
+                      fname_by_writer = get_fname_by_rank(trim(arrdes%filename),j-1)
+                      if (mapl_am_i_root()) then
+                         lMemRef_vec(j) = LocalMemReference(pFIO_REAL32,[size_1d])
+                         call c_f_pointer(lMemRef_vec(j)%base_address, gvar_1d, shape=[size_1d])
+                         gvar_1d = var_1d
+                      else
+                         lMemRef_vec(j) = LocalMemReference(pFIO_REAL32,[0])
+                         call c_f_pointer(lMemRef_vec(j)%base_address, gvar_1d, shape=[0])
+                      end if
+                      call oClients%collective_stage_data(arrdes%collection_id(j), trim(fname_by_writer), name, lMemRef_vec(j), start=[1], &
+                                   global_start=[1], global_count=[size_1d])
+                   enddo
+                else
+                   call oClients%collective_stage_data(arrdes%collection_id(1), trim(arrdes%filename), name, lMemRef, start=[1], &
+                                global_start=[1], global_count=[size_1d])
+                end if
              else
 
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
@@ -411,6 +433,7 @@ module NCIOMod
                    call ArrayGather(vr8_1d, gvr8_1d, grid, mask=mask, rc=status)
                 endif
                 if (dims == MAPL_DimsVertOnly .and. arrdes%split_checkpoint) then
+                   allocate(lMemRef_vec(arrdes%num_writers))
                    do j=1,arrdes%num_writers
                       fname_by_writer = get_fname_by_rank(trim(arrdes%filename),j-1)
                       if (mapl_am_i_root()) then
@@ -1610,15 +1633,15 @@ module NCIOMod
              call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
              _VERIFY(STATUS)
 
-             if (io_rank == 0) then
+             if (io_rank == 0 .or. arrdes%split_checkpoint) then
                 call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
                 if(status /= NF90_NOERR) then
                    print*,trim(IAm),'Error writing variable ',status
                    print*, NF90_STRERROR(status)
                    _VERIFY(STATUS)
                 endif
-             endif ! io_rank = 0
-          endif ! arrdes%writers_comm/=MPI_COMM_NULL
+             endif ! io_rank
+          endif
        else ! not present(arrdes)
           ! WY notes : it doesnot seem to get this branch
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
@@ -4183,13 +4206,6 @@ module NCIOMod
              endif
              arrdes%filename = trim(filename)
           enddo
-          if (arrdes%writers_comm /= mpi_comm_null) then
-             call mpi_comm_rank(arrdes%writers_comm,writer_rank,status)
-             _VERIFY(STATUS)
-             if (writer_rank == 0) then
-                 call create_control_file(filename,arrdes%im_world,arrdes%num_writers,rc)
-             end if
-          end if
        else
           if (.not.allocated(arrdes%collection_id)) allocate(arrdes%collection_id(1))
           iter = RstCollections%find(trim(BundleName))
@@ -4219,9 +4235,6 @@ module NCIOMod
                 fname_by_writer = get_fname_by_rank(trim(filename),writer_rank)
                 call formatter%create(trim(fname_by_writer),rc=status)
                 _VERIFY(status)
-                if (writer_rank == 0) then
-                    call create_control_file(filename,arrdes%im_world,arrdes%num_writers,rc)
-                end if
                 call cf%add_attribute("Split_Cubed_Sphere", writer_rank, _RC)
              else
                 call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
@@ -4345,28 +4358,6 @@ module NCIOMod
        _VERIFY(status)
 
        end subroutine add_fvar
-
-       subroutine create_control_file(filename,jm_world,num_writers,rc)
-          character(len=*), intent(in) :: filename
-          integer, intent(in) :: jm_world
-          integer, intent(in) :: num_writers
-          integer, intent(out), optional :: rc
-          integer :: status
-          type(ESMF_HConfig) :: hconfig
-          character(len=5) :: resolution
-          character(len=3) :: writers
-          character(len=:), allocatable :: yaml_content
-
-          _ASSERT(jm_world < 10**5, 'Format not wide enough')
-          write(resolution,'(I5)')jm_world
-          _ASSERT(num_writers < 10**3, 'Format not wide enough')
-          write(writers,'(I3)')num_writers
-          yaml_content = "{j_size: "//trim(resolution)//", num_files: "//trim(writers)//"}"
-          hconfig = ESMF_HConfigCreate(content=yaml_content,_RC)
-          call ESMF_HConfigFileSave(hconfig,trim(filename),_RC)
-          _RETURN(_SUCCESS)
-
-       end subroutine
 
   end subroutine MAPL_BundleWriteNCPar
 
