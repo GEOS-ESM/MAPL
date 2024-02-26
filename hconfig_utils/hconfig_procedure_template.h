@@ -1,0 +1,6 @@
+#define SET_HCONFIG_(T) set_from_hconfig_##UCTYPE##(T)
+#define SET_DEF(T) set_from_default_##UCTYPE##(T)
+#define VALUE_EQ_DEF_(T) value_equals_default_##UCTYPE(T)
+#define GET_VALSTRING_ get_valuestring_##UCTYPE##(T, S)
+#define CONSTRUCT_HCONFIGVAL_(V, D) construct_hconfig_value_##UCTYPE##(V, D)
+#define HCONFIG_AS_(T) ESMF_HConfigAs##UCTYPE##(T%hconfig_, keyString=T%keystring, rc=status)

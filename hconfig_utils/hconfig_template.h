@@ -1,3 +1,4 @@
+#include "hconfig_procedure_template.h"
 
    use hconfig_value_base
    implicit none
@@ -6,19 +7,19 @@
      VTYPE, pointer :: value_ptr
      VTYPE, allocatable :: default_
    contains
-     module procedure :: set_from_hconfig => set_from_hconfig_UCTYPE
-     module procedure :: set_from_default => set_from_default_UCTYPE
-     module procedure :: value_equals_default => value_equals_default_UCTYPE
-     module procedure :: get_valuestring => get_valuestring_UCTYPE
+     module procedure :: set_from_hconfig => SET_HCONFIG_
+     module procedure :: set_from_default => SET_DEF_
+     module procedure :: value_equals_default => VAL_EQ_DEF_
+     module procedure :: get_valuestring => GET_VALSTRING_
    end type DTYPE
 
    interface DTYPE
-     module procedure :: construct_hconfig_value_UCTYPE
+     module procedure :: CONSTRUCT_HCONFIGVAL_
    end interface DTYPE
 
 contains
 
-   function construct_hconfig_value_UCTYPE(value, default) result(this)
+   function CONSTRUCT_HCONFIGVAL_(value, default) result(this)
       type(DTYPE) :: this
       VTYPE, target :: value
       class(*), optional, intent(in) :: default
@@ -31,27 +32,27 @@ contains
          end select
       end if
       this%typestring_ = TYPESTR
-   end function construct_hconfig_value_UCTYPE
+   end function CONSTRUCT_HCONFIGVAL_
 
-   logical function value_equals_default_UCTYPE(this) result(lval)
+   logical function VAL_EQ_DEF_(this) result(lval)
       class(DTYPE), intent(in) :: this
       lval = this%has_default_
       if(lval) lval = (this%value_ptr == this%default_)
-   end function value_equals_default_UCTYPE
+   end function VAL_EQ_DEF_
 
-   subroutine set_from_hconfig_UCTYPE(this)
+   subroutine SET_HCONFIG_(this)
       class(DTYPE), intent(inout) :: this
       integer :: status
-      this%value_ptr = ESMF_HConfigAsUCTYPE(this%hconfig_, keyString=this%keystring_, rc=status)
+      this%value_ptr = HCONFIG_AS_(this)
       this%last_status_ = status
-   end subroutine set_from_hconfig_UCTYPE
+   end subroutine SET_HCONFIG_
 
-   subroutine set_from_default_UCTYPE(this)
+   subroutine SET_DEF_(this)
       class(DTYPE), intent(inout) :: this
       this%value_ptr = this%default_
-   end subroutine set_from_default_UCTYPE
+   end subroutine SET_DEF_
 
-   subroutine get_valuestring_UCTYPE(this, string)
+   subroutine GET_VALSTRING_(this, string)
       character(len=*), parameter :: FMT = TFMT
       class(DTYPE), intent(inout) :: this
       character(len=:), allocatable, intent(out) :: string
@@ -60,5 +61,5 @@ contains
       write(raw, fmt=FMT, iostat=ios) this%value_ptr
       this%last_status_ = ios
       if(ios == 0) string = trim(adjustl(raw))
-   end subroutine get_valuestring_UCTYPE
+   end subroutine GET_VALSTRING_
 
