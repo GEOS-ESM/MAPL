@@ -1,17 +1,18 @@
+#include "hconfig_macros.h"
    use hconfig_value_base
    implicit none
 
    private
-   public :: DTYPE_
+   public :: DTYPE
 
    type, extends(HConfigValue) :: DTYPE
-     VTYPE, pointer :: value_ptr
-     VTYPE, allocatable :: default_
+     MTYPE, pointer :: value_ptr
+     MTYPE, allocatable :: default_
    contains
-     module procedure :: set_from_hconfig
-     module procedure :: set_from_default
-     module procedure :: value_equals_default
-     module procedure :: get_valuestring
+     procedure :: set_from_hconfig
+     procedure :: set_from_default
+     procedure :: value_equals_default
+     procedure :: get_valuestring
    end type DTYPE
 
    interface DTYPE
@@ -38,13 +39,13 @@ contains
    logical function value_equals_default(this) result(lval)
       class(DTYPE), intent(in) :: this
       lval = this%has_default_
-      if(lval) lval = (this%value_ptr == this%default_)
+      if(lval) lval = (this%value_ptr RELOPR this%default_)
    end function value_equals_default
 
    subroutine set_from_hconfig(this)
       class(DTYPE), intent(inout) :: this
       integer :: status
-      this%value_ptr = ESMF_HCONFIG_AS_(this)
+      this%value_ptr = ESMF_HCONFIG_AS(this%hconfig_, keyString=this%keystring_)
       this%last_status_ = status
    end subroutine set_from_hconfig
 
