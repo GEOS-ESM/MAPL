@@ -45,7 +45,7 @@ contains
    subroutine set_from_hconfig(this)
       class(DTYPE), intent(inout) :: this
       integer :: status
-      this%value_ptr = ESMF_HCONFIG_AS(this%hconfig_, keyString=this%keystring_)
+      this%value_ptr = ESMF_HCONFIG_AS(this%hconfig_, keyString=this%keystring_, rc=status)
       this%last_status_ = status
    end subroutine set_from_hconfig
 

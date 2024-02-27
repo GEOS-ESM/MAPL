@@ -207,12 +207,10 @@ contains
       logical :: has_schema
 
       ! Mandatory entry: "class: latlon"
-      has_schema = ESMF_HConfigIsDefined(hconfig, keystring = 'schema', _RC)
-      _ASSERT(has_schema, 'Keystring "schema" not found.')
-!      call MAPL_HConfigGet(hconfig, 'schema', geom_schema, found=supports, _RC)
-      geom_schema = ESMF_HConfigAsString(hconfig, keystring= 'schema', _RC)
+      supports = ESMF_HConfigIsDefined(hconfig, keystring='schema', _RC)
       _RETURN_UNLESS(supports)
 
+      geom_schema = ESMF_HConfigAsString(hconfig, keystring= 'schema', _RC)
       supports = (geom_schema == 'latlon')
       _RETURN_UNLESS(supports)
       
