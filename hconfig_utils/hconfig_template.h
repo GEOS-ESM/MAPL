@@ -60,7 +60,8 @@ contains
       character(len=:), allocatable, intent(out) :: string
       integer :: ios
       character(len=32) :: raw
-      write(raw, fmt=FMT, iostat=ios) this%value_ptr
+      !write(raw, fmt=FMT, iostat=ios) this%value_ptr
+      WRITE_STATEMENT(raw, FMT, ios, this%value_ptr)
       this%last_status_ = ios
       if(ios == 0) string = trim(adjustl(raw))
    end subroutine get_valuestring

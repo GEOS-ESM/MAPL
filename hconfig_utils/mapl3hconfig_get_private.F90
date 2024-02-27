@@ -87,6 +87,7 @@ contains
       if(present(valuestring)) then
          call hconfig_value%get_valuestring(valuestring)
          status = hconfig_value%last_status_
+         write(*, *) 'status == ', status
          _ASSERT(status == 0, 'Error getting valuestring')
       end if
 

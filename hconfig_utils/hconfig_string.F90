@@ -6,6 +6,7 @@ module hconfig_string
 #define TYPESTR 'CH'
 #define DTYPE HConfigValueString
 #define ESMF_HCONFIG_AS ESMF_HConfigAsString
+#define WRITE_STATEMENT(RW, FT, ST, V) raw = this%value_ptr; ST = 0
 #include "hconfig_template.h"
 
 end module hconfig_string

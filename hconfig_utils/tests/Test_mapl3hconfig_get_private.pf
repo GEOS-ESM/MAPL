@@ -6,13 +6,9 @@ module Test_mapl3hconfig_get_private
    implicit none
 
    ! error message stubs
-   character(len=*), parameter :: ERROR_EXPECTED_MESSAGE_BLANK = 'expected_message is blank.'
    character(len=*), parameter :: ERROR_GET_HCONFIG_FAILED = 'get_HConfig failed.'
    character(len=*), parameter :: ERROR_ADD_FAIL = 'Add failed.'
    character(len=*), parameter :: ERROR_NOT_FOUND = 'Find failed for: '
-   character(len=*), parameter :: ERROR_MESSAGE_MISMATCH = 'Message does not match.'
-   character(len=*), parameter :: ERROR_TYPESTRING_MISMATCH = 'Typestring does not match.'
-   character(len=*), parameter :: ERROR_VALUESTRING_MISMATCH = 'Valuestring does not match.'
    character, parameter :: SPACE = ' '
    integer, parameter :: MAXSTRLEN = ESMF_MAXSTR
 
@@ -40,8 +36,8 @@ contains
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
-      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
    end subroutine test_get_i4
 
@@ -63,8 +59,8 @@ contains
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
-      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
    end subroutine test_get_i8
    
@@ -86,8 +82,8 @@ contains
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
-      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
    end subroutine test_get_r4
    
@@ -109,8 +105,8 @@ contains
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
-      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
    end subroutine test_get_r8
 
@@ -132,8 +128,8 @@ contains
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(EXPECTED .eqv. actual, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
-      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
    end subroutine test_get_logical
 
@@ -155,8 +151,8 @@ contains
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
       @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
-      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_TYPESTRING_MISMATCH)
-      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALUESTRING_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(valuestring, EXPECTED_VALUESTRING))
 
    end subroutine test_get_string
 
@@ -214,7 +210,7 @@ contains
          expected_string = write_valuestring(expected)
          error_message = prolog_ // actual_string // bridge_ // expected_string // epilog_
       else
-         error_message = ''
+         error_message = 'actual and expected are different types.'
       endif
 
    end function make_mismatch_error_message
