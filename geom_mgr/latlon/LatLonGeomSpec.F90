@@ -1,4 +1,3 @@
-#include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 
 module mapl3g_LatLonGeomSpec
