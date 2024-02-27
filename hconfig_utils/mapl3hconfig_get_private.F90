@@ -17,7 +17,7 @@ module mapl3hconfig_get_private
 
 contains
       
-   logical function HConfig_Keystring_found(hconfig, keystring, rc) result(found)
+   logical function keystring_found(hconfig, keystring, rc) result(found)
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(len=*), intent(in) :: keystring
       integer, optional, intent(out) :: rc
@@ -27,7 +27,7 @@ contains
       _VERIFY(status)
    
       _RETURN(_SUCCESS)
-   end function HConfig_Keystring_found
+   end function keystring_found
 
    subroutine get_value_scalar(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
@@ -43,17 +43,17 @@ contains
 
       integer :: status
       class(HConfigValue), allocatable :: hconfig_value
-      logical :: keystring_found
+      logical :: found_
 
       if(present(default)) then
          _ASSERT(same_type_as(value, default), 'value and default are different types.')
       else
          _ASSERT(.not. (present(equals_default)),  'equals_default requires default')
       end if
-      keystring_found = HConfig_Keystring_found(hconfig, keystring, rc=status)
+      found_ = keystring_found(hconfig, keystring, rc=status)
       _VERIFY(status)
 
-      _RETURN_UNLESS(keystring_found .or. present(default))
+      _RETURN_UNLESS(found_ .or. present(default))
 
       select type(value)
       type is (integer(kind=ESMF_KIND_I4))
@@ -72,7 +72,7 @@ contains
          _FAIL('Unsupported type for conversion')
       end select
 
-      if(keystring_found) then
+      if(found_) then
          hconfig_value%hconfig_ = hconfig
          hconfig_value%keystring_ = keystring
          call hconfig_value%set_from_hconfig()
@@ -87,13 +87,12 @@ contains
       if(present(valuestring)) then
          call hconfig_value%get_valuestring(valuestring)
          status = hconfig_value%last_status_
-         write(*, *) 'status == ', status
          _ASSERT(status == 0, 'Error getting valuestring')
       end if
 
       if(present(typestring)) typestring = hconfig_value%typestring_
       if(present(equals_default)) equals_default = hconfig_value%value_equals_default_
-      if(present(found)) found = keystring_found
+      if(present(found)) found = found_
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
