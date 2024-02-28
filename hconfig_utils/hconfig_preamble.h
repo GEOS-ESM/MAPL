@@ -19,3 +19,12 @@
 #if defined RELOPR
 #undef RELOPR
 #endif
+#if defined IS_ARRAY
+#undef IS_ARRAY
+#endif
+#if defined PROPFCT
+#undef PROPFCT
+#endif
+#if defined SZFCT
+#undef SZFCT
+#endif

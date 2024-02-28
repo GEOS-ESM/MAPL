@@ -1,7 +1,7 @@
 module hconfig_r8
 #include "hconfig_preamble.h"
 #define VTYPE real(kind=ESMF_KIND_R8)
-#define TFMT '(G24.16)'
+#define TFMT 'ES24.15'
 #define TYPESTR 'R8'
 #define DTYPE HConfigValueR8
 #define ESMF_HCONFIG_AS ESMF_HConfigAsR8

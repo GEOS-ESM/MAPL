@@ -1,7 +1,6 @@
 module hconfig_logical
 #include "hconfig_preamble.h"
 #define VTYPE logical
-#define TFMT '(L1)'
 #define TYPESTR 'L'
 #define DTYPE HConfigValueLogical
 #define RELOPR .eqv.

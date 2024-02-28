@@ -1,4 +1,10 @@
+!# vim:ft=fortran
 #include "hconfig_macros.h"
+#if defined GROUPSTR
+#undef GROUPSTR
+#endif
+#define GROUPSTR(S) '(' // S // ')'
+
    use hconfig_value_base
    implicit none
 
@@ -6,8 +12,13 @@
    public :: DTYPE
 
    type, extends(HConfigValue) :: DTYPE
+#if defined IS_ARRAY
+     MTYPE, pointer :: value_ptr(:)
+     MTYPE, allocatable :: default_(:)
+#else
      MTYPE, pointer :: value_ptr
      MTYPE, allocatable :: default_
+#endif
    contains
      procedure :: set_from_hconfig
      procedure :: set_from_default
@@ -23,8 +34,13 @@ contains
 
    function construct_hconfig(value, default) result(this)
       type(DTYPE) :: this
+#if defined IS_ARRAY
+      VTYPE, target :: value(:)
+      class(*), optional, intent(in) :: default(:)
+#else
       VTYPE, target :: value
       class(*), optional, intent(in) :: default
+#endif
       this%value_ptr => value
       this%has_default_ = present(default)
       if(this%has_default_) then
@@ -39,7 +55,7 @@ contains
    logical function value_equals_default(this) result(lval)
       class(DTYPE), intent(in) :: this
       lval = this%has_default_
-      if(lval) lval = (this%value_ptr RELOPR this%default_)
+      if(lval) lval = PROPFCT(this%value_ptr, this%default_)
    end function value_equals_default
 
    subroutine set_from_hconfig(this)
@@ -58,9 +74,47 @@ contains
       character(len=*), parameter :: FMT = TFMT
       class(DTYPE), intent(inout) :: this
       character(len=:), allocatable, intent(out) :: string
-      integer :: ios
-      character(len=32) :: raw
-      WRITE_STATEMENT(raw, FMT, ios, this%value_ptr)
-      this%last_status_ = ios
-      if(ios == 0) string = trim(adjustl(raw))
+      character(len=*), parameter :: DELIMITER = ' '
+      integer :: ios, sz = 0
+      character(len=MAXSTRLEN) :: raw
+      character(len=:), allocatable :: fmt_
+
+      sz = SZFCT(this%value_ptr)
+      fmt_ = make_format_string(FMT, sz)
+      WRITE_STATEMENT(raw, fmt_, ios, this%value_ptr)
+      if(ios /= 0) return
+      string = trim(adjustl(raw))
+
    end subroutine get_valuestring
+
+   function make_format_string(format_string, n, delimiter)
+      character(len=:), allocatable :: make_format_string
+      character(len=*), intent(in) :: format_string
+      integer, intent(in) :: n
+      character(len=*), optional, intent(in) :: delimiter
+      character(len=:), allocatable :: delimiter_
+      character(len=:), allocatable :: raw
+      character(len=32) :: reps
+
+      if((n < 0) .or. (len_trim(format_string) == 0)) then
+         make_format_string = ''
+         return
+      end if
+
+      raw = trim(adjustl(format_string))
+      if(n < 2) then
+         make_format_string = GROUPSTR(raw)
+         return
+      end if
+
+      if(present(delimiter)) then
+         delimiter_ = '"' // delimiter // '", '
+      else
+         delimiter_ = '1X, '
+      end if
+
+      write(reps, fmt='(I32)') n-1
+      make_format_string = GROUPSTR(raw//', '//trim(adjustl(reps))//GROUPSTR(delimiter_//raw))
+
+   end function make_format_string
+
