@@ -1168,6 +1168,7 @@ contains
 
          integer :: num_readers, num_writers
          character(len=ESMF_MAXSTR)       :: split_checkpoint
+         character(len=ESMF_MAXSTR)       :: split_restart
          character(len=ESMF_MAXSTR)       :: write_restart_by_oserver
          integer :: j
 
@@ -1178,6 +1179,8 @@ contains
          call MAPL_GetResource( STATE, num_writers, Label="NUM_WRITERS:", &
               default=1, _RC)
          call MAPL_GetResource( STATE, split_checkpoint, Label="SPLIT_CHECKPOINT:", &
+              default='NO', _RC)
+         call MAPL_GetResource( STATE, split_restart, Label="SPLIT_RESTART:", &
               default='NO', _RC)
          split_checkpoint = ESMF_UtilStringUpperCase(split_checkpoint,_RC)
 
@@ -1198,6 +1201,9 @@ contains
          mygrid%num_writers =  num_writers
          if (trim(split_checkpoint) == 'YES') then
             mygrid%split_checkpoint = .true.
+         endif
+         if (trim(split_restart) == 'YES') then
+            mygrid%split_restart = .true.
          endif
          _RETURN(ESMF_SUCCESS)
       end subroutine set_checkpoint_restart_options
@@ -5926,7 +5932,7 @@ contains
       character(len=MPI_MAX_INFO_VAL )      :: romio_cb_read
       logical                               :: bootstrapable
       logical                               :: restartRequired
-      logical                               :: nwrgt1
+      logical                               :: nwrgt1, on_tiles
       character(len=ESMF_MAXSTR)            :: rstBoot
       integer                               :: rstReq
       logical                               :: amIRoot
@@ -5948,6 +5954,11 @@ contains
          call warn_empty('Restart '//trim(filename), MPL, _RC)
          _RETURN(ESMF_SUCCESS)
       end if
+
+
+      call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
+      _VERIFY(status)
+      on_tiles = IAND(ATTR, MAPL_AttrTile) /= 0
 
       FNAME = adjustl(FILENAME)
       bootstrapable = .false.
@@ -5974,6 +5985,8 @@ contains
          rstReq = 0
       end if
       restartRequired = (rstReq /= 0)
+         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
+         _VERIFY(status)
 
       call ESMF_VmGetCurrent(vm, rc=status)
       _VERIFY(status)
@@ -5982,25 +5995,25 @@ contains
 
       nwrgt1 = (mpl%grid%num_readers > 1)
 
-      split_restart = .false.
       isNC4 = -100
+      if (on_tiles) mpl%grid%split_restart = .false.
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then
-             hconfig = ESMF_HConfigCreate(filename = trim(filename), rc=status)
-             if (status == ESMF_SUCCESS) then
-                _ASSERT(ESMF_HConfigIsDefined(hconfig,keyString="num_files"),"if input file is split must supply num_files")
-                num_files =  ESMF_HConfigAsI4(hconfig,keystring="num_files",_RC)
-                split_restart = .true.
-             end if
+             !if (mpl%grid%split_restart) then
+                !hconfig = ESMF_HConfigCreate(filename = trim(filename), _RC)
+                !_ASSERT(ESMF_HConfigIsDefined(hconfig,keyString="num_files"),"if input file is split must supply num_files")
+                !num_files =  ESMF_HConfigAsI4(hconfig,keystring="num_files",_RC)
+                !split_restart = .true.
+             !end if
             block
               character(len=:), allocatable :: fname_by_reader
               logical :: fexist
               integer :: i
 
               FileExists = .false.
-              if (split_restart) then
+              if (mpl%grid%split_restart) then
                  FileExists = .true.
-                 do i = 0,num_files-1
+                 do i = 0,mpl%grid%num_readers-1
                     fname_by_reader = get_fname_by_rank(trim(fname), i)
                     inquire(FILE = trim(fname_by_reader), EXIST=fexist)
                     FileExists = FileExists .and. fexist
@@ -6023,13 +6036,13 @@ contains
          call MAPL_CommsBcast(vm,split_restart,n=1,ROOT=MAPL_Root,_RC)
 
          call MAPL_CommsBcast(vm, fileExists, n=1, ROOT=MAPL_Root, _RC)
-         call MAPL_CommsBcast(vm, isNC4, n=1, ROOT=MAPL_Root, _RC) 
-         if (split_restart) then
-            call MAPL_CommsBcast(vm, num_files,  n=1, ROOT=MAPL_Root, _RC)
-            call MAPL_CommsBcast(vm, split_restart, n=1, ROOT=MAPL_Root, _RC)
-            mpl%grid%num_readers = num_files
-            mpl%grid%split_restart = split_restart
-         end if
+         call MAPL_CommsBcast(vm, isNC4, n=1, ROOT=MAPL_Root, _RC)
+         !if (split_restart) then
+            !call MAPL_CommsBcast(vm, num_files,  n=1, ROOT=MAPL_Root, _RC)
+            !call MAPL_CommsBcast(vm, split_restart, n=1, ROOT=MAPL_Root, _RC)
+            !mpl%grid%num_readers = num_files
+            !mpl%grid%split_restart = split_restart
+         !end if
 
          if (FileExists) then
             if (isNC4 == 0) then
@@ -6075,9 +6088,7 @@ contains
          call ESMF_GridGet(MPL%GRID%ESMFGRID, dimCount=dimCount, RC=status)
          _VERIFY(status)
 
-         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-         _VERIFY(status)
-         TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
+         TILE: if (on_tiles) then
             _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
             _ASSERT(MAPL_LocStreamIsAssociated(MPL%LOCSTREAM,RC=status),'needs informative message')
 
@@ -6141,9 +6152,7 @@ contains
             _FAIL('needs informative message')
          end if
 #endif
-         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-         _VERIFY(status)
-         PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
+         PNC4_TILE: if (on_tiles) then
             _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
             call ArrDescrSetNCPar(arrdes,MPL,tile=.TRUE.,num_readers=mpl%grid%num_readers,RC=status)
             _VERIFY(status)
@@ -8472,7 +8481,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call MAPL_GetResource_config_array(config, vals, label, value_set, &
-         default = default, rc=status) 
+         default = default, rc=status)
 
       ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
       ! Instead, optional argument value_is_set should to the value of value_set,
@@ -10960,8 +10969,8 @@ contains
          call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
          arrdes%iogathercomm = mpl%grid%comm
          arrdes%ioscattercomm = mpl%grid%comm
-         arrdes%split_restart = .false. 
-         arrdes%split_checkpoint = .false. 
+         arrdes%split_restart = .false.
+         arrdes%split_checkpoint = .false.
       else
          call MAPL_GridGet(mpl%grid%ESMFGRID,globalCellCountPerDim=CCPD,RC=status)
          _VERIFY(status)
@@ -10989,7 +10998,7 @@ contains
          call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
          arrdes%split_restart = mpl%grid%split_restart
          arrdes%split_checkpoint = mpl%grid%split_checkpoint
-         
+
       endif
       call MAPL_GetResource(MPL, romio_cb_read, Label="ROMIO_CB_READ:", default="automatic", RC=status)
       _VERIFY(status)
