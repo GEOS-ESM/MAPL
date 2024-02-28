@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added procedures to remove an attribute from a FileMetadata object and from a Variable object in PFIO
 - Add per-collection timer output for History
 - Add python utilities to split and recombine restarts
 - Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer wit the base checkpoint name being a control file that tells how many files were written to. On reading if this control file is provided as the restart file name, it will automatically trigger reading the individual files
