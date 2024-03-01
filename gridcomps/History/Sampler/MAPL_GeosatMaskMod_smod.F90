@@ -233,8 +233,8 @@ contains
           ydim_true = n2
           xdim_red  = n1 / this%thin_factor
           ydim_red  = n2 / this%thin_factor
-          allocate (x (xdim_true) )
-          allocate (y (xdim_true) )
+          allocate (x (xdim_true), _STAT )
+          allocate (y (xdim_true), _STAT )
 
           call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
           call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
@@ -252,7 +252,7 @@ contains
                 end if
              end do
           end do
-          allocate (lons(nx), lats(nx))
+          allocate (lons(nx), lats(nx), _STAT)
           nx = 0
           do i=1, xdim_red
              do j=1, ydim_red
@@ -323,7 +323,7 @@ contains
        obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
        nx = size ( lons_ds )
-       allocate ( II(nx), JJ(nx) )
+       allocate ( II(nx), JJ(nx), _STAT )
        call MPI_Barrier(mpic, status)
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call ESMF_VMBarrier (vm, _RC)
@@ -369,11 +369,11 @@ contains
              if (farrayPtr(i,j)/=0) k=k+1
           end do
        end do
-       allocate( mask(IM, JM))
+       allocate( mask(IM, JM), _STAT)
        mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
 
        this%npt_mask = k
-       allocate( this%index_mask(2,k) )
+       allocate( this%index_mask(2,k), _STAT )
        arr(1)=k
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=this%npt_mask_tot, &
             count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
@@ -403,8 +403,8 @@ contains
             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons_ptr, _RC)
        call ESMF_GridGetCoord (grid, coordDim=2, localDE=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats_ptr, _RC)
-       deallocate (lons, lats)
-       allocate (lons(this%npt_mask), lats(this%npt_mask))
+       deallocate (lons, lats, _STAT)
+       allocate (lons(this%npt_mask), lats(this%npt_mask), _STAT)
        do i=1, this%npt_mask
           ix=this%index_mask(1,i)
           jx=this%index_mask(2,i)
@@ -415,16 +415,16 @@ contains
 
        iroot=0
        if (mapl_am_i_root()) then
-          allocate (this%lons(this%npt_mask_tot), this%lats(this%npt_mask_tot))
+          allocate (this%lons(this%npt_mask_tot), this%lats(this%npt_mask_tot), _STAT)
        else
-          allocate (this%lons(0), this%lats(0))
+          allocate (this%lons(0), this%lats(0), _STAT)
        end if
 
 
        ! __ s4.2  find this%recvcounts / this%displs
        !
-       allocate( this%recvcounts(npes), this%displs(npes) )
-       allocate( recvcounts_loc(npes), displs_loc(npes) )
+       allocate( this%recvcounts(npes), this%displs(npes), _STAT )
+       allocate( recvcounts_loc(npes), displs_loc(npes), _STAT )
        recvcounts_loc(:)=1
        displs_loc(1)=0
        do i=2, npes
@@ -507,7 +507,7 @@ module  procedure add_metadata
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
     !
     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-    allocate (fieldNameList(fieldCount))
+    allocate (fieldNameList(fieldCount), _STAT)
     call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
     do i=1, fieldCount
        var_name=trim(fieldNameList(i))
@@ -540,7 +540,7 @@ module  procedure add_metadata
        call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
        call this%metadata%add_variable(trim(var_name),v,_RC)
     end do
-    deallocate (fieldNameList)
+    deallocate (fieldNameList, _STAT)
 
     _RETURN(_SUCCESS)
   end procedure add_metadata
@@ -580,23 +580,23 @@ module  procedure add_metadata
     iroot=0
     nx = this%npt_mask
     nz = this%vdata%lm
-    allocate(p_dst_2d (nx))
-    allocate(p_dst_3d (nx * nz))
+    allocate(p_dst_2d (nx), _STAT)
+    allocate(p_dst_3d (nx * nz), _STAT)
     if (mapl_am_i_root()) then
-       allocate ( p_dst_2d_full (this%npt_mask_tot) )
-       allocate ( p_dst_3d_full (this%npt_mask_tot * nz) )
+       allocate ( p_dst_2d_full (this%npt_mask_tot), _STAT )
+       allocate ( p_dst_3d_full (this%npt_mask_tot * nz), _STAT )
     else
-       allocate ( p_dst_2d_full (0) )
-       allocate ( p_dst_3d_full (0) )
+       allocate ( p_dst_2d_full (0), _STAT )
+       allocate ( p_dst_3d_full (0), _STAT )
     end if
-    allocate( recvcounts_3d(npes), displs_3d(npes) )
+    allocate( recvcounts_3d(npes), displs_3d(npes), _STAT )
     recvcounts_3d(:) = nz * this%recvcounts(:)
     displs_3d(:)     = nz * this%displs(:)
 
 
     !__ 1. put_var: time variable
     !
-    allocate( rtimes(1) )
+    allocate( rtimes(1), _STAT )
     rtimes(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
     if (mapl_am_i_root()) then
        call this%formatter%put_var('time',rtimes(1:1),&
@@ -655,12 +655,12 @@ module  procedure add_metadata
                   p_dst_3d_full, recvcounts_3d, displs_3d, MPI_REAL,&
                   iroot, mpic, ierr )
              if (mapl_am_i_root()) then
-                allocate(arr(nz, this%npt_mask_tot))
+                allocate(arr(nz, this%npt_mask_tot), _STAT)
                 arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
                 call this%formatter%put_var(item%xname,arr,&
                      start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
                 !note:     lev,station,time
-                deallocate(arr)
+                deallocate(arr, _STAT)
              end if
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
@@ -694,7 +694,7 @@ module  procedure add_metadata
     call this%formatter%write(this%metadata,_RC)
 
     nx = size (this%lons)
-    allocate ( x(nx) )
+    allocate ( x(nx), _STAT )
     x(:) = this%lons(:) * MAPL_RADIANS_TO_DEGREES
     call this%formatter%put_var('longitude',x,_RC)
     x(:) = this%lats(:) * MAPL_RADIANS_TO_DEGREES
@@ -738,7 +738,7 @@ module  procedure add_metadata
     class default
        _FAIL("Time unit must be character")
     end select
-    allocate (  esmf_time_1d(1), rtime_1d(1) )
+    allocate (  esmf_time_1d(1), rtime_1d(1), _STAT )
     esmf_time_1d(1)= current_time
     call time_ESMF_to_real ( rtime_1d, esmf_time_1d, datetime_units, _RC )
     rtime =  rtime_1d(1)
