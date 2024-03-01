@@ -123,12 +123,12 @@ contains
        if (ios==0) nstation=nstation+1
     end do
     sampler%nstation=nstation
-    allocate(sampler%station_id(nstation))
-    allocate(sampler%station_name(nstation))
-    allocate(sampler%station_fullname(nstation))
-    allocate(sampler%lons(nstation))
-    allocate(sampler%lats(nstation))
-    allocate(sampler%elevs(nstation))
+    allocate(sampler%station_id(nstation), _STAT)
+    allocate(sampler%station_name(nstation), _STAT)
+    allocate(sampler%station_fullname(nstation), _STAT)
+    allocate(sampler%lons(nstation), _STAT)
+    allocate(sampler%lats(nstation), _STAT)
+    allocate(sampler%elevs(nstation), _STAT)
 
     rewind(unit)
     if (nskip>0) then
@@ -278,7 +278,7 @@ contains
     !__ 2. filemetadata: extract field from bundle, add_variable
     !
     call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
-    allocate (fieldNameList(fieldCount))
+    allocate (fieldNameList(fieldCount), _STAT)
     call ESMF_FieldBundleGet(bundle, fieldNameList=fieldNameList, _RC)
     do i=1, fieldCount
        var_name=trim(fieldNameList(i))
@@ -358,7 +358,7 @@ contains
     !__ 2. put_var: ungridded_dim from src to dst [regrid]
     !
     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-    allocate (fieldNameList(fieldCount))
+    allocate (fieldNameList(fieldCount), _STAT)
     call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
     do i=1, fieldCount
        xname=trim(fieldNameList(i))
@@ -387,7 +387,7 @@ contains
           call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
           call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
           if (mapl_am_i_root()) then
-             nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx))
+             nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx), _STAT)
              arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
              call this%formatter%put_var(xname,arr,&
                   start=[1,1,this%obs_written],count=[nz,nx,1],_RC)

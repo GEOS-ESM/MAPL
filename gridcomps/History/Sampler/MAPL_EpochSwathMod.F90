@@ -312,23 +312,25 @@ contains
     !__ s3. destroy acc_bundle / output_bundle
 
    call ESMF_FieldBundleGet(sp%acc_bundle,fieldCount=numVars,_RC)
-   allocate(names(numVars),stat=status)
+   allocate(names(numVars),_STAT)
    call ESMF_FieldBundleGet(sp%acc_bundle,fieldNameList=names,_RC)
    do i=1,numVars
       call ESMF_FieldBundleGet(sp%acc_bundle,trim(names(i)),field=field,_RC)
       call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
    enddo
    call ESMF_FieldBundleDestroy(sp%acc_bundle,noGarbage=.true.,_RC)
-
+   deallocate(names)
+   
    call ESMF_FieldBundleGet(sp%output_bundle,fieldCount=numVars,_RC)
-   allocate(names(numVars),stat=status)
+   allocate(names(numVars),_STAT)
    call ESMF_FieldBundleGet(sp%output_bundle,fieldNameList=names,_RC)
    do i=1,numVars
       call ESMF_FieldBundleGet(sp%output_bundle,trim(names(i)),field=field,_RC)
       call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
    enddo
    call ESMF_FieldBundleDestroy(sp%output_bundle,noGarbage=.true.,_RC)
-
+   deallocate(names)
+   
    _RETURN(ESMF_SUCCESS)
 
   end subroutine destroy_rh_regen_ogrid
@@ -439,7 +441,7 @@ contains
         if (allocated(this%metadata)) then
            deallocate (this%metadata)
         end if
-        allocate(this%metadata)
+        allocate(this%metadata,_STAT)
         call factory%append_metadata(this%metadata)
         if (present(vdata)) then
            this%vdata=vdata
@@ -519,8 +521,7 @@ contains
         if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
         if (present(quantize_level)) this%quantizeLevel = quantize_level
         if (present(chunking)) then
-           allocate(this%chunking,source=chunking,stat=status)
-           _VERIFY(status)
+           allocate(this%chunking,source=chunking,_STAT)
         end if
         if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
         if (present(write_collection_id)) this%write_collection_id=write_collection_id
@@ -695,8 +696,7 @@ contains
               else
                  allocate(ptr3d(0,0,0))
               end if
-              allocate(ptr3d_inter(size(ptr3d,1),size(ptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              allocate(ptr3d_inter(size(ptr3d,1),size(ptr3d,2),this%vdata%lm),_STAT)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(ptr3d,ptr3d_inter,rc=status)
                  _VERIFY(status)
@@ -822,8 +822,7 @@ contains
               else
                  allocate(xptr3d(0,0,0))
               end if
-              allocate(xptr3d_inter(size(xptr3d,1),size(xptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              allocate(xptr3d_inter(size(xptr3d,1),size(xptr3d,2),this%vdata%lm),_STAT)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(xptr3d,xptr3d_inter,rc=status)
                  _VERIFY(status)
@@ -847,8 +846,7 @@ contains
               else
                  allocate(yptr3d(0,0,0))
               end if
-              allocate(yptr3d_inter(size(yptr3d,1),size(yptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              allocate(yptr3d_inter(size(yptr3d,1),size(yptr3d,2),this%vdata%lm),_STAT)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(yptr3d,yptr3d_inter,rc=status)
                  _VERIFY(status)
@@ -962,7 +960,7 @@ contains
      order = this%metadata%get_order(rc=status)
      _VERIFY(status)
      n = Order%size()
-     allocate(temp(nFixedVars+1:n))
+     allocate(temp(nFixedVars+1:n),_STAT)
      do i=1,n
         v1 => order%at(i)
         if ( i > nFixedVars) temp(i)=trim(v1)
@@ -1092,11 +1090,11 @@ contains
 
     call ESMF_FieldBundleGet(this%output_bundle, grid=grid, _RC)
     call ESMF_GridGet(grid, localDECount=localDECount, dimCount=dimCount, _RC)
-    allocate ( LB(dimCount), UB(dimCount), exclusiveCount(dimCount) )
-    allocate ( compLB(dimCount), compUB(dimCount), compCount(dimCount) )
+    allocate ( LB(dimCount), UB(dimCount), exclusiveCount(dimCount) ,_STAT)
+    allocate ( compLB(dimCount), compUB(dimCount), compCount(dimCount) ,_STAT)
 
-    allocate ( j1(0:localDEcount-1) )  ! start
-    allocate ( j2(0:localDEcount-1) )  ! end
+    allocate ( j1(0:localDEcount-1) ,_STAT)  ! start
+    allocate ( j2(0:localDEcount-1) ,_STAT)  ! end
 
     _ASSERT ( localDEcount == 1, 'failed, due to localDEcount > 1')
     call MAPL_GridGetInterior(grid,ii1,iin,jj1,jjn)
