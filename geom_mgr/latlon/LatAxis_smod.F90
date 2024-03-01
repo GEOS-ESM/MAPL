@@ -2,7 +2,7 @@
 
 submodule (mapl3g_LatAxis) LatAxis_smod
    use mapl_RangeMod
-   use mapl3g_HConfigUtils
+   use hconfig3g
    use mapl_ErrorHandling
    implicit none
 
@@ -38,11 +38,11 @@ contains
       logical :: has_pole
       supports = .true.
 
-      has_jm_world = ESMF_HConfigIsDefined(hconfig, keystring='jm_world', _RC)
+      has_jm_world = MAPL_HConfigKeystringFound(hconfig, keystring='jm_world', _RC)
       _RETURN_UNLESS(has_jm_world)
 
-      has_lat_range = ESMF_HConfigIsDefined(hconfig, keystring='lat_range', _RC)
-      has_pole = ESMF_HConfigIsDefined(hconfig, keystring='pole', _RC)
+      has_lat_range = MAPL_HConfigKeystringFound(hconfig, keystring='lat_range', _RC)
+      has_pole = MAPL_HConfigKeystringFound(hconfig, keystring='pole', _RC)
       _RETURN_UNLESS(has_lat_range .neqv. has_pole)
       supports = .true.
 
@@ -77,7 +77,7 @@ contains
       real(kind=R8), allocatable :: centers(:), corners(:)
       type(AxisRanges) :: ranges
 
-      call MAPL_GetResource(jm_world, hconfig, 'jm_world', _RC)
+      call MAPL_HConfigGet(hconfig, 'jm_world', jm_world, _RC)
       _ASSERT(jm_world > 0, 'jm_world must be greater than 1')
 
       ranges = get_lat_range(hconfig, jm_world, _RC)
@@ -131,12 +131,12 @@ contains
       logical :: has_range
       logical :: has_pole
 
-      has_range = ESMF_HConfigIsDefined(hconfig, keystring='lat_range', _RC)
-      has_pole = ESMF_HConfigIsDefined(hconfig, keystring='pole', _RC)
+      has_range = MAPL_HConfigKeystringFound(hconfig, keystring='lat_range', _RC)
+      has_pole = MAPL_HConfigKeystringFound(hconfig, keystring='pole', _RC)
       _ASSERT(has_range .neqv. has_pole, 'Exactly one of lon_range or pole must be defined in hconfig')
 
       if (has_range) then ! is_regional
-         call MAPL_GetResource(t_range, hconfig, 'lat_range', _RC)
+         call MAPL_HConfigGet(hconfig, 'lat_range', t_range, _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(range(1) < range(2), 'illegal lat_range')
          delta = (range(2) - range(1)) / jm_world
@@ -148,7 +148,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      call MAPL_GetResource(pole, hconfig, 'pole', _RC)
+      call MAPL_HConfigGet(hconfig, 'pole', pole, _RC)
       select case (pole)
       case ('PE')
          delta = 180.d0 / jm_world

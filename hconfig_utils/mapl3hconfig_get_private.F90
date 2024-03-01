@@ -19,7 +19,7 @@ module mapl3hconfig_get_private
 contains
       
    logical function keystring_found(hconfig, keystring, rc) result(found)
-      type(ESMF_HConfig), intent(inout) :: hconfig
+      type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: keystring
       integer, optional, intent(out) :: rc
       integer :: status
@@ -31,7 +31,7 @@ contains
    end function keystring_found
 
    subroutine get_value_scalar(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
+      type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -46,13 +46,13 @@ contains
       class(HConfigValue), allocatable :: hconfig_value
       logical :: found_
 
+      found_ = keystring_found(hconfig, keystring, rc=status)
       if(present(default)) then
          _ASSERT(same_type_as(value, default), 'value and default are different types.')
       else
-         _ASSERT(present(found), 'found flag must be present if default is not present.')
+         _ASSERT(found_ .or. present(found), '"' // trim(keystring) // '" not found.')
          _ASSERT(.not. (present(equals_default)),  'equals_default requires default')
       end if
-      found_ = keystring_found(hconfig, keystring, rc=status)
       _VERIFY(status)
 
       _RETURN_UNLESS(found_ .or. present(default))
@@ -103,7 +103,7 @@ contains
    end subroutine get_value_scalar
 
    subroutine get_value_array(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
+      type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -118,14 +118,14 @@ contains
       class(HConfigValue), allocatable :: hconfig_value
       logical :: found_
 
+      found_ = keystring_found(hconfig, keystring, rc=status)
       if(present(default)) then
          _ASSERT(same_type_as(value, default), 'value and default are different types.')
          _ASSERT(size(value) == size(default), 'value and default are different sizes.')
       else
-         _ASSERT(present(found), 'found flag must be present if default is not present.')
+         _ASSERT(found_ .or. present(found), '"' // trim(keystring) // '" not found.')
          _ASSERT(.not. (present(equals_default)),  'equals_default requires default')
       end if
-      found_ = keystring_found(hconfig, keystring, rc=status)
       _VERIFY(status)
 
       _RETURN_UNLESS(found_ .or. present(default))

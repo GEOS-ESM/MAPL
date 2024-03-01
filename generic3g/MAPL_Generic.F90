@@ -615,7 +615,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
-   ! Finds value given keystring. Either found flag or default value must be present.
+   ! Finds value given keystring.
+   ! If the keystring is not found, either the found flag or default value be present.
    ! Otherwise an exception is thrown. found indicates keystring found.
    ! If default is present, equals_default indicates whether the value equals the default.
    subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
@@ -640,8 +641,8 @@ contains
    end subroutine mapl_resource_get_scalar
 
    ! Finds value given keystring. value_set indicates the value has been set.
-   ! value is set if keystring is found or default is provided. Unless default
-   ! or value_set is presenti, an exception is thrown.
+   ! value is set if keystring is found or default is provided.
+   ! If keystring is not found, an exception is thrown if value_set is not present.
    subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, value_set, rc)
       type(ESMF_GridComp), intent(inout) :: gc
       character(len=*), intent(in) :: keystring
@@ -673,9 +674,9 @@ contains
       
    end subroutine mapl_resource_gridcomp_get_scalar
 
-   ! Finds array value given keystring. Either found flag or default value must be present.
-   ! Otherwise an exception is thrown. found indicates keystring found.
-   ! If default is present, equals_default indicates whether the value equals the default.
+   ! Finds array value given keystring.
+   ! value is set if keystring is found or default is provided.
+   ! If keystring is not found, an exception is thrown if value_set is not present.
    subroutine mapl_resource_get_array(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(len=*), intent(in) :: keystring
@@ -783,22 +784,3 @@ contains
    end function rankstring
 
 end module mapl3g_Generic
-
-!   subroutine mapl_resource_get_scalar(hconfig, keystring, value, found, &
-!         unusable, typestring, valuestring, rc)
-!      type(ESMF_HConfig), intent(inout) :: hconfig
-!      character(len=*), intent(in) :: keystring
-!      class(*), intent(inout) :: value  
-!      logical, intent(out) :: found
-!      class(KeywordEnforcer), optional, intent(in) :: unusable
-!      character(len=:), allocatable, optional, intent(inout) :: typestring
-!      character(len=:), allocatable, optional, intent(inout) :: valuestring
-!      integer, optional, intent(out) :: rc
-!      integer :: status
-!
-!      call MAPL_HConfigGet(hconfig, keystring, value, found=found, &
-!         typestring=typestring, valuestring=valuestring, _RC)
-!      _RETURN(_SUCCESS)
-!      _UNUSED_DUMMY(unusable)
-!
-!   end subroutine mapl_resource_get_scalar
