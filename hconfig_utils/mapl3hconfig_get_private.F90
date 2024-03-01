@@ -49,6 +49,7 @@ contains
       if(present(default)) then
          _ASSERT(same_type_as(value, default), 'value and default are different types.')
       else
+         _ASSERT(present(found), 'found flag must be present if default is not present.')
          _ASSERT(.not. (present(equals_default)),  'equals_default requires default')
       end if
       found_ = keystring_found(hconfig, keystring, rc=status)
@@ -72,6 +73,7 @@ contains
       class default
          _FAIL('Unsupported type for conversion')
       end select
+      _ASSERT(hconfig_value%last_status_ == 0, 'Error constructing hconfig_value object')
 
       if(found_) then
          hconfig_value%hconfig_ = hconfig
@@ -118,7 +120,9 @@ contains
 
       if(present(default)) then
          _ASSERT(same_type_as(value, default), 'value and default are different types.')
+         _ASSERT(size(value) == size(default), 'value and default are different sizes.')
       else
+         _ASSERT(present(found), 'found flag must be present if default is not present.')
          _ASSERT(.not. (present(equals_default)),  'equals_default requires default')
       end if
       found_ = keystring_found(hconfig, keystring, rc=status)
@@ -131,18 +135,18 @@ contains
          hconfig_value = HConfigValueI4Seq(value, default)
       type is (integer(kind=ESMF_KIND_I8))
          hconfig_value = HConfigValueI8Seq(value, default)
-!      type is (real(kind=ESMF_KIND_R4))
-!         hconfig_value = HConfigValueR4Seq(value, default)
-!      type is (real(kind=ESMF_KIND_R8))
-!         hconfig_value = HConfigValueR8Seq(value, default)
-!      type is (logical)
-!         hconfig_value = HConfigValueLogicalSeq(value, default)
-!      type is (character(len=*))
-!         _ASSERT(character_arrays_match(value, default), 'value and default do not match in size or length.')
-!         hconfig_value = HConfigValueStringSeq(value, default)
+      type is (real(kind=ESMF_KIND_R4))
+         hconfig_value = HConfigValueR4Seq(value, default)
+      type is (real(kind=ESMF_KIND_R8))
+         hconfig_value = HConfigValueR8Seq(value, default)
+      type is (logical)
+         hconfig_value = HConfigValueLogicalSeq(value, default)
+      type is (character(len=*))
+         hconfig_value = HConfigValueStringSeq(value, default)
       class default
          _FAIL('Unsupported type for conversion')
       end select
+      _ASSERT(hconfig_value%last_status_ == 0, 'Error constructing hconfig_value object')
 
       if(found_) then
          hconfig_value%hconfig_ = hconfig
@@ -170,14 +174,5 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end subroutine get_value_array
-
-   logical function character_arrays_match(value, default)
-      character(len=*), intent(in) :: value(:)
-      character(len=*), optional, intent(in) :: default(:)
-
-      character_arrays_match = .TRUE.
-      if(.not. present(default)) return
-      character_arrays_match = (len(value) == len(default)) .and. (size(value) == size(default))
-   end function character_arrays_match
 
 end module mapl3hconfig_get_private

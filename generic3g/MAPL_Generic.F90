@@ -169,6 +169,8 @@ module mapl3g_Generic
    interface MAPL_ResourceGet
       module procedure :: mapl_resource_gridcomp_get_scalar
       module procedure :: mapl_resource_get_scalar
+      module procedure :: mapl_resource_gridcomp_get_array
+      module procedure :: mapl_resource_get_array
    end interface MAPL_ResourceGet
 
 contains
@@ -609,35 +611,37 @@ contains
       
       call ESMF_GridCompGet(gridcomp, config=config, _RC)
       call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
-      
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
-   subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, found, default, typestring, valuestring, rc)
+   ! Finds value given keystring. Either found flag or default value must be present.
+   ! Otherwise an exception is thrown. found indicates keystring found.
+   ! If default is present, equals_default indicates whether the value equals the default.
+   subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: found
       class(*), optional, intent(in) :: default
+      logical, optional, intent(out) :: equals_default
       character(len=:), optional, allocatable, intent(inout) :: typestring
       character(len=:), optional, allocatable, intent(inout) :: valuestring
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call MAPL_HConfigGet(hconfig, keystring, value, found=found, &
-         default=default, typestring=typestring, valuestring=valuestring, _RC)
+      call MAPL_HConfigGet(hconfig, keystring, value, found=found, default=default, &
+         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
    end subroutine mapl_resource_get_scalar
 
-   ! Finds value given keystring. If default is present, a value is always found, and
-   ! is_default indicates whether the value equals the default. default, is_default, and
-   ! found are optional. If you don't pass a default, use the found flag to determine if
-   ! the value is found. Otherwise, if the value is not found, an exception occurs.
+   ! Finds value given keystring. value_set indicates the value has been set.
+   ! value is set if keystring is found or default is provided. Unless default
+   ! or value_set is presenti, an exception is thrown.
    subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, value_set, rc)
       type(ESMF_GridComp), intent(inout) :: gc
       character(len=*), intent(in) :: keystring
@@ -646,37 +650,86 @@ contains
       class(*), optional, intent(in) :: default
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
-      character(len=*), parameter :: MISMATCH_MSG = 'value and default are not the same_type.'
-      character(len=*), parameter :: DEFAULT_OR_VALUE_SET_MSG = 'default or value_set must be present.'
       integer :: status
-      logical :: found 
+      logical :: found, equals_default
       type(ESMF_HConfig) :: hconfig
       class(Logger_t), pointer :: logger
       character(len=:), allocatable :: typestring
       character(len=:), allocatable :: valuestring
 
-!      if(present(default)) then
-!         _ASSERT(same_type_as(value, default), MISMATCH_MSG)
-!      else
-!         _ASSERT(present(value_set), DEFAULT_OR_VALUE_SET_MSG)
-!      end if
-
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
-         typestring=typestring, valuestring=valuestring, _RC)
-
-!      if(present(default) .and. .not. found) then
-!         found = .TRUE.
-!      end if
-
-      call log_resource_message(logger, form_message(typestring, keystring, valuestring), _RC)
-
-      if(present(value_set)) value_set = merge(.TRUE., found, present(default))
+         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
+      found = present(default) .or. found
+      if(present(value_set)) then
+         value_set = merge(.TRUE., found, present(default))
+      else
+         _ASSERT(found, 'No default value or valueset flag: "' // trim(keystring) // '" not found')
+      end if
+      call log_resource_message(logger, form_message(typestring, keystring, valuestring, equals_default), _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       
    end subroutine mapl_resource_gridcomp_get_scalar
+
+   ! Finds array value given keystring. Either found flag or default value must be present.
+   ! Otherwise an exception is thrown. found indicates keystring found.
+   ! If default is present, equals_default indicates whether the value equals the default.
+   subroutine mapl_resource_get_array(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      character(len=*), intent(in) :: keystring
+      class(*), intent(inout) :: value(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: found
+      class(*), optional, intent(in) :: default(:)
+      logical, optional, intent(out) :: equals_default
+      character(len=:), optional, allocatable, intent(inout) :: typestring
+      character(len=:), optional, allocatable, intent(inout) :: valuestring
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call MAPL_HConfigGet(hconfig, keystring, value, found=found, default=default, &
+         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine mapl_resource_get_array
+
+   ! Finds array value given keystring. value_set indicates the value has been set.
+   ! value is set if keystring is found or default is provided. Unless default
+   ! or value_set is presenti, an exception is thrown.
+   subroutine mapl_resource_gridcomp_get_array(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(*), intent(inout) :: value(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(*), optional, intent(in) :: default(:)
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical :: found, equals_default
+      type(ESMF_HConfig) :: hconfig
+      class(Logger_t), pointer :: logger
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
+         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
+      found = present(default) .or. found
+      if(present(value_set)) then
+         value_set = merge(.TRUE., found, present(default))
+      else
+         _ASSERT(found, 'No default value or valueset flag: "' // trim(keystring) // '" not found')
+      end if
+      call log_resource_message(logger, form_message(typestring, keystring, valuestring, equals_default), _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      
+   end subroutine mapl_resource_gridcomp_get_array
 
    subroutine log_resource_message(logger, message, rc)
       class(Logger_t), intent(inout) :: logger
@@ -691,27 +744,32 @@ contains
 
    end subroutine log_resource_message
 
-   function form_message(typestring, keystring, valuestring) result(message)
+   function form_message(typestring, keystring, valuestring, equals_default) result(message)
       character(len=:), allocatable :: message
       character(len=*), intent(in) :: typestring
       character(len=*), intent(in) :: keystring
       character(len=*), intent(in) :: valuestring
+      logical, intent(in) :: equals_default
+      character(len=*), parameter :: DEFLABEL = ' (default)'
+      character(len=len(DEFLABEL)) :: default_label = ''
 
-      message = typestring //' '// keystring //' = '// valuestring
+      if(equals_default) default_label = DEFLABEL
+      message = typestring //' '// keystring //' = '// valuestring // default_label
 
    end function form_message
 
-   function form_array_message(typestring, keystring, valuestring, valuerank, rc) result(message)
+   function form_array_message(typestring, keystring, valuestring, equals_default, valuerank, rc) result(message)
       character(len=:), allocatable :: message
       character(len=*), intent(in) :: typestring
       character(len=*), intent(in) :: keystring
       character(len=*), intent(in) :: valuestring
+      logical, intent(in) :: equals_default
       integer, intent(in) :: valuerank
       integer, optional, intent(out) :: rc
       integer :: status
 
       _ASSERT(valuerank > 0, 'Rank must be greater than 0.')
-      message = form_message(typestring, keystring // rankstring(valuerank), valuestring)
+      message = form_message(typestring, keystring // rankstring(valuerank), valuestring, equals_default)
       _RETURN(_SUCCESS)
 
    end function form_array_message

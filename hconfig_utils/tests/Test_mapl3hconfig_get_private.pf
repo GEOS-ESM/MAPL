@@ -59,7 +59,7 @@ contains
       call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
-      @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
       @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
       @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
@@ -69,7 +69,7 @@ contains
    subroutine test_get_r4()
       character(len=*), parameter :: KEY = 'plank_mass'
       character(len=*), parameter :: EXPECTED_TYPESTRING = 'R4'
-      character(len=*), parameter :: EXPECTED_VALUESTRING = '1.8590000E-09'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '.1859000E-08'
       real(kind=ESMF_KIND_R4), parameter :: EXPECTED =   1.85900000E-9_ESMF_KIND_R4
       real(kind=ESMF_KIND_R4) :: actual
       character(len=:), allocatable :: typestring
@@ -82,7 +82,7 @@ contains
       call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
-      @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
       @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
       @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
@@ -92,7 +92,7 @@ contains
    subroutine test_get_r8()
       character(len=*), parameter :: KEY = 'mu_mass'
       character(len=*), parameter :: EXPECTED_TYPESTRING = 'R8'
-      character(len=*), parameter :: EXPECTED_VALUESTRING =   '-9.284764704320000E-23'
+      character(len=*), parameter :: EXPECTED_VALUESTRING =   '-.9284764704320000E-22'
       real(kind=ESMF_KIND_R8), parameter :: EXPECTED = -9.28476470432000000E-23_ESMF_KIND_R8
       real(kind=ESMF_KIND_R8) :: actual
       character(len=:), allocatable :: typestring
@@ -105,7 +105,7 @@ contains
       call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
-      @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
       @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
       @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
@@ -128,7 +128,7 @@ contains
       call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
-      @assertTrue(EXPECTED .eqv. actual, make_mismatch_error_message(actual, EXPECTED)) 
+      @assertTrue(actual .eqv. EXPECTED, ERROR_MISMATCH)
       @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
       @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
 
@@ -151,7 +151,7 @@ contains
       call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // KEY)
-      @assertTrue(actual == EXPECTED, make_mismatch_error_message(actual, EXPECTED)) 
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
       @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
       @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(valuestring, EXPECTED_VALUESTRING))
 
@@ -200,6 +200,102 @@ contains
       @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
       @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(valuestring, EXPECTED_VALUESTRING))
    end subroutine test_get_i8seq
+
+   @Test
+   subroutine test_get_r4seq()
+      character(len=*), parameter :: KEY = 'four'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'R4'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = &
+         '-1.234568 1.234568 9.876543 -9.876543'
+      real(kind=ESMF_KIND_R4), parameter :: EXPECTED(4) = &
+         [-1.23456780_ESMF_KIND_R4, 1.23456780_ESMF_KIND_R4, &
+         9.87654300_ESMF_KIND_R4, -9.87654300_ESMF_KIND_R4]
+      real(kind=ESMF_KIND_R4) :: actual(4)
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // KEY)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(valuestring, EXPECTED_VALUESTRING))
+   end subroutine test_get_r4seq
+
+   @Test
+   subroutine test_get_r8seq()
+      character(len=*), parameter :: KEY = 'four'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'R8'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = &
+         '-1.234567890123456 1.234567890123456 9.876543210987654 -9.876543210987654'
+      real(kind=ESMF_KIND_R8), parameter :: EXPECTED(4) = &
+         [-1.2345678901234560_ESMF_KIND_R8, 1.2345678901234560_ESMF_KIND_R8, &
+         9.8765432109876540_ESMF_KIND_R8, -9.8765432109876540_ESMF_KIND_R8]
+      real(kind=ESMF_KIND_R8) :: actual(4)
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // KEY)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(valuestring, EXPECTED_VALUESTRING))
+   end subroutine test_get_r8seq
+
+   @Test
+   subroutine test_get_logical_seq()
+      character(len=*), parameter :: KEY = 'tuffet'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'L'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = 'T F F T'
+      logical, parameter :: EXPECTED(4) = [.TRUE., .FALSE., .FALSE., .TRUE.]
+      logical :: actual(4)
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // KEY)
+      @assertTrue(actual .eqv. EXPECTED, ERROR_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
+
+   end subroutine test_get_logical_seq
+
+   @Test
+   subroutine test_get_string_seq()
+      character(len=*), parameter :: KEY = 'muffet_away'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'CH'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '"Muffet" "curds" "whey" "spider"'
+      character(len=6), parameter :: EXPECTED(4) = [character(len=6) :: 'Muffet', 'curds', 'whey', 'spider']
+      character(len=6) :: actual(4)
+      character(len=:), allocatable :: typestring
+      character(len=:), allocatable :: valuestring
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=KEY, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      call get_value(hconfig, KEY, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // KEY)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
+
+   end subroutine test_get_string_seq
 
    @Before
    subroutine set_up()

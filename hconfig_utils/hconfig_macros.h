@@ -1,10 +1,20 @@
+! vim: ft=fortran
 #define MAXSTRLEN ESMF_MAXSTR
 
 #if !defined TFMT
-#define TFMT 'G0'
+#define TFMT '(G0)'
 #endif
 
-#if !defined MTYPE
+#if defined IS_STRING
+#define WRITE_STATEMENT(C, S, V) C = '"' // trim(V) // '"'; S = 0
+#undef VTYPE
+#define VTYPE character(len=*)
+#define MTYPE character(len=:)
+#if defined IS_ARRAY
+#define USE_STRLEN
+#endif
+#else
+#define WRITE_STATEMENT(C, S, V) write(C, fmt=TFMT, iostat=S) V
 #define MTYPE VTYPE
 #endif
 
@@ -18,8 +28,4 @@
 #else
 #define PROPFCT(A, B) A RELOPR B
 #define SZFCT rank
-#endif
-
-#if !defined WRITE_STATEMENT
-#define WRITE_STATEMENT(C, F, S, V) write(C, fmt=F, iostat=S) V
 #endif
