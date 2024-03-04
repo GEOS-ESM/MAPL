@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_env v4.27.0 (Baselibs 7.18.1)
     - Moves to HDF5 1.14.3
+  - ESMA_cmake v3.41.0
+    - Updates to MPI detection
 
 ### Fixed
 
