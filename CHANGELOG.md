@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Added procedures to remove an attribute from a FileMetadata object and from a Variable object in PFIO
 - Add per-collection timer output for History
 - Add python utilities to split and recombine restarts
@@ -17,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bypassed the I-Server reading call when there is no extdata
+- Update `components.yaml`
+  - ESMA_env v4.27.0 (Baselibs 7.18.1)
+    - Moves to HDF5 1.14.3
 
 ### Fixed
 
