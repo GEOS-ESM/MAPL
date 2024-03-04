@@ -42,9 +42,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer                    :: nobs, head, jvar
          logical                    :: tend
          integer                    :: i, j, k, M
-         integer                    :: count
+         integer                    :: count, idx
          integer                    :: unitr, unitw
-         type(Logger), pointer :: lgr
+         type(GriddedIOitem)        :: item
+         type(Logger), pointer      :: lgr
+
 
          traj%clock=clock
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
@@ -126,7 +128,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          do i = 1, nline
             call ESMF_ConfigNextLine(config, _RC)
             ncol(i) = ESMF_ConfigGetLen(config, _RC)
-            !!write(6,*) 'line', i, 'ncol(i)', ncol(i)
+!!            write(6,*) 'line', i, 'ncol(i)', ncol(i)
          enddo
 
 
@@ -178,9 +180,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate (word(M), _STAT)
                count=0
                do col=1, M
-                  call ESMF_ConfigGetAttribute(config, word(col), _RC)
-                  if (trim(word(col))/=',') then
+                  call ESMF_ConfigGetAttribute(config, STR1, _RC)
+                  if (trim(STR1)/=',') then
                      count=count+1
+                     word(count) =  extract_unquoted_item(STR1)
                   end if
                enddo
                if (count ==1 .or. count==2) then
@@ -189,7 +192,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   STR1=trim(word(1))
                else
                   ! 3-item     :  var1 , 'root', var1_alias case
-                  STR1=trim(word(M))
+                  STR1=trim(word(3))
                end if
                deallocate(word, _STAT)
                if ( index(trim(STR1), '-----') == 0 ) then
@@ -201,7 +204,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   else
                      if (trim(STR1)/='') then
                         jvar=jvar+1
-                        traj%obs(nobs)%geoval_name(jvar) = trim(STR1)
+                        idx = index(STR1,";")
+                        if (idx==0) then
+                           traj%obs(nobs)%geoval_xname(jvar) = STR1
+                        else
+                           traj%obs(nobs)%geoval_xname(jvar) = trim(STR1(1:idx-1))
+                           traj%obs(nobs)%geoval_yname(jvar) = trim(STR1(idx+1:))
+                        end if
                      end if
                   end if
                else
@@ -228,7 +237,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             _ASSERT(j>0, '% is not found,  template is wrong')
             traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
          end do
-         
+
          _RETURN(_SUCCESS)
 
 105      format (1x,a,2x,a)
@@ -387,12 +396,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
         do k = 1, this%nobs_type
            do ig = 1, this%obs(k)%ngeoval
-              if (trim(var_name) == trim(this%obs(k)%geoval_name(ig))) then
+              if (trim(var_name) == trim(this%obs(k)%geoval_xname(ig))) then
                  call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
 
 !!              if (mapl_am_i_root()) write(6, '(2x,a,/,10(2x,a))') &
-!!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_name(ig)', &
-!!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_name(ig))
+!!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_xname(ig)', &
+!!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_xname(ig))
 
 
               endif
@@ -920,12 +929,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
-            if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'item%xname', trim(item%xname)
-
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
                call ESMF_FieldGet(acc_field,rank=rank,_RC)
                if (rank==1) then
+!!                  if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'append:2d item%xname', trim(item%xname)
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
                   call ESMF_FieldGet( acc_field_2d_rt, localDE=0, farrayPtr=p_acc_rt_2d, _RC)
                   call ESMF_FieldRedist( acc_field,  acc_field_2d_rt, RH, _RC)
@@ -961,7 +969,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_name(ig))) then
+                              !!write(6,'(2x,a,2x,a)')  't this%obs(k)%geoval_xname(ig)', trim(this%obs(k)%geoval_xname(ig))
+                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                 !!write(6, '(2x,a,2x,a)') 'append:2d inner put_var item%xname', trim(item%xname)
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
                                       start=[is],count=[nx])
                               end if
@@ -973,6 +983,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      enddo
                   end if
                else if (rank==2) then
+                  !!if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'append:3d item%xname', trim(item%xname)
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   call ESMF_FieldGet( acc_field_3d_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
 
@@ -1014,7 +1025,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_name(ig))) then
+                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                 !!write(6, '(2x,a,2x,a)') 'append:3d inner put_var item%xname', trim(item%xname)
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
                                       start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
                               end if
@@ -1287,6 +1299,26 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 !!           write(6,'(2x,a,2x,2i10)')  'mod vers. get_x_subset, LB,UB=', x_subset(1:2)
            _RETURN(_SUCCESS)
          end procedure get_x_subset
+
+
+         function extract_unquoted_item(string_list) result(item)
+           character(:), allocatable :: item
+           character(*), intent(in) :: string_list
+
+           integer :: i
+           integer :: j
+
+           character(1) :: QUOTE = "'"
+
+           i = index(string_list(  1:), QUOTE)
+           j = index(string_list(i+1:), QUOTE)+i
+           if( i.ne.0 ) then
+              item = adjustl( string_list(i+1:j-1) )
+           else
+              item = adjustl( string_list)
+           endif
+         end function extract_unquoted_item
+
 
 
 end submodule HistoryTrajectory_implement

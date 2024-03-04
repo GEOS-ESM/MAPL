@@ -31,7 +31,8 @@ module MAPL_ObsUtilMod
      character(len=ESMF_MAXSTR) :: name
      character(len=ESMF_MAXSTR) :: obsFile_output
      character(len=ESMF_MAXSTR) :: input_template
-     character(len=ESMF_MAXSTR) :: geoval_name(mx_ngeoval)
+     character(len=ESMF_MAXSTR) :: geoval_xname(mx_ngeoval)
+     character(len=ESMF_MAXSTR) :: geoval_yname(mx_ngeoval)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
