@@ -10,6 +10,8 @@ file (COPY mapl_stub.pl DESTINATION ${esma_etc}/MAPL)
 
 install (PROGRAMS
   MAPL_GridCompSpecs_ACG.py
+  combine_restarts.py
+  split_restart.py
   mapl_acg.pl
   mapl_stub.pl
   TYPE SYSCONF
@@ -24,7 +26,7 @@ install(
   DESTINATION bin/forcing_converter)
 
 ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util.F90)
-target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran esmf)
+target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF)
 target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
@@ -32,7 +34,7 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
 endif ()
 
 ecbuild_add_executable (TARGET time_ave_util.x SOURCES time_ave_util.F90)
-target_link_libraries (time_ave_util.x PRIVATE MAPL MPI::MPI_Fortran esmf)
+target_link_libraries (time_ave_util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF)
 target_include_directories (time_ave_util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
@@ -40,7 +42,7 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
 endif ()
 
 ecbuild_add_executable (TARGET Comp_Testing_Driver.x SOURCES Comp_Testing_Driver.F90)
-target_link_libraries (Comp_Testing_Driver.x PRIVATE MAPL MPI::MPI_Fortran esmf)
+target_link_libraries (Comp_Testing_Driver.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF)
 target_include_directories (Comp_Testing_Driver.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")

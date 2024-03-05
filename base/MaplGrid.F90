@@ -7,6 +7,7 @@ module mapl_MaplGrid
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ConstantsMod, only : MAPL_PI_R8, MAPL_UnitsRadians
+   use NetCDF
    implicit none
    private
 
@@ -30,9 +31,9 @@ module mapl_MaplGrid
       integer                                  :: readers_comm, IOscattercomm
       integer                                  :: writers_comm, IOgathercomm
       integer                                  :: num_readers, num_writers
-      logical                                  :: write_restart_by_face = .false. ! only apply to cubed-sphere grid
-      logical                                  :: write_restart_by_oserver = .false. 
-      logical                                  :: read_restart_by_face = .false. ! only apply to cubed-sphere grid
+      logical                                  :: split_checkpoint = .false. ! only apply to cubed-sphere grid
+      logical                                  :: split_restart = .false. ! only apply to cubed-sphere grid
+      logical                                  :: write_restart_by_oserver = .false.
       integer, allocatable                      :: i1(:), in(:), j1(:), jn(:)
 
    contains
@@ -118,7 +119,7 @@ contains
 
     this%NX = size(ims)
     this%NY = size(jms)
-  
+
 ! My processor coordinates
 !-------------------------
 
@@ -132,7 +133,7 @@ contains
     call lgr%debug("NX0: %i0 ;  NY0: %i0", this%nx0, this%ny0)
     call lgr%debug("ims: [%1000(i0,:,',')~]", WrapArray(ims))
     call lgr%debug("jms: [%1000(i0,:,',')~]", WrapArray(jms))
-  
+
     deallocate(jms, ims)
 
     call GridCoordGet(   this%ESMFGRID, this%LATS       , &
@@ -242,9 +243,9 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
      _FAIL('Invalid type kind')
   endif
   _RETURN(ESMF_SUCCESS)
-  
+
  end subroutine GridCoordGet
-   
+
   subroutine MAPL_GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, layout, RC)
       type (ESMF_Grid), intent(IN) :: GRID
       integer, optional, intent(INout) :: globalCellCountPerDim(:)
@@ -259,12 +260,10 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       integer :: maxcounts(ESMF_MAXDIM)
       integer :: gridRank
       integer :: UNGRID
-      integer :: sz, tileCount, dimCount
+      integer :: sz, tileCount, dimCount, deCount
       logical :: plocal, pglobal, lxtradim
       logical :: isPresent,hasDE
       type(ESMF_DistGrid) :: distGrid
-      type(ESMF_VM) :: vm
-      integer :: ndes
       integer, allocatable :: maxindex(:,:),minindex(:,:)
       integer, pointer :: ims(:),jms(:)
 
@@ -301,7 +300,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
               maxIndex=maxcounts, &
               _RC      )
 
-         sz = min(gridRank, ESMF_MAXDIM, size(globalCellCountPerDim)) 
+         sz = min(gridRank, ESMF_MAXDIM, size(globalCellCountPerDim))
          globalCellCountPerDim(1:sz) = maxcounts(1:sz)-mincounts(1:sz)+1
 
          ! kludge for new cube sphere from ESMF
@@ -333,16 +332,14 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
       if (present(layout)) then
          call ESMF_GridGet(grid,distgrid=distgrid,dimCount=dimCount,_RC)
-         call ESMF_VMGetCurrent(vm,_RC)
-         call ESMF_VMGet(vm,petCount=ndes,_RC)
-         allocate(minindex(dimCount,ndes),maxindex(dimCount,ndes))
+         call ESMF_DistGridGet(distgrid,deCount=deCount,_RC)
+         allocate(minindex(dimCount,decount),maxindex(dimCount,decount))
 
          call MAPL_DistGridGet(distgrid, &
             minIndex=minindex, &
             maxIndex=maxindex, _RC)
-
          call MAPL_GetImsJms(Imins=minindex(1,:),Imaxs=maxindex(1,:),&
-           Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,_RC)          
+           Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,_RC)
 
          layout(1) = size(ims)
          layout(2) = size(jms)
@@ -449,30 +446,30 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
     integer, dimension(:), intent(IN   ) :: Imins,Imaxs,Jmins,Jmaxs
     integer, pointer                     :: Ims(:),Jms(:)
     integer, optional,   intent(out) :: rc
-    
+
     integer              :: nx, ny, nx0, ny0, nde, k
     integer, allocatable :: Im0(:), Jm0(:)
-    integer              :: minI,minJ ! in case the starting index is zero    
+    integer              :: minI,minJ ! in case the starting index is zero
     integer              :: status
-    
+
     _ASSERT(.not.associated(Ims), 'Ims is associated and should not be.')
     _ASSERT(.not.associated(Jms), 'Jms is associated and should not be.')
-    
+
 !   The original minI and minJ are assumed to be 1
 !   The index of EASE grid  is starting from 0
     minI = minval(Imins,DIM=1)
     minJ = minval(Jmins,DIM=1)
     nx = count(Jmins==minJ)
     ny = count(Imins==minI)
-    
+
     allocate(Ims(nx),Jms(ny), __STAT__)
     allocate(Im0(nx),Jm0(ny), __STAT__)
-    
+
     nde = size(Imins)
-    
+
     nx0 = 1
     ny0 = 1
-    
+
     do k=1,nde
        if(Imins(k)==minI) then
           Jms(ny0) = Jmaxs(k)-Jmins(k) + 1
@@ -484,7 +481,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
           end if
        end if
     end do
-    
+
     do k=1,nde
        if(Jmins(k)==minJ) then
           Ims(nx0) = Imaxs(k)-Imins(k) + 1
@@ -496,10 +493,10 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
           end if
        end if
     end do
-    
+
     call MAPL_Sort(Im0,Ims)
     call MAPL_Sort(Jm0,Jms)
-    
+
     deallocate(Im0,Jm0,__STAT__)
 
     _RETURN(ESMF_SUCCESS)
