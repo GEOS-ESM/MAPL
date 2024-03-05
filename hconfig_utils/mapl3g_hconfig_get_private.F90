@@ -1,5 +1,5 @@
 #include "MAPL_ErrLog.h"
-module mapl3hconfig_get_private
+module mapl3g_hconfig_get_private
    use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined
    use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8
    use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8
@@ -142,7 +142,7 @@ contains
       type is (logical)
          hconfig_value = HConfigValueLogicalSeq(value, default)
       type is (character(len=*))
-         hconfig_value = HConfigValueStringSeq(value, default)
+         _FAIL('Unsupported type for conversion')
       class default
          _FAIL('Unsupported type for conversion')
       end select
@@ -175,4 +175,4 @@ contains
 
    end subroutine get_value_array
 
-end module mapl3hconfig_get_private
+end module mapl3g_hconfig_get_private

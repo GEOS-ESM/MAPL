@@ -15,8 +15,8 @@ set(srcs
   hconfig_r8seq.F90
   hconfig_logical_seq.F90
   hconfig_string_seq.F90
-  mapl3hconfig_get.F90
-  mapl3hconfig_get_private.F90
+  mapl3g_hconfig_get.F90
+  mapl3g_hconfig_get_private.F90
   HConfig3G.F90
   )
 

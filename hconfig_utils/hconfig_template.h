@@ -100,35 +100,3 @@ contains
 #endif
 
    end subroutine get_valuestring
-
-!   function make_format_string(format_string, n, delimiter)
-!      character(len=:), allocatable :: make_format_string
-!      character(len=*), intent(in) :: format_string
-!      integer, intent(in) :: n
-!      character(len=*), optional, intent(in) :: delimiter
-!      character(len=:), allocatable :: delimiter_
-!      character(len=:), allocatable :: raw
-!      character(len=32) :: reps
-!
-!      if((n < 0) .or. (len_trim(format_string) == 0)) then
-!         make_format_string = ''
-!         return
-!      end if
-!
-!      raw = trim(adjustl(format_string))
-!      if(n < 2) then
-!         make_format_string = GROUPSTR(raw)
-!         return
-!      end if
-!
-!      if(present(delimiter)) then
-!         delimiter_ = '"' // delimiter // '", '
-!      else
-!         delimiter_ = '1X, '
-!      end if
-!
-!      write(reps, fmt='(I32)') n-1
-!      make_format_string = GROUPSTR(raw//', '//trim(adjustl(reps))//GROUPSTR(delimiter_//raw))
-!
-!   end function make_format_string
-
