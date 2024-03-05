@@ -77,6 +77,8 @@ contains
       real(kind=R8), allocatable :: centers(:), corners(:)
       type(AxisRanges) :: ranges
 
+     logical :: found
+
       call MAPL_HConfigGet(hconfig, 'jm_world', jm_world, found=found, _RC)
       _ASSERT(found, 'jm_world not found')
       _ASSERT(jm_world > 0, 'jm_world must be greater than 1')
