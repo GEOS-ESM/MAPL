@@ -44,6 +44,7 @@ module pFIO_FileMetadataMod
       procedure :: add_attribute_1d
       procedure :: get_attribute
       procedure :: has_attribute
+      procedure :: remove_attribute
 
       procedure :: get_variable
       procedure :: get_coordinate_variable
@@ -87,7 +88,7 @@ contains
      type (StringVector), optional, intent(in) :: order
 
 
- 
+
      fmd%dimensions = StringIntegerMap()
      if (present(dimensions)) fmd%dimensions = dimensions
 
@@ -235,6 +236,13 @@ contains
 
    end function has_attribute
 
+   subroutine remove_attribute(this, attr_name)
+       class (FileMetadata), target, intent(inout) :: this
+       character(len=*), intent(in) :: attr_name
+
+       call this%global_var%remove_attribute(attr_name)
+
+    end subroutine
 
    function get_attributes(this, rc ) result(attributes)
       type (StringAttributeMap), pointer :: attributes
