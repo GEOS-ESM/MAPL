@@ -1288,7 +1288,7 @@ module NCIOMod
           cnt(3) = 1
           cnt(4) = 1
 
-          if(arrdes%split_checkpoint) then
+          if(arrdes%split_restart) then
              start(2) = 1
           endif
 
