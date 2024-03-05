@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add mask sampler for geostationary satellite (GEOS-R series)
 - Add geostation name into NC for station sampler
 - Add mapping between the IODA loc_index and trajectory NC output loc_index
+- Add allocate(X, _STAT) to sampler codes
+- Skip destroy_regen_grid when list(n)%end_alarm is active (the last time step in sampler)
+- Add extract_unquoted_item(STR1) to fix a bug in geoval_xname(mx_ngeoval) in trajectory sampler
 - Add python utilities to split and recombine restarts
 - Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer wit the base checkpoint name being a control file that tells how many files were written to. On reading if this control file is provided as the restart file name, it will automatically trigger reading the individual files
 - implemented a new algorthm to read tile files
