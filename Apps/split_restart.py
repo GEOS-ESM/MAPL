@@ -50,11 +50,6 @@ if remainder != 0:
 
 y_size = cube_res*6//n_files
 
-# create master file
-f = open(Output_template,mode='w')
-out_master = "num_files: "+str(n_files)+"\n"+"j_size: "+str(cube_res)
-f.write(out_master)
-f.close()
 # create each file
 for i in range(n_files):
     ncFidOut = Dataset(Output_template+"_"+str(i), mode='w',format='NETCDF4')
@@ -77,7 +72,7 @@ for i in range(n_files):
        for att in ncFid.variables['time'].ncattrs():
           setattr(ncFidOut.variables['time'],att,getattr(ncFid.variables['time'],att))
        new_time[:] = 0
-       
+
 
     vXdim = ncFidOut.createVariable('lon','f8',('lon'))
     vYdim = ncFidOut.createVariable('lat','f8',('lat'))
@@ -124,7 +119,7 @@ for i in range(n_files):
              for att in ncFid.variables[var].ncattrs():
                 if att != "_FillValue":
                    setattr(ncFidOut.variables[var],att,getattr(ncFid.variables[var],att))
-          elif dim_size == 2: 
+          elif dim_size == 2:
              tout = ncFidOut.createVariable(var,float_type,('lat','lon'),fill_value=1.0e15,chunksizes=(cube_res,cube_res))
              for att in ncFid.variables[var].ncattrs():
                 if att != "_FillValue":
@@ -135,7 +130,7 @@ for i in range(n_files):
           temp = ncFid.variables[var][:]
           dim_size =len(temp.shape)
           tout = ncFidOut.variables[var][:]
-         
+
           if dim_size == 4:
              il =  y_size*i
              iu =  y_size*(i+1)
@@ -146,7 +141,7 @@ for i in range(n_files):
              iu =  y_size*(i+1)
              ncFidOut.variables[var][:,:,:] = temp[:,il:iu,:]
 
-          elif dim_size == 2: 
+          elif dim_size == 2:
              il =  y_size*i
              iu =  y_size*(i+1)
              ncFidOut.variables[var][:,:] = temp[il:iu,:]
