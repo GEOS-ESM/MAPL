@@ -1440,7 +1440,7 @@ contains
      type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
      type(ESMF_RouteHandle) :: route_handle, transpose_route_handle
      character(len=ESMF_MAXPATHLEN) :: rh_file,rh_trans_file
-     logical :: rh_file_exists
+     logical :: rh_file_exists, file_weights, compute_transpose
 
      if (kind == ESMF_TYPEKIND_R4) then
         route_handles => route_handles_r4
@@ -1457,14 +1457,23 @@ contains
      spec = this%get_spec()
 
      if (route_handles%count(spec) == 0) then  ! new route_handle
-        rh_file = generate_rh_name(spec%grid_in,spec%grid_out,_RC)
+        file_weights = IAND(spec%hints,REGRID_HINT_FILE_WEIGHTS) /= 0
+        compute_transpose = IAND(spec%hints,REGRID_HINT_COMPUTE_TRANSPOSE) /= 0
+        rh_file = generate_rh_name(spec%grid_in,spec%grid_out,spec%regrid_method,_RC)
         rh_trans_file = "transpose_"//rh_file
-        inquire(file=rh_file,exist=rh_file_exists)
+
+        if (file_weights) then
+           inquire(file=rh_file,exist=rh_file_exists)
+        else
+           rh_file_exists = .false.
+        end if
         if (rh_file_exists) then
            route_handle = ESMF_RouteHandleCreate(rh_file,_RC)
-           transpose_route_handle = ESMF_RouteHandleCreate(rh_trans_file,_RC)
            call route_handles%insert(spec, route_handle)
-           call transpose_route_handles%insert(spec, transpose_route_handle)
+           if (compute_transpose) then
+              transpose_route_handle = ESMF_RouteHandleCreate(rh_trans_file,_RC)
+              call transpose_route_handles%insert(spec, transpose_route_handle)
+           end if
         else
            src_field = ESMF_FieldCreate(spec%grid_in, typekind=kind, &
                 & indexflag=ESMF_INDEX_DELOCAL, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
@@ -1557,13 +1566,16 @@ contains
            case default
               _FAIL('unknown regrid method')
            end select
-           call ESMF_FieldSMMStore(src_field,dst_field,dummy_rh,transpose_route_handle, &
-                & factorList,factorIndexList,srcTermProcessing=srcTermProcessing, &
-                & rc=status)
-           _VERIFY(status)
-
            call route_handles%insert(spec, route_handle)
-           call transpose_route_handles%insert(spec, transpose_route_handle)
+
+           if (compute_transpose) then
+              call ESMF_FieldSMMStore(src_field,dst_field,dummy_rh,transpose_route_handle, &
+                  & factorList,factorIndexList,srcTermProcessing=srcTermProcessing, &
+                  & rc=status)
+              _VERIFY(status)
+              call transpose_route_handles%insert(spec, transpose_route_handle)
+           end if
+
            ! Free resources
            deallocate(factorList,factorIndexList)
 
@@ -1571,8 +1583,12 @@ contains
            _VERIFY(status)
            call ESMF_FieldDestroy(dst_field, rc=status)
            _VERIFY(status)
-           call ESMF_RouteHandleWrite(route_handle,rh_file,_RC)
-           call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,_RC)
+           if (file_weights) then
+              call ESMF_RouteHandleWrite(route_handle,rh_file,_RC)
+              if (compute_transpose) then
+                 call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,_RC)
+              end if
+           end if
         end if
      end if
 
@@ -1677,16 +1693,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine destroy_route_handle
 
-   function generate_rh_name(grid_in,grid_out,rc) result(file_name)
+   function generate_rh_name(grid_in,grid_out,regrid_method,rc) result(file_name)
       character(len=:), allocatable :: file_name
       type(ESMF_Grid), intent(in) :: grid_in
       type(ESMF_Grid), intent(in) :: grid_out
+      integer, intent(in) :: regrid_method
       integer, intent(out), optional :: rc
 
       integer :: im_in, jm_in, im_out, jm_out
       integer :: nx_in, ny_in, nx_out, ny_out
       character(len=5) :: cim_in,cjm_in,cim_out,cjm_out
       character(len=5) :: cnx_in,cny_in,cnx_out,cny_out
+      character(len=2) :: cmeth
       integer :: temp(3),layout(2)
       integer :: status
 
@@ -1708,7 +1726,8 @@ contains
       write(cjm_out,'(I5.5)')jm_out
       write(cnx_out,'(I5.5)')nx_out
       write(cny_out,'(I5.5)')ny_out
-      file_name = "rh_"//cim_in//"x"//cjm_in//"_"//cnx_in//"x"//cny_in//"_"//cim_out//"x"//cjm_out//"_"//cnx_out//"x"//cny_out
+      write(cmeth,'(I2.2)')regrid_method
+      file_name = "rh_"//cim_in//"x"//cjm_in//"_"//cnx_in//"x"//cny_in//"_"//cim_out//"x"//cjm_out//"_"//cnx_out//"x"//cny_out//"_method_"//cmeth
       _RETURN(_SUCCESS)
 
    end function
