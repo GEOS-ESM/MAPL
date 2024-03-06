@@ -3,7 +3,7 @@
 submodule (mapl3g_LatLonGeomSpec) LatLonGeomSpec_smod
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
-   use hconfig3g
+!   use hconfig3g
    use pfio
    use MAPL_RangeMod
    use MAPLBase_Mod
@@ -73,24 +73,28 @@ contains
       integer :: status
       logical :: has_ims, has_jms, has_nx, has_ny
 
-      has_ims = MAPL_HConfigKeystringFound(hconfig, keystring='ims', _RC)
-      has_jms = MAPL_HConfigKeystringFound(hconfig, keystring='jms', _RC)
+      has_ims = ESMF_HConfigIsDefined(hconfig, keystring='ims', _RC)
+      has_jms = ESMF_HConfigIsDefined(hconfig, keystring='jms', _RC)
       _ASSERT(has_ims .eqv. has_jms, 'ims and jms must be both defined or both undefined')
 
       if (has_ims) then
-         call MAPL_HConfigGet(hconfig, 'ims', ims,  _RC)
-         call MAPL_HConfigGet(hconfig, 'jms', jms, _RC)
+         ims = ESMF_HConfigAsI4Seq(hconfig, keyString='ims', _RC)
+         jms = ESMF_HConfigAsI4Seq(hconfig, keyString='jms', _RC)
+!         call MAPL_HConfigGet(hconfig, 'ims', ims,  _RC)
+!         call MAPL_HConfigGet(hconfig, 'jms', jms, _RC)
          decomp = LatLonDecomposition(ims, jms)
          _RETURN(_SUCCESS)
       end if
 
-      has_nx = MAPL_HConfigKeystringFound(hconfig, keystring='nx', _RC)
-      has_ny = MAPL_HConfigKeystringFound(hconfig, keystring='ny', _RC)
+      has_nx = ESMF_HConfigIsDefined(hconfig, keystring='nx', _RC)
+      has_ny = ESMF_HConfigIsDefined(hconfig, keystring='ny', _RC)
       _ASSERT(has_nx .eqv. has_ny, 'nx and ny must be both defined or both undefined')
 
       if (has_nx) then
-         call MAPL_HConfigGet(hconfig, 'nx', nx, _RC)
-         call MAPL_HConfigGet(hconfig, 'ny', ny, _RC)
+         nx = ESMF_HConfigAsI4(hconfig, keyString='nx', _RC)
+         ny = ESMF_HConfigAsI4(hconfig, keyString='ny', _RC)
+!         call MAPL_HConfigGet(hconfig, 'nx', nx, _RC)
+!         call MAPL_HConfigGet(hconfig, 'ny', ny, _RC)
          decomp = LatLonDecomposition(dims, topology=[nx, ny])
          _RETURN(_SUCCESS)
       end if
@@ -202,10 +206,11 @@ contains
       character(:), allocatable :: geom_schema
 
       ! Mandatory entry: "class: latlon"
-      supports = MAPL_HConfigKeystringFound(hconfig, keystring='schema', _RC)
+      supports = ESMF_HConfigIsDefined(hconfig, keystring='schema', _RC)
       _RETURN_UNLESS(supports)
 
-      call MAPL_HConfigGet(hconfig, 'schema', geom_schema, _RC)
+      geom_schema = ESMF_HConfigAsString(hconfig, keyString='schema', _RC)
+!      call MAPL_HConfigGet(hconfig, 'schema', geom_schema, _RC)
       supports = (geom_schema == 'latlon')
       _RETURN_UNLESS(supports)
       

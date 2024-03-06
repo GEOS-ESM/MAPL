@@ -3,7 +3,8 @@
 submodule (mapl3g_LonAxis) LonAxis_smod
    use mapl_RangeMod
    use mapl_ErrorHandling
-   use hconfig3g
+!   use hconfig3g
+   use esmf
    implicit none
    integer, parameter :: R8 = ESMF_KIND_R8
 
@@ -29,7 +30,9 @@ contains
       type(AxisRanges) :: ranges
       logical :: found
 
-      call MAPL_HConfigGet(hconfig, 'im_world', im_world, found=found, _RC)
+      !call MAPL_HConfigGet(hconfig, 'im_world', im_world, found=found, _RC)
+      im_world = ESMF_HConfigAsI4(hconfig, keyString='im_world', asOkay=found, _RC)
+      _ASSERT(found, '"im_world" not found.')
       _ASSERT(im_world > 0, "Config parameter 'im_world' must be greater than 0.")
 
       ranges = get_lon_range(hconfig, im_world, _RC)
@@ -54,12 +57,13 @@ contains
       logical :: has_range
       logical :: has_dateline
 
-      has_range = MAPL_HConfigKeystringFound(hconfig, keystring='lon_range', _RC)
-      has_dateline = MAPL_HConfigKeystringFound(hconfig, keystring='dateline', _RC)
+      has_range = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
+      has_dateline = ESMF_HConfigIsDefined(hconfig, keystring='dateline', _RC)
       _ASSERT(has_range .neqv. has_dateline, 'Exactly one of lon_range or dateline must be defined in hconfig')
 
       if (has_range) then ! is regional
-         call MAPL_HConfigGet(hconfig, 'lon_range', t_range, _RC)
+         t_range = ESMF_HConfigAsI4Seq(hconfig, keyString='lon_range', _RC)
+      !   call MAPL_HConfigGet(hconfig, 'lon_range', t_range, _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(t_range(1) < t_range(2), 'illegal lon_range')
          delta = (t_range(2) - t_range(1)) / im_world
@@ -72,7 +76,8 @@ contains
       end if
 
       delta = 360.d0 / im_world
-      call MAPL_HConfigGet(hconfig, 'dateline', dateline, _RC)
+!      call MAPL_HConfigGet(hconfig, 'dateline', dateline, _RC)
+      dateline = ESMF_HConfigAsString(hconfig, keyString='dateline', _RC)
       select case (dateline)
       case ('DC')
          ranges%corner_min = -180.d0 - delta/2
@@ -122,11 +127,14 @@ contains
 
       supports = .true.
 
-      has_im_world = MAPL_HConfigKeystringFound(hconfig, keystring='im_world', _RC)
+      has_im_world = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
+!      has_im_world = MAPL_HConfigKeystringFound(hconfig, keystring='im_world', _RC)
       _RETURN_UNLESS(has_im_world)
 
-      has_lon_range = MAPL_HConfigKeystringFound(hconfig, keystring='lon_range', _RC)
-      has_dateline = MAPL_HConfigKeystringFound(hconfig, keystring='dateline', _RC)
+      has_lon_range = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
+      has_dateline = ESMF_HConfigIsDefined(hconfig, keystring='dateline', _RC)
+!      has_lon_range = MAPL_HConfigKeystringFound(hconfig, keystring='lon_range', _RC)
+!      has_dateline = MAPL_HConfigKeystringFound(hconfig, keystring='dateline', _RC)
       _RETURN_UNLESS(has_lon_range .neqv. has_dateline)
       supports = .true.
 

@@ -1,102 +1,80 @@
+! vim:set ft=fortran:
 #include "hconfig_macros.h"
 
-   use hconfig_value_base
    implicit none
-
-   private
-   public :: DTYPE
-
-   type, extends(HConfigValue) :: DTYPE
-#if defined IS_ARRAY
-     MTYPE, pointer :: value_ptr(:)
-     MTYPE, allocatable :: default_(:)
-#else
-     MTYPE, pointer :: value_ptr
-     MTYPE, allocatable :: default_
-#endif
-   contains
-     procedure :: set_from_hconfig
-     procedure :: set_from_default
-     procedure :: value_equals_default
-     procedure :: get_valuestring
-   end type DTYPE
-
-   interface DTYPE
-     module procedure :: construct_hconfig
-   end interface DTYPE
 
 contains
 
-   function construct_hconfig(value, default) result(this)
-      type(DTYPE) :: this
+   subroutine GETFCT (hconfig, keystring, value, found, default, typestring, valuestring, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(len=*), intent(in) :: keystring
+      logical, intent(out) :: found
+      character(len=:), allocatable, optional, intent(out) :: typestring
+      character(len=:), allocatable, optional, intent(out) :: valuestring
+      integer, optional, intent(out) :: rc
+      character(len=*), parameter :: DEFAULT_TAG = ' (default)'
+      integer :: status
+      logical :: value_equals_default
+      character(len=MAXSTRLEN) :: raw
 #if defined IS_ARRAY
-      VTYPE, target :: value(:)
+      MTYPE, intent(out):: value(:)
       class(*), optional, intent(in) :: default(:)
+      MTYPE, allocatable :: default_(:)
+      character(len=*), parameter :: DELIMITER = ' '
+      integer :: i, sz
 #else
-      VTYPE, target :: value
+      MTYPE, intent(out) :: value
       class(*), optional, intent(in) :: default
+      MTYPE, allocatable :: default_
 #endif
-      this%value_ptr => value
-      this%has_default_ = present(default)
-      this%last_status_ = 0
-      if(this%has_default_) then
+
+      if(present(typestring)) typestring = TYPESTR
+
+      if(present(default)) then
          select type(default)
          type is(VTYPE)
-            this%default_ = default
-#if defined IS_STRING
-            this%last_status_ = merge(0, -1, len(default) == len(value))
-#endif
+            default_ = default
          end select
       end if
-      this%typestring_ = TYPESTR
-            
-   end function construct_hconfig
 
-   logical function value_equals_default(this) result(lval)
-      class(DTYPE), intent(in) :: this
-      lval = this%has_default_
-      if(lval) lval = PROPFCT(this%value_ptr, this%default_)
-   end function value_equals_default
+      found = ESMF_HConfigIsDefined(hconfig, keyString=keystring, _RC)
+      if(found) then
+         value = ESMF_HCONFIG_AS(hconfig, keyString=keystring, _RC)
+      else if(present(default)) then
+         value = default_
+      else
+         _RETURN(_SUCCESS)
+      end if
 
-   subroutine set_from_hconfig(this)
-      class(DTYPE), intent(inout) :: this
-      integer :: status
-#if defined USE_STRLEN
-      integer :: strlen
-      strlen = len(this%value_ptr)
-      this%value_ptr = ESMF_HCONFIG_AS(this%hconfig_, stringLen=strlen, keyString=this%keystring_, rc=status)
-#else
-      this%value_ptr = ESMF_HCONFIG_AS(this%hconfig_, keyString=this%keystring_, rc=status)
-#endif
-      this%last_status_ = status
-   end subroutine set_from_hconfig
+      if(.not. present(valuestring)) then
+         _RETURN(_SUCCESS)
+      end if
 
-   subroutine set_from_default(this)
-      class(DTYPE), intent(inout) :: this
-      this%value_ptr = this%default_
-   end subroutine set_from_default
+      if(.not. found) then
+         value_equals_default = .TRUE.
+      else if(.not. present(default)) then
+         value_equals_default = .FALSE.
+      else
+         value_equals_default = PROPFCT(value == default_)
+      end if
 
-   subroutine get_valuestring(this, string)
-      class(DTYPE), intent(inout) :: this
-      character(len=:), allocatable, intent(out) :: string
-      character(len=MAXSTRLEN) :: raw
-      integer :: ios
 #if defined IS_ARRAY
-      character(len=*), parameter :: DELIMITER = ' '
-      integer :: i
-
-      WRITE_STATEMENT(raw, ios, this%value_ptr(1))
+      WRITE_STATEMENT(raw, status, value(1))
 #else
-      WRITE_STATEMENT(raw, ios, this%value_ptr)
+      WRITE_STATEMENT(raw, status, this%value_ptr)
 #endif
-      if(ios /= 0) return
-      string = trim(adjustl(raw))
+      _ASSERT(status == 0, 'Failed to write raw string')
+      valuestring = trim(adjustl(raw))
 #if defined IS_ARRAY
-      do i = 2, SZFCT(this%value_ptr)
-         WRITE_STATEMENT(raw, ios, this%value_ptr(i))
-         if(ios /= 0) return
-         string = string // DELIMITER // trim(adjustl(raw))
+      do i = 2, size(value)
+         WRITE_STATEMENT(raw, status, value(i))
+         _ASSERT(status == 0, 'Failed to write raw string')
+         valuestring = valuestring // DELIMITER // trim(adjustl(raw))
       end do
 #endif
 
-   end subroutine get_valuestring
+      if(value_equals_default) valuestring = valuestring // DEFAULT_TAG
+
+      _RETURN(_SUCCESS)
+
+   end subroutine GETFCT         
