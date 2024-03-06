@@ -7,7 +7,6 @@ module mapl_MaplGrid
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ConstantsMod, only : MAPL_PI_R8, MAPL_UnitsRadians
-   use NetCDF
    implicit none
    private
 
