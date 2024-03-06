@@ -1182,6 +1182,7 @@ contains
               default='NO', _RC)
          call MAPL_GetResource( STATE, split_restart, Label="SPLIT_RESTART:", &
               default='NO', _RC)
+         split_restart = ESMF_UtilStringUpperCase(split_restart,_RC)
          split_checkpoint = ESMF_UtilStringUpperCase(split_checkpoint,_RC)
 
          call MAPL_GetResource( STATE, write_restart_by_oserver, Label="WRITE_RESTART_BY_OSERVER:", &
@@ -1199,6 +1200,8 @@ contains
          mygrid%comm = comm
          mygrid%num_readers =  num_readers
          mygrid%num_writers =  num_writers
+         mygrid%split_checkpoint = .false.
+         mygrid%split_restart = .false.
          if (trim(split_checkpoint) == 'YES') then
             mygrid%split_checkpoint = .true.
          endif
