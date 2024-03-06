@@ -149,7 +149,7 @@ module MAPL_GriddedIOMod
            _VERIFY(status)
         end if
 
-        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
+        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
         _VERIFY(status)
 
 

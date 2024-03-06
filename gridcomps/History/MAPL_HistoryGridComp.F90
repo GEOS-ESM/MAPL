@@ -125,6 +125,7 @@
      integer                             :: collectionWriteSplit
      integer                             :: serverSizeSplit
      logical                             :: allow_overwrite
+     logical                             :: file_weights
   end type HISTORY_STATE
 
   type HISTORY_wrap
@@ -415,7 +416,7 @@ contains
     character(len=:), pointer :: key
     type(StringFieldSetMapIterator) :: field_set_iter
     character(ESMF_MAXSTR) :: field_set_name
-    integer :: collection_id
+    integer :: collection_id, regrid_hints
     logical, allocatable :: needSplit(:)
     type(ESMF_Field), allocatable :: fldList(:)
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
@@ -519,6 +520,8 @@ contains
                                          label='FileOrder:', default='ABC', _RC)
     call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
                                          label='Allow_Overwrite:', default=.false., _RC)
+    call ESMF_ConfigGetAttribute(config, value=intState%file_weights,  &
+                                         label='file_weights:', default=.false., _RC)
     create_mode = PFIO_NOCLOBBER ! defaut no overwrite
     if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
 
@@ -2402,6 +2405,11 @@ ENDDO PARSER
           call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
           call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
           call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+          if (intState%file_weights) then
+             regrid_hints = 0
+             regrid_hints = IOR(regrid_hints,REGRID_HINT_FILE_WEIGHTS)
+             call list(n)%mGriddedIO%set_param(regrid_hints=regrid_hints,_RC)
+          end if
 
           if (list(n)%monthly) then
              nextMonth = currTime - oneMonth
