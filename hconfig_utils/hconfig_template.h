@@ -5,7 +5,7 @@
 
 contains
 
-   subroutine GETFCT (hconfig, keystring, value, found, default, typestring, valuestring, rc)
+   subroutine HCONFIG_GET (hconfig, keystring, value, found, default, typestring, valuestring, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: keystring
       logical, intent(out) :: found
@@ -77,4 +77,21 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine GETFCT         
+   end subroutine HCONFIG_GET         
+
+   subroutine write_scalar(value, string, rc)
+      VTYPE, intent(in) :: value
+      character(len=:), allocatable, intent(out) :: string
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(len=MAXSTRLEN) :: raw
+
+      WRITE_STATEMENT(raw, status, value)
+      _ASSERT(status == 0, 'Failed to write raw string')
+      string = trim(adjustl(raw))
+
+      _RETURN(_SUCCESS)
+
+   end subroutine write_scalar
+
+   subroutine write_array(value, string, rc)

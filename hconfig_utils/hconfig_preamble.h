@@ -1,52 +1,51 @@
 #if defined VTYPE
-   #undef  VTYPE
+#   undef VTYPE
 #endif
 
 #if defined TFMT
-   #undef  TFMT
+#   undef TFMT
 #endif
 
 #if defined TYPESTR
-   #undef  TYPESTR
-#endif
-
-#if defined DTYPE
-   #undef  DTYPE
+#   undef TYPESTR
 #endif
 
 #if defined ESMF_HCONFIG_AS
-   #undef  ESMF_HCONFIG_AS
+#   undef ESMF_HCONFIG_AS
 #endif
 
 #if defined MTYPE
-   #undef  MTYPE
+#   undef MTYPE
 #endif
 
 #if defined RELOPR
-   #undef  RELOPR
+#   undef RELOPR
 #endif
 
 #if defined IS_ARRAY
-   #undef  IS_ARRAY
+#   undef IS_ARRAY
 #endif
 
 #if defined PROPFCT
-   #undef  PROPFCT
+#   undef PROPFCT
 #endif
 
 #if defined SZFCT
-   #undef  SZFCT
+#   undef SZFCT
 #endif
 
 #if defined MAXSTRLEN
-   #undef  MAXSTRLEN
+#   undef MAXSTRLEN
 #endif
 
 #if defined IS_STRING
-   #undef  IS_STRING
+#   undef IS_STRING
 #endif
 
 #if defined USE_STRLEN
-   #undef  USE_STRLEN
+#   undef USE_STRLEN
 #endif
 
+#if defined HCONFIG_GET
+#   undef HCONFIG_GET
+#endif

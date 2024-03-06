@@ -4,7 +4,7 @@ module hconfig_logical_seq
 #define TYPESTR 'L'
 #define RELOPR .eqv.
 #define ESMF_HCONFIG_AS ESMF_HConfigAsLogicalSeq
-#define GETFCT get_hconfig_logical_seq
+#define HCONFIG_GET get_hconfig_logical_seq
 #define IS_ARRAY
 #include "hconfig_template.h"
 

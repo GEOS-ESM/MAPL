@@ -3,7 +3,7 @@ module hconfig_i4
 #define VTYPE integer(kind=ESMF_KIND_I4)
 #define TYPESTR 'I4'
 #define ESMF_HCONFIG_AS ESMF_HConfigAsI4
-#define GETFCT get_hconfig_i4
+#define HCONFIG_GET get_hconfig_i4
 #include "hconfig_template.h"
 
 end module hconfig_i4

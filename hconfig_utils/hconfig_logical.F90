@@ -4,7 +4,7 @@ module hconfig_logical
 #define TYPESTR 'L'
 #define RELOPR .eqv.
 #define ESMF_HCONFIG_AS ESMF_HConfigAsLogical
-#define GETFCT get_hconfig_logical
+#define HCONFIG_GET get_hconfig_logical
 #include "hconfig_template.h"
 
 end module hconfig_logical
