@@ -1459,10 +1459,10 @@ contains
      if (route_handles%count(spec) == 0) then  ! new route_handle
         file_weights = IAND(spec%hints,REGRID_HINT_FILE_WEIGHTS) /= 0
         compute_transpose = IAND(spec%hints,REGRID_HINT_COMPUTE_TRANSPOSE) /= 0
-        rh_file = generate_rh_name(spec%grid_in,spec%grid_out,spec%regrid_method,_RC)
-        rh_trans_file = "transpose_"//rh_file
 
         if (file_weights) then
+           rh_file = generate_rh_name(spec%grid_in,spec%grid_out,spec%regrid_method,_RC)
+           rh_trans_file = "transpose_"//rh_file
            inquire(file=rh_file,exist=rh_file_exists)
         else
            rh_file_exists = .false.
