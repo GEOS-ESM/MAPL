@@ -1512,9 +1512,10 @@ contains
            counter = counter + 1
 
            srcTermProcessing=0
-           call ESMF_AttributeGet(spec%grid_in, name='Global',isPresent=isPresent,rc=status)
+           call ESMF_InfoGetFromHost(spec%grid_in,infoh,_RC)
+           isPresent = ESMF_InfoIsPresent(infoh,'Global',_RC)
            if (isPresent) then
-              call ESMF_AttributeGet(spec%grid_in, name='Global',value=global,rc=status)
+              call ESMF_InfoGet(infoh,'Global',global,_RC)
               if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
            end if
            if (has_mask) dstMaskValues = [MAPL_MASK_OUT] ! otherwise unallocated
