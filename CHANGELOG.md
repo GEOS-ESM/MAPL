@@ -12,14 +12,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add mask sampler for geostationary satellite (GEOS-R series)
 - Add geostation name into NC for station sampler
 - Add mapping between the IODA loc_index and trajectory NC output loc_index
+- Add option to MAPL regridding layer to write and retrieve ESMF weights.
+- Add options to History and ExtData to turn on the ability to write and read route handle weights
+- Add option to renable the transpose computation when calling make\_regridder
+- Added procedures to remove an attribute from a FileMetadata object and from a Variable object in PFIO
+- Add per-collection timer output for History
 - Add python utilities to split and recombine restarts
-- Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer wit the base checkpoint name being a control file that tells how many files were written to. On reading if this control file is provided as the restart file name, it will automatically trigger reading the individual files
-- implemented a new algorthm to read tile files
+- Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer
+- Implemented a new algorthm to read tile files
 
 ### Changed
 
+- The MAPL\_ESMFRegridder manage now does compute the transpose by default
+- Bypassed the I-Server reading call when there is no extdata
+
 ### Fixed
-- removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
+
+- Fixed bug with split restart files
+- Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
+- Fixes to allow SCM model to run
 
 ### Removed
 
