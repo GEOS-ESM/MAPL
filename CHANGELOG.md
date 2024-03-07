@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Change grd_is_ok function to avoid collective call
 - Added procedures to remove an attribute from a FileMetadata object and from a Variable object in PFIO
 - Add per-collection timer output for History
 - Add python utilities to split and recombine restarts
