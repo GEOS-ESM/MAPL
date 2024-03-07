@@ -250,7 +250,7 @@ contains
          p_dst = MAPL_UNDEF
       end if
 
-      !call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
+      call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
       _VERIFY(status)
 
       if (hasDE) q_out = p_dst
