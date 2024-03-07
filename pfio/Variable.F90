@@ -43,6 +43,7 @@ module pFIO_VariableMod
       generic :: add_attribute => add_attribute_1d
       procedure :: add_attribute_0d
       procedure :: add_attribute_1d
+      procedure :: remove_attribute
       procedure :: add_const_value
 
       procedure :: get_chunksizes
@@ -182,6 +183,17 @@ contains
 
    end function get_attributes
 
+   subroutine remove_attribute(this,attr_name,rc)
+      class (Variable), target, intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+      type(StringAttributeMapIterator) :: iter
+      integer :: status
+
+      iter = this%attributes%find(attr_name)
+      call this%attributes%erase(iter)
+      _RETURN(_SUCCESS)
+   end subroutine
 
    subroutine add_attribute_0d(this, attr_name, attr_value, rc)
       class (Variable), target, intent(inout) :: this

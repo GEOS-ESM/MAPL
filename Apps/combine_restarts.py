@@ -11,6 +11,7 @@ import yaml
 def parse_args():
     p = argparse.ArgumentParser(description='Flatten a lat-lon to 1D')
     p.add_argument('input',type=str,help='input file',default=None)
+    p.add_argument('nfiles',type=int,help='number of files',default=None)
     p.add_argument('output',type=str,help='output file',default=None)
     return vars(p.parse_args())
 
@@ -19,19 +20,15 @@ def parse_args():
 #------------------
 comm_args    = parse_args()
 Input_template   = comm_args['input']
+num_files = comm_args['nfiles']
 Output_file  = comm_args['output']
 
-f = open(Input_template,'r')
-input_yaml = yaml.safe_load(f)
-f.close()
-num_files = input_yaml['num_files']
-j_size = input_yaml['j_size']
-
-j_per_file = j_size*6//num_files
 
 ncFid = Dataset(Input_template+"_"+str(1), mode='r')
 ncFidOut = Dataset(Output_file, mode='w', format='NETCDF4')
 
+res = len(ncFid.dimensions['lon'])
+j_per_file = res*6//num_files
 #---------------------
 # Extracting variables
 #---------------------
@@ -62,7 +59,7 @@ for att in ncFid.variables['time'].ncattrs():
    for att in ncFid.variables['time'].ncattrs():
       setattr(ncFidOut.variables['time'],att,getattr(ncFid.variables['time'],att))
    new_time[:] = 0
-   
+
 
 vXdim = ncFidOut.createVariable('lon','f8',('lon'))
 vYdim = ncFidOut.createVariable('lat','f8',('lat'))
@@ -72,7 +69,7 @@ setattr(ncFidOut.variables['lon'],'long_name','longitude')
 setattr(ncFidOut.variables['lat'],'long_name','latitude')
 vXdim[:]=range(1,cube_res+1)
 vYdim[:]=range(1,(cube_res*6)+1)
-               
+
 for dim in detected_dims:
     if dim in ncFid.variables:
         vLevOut = ncFidOut.createVariable(dim,'f8',(dim))
@@ -104,7 +101,7 @@ for i in range(num_files):
               dim_size =len(temp.shape)
               float_type = ncFid.variables[var].dtype
               var_dims = ncFid.variables[var].dimensions
-              
+
               if dim_size == 4:
                  tout = ncFidOut.createVariable(var,float_type,var_dims,fill_value=1.0e15,chunksizes=(1,1,cube_res,cube_res))
                  for att in ncFid.variables[var].ncattrs():
@@ -115,7 +112,7 @@ for i in range(num_files):
                  for att in ncFid.variables[var].ncattrs():
                     if att != "_FillValue":
                        setattr(ncFidOut.variables[var],att,getattr(ncFid.variables[var],att))
-              elif dim_size == 2: 
+              elif dim_size == 2:
                  tout = ncFidOut.createVariable(var,float_type,('lat','lon'),fill_value=1.0e15,chunksizes=(cube_res,cube_res))
                  for att in ncFid.variables[var].ncattrs():
                     if att != "_FillValue":
@@ -131,13 +128,13 @@ for i in range(num_files):
              il =  j_per_file*i
              iu =  j_per_file*(i+1)
              ncFidOut.variables[var][:,:,il:iu,:] = temp[:,:,:,:]
-         
+
           elif dim_size == 3:
              il =  j_per_file*i
              iu =  j_per_file*(i+1)
              ncFidOut.variables[var][:,il:iu,:] = temp[:,:,:]
 
-          elif dim_size == 2: 
+          elif dim_size == 2:
              il =  j_per_file*i
              iu =  j_per_file*(i+1)
              ncFidOut.variables[var][il:iu,:] = temp[:,:]
