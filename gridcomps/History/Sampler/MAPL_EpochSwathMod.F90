@@ -103,7 +103,7 @@ module MAPL_EpochSwathMod
      procedure :: check_chunking
      procedure :: alphabatize_variables
      procedure :: addVariable_to_acc_bundle
-     procedure :: addVariable_to_output_bundle
+!!     procedure :: addVariable_to_output_bundle
      procedure :: interp_accumulate_fields
   end type sampler
 
@@ -456,23 +456,22 @@ contains
         if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
         _VERIFY(status)
 
+        ! __ add field to output_bundle
+        !
         iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
-              call this%CreateVariable(item%xname,rc=status)
-              _VERIFY(status)
+              call this%CreateVariable(item%xname,_RC)
            else if (item%itemType == ItemTypeVector) then
-              call this%CreateVariable(item%xname,rc=status)
-              _VERIFY(status)
-              call this%CreateVariable(item%yname,rc=status)
-              _VERIFY(status)
+              call this%CreateVariable(item%xname,_RC)
+              call this%CreateVariable(item%yname,_RC)
            end if
            call iter%next()
         enddo
 
 
-        ! __ add acc_bundle and output_bundle
+        ! __ add field to acc_bundle 
         !
         this%acc_bundle = ESMF_FieldBundleCreate(_RC)
         call ESMF_FieldBundleSet(this%acc_bundle,grid=this%output_grid,_RC)
@@ -859,10 +858,14 @@ contains
               yptr3d => yptr3d_inter
            end if
         else
-           if (associated(xptr3d)) nullify(xptr3d)
-           if (associated(yptr3d)) nullify(yptr3d)
+           !           if (associated(xptr3d)) nullify(xptr3d)
+           !           if (associated(yptr3d)) nullify(yptr3d)
+           !if (associated(xptr3d)) deallocate(xptr3d)
+           !if (associated(yptr3d)) deallocate(yptr3d)           
+           nullify(xptr3d, yptr3d)
         end if
 
+!!        _FAIL('nail 1')
         call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,yname,field=yfield,rc=status)
@@ -1018,26 +1021,26 @@ contains
   end subroutine addVariable_to_acc_bundle
 
 
-  subroutine addVariable_to_output_bundle(this,itemName,rc)
-    class (sampler), intent(inout) :: this
-    character(len=*), intent(in) :: itemName
-    integer, optional, intent(out) :: rc
-
-    type(ESMF_Field) :: field,newField
-    integer :: fieldRank
-    integer :: status
-
-    call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,_RC)
-    call ESMF_FieldGet(field,rank=fieldRank,rc=status)
-    if (this%doVertRegrid .and. (fieldRank ==3) ) then
-       newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,_RC)
-    else
-       newField = MAPL_FieldCreate(field,this%output_grid,_RC)
-    end if
-    call MAPL_FieldBundleAdd(this%output_bundle,newField,_RC)
-
-    _RETURN(_SUCCESS)
-  end subroutine addVariable_to_output_bundle
+!!  subroutine addVariable_to_output_bundle(this,itemName,rc)
+!!    class (sampler), intent(inout) :: this
+!!    character(len=*), intent(in) :: itemName
+!!    integer, optional, intent(out) :: rc
+!!
+!!    type(ESMF_Field) :: field,newField
+!!    integer :: fieldRank
+!!    integer :: status
+!!
+!!    call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,_RC)
+!!    call ESMF_FieldGet(field,rank=fieldRank,rc=status)
+!!    if (this%doVertRegrid .and. (fieldRank ==3) ) then
+!!       newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,_RC)
+!!    else
+!!       newField = MAPL_FieldCreate(field,this%output_grid,_RC)
+!!    end if
+!!    call MAPL_FieldBundleAdd(this%output_bundle,newField,_RC)
+!!
+!!    _RETURN(_SUCCESS)
+!!  end subroutine addVariable_to_output_bundle
 
 
 
@@ -1051,7 +1054,7 @@ contains
     integer, optional, intent(out) :: rc
 
     integer :: status
-    type(ESMF_Field) :: outField
+    type(ESMF_Field) :: outField, outField2
     type(ESMF_Field) :: new_outField
     type(ESMF_Grid)  :: grid
 
@@ -1142,19 +1145,66 @@ contains
     do while (iter /= this%items%end())
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
-          call this%RegridScalar(item%xname,rc=status)
-          _VERIFY(status)
+          call this%RegridScalar(item%xname,_RC)
           call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField, _RC)
-          _VERIFY(status)
           if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-             call this%vdata%correct_topo(outField,rc=status)
-             _VERIFY(status)
+             call this%vdata%correct_topo(outField,_RC)
           end if
+       elseif (item%itemType == ItemTypeVector) then
+          call this%RegridVector(item%xname,item%yname,_RC)
+          call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField, _RC)
+          if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+             call this%vdata%correct_topo(outField,_RC)
+          end if
+          call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField2, _RC)
+          if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+             call this%vdata%correct_topo(outField2,_RC)
+          end if
+       end if
+          
+       
+       ! -- mask the time interval
+       !    store the time interval fields into new bundle
+       !    xname
+       call ESMF_FieldGet(outField, Array=array1, _RC)
+       call ESMF_FieldBundleGet(this%acc_bundle,item%xname,field=new_outField,_RC)
+       call ESMF_FieldGet(new_outField, Array=array2, _RC)
+       call ESMF_ArrayGet(array1, rank=rank, _RC)
+       if (rank==2) then
+          call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
+          call ESMF_ArrayGet(array2, farrayptr=pt2d_, _RC)
+          localDe=0
+          if (j1(localDe)>0) then
+             do j= j1(localDe), j2(localDe)
+                jj= j-jj1+1     ! j_local
+                !!                      write(6,*) 'j, jj', j, jj
+                pt2d_(:,jj) = pt2d(:,jj)
+             enddo
+          endif
+       elseif (rank==3) then
+          call ESMF_ArrayGet(array1, farrayptr=pt3d, _RC)
+          call ESMF_ArrayGet(array2, farrayptr=pt3d_, _RC)
+          do localDe=0, localDEcount-1
+             if (j1(localDe)>0) then
+                do j= j1(localDe), j2(localDe)
+                   jj= j-jj1+1
+                   pt3d_(:,jj,:) = pt3d(:,jj,:)
+                enddo
+             endif
+          enddo
+       else
+          _FAIL('failed interp_accumulate_fields')
+       endif
 
-          ! -- mask the time interval
-          !    store the time interval fields into new bundle
-          call ESMF_FieldGet(outField, Array=array1, _RC)
-          call ESMF_FieldBundleGet(this%acc_bundle,item%xname,field=new_outField,_RC)
+       ! __ additional step for yname if vector
+       if (item%itemType == ItemTypeScalar) then
+          ! already done
+       elseif (item%itemType == ItemTypeVector) then
+          !
+          ! add yname
+          !
+          call ESMF_FieldGet(outField2, Array=array1, _RC)
+          call ESMF_FieldBundleGet(this%acc_bundle,item%yname,field=new_outField,_RC)
           call ESMF_FieldGet(new_outField, Array=array2, _RC)
           call ESMF_ArrayGet(array1, rank=rank, _RC)
           if (rank==2) then
@@ -1182,9 +1232,6 @@ contains
           else
              _FAIL('failed interp_accumulate_fields')
           endif
-
-       else if (item%itemType == ItemTypeVector) then
-          _FAIL('ItemTypeVector not implemented')
        end if
        call iter%next()
     enddo
