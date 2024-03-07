@@ -337,17 +337,13 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
          call MAPL_DistGridGet(distgrid, &
             minIndex=minindex, &
             maxIndex=maxindex, _RC)
-         if (associated(ims)) then
-            nullify(ims)
-         end if
-         if (associated(jms)) then
-            nullify(jms)
-         end if
+         nullify(ims,jms)
          call MAPL_GetImsJms(Imins=minindex(1,:),Imaxs=maxindex(1,:),&
            Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,_RC)
 
          layout(1) = size(ims)
          layout(2) = size(jms)
+         deallocate(ims,jms)
       end if
 
       _RETURN(ESMF_SUCCESS)
