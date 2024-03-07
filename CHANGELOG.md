@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add allocate(X, _STAT) to sampler codes
 - Skip destroy_regen_grid when list(n)%end_alarm is active (the last time step in sampler)
 - Add extract_unquoted_item(STR1) to fix a bug in geoval_xname(mx_ngeoval) in trajectory sampler
+- Replace local HorzIJIndex sear with the GlobalHorzIJindex search
+- Change grd_is_ok function to avoid collective call
 - Add option to MAPL regridding layer to write and retrieve ESMF weights.
 - Add options to History and ExtData to turn on the ability to write and read route handle weights
 - Add option to renable the transpose computation when calling make\_regridder
