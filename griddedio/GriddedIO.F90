@@ -57,7 +57,7 @@ module MAPL_GriddedIOMod
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
-     integer :: regrid_hints
+     integer :: regrid_hints = 0
      contains
         procedure :: CreateFileMetaData
         procedure :: CreateVariable
