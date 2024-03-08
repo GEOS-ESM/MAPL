@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Add `if (compute_transpose)` to sub. destroy_route_handle to avoid destroying a nonexisting route handle
 - Add option to MAPL regridding layer to write and retrieve ESMF weights.
 - Add options to History and ExtData to turn on the ability to write and read route handle weights
 - Add option to renable the transpose computation when calling make\_regridder
