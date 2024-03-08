@@ -56,6 +56,7 @@ module MAPL_GriddedIOMod
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
+     integer :: regrid_hints = 0
      contains
         procedure :: CreateFileMetaData
         procedure :: CreateVariable
@@ -148,7 +149,7 @@ module MAPL_GriddedIOMod
            _VERIFY(status)
         end if
 
-        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
+        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
         _VERIFY(status)
 
 
@@ -234,7 +235,7 @@ module MAPL_GriddedIOMod
       end subroutine destroy
 
 
-     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
+     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: quantize_algorithm
@@ -244,6 +245,7 @@ module MAPL_GriddedIOMod
         integer, optional, intent(in) :: regrid_method
         logical, optional, intent(in) :: itemOrder
         integer, optional, intent(in) :: write_collection_id
+        integer, optional, intent(in) :: regrid_hints
         integer, optional, intent(out) :: rc
 
         integer :: status
@@ -259,6 +261,7 @@ module MAPL_GriddedIOMod
         end if
         if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
         if (present(write_collection_id)) this%write_collection_id=write_collection_id
+        if (present(regrid_hints)) this%regrid_hints = regrid_hints
         _RETURN(ESMF_SUCCESS)
 
      end subroutine set_param
@@ -1074,6 +1077,7 @@ module MAPL_GriddedIOMod
      type(ESMF_Grid) :: output_grid
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
+     integer :: regrid_hints
 
      collection => Datacollections%at(this%metadata_collection_id)
      this%current_file_metadata => collection%find(filename, _RC)
@@ -1084,7 +1088,7 @@ module MAPL_GriddedIOMod
      call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
      _VERIFY(status)
      if (filegrid/=output_grid) then
-        this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
+        this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
         _VERIFY(status)
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
