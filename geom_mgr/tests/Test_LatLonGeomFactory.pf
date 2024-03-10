@@ -22,7 +22,7 @@ contains
       hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
       @assert_that(status, is(0))
 
-      geom_spec = factory%make_spec(hconfig, rc=status)
+      allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))
       @assert_that(status, is(0))
 
       geom = factory%make_geom(geom_spec, rc=status)

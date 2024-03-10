@@ -1,3 +1,4 @@
+#include "MAPL_TestErr.h"
 module Test_SimpleParentGridComp
    use mapl3g_GenericPhases
    use mapl3g_Generic
@@ -19,11 +20,6 @@ module Test_SimpleParentGridComp
    type(MultiState) :: parent_outer_states
 
 contains
-
-   ! This macro should only be used as safety for "unexpected" exceptions.
-#define _VERIFY(status) if(status /= 0) then; rc=status;print*,'ERROR AT: ',__FILE__,__LINE__, status; return; endif
-#define _RC rc=status); _VERIFY(status
-#define _HERE print*,__FILE__,__LINE__
 
    subroutine setup(outer_gc, states, rc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
