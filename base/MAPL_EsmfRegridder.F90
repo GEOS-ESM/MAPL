@@ -1460,7 +1460,7 @@ contains
         rh_trans_file = "transpose_"//rh_file
         inquire(file=rh_file,exist=rh_file_exists)
         if (rh_file_exists) then
-           if (mapl_am_I_root()) write(*,*)"bmaa reading RH file"
+           if (mapl_am_I_root()) write(*,*)"bmaa reading "//trim(rh_file)
            route_handle = ESMF_RouteHandleCreate(rh_file,_RC)
            transpose_route_handle = ESMF_RouteHandleCreate(rh_trans_file,_RC)
            call route_handles%insert(spec, route_handle)
@@ -1563,8 +1563,8 @@ contains
            _VERIFY(status)
            call ESMF_FieldDestroy(dst_field, rc=status)
            _VERIFY(status)
-           call ESMF_RouteHandleWrite(route_handle,rh_file,_RC)
-           call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,_RC)
+          !call ESMF_RouteHandleWrite(route_handle,rh_file,_RC)
+          !call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,_RC)
         end if
      end if
 
