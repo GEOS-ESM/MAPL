@@ -1,19 +1,20 @@
 esma_set_this (OVERRIDE MAPL.hconfig_utils)
 
 set(srcs
-  hconfig_value_mod.F90
-  hconfig_i4.F90
-  hconfig_i8.F90
-  hconfig_r4.F90
-  hconfig_r8.F90
-  hconfig_logical.F90
-  hconfig_string.F90
-  hconfig_i4seq.F90
-  hconfig_i8seq.F90
-  hconfig_r4seq.F90
-  hconfig_r8seq.F90
-  hconfig_logical_seq.F90
+#  hconfig_value_mod.F90
+#  hconfig_i4.F90
+#  hconfig_i8.F90
+#  hconfig_r4.F90
+#  hconfig_r8.F90
+#  hconfig_logical.F90
+#  hconfig_string.F90
+#  hconfig_i4seq.F90
+#  hconfig_i8seq.F90
+#  hconfig_r4seq.F90
+#  hconfig_r8seq.F90
+#  hconfig_logical_seq.F90
   mapl3g_hconfig_get.F90
+  mapl3g_hconfig_getter.F90
   mapl3g_hconfig_get_private.F90
   HConfig3G.F90
   )
