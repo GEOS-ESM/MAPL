@@ -522,7 +522,8 @@ contains
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-         item_spec = var_spec%make_ItemSpec(geom, vertical_geom, registry, _RC)
+!#         item_spec = var_spec%make_ItemSpec(geom, vertical_geom, registry, _RC)
+         allocate(item_spec, source=var_spec%make_ItemSpec(geom, vertical_geom, registry, rc=status)); _VERIFY(status)
          call item_spec%create(_RC)
          
          virtual_pt = var_spec%make_virtualPt()
