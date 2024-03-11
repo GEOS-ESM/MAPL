@@ -58,6 +58,7 @@ module MAPL_EpochSwathMod
      procedure :: fill_time_in_bundle
      procedure :: find_config
      procedure :: config_accumulate
+     procedure :: verify_epoch_equals_freq
   end type samplerHQ
 
   interface samplerHQ
@@ -92,6 +93,7 @@ module MAPL_EpochSwathMod
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
      logical :: have_initalized
+     integer :: epoch_sec
    contains
 !!     procedure :: CreateFileMetaData
      procedure :: Create_bundle_RH
@@ -193,6 +195,40 @@ contains
   end subroutine config_accumulate
 
 
+  subroutine verify_epoch_equals_freq (this, frequency_from_list, swath_grid_label, rc)
+    class(samplerHQ)  :: this
+    integer, intent(in) :: frequency_from_list
+    character(len=*) , intent(in) :: swath_grid_label
+    integer, intent(out), optional :: rc
+    type(ESMF_Config) :: config_grid
+    integer :: hq_epoch_sec
+    integer :: freq_sec
+    integer :: local_swath_epoch_sec    
+    integer :: time_integer
+    logical :: con
+    integer :: status
+
+    call ESMF_TimeIntervalGet(this%Frequency_epoch, s=hq_epoch_sec, _RC)
+    freq_sec = MAPL_nsecf( frequency_from_list )
+    config_grid = this%find_config( swath_grid_label )
+    call ESMF_ConfigGetAttribute(config_grid, value=time_integer, &
+         label=trim(swath_grid_label)//'.Epoch:', default=0, _RC)
+    local_swath_epoch_sec = MAPL_nsecf( time_integer )
+
+    con = (hq_epoch_sec == local_swath_epoch_sec) .AND. (hq_epoch_sec == freq_sec)
+    if (mapl_am_i_root()) then
+       if (.not. con) then
+          write(6, '(2x,a,2x,i10)') 'hq_epoch_sec', hq_epoch_sec
+          write(6, '(2x,a,2x,i10)') 'local_swath_epoch_sec', local_swath_epoch_sec
+          write(6, '(2x,a,2x,i10)') 'freq_sec', freq_sec
+       end if
+    end if
+    _ASSERT(con, 'Error in '//trim(swath_grid_label)//' related swath and list in History.rc: Epoch in all swath grids must be equal, and equal to list%freq')
+    _RETURN(_SUCCESS)
+  end subroutine verify_epoch_equals_freq
+    
+
+  
   !--------------------------------------------------!
   ! __ set
   !    - ogrid via grid_manager%make_grid
