@@ -2599,10 +2599,7 @@ contains
     type(ESMF_CoordSys_Flag) :: coordSys
     character(len=ESMF_MAXSTR) :: grid_type
 
-    if (npts == 0 ) then
-      _RETURN(_SUCCESS)
-    endif
-
+    _RETURN_IF(npts == 0 ) 
     ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
     ! this also means we are running on a distributed grid
     ! if grid not present then the we just be running outside of ESMF and the user must
