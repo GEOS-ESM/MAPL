@@ -88,31 +88,41 @@ contains
 
       if(this%found) then
          value = ESMF_HConfigAsI4(this%hconfig, keyString=this%label, _RC)!wdb fixme deleteme could be macro
+         ! Do not set value to default. Compare only.
       end if
-      if(present(default)) call handle_default(default, this%found, value, are_equal=this%value_equals_default)
+      if(present(default)) then
+         call handle_default(default, value, this%value_equals_default, compare_only=this%found, _RC)
+      end if
       _RETURN_UNLESS(this%do_log())
       call this%log_message(value, _RC)
+      _RETURN(_SUCCESS)
       
    end subroutine set_value_i4
 
    !template - macros for equal operator
-   subroutine handle_default_i4(default, compare_only, value, are_equal)
+   subroutine handle_default_i4(default, value, are_equal, compare_only, rc)
       integer(kind=ESMF_KIND_I4), intent(inout) :: value!wdb fixme deleteme could be macro
       class(*), intent(in) :: default
-      logical, intent(in) :: compare_only
       logical, intent(out) :: are_equal
+      logical, intent(in) :: compare_only
+      integer, optional, intent(out) :: rc
+      integer :: status
 
       select type(default)
       type is (integer(kind=ESMF_KIND_I4))!wdb fixme deleteme could be macro
          if(compare_only) then
+            ! Compare only
             are_equal = (value == default)
             return
          end if
+         ! Therefore compare_only is .FALSE.
          value = default
+         ! So are_equal must be equal.
          are_equal = .TRUE.
       class default
-!         _FAIL
+         _FAIL('type unrecognized')
       end select
+      _RETURN(_SUCCESS)
    end subroutine handle_default_i4
 
    !wdb everything could be included with template - 2nd procedure for arrays with macro selector

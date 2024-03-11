@@ -37,53 +37,83 @@ contains
    @Test
    subroutine test_set_value()
       type(HConfigGetter) :: instance
+      integer(ESMF_KIND_I4), parameter :: DEFAULT = 13
+      ! The value in ESMF_HConfig will be HCONFIG_VALUE once it is set.
+      ! HCONFIG_VALUE cannot equal DEFAULT because of its initialization.
+      integer(ESMF_KIND_I4), parameter :: HCONFIG_VALUE = DEFAULT-1
+      ! Therefore, value cannot equal both DEFAULT and HCONFIG_VALUE.
       integer(ESMF_KIND_I4) :: value
-      integer(ESMF_KIND_I4) :: default = 13
-      integer(ESMF_KIND_I4) :: hconfig_value = 11
       character(len=:), allocatable :: label
       integer :: status
 
+      ! first call to set_value
       instance = get_hconfig_getter()
-      call instance%set_value(value, default, rc=status)
-      @assertEqual(0, status, ERROR_NONZERO // ' on default only')
-      @assertEqual(default, value, 'Value does not equal default.')
+      ! The label is not present in ESMF_HConfig.
+      ! The DEFAULT is provided.
+      call instance%set_value(value, DEFAULT, rc=status)
+      @assertEqual(0, status, ERROR_NONZERO // ' on DEFAULT only')
+      ! Therefore value must equal DEFAULT.
+      @assertEqual(DEFAULT, value, 'Value does not equal DEFAULT.')
 
+      !label with HCONFIG_VALUE is added to ESMF_HConfig.
       label = 'ochre'
-      call ESMF_HConfigAdd(hconfig, hconfig_value, addKeyString=label, rc=status)
+      call ESMF_HConfigAdd(hconfig, HCONFIG_VALUE, addKeyString=label, rc=status)
       @assertEqual(0, status, 'Add failed.')
 
+      ! second call to set_value
       instance = get_hconfig_getter(hconfig, label)
+      ! Label is present in ESMF_HConfig for the second call to set_value.
+      ! Default is not present in call to set_value.
       call instance%set_value(value, rc=status)
-      @assertEqual(0, status, ERROR_NONZERO // ' on no default')
-      @assertEqual(hconfig_value, value, 'Value does not equal HConfig value.')
+      @assertEqual(0, status, ERROR_NONZERO // ' on no DEFAULT')
+      ! Therefore value must equal HCONFIG_VALUE.
+      @assertEqual(HCONFIG_VALUE, value, 'Value does not equal HConfig value.')
       
-      call instance%set_value(value, default, rc=status)
-      @assertEqual(0, status, ERROR_NONZERO // ' on value and default')
-      @assertEqual(hconfig_value, value, 'Value does not equal HConfig value with default.')
-
-      call instance%set_value(value, hconfig_value, rc=status)
-      @assertEqual(0, status, ERROR_NONZERO // ' on value with equal default')
-      @assertEqual(hconfig_value, value, 'Value does not equal HConfig value with equal default.')
+      ! third call to set_value
+      ! DEFAULT is provided, but value in ESMF_HConfig is present.
+      call instance%set_value(value, DEFAULT, rc=status)
+      @assertEqual(0, status, ERROR_NONZERO // ' on value and DEFAULT')
+      ! Therefore, value should equal the value in ESMF_HConfig.
+      ! This shows that the DEFAULT value is not used when the value is present in ESMF_HConfig.
+      @assertEqual(HCONFIG_VALUE, value, 'Value does not equal HConfig value with DEFAULT.')
 
    end subroutine test_set_value
 
    @Test
    subroutine test_handle_default()
+      integer, parameter :: DEFAULT_ = 17
       integer(ESMF_KIND_I4) :: value, default
       logical :: are_equal, compare_only
+      integer :: status
       
-      default = 17
+      ! set original value of default
+      default = DEFAULT_
+      value = default-1
+      ! value is not equal to default by initialization.
       compare_only = .FALSE.
-      call handle_default(default, compare_only, value, are_equal)
+      are_equal = .FALSE.
+      ! This should set value to default and are_equal to .TRUE.
+      call handle_default(default, value, compare_only, are_equal, rc=status)
+      @assertEqual(0, status, ERROR_NONZERO)
       @assertEqual(default, value, 'Value does match default.')
       @assertTrue(are_equal, 'are_equal is .FALSE.')
-      are_equal = .FALSE.
+
       compare_only = .TRUE.
-      call handle_default(default, compare_only, value, are_equal)
+      are_equal = .FALSE.
+      ! Value still equals default, so are_equal should be true.
+      call handle_default(default, value, compare_only, are_equal, rc=status)
+      @assertEqual(0, status, ERROR_NONZERO)
       @assertTrue(are_equal, 'are_equal is .FALSE. (compare only).')
-      call handle_default(default+1, compare_only, value, are_equal)
+
+      ! default changes value
+      default = default + 1
+      ! compare_only is still true, so that is should only compare.
+      call handle_default(default, value, compare_only, are_equal, rc=status)
+      @assertEqual(0, status, ERROR_NONZERO)
+      ! value != default
       @assertFalse(are_equal, 'are_equal is .TRUE. (compare only).')
-      @assertEqual(default, value, 'Value changed. (compare only).')
+      ! value should equal the original value of default. This shows it did not change value.
+      @assertEqual(DEFAULT_, value, 'Value changed. (compare only).')
 
    end subroutine test_handle_default
 
