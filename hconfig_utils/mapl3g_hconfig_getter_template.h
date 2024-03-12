@@ -49,11 +49,21 @@
       character(len=:), allocatable :: valuestring
       character(len=:), allocatable, optional, intent(out) :: valuestring_out
       integer :: status
-
+#if IS_ARRAY
+      integer :: i
+      character(len=*), parameter :: SEPARATOR = ' '
+      allocate(character(len=MAXSTRLEN) :: valuestring)
+      write(valuestring, fmt=this%formatstring, iostat=status) value(1)
+      _ASSERT(status == 0, 'Error writing valuestring')
+      valuestring = trim(valuestring)
+#else
       allocate(character(len=MAXSTRLEN) :: valuestring)
       write(valuestring, fmt=this%formatstring, iostat=status) value
       _ASSERT(status == 0, 'Error writing valuestring')
       valuestring = trim(valuestring)
+    !expand this wdb deleteme
+#endif
+
       if(this%value_equals_default) valuestring = valuestring // DEFAULT_VALUE_TAG
       call this%log_resource_message(valuestring, _RC)
       if(present(valuestring_out)) valuestring_out = valuestring
