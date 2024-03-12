@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add interface to regrid vector for swath sampler
+- Give informative error message when swath grid Epoch does not equal swath sampler frequency
 - Add mask sampler for geostationary satellite (GEOS-R series)
 - Add geostation name into NC for station sampler
 - Add mapping between the IODA loc_index and trajectory NC output loc_index

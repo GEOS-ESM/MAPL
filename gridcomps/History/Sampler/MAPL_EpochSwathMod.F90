@@ -203,7 +203,7 @@ contains
     type(ESMF_Config) :: config_grid
     integer :: hq_epoch_sec
     integer :: freq_sec
-    integer :: local_swath_epoch_sec    
+    integer :: local_swath_epoch_sec
     integer :: time_integer
     logical :: con
     integer :: status
@@ -226,9 +226,9 @@ contains
     _ASSERT(con, 'Error in '//trim(swath_grid_label)//' related swath and list in History.rc: Epoch in all swath grids must be equal, and equal to list%freq')
     _RETURN(_SUCCESS)
   end subroutine verify_epoch_equals_freq
-    
 
-  
+
+
   !--------------------------------------------------!
   ! __ set
   !    - ogrid via grid_manager%make_grid
@@ -356,7 +356,7 @@ contains
    enddo
    call ESMF_FieldBundleDestroy(sp%acc_bundle,noGarbage=.true.,_RC)
    deallocate(names,_STAT)
-   
+
    call ESMF_FieldBundleGet(sp%output_bundle,fieldCount=numVars,_RC)
    allocate(names(numVars),_STAT)
    call ESMF_FieldBundleGet(sp%output_bundle,fieldNameList=names,_RC)
@@ -366,7 +366,7 @@ contains
    enddo
    call ESMF_FieldBundleDestroy(sp%output_bundle,noGarbage=.true.,_RC)
    deallocate(names,_STAT)
-   
+
    _RETURN(ESMF_SUCCESS)
 
   end subroutine destroy_rh_regen_ogrid
@@ -507,7 +507,7 @@ contains
         enddo
 
 
-        ! __ add field to acc_bundle 
+        ! __ add field to acc_bundle
         !
         this%acc_bundle = ESMF_FieldBundleCreate(_RC)
         call ESMF_FieldBundleSet(this%acc_bundle,grid=this%output_grid,_RC)
@@ -894,14 +894,9 @@ contains
               yptr3d => yptr3d_inter
            end if
         else
-           !           if (associated(xptr3d)) nullify(xptr3d)
-           !           if (associated(yptr3d)) nullify(yptr3d)
-           !if (associated(xptr3d)) deallocate(xptr3d)
-           !if (associated(yptr3d)) deallocate(yptr3d)           
            nullify(xptr3d, yptr3d)
         end if
 
-!!        _FAIL('nail 1')
         call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,yname,field=yfield,rc=status)
@@ -1197,8 +1192,8 @@ contains
              call this%vdata%correct_topo(outField2,_RC)
           end if
        end if
-          
-       
+
+
        ! -- mask the time interval
        !    store the time interval fields into new bundle
        !    xname
