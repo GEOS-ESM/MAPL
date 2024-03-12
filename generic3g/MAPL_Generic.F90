@@ -169,8 +169,8 @@ module mapl3g_Generic
    interface MAPL_ResourceGet
       module procedure :: mapl_resource_gridcomp_get_scalar
       module procedure :: mapl_resource_get_scalar
-      module procedure :: mapl_resource_gridcomp_get_array
-      module procedure :: mapl_resource_get_array
+!      module procedure :: mapl_resource_gridcomp_get_array
+!      module procedure :: mapl_resource_get_array
    end interface MAPL_ResourceGet
 
 contains
@@ -616,171 +616,256 @@ contains
    end subroutine gridcomp_get_hconfig
 
    ! Finds value given keystring.
-   ! If the keystring is not found, either the found flag or default value be present.
-   ! Otherwise an exception is thrown. found indicates keystring found.
-   ! If default is present, equals_default indicates whether the value equals the default.
-   subroutine mapl_resource_get_scalar(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
+   subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(*), intent(inout) :: value !wdb could add array case with macro DIM_=dimension(:), allocatable for array; DIM_= for scalar
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(*), optional, intent(in) :: default !wdb could add array case with macro DIM_=dimension(:) for array; DIM_= for scalar
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical :: found
+      type(ESMF_HConfig) :: hconfig
+      class(Logger_t), pointer :: logger
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call MAPL_ResourceGet(hconfig, value, keystring, default=default, value_set=value_set, _RC) 
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine mapl_resource_gridcomp_get_scalar
+
+   subroutine mapl_resource_get_scalar(hconfig, value, keystring, unusable, default, value_set, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: keystring
       class(*), intent(inout) :: value
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(out) :: found
       class(*), optional, intent(in) :: default
-      logical, optional, intent(out) :: equals_default
-      character(len=:), optional, allocatable, intent(inout) :: typestring
-      character(len=:), optional, allocatable, intent(inout) :: valuestring
+      logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
       integer :: status
+      logical :: found
+      class(Logger_t), pointer :: logger
 
-      call MAPL_HConfigGet(hconfig, keystring, value, found=found, default=default, &
-         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
+      call MAPL_HConfigGet(hconfig, value, label=keystring, default=default, valueset=value_set, _RC) 
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
    end subroutine mapl_resource_get_scalar
 
+end module mapl3g_Generic
+
+!   subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, value_set, rc)
+!      type(ESMF_GridComp), intent(inout) :: gc
+!      character(len=*), intent(in) :: keystring
+!      class(*), intent(inout) :: value
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      class(*), optional, intent(in) :: default
+!      logical, optional, intent(out) :: value_set
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      logical :: found, equals_default
+!      type(ESMF_HConfig) :: hconfig
+!      class(Logger_t), pointer :: logger
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!
+!      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+!      call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
+!         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
+!      found = present(default) .or. found
+!      if(present(value_set)) then
+!         value_set = merge(.TRUE., found, present(default))
+!      else
+!         _ASSERT(found, 'No default value or valueset flag: "' // trim(keystring) // '" not found')
+!      end if
+!      call log_resource_message(logger, form_message(typestring, keystring, valuestring, equals_default), _RC)
+!
+!      _RETURN(_SUCCESS)
+!      _UNUSED_DUMMY(unusable)
+!      
+!   end subroutine mapl_resource_gridcomp_get_scalar
+!
    ! Finds value given keystring. value_set indicates the value has been set.
    ! value is set if keystring is found or default is provided.
    ! If keystring is not found, an exception is thrown if value_set is not present.
-   subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, value_set, rc)
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(*), intent(inout) :: value
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      class(*), optional, intent(in) :: default
-      logical, optional, intent(out) :: value_set
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: found, equals_default
-      type(ESMF_HConfig) :: hconfig
-      class(Logger_t), pointer :: logger
-      character(len=:), allocatable :: typestring
-      character(len=:), allocatable :: valuestring
-
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
-      call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
-         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
-      found = present(default) .or. found
-      if(present(value_set)) then
-         value_set = merge(.TRUE., found, present(default))
-      else
-         _ASSERT(found, 'No default value or valueset flag: "' // trim(keystring) // '" not found')
-      end if
-      call log_resource_message(logger, form_message(typestring, keystring, valuestring, equals_default), _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-      
-   end subroutine mapl_resource_gridcomp_get_scalar
+!   subroutine mapl_resource_gridcomp_get_scalar(gc, keystring, value, unusable, default, value_set, rc)
+!      type(ESMF_GridComp), intent(inout) :: gc
+!      character(len=*), intent(in) :: keystring
+!      class(*), intent(inout) :: value
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      class(*), optional, intent(in) :: default
+!      logical, optional, intent(out) :: value_set
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      logical :: found, equals_default
+!      type(ESMF_HConfig) :: hconfig
+!      class(Logger_t), pointer :: logger
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!
+!      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+!      call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
+!         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
+!      found = present(default) .or. found
+!      if(present(value_set)) then
+!         value_set = merge(.TRUE., found, present(default))
+!      else
+!         _ASSERT(found, 'No default value or valueset flag: "' // trim(keystring) // '" not found')
+!      end if
+!      call log_resource_message(logger, form_message(typestring, keystring, valuestring, equals_default), _RC)
+!
+!      _RETURN(_SUCCESS)
+!      _UNUSED_DUMMY(unusable)
+!      
+!   end subroutine mapl_resource_gridcomp_get_scalar
 
    ! Finds array value given keystring.
    ! value is set if keystring is found or default is provided.
    ! If keystring is not found, an exception is thrown if value_set is not present.
-   subroutine mapl_resource_get_array(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
-      character(len=*), intent(in) :: keystring
-      class(*), intent(inout) :: value(:)
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(out) :: found
-      class(*), optional, intent(in) :: default(:)
-      logical, optional, intent(out) :: equals_default
-      character(len=:), optional, allocatable, intent(inout) :: typestring
-      character(len=:), optional, allocatable, intent(inout) :: valuestring
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      call MAPL_HConfigGet(hconfig, keystring, value, found=found, default=default, &
-         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-
-   end subroutine mapl_resource_get_array
+   !subroutine mapl_resource_get_array(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
+!   subroutine mapl_resource_get_array(hconfig, keystring, value, unusable, found, default, equals_default, typestring, valuestring, rc)
+!      type(ESMF_HConfig), intent(inout) :: hconfig
+!      character(len=*), intent(in) :: keystring
+!      class(*), intent(inout) :: value(:)
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      logical, optional, intent(out) :: found
+!      class(*), optional, intent(in) :: default(:)
+!      logical, optional, intent(out) :: equals_default
+!      character(len=:), optional, allocatable, intent(inout) :: typestring
+!      character(len=:), optional, allocatable, intent(inout) :: valuestring
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!
+!      call MAPL_HConfigGet(hconfig, keystring, value, found=found, default=default, &
+!         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
+!
+!      _RETURN(_SUCCESS)
+!      _UNUSED_DUMMY(unusable)
+!
+!   end subroutine mapl_resource_get_array
 
    ! Finds array value given keystring. value_set indicates the value has been set.
    ! value is set if keystring is found or default is provided. Unless default
    ! or value_set is presenti, an exception is thrown.
-   subroutine mapl_resource_gridcomp_get_array(gc, keystring, value, unusable, default, value_set, rc)
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(*), intent(inout) :: value(:)
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      class(*), optional, intent(in) :: default(:)
-      logical, optional, intent(out) :: value_set
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: found, equals_default
-      type(ESMF_HConfig) :: hconfig
-      class(Logger_t), pointer :: logger
-      character(len=:), allocatable :: typestring
-      character(len=:), allocatable :: valuestring
+!   subroutine mapl_resource_gridcomp_get_array(gc, keystring, value, unusable, default, value_set, rc)
+!      type(ESMF_GridComp), intent(inout) :: gc
+!      character(len=*), intent(in) :: keystring
+!      class(*), intent(inout) :: value(:)
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      class(*), optional, intent(in) :: default(:)
+!      logical, optional, intent(out) :: value_set
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      logical :: found, equals_default
+!      type(ESMF_HConfig) :: hconfig
+!      class(Logger_t), pointer :: logger
+!
+!      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+!      select type(value)
+!      type is (integer)
+!         call getter%set_value(value, default, _RC)
+!      end select
+!      
+!      getter%wrapper%get_value(value, _RC)
+!      
+!      getter = HConfigGetter...
+!      value_set = getter% 
+!      call MAPL_ResourceGet(getter, value, default, _RC)
+!      found = present(default) .or. found
+!      if(present(value_set)) then
+!         value_set = merge(.TRUE., found, present(default))
+!      else
+!         _ASSERT(found, 'No default value or valueset flag: "' // trim(keystring) // '" not found')
+!      end if
+!      call log_resource_message(logger, form_message(typestring, keystring, valuestring, equals_default), _RC)
+!
+!      _RETURN(_SUCCESS)
+!      _UNUSED_DUMMY(unusable)
+!      
+!   end subroutine mapl_resource_gridcomp_get_array
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
-      call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
-         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
-      found = present(default) .or. found
-      if(present(value_set)) then
-         value_set = merge(.TRUE., found, present(default))
-      else
-         _ASSERT(found, 'No default value or valueset flag: "' // trim(keystring) // '" not found')
-      end if
-      call log_resource_message(logger, form_message(typestring, keystring, valuestring, equals_default), _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-      
-   end subroutine mapl_resource_gridcomp_get_array
-
-   subroutine log_resource_message(logger, message, rc)
-      class(Logger_t), intent(inout) :: logger
-      character(len=*), intent(in) :: message
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _ASSERT(len_trim(message) > 0, 'Log message is empty.')
-      call logger%info(message)
-      _RETURN(_SUCCESS)
-
-   end subroutine log_resource_message
-
-   function form_message(typestring, keystring, valuestring, equals_default) result(message)
-      character(len=:), allocatable :: message
-      character(len=*), intent(in) :: typestring
-      character(len=*), intent(in) :: keystring
-      character(len=*), intent(in) :: valuestring
-      logical, intent(in) :: equals_default
-      character(len=*), parameter :: DEFLABEL = ' (default)'
-      character(len=len(DEFLABEL)) :: default_label = ''
-
-      if(equals_default) default_label = DEFLABEL
-      message = typestring //' '// keystring //' = '// valuestring // default_label
-
-   end function form_message
-
-   function form_array_message(typestring, keystring, valuestring, equals_default, valuerank, rc) result(message)
-      character(len=:), allocatable :: message
-      character(len=*), intent(in) :: typestring
-      character(len=*), intent(in) :: keystring
-      character(len=*), intent(in) :: valuestring
-      logical, intent(in) :: equals_default
-      integer, intent(in) :: valuerank
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      _ASSERT(valuerank > 0, 'Rank must be greater than 0.')
-      message = form_message(typestring, keystring // rankstring(valuerank), valuestring, equals_default)
-      _RETURN(_SUCCESS)
-
-   end function form_array_message
-      
-   function rankstring(valuerank) result(string)
-      character(len=:), allocatable :: string
-      integer, intent(in) :: valuerank
-
-      string = '(:' // repeat(',:', valuerank-1) // ')'
-
-   end function rankstring
-
-end module mapl3g_Generic
+!   subroutine mapl_resource_gridcomp_get_array(gc, keystring, value, unusable, default, value_set, rc)
+!      type(ESMF_GridComp), intent(inout) :: gc
+!      character(len=*), intent(in) :: keystring
+!      class(*), intent(inout) :: value(:)
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      class(*), optional, intent(in) :: default(:)
+!      logical, optional, intent(out) :: value_set
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      logical :: found, equals_default
+!      type(ESMF_HConfig) :: hconfig
+!      class(Logger_t), pointer :: logger
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!
+!      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+!      call MAPL_ResourceGet(hconfig, keystring, value, found=found, &
+!         equals_default=equals_default, typestring=typestring, valuestring=valuestring, _RC)
+!      found = present(default) .or. found
+!      if(present(value_set)) then
+!         value_set = merge(.TRUE., found, present(default))
+!      else
+!         _ASSERT(found, 'No default value or valueset flag: "' // trim(keystring) // '" not found')
+!      end if
+!      call log_resource_message(logger, form_message(typestring, keystring, valuestring, equals_default), _RC)
+!
+!      _RETURN(_SUCCESS)
+!      _UNUSED_DUMMY(unusable)
+!      
+!   end subroutine mapl_resource_gridcomp_get_array
+!
+!   subroutine log_resource_message(logger, message, rc)
+!      class(Logger_t), intent(inout) :: logger
+!      character(len=*), intent(in) :: message
+!      integer, optional, intent(out) :: rc
+!
+!      integer :: status
+!
+!      _ASSERT(len_trim(message) > 0, 'Log message is empty.')
+!      call logger%info(message)
+!      _RETURN(_SUCCESS)
+!
+!   end subroutine log_resource_message
+!
+!   function form_message(typestring, keystring, valuestring, equals_default) result(message)
+!      character(len=:), allocatable :: message
+!      character(len=*), intent(in) :: typestring
+!      character(len=*), intent(in) :: keystring
+!      character(len=*), intent(in) :: valuestring
+!      logical, intent(in) :: equals_default
+!      character(len=*), parameter :: DEFLABEL = ' (default)'
+!      character(len=len(DEFLABEL)) :: default_label = ''
+!
+!      if(equals_default) default_label = DEFLABEL
+!      message = typestring //' '// keystring //' = '// valuestring // default_label
+!
+!   end function form_message
+!
+!   function form_array_message(typestring, keystring, valuestring, equals_default, valuerank, rc) result(message)
+!      character(len=:), allocatable :: message
+!      character(len=*), intent(in) :: typestring
+!      character(len=*), intent(in) :: keystring
+!      character(len=*), intent(in) :: valuestring
+!      logical, intent(in) :: equals_default
+!      integer, intent(in) :: valuerank
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!
+!      _ASSERT(valuerank > 0, 'Rank must be greater than 0.')
+!      message = form_message(typestring, keystring // rankstring(valuerank), valuestring, equals_default)
+!      _RETURN(_SUCCESS)
+!
+!   end function form_array_message
+!      
+!   function rankstring(valuerank) result(string)
+!      character(len=:), allocatable :: string
+!      integer, intent(in) :: valuerank
+!
+!      string = '(:' // repeat(',:', valuerank-1) // ')'
+!
+!   end function rankstring
