@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add mask sampler for geostationary satellite (GEOS-R series)
+- Add geostation name into NC for station sampler
+- Add mapping between the IODA loc_index and trajectory NC output loc_index
+- Add allocate(X, _STAT) to sampler codes
+- Skip destroy_regen_grid when list(n)%end_alarm is active (the last time step in sampler)
+- Add extract_unquoted_item(STR1) to fix a bug in geoval_xname(mx_ngeoval) in trajectory sampler
 - Add `if (compute_transpose)` to sub. destroy_route_handle to avoid destroying a nonexisting route handle
 - Add option to MAPL regridding layer to write and retrieve ESMF weights.
 - Add options to History and ExtData to turn on the ability to write and read route handle weights
