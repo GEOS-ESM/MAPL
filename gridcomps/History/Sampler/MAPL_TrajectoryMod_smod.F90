@@ -42,9 +42,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer                    :: nobs, head, jvar
          logical                    :: tend
          integer                    :: i, j, k, M
-         integer                    :: count
+         integer                    :: count, idx
          integer                    :: unitr, unitw
-         type(Logger), pointer :: lgr
+         type(GriddedIOitem)        :: item
+         type(Logger), pointer      :: lgr
+
 
          traj%clock=clock
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
@@ -120,13 +122,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigGetDim(config, nline, col, label=trim(string)//'obs_files:', rc=rc)
          _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
          !! write(6,*) 'nline, col', nline, col
-         allocate(ncol(1:nline))
+         allocate(ncol(1:nline), _STAT)
 
          call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC )
          do i = 1, nline
             call ESMF_ConfigNextLine(config, _RC)
             ncol(i) = ESMF_ConfigGetLen(config, _RC)
-            !!write(6,*) 'line', i, 'ncol(i)', ncol(i)
+!!            write(6,*) 'line', i, 'ncol(i)', ncol(i)
          enddo
 
 
@@ -148,7 +150,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !
             _FAIL('this setting in HISTORY.rc obs_files: is not supported, stop')
             traj%nobs_type = nline         ! here .rc format cannot have empty spaces
-            allocate (traj%obs(nline))
+            allocate (traj%obs(nline), _STAT)
             call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
             do i=1, nline
                call ESMF_ConfigNextLine( config, tableEnd=tend, _RC)
@@ -161,7 +163,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !   treatment-2:
             !
             traj%nobs_type = nobs
-            allocate (traj%obs(nobs))
+            allocate (traj%obs(nobs), _STAT)
             !
             nobs=0   ! reuse counter
             head=1
@@ -175,12 +177,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                call ESMF_ConfigNextLine(config, tableEnd=tend, _RC)
                M = ncol(i)
                _ASSERT(M>=1, '# of columns should be >= 1')
-               allocate (word(M))
+               allocate (word(M), _STAT)
                count=0
                do col=1, M
-                  call ESMF_ConfigGetAttribute(config, word(col), _RC)
-                  if (trim(word(col))/=',') then
+                  call ESMF_ConfigGetAttribute(config, STR1, _RC)
+                  if (trim(STR1)/=',') then
                      count=count+1
+                     word(count) =  extract_unquoted_item(STR1)
                   end if
                enddo
                if (count ==1 .or. count==2) then
@@ -189,9 +192,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   STR1=trim(word(1))
                else
                   ! 3-item     :  var1 , 'root', var1_alias case
-                  STR1=trim(word(M))
+                  STR1=trim(word(3))
                end if
-               deallocate(word)
+               deallocate(word, _STAT)
                if ( index(trim(STR1), '-----') == 0 ) then
                   if (head==1 .AND. trim(STR1)/='') then
                      nobs=nobs+1
@@ -201,7 +204,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   else
                      if (trim(STR1)/='') then
                         jvar=jvar+1
-                        traj%obs(nobs)%geoval_name(jvar) = trim(STR1)
+                        idx = index(STR1,";")
+                        if (idx==0) then
+                           traj%obs(nobs)%geoval_xname(jvar) = STR1
+                        else
+                           traj%obs(nobs)%geoval_xname(jvar) = trim(STR1(1:idx-1))
+                           traj%obs(nobs)%geoval_yname(jvar) = trim(STR1(idx+1:))
+                        end if
                      end if
                   end if
                else
@@ -213,9 +222,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          end if
 
          do k=1, traj%nobs_type
-            allocate (traj%obs(k)%metadata)
+            allocate (traj%obs(k)%metadata, _STAT)
             if (mapl_am_i_root()) then
-               allocate (traj%obs(k)%file_handle)
+               allocate (traj%obs(k)%file_handle, _STAT)
             end if
          end do
 
@@ -230,7 +239,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          end do
 
          _RETURN(_SUCCESS)
-
 
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
@@ -249,6 +257,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Time)            :: currTime
          integer :: k
 
+!         if (mapl_am_i_root())  write(6,'(2x,a,10(2x,L5))') &
+!              'traj initialize_ :  present(reinitialize), reinitialize =',  &
+!              present(reinitialize), reinitialize
          if (.not. present(reinitialize)) then
             if(present(bundle))   this%bundle=bundle
             if(present(items))    this%items=items
@@ -258,14 +269,18 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             else
                this%vdata=VerticalData(_RC)
             end if
+            !if (mapl_am_i_root())  write(6,'(2x,a,10(2x,L5))') &
+            !      'traj initialize_ : initialize : not present '
          else
             if (reinitialize) then
                do k=1, this%nobs_type
-                  allocate (this%obs(k)%metadata)
+                  allocate (this%obs(k)%metadata, _STAT)
                   if (mapl_am_i_root()) then
-                     allocate (this%obs(k)%file_handle)
+                     allocate (this%obs(k)%file_handle, _STAT)
                   end if
                end do
+            !if (mapl_am_i_root())  write(6,'(2x,a,10(2x,L5))') &
+            !     'traj initialize_ : initialize : TRUE'
             end if
          end if
 
@@ -300,11 +315,16 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             if (this%time_info%integer_time) then
                v = Variable(type=PFIO_INT32,dimensions=this%index_name_x)
             else
-               v = Variable(type=PFIO_REAL32,dimensions=this%index_name_x)
+               v = Variable(type=PFIO_REAL64,dimensions=this%index_name_x)
             end if
             call v%add_attribute('units', this%datetime_units)
             call v%add_attribute('long_name', 'dateTime')
             call this%obs(k)%metadata%add_variable(this%var_name_time,v)
+
+            v = Variable(type=PFIO_INT32,dimensions=this%index_name_x)
+            call v%add_attribute('units', '1')
+            call v%add_attribute('long_name', 'Location index in corresponding IODA file')
+            call this%obs(k)%metadata%add_variable(this%location_index_name,v)
 
             v = variable(type=PFIO_REAL64,dimensions=this%index_name_x)
             call v%add_attribute('units','degrees_east')
@@ -321,6 +341,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
+
+!!            print*, 'list item%xname', trim(item%xname)
+
             if (item%itemType == ItemTypeScalar) then
                call this%create_variable(item%xname,_RC)
             else if (item%itemType == ItemTypeVector) then
@@ -329,6 +352,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
             call iter%next()
          enddo
+
 
          _RETURN(_SUCCESS)
 
@@ -374,8 +398,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
         do k = 1, this%nobs_type
            do ig = 1, this%obs(k)%ngeoval
-              if (trim(var_name) == trim(this%obs(k)%geoval_name(ig))) then
+              if (trim(var_name) == trim(this%obs(k)%geoval_xname(ig))) then
                  call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
+
+!!              if (mapl_am_i_root()) write(6, '(2x,a,/,10(2x,a))') &
+!!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_xname(ig)', &
+!!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_xname(ig))
+
+
               endif
            enddo
         enddo
@@ -496,12 +526,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
+         real(kind=REAL64)              :: t_shift
          integer,           allocatable :: obstype_id_full(:)
+         integer,           allocatable :: location_index_ioda_full(:)
+         integer,           allocatable :: IA_full(:)
 
          real(ESMF_KIND_R8), pointer :: ptAT(:)
          type(ESMF_routehandle) :: RH
          type(ESMF_Time) :: timeset(2)
          type(ESMF_Time) :: current_time
+         type(ESMF_Time) :: time0
+         type(ESMF_TimeInterval) :: dt
          type(ESMF_Grid) :: grid
 
          type(ESMF_VM) :: vm
@@ -514,6 +549,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer(kind=ESMF_KIND_I8) :: nstart, nend
          real(kind=ESMF_KIND_R8) :: jx0, jx1
          integer :: nx, nx_sum
+         integer :: n0
          integer :: arr(1)
          integer :: sec
          integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
@@ -549,6 +585,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%var_name_lat = this%var_name_lat_full(i+1:)
          i=index(this%var_name_time_full, '/')
          this%var_name_time= this%var_name_time_full(i+1:)
+         this%location_index_name = 'location_index_in_iodafile'
 
          call lgr%debug('%a', 'grp_name,this%index_name_x,this%var_name_lon,this%var_name_lat,this%var_name_time')
          call lgr%debug('%a %a %a %a %a', &
@@ -589,6 +626,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate(lons_full(len),lats_full(len),_STAT)
                allocate(times_R8_full(len),_STAT)
                allocate(obstype_id_full(len),_STAT)
+               allocate(location_index_ioda_full(len),_STAT)
+               allocate(IA_full(len),_STAT)
                call lgr%debug('%a %i12', 'nobs from input file:', len)
                len = 0
                ii = 0
@@ -609,8 +648,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            this%datetime_units = trim(timeunits_file)
                            call lgr%debug('%a %a', 'datetime_units from 1st file:', trim(timeunits_file))
                         end if
+                        call diff_two_timeunits (this%datetime_units, timeunits_file, t_shift, _RC)
+                        times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + t_shift
                         obstype_id_full(len+1:len+num_times) = k
-                        !!write(6,'(f12.2)')  times_R8_full(::50)
+                        do jj = 1, num_times
+                           location_index_ioda_full(len+jj) = jj
+                        end do
                         len = len + num_times
                      end if
                      j=j+1
@@ -619,12 +662,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end if
 
+
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
          if (nx_sum == 0) then
             allocate(this%lons(0),this%lats(0),_STAT)
             allocate(this%times_R8(0),_STAT)
             allocate(this%obstype_id(0),_STAT)
+            allocate(this%location_index_ioda(0),_STAT)
             this%epoch_index(1:2) = 0
             this%nobs_epoch = 0
             this%nobs_epoch_sum = 0
@@ -638,8 +683,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
             call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=this%obsTime)
             this%obsTime= -1.d0
-
-            call lgr%debug('%a %i5', 'nobservation points=', nx_sum)
             rc = 0
             return
          end if
@@ -648,6 +691,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
          if (mapl_am_I_root()) then
+            call sort_index (times_R8_full, IA_full, _RC)
+            location_index_ioda_full(:) = IA_full(:)
             ! NVHPC dies with NVFORTRAN-S-0155-Could not resolve generic procedure sort_multi_arrays_by_time
             call sort_four_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
             call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
@@ -691,17 +736,22 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
                allocate(this%obstype_id(0),_STAT)
+               allocate(this%location_index_ioda(0),_STAT)
                this%epoch_index(1:2)=0
                this%nobs_epoch = 0
                nx=0
                arr(1)=nx
             else
+               !! doulbe check
                ! (x1, x2]  design in bisect
-               if (jt1==0) then
-                  this%epoch_index(1)= 1
-               else
-                  this%epoch_index(1)= jt1
-               endif
+               this%epoch_index(1)= jt1 + 1
+
+!!               ! (x1, x2]  design in bisect
+!!               if (jt1==0) then
+!!                  this%epoch_index(1)= 1
+!!               else
+!!                  this%epoch_index(1)= jt1
+!!               endif
                _ASSERT(jt2<=len, 'bisect index for this%epoch_index(2) failed')
                if (jt2==0) then
                   this%epoch_index(2)= 1
@@ -716,6 +766,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate(this%lons(nx),this%lats(nx),_STAT)
                allocate(this%times_R8(nx),_STAT)
                allocate(this%obstype_id(nx),_STAT)
+               allocate(this%location_index_ioda(nx),_STAT)
 
                j=this%epoch_index(1)
                do i=1, nx
@@ -723,6 +774,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   this%lats(i) = lats_full(j)
                   this%times_R8(i) = times_R8_full(j)
                   this%obstype_id(i) = obstype_id_full(j)
+                  this%location_index_ioda(i) = location_index_ioda_full(j)
                   j=j+1
                enddo
                arr(1)=nx
@@ -737,12 +789,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
                do k=1, this%nobs_type
                   nx2 = this%obs(k)%nobs_epoch
-                  allocate (this%obs(k)%lons(nx2))
-                  allocate (this%obs(k)%lats(nx2))
-                  allocate (this%obs(k)%times_R8(nx2))
+                  allocate (this%obs(k)%lons(nx2), _STAT)
+                  allocate (this%obs(k)%lats(nx2), _STAT)
+                  allocate (this%obs(k)%times_R8(nx2), _STAT)
+                  allocate (this%obs(k)%location_index_ioda(nx2), _STAT)
                enddo
 
-               allocate(ix(this%nobs_type))
+               allocate(ix(this%nobs_type), _STAT)
                ix(:)=0
                j=this%epoch_index(1)
                do i=1, nx
@@ -751,13 +804,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   this%obs(k)%lons(ix(k)) = lons_full(j)
                   this%obs(k)%lats(ix(k)) = lats_full(j)
                   this%obs(k)%times_R8(ix(k)) = times_R8_full(j)
+                  this%obs(k)%location_index_ioda(ix(k)) = location_index_ioda_full(j)
                   !if (mod(k,10**8)==1) then
                   !   write(6,*) 'this%obs(k)%times_R8(ix(k))', this%obs(k)%times_R8(ix(k))
                   !endif
                   j=j+1
                enddo
-               deallocate(ix)
-               deallocate(lons_full, lats_full, times_R8_full, obstype_id_full)
+               deallocate(ix, _STAT)
+               deallocate(lons_full, lats_full, times_R8_full, obstype_id_full, location_index_ioda_full, _STAT)
 
                call lgr%debug('%a %i12 %i12 %i12', &
                     'epoch_index(1:2), nx', this%epoch_index(1), &
@@ -771,6 +825,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate(this%lons(0),this%lats(0),_STAT)
             allocate(this%times_R8(0),_STAT)
             allocate(this%obstype_id(0),_STAT)
+            allocate(this%location_index_ioda(0),_STAT)
             this%epoch_index(1:2)=0
             this%nobs_epoch = 0
             nx=0
@@ -780,7 +835,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
          this%nobs_epoch_sum = nx_sum
-         if (mapl_am_I_root()) write(6,'(2x,a,2x,i15)') 'nobs in Epoch    :', nx_sum
+         call lgr%debug('%a %i20', 'nobservation points=', nx_sum)
+
 
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
@@ -853,6 +909,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                        start=[is], count=[nx], _RC)
                   call this%obs(k)%file_handle%put_var(this%var_name_lat, this%obs(k)%lats, &
                        start=[is], count=[nx], _RC)
+                  call this%obs(k)%file_handle%put_var(this%location_index_name, this%obs(k)%location_index_ioda, &
+                       start=[is], count=[nx], _RC)
                end if
             end if
          enddo
@@ -873,12 +931,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
-            !!write(6, '(2x,a,2x,a)') 'item%xname', trim(item%xname)
-
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
                call ESMF_FieldGet(acc_field,rank=rank,_RC)
                if (rank==1) then
+!!                  if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'append:2d item%xname', trim(item%xname)
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
                   call ESMF_FieldGet( acc_field_2d_rt, localDE=0, farrayPtr=p_acc_rt_2d, _RC)
                   call ESMF_FieldRedist( acc_field,  acc_field_2d_rt, RH, _RC)
@@ -890,10 +947,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      ie=this%epoch_index(2)-this%epoch_index(1)+1
                      do k=1, this%nobs_type
                         nx = this%obs(k)%nobs_epoch
-                        allocate (this%obs(k)%p2d(nx))
+                        allocate (this%obs(k)%p2d(nx), _STAT)
                      enddo
 
-                     allocate(ix(this%nobs_type))
+                     allocate(ix(this%nobs_type), _STAT)
                      ix(:)=0
                      do j=is, ie
                         k = this%obstype_id(j)
@@ -908,13 +965,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            _FAIL('test ix(k) failed')
                         endif
                      enddo
-                     deallocate(ix)
+                     deallocate(ix, _STAT)
                      do k=1, this%nobs_type
                         is = 1
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_name(ig))) then
+                              !!write(6,'(2x,a,2x,a)')  't this%obs(k)%geoval_xname(ig)', trim(this%obs(k)%geoval_xname(ig))
+                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                 !!write(6, '(2x,a,2x,a)') 'append:2d inner put_var item%xname', trim(item%xname)
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
                                       start=[is],count=[nx])
                               end if
@@ -922,10 +981,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         endif
                      enddo
                      do k=1, this%nobs_type
-                        deallocate (this%obs(k)%p2d)
+                        deallocate (this%obs(k)%p2d, _STAT)
                      enddo
                   end if
                else if (rank==2) then
+                  !!if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'append:3d item%xname', trim(item%xname)
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   call ESMF_FieldGet( acc_field_3d_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
 
@@ -952,22 +1012,23 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      ie=this%epoch_index(2)-this%epoch_index(1)+1
                      do k=1, this%nobs_type
                         nx = this%obs(k)%nobs_epoch
-                        allocate (this%obs(k)%p3d(nx, size(p_acc_rt_3d,2)))
+                        allocate (this%obs(k)%p3d(nx, size(p_acc_rt_3d,2)), _STAT)
                      enddo
-                     allocate(ix(this%nobs_type))
+                     allocate(ix(this%nobs_type), _STAT)
                      ix(:)=0
                      do j=is, ie
                         k = this%obstype_id(j)
                         ix(k) = ix(k) + 1
                         this%obs(k)%p3d(ix(k),:) = p_acc_rt_3d(j,:)
                      enddo
-                     deallocate(ix)
+                     deallocate(ix, _STAT)
                      do k=1, this%nobs_type
                         is = 1
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_name(ig))) then
+                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                 !!write(6, '(2x,a,2x,a)') 'append:3d inner put_var item%xname', trim(item%xname)
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
                                       start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
                               end if
@@ -980,7 +1041,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      !!     start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
                      !!
                      do k=1, this%nobs_type
-                        deallocate (this%obs(k)%p3d)
+                        deallocate (this%obs(k)%p3d, _STAT)
                      enddo
                   end if
                endif
@@ -1027,6 +1088,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               _RETURN(ESMF_SUCCESS)
            endif
 
+           if (this%nobs_epoch_sum==0) then
+              rc=0
+              return
+           endif
+
            call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
            call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
            timeset(1) = current_time - dur
@@ -1039,7 +1105,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
            !
            ! __ I designed a method to return from regridding if no valid points exist
-           !    in reality for 29 jedi platforms and dt > 20 sec, we donot need this
+           !    in reality for 29 ioda platforms and dt > 20 sec, we donot need this
            !
            !!arr(1)=1
            !!if (.NOT. (is > 0 .AND. is <= ie ))  arr(1)=0
@@ -1127,12 +1193,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
            call this%regridder%destroy(_RC)
            deallocate (this%lons, this%lats, &
-                this%times_R8, this%obstype_id)
+                this%times_R8, this%obstype_id, this%location_index_ioda, _STAT)
 
            do k=1, this%nobs_type
-              deallocate (this%obs(k)%metadata)
+              deallocate (this%obs(k)%metadata, _STAT)
               if (mapl_am_i_root()) then
-                 deallocate (this%obs(k)%file_handle)
+                 deallocate (this%obs(k)%file_handle, _STAT)
               end if
            end do
 
@@ -1147,6 +1213,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                  if (allocated (this%obs(k)%times_R8)) then
                     deallocate (this%obs(k)%times_R8)
                  end if
+                 if (allocated (this%obs(k)%location_index_ioda)) then
+                    deallocate (this%obs(k)%location_index_ioda)
+                 end if
                  if (allocated(this%obs(k)%p2d)) then
                     deallocate (this%obs(k)%p2d)
                  endif
@@ -1157,23 +1226,24 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            end if
 
            call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
-           allocate(names(numVars),stat=status)
+           allocate(names(numVars), _STAT)
            call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
            do i=1,numVars
               call ESMF_FieldBundleGet(this%acc_bundle,trim(names(i)),field=field,_RC)
               call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
            enddo
            call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
+           deallocate(names, _STAT)
 
            call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
-           allocate(names(numVars),stat=status)
+           allocate(names(numVars), _STAT)
            call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,_RC)
            do i=1,numVars
               call ESMF_FieldBundleGet(this%output_bundle,trim(names(i)),field=field,_RC)
               call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
            enddo
            call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
-
+           deallocate(names, _STAT)
 
            call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
            if (currTime > this%obsfile_end_time) then
@@ -1209,7 +1279,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            !!
            !! I choose UB = N+1 not N, because my sub. bisect find n: Y(n)<x<=Y(n+1)
            jhi= size(this%obstime) + 1
-           if (jhi==0) then
+
+           !write(6,*) 'size(this%obstime)=', size(this%obstime)
+
+           if (jhi==1) then
               x_subset(1:2)=0
               _RETURN(_SUCCESS)
            endif
@@ -1225,24 +1298,29 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            x_subset(1) = index1+1
            x_subset(2) = index2
 
-!           if (index1<lb) then
-!              if (index2<lb) then
-!                 x_subset(2) = index2
-!              elseif (index2>=ub) then
-!                 x_subset(2) = ub
-!              else
-!                 x_subset(2) = index2
-!              endif
-!           elseif (index1>=ub) then
-!              x_subset(1) = 0
-!              x_subset(2) = 0
-!           else
-!              x_subset(2) = index2
-!           endif
-!
 !!           write(6,'(2x,a,2x,2i10)')  'mod vers. get_x_subset, LB,UB=', x_subset(1:2)
            _RETURN(_SUCCESS)
          end procedure get_x_subset
+
+
+         function extract_unquoted_item(string_list) result(item)
+           character(:), allocatable :: item
+           character(*), intent(in) :: string_list
+
+           integer :: i
+           integer :: j
+
+           character(1) :: QUOTE = "'"
+
+           i = index(string_list(  1:), QUOTE)
+           j = index(string_list(i+1:), QUOTE)+i
+           if( i.ne.0 ) then
+              item = adjustl( string_list(i+1:j-1) )
+           else
+              item = adjustl( string_list)
+           endif
+         end function extract_unquoted_item
+
 
 
 end submodule HistoryTrajectory_implement

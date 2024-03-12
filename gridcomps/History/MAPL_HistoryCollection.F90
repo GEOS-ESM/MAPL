@@ -9,6 +9,7 @@ module MAPL_HistoryCollectionMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
+  use MaskSamplerGeosatMod  
   use StationSamplerMod
   use gFTL_StringStringMap
   use MAPL_EpochSwathMod
@@ -110,6 +111,7 @@ module MAPL_HistoryCollectionMod
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
+     type(MaskSamplerGeosat)            :: mask_sampler
      type(StationSampler)               :: station_sampler
      character(len=ESMF_MAXSTR)         :: sampler_spec = ""
      character(len=ESMF_MAXSTR)         :: positive
