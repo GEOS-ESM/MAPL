@@ -312,23 +312,25 @@ contains
     !__ s3. destroy acc_bundle / output_bundle
 
    call ESMF_FieldBundleGet(sp%acc_bundle,fieldCount=numVars,_RC)
-   allocate(names(numVars),stat=status)
+   allocate(names(numVars),_STAT)
    call ESMF_FieldBundleGet(sp%acc_bundle,fieldNameList=names,_RC)
    do i=1,numVars
       call ESMF_FieldBundleGet(sp%acc_bundle,trim(names(i)),field=field,_RC)
       call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
    enddo
    call ESMF_FieldBundleDestroy(sp%acc_bundle,noGarbage=.true.,_RC)
-
+   deallocate(names,_STAT)
+   
    call ESMF_FieldBundleGet(sp%output_bundle,fieldCount=numVars,_RC)
-   allocate(names(numVars),stat=status)
+   allocate(names(numVars),_STAT)
    call ESMF_FieldBundleGet(sp%output_bundle,fieldNameList=names,_RC)
    do i=1,numVars
       call ESMF_FieldBundleGet(sp%output_bundle,trim(names(i)),field=field,_RC)
       call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
    enddo
    call ESMF_FieldBundleDestroy(sp%output_bundle,noGarbage=.true.,_RC)
-
+   deallocate(names,_STAT)
+   
    _RETURN(ESMF_SUCCESS)
 
   end subroutine destroy_rh_regen_ogrid
@@ -440,7 +442,7 @@ contains
         if (allocated(this%metadata)) then
            deallocate (this%metadata)
         end if
-        allocate(this%metadata)
+        allocate(this%metadata,_STAT)
         call factory%append_metadata(this%metadata)
         if (present(vdata)) then
            this%vdata=vdata
@@ -521,8 +523,7 @@ contains
         if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
         if (present(quantize_level)) this%quantizeLevel = quantize_level
         if (present(chunking)) then
-           allocate(this%chunking,source=chunking,stat=status)
-           _VERIFY(status)
+           allocate(this%chunking,source=chunking,_STAT)
         end if
         if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
         if (present(write_collection_id)) this%write_collection_id=write_collection_id
@@ -540,14 +541,14 @@ contains
         call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
         _VERIFY(status)
         if (global_dim(1)*6 == global_dim(2)) then
-           allocate(this%chunking(5))
+           allocate(this%chunking(5),_STAT)
            this%chunking(1) = global_dim(1)
            this%chunking(2) = global_dim(1)
            this%chunking(3) = 1
            this%chunking(4) = 1
            this%chunking(5) = 1
         else
-           allocate(this%chunking(4))
+           allocate(this%chunking(4),_STAT)
            this%chunking(1) = global_dim(1)
            this%chunking(2) = global_dim(2)
            this%chunking(3) = 1
@@ -566,8 +567,7 @@ contains
         integer :: status
         character(len=5) :: c1,c2
 
-        call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
-        _VERIFY(status)
+        call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,_RC)
         if (global_dim(1)*6 == global_dim(2)) then
            write(c2,'(I5)')global_dim(1)
            write(c1,'(I5)')this%chunking(1)
@@ -695,10 +695,9 @@ contains
                  call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
                  _VERIFY(status)
               else
-                 allocate(ptr3d(0,0,0))
+                 allocate(ptr3d(0,0,0),_STAT)
               end if
-              allocate(ptr3d_inter(size(ptr3d,1),size(ptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              allocate(ptr3d_inter(size(ptr3d,1),size(ptr3d,2),this%vdata%lm),_STAT)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(ptr3d,ptr3d_inter,rc=status)
                  _VERIFY(status)
@@ -727,13 +726,13 @@ contains
               call MAPL_FieldGetPointer(field,ptr2d,rc=status)
               _VERIFY(status)
            else
-              allocate(ptr2d(0,0))
+              allocate(ptr2d(0,0),_STAT)
            end if
            if (hasDE_out) then
               call MAPL_FieldGetPointer(OutField,outptr2d,rc=status)
               _VERIFY(status)
            else
-              allocate(outptr2d(0,0))
+              allocate(outptr2d(0,0),_STAT)
            end if
            if (gridIn==gridOut) then
               outPtr2d=ptr2d
@@ -754,14 +753,14 @@ contains
                  call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
                  _VERIFY(status)
               else
-                 allocate(ptr3d(0,0,0))
+                 allocate(ptr3d(0,0,0),_STAT)
               end if
            end if
            if (hasDE_out) then
               call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
               _VERIFY(status)
            else
-              allocate(outptr3d(0,0,0))
+              allocate(outptr3d(0,0,0),_STAT)
            end if
            if (gridIn==gridOut) then
               outPtr3d=Ptr3d
@@ -822,10 +821,9 @@ contains
                  call ESMF_FieldGet(xfield,farrayPtr=xptr3d,rc=status)
                  _VERIFY(status)
               else
-                 allocate(xptr3d(0,0,0))
+                 allocate(xptr3d(0,0,0),_STAT)
               end if
-              allocate(xptr3d_inter(size(xptr3d,1),size(xptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              allocate(xptr3d_inter(size(xptr3d,1),size(xptr3d,2),this%vdata%lm),_STAT)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(xptr3d,xptr3d_inter,rc=status)
                  _VERIFY(status)
@@ -847,10 +845,9 @@ contains
                  call ESMF_FieldGet(yfield,farrayPtr=yptr3d,rc=status)
                  _VERIFY(status)
               else
-                 allocate(yptr3d(0,0,0))
+                 allocate(yptr3d(0,0,0),_STAT)
               end if
-              allocate(yptr3d_inter(size(yptr3d,1),size(yptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
+              allocate(yptr3d_inter(size(yptr3d,1),size(yptr3d,2),this%vdata%lm),_STAT)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
                  call this%vdata%regrid_select_level(yptr3d,yptr3d_inter,rc=status)
                  _VERIFY(status)
@@ -881,8 +878,8 @@ contains
               call MAPL_FieldGetPointer(yfield,yptr2d,rc=status)
               _VERIFY(status)
            else
-              allocate(xptr2d(0,0))
-              allocate(yptr2d(0,0))
+              allocate(xptr2d(0,0),_STAT)
+              allocate(yptr2d(0,0),_STAT)
            end if
 
            if (hasDE_in) then
@@ -891,8 +888,8 @@ contains
               call MAPL_FieldGetPointer(yOutField,youtptr2d,rc=status)
               _VERIFY(status)
            else
-              allocate(xoutptr2d(0,0))
-              allocate(youtptr2d(0,0))
+              allocate(xoutptr2d(0,0),_STAT)
+              allocate(youtptr2d(0,0),_STAT)
            end if
 
 
@@ -909,7 +906,7 @@ contains
                  call MAPL_FieldGetPointer(xfield,xptr3d,rc=status)
                  _VERIFY(status)
               else
-                 allocate(xptr3d(0,0,0))
+                 allocate(xptr3d(0,0,0),_STAT)
               end if
            end if
            if (.not.associated(yptr3d)) then
@@ -917,7 +914,7 @@ contains
                  call MAPL_FieldGetPointer(yfield,yptr3d,rc=status)
                  _VERIFY(status)
               else
-                 allocate(yptr3d(0,0,0))
+                 allocate(yptr3d(0,0,0),_STAT)
               end if
            end if
 
@@ -927,8 +924,8 @@ contains
               call MAPL_FieldGetPointer(yOutField,youtptr3d,rc=status)
               _VERIFY(status)
            else
-              allocate(xoutptr3d(0,0,0))
-              allocate(youtptr3d(0,0,0))
+              allocate(xoutptr3d(0,0,0),_STAT)
+              allocate(youtptr3d(0,0,0),_STAT)
            end if
 
            if (gridIn==gridOut) then
@@ -964,7 +961,7 @@ contains
      order = this%metadata%get_order(rc=status)
      _VERIFY(status)
      n = Order%size()
-     allocate(temp(nFixedVars+1:n))
+     allocate(temp(nFixedVars+1:n),_STAT)
      do i=1,n
         v1 => order%at(i)
         if ( i > nFixedVars) temp(i)=trim(v1)
@@ -993,7 +990,7 @@ contains
      enddo
      call this%metadata%set_order(newOrder,rc=status)
      _VERIFY(status)
-     deallocate(temp)
+     deallocate(temp,_STAT)
 
      _RETURN(_SUCCESS)
 
@@ -1094,11 +1091,11 @@ contains
 
     call ESMF_FieldBundleGet(this%output_bundle, grid=grid, _RC)
     call ESMF_GridGet(grid, localDECount=localDECount, dimCount=dimCount, _RC)
-    allocate ( LB(dimCount), UB(dimCount), exclusiveCount(dimCount) )
-    allocate ( compLB(dimCount), compUB(dimCount), compCount(dimCount) )
+    allocate ( LB(dimCount), UB(dimCount), exclusiveCount(dimCount) ,_STAT)
+    allocate ( compLB(dimCount), compUB(dimCount), compCount(dimCount) ,_STAT)
 
-    allocate ( j1(0:localDEcount-1) )  ! start
-    allocate ( j2(0:localDEcount-1) )  ! end
+    allocate ( j1(0:localDEcount-1) ,_STAT)  ! start
+    allocate ( j2(0:localDEcount-1) ,_STAT)  ! end
 
     _ASSERT ( localDEcount == 1, 'failed, due to localDEcount > 1')
     call MAPL_GridGetInterior(grid,ii1,iin,jj1,jjn)
