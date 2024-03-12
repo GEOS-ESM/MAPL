@@ -95,7 +95,6 @@ module MAPL_EpochSwathMod
      logical :: have_initalized
      integer :: epoch_sec
    contains
-!!     procedure :: CreateFileMetaData
      procedure :: Create_bundle_RH
      procedure :: CreateVariable
      procedure :: regridScalar
@@ -105,7 +104,6 @@ module MAPL_EpochSwathMod
      procedure :: check_chunking
      procedure :: alphabatize_variables
      procedure :: addVariable_to_acc_bundle
-!!     procedure :: addVariable_to_output_bundle
      procedure :: interp_accumulate_fields
   end type sampler
 
@@ -226,7 +224,6 @@ contains
     _ASSERT(con, 'Error in '//trim(swath_grid_label)//' related swath and list in History.rc: Epoch in all swath grids must be equal, and equal to list%freq')
     _RETURN(_SUCCESS)
   end subroutine verify_epoch_equals_freq
-
 
 
   !--------------------------------------------------!
@@ -1050,28 +1047,6 @@ contains
     _RETURN(_SUCCESS)
 
   end subroutine addVariable_to_acc_bundle
-
-
-!!  subroutine addVariable_to_output_bundle(this,itemName,rc)
-!!    class (sampler), intent(inout) :: this
-!!    character(len=*), intent(in) :: itemName
-!!    integer, optional, intent(out) :: rc
-!!
-!!    type(ESMF_Field) :: field,newField
-!!    integer :: fieldRank
-!!    integer :: status
-!!
-!!    call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,_RC)
-!!    call ESMF_FieldGet(field,rank=fieldRank,rc=status)
-!!    if (this%doVertRegrid .and. (fieldRank ==3) ) then
-!!       newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,_RC)
-!!    else
-!!       newField = MAPL_FieldCreate(field,this%output_grid,_RC)
-!!    end if
-!!    call MAPL_FieldBundleAdd(this%output_bundle,newField,_RC)
-!!
-!!    _RETURN(_SUCCESS)
-!!  end subroutine addVariable_to_output_bundle
 
 
 
