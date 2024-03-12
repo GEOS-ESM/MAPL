@@ -516,13 +516,13 @@ module  procedure add_metadata
        call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
        call ESMF_FieldGet(field,rank=field_rank,_RC)
        call ESMF_InfoGetFromHost(field,infoh,_RC)
-       isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
+       is_present = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
        if ( is_present ) then
           call ESMF_InfoGet(infoh,"LONG_NAME",long_name, _RC)
        else
           long_name = var_name
        endif
-       isPresent = ESMF_InfoIsPresent(infoh,"UNITS",_RC)
+       is_present = ESMF_InfoIsPresent(infoh,"UNITS",_RC)
        if ( is_present ) then
           call ESMF_InfoGet(infoh,"UNITS",units, _RC)
        else
