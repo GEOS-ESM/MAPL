@@ -4,6 +4,8 @@ module mapl_RegridMethods
    private
 
    public :: REGRID_HINT_LOCAL
+   public :: REGRID_HINT_FILE_WEIGHTS
+   public :: REGRID_HINT_COMPUTE_TRANSPOSE
    public :: REGRID_METHOD_IDENTITY
    public :: REGRID_METHOD_BILINEAR
    public :: REGRID_METHOD_BILINEAR_MONOTONIC
@@ -38,6 +40,8 @@ module mapl_RegridMethods
    end enum
    integer, parameter :: TILING_METHODS(3) = [REGRID_METHOD_CONSERVE,REGRID_METHOD_VOTE,REGRID_METHOD_FRACTION]
    integer, parameter :: REGRID_HINT_LOCAL = 1
+   integer, parameter :: REGRID_HINT_FILE_WEIGHTS = 2
+   integer, parameter :: REGRID_HINT_COMPUTE_TRANSPOSE = 4
 
    contains
 

@@ -443,8 +443,9 @@ contains
       num_specs = ESMF_HConfigGetSize(conn_specs, _RC)
       do i = 1, num_specs
          conn_spec = ESMF_HConfigCreateAt(conn_specs, index=i, _RC)
-         conn = parse_connection(conn_spec, _RC)
+         allocate(conn, source=parse_connection(conn_spec, rc=status)); _VERIFY(status)
          call connections%push_back(conn)
+         deallocate(conn)
       enddo 
 
       _RETURN(_SUCCESS)

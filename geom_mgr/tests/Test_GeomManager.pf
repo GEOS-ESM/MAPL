@@ -1,3 +1,4 @@
+#include "MAPL_TestErr.h"
 module Test_GeomManager
    use pfunit
    use mapl3g_geom_mgr
@@ -105,7 +106,7 @@ contains
            rc=status)
       @assert_that(status, is(0))
       geom_manager = GeomManager()
-      spec = geom_manager%make_geom_spec(hconfig, rc=status)
+      allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
       @assert_that(status, is(0))
       call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
@@ -122,7 +123,8 @@ contains
       hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 10, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
            rc=status)
       @assert_that(status, is(0))
-      spec = geom_manager%make_geom_spec(hconfig, rc=status)
+      deallocate(spec)
+      allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
       @assert_that(status, is(0))
       call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))

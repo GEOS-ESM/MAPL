@@ -481,9 +481,7 @@ contains
       call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
-
-      write(6,'(2x,a,100i10)') 'nail 2, nx,ny,im,jm,lm',&
-           this%nx,this%ny,this%im_world,this%jm_world,this%lm
+      _ASSERT (this%lm /= MAPL_UNDEFINED_INTEGER, 'LM: is undefined in swath grid')
 
       call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
 
@@ -501,20 +499,6 @@ contains
            label= prefix// 'obs_file_begin:', _RC)
       _ASSERT (trim(STR1)/='', 'obs_file_begin missing, critical for data with 5 min interval!')
       call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
-      !!disable using currTime as obsfile_start_time
-      !!if (trim(STR1)=='') then
-      !!   this%obsfile_start_time = currTime
-      !!   call ESMF_TimeGet(currTime, timestring=STR1, _RC)
-      !!   if (mapl_am_I_root()) then
-      !!      write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
-      !!   endif
-      !!else
-      !!   call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
-      !!   if (mapl_am_I_root()) then
-      !!      write(6,105) 'obs_file_begin provided: ', trim(STR1)
-      !!   end if
-      !!end if
-
 
       if (mapl_am_I_root()) then
          write(6,105) 'obs_file_begin provided: ', trim(STR1)
@@ -674,6 +658,12 @@ contains
          nend = this%cell_along_swath
          call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
          call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+
+         call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
+         call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Epoch]  w.r.t. timeunit ', jx0, jx1)
+         call lgr%debug ('%a %f20.1 %f20.1', 'x0[times(1)] xn[times(N)] w.r.t. timeunit ', &
+              this%t_alongtrack(1), this%t_alongtrack(nend))
+         call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
 
          call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
          call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Epoch]  w.r.t. timeunit ', jx0, jx1)

@@ -31,10 +31,12 @@ module MAPL_ObsUtilMod
      character(len=ESMF_MAXSTR) :: name
      character(len=ESMF_MAXSTR) :: obsFile_output
      character(len=ESMF_MAXSTR) :: input_template
-     character(len=ESMF_MAXSTR) :: geoval_name(mx_ngeoval)
+     character(len=ESMF_MAXSTR) :: geoval_xname(mx_ngeoval)
+     character(len=ESMF_MAXSTR) :: geoval_yname(mx_ngeoval)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
+     integer,           allocatable :: location_index_ioda(:)
      real(kind=REAL32), allocatable :: p2d(:)
      real(kind=REAL32), allocatable :: p3d(:,:)
   end type obs_unit
@@ -104,7 +106,7 @@ contains
     Ts = T1 + dTs
     Te = T1 + dTe
 
-    obsfile_Ts_index = n1
+    obsfile_Ts_index = n1 - 1   ! downshift by 1
     obsfile_Te_index = n2
 
     _RETURN(ESMF_SUCCESS)
@@ -166,6 +168,68 @@ contains
   end subroutine time_real_to_ESMF
 
 
+  subroutine time_ESMF_to_real (times_R8_1d, times_esmf_1d, datetime_units, rc)
+    use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
+
+    type(ESMF_Time), intent(in) :: times_esmf_1d(:)
+    real(kind=ESMF_KIND_R8), intent(inout) :: times_R8_1d(:)
+    character(len=*), intent(in) :: datetime_units
+    integer, optional, intent(out) :: rc
+
+    type(ESMF_TimeInterval) :: interval, t_interval
+    type(ESMF_Time) :: time0
+    type(ESMF_Time) :: time1
+    character(len=:), allocatable :: tunit
+
+    integer :: i, len
+    integer :: int_time
+    integer :: status
+
+    len = size (times_esmf_1d)
+    int_time = 0
+    call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, &
+         time0, time=time1, time_unit=tunit, _RC)
+
+    do i=1, len
+       t_interval = times_esmf_1d(i) - time0
+       select case(trim(tunit))
+       case ('days')
+          call ESMF_TimeIntervalGet(t_interval,d_r8=times_R8_1d(i),_RC)
+       case ('hours')
+          call ESMF_TimeIntervalGet(t_interval,h_r8=times_R8_1d(i),_RC)
+       case ('minutes')
+          call ESMF_TimeIntervalGet(t_interval,m_r8=times_R8_1d(i),_RC)
+       case ('seconds')
+          call ESMF_TimeIntervalGet(t_interval,s_r8=times_R8_1d(i),_RC)
+       case default
+          _FAIL('illegal value for tunit: '//trim(tunit))
+       end select
+    enddo
+
+    _RETURN(_SUCCESS)
+  end subroutine time_ESMF_to_real
+
+
+  subroutine create_timeunit (time, datetime_units, input_unit, rc)
+    type(ESMF_Time), intent(in) :: time
+    character(len=*), intent(out) :: datetime_units
+    character(len=*), optional, intent(in) :: input_unit
+    integer, optional, intent(out) :: rc
+
+    integer :: i, len
+    integer :: status
+    character(len=ESMF_MAXSTR) :: string
+
+    call ESMF_timeget (time, timestring=string, _RC)
+    datetime_units = 'seconds'
+    if (present(input_unit)) datetime_units = trim(input_unit)
+    datetime_units = trim(datetime_units) // trim(string)
+    !!print*, 'datetime_units:', trim(datetime_units)
+
+    _RETURN(_SUCCESS)
+  end subroutine create_timeunit
+
+
   subroutine reset_times_to_current_day(current_time, times_1d, rc)
     type(ESMF_Time), intent(in) :: current_time
     type(ESMF_Time), intent(inout) :: times_1d(:)
@@ -180,8 +244,6 @@ contains
     enddo
     _RETURN(_SUCCESS)
   end subroutine reset_times_to_current_day
-
-
 
 
   !  --//-------------------------------------//->
@@ -244,25 +306,15 @@ contains
     call ESMF_TimeIntervalGet(dT1, s_r8=dT1_s, rc=status)
     call ESMF_TimeIntervalGet(dT2, s_r8=dT2_s, rc=status)
 
-    n1 = floor (dT1_s / dT0_s)
+    n1 = floor (dT1_s / dT0_s) - 1  ! downshift by 1, as filename does not guarantee accurate time
     n2 = floor (dT2_s / dT0_s)
 
 !    print*, 'ck dT0_s, dT1_s, dT2_s', dT0_s, dT1_s, dT2_s
 !    print*, '1st n1, n2', n1, n2
 
     obsfile_Ts_index = n1
-    if ( dT2_s - n2*dT0_s < 1 ) then
-       obsfile_Te_index = n2 - 1
-    else
-       obsfile_Te_index = n2
-    end if
+    obsfile_Te_index = n2
 
-    ! put back
-    n1 = obsfile_Ts_index
-    n2 = obsfile_Te_index
-
-!    print*, __LINE__, __FILE__
-!    print*, '2nd n1, n2', n1, n2
 
     !__ s2.  further test file existence
     !
@@ -424,9 +476,6 @@ contains
              end if
              !!write(6,'(5f20.2)') time_loc_R8(1,j)
           end do
-
-          !!write(6,'(2x,a,10i10)') 'end of file id', i
-          !!write(6,*)
 
           deallocate(time_loc_R8)
           deallocate(lon_loc)
@@ -666,6 +715,28 @@ contains
     enddo
     _RETURN(_SUCCESS)
   end subroutine sort_four_arrays_by_time
+
+
+  subroutine sort_index (X, IA, rc)
+    use MAPL_SortMod
+    real(ESMF_KIND_R8), intent(in) :: X(:)
+    integer, intent(out) :: IA(:)            ! index
+    integer, optional, intent(out) :: rc
+
+    integer :: i, len
+    integer(ESMF_KIND_I8), allocatable :: IX(:)
+
+    _ASSERT (size(X)==size(IA), 'X and IA (its index) differ in dimension')
+    len = size (X)
+    allocate (IX(len))
+    do i=1, len
+       IX(i)=X(i)
+       IA(i)=i
+    enddo
+    call MAPL_Sort(IX,IA)
+    _RETURN(_SUCCESS)
+
+  end subroutine sort_index
 
 
   function copy_platform_nckeys(a, rc)
