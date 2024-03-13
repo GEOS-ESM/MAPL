@@ -31,26 +31,37 @@ contains
       logical, optional, intent(out) :: valueset
       class(Logger_t), optional, target, intent(inout) :: logger
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status = 0
       type(HConfigGetter) :: getter
+      type(logger_t), pointer :: logger_
+      logical :: found = .FALSE.
 
-! wdb default value for valueset
-      getter = HConfigGetter(hconfig, label, logger)
-      getter%found = ESMF_HConfigIsDefined(getter%hconfig, keyString=getter%label, _RC)
-!      getter%found = keystring_found(this%hconfig, this%label, _RC)
-      if(present(valueset)) valueset = getter%found
-      _RETURN_UNLESS(getter%found .or. present(default))
+      if(present(valueset)) valueset = .FALSE.
+      if(.not.(present(valueset))  status = _FAILURE
+      if(present(logger)) logger_ => logger
+
+!      getter = HConfigGetter(hconfig, label)
+!      getter%found = ESMF_HConfigIsDefined(getter%hconfig, keyString=getter%label, _RC)
+      getter = HConfigGetter(hconfig, label)
+      found = ESMF_HConfigIsDefined(hconfig, keyString=label, _RC)
+!      if(.not. (getter%found .or. present(default))) then
+      if(.not. (found .or. present(default))) then
+         if(present(rc)) rc = status
+         return
+      end if
 
       select type(value)
       type is (integer(ESMF_KIND_I4))
          call getter%set_value(value, default, _RC)
-!      type is (character(len=*)) !wdb fixme deleteme implement
-!         call getter%set_value(value, default, _RC)
       class default
-!         _FAIL('Something wicked this way comes...') !wdb fixme deleteme add something better
+         _FAIL('type mismatch'
       end select
       
-      if(present(valueset)) valueset = .TRUE. !wdb fixme  may be able to move this up.
+      if(present(logger)) then
+         call logger%info(getter%typestring //' '// label //' = '// getter%valuestring)
+      end if
+
+      if(present(valueset)) valueset = .TRUE.
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 

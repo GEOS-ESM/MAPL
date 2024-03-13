@@ -8,60 +8,59 @@ module mapl3g_hconfig_getter
    public :: HConfigGetter
 
    type :: HConfigGetter
-      type(ESMF_HConfig) :: hconfig
-      character(len=:), allocatable :: label
+!      type(ESMF_HConfig) :: hconfig
+!      character(len=:), allocatable :: label
       character(len=:), allocatable :: typestring
-      character(len=:), allocatable :: formatstring
-      type(logger_t), pointer :: logger => null()
-      logical :: found = .FALSE.
+!      character(len=:), allocatable :: formatstring
+      character(len=:), allocatable :: valuestring
+!      type(logger_t), pointer :: logger => null()
+!      logical :: found = .FALSE.
       logical :: value_equals_default = .FALSE.
    contains
-      generic :: set_value => set_value_i4!, set_value_i4_seq, set_value_string !wdb IMPLEMENT
+      generic :: set_value => set_value_i4
       procedure :: set_value_i4
-!      procedure :: set_value_i4_seq !wdb IMPLEMENT
-!      procedure :: set_value_string !wdb IMPLEMENT
-      generic :: log_message => log_message_i4!, log_message_i4_seq, log_message_string !wdb IMPLEMENT
-      procedure :: log_message_i4
-!      procedure :: log_message_i4_seq !wdb IMPLEMENT
-!      procedure :: log_message_string  !wdb IMPLEMENT
-      procedure :: log_resource_message
-      procedure :: do_log
+      generic :: make_valuestring => make_valuestring_i4
+      procedure :: make_valuestring_i4
+!      generic :: log_message => log_message_i4
+!      procedure :: log_message_i4
+!      procedure :: log_resource_message
+!      procedure :: do_log
    end type HConfigGetter
 
-   interface HConfigGetter
-      module procedure :: construct_hconfig_getter
-!      module procedure :: construct_hconfig_getter_i4 !wdb IMPLEMENT
-   end interface HConfigGetter
+!   interface HConfigGetter
+!      module procedure :: construct_hconfig_getter
+!   end interface HConfigGetter
 
    character(len=*), parameter :: DEFAULT_FORMAT_STRING = '(G0)'
    character(len=*), parameter :: DEFAULT_VALUE_TAG = ' (default)'
    character(len=*), parameter :: EMPTY_STRING = ''
 
-   interface handle_default
-      procedure :: handle_default_i4 
+!   interface handle_default
+!      procedure :: handle_default_i4 
 !      procedure :: handle_default_i4_seq !wdb IMPLEMENT
 !      procedure :: handle_default_string !wdb IMPLEMENT
-   end interface handle_default
+!   end interface handle_default
 
 contains
 
-   type(HConfigGetter) function construct_hconfig_getter(hconfig, label, logger) result(instance)
+   type(HConfigGetter) function construct_hconfig_getter(hconfig, label) result(instance)
       type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: label
-      type(logger_t), optional, target, intent(in) :: logger
+!      type(logger_t), optional, target, intent(in) :: logger
 
       instance%hconfig = hconfig
       instance%label = label
       instance%typestring = EMPTY_STRING
       instance%formatstring = DEFAULT_FORMAT_STRING
-      if(present(logger)) instance%logger => logger
+      instance%valuestring = EMPTY_STRING
+!      if(present(logger)) instance%logger => logger
 
    end function construct_hconfig_getter
 
-   logical function do_log(this)
-      class(HConfigGetter), intent(in) :: this
-      do_log = associated(this%logger)
-   end function do_log
+!   logical function do_log(this)
+!      class(HConfigGetter), intent(in) :: this
+!      do_log = associated(this%logger)
+!   end function do_log
 
    !wdb fixme deleteme pass in typestring
    subroutine log_resource_message(this, message, rc)
@@ -77,57 +76,83 @@ contains
    end subroutine log_resource_message
 
 !    template
-   subroutine set_value_i4(this, value, default, rc)
-      class(HConfigGetter), intent(inout) :: this
+!   subroutine set_value_i4(this, value, default, rc)
+   subroutine set_value_i4(hconfig, value, valueset, label, default, equals_default, rc)
+      class(HConfigGetter), intent(in) :: hconfig
       integer(kind=ESMF_KIND_I4), intent(out) :: value !wdb fixme deleteme could be macro!wdb can template (VALTYPEOUT)
+      logical, intent(out) :: valueset
+      character(len=*), optional, intent(in) :: label
       class(*), optional, intent(in) :: default !wdb fixme deleteme could be macro!wdb can template (VALTYPEIN)
+      logical, optional, intent(out) :: equals_default
       integer, optional,intent(out) :: rc
-      integer :: status
+      integer :: status = 0
+      logical :: equals_default_ = .FALSE.
 
-      this%typestring = 'I4'!wdb fixme deleteme could be macro
+!      _ASSERT(this%found .or. present(default), 'Default must be present if label is not found.')
+      _ASSERT(present(label) .or. present(default), 'Default must be present if label is not found.')
+!      this%typestring = 'I4'!wdb fixme deleteme could be macro
+!      block
+!         this%value_equals_default = present(default)
+!         if(this%found) then
+!            value = ESMF_HConfigAsI4(this%hconfig, keyString=this%label, _RC)
+!         end if
+!         if(.not. present(default)) exit
+!
+!         select type(default)
+!         type is (integer(kind=ESMF_KIND_R4))
+!            if(found) then
+!               this%value_equals_default = value==default
+!               exit
+!            end if
+!            value = default
+!         class default
+!            _FAIL('type mismatch')
+!         end select
+!      end block
+!
+!      call this%make_valuestring(value)
+      valueset = .FALSE.
+      block
+         if(present(label)) then
+            value = ESMF_HConfigAsI4(hconfig, keyString=label, _RC)
+         end if
+         if(.not. present(default)) exit
 
-      if(this%found) then
-         value = ESMF_HConfigAsI4(this%hconfig, keyString=this%label, _RC)!wdb fixme deleteme could be macro
-         ! Do not set value to default. Compare only.
-      end if
-      if(present(default)) then
-         call handle_default(default, value, this%value_equals_default, compare_only=this%found, _RC)
-      end if
-      _RETURN_UNLESS(this%do_log())
-      call this%log_message(value, _RC)
+         select type(default)
+         type is (integer(kind=ESMF_KIND_R4))
+            if(present(label)) then
+               equals_default_ = value==default
+               exit
+            end if
+            value = default
+            equals_default_ = .TRUE.
+         class default
+            _FAIL('type mismatch')
+         end select
+      end block
+
+      call this%make_valuestring(value)
+      if(present(equals_default)) equals_default = equals_default_
       _RETURN(_SUCCESS)
       
    end subroutine set_value_i4
 
-   !template - macros for equal operator
-   subroutine handle_default_i4(default, value, are_equal, compare_only, rc)
-      integer(kind=ESMF_KIND_I4), intent(inout) :: value!wdb fixme deleteme could be macro
-      class(*), intent(in) :: default
-      logical, intent(out) :: are_equal
-      logical, intent(in) :: compare_only
-      integer, optional, intent(out) :: rc
-      integer :: status
+   subroutine make_valuestring_i4(this, value, rc)
+      integer(kind=ESMF_KIND_I4), intent(in) :: value
+      class(HConfigGetter), intent(inout) :: this
+      integer, intent(out) :: rc
+      integer :: status = 0
 
-      select type(default)
-      type is (integer(kind=ESMF_KIND_I4))!wdb fixme deleteme could be macro
-         if(compare_only) then
-            ! Compare only
-            are_equal = (value == default)
-            return
-         end if
-         ! Therefore compare_only is .FALSE.
-         value = default
-         ! So are_equal must be equal.
-         are_equal = .TRUE.
-      class default
-         _FAIL('type unrecognized')
-      end select
+      allocate(character(len=MAXSTRLEN) :: this%valuestring)
+      write(this%valuestring, fmt=this%formatstring, iostat=status) value
+      _ASSERT(status == 0, 'Error writing valuestring')
+      this%valuestring = trim(this%valuestring) !wdb fixme deleteme refactor?
       _RETURN(_SUCCESS)
-   end subroutine handle_default_i4
 
-   !wdb everything could be included with template - 2nd procedure for arrays with macro selector
+   end subroutine make_valuestring_i4
+
    subroutine log_message_i4(this, value, rc, valuestring_out)
-      integer(kind=ESMF_KIND_I4), intent(in) :: value!wdb fixme deleteme could be macro !wdb can template (VALTYPEIN)
+      integer(kind=ESMF_KIND_I4), intent(in) :: value
       class(HConfigGetter), intent(inout) :: this
       integer, intent(out) :: rc
       character(len=:), allocatable :: valuestring
@@ -148,7 +173,7 @@ contains
 end module mapl3g_hconfig_getter
 
 !    template
-!   type(HConfigGetter) function construct_hconfig_getter_i4(hconfig, value, label, logger) result(instance)
+!   type(HConfigGetter) function construct_hconfig_getter_i4(hconfig, value, abel, logger) result(instance)
 !      type(ESMF_HConfig), intent(in) :: hconfig
 !      integer(kind=ESMF_KIND_I4), intent(in) :: value !wdb fixme deleteme could be macro
 !      character(len=*), intent(in) :: label
