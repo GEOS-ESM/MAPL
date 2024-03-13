@@ -17,12 +17,16 @@ module HistoryTrajectoryMod
      private
      type(ESMF_LocStream)   :: LS_rt
      type(ESMF_LocStream)   :: LS_ds
+     type(ESMF_LocStream)   :: LS_chunk     
      type(LocStreamFactory) :: locstream_factory
      type(obs_unit),    allocatable :: obs(:)
      type(ESMF_Time),   allocatable :: times(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
+!     real(kind=REAL64), allocatable :: lons_chunk(:)
+!     real(kind=REAL64), allocatable :: lats_chunk(:)     
+!     real(kind=REAL64), allocatable :: times_R8_chunk(:)
      integer,           allocatable :: obstype_id(:)
      integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file     
 

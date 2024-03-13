@@ -20,6 +20,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MAPL_StringTemplate
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
+  use MPI, only : MPI_REAL, MPI_DOUBLE_PRECISION, MPI_INTEGER
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -309,7 +310,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%output_bundle = this%create_new_bundle(_RC)
          this%acc_bundle    = this%create_new_bundle(_RC)
 
-
          do k=1, this%nobs_type
             call this%obs(k)%metadata%add_dimension(this%index_name_x, this%obs(k)%nobs_epoch)
             if (this%time_info%integer_time) then
@@ -538,7 +538,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Grid) :: grid
 
          type(ESMF_VM) :: vm
-         integer :: mypet, petcount
+         integer :: mypet, petcount, mpic
 
          integer :: i, j, k, L, ii, jj
          integer :: fid_s, fid_e
@@ -554,13 +554,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: nx2
          logical :: EX ! file
          logical :: zero_obs
+         integer, allocatable :: sendcount(:), displs(:)
+         integer :: recvcount
+         integer :: is, ie, ierr
 
+         real(kind=REAL64), allocatable :: lons_chunk(:)
+         real(kind=REAL64), allocatable :: lats_chunk(:)
+         real(kind=REAL64), allocatable :: times_R8_chunk(:)         
+         
 !!         this%datetime_units = "seconds since 1970-01-01 00:00:00"
          lgr => logging%get_logger('HISTORY.sampler')
 
          call ESMF_VMGetGlobal(vm,_RC)
-         call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
-
+         call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
+         
          if (this%index_name_x == '') then
             !
             !-- non IODA case / non netCDF
@@ -835,20 +842,77 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%nobs_epoch_sum = nx_sum
          call lgr%debug('%a %i20', 'nobservation points=', nx_sum)
 
+         !
+         !__ s1. distrubute uniformly the locstream points
+         !__ s2. create ls on parallel processors
+         !
 
+         
+         !   caution about zero-sized array for MPI
+         !
+
+!!         ! mod
+!!         nx_sum=200
+         nx = int ( nx_sum / petCount )   ! each proc
+         if (mypet == petCount -1) nx = nx_sum - nx * (petCount -1)  ! reuse nx
+         allocate ( sendcount (petCount) )
+         allocate ( displs    (petCount) )
+         recvcount = nx
+         sendcount ( 1:petCount-1 ) = int ( nx_sum / petCount )
+         sendcount ( petcount ) = nx_sum -  int ( nx_sum / petCount ) * (petCount-1)
+         displs(1)=0
+         do i = 2, petCount
+            displs(i) = displs(i-1) + sendcount(i-1)
+         end do
+
+         write(6,'(2x,a,10i8)') 'ck mypet, nx, recvcount', &
+              mypet, nx, recvcount
+         write(6,'(2x,a,10i8)') 'sendcount', sendcount
+         write(6,'(2x,a,10i8)') 'displs', displs
+         is = nx * mypet + 1
+         ie = nx * (mypet + 1)
+         if (mypet == petCount -1) ie = nx_sum
+         
+         
+         allocate ( lons_chunk (nx) )
+         allocate ( lats_chunk (nx) )
+         allocate ( times_R8_chunk (nx) )         
+
+         call MPI_Scatterv( this%lons, sendcount, &
+              displs, MPI_DOUBLE_PRECISION,  lons_chunk, &
+              recvcount, MPI_DOUBLE_PRECISION, 0, mpic, ierr)
+
+         call MPI_Scatterv( this%lats, sendcount, &
+              displs, MPI_DOUBLE_PRECISION,  lats_chunk, &
+              recvcount, MPI_DOUBLE_PRECISION, 0, mpic, ierr)
+
+         call MPI_Scatterv( this%times_R8, sendcount, &
+              displs, MPI_DOUBLE_PRECISION,  times_R8_chunk, &
+              recvcount, MPI_DOUBLE_PRECISION, 0, mpic, ierr)
+         
+         call MPI_Barrier(mpic, status)         
+!         write(6,'(2x,a,2i8)') 'ck mypet, nx, lons_chunk(1:nx)',&              
+!              mypet, nx
+!         write(6,'(10f10.2)') lons_chunk(1:nx)
+!!         _FAIL('nail 1')
+
+         ! -- root         
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
-         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)
 
-         this%fieldA = ESMF_FieldCreate (this%LS_rt, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
+         ! -- proc
+         this%locstream_factory = LocStreamFactory(lons_chunk,lats_chunk,_RC)
+         this%LS_chunk = this%locstream_factory%create_locstream_on_proc(_RC)
+         
+         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+         this%LS_ds = this%locstream_factory%create_locstream_on_proc(grid=grid,_RC)
+
+         this%fieldA = ESMF_FieldCreate (this%LS_chunk, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
          this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
 
          call ESMF_FieldGet( this%fieldA, localDE=0, farrayPtr=ptAT)
          call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=this%obsTime)
-         if (mypet == 0) then
-            ptAT(:) = this%times_R8(:)
-         end if
+         ptAT(:) = times_R8_chunk(:)
          this%obsTime= -1.d0
 
          call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
@@ -860,7 +924,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
          ! defer destroy fieldB at regen_grid step
          !
-
+         
+         !!_FAIL('nail 1')
 
          _RETURN(_SUCCESS)
        end procedure create_grid
