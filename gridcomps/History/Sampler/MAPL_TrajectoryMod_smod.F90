@@ -562,7 +562,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          real(kind=REAL64), allocatable :: lats_chunk(:)
          real(kind=REAL64), allocatable :: times_R8_chunk(:)         
          
-!!         this%datetime_units = "seconds since 1970-01-01 00:00:00"
          lgr => logging%get_logger('HISTORY.sampler')
 
          call ESMF_VMGetGlobal(vm,_RC)
@@ -843,8 +842,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call lgr%debug('%a %i20', 'nobservation points=', nx_sum)
 
          !
-         !__ s1. distrubute uniformly the locstream points
-         !__ s2. create ls on parallel processors
+         !__ s1. distrubute data chunk for the locstream points : mpi_scatterV
+         !__ s2. create LS on parallel processors
          !
          !   caution about zero-sized array for MPI
          !
