@@ -34,7 +34,15 @@ make_internal_name = lambda name: name.replace('*','') if name else None
 
 def make_entry_emit(dictionary):
     """ Returns a emit function that looks up the value in dictionary """
-    return lambda key: dictionary[key] if key in dictionary else None
+#    return lambda key: dictionary[key] if key in dictionary else None
+    def entry_emit(key):
+        if key in dictionary:
+            emission = dictionary[key]
+        elif key in dictionary.values():
+            emission = key
+        else:
+            emission = key
+        return emission
 
 # constants used for Option.DIMS
 DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'), ('MAPL_DimsHorzOnly', 2, 'xy'), ('MAPL_DimsHorzVert', 3, 'xyz')]
