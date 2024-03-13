@@ -24,9 +24,6 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
-!     real(kind=REAL64), allocatable :: lons_chunk(:)
-!     real(kind=REAL64), allocatable :: lats_chunk(:)     
-!     real(kind=REAL64), allocatable :: times_R8_chunk(:)
      integer,           allocatable :: obstype_id(:)
      integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file     
 

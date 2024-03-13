@@ -567,7 +567,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          call ESMF_VMGetGlobal(vm,_RC)
          call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
-         
+
          if (this%index_name_x == '') then
             !
             !-- non IODA case / non netCDF
@@ -846,13 +846,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          !__ s1. distrubute uniformly the locstream points
          !__ s2. create ls on parallel processors
          !
-
-         
          !   caution about zero-sized array for MPI
          !
-
-!!         ! mod
-!!         nx_sum=200
          nx = int ( nx_sum / petCount )   ! each proc
          if (mypet == petCount -1) nx = nx_sum - nx * (petCount -1)  ! reuse nx
          allocate ( sendcount (petCount) )
@@ -864,15 +859,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          do i = 2, petCount
             displs(i) = displs(i-1) + sendcount(i-1)
          end do
-
-         write(6,'(2x,a,10i8)') 'ck mypet, nx, recvcount', &
-              mypet, nx, recvcount
-         write(6,'(2x,a,10i8)') 'sendcount', sendcount
-         write(6,'(2x,a,10i8)') 'displs', displs
-         is = nx * mypet + 1
-         ie = nx * (mypet + 1)
-         if (mypet == petCount -1) ie = nx_sum
-         
          
          allocate ( lons_chunk (nx) )
          allocate ( lats_chunk (nx) )
@@ -891,10 +877,16 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               recvcount, MPI_DOUBLE_PRECISION, 0, mpic, ierr)
          
          call MPI_Barrier(mpic, status)         
+
+!- test print out         
+!         write(6,'(2x,a,10i8)') 'ck mypet, nx, recvcount', &
+!              mypet, nx, recvcount
+!         write(6,'(2x,a,10i8)') 'sendcount', sendcount
+!         write(6,'(2x,a,10i8)') 'displs', displs
 !         write(6,'(2x,a,2i8)') 'ck mypet, nx, lons_chunk(1:nx)',&              
 !              mypet, nx
 !         write(6,'(10f10.2)') lons_chunk(1:nx)
-!!         _FAIL('nail 1')
+
 
          ! -- root         
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
