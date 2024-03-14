@@ -1,4 +1,4 @@
-module Test_mapl3g_hconfig_get_private
+module Test_hconfig_get_private
    use mapl3g_hconfig_get_private
    use ESMF
    use pfunit
@@ -23,12 +23,8 @@ contains
    @Test
    subroutine test_get_i4()
       character(len=*), parameter :: LABEL = 'inv_alpha'
-!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'I4'
-!      character(len=*), parameter :: EXPECTED_VALUESTRING = '137'
       integer(kind=ESMF_KIND_I4), parameter :: EXPECTED = 137
       integer(kind=ESMF_KIND_I4) :: actual
-!      character(len=:), allocatable :: typestring
-!      character(len=:), allocatable :: valuestring
       logical :: found
       integer :: status
 
@@ -38,11 +34,34 @@ contains
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
       @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
-!      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_VALSTRING)
-!      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALSTRING)
 
    end subroutine test_get_i4
 
+   @Before
+   subroutine set_up()
+      
+      integer :: status
+
+      if(.not. hconfig_is_created) then
+         hconfig = ESMF_HConfigCreate(rc=status)
+         hconfig_is_created = (status == 0)
+      end if
+      @assertTrue(hconfig_is_created, 'HConfig was not created.')
+
+   end subroutine set_up
+
+   @After
+   subroutine tear_down()
+
+      integer :: status
+
+      if(hconfig_is_created) call ESMF_HConfigDestroy(hconfig, rc=status)
+      hconfig_is_created = .FALSE.
+      @assertFalse(hconfig_is_created, 'HConfig was not destroyed.')
+
+   end subroutine tear_down
+
+end module Test_hconfig_get_private
 !   @Test
 !   subroutine test_get_i8()
 !      character(len=*), parameter :: LABEL = 'num_h_on_pinhead'
@@ -198,28 +217,3 @@ contains
 !
 !   end subroutine test_get_logical_seq
 
-   @Before
-   subroutine set_up()
-      
-      integer :: status
-
-      if(.not. hconfig_is_created) then
-         hconfig = ESMF_HConfigCreate(rc=status)
-         hconfig_is_created = (status == 0)
-      end if
-      @assertTrue(hconfig_is_created, 'HConfig was not created.')
-
-   end subroutine set_up
-
-   @After
-   subroutine tear_down()
-
-      integer :: status
-
-      if(hconfig_is_created) call ESMF_HConfigDestroy(hconfig, rc=status)
-      hconfig_is_created = .FALSE.
-      @assertFalse(hconfig_is_created, 'HConfig was not destroyed.')
-
-   end subroutine tear_down
-
-end module Test_mapl3g_hconfig_get_private

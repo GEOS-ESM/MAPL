@@ -1,4 +1,4 @@
-module Test_mapl3g_hconfig_getter
+module Test_hconfig_getter
    use mapl3g_hconfig_getter
    use ESMF
    use pfunit
@@ -6,6 +6,7 @@ module Test_mapl3g_hconfig_getter
 
    ! error message stubs
    character(len=*), parameter :: ERROR_NONZERO = 'Non-zero status'
+   character(len=*), parameter :: ERROR_STRING = ' does not match expected: '
    character, parameter :: SPACE = ' '
 
    character(len=*), parameter :: label_expected = 'igneous'
@@ -85,6 +86,25 @@ contains
 
    end subroutine test_get_value
 
+   @Test
+   subroutine test_get_i4()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      character(len=*), parameter :: EXPECTED_TYPESTRING = 'I4'
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '137'
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED = 137
+      integer(kind=ESMF_KIND_I4) :: actual
+      type(HConfigGetter) :: getter
+      integer :: status
+      logical :: found = .FALSE.
+
+      getter = HConfigGetter(hconfig, label, found)
+      call get_value(getter, actual, EXPECTED, rc=status)
+      @assertEqual(0, status, ERROR_NONZERO)
+      @assertEqual(EXPECTED_TYPESTRING, getter%typestring, getter%typestring // ERROR_STRING // EXPECTED_TYPESTRING)
+      @assertEqual(EXPECTED_VALUESTRING, getter%valuestring, getter%valuestring // ERROR_STRING // EXPECTED_VALUESTRING)
+      
+   end subroutine test_get_i4
+
    @Before
    subroutine set_up()
       integer :: status
@@ -107,4 +127,4 @@ contains
 
    end subroutine tear_down
 
-end module Test_mapl3g_hconfig_getter
+end module Test_hconfig_getter
