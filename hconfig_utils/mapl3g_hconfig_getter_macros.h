@@ -29,3 +29,6 @@
 #if defined FMTSTR
 #   undef FMTSTR
 #endif
+
+#define TYPEI4 integer(kind=ESMF_KIND_I4)
+#define TYPECH character(len=*)
