@@ -1,0 +1,225 @@
+module Test_mapl3g_hconfig_get_private
+   use mapl3g_hconfig_get_private
+   use ESMF
+   use pfunit
+
+   implicit none
+
+   ! error message stubs
+   character(len=*), parameter :: ERROR_GET_HCONFIG_FAILED = 'get_HConfig failed.'
+   character(len=*), parameter :: ERROR_ADD_FAIL = 'Add failed.'
+   character(len=*), parameter :: ERROR_NOT_FOUND = 'Find failed for: '
+   character(len=*), parameter :: ERROR_MISMATCH = 'actual does not match expected.'
+   character(len=*), parameter :: ERROR_VALSTRING = 'string does not match expected string.'
+   character, parameter :: SPACE = ' '
+   integer, parameter :: MAXSTRLEN = ESMF_MAXSTR
+
+   ! instance variables
+   logical :: hconfig_is_created = .FALSE.
+   type(ESMF_HConfig) :: hconfig
+
+contains
+
+   @Test
+   subroutine test_get_i4()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'I4'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = '137'
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED = 137
+      integer(kind=ESMF_KIND_I4) :: actual
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      call get_value(hconfig, actual, LABEL, valueset=found, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+!      @assertEqual(EXPECTED_TYPESTRING, typestring, ERROR_VALSTRING)
+!      @assertEqual(EXPECTED_VALUESTRING, valuestring, ERROR_VALSTRING)
+
+   end subroutine test_get_i4
+
+!   @Test
+!   subroutine test_get_i8()
+!      character(len=*), parameter :: LABEL = 'num_h_on_pinhead'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'I8'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = '50000000000'
+!      integer(kind=ESMF_KIND_I8), parameter :: EXPECTED = 50000000000
+!      integer(kind=ESMF_KIND_I8) :: actual
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_i8
+!   
+!   @Test
+!   subroutine test_get_r4()
+!      character(len=*), parameter :: LABEL = 'plank_mass'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'R4'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = '.1859000E-08'
+!      real(kind=ESMF_KIND_R4), parameter :: EXPECTED =   1.85900000E-9_ESMF_KIND_R4
+!      real(kind=ESMF_KIND_R4) :: actual
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+!      @assertEqual(0, status, ERROR_ADD_FAIL)
+!      call get_value(hconfig, LABEL, actual, found=found, typestring=typestring, valuestring=valuestring, rc=status)
+!      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+!      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+!      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+!      @assertEqual(EXPECTED_TYPESTRING, typestring, make_mismatch_error_message(EXPECTED_TYPESTRING, typestring))
+!      @assertEqual(EXPECTED_VALUESTRING, valuestring, make_mismatch_error_message(EXPECTED_VALUESTRING, valuestring))
+!
+!   end subroutine test_get_r4
+!   
+!   @Test
+!   subroutine test_get_r8()
+!      character(len=*), parameter :: LABEL = 'mu_mass'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'R8'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING =   '-.9284764704320000E-22'
+!      real(kind=ESMF_KIND_R8), parameter :: EXPECTED = -9.28476470432000000E-23_ESMF_KIND_R8
+!      real(kind=ESMF_KIND_R8) :: actual
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_r8
+!
+!   @Test
+!   subroutine test_get_logical()
+!      character(len=*), parameter :: LABEL = 'p_or_np'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'L'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = 'T'
+!      logical, parameter :: EXPECTED = .TRUE.
+!      logical :: actual
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_logical
+!
+!   @Test
+!   subroutine test_get_string()
+!      character(len=*), parameter :: LABEL = 'newton'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'CH'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = '"Fg = Gm1m2/r^2"'
+!      character(len=*), parameter :: EXPECTED = 'Fg = Gm1m2/r^2'
+!      character(len=:), allocatable :: actual
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_string
+!
+!   @Test
+!   subroutine test_get_i4seq()
+!      character(len=*), parameter :: LABEL = 'four_vector'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'I4'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = '-1 1 0 0'
+!      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED(4) = [-1, 1, 0, 0]
+!      integer(kind=ESMF_KIND_I4) :: actual(4)
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_i4seq
+!
+!   @Test
+!   subroutine test_get_i8seq()
+!      character(len=*), parameter :: LABEL = 'quaternion'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'I8'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = '-1 1 0 0'
+!      integer(kind=ESMF_KIND_I8), parameter :: EXPECTED(4) = [-1, 1, 0, 0]
+!      integer(kind=ESMF_KIND_I8) :: actual(4)
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_i8seq
+!
+!   @Test
+!   subroutine test_get_r4seq()
+!      character(len=*), parameter :: LABEL = 'four'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'R4'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = &
+!         '-1.234568 1.234568 9.876543 -9.876543'
+!      real(kind=ESMF_KIND_R4), parameter :: EXPECTED(4) = &
+!         [-1.23456780_ESMF_KIND_R4, 1.23456780_ESMF_KIND_R4, &
+!         9.87654300_ESMF_KIND_R4, -9.87654300_ESMF_KIND_R4]
+!      real(kind=ESMF_KIND_R4) :: actual(4)
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_r4seq
+!
+!   @Test
+!   subroutine test_get_r8seq()
+!      character(len=*), parameter :: LABEL = 'four'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'R8'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = &
+!         '-1.234567890123456 1.234567890123456 9.876543210987654 -9.876543210987654'
+!      real(kind=ESMF_KIND_R8), parameter :: EXPECTED(4) = &
+!         [-1.2345678901234560_ESMF_KIND_R8, 1.2345678901234560_ESMF_KIND_R8, &
+!         9.8765432109876540_ESMF_KIND_R8, -9.8765432109876540_ESMF_KIND_R8]
+!      real(kind=ESMF_KIND_R8) :: actual(4)
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_r8seq
+!
+!   @Test
+!   subroutine test_get_logical_seq()
+!      character(len=*), parameter :: LABEL = 'tuffet'
+!      character(len=*), parameter :: EXPECTED_TYPESTRING = 'L'
+!      character(len=*), parameter :: EXPECTED_VALUESTRING = 'T F F T'
+!      logical, parameter :: EXPECTED(4) = [.TRUE., .FALSE., .FALSE., .TRUE.]
+!      logical :: actual(4)
+!      character(len=:), allocatable :: typestring
+!      character(len=:), allocatable :: valuestring
+!      logical :: found
+!      integer :: status
+!
+!   end subroutine test_get_logical_seq
+
+   @Before
+   subroutine set_up()
+      
+      integer :: status
+
+      if(.not. hconfig_is_created) then
+         hconfig = ESMF_HConfigCreate(rc=status)
+         hconfig_is_created = (status == 0)
+      end if
+      @assertTrue(hconfig_is_created, 'HConfig was not created.')
+
+   end subroutine set_up
+
+   @After
+   subroutine tear_down()
+
+      integer :: status
+
+      if(hconfig_is_created) call ESMF_HConfigDestroy(hconfig, rc=status)
+      hconfig_is_created = .FALSE.
+      @assertFalse(hconfig_is_created, 'HConfig was not destroyed.')
+
+   end subroutine tear_down
+
+end module Test_mapl3g_hconfig_get_private

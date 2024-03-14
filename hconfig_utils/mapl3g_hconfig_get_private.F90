@@ -1,10 +1,7 @@
 #include "MAPL_ErrLog.h"
 module mapl3g_hconfig_get_private
-!   use hconfig_value_mod !wdb fixme deleteme 
-   use mapl3g_hconfig_getter, only: HConfigGetter
-   use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined
-   use :: esmf, only: ESMF_KIND_I4!, ESMF_KIND_I8
-!   use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use :: mapl3g_hconfig_getter, only: HConfigGetter, get_value
+   use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined, ESMF_KIND_I4
    use :: pflogger, only: logger_t => logger
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -15,36 +12,30 @@ module mapl3g_hconfig_get_private
 
    interface get_value
       module procedure :: get_scalar
-!      module procedure :: get_value_array
-!      module procedure :: get_scalar_getter
    end interface get_value
 
 contains
 
-   !template
    subroutine get_scalar(hconfig, value, label, unusable, default, valueset, logger, rc)
-      class(*), intent(inout) :: value !wdb could add array case with macro DIM_=dimension(:), allocatable for array; DIM_= for scalar
+      class(*), intent(inout) :: value
       type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: label
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      class(*), optional, intent(in) :: default !wdb could add array case with macro DIM_=dimension(:) for array; DIM_= for scalar
+      class(*), optional, intent(in) :: default
       logical, optional, intent(out) :: valueset
       class(Logger_t), optional, target, intent(inout) :: logger
       integer, optional, intent(out) :: rc
-      integer :: status = 0
+      integer :: status = _FAILURE
       type(HConfigGetter) :: getter
       type(logger_t), pointer :: logger_
       logical :: found = .FALSE.
 
       if(present(valueset)) valueset = .FALSE.
-      if(.not.(present(valueset))  status = _FAILURE
+      if(.not. present(valueset)) status = _FAILURE
       if(present(logger)) logger_ => logger
 
-!      getter = HConfigGetter(hconfig, label)
-!      getter%found = ESMF_HConfigIsDefined(getter%hconfig, keyString=getter%label, _RC)
-      getter = HConfigGetter(hconfig, label)
       found = ESMF_HConfigIsDefined(hconfig, keyString=label, _RC)
-!      if(.not. (getter%found .or. present(default))) then
+      getter = HConfigGetter(hconfig, label, found)
       if(.not. (found .or. present(default))) then
          if(present(rc)) rc = status
          return
@@ -52,13 +43,13 @@ contains
 
       select type(value)
       type is (integer(ESMF_KIND_I4))
-         call getter%set_value(value, default, _RC)
+         call get_value(getter, value, default, _RC)
       class default
-         _FAIL('type mismatch'
+         _FAIL('Unsupported type provided for label <'//getter%label//'>')
       end select
       
       if(present(logger)) then
-         call logger%info(getter%typestring //' '// label //' = '// getter%valuestring)
+         call logger_%info(getter%typestring //' '// label //' = '// getter%valuestring)
       end if
 
       if(present(valueset)) valueset = .TRUE.

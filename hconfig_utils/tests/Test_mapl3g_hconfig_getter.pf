@@ -19,24 +19,27 @@ contains
    @Test
    subroutine test_construct_hconfig_getter()
       type(HConfigGetter) :: instance
-      instance = HConfigGetter(hconfig, label_expected)
-      @assertEqual(instance%label, label_expected, 'Label mismatch')
-      @assertEqual(instance%formatstring, DEFAULT_FORMAT_STRING, 'Format string mismatch')
-      @assertFalse(instance%do_log(), 'do_log() should be false.')
-   end subroutine test_construct_hconfig_getter
+      logical :: found
 
-   @Test
-   subroutine test_log_resource_message()
-      type(HConfigGetter) :: instance
-      integer :: rc
-      instance = get_hconfig_getter()
-      call instance%log_resource_message('NULL', rc=rc) 
-      @assertEqual(0, rc, ERROR_NONZERO)
-   end subroutine test_log_resource_message
+      found = .FALSE.
+      instance = HConfigGetter(hconfig, label_expected, found)
+      @assertEqual(instance%label, label_expected, 'Label mismatch')
+      @assertFalse(instance%found, 'found should be .FALSE.')
+      @assertEqual(0, len(instance%typestring), 'typestring should be empty.')
+      @assertEqual(0, len(instance%valuestring), 'valuestring should be empty.')
+
+      found = .TRUE.
+      instance = HConfigGetter(hconfig, label_expected, found)
+      @assertEqual(instance%label, label_expected, 'Label mismatch')
+      @assertTrue(instance%found, 'found should be .TRUE.')
+      @assertEqual(0, len(instance%typestring), 'typestring should be empty.')
+      @assertEqual(0, len(instance%valuestring), 'valuestring should be empty.')
+
+   end subroutine test_construct_hconfig_getter
       
    @Test
-   subroutine test_set_value()
-      type(HConfigGetter) :: instance
+   subroutine test_get_value()
+      type(HConfigGetter) :: getter
       integer(ESMF_KIND_I4), parameter :: DEFAULT = 13
       ! The value in ESMF_HConfig will be HCONFIG_VALUE once it is set.
       ! HCONFIG_VALUE cannot equal DEFAULT because of its initialization.
@@ -45,12 +48,14 @@ contains
       integer(ESMF_KIND_I4) :: value
       character(len=:), allocatable :: label
       integer :: status
+      logical :: found = .FALSE.
 
-      ! first call to set_value
-      instance = get_hconfig_getter()
+      label = label_expected
+      ! first call to get_value
+      getter = HConfigGetter(hconfig, label, found)
       ! The label is not present in ESMF_HConfig.
       ! The DEFAULT is provided.
-      call instance%set_value(value, DEFAULT, rc=status)
+      call get_value(getter, value, DEFAULT, rc=status)
       @assertEqual(0, status, ERROR_NONZERO // ' on DEFAULT only')
       ! Therefore value must equal DEFAULT.
       @assertEqual(DEFAULT, value, 'Value does not equal DEFAULT.')
@@ -60,95 +65,28 @@ contains
       call ESMF_HConfigAdd(hconfig, HCONFIG_VALUE, addKeyString=label, rc=status)
       @assertEqual(0, status, 'Add failed.')
 
-      ! second call to set_value
-      instance = get_hconfig_getter(hconfig, label)
-      ! Label is present in ESMF_HConfig for the second call to set_value.
-      ! Default is not present in call to set_value.
-      call instance%set_value(value, rc=status)
+      found = .TRUE.
+      ! second call to get_value
+      getter = HConfigGetter(hconfig, label, found)
+      ! Label is present in ESMF_HConfig for the second call to get_value.
+      ! Default is not present in call to get_value.
+      call get_value(getter, value, rc=status)
       @assertEqual(0, status, ERROR_NONZERO // ' on no DEFAULT')
       ! Therefore value must equal HCONFIG_VALUE.
       @assertEqual(HCONFIG_VALUE, value, 'Value does not equal HConfig value.')
       
-      ! third call to set_value
+      ! third call to get_value
       ! DEFAULT is provided, but value in ESMF_HConfig is present.
-      call instance%set_value(value, DEFAULT, rc=status)
+      call get_value(getter, value, DEFAULT, rc=status)
       @assertEqual(0, status, ERROR_NONZERO // ' on value and DEFAULT')
       ! Therefore, value should equal the value in ESMF_HConfig.
       ! This shows that the DEFAULT value is not used when the value is present in ESMF_HConfig.
       @assertEqual(HCONFIG_VALUE, value, 'Value does not equal HConfig value with DEFAULT.')
 
-   end subroutine test_set_value
-
-   @Test
-   subroutine test_handle_default()
-      integer, parameter :: DEFAULT_ = 17
-      integer(ESMF_KIND_I4) :: value, default
-      logical :: are_equal, compare_only
-      integer :: status
-      
-      ! set original value of default
-      default = DEFAULT_
-      value = default-1
-      ! value is not equal to default by initialization.
-      compare_only = .FALSE.
-      are_equal = .FALSE.
-      ! This should set value to default and are_equal to .TRUE.
-      call handle_default(default, value, compare_only, are_equal, rc=status)
-      @assertEqual(0, status, ERROR_NONZERO)
-      @assertEqual(default, value, 'Value does match default.')
-      @assertTrue(are_equal, 'are_equal is .FALSE.')
-
-      compare_only = .TRUE.
-      are_equal = .FALSE.
-      ! Value still equals default, so are_equal should be true.
-      call handle_default(default, value, compare_only, are_equal, rc=status)
-      @assertEqual(0, status, ERROR_NONZERO)
-      @assertTrue(are_equal, 'are_equal is .FALSE. (compare only).')
-
-      ! default changes value
-      default = default + 1
-      ! compare_only is still true, so that is should only compare.
-      call handle_default(default, value, compare_only, are_equal, rc=status)
-      @assertEqual(0, status, ERROR_NONZERO)
-      ! value != default
-      @assertFalse(are_equal, 'are_equal is .TRUE. (compare only).')
-      ! value should equal the original value of default. This shows it did not change value.
-      @assertEqual(DEFAULT_, value, 'Value changed. (compare only).')
-
-   end subroutine test_handle_default
-
-   @Test
-   subroutine test_log_message()
-      type(HConfigGetter) :: instance
-      integer(ESMF_KIND_I4), parameter :: value = 43
-      character(len=*), parameter :: formatstring = DEFAULT_FORMAT_STRING
-      character(len=:), allocatable :: valuestring, valuestring_expected
-      integer :: status, ios
-
-      allocate(character(len=MAXSTRLEN) :: valuestring_expected)
-      write(valuestring_expected, fmt=formatstring, iostat=ios) value
-      @assertEqual(0, ios, ERROR_NONZERO // ' on write valuestring_expected')
-      valuestring_expected = trim(valuestring_expected)
-
-      instance = get_hconfig_getter()
-      instance%formatstring = formatstring
-
-      instance%value_equals_default = .FALSE.
-      call instance%log_message(value, rc=status, valuestring_out=valuestring)
-      @assertEqual(0, status, ERROR_NONZERO)
-      @assertEqual(valuestring_expected, valuestring, 'valuestring mismatch (not default)')
-
-      valuestring_expected = valuestring_expected // DEFAULT_VALUE_TAG
-      instance%value_equals_default = .TRUE.
-      call instance%log_message(value, rc=status, valuestring_out=valuestring)
-      @assertEqual(0, status, ERROR_NONZERO)
-      @assertEqual(valuestring_expected, valuestring, 'valuestring mismatch (default)')
-
-   end subroutine test_log_message
+   end subroutine test_get_value
 
    @Before
    subroutine set_up()
-      
       integer :: status
 
       if(.not. hconfig_is_created) then
@@ -156,11 +94,11 @@ contains
          hconfig_is_created = (status == 0)
       end if
       @assertTrue(hconfig_is_created, 'HConfig was not created.')
+
    end subroutine set_up
 
    @After
    subroutine tear_down()
-
       integer :: status
 
       if(hconfig_is_created) call ESMF_HConfigDestroy(hconfig, rc=status)
@@ -168,24 +106,5 @@ contains
       @assertFalse(hconfig_is_created, 'HConfig was not destroyed.')
 
    end subroutine tear_down
-
-   type(HConfigGetter) function get_hconfig_getter(optional_hconfig, optional_label)
-      type(ESMF_HConfig), optional, intent(in) :: optional_hconfig
-      character(len=*), optional, intent(in) :: optional_label
-      character(len=:), allocatable :: label
-      
-      if(present(optional_label)) then
-         label = optional_label
-      else
-         label = label_expected
-      end if
-
-      if(present(optional_hconfig)) then
-         get_hconfig_getter = HConfigGetter(optional_hconfig, label_expected)
-      else
-         get_hconfig_getter = HConfigGetter(hconfig, label_expected)
-      end if
-         
-   end function get_hconfig_getter
 
 end module Test_mapl3g_hconfig_getter
