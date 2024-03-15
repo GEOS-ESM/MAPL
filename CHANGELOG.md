@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The MAPL\_ESMFRegridder manage now does compute the transpose by default
 - Bypassed the I-Server reading call when there is no extdata
+- Update `components.yaml`
+  - ESMA_cmake v3.42.0
+    - Updates to MPI detection
+    - Enable `-quiet` flag for NAG
 
 ### Fixed
 
