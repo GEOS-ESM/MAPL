@@ -1319,6 +1319,4 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            endif
          end function extract_unquoted_item
 
-
-
 end submodule HistoryTrajectory_implement
