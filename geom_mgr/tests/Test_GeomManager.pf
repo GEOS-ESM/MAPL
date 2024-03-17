@@ -59,7 +59,7 @@ contains
       @assert_that(status, is(0))
 
       geom_manager = GeomManager()
-      spec = geom_manager%make_geom_spec(hconfig, rc=status)
+      allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
       @assert_that(status, is(0))
 
       mapl_geom_a => geom_manager%get_mapl_geom(spec, rc=status)
