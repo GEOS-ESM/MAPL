@@ -2403,6 +2403,7 @@ ENDDO PARSER
              call list(n)%xsampler%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
              call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
              call list(n)%xsampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+             call Hsampler%verify_epoch_equals_freq (list(n)%frequency, list(n)%output_grid_label, _RC)
           endif
 
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
