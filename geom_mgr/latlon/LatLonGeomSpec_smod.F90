@@ -191,7 +191,7 @@ contains
       decomposition = spec%decomposition
    end function get_decomposition
 
-   logical module function supports_hconfig(this, hconfig, rc) result(supports)
+   logical module function supports_hconfig_(this, hconfig, rc) result(supports)
       class(LatLonGeomSpec), intent(in) :: this
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
@@ -216,9 +216,9 @@ contains
       _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
-   end function supports_hconfig
+   end function supports_hconfig_
 
-   logical module function supports_metadata(this, file_metadata, rc) result(supports)
+   logical module function supports_metadata_(this, file_metadata, rc) result(supports)
       class(LatLonGeomSpec), intent(in) :: this
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
@@ -236,6 +236,6 @@ contains
       _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
-   end function supports_metadata
+   end function supports_metadata_
 
 end submodule LatLonGeomSpec_smod
