@@ -20,8 +20,8 @@ module LocStreamFactoryMod
       real(kind=REAL64), allocatable :: lats(:)
       contains
         procedure :: create_locstream
-        procedure :: create_locstream_on_proc        
-        procedure :: destroy_locstream        
+        procedure :: create_locstream_on_proc
+        procedure :: destroy_locstream
    end type
 
    interface LocStreamFactory
@@ -37,9 +37,9 @@ module LocStreamFactoryMod
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
          integer :: status
-      
+
          _UNUSED_DUMMY(unusable)
- 
+
          _ASSERT(size(lons)==size(lats),"Lats and Lons for locstream must be same size")
          allocate(factory%lons,source=lons,stat=status)
          _VERIFY(status)
@@ -59,7 +59,7 @@ module LocStreamFactoryMod
          integer :: my_pet,local_count,status
          real(kind=REAL64), allocatable :: tlons(:),tlats(:)
 
-         _UNUSED_DUMMY(unusable) 
+         _UNUSED_DUMMY(unusable)
          call ESMF_VMGetCurrent(vm,rc=status)
          _VERIFY(status)
          call ESMF_VMGet(vm,localPet=my_pet,rc=status)
@@ -132,13 +132,13 @@ module LocStreamFactoryMod
         type(ESMF_LocStream) :: locstream
         integer, optional, intent(out) :: rc
         integer :: status
-        
+
         if (allocated(this%lons)) deallocate (this%lons)
         if (allocated(this%lats)) deallocate (this%lats)
         call ESMF_LocStreamDestroy (locstream,noGarbage=.true.,_RC)
-        
-        _RETURN(_SUCCESS)         
+
+        _RETURN(_SUCCESS)
       end subroutine destroy_locstream
 
-      
+
 end module LocStreamFactoryMod

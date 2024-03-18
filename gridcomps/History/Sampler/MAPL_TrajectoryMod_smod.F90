@@ -20,7 +20,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MAPL_StringTemplate
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
-  use MPI, only : MPI_REAL, MPI_REAL8, MPI_DOUBLE_PRECISION, MPI_INTEGER
+  use MPI, only : MPI_INTEGER, MPI_REAL, MPI_REAL8
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -562,7 +562,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          real(kind=REAL64), allocatable :: lons_chunk(:)
          real(kind=REAL64), allocatable :: lats_chunk(:)
-         real(kind=REAL64), allocatable :: times_R8_chunk(:)         
+         real(kind=REAL64), allocatable :: times_R8_chunk(:)
 
          integer :: na, nb
          lgr => logging%get_logger('HISTORY.sampler')
@@ -849,7 +849,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          !__ s2. create LS on parallel processors
          !       caution about zero-sized array for MPI
          !
-         
+
 !         nx = int ( nx_sum / petCount )   ! each proc
 !         if (mypet == petCount -1) nx = nx_sum - nx * (petCount -1)  ! reuse nx
 !         allocate ( sendcount (petCount) )
@@ -877,45 +877,32 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          displs(1)=0
          do i = 2, petCount
             displs(i) = displs(i-1) + sendcount(i-1)
-         end do         
+         end do
 
-                  
          allocate ( lons_chunk (nx) )
          allocate ( lats_chunk (nx) )
-         allocate ( times_R8_chunk (nx) )         
+         allocate ( times_R8_chunk (nx) )
 
          call MPI_Scatterv( this%lons, sendcount, &
-              displs, MPI_DOUBLE_PRECISION,  lons_chunk, &
-              recvcount, MPI_DOUBLE_PRECISION, 0, mpic, ierr)
+              displs, MPI_REAL8,  lons_chunk, &
+              recvcount, MPI_REAL8, 0, mpic, ierr)
 
          call MPI_Scatterv( this%lats, sendcount, &
-              displs, MPI_DOUBLE_PRECISION,  lats_chunk, &
-              recvcount, MPI_DOUBLE_PRECISION, 0, mpic, ierr)
+              displs, MPI_REAL8,  lats_chunk, &
+              recvcount, MPI_REAL8, 0, mpic, ierr)
 
          call MPI_Scatterv( this%times_R8, sendcount, &
-              displs, MPI_DOUBLE_PRECISION,  times_R8_chunk, &
-              recvcount, MPI_DOUBLE_PRECISION, 0, mpic, ierr)
-         
-         call MPI_Barrier(mpic, status)         
+              displs, MPI_REAL8,  times_R8_chunk, &
+              recvcount, MPI_REAL8, 0, mpic, ierr)
 
-!!- test print out         
-!         write(6,'(2x,a,10i8)') 'ck mypet, nx, recvcount', &
-!              mypet, nx, recvcount
-!         write(6,'(2x,a,10i8)') 'sendcount', sendcount
-!         write(6,'(2x,a,10i8)') 'displs', displs
-!         write(6,'(2x,a,2i8)') 'ck mypet, nx, lons_chunk(1:nx)',&              
-!              mypet, nx
-!         write(6,'(10f10.2)') lons_chunk(1:nx)
-
-
-         ! -- root         
+         ! -- root
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
 
          ! -- proc
          this%locstream_factory = LocStreamFactory(lons_chunk,lats_chunk,_RC)
          this%LS_chunk = this%locstream_factory%create_locstream_on_proc(_RC)
-         
+
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
          this%LS_ds = this%locstream_factory%create_locstream_on_proc(grid=grid,_RC)
 
@@ -930,17 +917,255 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
          call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
 
-         !!write(6,'(2x,a,i5,2x,10E20.11)')  'pet=', mypet, this%obsTime(1:10)
-
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
          call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
          ! defer destroy fieldB at regen_grid step
          !
-         
-!!         _FAIL('nail 1: create_grid')
 
          _RETURN(_SUCCESS)
        end procedure create_grid
+
+
+
+      module procedure append_file
+         type(GriddedIOitemVectorIterator) :: iter
+         type(GriddedIOitem), pointer :: item
+         type(ESMF_RouteHandle) :: RH
+
+         type(ESMF_Field) :: src_field, dst_field
+         type(ESMF_Field) :: acc_field
+         type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
+         real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
+         real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
+         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
+         real(kind=REAL32), pointer :: p_dst_rt(:,:)
+
+         type(ESMF_Field) :: acc_field_2d_chunk, acc_field_3d_chunk, chunk_field
+         real(kind=REAL32), pointer :: p_acc_chunk_3d(:,:),p_acc_chunk_2d(:)
+
+         integer :: is, ie, nx
+         integer :: lm
+         integer :: rank
+         integer :: status
+         integer :: j, k, ig
+         integer, allocatable :: ix(:)
+         type(ESMF_VM) :: vm
+         integer :: mypet, petcount, mpic, iroot
+
+         integer :: na, nb, nx_sum, nsend
+         integer, allocatable :: RecvCount(:), displs(:)
+         integer :: i, ierr
+         integer, allocatable :: nsend_v, recvcount_v(:), displs_v(:)
+
+
+         if (.NOT. this%active) then
+            _RETURN(ESMF_SUCCESS)
+         endif
+
+         if (this%nobs_epoch_sum==0) then
+            rc=0
+            return
+         endif
+
+         is=1
+         do k = 1, this%nobs_type
+            !-- limit  nx < 2**32 (integer*4)
+            nx=this%obs(k)%nobs_epoch
+            if (nx >0) then
+               if (mapl_am_i_root()) then
+                  call this%obs(k)%file_handle%put_var(this%var_name_time, real(this%obs(k)%times_R8), &
+                       start=[is], count=[nx], _RC)
+                  call this%obs(k)%file_handle%put_var(this%var_name_lon, this%obs(k)%lons, &
+                       start=[is], count=[nx], _RC)
+                  call this%obs(k)%file_handle%put_var(this%var_name_lat, this%obs(k)%lats, &
+                       start=[is], count=[nx], _RC)
+                  call this%obs(k)%file_handle%put_var(this%location_index_name, this%obs(k)%location_index_ioda, &
+                       start=[is], count=[nx], _RC)
+               end if
+            end if
+         enddo
+
+         ! get RH from 2d field
+         src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
+         chunk_field = ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
+         call ESMF_FieldRedistStore(src_field,chunk_field,RH,_RC)
+         call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
+         call ESMF_FieldDestroy(chunk_field,noGarbage=.true.,_RC)
+
+         ! redist and put_var
+         lm = this%vdata%lm
+         acc_field_2d_rt = ESMF_FieldCreate (this%LS_rt, name='field_2d_rt', typekind=ESMF_TYPEKIND_R4, _RC)
+         acc_field_3d_rt = ESMF_FieldCreate (this%LS_rt, name='field_3d_rt', typekind=ESMF_TYPEKIND_R4, &
+              gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+
+         acc_field_2d_chunk = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
+         acc_field_3d_chunk = ESMF_FieldCreate (this%LS_chunk, name='field_3d_chunk', typekind=ESMF_TYPEKIND_R4, &
+              gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+
+         !
+         !   caution about zero-sized array for MPI
+         !
+         nx_sum = this%nobs_epoch_sum
+         call ESMF_VMGetCurrent(vm,_RC)
+         call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
+
+         iroot = 0
+         na = int ( nx_sum / petCount )    ! base length
+         nb = nx_sum - na * (petCount -1)  ! exception
+         if (mypet /= petCount -1) then
+            nsend = na
+         else
+            nsend = nb
+         end if
+         allocate ( recvcount (petCount) )
+         allocate ( displs    (petCount) )
+         recvcount ( 1:petCount-1 ) = na
+         recvcount ( petcount ) = nb
+         displs(1)=0
+         do i = 2, petCount
+            displs(i) = displs(i-1) + recvcount(i-1)
+         end do
+
+         iter = this%items%begin()
+         do while (iter /= this%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
+               call ESMF_FieldGet(acc_field,rank=rank,_RC)
+               if (rank==1) then
+                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC )
+                  call ESMF_FieldGet( acc_field_2d_chunk, localDE=0, farrayPtr=p_acc_chunk_2d, _RC )
+                  call ESMF_FieldRedist( acc_field,  acc_field_2d_chunk, RH, _RC )
+                  allocate ( p_acc_rt_2d(nx_sum) )
+                  call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
+                       p_acc_rt_2d, recvcount, displs, MPI_REAL,&
+                       iroot, mpic, ierr )
+
+                  if (mapl_am_i_root()) then
+                     !
+                     !-- pack fields to obs(k)%p2d and put_var
+                     !
+                     is=1
+                     ie=this%epoch_index(2)-this%epoch_index(1)+1
+                     do k=1, this%nobs_type
+                        nx = this%obs(k)%nobs_epoch
+                        allocate (this%obs(k)%p2d(nx), _STAT)
+                     enddo
+
+                     allocate(ix(this%nobs_type), _STAT)
+                     ix(:)=0
+                     do j=is, ie
+                        k = this%obstype_id(j)
+                        ix(k) = ix(k) + 1
+                        this%obs(k)%p2d(ix(k)) = p_acc_rt_2d(j)
+                     enddo
+
+                     do k=1, this%nobs_type
+                        if (ix(k) /= this%obs(k)%nobs_epoch) then
+                           print*, 'obs_', k, ' : ix(k) /= this%obs(k)%nobs_epoch'
+                           print*, 'obs_', k, ' : this%obs(k)%nobs_epoch, ix(k) =', this%obs(k)%nobs_epoch, ix(k)
+                           _FAIL('test ix(k) failed')
+                        endif
+                     enddo
+                     deallocate(ix, _STAT)
+                     do k=1, this%nobs_type
+                        is = 1
+                        nx = this%obs(k)%nobs_epoch
+                        if (nx>0) then
+                           do ig = 1, this%obs(k)%ngeoval
+                              !!write(6,'(2x,a,2x,a)')  't this%obs(k)%geoval_xname(ig)', trim(this%obs(k)%geoval_xname(ig))
+                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                 !!write(6, '(2x,a,2x,a)') 'append:2d inner put_var item%xname', trim(item%xname)
+                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
+                                      start=[is],count=[nx])
+                              end if
+                           enddo
+                        endif
+                     enddo
+                     do k=1, this%nobs_type
+                        deallocate (this%obs(k)%p2d, _STAT)
+                     enddo
+                  end if
+
+               else if (rank==2) then
+                  nsend_v = nsend * lm
+                  allocate (recvcount_v, source = recvcount * lm )
+                  allocate (displs_v, source = displs * lm )
+
+                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
+                  dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
+                       gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+                  src_field=ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4, &
+                       gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+
+                  call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
+                  call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
+                  p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
+                  call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
+
+                  allocate ( p_acc_rt_3d(nx_sum,lm) )
+                  allocate ( p_dst_rt(lm, nx_sum) )
+                  call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
+                       p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
+                       iroot, mpic, ierr )
+                  p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
+
+                  call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
+                  call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
+
+                  if (mapl_am_i_root()) then
+                     !
+                     !-- pack fields to obs(k)%p3d and put_var
+                     !
+                     is=1
+                     ie=this%epoch_index(2)-this%epoch_index(1)+1
+                     do k=1, this%nobs_type
+                        nx = this%obs(k)%nobs_epoch
+                        allocate (this%obs(k)%p3d(nx, size(p_acc_rt_3d,2)), _STAT)
+                     enddo
+                     allocate(ix(this%nobs_type), _STAT)
+                     ix(:)=0
+                     do j=is, ie
+                        k = this%obstype_id(j)
+                        ix(k) = ix(k) + 1
+                        this%obs(k)%p3d(ix(k),:) = p_acc_rt_3d(j,:)
+                     enddo
+                     deallocate(ix, _STAT)
+                     do k=1, this%nobs_type
+                        is = 1
+                        nx = this%obs(k)%nobs_epoch
+                        if (nx>0) then
+                           do ig = 1, this%obs(k)%ngeoval
+                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                 !!write(6, '(2x,a,2x,a)') 'append:3d inner put_var item%xname', trim(item%xname)
+                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
+                                      start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                              end if
+                           end do
+                        endif
+                     enddo
+                     !!write(6,'(10f8.2)') p_acc_rt_3d(:,:)
+                     !!write(6,*) 'here in append_file:  put_var 3d'
+                     !!call this%obs(k)%file_handle%put_var(trim(item%xname),p_acc_rt_3d(:,:),&
+                     !!     start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                     !!
+                     do k=1, this%nobs_type
+                        deallocate (this%obs(k)%p3d, _STAT)
+                     enddo
+                  end if
+               endif
+
+            else if (item%itemType == ItemTypeVector) then
+               _FAIL("ItemTypeVector not yet supported")
+            end if
+            call iter%next()
+         enddo
+         call ESMF_FieldDestroy(acc_field_2d_chunk, noGarbage=.true., _RC)
+         call ESMF_FieldDestroy(acc_field_3d_chunk, noGarbage=.true., _RC)
+         call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+
+         _RETURN(_SUCCESS)
+       end procedure append_file
 
 
          module procedure regrid_accumulate_on_xsubset
@@ -1203,247 +1428,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               item = adjustl( string_list)
            endif
          end function extract_unquoted_item
-
-
-      module procedure append_file
-         type(GriddedIOitemVectorIterator) :: iter
-         type(GriddedIOitem), pointer :: item
-         type(ESMF_RouteHandle) :: RH
-
-         type(ESMF_Field) :: src_field, dst_field
-         type(ESMF_Field) :: acc_field
-         type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
-         real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-         real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
-         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
-         real(kind=REAL32), pointer :: p_dst_rt(:,:)
-
-         type(ESMF_Field) :: acc_field_2d_chunk, acc_field_3d_chunk, chunk_field
-         real(kind=REAL32), pointer :: p_acc_chunk_3d(:,:),p_acc_chunk_2d(:)
-         
-         integer :: is, ie, nx
-         integer :: lm
-         integer :: rank
-         integer :: status
-         integer :: j, k, ig
-         integer, allocatable :: ix(:)
-         type(ESMF_VM) :: vm
-         integer :: mypet, petcount, mpic, iroot
-
-         integer :: na, nb, nx_sum, nsend
-         integer, allocatable :: RecvCount(:), displs(:)
-         integer :: i, ierr
-         integer, allocatable :: nsend_v, recvcount_v(:), displs_v(:)
-
-
-         if (.NOT. this%active) then
-            _RETURN(ESMF_SUCCESS)
-         endif
-
-         if (this%nobs_epoch_sum==0) then
-            rc=0
-            return
-         endif
-
-         is=1
-         do k = 1, this%nobs_type
-            !-- limit  nx < 2**32 (integer*4)
-            nx=this%obs(k)%nobs_epoch
-            if (nx >0) then
-               if (mapl_am_i_root()) then
-                  call this%obs(k)%file_handle%put_var(this%var_name_time, real(this%obs(k)%times_R8), &
-                       start=[is], count=[nx], _RC)
-                  call this%obs(k)%file_handle%put_var(this%var_name_lon, this%obs(k)%lons, &
-                       start=[is], count=[nx], _RC)
-                  call this%obs(k)%file_handle%put_var(this%var_name_lat, this%obs(k)%lats, &
-                       start=[is], count=[nx], _RC)
-                  call this%obs(k)%file_handle%put_var(this%location_index_name, this%obs(k)%location_index_ioda, &
-                       start=[is], count=[nx], _RC)
-               end if
-            end if
-         enddo
-
-         ! get RH from 2d field
-         src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
-         chunk_field = ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
-         call ESMF_FieldRedistStore(src_field,chunk_field,RH,_RC)
-         call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
-         call ESMF_FieldDestroy(chunk_field,noGarbage=.true.,_RC)
-
-         ! redist and put_var
-         lm = this%vdata%lm
-         acc_field_2d_rt = ESMF_FieldCreate (this%LS_rt, name='field_2d_rt', typekind=ESMF_TYPEKIND_R4, _RC)
-         acc_field_3d_rt = ESMF_FieldCreate (this%LS_rt, name='field_3d_rt', typekind=ESMF_TYPEKIND_R4, &
-              gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-
-         acc_field_2d_chunk = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
-         acc_field_3d_chunk = ESMF_FieldCreate (this%LS_chunk, name='field_3d_chunk', typekind=ESMF_TYPEKIND_R4, &
-              gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-
-         !
-         !   caution about zero-sized array for MPI
-         !
-         nx_sum = this%nobs_epoch_sum
-         call ESMF_VMGetCurrent(vm,_RC)
-         call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
-         
-         iroot = 0
-         na = int ( nx_sum / petCount )    ! base length
-         nb = nx_sum - na * (petCount -1)  ! exception
-         if (mypet /= petCount -1) then
-            nsend = na
-         else
-            nsend = nb
-         end if
-         allocate ( recvcount (petCount) )
-         allocate ( displs    (petCount) )
-         recvcount ( 1:petCount-1 ) = na
-         recvcount ( petcount ) = nb
-         displs(1)=0
-         do i = 2, petCount
-            displs(i) = displs(i-1) + recvcount(i-1)
-         end do         
-
-         iter = this%items%begin()
-         do while (iter /= this%items%end())
-            item => iter%get()
-            if (item%itemType == ItemTypeScalar) then
-               call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
-               call ESMF_FieldGet(acc_field,rank=rank,_RC)
-               if (rank==1) then
-                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC )
-                  call ESMF_FieldGet( acc_field_2d_chunk, localDE=0, farrayPtr=p_acc_chunk_2d, _RC )                   
-                  call ESMF_FieldRedist( acc_field,  acc_field_2d_chunk, RH, _RC )
-                  allocate ( p_acc_rt_2d(nx_sum) )
-                  call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
-                       p_acc_rt_2d, recvcount, displs, MPI_REAL,&
-                       iroot, mpic, ierr )
-
-                  if (mapl_am_i_root()) then
-                     !
-                     !-- pack fields to obs(k)%p2d and put_var
-                     !
-                     is=1
-                     ie=this%epoch_index(2)-this%epoch_index(1)+1
-                     do k=1, this%nobs_type
-                        nx = this%obs(k)%nobs_epoch
-                        allocate (this%obs(k)%p2d(nx), _STAT)
-                     enddo
-
-                     allocate(ix(this%nobs_type), _STAT)
-                     ix(:)=0
-                     do j=is, ie
-                        k = this%obstype_id(j)
-                        ix(k) = ix(k) + 1
-                        this%obs(k)%p2d(ix(k)) = p_acc_rt_2d(j)
-                     enddo
-
-                     do k=1, this%nobs_type
-                        if (ix(k) /= this%obs(k)%nobs_epoch) then
-                           print*, 'obs_', k, ' : ix(k) /= this%obs(k)%nobs_epoch'
-                           print*, 'obs_', k, ' : this%obs(k)%nobs_epoch, ix(k) =', this%obs(k)%nobs_epoch, ix(k)
-                           _FAIL('test ix(k) failed')
-                        endif
-                     enddo
-                     deallocate(ix, _STAT)
-                     do k=1, this%nobs_type
-                        is = 1
-                        nx = this%obs(k)%nobs_epoch
-                        if (nx>0) then
-                           do ig = 1, this%obs(k)%ngeoval
-                              !!write(6,'(2x,a,2x,a)')  't this%obs(k)%geoval_xname(ig)', trim(this%obs(k)%geoval_xname(ig))
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 !!write(6, '(2x,a,2x,a)') 'append:2d inner put_var item%xname', trim(item%xname)
-                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
-                                      start=[is],count=[nx])
-                              end if
-                           enddo
-                        endif
-                     enddo
-                     do k=1, this%nobs_type
-                        deallocate (this%obs(k)%p2d, _STAT)
-                     enddo
-                  end if
-                  
-               else if (rank==2) then
-                  nsend_v = nsend * lm
-                  allocate (recvcount_v, source = recvcount * lm )
-                  allocate (displs_v, source = displs * lm )
-
-                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
-                  dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
-                       gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-                  src_field=ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4, &
-                       gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-
-                  call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
-                  call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
-                  p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
-                  call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
-                  
-                  allocate ( p_acc_rt_3d(nx_sum,lm) )
-                  allocate ( p_dst_rt(lm, nx_sum) )                  
-                  call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
-                       p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
-                       iroot, mpic, ierr )
-                  p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
-
-                  call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
-                  call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
-
-                  if (mapl_am_i_root()) then
-                     !
-                     !-- pack fields to obs(k)%p3d and put_var
-                     !
-                     is=1
-                     ie=this%epoch_index(2)-this%epoch_index(1)+1
-                     do k=1, this%nobs_type
-                        nx = this%obs(k)%nobs_epoch
-                        allocate (this%obs(k)%p3d(nx, size(p_acc_rt_3d,2)), _STAT)
-                     enddo
-                     allocate(ix(this%nobs_type), _STAT)
-                     ix(:)=0
-                     do j=is, ie
-                        k = this%obstype_id(j)
-                        ix(k) = ix(k) + 1
-                        this%obs(k)%p3d(ix(k),:) = p_acc_rt_3d(j,:)
-                     enddo
-                     deallocate(ix, _STAT)
-                     do k=1, this%nobs_type
-                        is = 1
-                        nx = this%obs(k)%nobs_epoch
-                        if (nx>0) then
-                           do ig = 1, this%obs(k)%ngeoval
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 !!write(6, '(2x,a,2x,a)') 'append:3d inner put_var item%xname', trim(item%xname)
-                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
-                                      start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
-                              end if
-                           end do
-                        endif
-                     enddo
-                     !!write(6,'(10f8.2)') p_acc_rt_3d(:,:)
-                     !!write(6,*) 'here in append_file:  put_var 3d'
-                     !!call this%obs(k)%file_handle%put_var(trim(item%xname),p_acc_rt_3d(:,:),&
-                     !!     start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
-                     !!
-                     do k=1, this%nobs_type
-                        deallocate (this%obs(k)%p3d, _STAT)
-                     enddo
-                  end if
-               endif
-
-            else if (item%itemType == ItemTypeVector) then
-               _FAIL("ItemTypeVector not yet supported")
-            end if
-            call iter%next()
-         enddo
-         call ESMF_FieldDestroy(acc_field_2d_chunk, noGarbage=.true., _RC)
-         call ESMF_FieldDestroy(acc_field_3d_chunk, noGarbage=.true., _RC)
-         call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-
-         _RETURN(_SUCCESS)
-       end procedure append_file
 
 
 end submodule HistoryTrajectory_implement
