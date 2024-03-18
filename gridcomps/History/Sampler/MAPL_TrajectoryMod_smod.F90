@@ -20,7 +20,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MAPL_StringTemplate
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
-  use MPI, only : MPI_REAL, MPI_DOUBLE_PRECISION, MPI_INTEGER
+  use MPI, only : MPI_REAL, MPI_REAL8, MPI_DOUBLE_PRECISION, MPI_INTEGER
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -133,7 +133,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          enddo
 
 
-
          ! __ s2. find nobs  &&  distinguish design with vs wo  '------'
          nobs=0
          call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
@@ -142,6 +141,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call ESMF_ConfigGetAttribute( config, STR1, _RC)
             if ( index(trim(STR1), '-----') > 0 ) nobs=nobs+1
          enddo
+
 
          ! __ s3. retrieve template and geoval, set metadata file_handle
          lgr => logging%get_logger('HISTORY.sampler')
@@ -169,7 +169,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             nobs=0   ! reuse counter
             head=1
             jvar=0
-
             !
             !   count '------' in history.rc as special markers for ngeoval
             !
@@ -222,12 +221,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             enddo
          end if
 
+
          do k=1, traj%nobs_type
             allocate (traj%obs(k)%metadata, _STAT)
             if (mapl_am_i_root()) then
                allocate (traj%obs(k)%file_handle, _STAT)
             end if
          end do
+
 
          call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
          do i=1, traj%nobs_type
@@ -239,11 +240,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
          end do
 
+
          _RETURN(_SUCCESS)
 
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
        end procedure HistoryTrajectory_from_config
+
 
 
        !
@@ -402,7 +405,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 !!              if (mapl_am_i_root()) write(6, '(2x,a,/,10(2x,a))') &
 !!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_xname(ig)', &
 !!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_xname(ig))
-
 
               endif
            enddo
@@ -863,10 +865,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          na = int ( nx_sum / petCount )    ! base length
          nb = nx_sum - na * (petCount -1)  ! exception
          if (mypet < petCount -1) then
-            recvcount = na
+            nx = na
          else
-            recvcount = nb
+            nx = nb
          end if
+         recvcount = nx
          allocate ( sendcount (petCount) )
          allocate ( displs    (petCount) )
          sendcount ( 1:petCount-1 ) = na
@@ -895,7 +898,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          
          call MPI_Barrier(mpic, status)         
 
-!- test print out         
+!!- test print out         
 !         write(6,'(2x,a,10i8)') 'ck mypet, nx, recvcount', &
 !              mypet, nx, recvcount
 !         write(6,'(2x,a,10i8)') 'sendcount', sendcount
@@ -934,7 +937,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ! defer destroy fieldB at regen_grid step
          !
          
-         !!_FAIL('nail 1')
+!!         _FAIL('nail 1: create_grid')
 
          _RETURN(_SUCCESS)
        end procedure create_grid
@@ -1213,6 +1216,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
          real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
          real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
+         real(kind=REAL32), pointer :: p_dst_rt(:,:)
 
          type(ESMF_Field) :: acc_field_2d_chunk, acc_field_3d_chunk, chunk_field
          real(kind=REAL32), pointer :: p_acc_chunk_3d(:,:),p_acc_chunk_2d(:)
@@ -1224,11 +1228,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: j, k, ig
          integer, allocatable :: ix(:)
          type(ESMF_VM) :: vm
-         integer :: mypet, petcount, mpic
+         integer :: mypet, petcount, mpic, iroot
 
          integer :: na, nb, nx_sum, nsend
-         integer, allocatable :: RECVCOUNT(:), displs(:)
-         
+         integer, allocatable :: RecvCount(:), displs(:)
+         integer :: i, ierr
+         integer, allocatable :: nsend_v, recvcount_v(:), displs_v(:)
+
+
          if (.NOT. this%active) then
             _RETURN(ESMF_SUCCESS)
          endif
@@ -1280,6 +1287,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_VMGetCurrent(vm,_RC)
          call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
          
+         iroot = 0
          na = int ( nx_sum / petCount )    ! base length
          nb = nx_sum - na * (petCount -1)  ! exception
          if (mypet /= petCount -1) then
@@ -1295,7 +1303,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          do i = 2, petCount
             displs(i) = displs(i-1) + recvcount(i-1)
          end do         
-         
+
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -1303,13 +1311,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
                call ESMF_FieldGet(acc_field,rank=rank,_RC)
                if (rank==1) then
-!!                  if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'append:2d item%xname', trim(item%xname)
-                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
-                  call ESMF_FieldGet( acc_field_2d_chunk, localDE=0, farrayPtr=p_acc_chunk_2d, _RC)
-                  call ESMF_FieldRedist( acc_field,  acc_field_2d_chunk, RH, _RC)
-                  !
-                  ! call gatherV 
-
+                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC )
+                  call ESMF_FieldGet( acc_field_2d_chunk, localDE=0, farrayPtr=p_acc_chunk_2d, _RC )                   
+                  call ESMF_FieldRedist( acc_field,  acc_field_2d_chunk, RH, _RC )
+                  allocate ( p_acc_rt_2d(nx_sum) )
+                  call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
+                       p_acc_rt_2d, recvcount, displs, MPI_REAL,&
+                       iroot, mpic, ierr )
 
                   if (mapl_am_i_root()) then
                      !
@@ -1356,13 +1364,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         deallocate (this%obs(k)%p2d, _STAT)
                      enddo
                   end if
-
                   
                else if (rank==2) then
-                  !!if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'append:3d item%xname', trim(item%xname)
-                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
-                  call ESMF_FieldGet( acc_field_3d_chunk, localDE=0, farrayPtr=p_acc_chunk_3d, _RC)
+                  nsend_v = nsend * lm
+                  allocate (recvcount_v, source = recvcount * lm )
+                  allocate (displs_v, source = displs * lm )
 
+                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
                        gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
                   src_field=ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4, &
@@ -1370,10 +1378,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
                   call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
                   call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
-
                   p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
                   call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
-                  p_acc_chunk_3d=reshape(p_dst, shape(p_acc_chunk_3d), order=[2,1])
+                  
+                  allocate ( p_acc_rt_3d(nx_sum,lm) )
+                  allocate ( p_dst_rt(lm, nx_sum) )                  
+                  call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
+                       p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
+                       iroot, mpic, ierr )
+                  p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
 
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
@@ -1431,8 +1444,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          _RETURN(_SUCCESS)
        end procedure append_file
-
-
 
 
 end submodule HistoryTrajectory_implement
