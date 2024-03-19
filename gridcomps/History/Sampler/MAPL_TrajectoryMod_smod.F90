@@ -924,9 +924,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Field) :: acc_field
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
          real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-         real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
+         real(kind=REAL32), pointer :: p_acc_rt_2d(:)
          real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
-         real(kind=REAL32), pointer :: p_dst_rt(:,:)
+         real(kind=REAL32), allocatable :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
+         real(kind=REAL32), pointer :: pt1(:), pt2(:)
 
          type(ESMF_Field) :: acc_field_2d_chunk, acc_field_3d_chunk, chunk_field
          real(kind=REAL32), pointer :: p_acc_chunk_3d(:,:),p_acc_chunk_2d(:)
@@ -977,6 +978,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ! get RH from 2d field
          src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
          chunk_field = ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
+         call ESMF_FieldGet( src_field, localDE=0, farrayPtr=pt1, _RC )
+         call ESMF_FieldGet( chunk_field, localDE=0, farrayPtr=pt2, _RC )
+         pt1=0.0
+         pt2=0.0
          call ESMF_FieldRedistStore(src_field,chunk_field,RH,_RC)
          call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
          call ESMF_FieldDestroy(chunk_field,noGarbage=.true.,_RC)
