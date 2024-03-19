@@ -250,7 +250,7 @@ contains
          p_dst = MAPL_UNDEF
       end if
 
-      !call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
+      call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
       _VERIFY(status)
 
       if (hasDE) q_out = p_dst
@@ -1665,6 +1665,7 @@ contains
      type(ESMF_RouteHandle) :: route_handle
      type(RegridderSpecRouteHandleMapIterator) :: iter
      integer :: status
+     logical :: compute_transpose
 
      if (kind == ESMF_TYPEKIND_R4) then
         route_handles => route_handles_r4
@@ -1684,11 +1685,14 @@ contains
      iter = route_handles%find(spec)
      call route_handles%erase(iter)
 
-     _ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
-     route_handle = transpose_route_handles%at(spec)
-     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true., _RC)
-     iter = transpose_route_handles%find(spec)
-     call transpose_route_handles%erase(iter)
+     compute_transpose = IAND(spec%hints,REGRID_HINT_COMPUTE_TRANSPOSE) /= 0
+     if (compute_transpose) then
+        _ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+        route_handle = transpose_route_handles%at(spec)
+        call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true., _RC)
+        iter = transpose_route_handles%find(spec)
+        call transpose_route_handles%erase(iter)
+     end if
 
       _RETURN(_SUCCESS)
    end subroutine destroy_route_handle
