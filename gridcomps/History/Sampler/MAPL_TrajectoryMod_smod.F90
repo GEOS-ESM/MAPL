@@ -850,19 +850,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          !       caution about zero-sized array for MPI
          !
 
-!         nx = int ( nx_sum / petCount )   ! each proc
-!         if (mypet == petCount -1) nx = nx_sum - nx * (petCount -1)  ! reuse nx
-!         allocate ( sendcount (petCount) )
-!         allocate ( displs    (petCount) )
-!         recvcount = nx
-!         sendcount ( 1:petCount-1 ) = int ( nx_sum / petCount )
-!         sendcount ( petcount ) = nx_sum -  int ( nx_sum / petCount ) * (petCount-1)
-!         displs(1)=0
-!         do i = 2, petCount
-!            displs(i) = displs(i-1) + sendcount(i-1)
-!         end do
-
-         na = int ( nx_sum / petCount )    ! base length
+         na = nx_sum / petCount     ! base length
          nb = nx_sum - na * (petCount -1)  ! exception
          if (mypet < petCount -1) then
             nx = na
@@ -955,7 +943,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: na, nb, nx_sum, nsend
          integer, allocatable :: RecvCount(:), displs(:)
          integer :: i, ierr
-         integer, allocatable :: nsend_v, recvcount_v(:), displs_v(:)
+         integer :: nsend_v
+         integer, allocatable :: recvcount_v(:), displs_v(:)
 
 
          if (.NOT. this%active) then
