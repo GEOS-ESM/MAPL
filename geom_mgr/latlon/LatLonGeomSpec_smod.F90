@@ -3,7 +3,7 @@
 submodule (mapl3g_LatLonGeomSpec) LatLonGeomSpec_smod
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
-   use mapl3g_HConfigUtils
+!   use hconfig3g
    use pfio
    use MAPL_RangeMod
    use MAPLBase_Mod
@@ -78,8 +78,10 @@ contains
       _ASSERT(has_ims .eqv. has_jms, 'ims and jms must be both defined or both undefined')
 
       if (has_ims) then
-         call MAPL_GetResource(ims, hconfig, 'ims', _RC)
-         call MAPL_GetResource(jms, hconfig, 'jms', _RC)
+         ims = ESMF_HConfigAsI4Seq(hconfig, keyString='ims', _RC)
+         jms = ESMF_HConfigAsI4Seq(hconfig, keyString='jms', _RC)
+!         call MAPL_HConfigGet(hconfig, 'ims', ims,  _RC)
+!         call MAPL_HConfigGet(hconfig, 'jms', jms, _RC)
          decomp = LatLonDecomposition(ims, jms)
          _RETURN(_SUCCESS)
       end if
@@ -89,8 +91,10 @@ contains
       _ASSERT(has_nx .eqv. has_ny, 'nx and ny must be both defined or both undefined')
 
       if (has_nx) then
-         call MAPL_GetResource(nx, hconfig, 'nx', _RC)
-         call MAPL_GetResource(ny, hconfig, 'ny', _RC)
+         nx = ESMF_HConfigAsI4(hconfig, keyString='nx', _RC)
+         ny = ESMF_HConfigAsI4(hconfig, keyString='ny', _RC)
+!         call MAPL_HConfigGet(hconfig, 'nx', nx, _RC)
+!         call MAPL_HConfigGet(hconfig, 'ny', ny, _RC)
          decomp = LatLonDecomposition(dims, topology=[nx, ny])
          _RETURN(_SUCCESS)
       end if
@@ -205,7 +209,8 @@ contains
       supports = ESMF_HConfigIsDefined(hconfig, keystring='schema', _RC)
       _RETURN_UNLESS(supports)
 
-      call MAPL_GetResource(geom_schema, hconfig, 'schema', _RC)
+      geom_schema = ESMF_HConfigAsString(hconfig, keyString='schema', _RC)
+!      call MAPL_HConfigGet(hconfig, 'schema', geom_schema, _RC)
       supports = (geom_schema == 'latlon')
       _RETURN_UNLESS(supports)
       
