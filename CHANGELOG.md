@@ -13,11 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix bug where bit-shaved, instantaneous binary output in History was modifying the original export state passed
-
 ### Removed
 
 ### Deprecated
+
+## [2.44.1] - 2024-03-19
+
+### Fixed
+
+- Fix bug where bit-shaved, instantaneous binary output in History was modifying the original export state passed
 
 ## [2.44.0] - 2024-02-08
 
