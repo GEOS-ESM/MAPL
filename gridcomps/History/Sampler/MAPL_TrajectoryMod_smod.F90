@@ -560,7 +560,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: recvcount
          integer :: is, ie, ierr
          integer :: M, N, ip
-         integer :: na, nb
+!         integer :: na, nb
          
          real(kind=REAL64), allocatable :: lons_chunk(:)
          real(kind=REAL64), allocatable :: lats_chunk(:)
@@ -851,12 +851,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          !__ s2. create LS on parallel processors
          !       caution about zero-sized array for MPI
          !         
-         ip = mypet
+         ip = mypet    ! 0 to M-1
          N = nx_sum
          M = petCount
-         recvcount = int((ip+1)*N, kind=INT64)/M - int( ip*N, kind=INT64)/M
+         recvcount = int((ip+1)*N, kind=INT64)/M - int(ip*N, kind=INT64)/M
 !!         write(6,'(2x,a,2x,2i10)') 'ip, recvcount', ip, recvcount
-         
+
          allocate ( sendcount (petCount) )
          allocate ( displs    (petCount) )
          do ip=0, M-1
@@ -871,6 +871,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          allocate ( lats_chunk (recvcount) )
          allocate ( times_R8_chunk (recvcount) )
 
+         arr(1) = recvcount
+         call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx2, &
+              count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
+         _ASSERT( nx2 == nx_sum, 'Erorr in recvcount' )
+         
          call MPI_Scatterv( this%lons, sendcount, &
               displs, MPI_REAL8,  lons_chunk, &
               recvcount, MPI_REAL8, 0, mpic, ierr)
