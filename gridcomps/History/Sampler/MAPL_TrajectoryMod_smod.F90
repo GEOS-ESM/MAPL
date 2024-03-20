@@ -560,7 +560,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: recvcount
          integer :: is, ie, ierr
          integer :: M, N, ip
-!         integer :: na, nb
+
          
          real(kind=REAL64), allocatable :: lons_chunk(:)
          real(kind=REAL64), allocatable :: lats_chunk(:)
