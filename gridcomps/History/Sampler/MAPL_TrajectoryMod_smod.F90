@@ -559,12 +559,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer, allocatable :: sendcount(:), displs(:)
          integer :: recvcount
          integer :: is, ie, ierr
-
+         integer :: M, N, ip
+         integer :: na, nb
+         
          real(kind=REAL64), allocatable :: lons_chunk(:)
          real(kind=REAL64), allocatable :: lats_chunk(:)
          real(kind=REAL64), allocatable :: times_R8_chunk(:)
 
-         integer :: na, nb
+
          lgr => logging%get_logger('HISTORY.sampler')
 
          call ESMF_VMGetCurrent(vm,_RC)
@@ -848,28 +850,26 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          !__ s1. distrubute data chunk for the locstream points : mpi_scatterV
          !__ s2. create LS on parallel processors
          !       caution about zero-sized array for MPI
-         !
-
-         na = nx_sum / petCount     ! base length
-         nb = nx_sum - na * (petCount -1)  ! exception
-         if (mypet < petCount -1) then
-            nx = na
-         else
-            nx = nb
-         end if
-         recvcount = nx
+         !         
+         ip = mypet
+         N = nx_sum
+         M = petCount
+         recvcount = int((ip+1)*N, kind=INT64)/M - int( ip*N, kind=INT64)/M
+!!         write(6,'(2x,a,2x,2i10)') 'ip, recvcount', ip, recvcount
+         
          allocate ( sendcount (petCount) )
          allocate ( displs    (petCount) )
-         sendcount ( 1:petCount-1 ) = na
-         sendcount ( petcount ) = nb
+         do ip=0, M-1
+            sendcount(ip+1) = int((ip+1)*N, kind=INT64)/M - int( ip*N, kind=INT64)/M
+         end do
          displs(1)=0
          do i = 2, petCount
             displs(i) = displs(i-1) + sendcount(i-1)
          end do
-
-         allocate ( lons_chunk (nx) )
-         allocate ( lats_chunk (nx) )
-         allocate ( times_R8_chunk (nx) )
+         
+         allocate ( lons_chunk (recvcount) )
+         allocate ( lats_chunk (recvcount) )
+         allocate ( times_R8_chunk (recvcount) )
 
          call MPI_Scatterv( this%lons, sendcount, &
               displs, MPI_REAL8,  lons_chunk, &
@@ -946,7 +946,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: i, ierr
          integer :: nsend_v
          integer, allocatable :: recvcount_v(:), displs_v(:)
-
+         integer :: ip, M, N
 
          if (.NOT. this%active) then
             _RETURN(ESMF_SUCCESS)
@@ -1004,17 +1004,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
 
          iroot = 0
-         na = int ( nx_sum / petCount )    ! base length
-         nb = nx_sum - na * (petCount -1)  ! exception
-         if (mypet /= petCount -1) then
-            nsend = na
-         else
-            nsend = nb
-         end if
+         ip = mypet
+         N = nx_sum
+         M = petCount
+         nsend = int((ip+1)*N, kind=INT64)/M - int( ip*N, kind=INT64)/M
          allocate ( recvcount (petCount) )
          allocate ( displs    (petCount) )
-         recvcount ( 1:petCount-1 ) = na
-         recvcount ( petcount ) = nb
+         do ip=0, M-1
+            recvcount(ip+1) = int((ip+1)*N, kind=INT64)/M - int(ip*N, kind=INT64)/M
+         end do
          displs(1)=0
          do i = 2, petCount
             displs(i) = displs(i-1) + recvcount(i-1)
