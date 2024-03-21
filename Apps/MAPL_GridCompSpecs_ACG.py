@@ -49,8 +49,12 @@ RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
 
+# emit function for logical-valued functions
+LOGICAL_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
 # emit function for Option.ADD2EXPORT
-ADD2EXPORT_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
+ADD2EXPORT_EMIT = LOGICAL_EMIT
+# emit function for OPTION.DEPENDS_ON_CHILDREN
+DEPENDS_CHILDREN_EMIT = LOGICAL_EMIT
 
 # parent class for class Option
 # defines a few methods
@@ -89,6 +93,8 @@ Option = Enum(value = 'Option', names = {
         'AVINT': ('averaging_interval',),
         'DATATYPE': ('datatype',),
         'DEFAULT': ('default',),
+        'DEPENDS_ON_CHILDREN': ('depends_on_children', DEPENDS_CHILDREN_EMIT),
+        'DEPENDS_ON': ('depends_on', string_emit),
         'FIELD_TYPE': ('field_type',),
         'FRIENDLYTO': ('friendlyto', string_emit),
         'FRIEND2': ('friendlyto', string_emit),
