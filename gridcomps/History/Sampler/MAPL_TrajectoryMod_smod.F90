@@ -1096,7 +1096,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
                else if (rank==2) then
 
-                  write(6,*) 'in append rank=2, bg gatherv'
+                  if (mapl_am_i_root()) write(6,*) 'in append rank=2, bg gatherv'
 
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
@@ -1119,7 +1119,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
 
-                  write(6,*) 'in append rank=2, af gatherv'                  
+                  if (mapl_am_i_root()) write(6,*) 'in append rank=2, af gatherv'                  
 
                   if (mapl_am_i_root()) then
                      !
