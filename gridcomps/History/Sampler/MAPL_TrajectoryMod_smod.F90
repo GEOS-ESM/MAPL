@@ -854,13 +854,16 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ip = mypet    ! 0 to M-1
          N = nx_sum
          M = petCount
-         recvcount = int((ip+1)*N, kind=INT64)/M - int(ip*N, kind=INT64)/M
+         recvcount = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                     int(ip  , INT64) * int(N, INT64) / int(M, INT64)
+
 !!         write(6,'(2x,a,2x,2i10)') 'ip, recvcount', ip, recvcount
 
          allocate ( sendcount (petCount) )
          allocate ( displs    (petCount) )
          do ip=0, M-1
-            sendcount(ip+1) = int((ip+1)*N, kind=INT64)/M - int( ip*N, kind=INT64)/M
+            sendcount(ip+1) = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                              int(ip  , INT64) * int(N, INT64) / int(M, INT64)
          end do
          displs(1)=0
          do i = 2, petCount
@@ -1012,11 +1015,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ip = mypet
          N = nx_sum
          M = petCount
-         nsend = int((ip+1)*N, kind=INT64)/M - int( ip*N, kind=INT64)/M
+         nsend = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                 int(ip  , INT64) * int(N, INT64) / int(M, INT64)
          allocate ( recvcount (petCount) )
          allocate ( displs    (petCount) )
          do ip=0, M-1
-            recvcount(ip+1) = int((ip+1)*N, kind=INT64)/M - int(ip*N, kind=INT64)/M
+            recvcount(ip+1) =  int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                               int(ip  , INT64) * int(N, INT64) / int(M, INT64)
          end do
          displs(1)=0
          do i = 2, petCount
