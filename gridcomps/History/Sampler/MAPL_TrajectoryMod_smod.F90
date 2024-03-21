@@ -933,8 +933,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
          real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
          real(kind=REAL32), pointer :: p_acc_rt_2d(:)
-         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
-         real(kind=REAL32), allocatable :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
+         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:), p_dst_t(:,:)   ! _t: transpose
+         real(kind=REAL32), pointer :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
          real(kind=REAL32), pointer :: pt1(:), pt2(:)
 
          type(ESMF_Field) :: acc_field_2d_chunk, acc_field_3d_chunk, chunk_field
@@ -1043,7 +1043,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC )
                   call ESMF_FieldGet( acc_field_2d_chunk, localDE=0, farrayPtr=p_acc_chunk_2d, _RC )
                   call ESMF_FieldRedist( acc_field,  acc_field_2d_chunk, RH, _RC )
-                  allocate ( p_acc_rt_2d(nx_sum) )
+                  if (mapl_am_i_root()) then
+                     allocate ( p_acc_rt_2d(nx_sum) )
+                  else
+                     allocate ( p_acc_rt_2d(1) )
+                  end if
                   call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
                        p_acc_rt_2d, recvcount, displs, MPI_REAL,&
                        iroot, mpic, ierr )
@@ -1093,7 +1097,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         deallocate (this%obs(k)%p2d, _STAT)
                      enddo
                   end if
-
+                  deallocate (p_acc_rt_2d)
+                  
                else if (rank==2) then
 
                   if (mapl_am_i_root()) write(6,*) 'in append rank=2, bg gatherv'
@@ -1109,12 +1114,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
                   call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
 
-                  allocate ( p_acc_rt_3d(nx_sum,lm) )
-                  allocate ( p_dst_rt(lm, nx_sum) )
-                  call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
-                       p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
-                       iroot, mpic, ierr )
-                  p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
+                  ! p_dst (lm, nx)
+                  p_dst_t = reshape ( p_dst, [size(p_dst,2),size(p_dst,1)], order=[2,1] )
+                  if (mapl_am_i_root()) then
+                     allocate ( p_acc_rt_3d(nx_sum,lm) )
+                  else
+                     allocate ( p_acc_rt_3d(1,lm) )
+                  end if
+
+                  ! lev by lev
+                  do k = 1, lm
+                     call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
+                          p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
+                          iroot, mpic, ierr )
+                  end do
 
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
@@ -1172,6 +1185,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(acc_field_3d_chunk, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
+         deallocate ( p_acc_rt_3d )         
          _RETURN(_SUCCESS)
        end procedure append_file
 
