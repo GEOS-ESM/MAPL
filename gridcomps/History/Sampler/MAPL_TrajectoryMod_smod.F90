@@ -1028,6 +1028,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             displs(i) = displs(i-1) + recvcount(i-1)
          end do
 
+         nsend_v = nsend * lm      ! vertical
+         allocate (recvcount_v, source = recvcount * lm )
+         allocate (displs_v, source = displs * lm )
+
+
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -1090,9 +1095,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   end if
 
                else if (rank==2) then
-                  nsend_v = nsend * lm
-                  allocate (recvcount_v, source = recvcount * lm )
-                  allocate (displs_v, source = displs * lm )
+
+                  write(6,*) 'in append rank=2, bg gatherv'
 
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
@@ -1114,6 +1118,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
+
+                  write(6,*) 'in append rank=2, af gatherv'                  
 
                   if (mapl_am_i_root()) then
                      !
