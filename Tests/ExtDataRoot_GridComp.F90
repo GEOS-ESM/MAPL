@@ -658,6 +658,10 @@ MODULE ExtDataUtRoot_GridCompMod
          if (item_type(i) == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(InState,trim(outNameList(i)),field,_RC)
             call MAPL_FieldBundleAdd(bundle,field,_RC)
+            block
+               integer:: myrank
+               call ESMF_FieldGet(field,rank=myrank,_RC)
+            end block
          end if
       enddo
 
@@ -757,12 +761,7 @@ MODULE ExtDataUtRoot_GridCompMod
          do ii=1,itemCount
             if (itemTypeList(ii)==ESMF_STATEITEM_FIELD) then
                call ESMF_StateGet(State,trim(nameList(ii)),field,_RC)
-               call ESMF_AttributeGet(field,name='DIMS',value=dims,_RC)
-               if (dims==MAPL_DimsHorzOnly) then
-                  call MAPL_GetPointer(state,ptr2d,trim(nameList(ii)),alloc=.true.,_RC)
-               else if (dims==MAPL_DimsHorzVert) then
-                  call MAPL_GetPointer(state,ptr3d,trim(nameList(ii)),alloc=.true.,_RC)
-               end if
+               call MAPL_AllocateCoupling(field,_RC)
             end if
          enddo
          _RETURN(ESMF_SUCCESS)
