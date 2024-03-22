@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow arithmetic operations to be performed on fields from bundles in History
 - Adapted subroutine RegridVector from GriddedIO.F90 to MAPL_EpochSwathMod.F90 (changing class name for this)
 - Give informative error message when swath grid Epoch does not equal swath sampler frequency
 - Add mask sampler for geostationary satellite (GEOS-R series)
