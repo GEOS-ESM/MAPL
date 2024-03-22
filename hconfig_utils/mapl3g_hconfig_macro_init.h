@@ -1,3 +1,9 @@
+! vim:ft=fortran
+
+#if defined GET_VALUE_
+#  undef GET_VALUE_
+#endif
+
 #if defined ESMF_HCONFIG_AS
 #   undef ESMF_HCONFIG_AS
 #endif
@@ -20,4 +26,12 @@
 
 #if defined FMT_
 #   undef FMT_
+#endif
+
+#if defined IS_ARRAY
+#  undef IS_ARRAY
+#endif
+
+#if defined RANK_
+#  undef RANK_
 #endif

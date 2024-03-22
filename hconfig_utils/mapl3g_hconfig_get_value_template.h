@@ -1,18 +1,18 @@
 ! vim:ft=fortran
 #include "mapl3g_hconfig_macro_init.h"
 #include "mapl3g_hconfig_get_value_macros.h"
-#define SET_STATUS(L) merge(_SUCCESS, _FAILURE, L)
 
    subroutine GET_VALUE_ (hconfig, found, label, value, valuestring, value_equals_default, unusable, default, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       logical, intent(in) :: found
       character(len=*), intent(in) :: label
-      VALTYPE, intent(out) :: value
+      VALTYPE, intent(inout) :: value RANK_
       character(len=:), allocatable, intent(out) :: valuestring
       logical, intent(out) :: value_equals_default
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      class(*), optional, intent(in) :: default
+      class(*), optional, intent(in) :: default RANK_
       integer, optional, intent(out) :: rc
+      character(len=*), parameter :: fmtstr = '(' // FMT_ //')'
       integer :: status
       character(len=MAXSTRLEN) :: buffer
 
@@ -33,7 +33,7 @@
          end select
       end if
 
-      write(buffer, fmt=fmt_, iostat=status) value
+      write(buffer, fmt=fmtstr, iostat=status) value
       _VERIFY(status)
       valuestring = trim(buffer)
       

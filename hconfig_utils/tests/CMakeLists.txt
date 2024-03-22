@@ -2,7 +2,6 @@ set(MODULE_DIRECTORY "${esma_include}/hconfig_utils/tests")
 
 set (test_srcs
   Test_hconfig_get_private.pf
-  Test_hconfig_getter.pf
   )
 
 

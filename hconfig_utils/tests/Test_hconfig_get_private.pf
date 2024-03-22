@@ -40,24 +40,33 @@ contains
    @Test
    subroutine test_get_i4seq()
       character(len=*), parameter :: LABEL = 'four_vector'
-      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED_(4) = [-1, 1, 0, 0]
-      class(*), allocatable :: EXPECTED(:)
-      class(*), allocatable :: actual(:)
-      integer(kind=ESMF_KIND_I4), allocatable :: actual_(:)
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED(4) = [-1, 1, 0, 0]
+      integer(kind=ESMF_KIND_I4), allocatable :: actual(:)
       logical :: found
       integer :: status
 
-      EXPECTED = EXPECTED_
       actual = [integer(kind=ESMF_KIND_I4) ::]
-      call ESMF_HConfigAdd(hconfig, EXPECTED_, addKeyString=LABEL, rc=status)
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call get_value(hconfig, actual, LABEL, valueset=found, rc=status)
-      actual_ = actual
+      call get_allocatable(hconfig, actual, LABEL, valueset=found, rc=status)
       @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
-      @assertTrue(all(actual_ == EXPECTED_), ERROR_MISMATCH)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
 
    end subroutine test_get_i4seq
+
+   subroutine get_allocatable(value, hconfig, label, valueset, rc)
+      class(*), intent(inout) :: value
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(len=*), intent(in) :: label
+      logical, intent(inout) :: valueset
+      integer, intent(out) :: rc
+      integer :: status
+
+      call get_value(hconfig, value, label, valueset, rc=status)
+      rc = status
+
+   end subroutine get_allocatable
 
    @Before
    subroutine set_up()
