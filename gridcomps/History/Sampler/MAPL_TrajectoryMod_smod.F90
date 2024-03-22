@@ -1046,7 +1046,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate ( p_acc_rt_3d(1,lm) )
             allocate ( p_dst_rt(lm, 1) )                     
          end if
-         
+
+#define lev_b_lev  1
+#if defined(lev_b_lev)
+         if (mapl_am_i_root()) write(6,*) 'lev b lev: gatherV ls_chunk to ls_root'                  
+#else
+         if (mapl_am_i_root()) write(6,*) '3d: gatherV ls_chunk to ls_root'                  
+#endif
+
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -1120,9 +1127,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
                   call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
 
-!#define lev_b_lev  1
 #if defined(lev_b_lev)
-                  if (mapl_am_i_root()) write(6,*) 'lev b lev: gather'                  
                   ! p_dst (lm, nx)
                   allocate ( p_dst_t, source = reshape ( p_dst, [size(p_dst,2),size(p_dst,1)], order=[2,1] ) )
                   do k = 1, lm
@@ -1132,7 +1137,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   end do
                   deallocate (p_dst_t)
 #else
-                  if (mapl_am_i_root()) write(6,*) '3d gather'
                   call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
                        p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
                        iroot, mpic, ierr )
