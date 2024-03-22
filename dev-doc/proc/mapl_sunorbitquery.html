@@ -1,0 +1,797 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_SunOrbitQuery &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_SunOrbitQuery
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">35 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_sun_uc.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sun_uc.f90.html'>MAPL_sun_uc.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_SunOrbitQuery</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_sunorbitquery.html#src">MAPL_SunOrbitQuery</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_SunOrbitQuery(ORBIT, ECCENTRICITY, OBLIQUITY, PERIHELION, EQUINOX, YEAR_LENGTH, YEARS_PER_CYCLE, DAYS_PER_CYCLE, CLOCK, ZS, ZC, TH, PP, ET, RC)  
+</h2>
+    
+
+    <p>Query for quantities in an orbit object.
+ Optionally returns the parameters of the orbit and its
+ associated <code>ESMF_Clock</code>. It fails
+ if the orbit has not been created.</p>
+<p>@note Bug
+     Not updated for ORBIT_ANAL2B option, which does not precalc
+     many of the above outputs.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orbit~9"></span>
+              type(<a href='../type/mapl_sunorbit.html'>MAPL_SunOrbit</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORBIT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eccentricity~3"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ECCENTRICITY</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obliquity~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>OBLIQUITY</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-perihelion~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>PERIHELION</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-equinox~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EQUINOX</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-year_length"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>YEAR_LENGTH</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-years_per_cycle~3"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>YEARS_PER_CYCLE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-days_per_cycle~3"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DAYS_PER_CYCLE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~38"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zs~2"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer, dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>ZS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zc~2"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer, dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>ZC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-th~3"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer, dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>TH</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pp~2"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer, dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>PP</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-et~2"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer, dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>ET</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~413"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_sunorbitquery~~CallsGraph Pages: 1 -->
+<svg id="procmapl_sunorbitqueryCallsGraph" width="641pt" height="80pt"
+ viewBox="0.00 0.00 641.00 79.62" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_sunorbitquery~~CallsGraph" class="graph" transform="scale(1.98 1.98) rotate(0) translate(4 154)">
+<title>proc~~mapl_sunorbitquery~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 1268,-154 1268,4 -4,4"/>
+<!-- proc~mapl_sunorbitquery -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node1" class="node">
+<title>proc~mapl_sunorbitquery</title>
+<polygon fill="none" stroke="black" points="209,-88 0,-88 0,-64 209,-64 209,-88"/>
+<text text-anchor="middle" x="104.5" y="-73.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SunMod::MAPL_SunOrbitQuery</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_sunorbitquery~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="463,-46 246,-46 246,-22 463,-22 463,-46"/>
+<text text-anchor="middle" x="354.5" y="-31.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitquery&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_sunorbitquery&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M176.57,-63.96C206.53,-58.89 241.57,-52.96 272.53,-47.71"/>
+<polygon fill="#255000" stroke="#255000" points="273.15,-51.16 282.42,-46.04 271.98,-44.26 273.15,-51.16"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_sunorbitquery~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="753,-108 533,-108 533,-84 753,-84 753,-108"/>
+<text text-anchor="middle" x="643" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitquery&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_sunorbitquery&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M171.62,-88.02C194.75,-91.68 220.94,-95.2 245,-97 337.91,-103.95 443.4,-103.29 522.27,-101.1"/>
+<polygon fill="#255000" stroke="#255000" points="522.84,-104.59 532.73,-100.8 522.63,-97.59 522.84,-104.59"/>
+</g>
+<!-- proc~mapl_sunorbitcreated -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node4" class="node">
+<title>proc~mapl_sunorbitcreated</title>
+<g id="a_proc~~mapl_sunorbitquery~~CallsGraph_node4"><a xlink:href="../proc/mapl_sunorbitcreated.html" xlink:title="MAPL_SunMod::MAPL_SunOrbitCreated">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="464,-88 245,-88 245,-64 464,-64 464,-88"/>
+<text text-anchor="middle" x="354.5" y="-73.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunMod::MAPL_SunOrbitCreated</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitquery&#45;&gt;proc~mapl_sunorbitcreated -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_sunorbitquery&#45;&gt;proc~mapl_sunorbitcreated</title>
+<path fill="none" stroke="#255000" d="M209.24,-76C217.73,-76 226.35,-76 234.94,-76"/>
+<polygon fill="#255000" stroke="#255000" points="234.99,-79.5 244.99,-76 234.99,-72.5 234.99,-79.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node6" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_sunorbitquery~~CallsGraph_node6"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="779,-24 507,-24 507,0 779,0 779,-24"/>
+<text text-anchor="middle" x="643" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M463.41,-25.71C474.21,-24.88 485.31,-24.03 496.42,-23.18"/>
+<polygon fill="#255000" stroke="#255000" points="496.92,-26.65 506.63,-22.4 496.39,-19.67 496.92,-26.65"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node7" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_sunorbitquery~~CallsGraph_node7"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="786,-66 500,-66 500,-42 786,-42 786,-66"/>
+<text text-anchor="middle" x="643" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M463.41,-41.53C472.05,-42.14 480.88,-42.75 489.75,-43.37"/>
+<polygon fill="#255000" stroke="#255000" points="489.56,-46.87 499.78,-44.07 490.05,-39.88 489.56,-46.87"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node5" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_sunorbitquery~~CallsGraph_node5"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1075,-108 822,-108 822,-84 1075,-84 1075,-108"/>
+<text text-anchor="middle" x="948.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025500" d="M753.14,-96C772.1,-96 792.02,-96 811.59,-96"/>
+<polygon fill="#025500" stroke="#025500" points="811.78,-99.5 821.78,-96 811.78,-92.5 811.78,-99.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node8" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_sunorbitquery~~CallsGraph_node8"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1063,-66 834,-66 834,-42 1063,-42 1063,-66"/>
+<text text-anchor="middle" x="948.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M730.97,-83.96C768.36,-78.79 812.2,-72.72 850.62,-67.41"/>
+<polygon fill="#025500" stroke="#025500" points="851.35,-70.84 860.78,-66 850.39,-63.9 851.35,-70.84"/>
+</g>
+<!-- proc~mapl_sunorbitcreated&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_sunorbitcreated&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002505" d="M464.22,-83.59C483.36,-84.93 503.38,-86.32 522.79,-87.68"/>
+<polygon fill="#002505" stroke="#002505" points="522.66,-91.18 532.88,-88.38 523.15,-84.19 522.66,-91.18"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node9" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1214.5,-108 1160.5,-108 1160.5,-84 1214.5,-84 1214.5,-108"/>
+<text text-anchor="middle" x="1187.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge9" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1075.29,-96C1102.83,-96 1129.86,-96 1150.36,-96"/>
+<polygon fill="#255000" stroke="#255000" points="1150.46,-99.5 1160.46,-96 1150.46,-92.5 1150.46,-99.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node10" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1214.5,-150 1160.5,-150 1160.5,-126 1214.5,-126 1214.5,-150"/>
+<text text-anchor="middle" x="1187.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge10" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1017.41,-108.04C1060.55,-115.68 1114.7,-125.28 1149.93,-131.52"/>
+<polygon fill="#255000" stroke="#255000" points="1149.76,-135.04 1160.22,-133.34 1150.98,-128.15 1149.76,-135.04"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M730.97,-24.04C768.36,-29.21 812.2,-35.28 850.62,-40.59"/>
+<polygon fill="transparent" stroke="transparent" points="850.39,-44.1 860.78,-42 851.35,-37.16 850.39,-44.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M730.97,-66.04C768.36,-71.21 812.2,-77.28 850.62,-82.59"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="850.39,-86.1 860.78,-84 851.35,-79.16 850.39,-86.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M786.42,-54C798.81,-54 811.29,-54 823.52,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="823.72,-57.5 833.72,-54 823.72,-50.5 823.72,-57.5"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_node11" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~mapl_sunorbitquery~~CallsGraph_node11"><a xlink:href="../proc/initialize~12.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1264,-66 1111,-66 1111,-42 1264,-42 1264,-66"/>
+<text text-anchor="middle" x="1187.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~mapl_sunorbitquery~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1063.14,-54C1075.76,-54 1088.46,-54 1100.65,-54"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1100.77,-57.5 1110.77,-54 1100.77,-50.5 1100.77,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_sunorbitqueryCallsGraph = svgPanZoom('#procmapl_sunorbitqueryCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine  </span><span class="n">MAPL_SunOrbitQuery</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">ECCENTRICITY</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">OBLIQUITY</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">PERIHELION</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">EQUINOX</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">YEAR_LENGTH</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">YEARS_PER_CYCLE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">DAYS_PER_CYCLE</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">CLOCK</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">ZS</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">ZC</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">TH</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">PP</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">ET</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                                             </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_SunOrbit</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORBIT</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">OBLIQUITY</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ECCENTRICITY</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PERIHELION</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">YEAR_LENGTH</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EQUINOX</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">YEARS_PER_CYCLE</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DAYS_PER_CYCLE</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="w">   </span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ZS</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ZC</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TH</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PP</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">                </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ET</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SunOrbitQuery&quot;</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+
+<span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">MAPL_SunOrbitCreated</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">),</span><span class="s1">&#39;MAPL_SunOrbit not yet created!&#39;</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">CLOCK</span><span class="w">          </span><span class="p">))</span><span class="w"> </span><span class="n">CLOCK</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">CLOCK</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">OBLIQUITY</span><span class="w">      </span><span class="p">))</span><span class="w"> </span><span class="n">OBLIQUITY</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">OB</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ECCENTRICITY</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="n">ECCENTRICITY</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ECC</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">PERIHELION</span><span class="w">     </span><span class="p">))</span><span class="w"> </span><span class="n">PERIHELION</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">PER</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">EQUINOX</span><span class="w">        </span><span class="p">))</span><span class="w"> </span><span class="n">EQUINOX</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">EQNX</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">YEAR_LENGTH</span><span class="w">    </span><span class="p">))</span><span class="w"> </span><span class="n">YEAR_LENGTH</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">YEARLEN</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">DAYS_PER_CYCLE</span><span class="w"> </span><span class="p">))</span><span class="w"> </span><span class="n">DAYS_PER_CYCLE</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">DAYS_PER_CYCLE</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">YEARS_PER_CYCLE</span><span class="p">))</span><span class="w"> </span><span class="n">YEARS_PER_CYCLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">YEARS_PER_CYCLE</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ZS</span><span class="w">             </span><span class="p">))</span><span class="w"> </span><span class="n">ZS</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZS</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ZC</span><span class="w">             </span><span class="p">))</span><span class="w"> </span><span class="n">ZC</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZC</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">TH</span><span class="w">             </span><span class="p">))</span><span class="w"> </span><span class="n">TH</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">TH</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">PP</span><span class="w">             </span><span class="p">))</span><span class="w"> </span><span class="n">PP</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">PP</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ET</span><span class="w">             </span><span class="p">))</span><span class="w"> </span><span class="n">ET</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span>
+
+<span class="w">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">end subroutine </span><span class="n">MAPL_SunOrbitQuery</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-22T17:42:30.403993             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,784 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>split_vector &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>split_vector
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">27 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataRule.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatarule.f90.html'>ExtDataRule.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatarule.html'>MAPL_ExtDataRule</a></li>
+            <li class="breadcrumb-item active" aria-current="page">split_vector</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/split_vector.html#src">split_vector</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine split_vector(this, original_key, ucomp, vcomp, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/extdatarule.html'>ExtDataRule</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4689"></span>
+              class(<a href='../type/extdatarule.html'>ExtDataRule</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-original_key"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>original_key</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ucomp~2"></span>
+              type(<a href='../type/extdatarule.html'>ExtDataRule</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ucomp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vcomp~3"></span>
+              type(<a href='../type/extdatarule.html'>ExtDataRule</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vcomp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~326"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1796"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~split_vector~~CallsGraph Pages: 1 -->
+<svg id="procsplit_vectorCallsGraph" width="641pt" height="77pt"
+ viewBox="0.00 0.00 641.00 76.96" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~split_vector~~CallsGraph" class="graph" transform="scale(2.05 2.05) rotate(0) translate(4 154)">
+<title>proc~~split_vector~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 1312,-154 1312,4 -4,4"/>
+<!-- proc~split_vector -->
+<g id="proc~~split_vector~~CallsGraph_node1" class="node">
+<title>proc~split_vector</title>
+<polygon fill="none" stroke="black" points="255,-86 0,-86 0,-62 255,-62 255,-86"/>
+<text text-anchor="middle" x="127.5" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataRule::ExtDataRule%split_vector</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~split_vector~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~split_vector~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="508,-66 291,-66 291,-42 508,-42 508,-66"/>
+<text text-anchor="middle" x="399.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~split_vector&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_vector~~CallsGraph_edge1" class="edge">
+<title>proc~split_vector&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M255.2,-64.61C263.67,-63.99 272.19,-63.36 280.62,-62.73"/>
+<polygon fill="#255000" stroke="#255000" points="281.13,-66.2 290.85,-61.97 280.61,-59.22 281.13,-66.2"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~split_vector~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~split_vector~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="797,-108 577,-108 577,-84 797,-84 797,-108"/>
+<text text-anchor="middle" x="687" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~split_vector&#45;&gt;proc~mapl_return -->
+<g id="proc~~split_vector~~CallsGraph_edge2" class="edge">
+<title>proc~split_vector&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M255.01,-78.99C348.52,-82.68 475.01,-87.67 566.76,-91.29"/>
+<polygon fill="#255000" stroke="#255000" points="566.8,-94.8 576.93,-91.7 567.07,-87.8 566.8,-94.8"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~split_vector~~CallsGraph_node5" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~split_vector~~CallsGraph_node5"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="823,-24 551,-24 551,0 823,0 823,-24"/>
+<text text-anchor="middle" x="687" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~split_vector~~CallsGraph_edge3" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M482.31,-41.96C517.26,-36.82 558.19,-30.8 594.17,-25.51"/>
+<polygon fill="#255000" stroke="#255000" points="594.79,-28.96 604.18,-24.04 593.77,-22.03 594.79,-28.96"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~split_vector~~CallsGraph_node6" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~split_vector~~CallsGraph_node6"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="830,-66 544,-66 544,-42 830,-42 830,-66"/>
+<text text-anchor="middle" x="687" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~split_vector~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M508.03,-54C516.44,-54 525.02,-54 533.64,-54"/>
+<polygon fill="#255000" stroke="#255000" points="533.79,-57.5 543.79,-54 533.79,-50.5 533.79,-57.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~split_vector~~CallsGraph_node4" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~split_vector~~CallsGraph_node4"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1119,-108 866,-108 866,-84 1119,-84 1119,-108"/>
+<text text-anchor="middle" x="992.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~split_vector~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M797.14,-96C816.1,-96 836.02,-96 855.59,-96"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="855.78,-99.5 865.78,-96 855.78,-92.5 855.78,-99.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~split_vector~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~split_vector~~CallsGraph_node7"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1107,-66 878,-66 878,-42 1107,-42 1107,-66"/>
+<text text-anchor="middle" x="992.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~split_vector~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M774.97,-83.96C812.36,-78.79 856.2,-72.72 894.62,-67.41"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="895.35,-70.84 904.78,-66 894.39,-63.9 895.35,-70.84"/>
+</g>
+<!-- at -->
+<g id="proc~~split_vector~~CallsGraph_node8" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1258.5,-108 1204.5,-108 1204.5,-84 1258.5,-84 1258.5,-108"/>
+<text text-anchor="middle" x="1231.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~split_vector~~CallsGraph_edge7" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1119.29,-96C1146.83,-96 1173.86,-96 1194.36,-96"/>
+<polygon fill="#255000" stroke="#255000" points="1194.46,-99.5 1204.46,-96 1194.46,-92.5 1194.46,-99.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~split_vector~~CallsGraph_node9" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1258.5,-150 1204.5,-150 1204.5,-126 1258.5,-126 1258.5,-150"/>
+<text text-anchor="middle" x="1231.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~split_vector~~CallsGraph_edge8" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1061.41,-108.04C1104.55,-115.68 1158.7,-125.28 1193.93,-131.52"/>
+<polygon fill="#255000" stroke="#255000" points="1193.76,-135.04 1204.22,-133.34 1194.98,-128.15 1193.76,-135.04"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~split_vector~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M774.97,-24.04C812.36,-29.21 856.2,-35.28 894.62,-40.59"/>
+<polygon fill="transparent" stroke="transparent" points="894.39,-44.1 904.78,-42 895.35,-37.16 894.39,-44.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~split_vector~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M774.97,-66.04C812.36,-71.21 856.2,-77.28 894.62,-82.59"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="894.39,-86.1 904.78,-84 895.35,-79.16 894.39,-86.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~split_vector~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M830.42,-54C842.81,-54 855.29,-54 867.52,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="867.72,-57.5 877.72,-54 867.72,-50.5 867.72,-57.5"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~split_vector~~CallsGraph_node10" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~split_vector~~CallsGraph_node10"><a xlink:href="../proc/initialize~12.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1308,-66 1155,-66 1155,-42 1308,-42 1308,-66"/>
+<text text-anchor="middle" x="1231.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~split_vector~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1107.14,-54C1119.76,-54 1132.46,-54 1144.65,-54"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1144.77,-57.5 1154.77,-54 1144.77,-50.5 1144.77,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocsplit_vectorCallsGraph = svgPanZoom('#procsplit_vectorCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~split_vector~~CalledByGraph Pages: 1 -->
+<svg id="procsplit_vectorCalledByGraph" width="641pt" height="20pt"
+ viewBox="0.00 0.00 641.00 19.64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~split_vector~~CalledByGraph" class="graph" transform="scale(2.55 2.55) rotate(0) translate(4 46)">
+<title>proc~~split_vector~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-46 1628,-46 1628,4 -4,4"/>
+<!-- proc~split_vector -->
+<g id="proc~~split_vector~~CalledByGraph_node1" class="node">
+<title>proc~split_vector</title>
+<polygon fill="none" stroke="black" points="1624,-24 1369,-24 1369,0 1624,0 1624,-24"/>
+<text text-anchor="middle" x="1496.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataRule::ExtDataRule%split_vector</text>
+</g>
+<!-- proc~add_new_rule -->
+<g id="proc~~split_vector~~CalledByGraph_node2" class="node">
+<title>proc~add_new_rule</title>
+<g id="a_proc~~split_vector~~CalledByGraph_node2"><a xlink:href="../proc/add_new_rule.html" xlink:title="MAPL_ExtDataConfig::ExtDataConfig%add_new_rule">
+<polygon fill="#d9534f" stroke="#d9534f" points="1333,-24 1043,-24 1043,0 1333,0 1333,-24"/>
+<text text-anchor="middle" x="1188" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataConfig::ExtDataConfig%add_new_rule</text>
+</a>
+</g>
+</g>
+<!-- proc~add_new_rule&#45;&gt;proc~split_vector -->
+<g id="proc~~split_vector~~CalledByGraph_edge1" class="edge">
+<title>proc~add_new_rule&#45;&gt;proc~split_vector</title>
+<path fill="none" stroke="#255000" d="M1333.28,-12C1341.66,-12 1350.09,-12 1358.45,-12"/>
+<polygon fill="#255000" stroke="#255000" points="1358.61,-15.5 1368.61,-12 1358.61,-8.5 1358.61,-15.5"/>
+</g>
+<!-- proc~new_extdataconfig_from_yaml -->
+<g id="proc~~split_vector~~CalledByGraph_node3" class="node">
+<title>proc~new_extdataconfig_from_yaml</title>
+<g id="a_proc~~split_vector~~CalledByGraph_node3"><a xlink:href="../proc/new_extdataconfig_from_yaml.html" xlink:title="MAPL_ExtDataConfig::ExtDataConfig%new_ExtDataConfig_from_yaml">
+<polygon fill="#d9534f" stroke="#d9534f" points="1007,-24 625,-24 625,0 1007,0 1007,-24"/>
+<text text-anchor="middle" x="816" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataConfig::ExtDataConfig%new_ExtDataConfig_from_yaml</text>
+</a>
+</g>
+</g>
+<!-- proc~new_extdataconfig_from_yaml&#45;&gt;proc~add_new_rule -->
+<g id="proc~~split_vector~~CalledByGraph_edge2" class="edge">
+<title>proc~new_extdataconfig_from_yaml&#45;&gt;proc~add_new_rule</title>
+<path fill="none" stroke="#255000" d="M1007.15,-12C1015.65,-12 1024.15,-12 1032.55,-12"/>
+<polygon fill="#255000" stroke="#255000" points="1032.76,-15.5 1042.76,-12 1032.76,-8.5 1032.76,-15.5"/>
+</g>
+<!-- proc~new_extdataconfig_from_yaml&#45;&gt;proc~new_extdataconfig_from_yaml -->
+<g id="proc~~split_vector~~CalledByGraph_edge3" class="edge">
+<title>proc~new_extdataconfig_from_yaml&#45;&gt;proc~new_extdataconfig_from_yaml</title>
+<path fill="none" stroke="#255000" d="M754.49,-24.01C733.01,-32.97 753.52,-42 816,-42 863.84,-42 887.07,-36.71 885.69,-30.21"/>
+<polygon fill="#255000" stroke="#255000" points="887.59,-27.26 877.51,-24.01 883.37,-32.84 887.59,-27.26"/>
+</g>
+<!-- proc~new_extdataoldtypescreator -->
+<g id="proc~~split_vector~~CalledByGraph_node4" class="node">
+<title>proc~new_extdataoldtypescreator</title>
+<g id="a_proc~~split_vector~~CalledByGraph_node4"><a xlink:href="../proc/new_extdataoldtypescreator.html" xlink:title="MAPL_ExtDataOldTypesCreator::new_ExtDataOldTypesCreator">
+<polygon fill="#d9534f" stroke="#d9534f" points="589,-24 250,-24 250,0 589,0 589,-24"/>
+<text text-anchor="middle" x="419.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataOldTypesCreator::new_ExtDataOldTypesCreator</text>
+</a>
+</g>
+</g>
+<!-- proc~new_extdataoldtypescreator&#45;&gt;proc~new_extdataconfig_from_yaml -->
+<g id="proc~~split_vector~~CalledByGraph_edge4" class="edge">
+<title>proc~new_extdataoldtypescreator&#45;&gt;proc~new_extdataconfig_from_yaml</title>
+<path fill="none" stroke="#255000" d="M589.23,-12C597.73,-12 606.3,-12 614.88,-12"/>
+<polygon fill="#255000" stroke="#255000" points="614.95,-15.5 624.95,-12 614.95,-8.5 614.95,-15.5"/>
+</g>
+<!-- proc~initialize_~5 -->
+<g id="proc~~split_vector~~CalledByGraph_node5" class="node">
+<title>proc~initialize_~5</title>
+<g id="a_proc~~split_vector~~CalledByGraph_node5"><a xlink:href="../proc/initialize_~5.html" xlink:title="MAPL_ExtDataGridComp2G::Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="214,-24 0,-24 0,0 214,0 214,-24"/>
+<text text-anchor="middle" x="107" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~5&#45;&gt;proc~new_extdataoldtypescreator -->
+<g id="proc~~split_vector~~CalledByGraph_edge5" class="edge">
+<title>proc~initialize_~5&#45;&gt;proc~new_extdataoldtypescreator</title>
+<path fill="none" stroke="#255000" d="M214.42,-12C222.69,-12 231.16,-12 239.73,-12"/>
+<polygon fill="#255000" stroke="#255000" points="239.82,-15.5 249.82,-12 239.82,-8.5 239.82,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocsplit_vectorCalledByGraph = svgPanZoom('#procsplit_vectorCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">split_vector</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">original_key</span><span class="p">,</span><span class="n">ucomp</span><span class="p">,</span><span class="n">vcomp</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtDataRule</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">original_key</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataRule</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ucomp</span><span class="p">,</span><span class="n">vcomp</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">semi_pos</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">uname</span><span class="p">,</span><span class="n">vname</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">semi_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">file_var</span><span class="p">,</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">semi_pos</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;vector rule does not have 2 variables in the file_var&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">uname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_var</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">semi_pos</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">vname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_var</span><span class="p">(</span><span class="n">semi_pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">file_var</span><span class="p">))</span>
+<span class="w">      </span><span class="n">ucomp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="n">vcomp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="n">semi_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">original_key</span><span class="p">,</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">ucomp</span><span class="p">%</span><span class="n">vector_partner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_key</span><span class="p">(</span><span class="n">semi_pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">original_key</span><span class="p">))</span>
+<span class="w">      </span><span class="n">vcomp</span><span class="p">%</span><span class="n">vector_partner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_key</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">semi_pos</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">ucomp</span><span class="p">%</span><span class="n">file_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uname</span>
+<span class="w">      </span><span class="n">vcomp</span><span class="p">%</span><span class="n">file_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vname</span>
+<span class="w">      </span><span class="n">ucomp</span><span class="p">%</span><span class="n">vector_file_partner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vname</span>
+<span class="w">      </span><span class="n">vcomp</span><span class="p">%</span><span class="n">vector_file_partner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uname</span>
+<span class="w">      </span><span class="n">ucomp</span><span class="p">%</span><span class="n">vector_component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;EW&quot;</span>
+<span class="w">      </span><span class="n">vcomp</span><span class="p">%</span><span class="n">vector_component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;NS&quot;</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">split_vector</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-22T17:42:30.403993             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

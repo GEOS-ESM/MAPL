@@ -1,0 +1,1242 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_VarReadNCpar_R8_3d &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_VarReadNCpar_R8_3d
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">15 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/NCIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/ncio.f90.html'>NCIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/nciomod.html'>NCIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_VarReadNCpar_R8_3d</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_varreadncpar_r8_3d.html#src">MAPL_VarReadNCpar_R8_3d</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_VarReadNCpar_R8_3d(formatter, name, A, ARRDES, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-formatter~17"></span>
+              type(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>formatter</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~73"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~29"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>A</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-arrdes~47"></span>
+              type(<a href='../type/arrdescr.html'>ArrDescr</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ARRDES</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~106"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_varreadncpar_r8_3d~~CallsGraph Pages: 1 -->
+<svg id="procmapl_varreadncpar_r8_3dCallsGraph" width="641pt" height="292pt"
+ viewBox="0.00 0.00 641.00 292.27" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph" class="graph" transform="scale(2.41 2.41) rotate(0) translate(4 700)">
+<title>proc~~mapl_varreadncpar_r8_3d~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-700 1540,-700 1540,4 -4,4"/>
+<!-- proc~mapl_varreadncpar_r8_3d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node1" class="node">
+<title>proc~mapl_varreadncpar_r8_3d</title>
+<polygon fill="none" stroke="black" points="218,-635 0,-635 0,-611 218,-611 218,-635"/>
+<text text-anchor="middle" x="109" y="-620.6" font-family="Helvetica,sans-Serif" font-size="10.50">NCIOMod::MAPL_VarReadNCpar_R8_3d</text>
+</g>
+<!-- interface~mapl_varread~2 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node2" class="node">
+<title>interface~mapl_varread~2</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node2"><a xlink:href="../interface/mapl_varread~2.html" xlink:title="NCIOMod::MAPL_VarRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="401,-594 254,-594 254,-570 401,-570 401,-594"/>
+<text text-anchor="middle" x="327.5" y="-579.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r8_3d&#45;&gt;interface~mapl_varread~2 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_varreadncpar_r8_3d&#45;&gt;interface~mapl_varread~2</title>
+<path fill="none" stroke="#255000" d="M146.24,-610.95C172.86,-604.52 210.12,-597 243.86,-591.07"/>
+<polygon fill="#255000" stroke="#255000" points="244.47,-594.52 253.73,-589.36 243.28,-587.62 244.47,-594.52"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="984.5,-654 764.5,-654 764.5,-630 984.5,-630 984.5,-654"/>
+<text text-anchor="middle" x="874.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r8_3d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_varreadncpar_r8_3d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M218.18,-625.69C359.69,-629.21 606.86,-635.36 753.83,-639.02"/>
+<polygon fill="#255000" stroke="#255000" points="754.16,-642.53 764.24,-639.28 754.33,-635.53 754.16,-642.53"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node4"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="981.5,-696 767.5,-696 767.5,-672 981.5,-672 981.5,-696"/>
+<text text-anchor="middle" x="874.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r8_3d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_varreadncpar_r8_3d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M189.1,-635.03C210.15,-637.94 232.91,-640.84 254,-643 428.82,-660.9 632.24,-672.63 756.92,-678.79"/>
+<polygon fill="#255000" stroke="#255000" points="757.09,-682.3 767.25,-679.3 757.43,-675.31 757.09,-682.3"/>
+</g>
+<!-- interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r8_3d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r8_3d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M290.45,-594.01C270.61,-598.8 244.81,-604.21 218.96,-609.12"/>
+<polygon fill="#255000" stroke="#255000" points="218.25,-605.69 209.06,-610.97 219.54,-612.57 218.25,-605.69"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node7" class="node">
+<title>proc~mapl_varreadncpar_r4_1d</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node7"><a xlink:href="../proc/mapl_varreadncpar_r4_1d.html" xlink:title="NCIOMod::MAPL_VarReadNCpar_R4_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="655,-360 437,-360 437,-336 655,-336 655,-360"/>
+<text text-anchor="middle" x="546" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarReadNCpar_R4_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r4_1d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r4_1d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M330.79,-569.98C338.44,-533.28 366.74,-421.95 437,-369 438.89,-367.58 440.85,-366.24 442.87,-364.99"/>
+<polygon fill="#255000" stroke="#255000" points="444.93,-367.85 452.06,-360.01 441.6,-361.69 444.93,-367.85"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_2d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node8" class="node">
+<title>proc~mapl_varreadncpar_r4_2d</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node8"><a xlink:href="../proc/mapl_varreadncpar_r4_2d.html" xlink:title="NCIOMod::MAPL_VarReadNCpar_R4_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="655,-574 437,-574 437,-550 655,-550 655,-574"/>
+<text text-anchor="middle" x="546" y="-559.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarReadNCpar_R4_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r4_2d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r4_2d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M401.19,-575.28C409.4,-574.53 417.92,-573.74 426.53,-572.94"/>
+<polygon fill="#255000" stroke="#255000" points="427.02,-576.41 436.66,-572.01 426.38,-569.44 427.02,-576.41"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_3d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node9" class="node">
+<title>proc~mapl_varreadncpar_r4_3d</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node9"><a xlink:href="../proc/mapl_varreadncpar_r4_3d.html" xlink:title="NCIOMod::MAPL_VarReadNCpar_R4_3d">
+<polygon fill="#d9534f" stroke="#d9534f" points="655,-616 437,-616 437,-592 655,-592 655,-616"/>
+<text text-anchor="middle" x="546" y="-601.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarReadNCpar_R4_3d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r4_3d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r4_3d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M401.19,-582.97C425.49,-584.97 452.47,-587.74 476.43,-590.7"/>
+<polygon fill="#255000" stroke="#255000" points="476.14,-594.19 486.5,-591.98 477.03,-587.25 476.14,-594.19"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node10" class="node">
+<title>proc~mapl_varreadncpar_r8_1d</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node10"><a xlink:href="../proc/mapl_varreadncpar_r8_1d.html" xlink:title="NCIOMod::MAPL_VarReadNCpar_R8_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="655,-402 437,-402 437,-378 655,-378 655,-402"/>
+<text text-anchor="middle" x="546" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarReadNCpar_R8_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r8_1d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r8_1d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M342.04,-569.99C378.65,-537.53 479.75,-447.86 523.91,-408.7"/>
+<polygon fill="#255000" stroke="#255000" points="526.3,-411.26 531.46,-402.01 521.66,-406.02 526.3,-411.26"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_2d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node11" class="node">
+<title>proc~mapl_varreadncpar_r8_2d</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node11"><a xlink:href="../proc/mapl_varreadncpar_r8_2d.html" xlink:title="NCIOMod::MAPL_VarReadNCpar_R8_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="655,-532 437,-532 437,-508 655,-508 655,-532"/>
+<text text-anchor="middle" x="546" y="-517.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarReadNCpar_R8_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r8_2d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r8_2d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M356.61,-569.87C378.26,-560.9 409.11,-548.92 437,-541 445.7,-538.53 454.88,-536.25 464.07,-534.18"/>
+<polygon fill="#255000" stroke="#255000" points="464.98,-537.57 474.01,-532.02 463.49,-530.73 464.98,-537.57"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node5" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node5"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1347,-654 1094,-654 1094,-630 1347,-630 1347,-654"/>
+<text text-anchor="middle" x="1220.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025500" d="M984.82,-642C1016.28,-642 1051,-642 1083.85,-642"/>
+<polygon fill="#025500" stroke="#025500" points="1083.98,-645.5 1093.98,-642 1083.98,-638.5 1083.98,-645.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node6" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node6"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1335,-696 1106,-696 1106,-672 1335,-672 1335,-696"/>
+<text text-anchor="middle" x="1220.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M982.17,-654.01C1007.06,-656.88 1033.47,-659.99 1058,-663 1077.69,-665.41 1098.71,-668.08 1118.86,-670.68"/>
+<polygon fill="#025500" stroke="#025500" points="1118.62,-674.18 1128.99,-671.99 1119.52,-667.24 1118.62,-674.18"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M981.52,-684C1017.52,-684 1058.06,-684 1095.35,-684"/>
+<polygon fill="#002505" stroke="#002505" points="1095.77,-687.5 1105.77,-684 1095.77,-680.5 1095.77,-687.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1486.5,-654 1432.5,-654 1432.5,-630 1486.5,-630 1486.5,-654"/>
+<text text-anchor="middle" x="1459.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1347.29,-642C1374.83,-642 1401.86,-642 1422.36,-642"/>
+<polygon fill="#255000" stroke="#255000" points="1422.46,-645.5 1432.46,-642 1422.46,-638.5 1422.46,-645.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1486.5,-612 1432.5,-612 1432.5,-588 1486.5,-588 1486.5,-612"/>
+<text text-anchor="middle" x="1459.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1289.41,-629.96C1332.55,-622.32 1386.7,-612.72 1421.93,-606.48"/>
+<polygon fill="#255000" stroke="#255000" points="1422.98,-609.85 1432.22,-604.66 1421.76,-602.96 1422.98,-609.85"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node29" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node29"><a xlink:href="../proc/initialize~12.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1536,-696 1383,-696 1383,-672 1536,-672 1536,-696"/>
+<text text-anchor="middle" x="1459.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="transparent" d="M1335.14,-684C1347.76,-684 1360.46,-684 1372.65,-684"/>
+<polygon fill="transparent" stroke="transparent" points="1372.77,-687.5 1382.77,-684 1372.77,-680.5 1372.77,-687.5"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#722550" d="M644.55,-360.3C648.32,-362.79 651.84,-365.68 655,-369 732.97,-450.98 609.91,-542.1 691,-621 708.1,-637.64 730.79,-646.35 754.35,-650.34"/>
+<polygon fill="#722550" stroke="#722550" points="754.09,-653.84 764.48,-651.77 755.07,-646.9 754.09,-653.84"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#722550" d="M644.63,-360.22C648.39,-362.74 651.87,-365.65 655,-369 744.76,-465.29 597.58,-570.25 691,-663 708.61,-680.48 732.36,-689.27 756.9,-693.05"/>
+<polygon fill="#722550" stroke="#722550" points="756.72,-696.55 767.08,-694.33 757.6,-689.61 756.72,-696.55"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node14" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node14"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_CommsMod::MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="977.5,-66 771.5,-66 771.5,-42 977.5,-42 977.5,-66"/>
+<text text-anchor="middle" x="874.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#722550" d="M549.26,-335.8C558.12,-291.85 594.81,-140.81 691,-75 711.47,-60.99 736.36,-53.56 761.07,-50"/>
+<polygon fill="#722550" stroke="#722550" points="761.78,-53.44 771.27,-48.74 760.92,-46.49 761.78,-53.44"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node15" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node15"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="983,-24 766,-24 766,0 983,0 983,-24"/>
+<text text-anchor="middle" x="874.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#722550" d="M548.39,-335.68C554.55,-287.5 583.97,-110.75 691,-33 709.85,-19.3 732.81,-11.72 755.99,-7.86"/>
+<polygon fill="#722550" stroke="#722550" points="756.53,-11.32 765.93,-6.43 755.53,-4.39 756.53,-11.32"/>
+</g>
+<!-- interface~mapl_commsbcast -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node16" class="node">
+<title>interface~mapl_commsbcast</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node16"><a xlink:href="../interface/mapl_commsbcast.html" xlink:title="MAPL_CommsMod::MAPL_CommsBcast">
+<polygon fill="#a7506f" stroke="#a7506f" points="984.5,-402 764.5,-402 764.5,-378 984.5,-378 984.5,-402"/>
+<text text-anchor="middle" x="874.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::MAPL_CommsBcast</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;interface~mapl_commsbcast -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;interface~mapl_commsbcast</title>
+<path fill="none" stroke="#722550" d="M626.54,-360.04C647.49,-363.09 670.08,-366.27 691,-369 711.48,-371.67 733.27,-374.33 754.4,-376.82"/>
+<polygon fill="#722550" stroke="#722550" points="754.05,-380.3 764.38,-377.99 754.86,-373.35 754.05,-380.3"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node17" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node17"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_SortMod::MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="951.5,-360 797.5,-360 797.5,-336 951.5,-336 951.5,-360"/>
+<text text-anchor="middle" x="874.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;interface~mapl_sort -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#722550" d="M655.27,-348C698.13,-348 746.73,-348 787.16,-348"/>
+<polygon fill="#722550" stroke="#722550" points="787.26,-351.5 797.26,-348 787.26,-344.5 787.26,-351.5"/>
+</g>
+<!-- mpi_comm_create -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node18" class="node">
+<title>mpi_comm_create</title>
+<polygon fill="#777777" stroke="#777777" points="930,-318 819,-318 819,-294 930,-294 930,-318"/>
+<text text-anchor="middle" x="874.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_create</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_create -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_create</title>
+<path fill="none" stroke="#722550" d="M626.54,-335.96C647.49,-332.91 670.08,-329.73 691,-327 730,-321.91 773.78,-316.85 808.68,-312.98"/>
+<polygon fill="#722550" stroke="#722550" points="809.19,-316.44 818.74,-311.86 808.42,-309.48 809.19,-316.44"/>
+</g>
+<!-- mpi_comm_free -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node19" class="node">
+<title>mpi_comm_free</title>
+<polygon fill="#777777" stroke="#777777" points="923.5,-192 825.5,-192 825.5,-168 923.5,-168 923.5,-192"/>
+<text text-anchor="middle" x="874.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_free</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_free -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_free</title>
+<path fill="none" stroke="#722550" d="M554.58,-335.81C573.48,-306.63 625.86,-232.88 691,-201 729.49,-182.16 777.85,-177.31 815.12,-176.96"/>
+<polygon fill="#722550" stroke="#722550" points="815.32,-180.46 825.32,-176.97 815.32,-173.46 815.32,-180.46"/>
+</g>
+<!-- mpi_comm_group -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node20" class="node">
+<title>mpi_comm_group</title>
+<polygon fill="#777777" stroke="#777777" points="928.5,-150 820.5,-150 820.5,-126 928.5,-126 928.5,-150"/>
+<text text-anchor="middle" x="874.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_group</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_group -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_group</title>
+<path fill="none" stroke="#722550" d="M552.2,-335.54C567.5,-300.62 616.06,-201.62 691,-159 726.86,-138.61 773.07,-133.46 810.01,-133.36"/>
+<polygon fill="#722550" stroke="#722550" points="810.14,-136.86 820.17,-133.45 810.21,-129.86 810.14,-136.86"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node21" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="925,-612 824,-612 824,-588 925,-588 925,-612"/>
+<text text-anchor="middle" x="874.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_rank -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#722550" d="M643.96,-360.1C647.94,-362.64 651.66,-365.59 655,-369 721.21,-436.7 622.22,-513.91 691,-579 723.07,-609.35 773.83,-613.01 813.69,-609.98"/>
+<polygon fill="#722550" stroke="#722550" points="814.19,-613.45 823.83,-609.05 813.55,-606.48 814.19,-613.45"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node22" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="923,-570 826,-570 826,-546 923,-546 923,-570"/>
+<text text-anchor="middle" x="874.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_size -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#722550" d="M643.79,-360.27C647.82,-362.76 651.59,-365.66 655,-369 709.51,-422.48 634.46,-485.67 691,-537 724.13,-567.07 775.75,-570.49 815.65,-567.44"/>
+<polygon fill="#722550" stroke="#722550" points="816.15,-570.91 825.79,-566.51 815.51,-563.94 816.15,-570.91"/>
+</g>
+<!-- mpi_group_free -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node23" class="node">
+<title>mpi_group_free</title>
+<polygon fill="#777777" stroke="#777777" points="922,-276 827,-276 827,-252 922,-252 922,-276"/>
+<text text-anchor="middle" x="874.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_group_free</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_group_free -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_group_free</title>
+<path fill="none" stroke="#722550" d="M569.18,-335.8C596.83,-321.18 645.95,-297.15 691,-285 732.06,-273.92 779.86,-268.69 816.23,-266.22"/>
+<polygon fill="#722550" stroke="#722550" points="816.89,-269.68 826.65,-265.56 816.46,-262.69 816.89,-269.68"/>
+</g>
+<!-- mpi_group_incl -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node24" class="node">
+<title>mpi_group_incl</title>
+<polygon fill="#777777" stroke="#777777" points="921,-234 828,-234 828,-210 921,-210 921,-234"/>
+<text text-anchor="middle" x="874.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_group_incl</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_group_incl -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_group_incl</title>
+<path fill="none" stroke="#722550" d="M558.76,-336C581.78,-313.37 635.38,-264.72 691,-243 731.46,-227.2 780.53,-222.27 817.59,-221.11"/>
+<polygon fill="#722550" stroke="#722550" points="817.79,-224.61 827.7,-220.88 817.63,-217.61 817.79,-224.61"/>
+</g>
+<!-- mpi_group_translate_ranks -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node25" class="node">
+<title>mpi_group_translate_ranks</title>
+<polygon fill="#777777" stroke="#777777" points="952.5,-108 796.5,-108 796.5,-84 952.5,-84 952.5,-108"/>
+<text text-anchor="middle" x="874.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_group_translate_ranks</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_group_translate_ranks -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_group_translate_ranks</title>
+<path fill="none" stroke="#722550" d="M550.45,-335.75C562.33,-296.16 605.53,-171.06 691,-117 718.85,-99.39 753.94,-92.57 785.9,-90.7"/>
+<polygon fill="#722550" stroke="#722550" points="786.31,-94.19 796.15,-90.26 786.01,-87.2 786.31,-94.19"/>
+</g>
+<!-- mpi_scatterv -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node26" class="node">
+<title>mpi_scatterv</title>
+<polygon fill="#777777" stroke="#777777" points="915,-528 834,-528 834,-504 915,-504 915,-528"/>
+<text text-anchor="middle" x="874.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_scatterv</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_scatterv -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;mpi_scatterv</title>
+<path fill="none" stroke="#722550" d="M643.02,-360.26C647.31,-362.75 651.34,-365.64 655,-369 697.92,-408.37 646.59,-457.32 691,-495 727.24,-525.75 783.14,-527.81 823.52,-524.17"/>
+<polygon fill="#722550" stroke="#722550" points="824.11,-527.63 833.69,-523.1 823.38,-520.67 824.11,-527.63"/>
+</g>
+<!-- nf90_strerror -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node27" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="915,-486 834,-486 834,-462 915,-462 915,-486"/>
+<text text-anchor="middle" x="874.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;nf90_strerror -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#722550" d="M640.99,-360.05C645.97,-362.56 650.69,-365.52 655,-369 686.61,-394.51 658.43,-428.74 691,-453 728.88,-481.22 784.02,-483.81 823.76,-480.99"/>
+<polygon fill="#722550" stroke="#722550" points="824.1,-484.47 833.77,-480.14 823.51,-477.5 824.1,-484.47"/>
+</g>
+<!-- none~get_var~21 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node28" class="node">
+<title>none~get_var~21</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CallsGraph_node28"><a xlink:href="../type/netcdf4_fileformatter.html#boundprocedure-get_var~21" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%get_var">
+<polygon fill="#a7506f" stroke="#a7506f" points="1058,-444 691,-444 691,-420 1058,-420 1058,-444"/>
+<text text-anchor="middle" x="874.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%get_var</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r4_1d&#45;&gt;none~get_var~21 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_varreadncpar_r4_1d&#45;&gt;none~get_var~21</title>
+<path fill="none" stroke="#722550" d="M635.47,-360.01C642.29,-362.48 648.89,-365.44 655,-369 676.25,-381.37 669.29,-399.46 691,-411 694.37,-412.79 697.82,-414.46 701.34,-416.01"/>
+<polygon fill="#722550" stroke="#722550" points="700.22,-419.33 710.8,-419.86 702.86,-412.85 700.22,-419.33"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_2d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_varreadncpar_r4_2d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M634.45,-574.05C641.6,-576.51 648.55,-579.46 655,-583 675.39,-594.2 670.19,-610.6 691,-621 710.42,-630.71 732.42,-636.74 754.25,-640.36"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="753.85,-643.84 764.26,-641.86 754.88,-636.91 753.85,-643.84"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_2d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_varreadncpar_r4_2d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M640.66,-574.01C645.75,-576.53 650.58,-579.5 655,-583 685.56,-607.21 659.52,-639.99 691,-663 710.15,-677 733.58,-684.64 757.18,-688.43"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="756.91,-691.92 767.29,-689.82 757.86,-684.99 756.91,-691.92"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_2d&#45;&gt;mpi_comm_rank -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_varreadncpar_r4_2d&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M648.48,-574.02C662.76,-575.7 677.25,-577.4 691,-579 731.94,-583.77 778.06,-589.08 813.69,-593.16"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="813.59,-596.67 823.92,-594.34 814.39,-589.72 813.59,-596.67"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_2d&#45;&gt;mpi_comm_size -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_varreadncpar_r4_2d&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M655.27,-560.67C708.82,-560.02 771.32,-559.25 815.68,-558.71"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="815.74,-562.21 825.7,-558.59 815.66,-555.21 815.74,-562.21"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_2d&#45;&gt;mpi_scatterv -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_varreadncpar_r4_2d&#45;&gt;mpi_scatterv</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M611.75,-549.95C636.49,-545.55 665.01,-540.75 691,-537 735.87,-530.53 787.17,-524.77 823.93,-520.93"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="824.31,-524.41 833.9,-519.9 823.59,-517.44 824.31,-524.41"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_2d&#45;&gt;nf90_strerror -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_varreadncpar_r4_2d&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M636.47,-549.98C642.96,-547.5 649.22,-544.54 655,-541 677.14,-527.44 668.35,-507.69 691,-495 731.44,-472.35 784.78,-468.65 823.34,-469.68"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="823.68,-473.2 833.81,-470.09 823.95,-466.2 823.68,-473.2"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_2d&#45;&gt;none~get_var~21 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_varreadncpar_r4_2d&#45;&gt;none~get_var~21</title>
+<path fill="none" stroke="#025514" stroke-opacity="0.019608" d="M641.31,-549.91C646.18,-547.4 650.79,-544.45 655,-541 687.66,-514.19 657.32,-478.52 691,-453 692.62,-451.77 694.27,-450.59 695.96,-449.46"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="697.9,-452.37 704.61,-444.17 694.25,-446.4 697.9,-452.37"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_3d&#45;&gt;interface~mapl_varread~2 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_varreadncpar_r4_3d&#45;&gt;interface~mapl_varread~2</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M436.72,-599.75C423.22,-598.37 409.71,-596.86 397.05,-595.29"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="397.45,-591.82 387.09,-594.03 396.57,-598.76 397.45,-591.82"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_3d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_varreadncpar_r4_3d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M648.48,-616.02C662.76,-617.7 677.25,-619.4 691,-621 712.7,-623.53 735.86,-626.21 758.14,-628.78"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="757.97,-632.28 768.3,-629.95 758.77,-625.33 757.97,-632.28"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_3d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_varreadncpar_r4_3d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M570.77,-616.11C598.76,-629.82 647.04,-651.7 691,-663 712.16,-668.44 735.07,-672.48 757.27,-675.46"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="757.04,-678.96 767.41,-676.76 757.93,-672.02 757.04,-678.96"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge58" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#720255" d="M563.45,-402.2C587.12,-420.6 630.6,-457.72 655,-499 683.77,-547.67 647.73,-584.61 691,-621 708.83,-636 731.35,-644.14 754.43,-648.13"/>
+<polygon fill="#720255" stroke="#720255" points="753.94,-651.6 764.34,-649.59 754.96,-644.67 753.94,-651.6"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge59" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#720255" d="M564.25,-402.28C588.48,-420.51 632.2,-457.12 655,-499 690.67,-564.54 635.62,-612.98 691,-663 709.2,-679.44 732.94,-687.9 757.24,-691.69"/>
+<polygon fill="#720255" stroke="#720255" points="756.93,-695.18 767.3,-693 757.84,-688.24 756.93,-695.18"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#720255" d="M644.63,-377.78C648.39,-375.26 651.87,-372.35 655,-369 744.76,-272.71 597.58,-167.75 691,-75 709.66,-56.47 735.24,-47.7 761.34,-44.32"/>
+<polygon fill="#720255" stroke="#720255" points="761.77,-47.8 771.36,-43.28 761.05,-40.83 761.77,-47.8"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#720255" d="M644.69,-377.84C648.43,-375.31 651.9,-372.38 655,-369 756.57,-258.37 585.22,-139.61 691,-33 708.28,-15.59 731.64,-6.74 755.88,-2.89"/>
+<polygon fill="#720255" stroke="#720255" points="756.47,-6.34 765.93,-1.57 755.56,0.6 756.47,-6.34"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;interface~mapl_commsbcast -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;interface~mapl_commsbcast</title>
+<path fill="none" stroke="#720255" d="M655.27,-390C686.92,-390 721.7,-390 754.02,-390"/>
+<polygon fill="#720255" stroke="#720255" points="754.41,-393.5 764.41,-390 754.41,-386.5 754.41,-393.5"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;interface~mapl_sort -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge46" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#720255" d="M626.54,-377.96C647.49,-374.91 670.08,-371.73 691,-369 722.25,-364.92 756.58,-360.87 786.94,-357.42"/>
+<polygon fill="#720255" stroke="#720255" points="787.53,-360.87 797.07,-356.27 786.74,-353.92 787.53,-360.87"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_create -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge47" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_create</title>
+<path fill="none" stroke="#720255" d="M635.47,-377.99C642.29,-375.52 648.89,-372.56 655,-369 676.25,-356.63 669.29,-338.54 691,-327 726.91,-307.92 772.33,-302.64 808.87,-302.14"/>
+<polygon fill="#720255" stroke="#720255" points="808.93,-305.64 818.92,-302.12 808.92,-298.64 808.93,-305.64"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_free -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge48" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_free</title>
+<path fill="none" stroke="#720255" d="M643.79,-377.73C647.82,-375.24 651.59,-372.34 655,-369 709.51,-315.52 634.46,-252.33 691,-201 724.02,-171.02 775.41,-167.53 815.26,-170.53"/>
+<polygon fill="#720255" stroke="#720255" points="815.11,-174.03 825.38,-171.45 815.74,-167.06 815.11,-174.03"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_group -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge49" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_group</title>
+<path fill="none" stroke="#720255" d="M643.96,-377.9C647.94,-375.36 651.66,-372.41 655,-369 721.21,-301.3 622.22,-224.09 691,-159 722.11,-129.56 770.81,-125.23 810.08,-127.77"/>
+<polygon fill="#720255" stroke="#720255" points="809.86,-131.26 820.1,-128.57 810.42,-124.28 809.86,-131.26"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_rank -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge50" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#720255" d="M561.97,-402.04C584.54,-420.8 627.55,-459.03 655,-499 677.07,-531.14 659.52,-555.99 691,-579 725.98,-604.57 775.23,-608.92 813.76,-607.36"/>
+<polygon fill="#720255" stroke="#720255" points="814.01,-610.85 823.81,-606.81 813.63,-603.86 814.01,-610.85"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_size -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge51" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#720255" d="M559.08,-402.01C579.13,-422 620.52,-463.41 655,-499 671.19,-515.71 670.19,-526.6 691,-537 729.46,-556.22 778.03,-561.02 815.39,-561.26"/>
+<polygon fill="#720255" stroke="#720255" points="815.63,-564.76 825.62,-561.21 815.6,-557.76 815.63,-564.76"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_group_free -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge52" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_group_free</title>
+<path fill="none" stroke="#720255" d="M640.99,-377.95C645.97,-375.44 650.69,-372.48 655,-369 686.61,-343.49 658.43,-309.26 691,-285 726.69,-258.42 777.69,-254.57 816.71,-256.58"/>
+<polygon fill="#720255" stroke="#720255" points="816.65,-260.08 826.86,-257.24 817.11,-253.1 816.65,-260.08"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_group_incl -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge53" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_group_incl</title>
+<path fill="none" stroke="#720255" d="M643.02,-377.74C647.31,-375.25 651.34,-372.36 655,-369 697.92,-329.63 646.59,-280.68 691,-243 725.57,-213.68 778,-210.44 817.81,-213.36"/>
+<polygon fill="#720255" stroke="#720255" points="817.63,-216.86 827.9,-214.25 818.25,-209.89 817.63,-216.86"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_group_translate_ranks -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge54" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_group_translate_ranks</title>
+<path fill="none" stroke="#720255" d="M644.55,-377.7C648.32,-375.21 651.84,-372.32 655,-369 732.97,-287.02 609.91,-195.9 691,-117 715.75,-92.91 752.22,-85.45 786.07,-84.85"/>
+<polygon fill="#720255" stroke="#720255" points="786.46,-88.35 796.47,-84.88 786.48,-81.35 786.46,-88.35"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_scatterv -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge55" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;mpi_scatterv</title>
+<path fill="none" stroke="#720255" d="M558.76,-402C581.78,-424.63 635.38,-473.28 691,-495 733.63,-511.65 785.82,-516.23 823.45,-517.04"/>
+<polygon fill="#720255" stroke="#720255" points="823.61,-520.55 833.66,-517.18 823.7,-513.55 823.61,-520.55"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;nf90_strerror -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge56" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#720255" d="M569.18,-402.2C596.83,-416.82 645.95,-440.85 691,-453 734.91,-464.84 786.52,-470.01 823.64,-472.26"/>
+<polygon fill="#720255" stroke="#720255" points="823.52,-475.76 833.7,-472.82 823.91,-468.77 823.52,-475.76"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_1d&#45;&gt;none~get_var~21 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge57" class="edge">
+<title>proc~mapl_varreadncpar_r8_1d&#45;&gt;none~get_var~21</title>
+<path fill="none" stroke="#720255" d="M626.54,-402.04C647.49,-405.09 670.08,-408.27 691,-411 711.48,-413.67 733.27,-416.33 754.4,-418.82"/>
+<polygon fill="#720255" stroke="#720255" points="754.05,-422.3 764.38,-419.99 754.86,-415.35 754.05,-422.3"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_2d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge65" class="edge">
+<title>proc~mapl_varreadncpar_r8_2d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M640.66,-532.01C645.75,-534.53 650.58,-537.5 655,-541 685.56,-565.21 659.52,-597.99 691,-621 709.39,-634.44 731.73,-642.02 754.38,-645.96"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="754.03,-649.45 764.44,-647.47 755.07,-642.52 754.03,-649.45"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_2d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge66" class="edge">
+<title>proc~mapl_varreadncpar_r8_2d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M642.49,-532.02C646.97,-534.56 651.18,-537.53 655,-541 696.83,-579.03 647.73,-626.61 691,-663 709.56,-678.61 733.19,-686.79 757.24,-690.6"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="756.82,-694.07 767.2,-691.92 757.75,-687.13 756.82,-694.07"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_2d&#45;&gt;mpi_comm_rank -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge60" class="edge">
+<title>proc~mapl_varreadncpar_r8_2d&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M634.45,-532.05C641.6,-534.51 648.55,-537.46 655,-541 675.39,-552.2 670.19,-568.6 691,-579 728.81,-597.9 776.39,-602.86 813.48,-603.24"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="813.65,-606.74 823.65,-603.24 813.65,-599.74 813.65,-606.74"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_2d&#45;&gt;mpi_comm_size -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge61" class="edge">
+<title>proc~mapl_varreadncpar_r8_2d&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M648.48,-532.02C662.76,-533.7 677.25,-535.4 691,-537 732.66,-541.86 779.69,-547.27 815.56,-551.38"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="815.51,-554.89 825.85,-552.56 816.31,-547.94 815.51,-554.89"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_2d&#45;&gt;mpi_scatterv -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge62" class="edge">
+<title>proc~mapl_varreadncpar_r8_2d&#45;&gt;mpi_scatterv</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M655.27,-518.67C712.15,-517.98 779.12,-517.16 823.72,-516.61"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="824.04,-520.11 834,-516.48 823.96,-513.11 824.04,-520.11"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_2d&#45;&gt;nf90_strerror -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge63" class="edge">
+<title>proc~mapl_varreadncpar_r8_2d&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M611.75,-507.95C636.49,-503.55 665.01,-498.75 691,-495 735.87,-488.53 787.17,-482.77 823.93,-478.93"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="824.31,-482.41 833.9,-477.9 823.59,-475.44 824.31,-482.41"/>
+</g>
+<!-- proc~mapl_varreadncpar_r8_2d&#45;&gt;none~get_var~21 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CallsGraph_edge64" class="edge">
+<title>proc~mapl_varreadncpar_r8_2d&#45;&gt;none~get_var~21</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M567.65,-507.79C594.89,-492.3 644.83,-466.03 691,-453 700.44,-450.34 710.24,-448.01 720.19,-445.98"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="721.02,-449.38 730.17,-444.04 719.69,-442.51 721.02,-449.38"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_varreadncpar_r8_3dCallsGraph = svgPanZoom('#procmapl_varreadncpar_r8_3dCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_varreadncpar_r8_3d~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_varreadncpar_r8_3dCalledByGraph" width="641pt" height="43pt"
+ viewBox="0.00 0.00 641.00 42.62" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph" class="graph" transform="scale(1.74 1.74) rotate(0) translate(4 70)">
+<title>proc~~mapl_varreadncpar_r8_3d~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 1109,-70 1109,4 -4,4"/>
+<!-- proc~mapl_varreadncpar_r8_3d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node1" class="node">
+<title>proc~mapl_varreadncpar_r8_3d</title>
+<polygon fill="none" stroke="black" points="668,-66 450,-66 450,-42 668,-42 668,-66"/>
+<text text-anchor="middle" x="559" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">NCIOMod::MAPL_VarReadNCpar_R8_3d</text>
+</g>
+<!-- interface~mapl_varread~2 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node2" class="node">
+<title>interface~mapl_varread~2</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node2"><a xlink:href="../interface/mapl_varread~2.html" xlink:title="NCIOMod::MAPL_VarRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="851,-66 704,-66 704,-42 851,-42 851,-66"/>
+<text text-anchor="middle" x="777.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varreadncpar_r8_3d&#45;&gt;interface~mapl_varread~2 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_varreadncpar_r8_3d&#45;&gt;interface~mapl_varread~2</title>
+<path fill="none" stroke="#255000" d="M668.25,-47.25C676.82,-47.25 685.39,-47.31 693.74,-47.42"/>
+<polygon fill="#255000" stroke="#255000" points="693.75,-50.92 703.81,-47.58 693.87,-43.92 693.75,-50.92"/>
+</g>
+<!-- interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r8_3d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r8_3d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M703.81,-60.42C695.57,-60.58 687.03,-60.68 678.4,-60.72"/>
+<polygon fill="#255000" stroke="#255000" points="678.24,-57.22 668.25,-60.75 678.26,-64.22 678.24,-57.22"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_3d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node4" class="node">
+<title>proc~mapl_varreadncpar_r4_3d</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node4"><a xlink:href="../proc/mapl_varreadncpar_r4_3d.html" xlink:title="NCIOMod::MAPL_VarReadNCpar_R4_3d">
+<polygon fill="#d9534f" stroke="#d9534f" points="1105,-66 887,-66 887,-42 1105,-42 1105,-66"/>
+<text text-anchor="middle" x="996" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarReadNCpar_R4_3d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r4_3d -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_edge6" class="edge">
+<title>interface~mapl_varread~2&#45;&gt;proc~mapl_varreadncpar_r4_3d</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M851.19,-47.58C859.4,-47.42 867.92,-47.32 876.53,-47.28"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="876.67,-50.78 886.66,-47.25 876.65,-43.78 876.67,-50.78"/>
+</g>
+<!-- proc~mapl_fieldreadncpar -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node3" class="node">
+<title>proc~mapl_fieldreadncpar</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node3"><a xlink:href="../proc/mapl_fieldreadncpar.html" xlink:title="NCIOMod::MAPL_FieldReadNCPar">
+<polygon fill="#d9534f" stroke="#d9534f" points="652.5,-24 465.5,-24 465.5,0 652.5,0 652.5,-24"/>
+<text text-anchor="middle" x="559" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_FieldReadNCPar</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldreadncpar&#45;&gt;interface~mapl_varread~2 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_fieldreadncpar&#45;&gt;interface~mapl_varread~2</title>
+<path fill="none" stroke="#255000" d="M622.04,-24.04C647.75,-29.02 677.73,-34.84 704.4,-40.01"/>
+<polygon fill="#255000" stroke="#255000" points="703.97,-43.49 714.45,-41.96 705.3,-36.62 703.97,-43.49"/>
+</g>
+<!-- proc~mapl_varreadncpar_r4_3d&#45;&gt;interface~mapl_varread~2 -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_varreadncpar_r4_3d&#45;&gt;interface~mapl_varread~2</title>
+<path fill="none" stroke="#255000" d="M886.66,-60.75C878.11,-60.75 869.57,-60.69 861.24,-60.58"/>
+<polygon fill="#255000" stroke="#255000" points="861.25,-57.08 851.19,-60.42 861.13,-64.08 861.25,-57.08"/>
+</g>
+<!-- proc~mapl_bundlereadncpar -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node5" class="node">
+<title>proc~mapl_bundlereadncpar</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node5"><a xlink:href="../proc/mapl_bundlereadncpar.html" xlink:title="NCIOMod::MAPL_BundleReadNCPar">
+<polygon fill="#d9534f" stroke="#d9534f" points="414,-24 215,-24 215,0 414,0 414,-24"/>
+<text text-anchor="middle" x="314.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_BundleReadNCPar</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_bundlereadncpar&#45;&gt;proc~mapl_fieldreadncpar -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_edge5" class="edge">
+<title>proc~mapl_bundlereadncpar&#45;&gt;proc~mapl_fieldreadncpar</title>
+<path fill="none" stroke="#255000" d="M414.13,-12C427.61,-12 441.48,-12 455.03,-12"/>
+<polygon fill="#255000" stroke="#255000" points="455.33,-15.5 465.33,-12 455.33,-8.5 455.33,-15.5"/>
+</g>
+<!-- interface~mapl_varreadncpar -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node6" class="node">
+<title>interface~mapl_varreadncpar</title>
+<g id="a_proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_node6"><a xlink:href="../interface/mapl_varreadncpar.html" xlink:title="NCIOMod::MAPL_VarReadNCPar">
+<polygon fill="#a7506f" stroke="#a7506f" points="179,-24 0,-24 0,0 179,0 179,-24"/>
+<text text-anchor="middle" x="89.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarReadNCPar</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varreadncpar&#45;&gt;proc~mapl_bundlereadncpar -->
+<g id="proc~~mapl_varreadncpar_r8_3d~~CalledByGraph_edge7" class="edge">
+<title>interface~mapl_varreadncpar&#45;&gt;proc~mapl_bundlereadncpar</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M179.28,-12C187.66,-12 196.22,-12 204.75,-12"/>
+<polygon fill="#255000" stroke="#255000" points="204.76,-15.5 214.76,-12 204.76,-8.5 204.76,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_varreadncpar_r8_3dCalledByGraph = svgPanZoom('#procmapl_varreadncpar_r8_3dCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_VarReadNCpar_R8_3d</span><span class="p">(</span><span class="n">formatter</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">ARRDES</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">Netcdf4_Fileformatter</span><span class="p">)</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">A</span><span class="p">(:,:,:)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ArrDescr</span><span class="p">)</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ARRDES</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">optional</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">l</span>
+
+<span class="w">    </span><span class="k">do </span><span class="n">l</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">formatter</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">A</span><span class="p">(:,:,</span><span class="n">l</span><span class="p">),</span><span class="n">arrdes</span><span class="p">,</span><span class="n">lev</span><span class="o">=</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_VarReadNCpar_R8_3d</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-22T17:42:30.403993             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,720 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_spherical_to_cartesian_east_wind &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_spherical_to_cartesian_east_wind
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">30 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_SphericalToCartesian.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_sphericaltocartesian.pf.html'>Test_SphericalToCartesian.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_sphericaltocartesian.html'>Test_SphericalToCartesian</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_spherical_to_cartesian_east_wind</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_spherical_to_cartesian_east_wind.html#src">test_spherical_to_cartesian_east_wind</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_spherical_to_cartesian_east_wind(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1297"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_spherical_to_cartesian_east_wind~~CallsGraph Pages: 1 -->
+<svg id="proctest_spherical_to_cartesian_east_windCallsGraph" width="641pt" height="86pt"
+ viewBox="0.00 0.00 641.00 86.29" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph" class="graph" transform="scale(3.95 3.95) rotate(0) translate(4 337)">
+<title>proc~~test_spherical_to_cartesian_east_wind~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-337 2529,-337 2529,4 -4,4"/>
+<!-- proc~test_spherical_to_cartesian_east_wind -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node1" class="node">
+<title>proc~test_spherical_to_cartesian_east_wind</title>
+<polygon fill="none" stroke="black" points="360,-274 0,-274 0,-250 360,-250 360,-274"/>
+<text text-anchor="middle" x="180" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50">Test_SphericalToCartesian::test_spherical_to_cartesian_east_wind</text>
+</g>
+<!-- assertequal -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node2" class="node">
+<title>assertequal</title>
+<polygon fill="#777777" stroke="#777777" points="633.5,-333 558.5,-333 558.5,-309 633.5,-309 633.5,-333"/>
+<text text-anchor="middle" x="596" y="-318.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+</g>
+<!-- proc~test_spherical_to_cartesian_east_wind&#45;&gt;assertequal -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge1" class="edge">
+<title>proc~test_spherical_to_cartesian_east_wind&#45;&gt;assertequal</title>
+<path fill="none" stroke="#255000" d="M256.56,-274.02C297.75,-280.47 349.64,-288.41 396,-295 448.04,-302.39 507.86,-310.1 548.21,-315.19"/>
+<polygon fill="#255000" stroke="#255000" points="547.93,-318.68 558.29,-316.45 548.8,-311.73 547.93,-318.68"/>
+</g>
+<!-- none~spherical_to_cartesian~5 -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node3" class="node">
+<title>none~spherical_to_cartesian~5</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node3"><a xlink:href="../type/latlongridfactory.html#boundprocedure-spherical_to_cartesian~5" xlink:title="MAPL_LatLonGridFactoryMod::LatLonGridFactory%spherical_to_cartesian">
+<polygon fill="#a7506f" stroke="#a7506f" points="796,-196 396,-196 396,-172 796,-172 796,-196"/>
+<text text-anchor="middle" x="596" y="-181.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LatLonGridFactoryMod::LatLonGridFactory%spherical_to_cartesian</text>
+</a>
+</g>
+</g>
+<!-- proc~test_spherical_to_cartesian_east_wind&#45;&gt;none~spherical_to_cartesian~5 -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge2" class="edge">
+<title>proc~test_spherical_to_cartesian_east_wind&#45;&gt;none~spherical_to_cartesian~5</title>
+<path fill="none" stroke="#255000" d="M244.78,-249.98C319.39,-235.93 442.68,-212.7 521.31,-197.88"/>
+<polygon fill="#255000" stroke="#255000" points="521.97,-201.32 531.15,-196.03 520.67,-194.44 521.97,-201.32"/>
+</g>
+<!-- proc~get_longitudes -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node4" class="node">
+<title>proc~get_longitudes</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node4"><a xlink:href="../proc/get_longitudes.html" xlink:title="MAPL_LatLonGridFactoryMod::LatLonGridFactory%get_longitudes">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1249,-295 890,-295 890,-271 1249,-271 1249,-295"/>
+<text text-anchor="middle" x="1069.5" y="-280.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LatLonGridFactoryMod::LatLonGridFactory%get_longitudes</text>
+</a>
+</g>
+</g>
+<!-- proc~test_spherical_to_cartesian_east_wind&#45;&gt;proc~get_longitudes -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge3" class="edge">
+<title>proc~test_spherical_to_cartesian_east_wind&#45;&gt;proc~get_longitudes</title>
+<path fill="none" stroke="#255000" d="M360.06,-266.24C510.93,-269.81 726.13,-274.9 879.69,-278.53"/>
+<polygon fill="#255000" stroke="#255000" points="879.63,-282.03 889.71,-278.77 879.8,-275.03 879.63,-282.03"/>
+</g>
+<!-- proc~make_grid -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node5" class="node">
+<title>proc~make_grid</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node5"><a xlink:href="../proc/make_grid.html" xlink:title="MAPL_AbstractGridFactoryMod::AbstractGridFactory%make_grid">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1697,-255 1343,-255 1343,-231 1697,-231 1697,-255"/>
+<text text-anchor="middle" x="1520" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactoryMod::AbstractGridFactory%make_grid</text>
+</a>
+</g>
+</g>
+<!-- proc~test_spherical_to_cartesian_east_wind&#45;&gt;proc~make_grid -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge4" class="edge">
+<title>proc~test_spherical_to_cartesian_east_wind&#45;&gt;proc~make_grid</title>
+<path fill="none" stroke="#255000" d="M360.06,-259.46C613.65,-255.86 1075.15,-249.3 1332.65,-245.65"/>
+<polygon fill="#255000" stroke="#255000" points="1332.91,-249.14 1342.86,-245.5 1332.81,-242.14 1332.91,-249.14"/>
+</g>
+<!-- proc~spherical_to_cartesian_3d_real64 -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node9" class="node">
+<title>proc~spherical_to_cartesian_3d_real64</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node9"><a xlink:href="../proc/spherical_to_cartesian_3d_real64.html" xlink:title="MAPL_AbstractGridFactoryMod::AbstractGridFactory%spherical_to_cartesian_3d_real64">
+<polygon fill="#d9534f" stroke="#d9534f" points="1307,-177 832,-177 832,-153 1307,-153 1307,-177"/>
+<text text-anchor="middle" x="1069.5" y="-162.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactoryMod::AbstractGridFactory%spherical_to_cartesian_3d_real64</text>
+</a>
+</g>
+</g>
+<!-- none~spherical_to_cartesian~5&#45;&gt;proc~spherical_to_cartesian_3d_real64 -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge5" class="edge">
+<title>none~spherical_to_cartesian~5&#45;&gt;proc~spherical_to_cartesian_3d_real64</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M796.28,-175.97C804.77,-175.63 813.32,-175.28 821.89,-174.94"/>
+<polygon fill="transparent" stroke="transparent" points="822.12,-178.43 831.97,-174.53 821.83,-171.44 822.12,-178.43"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1983.5,-255 1763.5,-255 1763.5,-231 1983.5,-231 1983.5,-255"/>
+<text text-anchor="middle" x="1873.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_longitudes&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge6" class="edge">
+<title>proc~get_longitudes&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1249.29,-281.79C1374.74,-279.91 1546.3,-275.28 1697,-264 1722.26,-262.11 1749.47,-259.25 1774.76,-256.25"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1775.21,-259.73 1784.72,-255.05 1774.37,-252.78 1775.21,-259.73"/>
+</g>
+<!-- make_new_grid -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node6" class="node">
+<title>make_new_grid</title>
+<polygon fill="#777777" stroke="#777777" points="1921.5,-297 1825.5,-297 1825.5,-273 1921.5,-273 1921.5,-297"/>
+<text text-anchor="middle" x="1873.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_new_grid</text>
+</g>
+<!-- proc~make_grid&#45;&gt;make_new_grid -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge7" class="edge">
+<title>proc~make_grid&#45;&gt;make_new_grid</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1621.73,-255.04C1684.49,-262.53 1762.96,-271.91 1815.25,-278.16"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1815,-281.65 1825.34,-279.37 1815.83,-274.7 1815,-281.65"/>
+</g>
+<!-- proc~make_grid&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge8" class="edge">
+<title>proc~make_grid&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1697.01,-243C1716.1,-243 1735.2,-243 1753.38,-243"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1753.39,-246.5 1763.39,-243 1753.39,-239.5 1753.39,-246.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1980.5,-213 1766.5,-213 1766.5,-189 1980.5,-189 1980.5,-213"/>
+<text text-anchor="middle" x="1873.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~make_grid&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge9" class="edge">
+<title>proc~make_grid&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1621.73,-230.96C1665.58,-225.72 1717.1,-219.57 1762,-214.2"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1762.55,-217.66 1772.06,-213 1761.72,-210.71 1762.55,-217.66"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node12" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node12"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2319.5,-255 2066.5,-255 2066.5,-231 2319.5,-231 2319.5,-255"/>
+<text text-anchor="middle" x="2193" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="transparent" d="M1983.77,-243C2007.07,-243 2031.96,-243 2056.13,-243"/>
+<polygon fill="transparent" stroke="transparent" points="2056.44,-246.5 2066.44,-243 2056.44,-239.5 2056.44,-246.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="2307.5,-213 2078.5,-213 2078.5,-189 2307.5,-189 2307.5,-213"/>
+<text text-anchor="middle" x="2193" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M1965.48,-230.96C2004.76,-225.77 2050.85,-219.67 2091.16,-214.34"/>
+<polygon fill="transparent" stroke="transparent" points="2091.82,-217.78 2101.28,-213 2090.91,-210.84 2091.82,-217.78"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1980.66,-201C2008.72,-201 2039.25,-201 2068.16,-201"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="2068.31,-204.5 2078.31,-201 2068.31,-197.5 2068.31,-204.5"/>
+</g>
+<!-- proc~spherical_to_cartesian_3d_real64&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge15" class="edge">
+<title>proc~spherical_to_cartesian_3d_real64&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1207.62,-177.02C1362.67,-190.69 1605.42,-212.36 1697,-222 1719.33,-224.35 1743.23,-227.07 1765.99,-229.76"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1765.66,-233.25 1776,-230.95 1766.48,-226.3 1765.66,-233.25"/>
+</g>
+<!-- proc~spherical_to_cartesian_3d_real64&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge16" class="edge">
+<title>proc~spherical_to_cartesian_3d_real64&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1307.09,-172.39C1424.4,-176.48 1568.2,-182.13 1697,-189 1716.09,-190.02 1736.33,-191.26 1756.03,-192.54"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1756.06,-196.05 1766.27,-193.22 1756.52,-189.07 1756.06,-196.05"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node10" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node10"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1982,-45 1765,-45 1765,-21 1982,-21 1982,-45"/>
+<text text-anchor="middle" x="1873.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~spherical_to_cartesian_3d_real64&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge13" class="edge">
+<title>proc~spherical_to_cartesian_3d_real64&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1118.48,-152.93C1172.72,-139.6 1263.78,-118.15 1343,-104 1483.75,-78.86 1646.98,-58.25 1754.59,-45.83"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1755.29,-49.28 1764.83,-44.66 1754.5,-42.32 1755.29,-49.28"/>
+</g>
+<!-- proc~get_basis -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node11" class="node">
+<title>proc~get_basis</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node11"><a xlink:href="../proc/get_basis.html" xlink:title="MAPL_AbstractGridFactoryMod::AbstractGridFactory%get_basis">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1693.5,-137 1346.5,-137 1346.5,-113 1693.5,-113 1693.5,-137"/>
+<text text-anchor="middle" x="1520" y="-122.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactoryMod::AbstractGridFactory%get_basis</text>
+</a>
+</g>
+</g>
+<!-- proc~spherical_to_cartesian_3d_real64&#45;&gt;proc~get_basis -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge14" class="edge">
+<title>proc~spherical_to_cartesian_3d_real64&#45;&gt;proc~get_basis</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1205.06,-153C1258.38,-148.24 1319.8,-142.77 1374.09,-137.92"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1374.49,-141.4 1384.14,-137.03 1373.87,-134.43 1374.49,-141.4"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node20" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node20"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2329,-66 2057,-66 2057,-42 2329,-42 2329,-66"/>
+<text text-anchor="middle" x="2193" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1982.43,-40.14C2003.07,-41.5 2025,-42.95 2046.59,-44.38"/>
+<polygon fill="#255000" stroke="#255000" points="2046.61,-47.89 2056.81,-45.06 2047.07,-40.91 2046.61,-47.89"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node21" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node21"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2336,-24 2050,-24 2050,0 2336,0 2336,-24"/>
+<text text-anchor="middle" x="2193" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1982.43,-25.86C2000.88,-24.64 2020.35,-23.35 2039.69,-22.07"/>
+<polygon fill="#255000" stroke="#255000" points="2040.04,-25.56 2049.79,-21.41 2039.58,-18.57 2040.04,-25.56"/>
+</g>
+<!-- proc~get_basis&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge23" class="edge">
+<title>proc~get_basis&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M1569.6,-137.09C1606.29,-147.5 1656.97,-164.71 1697,-189 1715.56,-200.26 1713.42,-212.64 1733,-222 1739.53,-225.12 1746.42,-227.8 1753.49,-230.1"/>
+<polygon fill="transparent" stroke="transparent" points="1752.64,-233.5 1763.22,-233.01 1754.64,-226.79 1752.64,-233.5"/>
+</g>
+<!-- proc~get_basis&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge24" class="edge">
+<title>proc~get_basis&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="transparent" d="M1654.79,-137.06C1669.35,-140.62 1683.7,-145.18 1697,-151 1715.82,-159.23 1714.19,-171.74 1733,-180 1740.58,-183.33 1748.58,-186.14 1756.77,-188.52"/>
+<polygon fill="transparent" stroke="transparent" points="1755.89,-191.91 1766.45,-191.12 1757.7,-185.15 1755.89,-191.91"/>
+</g>
+<!-- proc~get_basis&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge20" class="edge">
+<title>proc~get_basis&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M1571.59,-112.9C1607.27,-103.69 1655.83,-89.75 1697,-73 1713.76,-66.18 1715.81,-59.65 1733,-54 1740.69,-51.47 1748.72,-49.25 1756.88,-47.29"/>
+<polygon fill="transparent" stroke="transparent" points="1757.89,-50.65 1766.87,-45.03 1756.35,-43.82 1757.89,-50.65"/>
+</g>
+<!-- ESMF_GridGetCoord -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node14" class="node">
+<title>ESMF_GridGetCoord</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1951,-171 1796,-171 1796,-147 1951,-147 1951,-171"/>
+<text text-anchor="middle" x="1873.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGetCoord</text>
+</g>
+<!-- proc~get_basis&#45;&gt;ESMF_GridGetCoord -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge19" class="edge">
+<title>proc~get_basis&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="transparent" d="M1645.42,-137.03C1691.86,-141.53 1743.54,-146.53 1785.85,-150.62"/>
+<polygon fill="transparent" stroke="transparent" points="1785.55,-154.11 1795.84,-151.58 1786.23,-147.14 1785.55,-154.11"/>
+</g>
+<!-- proc~computegridbasis -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node17" class="node">
+<title>proc~computegridbasis</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node17"><a xlink:href="../proc/computegridbasis.html" xlink:title="MAPL_AbstractGridFactoryMod::ComputeGridBasis">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2014,-129 1733,-129 1733,-105 2014,-105 2014,-129"/>
+<text text-anchor="middle" x="1873.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactoryMod::ComputeGridBasis</text>
+</a>
+</g>
+</g>
+<!-- proc~get_basis&#45;&gt;proc~computegridbasis -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge21" class="edge">
+<title>proc~get_basis&#45;&gt;proc~computegridbasis</title>
+<path fill="none" stroke="transparent" d="M1693.66,-121.07C1703.29,-120.85 1712.93,-120.63 1722.46,-120.41"/>
+<polygon fill="transparent" stroke="transparent" points="1722.84,-123.91 1732.76,-120.18 1722.69,-116.91 1722.84,-123.91"/>
+</g>
+<!-- proc~computexyzbasis -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node18" class="node">
+<title>proc~computexyzbasis</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node18"><a xlink:href="../proc/computexyzbasis.html" xlink:title="MAPL_AbstractGridFactoryMod::ComputeXYZBasis">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="2013.5,-87 1733.5,-87 1733.5,-63 2013.5,-63 2013.5,-87"/>
+<text text-anchor="middle" x="1873.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactoryMod::ComputeXYZBasis</text>
+</a>
+</g>
+</g>
+<!-- proc~get_basis&#45;&gt;proc~computexyzbasis -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge22" class="edge">
+<title>proc~get_basis&#45;&gt;proc~computexyzbasis</title>
+<path fill="none" stroke="transparent" d="M1605.64,-112.96C1657.55,-105.58 1724.12,-96.11 1777.78,-88.47"/>
+<polygon fill="transparent" stroke="transparent" points="1778.58,-91.9 1787.99,-87.02 1777.59,-84.97 1778.58,-91.9"/>
+</g>
+<!-- at -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node15" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="2475.5,-255 2421.5,-255 2421.5,-231 2475.5,-231 2475.5,-255"/>
+<text text-anchor="middle" x="2448.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge25" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M2319.64,-243C2353.04,-243 2386.55,-243 2410.87,-243"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="2411.04,-246.5 2421.04,-243 2411.04,-239.5 2411.04,-246.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node16" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="2475.5,-297 2421.5,-297 2421.5,-273 2475.5,-273 2475.5,-297"/>
+<text text-anchor="middle" x="2448.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge26" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M2266.64,-255.04C2313.98,-262.88 2373.72,-272.78 2411.28,-279"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="2410.82,-282.47 2421.26,-280.65 2411.96,-275.56 2410.82,-282.47"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node19" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_node19"><a xlink:href="../proc/initialize~12.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="2525,-213 2372,-213 2372,-189 2525,-189 2525,-213"/>
+<text text-anchor="middle" x="2448.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~test_spherical_to_cartesian_east_wind~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M2307.77,-201C2325.93,-201 2344.44,-201 2361.8,-201"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="2361.88,-204.5 2371.88,-201 2361.88,-197.5 2361.88,-204.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_spherical_to_cartesian_east_windCallsGraph = svgPanZoom('#proctest_spherical_to_cartesian_east_windCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_spherical_to_cartesian_east_wind</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">LatLonGridFactory</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">east_wind_u</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">east_wind_v</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xyz</span><span class="p">(:,:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">longitudes</span><span class="p">(:)</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IM</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">JM</span><span class="o">=</span><span class="mi">6</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LatLonGridFactory</span><span class="p">(</span><span class="n">im_world</span><span class="o">=</span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="n">jm_world</span><span class="o">=</span><span class="n">JM</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">pole</span><span class="o">=</span><span class="s1">&#39;PE&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dateline</span><span class="o">=</span><span class="s1">&#39;GC&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="p">%</span><span class="n">make_grid</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">east_wind_u</span><span class="p">(</span><span class="n">IM</span><span class="p">,</span><span class="n">JM</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">east_wind_v</span><span class="p">(</span><span class="n">IM</span><span class="p">,</span><span class="n">JM</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">xyz</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">IM</span><span class="p">,</span><span class="n">JM</span><span class="p">))</span>
+
+<span class="w">      </span><span class="n">east_wind_u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">east_wind_v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">call </span><span class="n">factory</span><span class="p">%</span><span class="n">spherical_to_cartesian</span><span class="p">(</span><span class="n">east_wind_u</span><span class="p">,</span><span class="w"> </span><span class="n">east_wind_v</span><span class="p">,</span><span class="w"> </span><span class="n">xyz</span><span class="p">,</span><span class="w"> </span><span class="n">basis</span><span class="o">=</span><span class="s1">&#39;north-south&#39;</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! z component is 0</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">xyz</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,:,:))</span>
+
+<span class="w">      </span><span class="c">! Note: longitudes return as REAL64.</span>
+<span class="w">      </span><span class="n">longitudes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">factory</span><span class="p">%</span><span class="n">get_longitudes</span><span class="p">())</span>
+<span class="w">      </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">JM</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="o">-</span><span class="nb">sin</span><span class="p">(</span><span class="n">longitudes</span><span class="p">),</span><span class="w"> </span><span class="n">xyz</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,:,</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="mi">10</span><span class="o">*</span><span class="nb">epsilon</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="o">+</span><span class="nb">cos</span><span class="p">(</span><span class="n">longitudes</span><span class="p">),</span><span class="w"> </span><span class="n">xyz</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,:,</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="mi">10</span><span class="o">*</span><span class="nb">epsilon</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">   end subroutine </span><span class="n">test_spherical_to_cartesian_east_wind</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-22T17:42:30.403993             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
