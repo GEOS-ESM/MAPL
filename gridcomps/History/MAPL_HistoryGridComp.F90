@@ -4778,7 +4778,6 @@ ENDDO PARSER
   type(ESMF_State)                        :: state
   type(ESMF_Field)                        :: field
   integer                                 :: dims
-  logical, allocatable                    :: isBundle(:)
   logical                                 :: hasField
 
 ! Set rewrite flag and tmpfields.
@@ -4792,28 +4791,18 @@ ENDDO PARSER
   ! check which fields are actual exports or expressions
   nPExtraFields = 0
   iRealFields = 0
-  allocate(isBundle(nfield))
   do m=1,nfield
 
     call MAPL_ExportStateGet(exptmp,fields(2,m),state,_RC)
-    !if (index(fields(1,m),'%') == 0) then
-       call checkIfStateHasField(state, fields(1,m), hasField, _RC)
-       if (hasField) then
-          iRealFields = iRealFields + 1
-          rewrite(m)= .FALSE.
-          isBundle(m) = .FALSE.
-          tmpfields(m)= trim(fields(1,m))
-       else
-          isBundle(m) = .false.
-          rewrite(m)= .TRUE.
-          tmpfields(m)= trim(fields(1,m))
-       end if
-    !else
-       !isBundle(m)=.true.
-       !rewrite(m)= .FALSE.
-       !tmpfields(m)= trim(fields(1,m))
-    !endif
-
+    call checkIfStateHasField(state, fields(1,m), hasField, _RC)
+    if (hasField) then
+       iRealFields = iRealFields + 1
+       rewrite(m)= .FALSE.
+       tmpfields(m)= trim(fields(1,m))
+    else
+       rewrite(m)= .TRUE.
+       tmpfields(m)= trim(fields(1,m))
+      end if
   enddo
 
   ! now that we know this allocated a place to store the names of the real fields
@@ -4821,7 +4810,7 @@ ENDDO PARSER
   allocate(VarNeeded(iRealFields),_STAT)
   k=0
   do m=1,nfield
-     if ( (rewrite(m) .eqv. .False.) .and. (isBundle(m) .eqv. .False.) ) then
+     if ( (rewrite(m) .eqv. .False.)) then
         k=k+1
         VarNames(k)=fields(3,m)
      endif
@@ -4907,7 +4896,7 @@ ENDDO PARSER
 
   iRealFields = 0
   do i=1,nfield
-    if ( (.not.rewrite(i)) .and. (.not.isBundle(i)) ) then
+    if ( (.not.rewrite(i)) ) then
        iRealFields = iRealFields + 1
        TotVarNames(iRealFields) = trim(fields(1,i))
        TotCmpNames(iRealFields) = trim(fields(2,i))
@@ -4998,7 +4987,6 @@ ENDDO PARSER
  deallocate(TotAliasNames)
  deallocate(TotRank)
  deallocate(TotLoc)
- deallocate(isBundle)
 
  _RETURN(ESMF_SUCCESS)
 
