@@ -1,6 +1,6 @@
 ! vim:ft=fortran
 #include "mapl3g_hconfig_macro_init.h"
-#include "mapl3g_hconfig_get_private_macros.h"
+#include "mapl3g_hconfig_get_value_macros.h"
 #define SET_STATUS(L) merge(_SUCCESS, _FAILURE, L)
 
    subroutine GET_VALUE_ (hconfig, found, label, value, valuestring, value_equals_default, unusable, default, rc)
