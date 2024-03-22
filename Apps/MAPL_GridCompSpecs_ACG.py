@@ -28,6 +28,7 @@ identity_emit = lambda value: value
 string_emit = lambda value: ("'" + value + "'") if value else None
 # Return value in brackets
 array_emit = lambda value: ('[' + value + ']') if value else None
+lstripped = lambda s: s.lower().strip(' .')
 
 mangle_name = lambda name: string_emit(name.replace("*","'//trim(comp_name)//'")) if name else None 
 make_internal_name = lambda name: name.replace('*','') if name else None
@@ -50,9 +51,14 @@ RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_
         'SKIPI': 'MAPL_RestartSkipInitial'})
 
 # emit function for logical-valued functions
-LOGICAL_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
+TRUEVALUES = {'t', 'true', 'yes', 'y', 'si', 'oui', 'sim'}
+FALSEVALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
+TRUE_VALUE = '.true.'
+FALSE_VALUE = '.false.'
+LOGICAL_EMIT = lambda s: TRUE_VALUE if lstripped(s) in TRUEVALUES else FALSE_VALUE if lstripped(s) in FALSEVALUES else None
+
 # emit function for Option.ADD2EXPORT
-ADD2EXPORT_EMIT = LOGICAL_EMIT
+ADD2EXPORT_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
 # emit function for OPTION.DEPENDS_ON_CHILDREN
 DEPENDS_CHILDREN_EMIT = LOGICAL_EMIT
 
