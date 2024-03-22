@@ -1,0 +1,11 @@
+#define TYPECH 1
+#define TYPEL  2
+#define TYPEL_SEQ 3
+#define TYPEI4 4
+#define TYPEI4SEQ 5
+#define TYPER4 6
+#define TYPER4SEQ 7
+#define TYPEI8 12
+#define TYPEI8SEQ 13
+#define TYPER8 14
+#define TYPER8SEQ 15

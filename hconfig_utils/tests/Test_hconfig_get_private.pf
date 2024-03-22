@@ -37,6 +37,28 @@ contains
 
    end subroutine test_get_i4
 
+   @Test
+   subroutine test_get_i4seq()
+      character(len=*), parameter :: LABEL = 'four_vector'
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED_(4) = [-1, 1, 0, 0]
+      class(*), allocatable :: EXPECTED(:)
+      class(*), allocatable :: actual(:)
+      integer(kind=ESMF_KIND_I4), allocatable :: actual_(:)
+      logical :: found
+      integer :: status
+
+      EXPECTED = EXPECTED_
+      actual = [integer(kind=ESMF_KIND_I4) ::]
+      call ESMF_HConfigAdd(hconfig, EXPECTED_, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      call get_value(hconfig, actual, LABEL, valueset=found, rc=status)
+      actual_ = actual
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual_ == EXPECTED_), ERROR_MISMATCH)
+
+   end subroutine test_get_i4seq
+
    @Before
    subroutine set_up()
       
