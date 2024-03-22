@@ -3253,7 +3253,8 @@ ENDDO PARSER
     integer                        :: n,m
     logical, allocatable           :: NewSeg(:)
     logical, allocatable           :: Writing(:)
-    type(ESMF_State)               :: state_out
+    type(ESMF_State)               :: state_out, final_state
+    type(ESMF_Field)               :: temp_field, state_field
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
     type(ESMF_Time)                :: current_time
@@ -3626,13 +3627,36 @@ ENDDO PARSER
                   INTSTATE%LCTL(n) = .false.
                endif
 
-               call shavebits(state_out, list(n), _RC)
+               if (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+                  final_state = ESMF_StateCreate(_RC)
+                  do m=1,list(n)%field_set%nfields
+                     call ESMF_StateGet(state_out,trim(list(n)%field_set%fields(3,m)),state_field,_RC)
+                     temp_field = MAPL_FieldCreate(state_field,list(n)%field_set%fields(3,m),DoCopy=.true.,_RC)
+                     call ESMF_StateAdd(final_state,[temp_field],_RC)
+                  enddo
+                  call ESMF_AttributeCopy(state_out,final_state,_RC)
+                  call shavebits(final_state,list(n),_RC)
+               end if
 
                do m=1,list(n)%field_set%nfields
-                  call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
-                       NAME=trim(list(n)%field_set%fields(3,m)), &
-                       forceWriteNoRestart=.true., _RC )
+                  if (list(n)%nbits_to_keep >=MAPL_NBITS_UPPER_LIMIT) then
+                     call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
+                        NAME=trim(list(n)%field_set%fields(3,m)), &
+                        forceWriteNoRestart=.true., _RC )
+                  else
+                     call MAPL_VarWrite ( list(n)%unit, STATE=final_state, &
+                        NAME=trim(list(n)%field_set%fields(3,m)), &
+                        forceWriteNoRestart=.true., _RC )
+                  endif
                enddo
+
+               if (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+                  do m=1,list(n)%field_set%nfields
+                     call ESMF_StateGet(final_state,trim(list(n)%field_set%fields(3,m)),temp_field,_RC)
+                     call ESMF_FieldDestroy(temp_field,noGarbage=.true.,_RC)
+                  enddo
+                  call ESMF_StateDestroy(final_state,noGarbage=.true.,_RC)
+               end if
                call WRITE_PARALLEL("Wrote GrADS Output for File: "//trim(filename(n)))
 
             end if IOTYPE
@@ -5154,7 +5178,7 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
   end subroutine checkIfStateHasField
 
-  subroutine shavebits( state, list, rc)
+    subroutine shavebits( state, list, rc)
     type(ESMF_state), intent(inout) :: state
     type (HistoryCollection), intent(in) :: list
     integer, optional, intent(out):: rc
@@ -5164,10 +5188,6 @@ ENDDO PARSER
     real, pointer :: ptr1d(:), ptr2d(:,:), ptr3d(:,:,:)
     type(ESMF_VM) :: vm
     integer :: comm
-
-    if (list%nbits_to_keep >=MAPL_NBITS_UPPER_LIMIT) then
-       _RETURN(ESMF_SUCCESS)
-    endif
 
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm,mpiCommunicator=comm,_RC)
