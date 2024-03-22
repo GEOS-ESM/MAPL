@@ -658,10 +658,6 @@ MODULE ExtDataUtRoot_GridCompMod
          if (item_type(i) == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(InState,trim(outNameList(i)),field,_RC)
             call MAPL_FieldBundleAdd(bundle,field,_RC)
-            block
-               integer:: myrank
-               call ESMF_FieldGet(field,rank=myrank,_RC)
-            end block
          end if
       enddo
 
