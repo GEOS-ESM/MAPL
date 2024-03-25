@@ -25,7 +25,7 @@ runs:
       shell: bash
 
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.x'
 
@@ -41,12 +41,15 @@ runs:
       run: cpp --version
       shell: bash
 
+    # If you change the ref below make sure to change
+    # the gFTL version in the Ford control files as well!
     - name: Checkout gFTL
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: Goddard-Fortran-Ecosystem/gFTL
         path: gFTL
         fetch-depth: 1
+        ref: v1.13.0
 
     - name: Build gFTL
       run: |
