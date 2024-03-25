@@ -560,8 +560,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: recvcount
          integer :: is, ie, ierr
          integer :: M, N, ip
-!         integer :: na, nb
-         
+
+
          real(kind=REAL64), allocatable :: lons_chunk(:)
          real(kind=REAL64), allocatable :: lats_chunk(:)
          real(kind=REAL64), allocatable :: times_R8_chunk(:)
@@ -850,23 +850,26 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          !__ s1. distrubute data chunk for the locstream points : mpi_scatterV
          !__ s2. create LS on parallel processors
          !       caution about zero-sized array for MPI
-         !         
+         !
          ip = mypet    ! 0 to M-1
          N = nx_sum
          M = petCount
-         recvcount = int((ip+1)*N, kind=INT64)/M - int(ip*N, kind=INT64)/M
+         recvcount = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                     int(ip  , INT64) * int(N, INT64) / int(M, INT64)
+
 !!         write(6,'(2x,a,2x,2i10)') 'ip, recvcount', ip, recvcount
 
          allocate ( sendcount (petCount) )
          allocate ( displs    (petCount) )
          do ip=0, M-1
-            sendcount(ip+1) = int((ip+1)*N, kind=INT64)/M - int( ip*N, kind=INT64)/M
+            sendcount(ip+1) = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                              int(ip  , INT64) * int(N, INT64) / int(M, INT64)
          end do
          displs(1)=0
          do i = 2, petCount
             displs(i) = displs(i-1) + sendcount(i-1)
          end do
-         
+
          allocate ( lons_chunk (recvcount) )
          allocate ( lats_chunk (recvcount) )
          allocate ( times_R8_chunk (recvcount) )
@@ -875,7 +878,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx2, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
          _ASSERT( nx2 == nx_sum, 'Erorr in recvcount' )
-         
+
          call MPI_Scatterv( this%lons, sendcount, &
               displs, MPI_REAL8,  lons_chunk, &
               recvcount, MPI_REAL8, 0, mpic, ierr)
@@ -930,8 +933,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
          real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
          real(kind=REAL32), pointer :: p_acc_rt_2d(:)
-         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
-         real(kind=REAL32), allocatable :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
+         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:), p_dst_t(:,:)   ! _t: transpose
+         real(kind=REAL32), pointer :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
          real(kind=REAL32), pointer :: pt1(:), pt2(:)
 
          type(ESMF_Field) :: acc_field_2d_chunk, acc_field_3d_chunk, chunk_field
@@ -1012,16 +1015,44 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ip = mypet
          N = nx_sum
          M = petCount
-         nsend = int((ip+1)*N, kind=INT64)/M - int( ip*N, kind=INT64)/M
+         nsend = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                 int(ip  , INT64) * int(N, INT64) / int(M, INT64)
          allocate ( recvcount (petCount) )
          allocate ( displs    (petCount) )
          do ip=0, M-1
-            recvcount(ip+1) = int((ip+1)*N, kind=INT64)/M - int(ip*N, kind=INT64)/M
+            recvcount(ip+1) =  int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                               int(ip  , INT64) * int(N, INT64) / int(M, INT64)
          end do
          displs(1)=0
          do i = 2, petCount
             displs(i) = displs(i-1) + recvcount(i-1)
          end do
+
+         nsend_v = nsend * lm      ! vertical
+         allocate (recvcount_v, source = recvcount * lm )
+         allocate (displs_v, source = displs * lm )
+
+         if (mapl_am_i_root()) then
+            allocate ( p_acc_rt_2d(nx_sum) )
+         else
+            allocate ( p_acc_rt_2d(1) )
+         end if
+         !
+         ! p_dst (lm, nx)
+         if (mapl_am_i_root()) then
+            allocate ( p_acc_rt_3d(nx_sum,lm) )
+            allocate ( p_dst_rt(lm, nx_sum) )
+         else
+            allocate ( p_acc_rt_3d(1,lm) )
+            allocate ( p_dst_rt(lm, 1) )
+         end if
+
+#define lev_b_lev  1
+#if defined(lev_b_lev)
+         if (mapl_am_i_root()) write(6,*) 'lev b lev: gatherV ls_chunk to ls_root'
+#else
+         if (mapl_am_i_root()) write(6,*) '3d: gatherV ls_chunk to ls_root'
+#endif
 
          iter = this%items%begin()
          do while (iter /= this%items%end())
@@ -1033,7 +1064,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC )
                   call ESMF_FieldGet( acc_field_2d_chunk, localDE=0, farrayPtr=p_acc_chunk_2d, _RC )
                   call ESMF_FieldRedist( acc_field,  acc_field_2d_chunk, RH, _RC )
-                  allocate ( p_acc_rt_2d(nx_sum) )
                   call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
                        p_acc_rt_2d, recvcount, displs, MPI_REAL,&
                        iroot, mpic, ierr )
@@ -1083,11 +1113,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         deallocate (this%obs(k)%p2d, _STAT)
                      enddo
                   end if
-
                else if (rank==2) then
-                  nsend_v = nsend * lm
-                  allocate (recvcount_v, source = recvcount * lm )
-                  allocate (displs_v, source = displs * lm )
+                  if (mapl_am_i_root()) write(6,*) 'in append rank=2, bg gatherv'
 
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
@@ -1100,15 +1127,26 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
                   call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
 
-                  allocate ( p_acc_rt_3d(nx_sum,lm) )
-                  allocate ( p_dst_rt(lm, nx_sum) )
+#if defined(lev_b_lev)
+                  ! p_dst (lm, nx)
+                  allocate ( p_dst_t, source = reshape ( p_dst, [size(p_dst,2),size(p_dst,1)], order=[2,1] ) )
+                  do k = 1, lm
+                     call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
+                          p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
+                          iroot, mpic, ierr )
+                  end do
+                  deallocate (p_dst_t)
+#else
                   call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
                        p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
                        iroot, mpic, ierr )
                   p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
+#endif
 
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
+
+                  if (mapl_am_i_root()) write(6,*) 'in append rank=2, af gatherv'
 
                   if (mapl_am_i_root()) then
                      !
@@ -1160,6 +1198,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(acc_field_2d_chunk, noGarbage=.true., _RC)
          call ESMF_FieldDestroy(acc_field_3d_chunk, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+
 
          _RETURN(_SUCCESS)
        end procedure append_file
