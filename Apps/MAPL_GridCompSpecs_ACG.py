@@ -50,17 +50,15 @@ RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
 
-# emit function for logical-valued functions
+# emit function for logical-valued options
 TRUEVALUES = {'t', 'true', 'yes', 'y', 'si', 'oui', 'sim'}
 FALSEVALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 TRUE_VALUE = '.true.'
 FALSE_VALUE = '.false.'
-LOGICAL_EMIT = lambda s: TRUE_VALUE if lstripped(s) in TRUEVALUES else FALSE_VALUE if lstripped(s) in FALSEVALUES else None
+logical_emit = lambda s: TRUE_VALUE if lstripped(s) in TRUEVALUES else FALSE_VALUE if lstripped(s) in FALSEVALUES else None
 
 # emit function for Option.ADD2EXPORT
 ADD2EXPORT_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
-# emit function for OPTION.DEPENDS_ON_CHILDREN
-DEPENDS_CHILDREN_EMIT = LOGICAL_EMIT
 
 # parent class for class Option
 # defines a few methods
@@ -99,7 +97,7 @@ Option = Enum(value = 'Option', names = {
         'AVINT': ('averaging_interval',),
         'DATATYPE': ('datatype',),
         'DEFAULT': ('default',),
-        'DEPENDS_ON_CHILDREN': ('depends_on_children', DEPENDS_CHILDREN_EMIT),
+        'DEPENDS_ON_CHILDREN': ('depends_on_children', logical_emit),
         'DEPENDS_ON': ('depends_on', string_emit),
         'FIELD_TYPE': ('field_type',),
         'FRIENDLYTO': ('friendlyto', string_emit),
