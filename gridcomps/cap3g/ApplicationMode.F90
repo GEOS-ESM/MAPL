@@ -18,7 +18,7 @@ module mapl3g_ApplicationMode
           integer, optional, intent(out) :: rc
         end subroutine I_Run
      end subroutine I_Run
-  end module mapl3g_ApplicationMode
+  end interface
 
 end module mapl3g_ApplicationMode
 
