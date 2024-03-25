@@ -2204,10 +2204,6 @@ ENDDO PARSER
                AVGINT  = MAPL_nsecf( list(n)%frequency )
                call ESMF_AttributeSet(F_extra, NAME='REFRESH_INTERVAL', VALUE=REFRESH, _RC)
                call ESMF_AttributeSet(F_extra, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, _RC)
-               block
-                  character(len=128) :: ffname
-                  call ESMF_FieldGet(f_extra,name=ffname)
-               end block
                call MAPL_StateAdd(IntState%GIM(N), f_extra, _RC)
 
             endif
