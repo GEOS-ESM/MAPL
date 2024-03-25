@@ -2209,7 +2209,7 @@ ENDDO PARSER
                call ESMF_InfoGetFromHost(F_extra,infoh,_RC)
                call ESMF_InfoSet(infoh,'REFRESH_INTERVAL',REFRESH,_RC)
                call ESMF_InfoSet(infoh,'AVERAGING_INTERVAL',AVGINT,_RC)
-               call MAPL_StateAdd(IntState%GIM(N), f, _RC)
+               call MAPL_StateAdd(IntState%GIM(N), f_extra, _RC)
 
             endif
 
