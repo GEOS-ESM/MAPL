@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.42.0
     - Updates to MPI detection
     - Enable `-quiet` flag for NAG
+  - ESMA_env v4.28.0 (Baselibs 7.20.0)
+    - Updates to GFE v1.13
 
 ### Fixed
 
