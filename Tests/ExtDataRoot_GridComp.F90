@@ -498,36 +498,40 @@ MODULE ExtDataUtRoot_GridCompMod
       integer :: itemcountIn,itemCountOut,rank
       character(len=ESMF_MAXSTR), allocatable :: inNameList(:)
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
+      type(ESMF_StateItem_Flag), allocatable :: item_type_in(:)
       type(ESMF_Field) :: expf,impf
 
       call ESMF_StateGet(inState,itemcount=itemCountIn,_RC)
       allocate(InNameList(itemCountIn),stat=status)
       _VERIFY(status)
-      call ESMF_StateGet(inState,itemNameList=InNameList,_RC)
+      allocate(item_type_in(itemCountIn),stat=status)
+      _VERIFY(status)
+      call ESMF_StateGet(inState,itemNameList=InNameList,itemTypeList=item_type_in,_RC)
 
       call ESMF_StateGet(outState,itemcount=ItemCountOut,_RC)
       allocate(outNameList(ItemCountOut),stat=status)
       _VERIFY(status)
       call ESMF_StateGet(outState,itemNameList=outNameList,_RC)
 
-      _ASSERT(itemCountIn == itemCountOut,'needs informative message')
       call ESMF_StateGet(inState,itemNameList=inNameList,_RC)
       do i=1,itemCountIn
-         call ESMF_StateGet(inState,trim(inNameList(i)),impf,_RC)
-         call ESMF_StateGet(outState,trim(outNameList(i)),expf,_RC)
-         call ESMF_FieldGet(impf,rank=rank,_RC)
-         if (rank==1) then
-            call MAPL_GetPointer(inState,IMptr1,inNameList(i),_RC)
-            call MAPL_GetPointer(outState,Exptr1,inNameList(i),alloc=.true.,_RC)
-            EXptr1=IMptr1
-         else if (rank==2) then
-            call MAPL_GetPointer(inState,IMptr2,inNameList(i),_RC)
-            call MAPL_GetPointer(outState,Exptr2,inNameList(i),alloc=.true.,_RC)
-            EXptr2=IMptr2
-         else if (rank==3) then
-            call MAPL_GetPointer(inState,IMptr3,inNameList(i),_RC)
-            call MAPL_GetPointer(outState,EXptr3,inNameList(i),alloc=.true.,_RC)
-            EXptr3=IMptr3
+         if (item_type_in(i) == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(inState,trim(inNameList(i)),impf,_RC)
+            call ESMF_StateGet(outState,trim(inNameList(i)),expf,_RC)
+            call ESMF_FieldGet(impf,rank=rank,_RC)
+            if (rank==1) then
+               call MAPL_GetPointer(inState,IMptr1,inNameList(i),_RC)
+               call MAPL_GetPointer(outState,Exptr1,inNameList(i),alloc=.true.,_RC)
+               EXptr1=IMptr1
+            else if (rank==2) then
+               call MAPL_GetPointer(inState,IMptr2,inNameList(i),_RC)
+               call MAPL_GetPointer(outState,Exptr2,inNameList(i),alloc=.true.,_RC)
+               EXptr2=IMptr2
+            else if (rank==3) then
+               call MAPL_GetPointer(inState,IMptr3,inNameList(i),_RC)
+               call MAPL_GetPointer(outState,EXptr3,inNameList(i),alloc=.true.,_RC)
+               EXptr3=IMptr3
+            end if
          end if
       end do
       deallocate(inNameList,outNameList)
