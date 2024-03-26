@@ -1187,7 +1187,7 @@ contains
       integer, intent(out), optional :: rc
       integer :: status, global_dims(3)
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dims,_RC)
-      grid_has_level = (global_dims(3)>1)
+      grid_has_level = (global_dims(3)>0)
       if (present(rc)) then
          RC=_SUCCESS
       end if
@@ -1720,14 +1720,14 @@ contains
 
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(20))
-         call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('Inclusive','(f12.2)', 12, InclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
-         call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('Exclusive','(f12.2)', 12, ExclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
-         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
-         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
-         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
-         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
+         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f12.2)', 12, ExclusiveColumn('MAX')))
+         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f12.2)', 12, ExclusiveColumn('MIN')))
+         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MAX_PE')))
+         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MIN_PE')))
         report_lines = reporter%generate_report(t_prof)
          if (mapl_am_I_root()) then
             write(*,'(a)')'Final profile'
