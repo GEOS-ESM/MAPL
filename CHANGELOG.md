@@ -17,11 +17,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [2.44.1] - 2024-02-12
+## [2.44.3] - 2024-03-27
 
 ### Fixed
 
 - Fixed non-Baselibs build using `ESMF::ESMF` target
+
+## [2.44.2] - 2024-03-26
+
+### Fixed
+
+- Fixed bug in `time_ave_util.x` when the input files have a level size of 1
+
+## [2.44.1] - 2024-03-19
+
+### Fixed
+
+- Fix bug where bit-shaved, instantaneous binary output in History was modifying the original export state passed
 
 ## [2.44.0] - 2024-02-08
 
