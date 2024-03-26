@@ -1,0 +1,1106 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_DistGridGet &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_DistGridGet
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">70 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MaplGrid.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/maplgrid.f90.html'>MaplGrid.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_maplgrid.html'>mapl_MaplGrid</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_DistGridGet</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_distgridget.html#src">MAPL_DistGridGet</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_DistGridGet(distGrid, MinIndex, MaxIndex, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-distgrid~32"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_distgrid.html'>ESMF_DistGrid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>distGrid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-minindex"></span>
+              integer,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MinIndex</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-maxindex"></span>
+              integer,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MaxIndex</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1359"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_distgridget~~CallsGraph Pages: 1 -->
+<svg id="procmapl_distgridgetCallsGraph" width="641pt" height="52pt"
+ viewBox="0.00 0.00 641.00 52.24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_distgridget~~CallsGraph" class="graph" transform="scale(1.42 1.42) rotate(0) translate(4 70)">
+<title>proc~~mapl_distgridget~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 904,-70 904,4 -4,4"/>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CallsGraph_node1" class="node">
+<title>proc~mapl_distgridget</title>
+<polygon fill="none" stroke="black" points="196,-45 0,-45 0,-21 196,-21 196,-45"/>
+<text text-anchor="middle" x="98" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_MaplGrid::MAPL_DistGridGet</text>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~mapl_distgridget~~CallsGraph_node2" class="node">
+<title>ESMF_DistGridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="410.5,-66 267.5,-66 267.5,-42 410.5,-42 410.5,-66"/>
+<text text-anchor="middle" x="339" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DistGridGet</text>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_distgridget~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#255000" d="M196.21,-41.54C216.46,-43.32 237.59,-45.18 257.18,-46.9"/>
+<polygon fill="#255000" stroke="#255000" points="256.99,-50.4 267.26,-47.78 257.61,-43.42 256.99,-50.4"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_distgridget~~CallsGraph_node3" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_distgridget~~CallsGraph_node3"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="446,-24 232,-24 232,0 446,0 446,-24"/>
+<text text-anchor="middle" x="339" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_distgridget~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M196.21,-24.46C204.66,-23.72 213.27,-22.96 221.85,-22.21"/>
+<polygon fill="#255000" stroke="#255000" points="222.25,-25.68 231.91,-21.32 221.64,-18.71 222.25,-25.68"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_distgridget~~CallsGraph_node4" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_distgridget~~CallsGraph_node4"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="711,-24 482,-24 482,0 711,0 711,-24"/>
+<text text-anchor="middle" x="596.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_distgridget~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M446.14,-12C454.61,-12 463.22,-12 471.8,-12"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="471.85,-15.5 481.85,-12 471.85,-8.5 471.85,-15.5"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~mapl_distgridget~~CallsGraph_node5" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~mapl_distgridget~~CallsGraph_node5"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="900,-24 747,-24 747,0 900,0 900,-24"/>
+<text text-anchor="middle" x="823.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~mapl_distgridget~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#255000" d="M711.32,-12C719.92,-12 728.51,-12 736.89,-12"/>
+<polygon fill="#255000" stroke="#255000" points="736.99,-15.5 746.99,-12 736.99,-8.5 736.99,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_distgridgetCallsGraph = svgPanZoom('#procmapl_distgridgetCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_distgridget~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_distgridgetCalledByGraph" width="550pt" height="1292pt"
+ viewBox="0.00 0.00 550.00 1292.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_distgridget~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1288)">
+<title>proc~~mapl_distgridget~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1288 546,-1288 546,4 -4,4"/>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node1" class="node">
+<title>proc~mapl_distgridget</title>
+<polygon fill="none" stroke="black" points="542,-654 346,-654 346,-630 542,-630 542,-654"/>
+<text text-anchor="middle" x="444" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_MaplGrid::MAPL_DistGridGet</text>
+</g>
+<!-- proc~arraygather_i4_1 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node2" class="node">
+<title>proc~arraygather_i4_1</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node2"><a xlink:href="../proc/arraygather_i4_1.html" xlink:title="MAPL_CommsMod::ArrayGather_I4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="260,-1284 50,-1284 50,-1260 260,-1260 260,-1284"/>
+<text text-anchor="middle" x="155" y="-1269.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayGather_I4_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_i4_1&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge1" class="edge">
+<title>proc~arraygather_i4_1&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M260.18,-1275.06C278.58,-1271.09 296.22,-1263.72 310,-1251 399.09,-1168.72 434.12,-763.77 441.47,-664.16"/>
+<polygon fill="#255000" stroke="#255000" points="444.97,-664.27 442.2,-654.04 437.99,-663.77 444.97,-664.27"/>
+</g>
+<!-- proc~arraygather_r4_1 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node3" class="node">
+<title>proc~arraygather_r4_1</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node3"><a xlink:href="../proc/arraygather_r4_1.html" xlink:title="FileIOSharedMod::ArrayGather_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="258.5,-1242 51.5,-1242 51.5,-1218 258.5,-1218 258.5,-1242"/>
+<text text-anchor="middle" x="155" y="-1227.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::ArrayGather_R4_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_r4_1&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge2" class="edge">
+<title>proc~arraygather_r4_1&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M258.83,-1233.14C277.67,-1229.24 295.83,-1221.89 310,-1209 393.29,-1133.26 432.31,-760.27 441.06,-664.46"/>
+<polygon fill="#255000" stroke="#255000" points="444.55,-664.69 441.96,-654.42 437.58,-664.07 444.55,-664.69"/>
+</g>
+<!-- proc~arraygather_r4_1~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node4" class="node">
+<title>proc~arraygather_r4_1~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node4"><a xlink:href="../proc/arraygather_r4_1~2.html" xlink:title="MAPL_CommsMod::ArrayGather_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="262,-1200 48,-1200 48,-1176 262,-1176 262,-1200"/>
+<text text-anchor="middle" x="155" y="-1185.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayGather_R4_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_r4_1~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge3" class="edge">
+<title>proc~arraygather_r4_1~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M262.23,-1190.17C279.8,-1186.12 296.62,-1178.95 310,-1167 387.58,-1097.7 430.41,-755.98 440.6,-664.54"/>
+<polygon fill="#255000" stroke="#255000" points="444.1,-664.76 441.71,-654.44 437.14,-664 444.1,-664.76"/>
+</g>
+<!-- proc~arraygather_r4_2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node5" class="node">
+<title>proc~arraygather_r4_2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node5"><a xlink:href="../proc/arraygather_r4_2.html" xlink:title="FileIOSharedMod::ArrayGather_R4_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="258.5,-1158 51.5,-1158 51.5,-1134 258.5,-1134 258.5,-1158"/>
+<text text-anchor="middle" x="155" y="-1143.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::ArrayGather_R4_2</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_r4_2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge4" class="edge">
+<title>proc~arraygather_r4_2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M258.84,-1148.63C277.57,-1144.75 295.68,-1137.53 310,-1125 381.96,-1062.04 428.42,-750.96 440.1,-664.39"/>
+<polygon fill="#255000" stroke="#255000" points="443.59,-664.72 441.43,-654.34 436.65,-663.79 443.59,-664.72"/>
+</g>
+<!-- proc~arraygather_r4_2~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node6" class="node">
+<title>proc~arraygather_r4_2~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node6"><a xlink:href="../proc/arraygather_r4_2~2.html" xlink:title="MAPL_CommsMod::ArrayGather_R4_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="262,-1116 48,-1116 48,-1092 262,-1092 262,-1116"/>
+<text text-anchor="middle" x="155" y="-1101.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayGather_R4_2</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_r4_2~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge5" class="edge">
+<title>proc~arraygather_r4_2~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M262.19,-1105.58C279.66,-1101.56 296.46,-1094.56 310,-1083 376.36,-1026.34 426.23,-745.8 439.5,-664.26"/>
+<polygon fill="#255000" stroke="#255000" points="443,-664.55 441.13,-654.12 436.09,-663.44 443,-664.55"/>
+</g>
+<!-- proc~arraygather_r8_1 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node7" class="node">
+<title>proc~arraygather_r8_1</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node7"><a xlink:href="../proc/arraygather_r8_1.html" xlink:title="FileIOSharedMod::ArrayGather_R8_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="258.5,-1074 51.5,-1074 51.5,-1050 258.5,-1050 258.5,-1074"/>
+<text text-anchor="middle" x="155" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::ArrayGather_R8_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_r8_1&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge6" class="edge">
+<title>proc~arraygather_r8_1&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M258.73,-1063.95C277.36,-1060.09 295.46,-1053.06 310,-1041 429.27,-942.11 442.19,-733.03 443.13,-664.37"/>
+<polygon fill="#255000" stroke="#255000" points="446.63,-664.27 443.19,-654.25 439.63,-664.23 446.63,-664.27"/>
+</g>
+<!-- proc~arraygather_r8_1~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node8" class="node">
+<title>proc~arraygather_r8_1~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node8"><a xlink:href="../proc/arraygather_r8_1~2.html" xlink:title="MAPL_CommsMod::ArrayGather_R8_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="262,-1032 48,-1032 48,-1008 262,-1008 262,-1032"/>
+<text text-anchor="middle" x="155" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayGather_R8_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_r8_1~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge7" class="edge">
+<title>proc~arraygather_r8_1~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M262.39,-1020.67C279.64,-1016.71 296.31,-1009.96 310,-999 418.4,-912.26 438.45,-727.76 442.16,-664.13"/>
+<polygon fill="#255000" stroke="#255000" points="445.66,-664.18 442.67,-654.02 438.67,-663.83 445.66,-664.18"/>
+</g>
+<!-- proc~arraygather_r8_2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node9" class="node">
+<title>proc~arraygather_r8_2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node9"><a xlink:href="../proc/arraygather_r8_2.html" xlink:title="FileIOSharedMod::ArrayGather_R8_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="258.5,-990 51.5,-990 51.5,-966 258.5,-966 258.5,-990"/>
+<text text-anchor="middle" x="155" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::ArrayGather_R8_2</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_r8_2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge8" class="edge">
+<title>proc~arraygather_r8_2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M258.8,-978.87C277.21,-975.06 295.22,-968.32 310,-957 407.42,-882.42 434.23,-722.94 440.94,-664.27"/>
+<polygon fill="#255000" stroke="#255000" points="444.43,-664.54 442,-654.23 437.47,-663.8 444.43,-664.54"/>
+</g>
+<!-- proc~arraygather_r8_2~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node10" class="node">
+<title>proc~arraygather_r8_2~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node10"><a xlink:href="../proc/arraygather_r8_2~2.html" xlink:title="MAPL_CommsMod::ArrayGather_R8_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="262,-948 48,-948 48,-924 262,-924 262,-948"/>
+<text text-anchor="middle" x="155" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayGather_R8_2</text>
+</a>
+</g>
+</g>
+<!-- proc~arraygather_r8_2~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge9" class="edge">
+<title>proc~arraygather_r8_2~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M262.33,-935.37C279.39,-931.5 296.01,-925.13 310,-915 396.72,-852.23 429.55,-717.28 439.42,-664.15"/>
+<polygon fill="#255000" stroke="#255000" points="442.9,-664.56 441.18,-654.1 436,-663.35 442.9,-664.56"/>
+</g>
+<!-- proc~arrayscatter_r4_1 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node11" class="node">
+<title>proc~arrayscatter_r4_1</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node11"><a xlink:href="../proc/arrayscatter_r4_1.html" xlink:title="MAPL_CommsMod::ArrayScatter_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="263,-906 47,-906 47,-882 263,-882 263,-906"/>
+<text text-anchor="middle" x="155" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayScatter_R4_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscatter_r4_1&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge10" class="edge">
+<title>proc~arrayscatter_r4_1&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M263.36,-892.18C279.93,-888.38 296.12,-882.34 310,-873 386.24,-821.73 424.22,-711.05 437.43,-663.94"/>
+<polygon fill="#255000" stroke="#255000" points="440.85,-664.72 440.07,-654.15 434.09,-662.89 440.85,-664.72"/>
+</g>
+<!-- proc~arrayscatter_r4_1~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node12" class="node">
+<title>proc~arrayscatter_r4_1~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node12"><a xlink:href="../proc/arrayscatter_r4_1~2.html" xlink:title="BinIOMod::ArrayScatter_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="240,-864 70,-864 70,-840 240,-840 240,-864"/>
+<text text-anchor="middle" x="155" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BinIOMod::ArrayScatter_R4_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscatter_r4_1~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge11" class="edge">
+<title>proc~arrayscatter_r4_1~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M240.11,-852.88C264.06,-849.96 289.25,-843.62 310,-831 375.9,-790.91 417.83,-704.43 434.63,-663.86"/>
+<polygon fill="#255000" stroke="#255000" points="437.96,-664.95 438.44,-654.37 431.47,-662.34 437.96,-664.95"/>
+</g>
+<!-- proc~arrayscatter_r4_2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node13" class="node">
+<title>proc~arrayscatter_r4_2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node13"><a xlink:href="../proc/arrayscatter_r4_2.html" xlink:title="MAPL_CommsMod::ArrayScatter_R4_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="263,-822 47,-822 47,-798 263,-798 263,-822"/>
+<text text-anchor="middle" x="155" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayScatter_R4_2</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscatter_r4_2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge12" class="edge">
+<title>proc~arrayscatter_r4_2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M263.41,-805.2C279.61,-801.72 295.68,-796.55 310,-789 366.24,-759.33 410.58,-695.92 430.9,-662.92"/>
+<polygon fill="#255000" stroke="#255000" points="434.05,-664.48 436.2,-654.1 428.05,-660.87 434.05,-664.48"/>
+</g>
+<!-- proc~arrayscatter_r4_2~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node14" class="node">
+<title>proc~arrayscatter_r4_2~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node14"><a xlink:href="../proc/arrayscatter_r4_2~2.html" xlink:title="BinIOMod::ArrayScatter_R4_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="240,-780 70,-780 70,-756 240,-756 240,-780"/>
+<text text-anchor="middle" x="155" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BinIOMod::ArrayScatter_R4_2</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscatter_r4_2~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge13" class="edge">
+<title>proc~arrayscatter_r4_2~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M240.08,-764.69C263.4,-761.61 288.27,-756.24 310,-747 356.91,-727.06 401.24,-686.02 425,-661.57"/>
+<polygon fill="#255000" stroke="#255000" points="427.6,-663.92 431.97,-654.26 422.53,-659.09 427.6,-663.92"/>
+</g>
+<!-- proc~arrayscatter_r8_1 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node15" class="node">
+<title>proc~arrayscatter_r8_1</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node15"><a xlink:href="../proc/arrayscatter_r8_1.html" xlink:title="MAPL_CommsMod::ArrayScatter_R8_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="263,-738 47,-738 47,-714 263,-714 263,-738"/>
+<text text-anchor="middle" x="155" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayScatter_R8_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscatter_r8_1&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge14" class="edge">
+<title>proc~arrayscatter_r8_1&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M263.36,-715.68C279.17,-712.92 295.13,-709.42 310,-705 347.3,-693.91 387.29,-673.72 413.57,-659.18"/>
+<polygon fill="#255000" stroke="#255000" points="415.6,-662.06 422.6,-654.11 412.17,-655.95 415.6,-662.06"/>
+</g>
+<!-- proc~arrayscatter_r8_1~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node16" class="node">
+<title>proc~arrayscatter_r8_1~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node16"><a xlink:href="../proc/arrayscatter_r8_1~2.html" xlink:title="BinIOMod::ArrayScatter_R8_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="240,-696 70,-696 70,-672 240,-672 240,-696"/>
+<text text-anchor="middle" x="155" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BinIOMod::ArrayScatter_R8_1</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscatter_r8_1~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge15" class="edge">
+<title>proc~arrayscatter_r8_1~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M240.37,-672.82C263,-669.73 287.44,-666.32 310,-663 325.7,-660.69 342.44,-658.13 358.54,-655.61"/>
+<polygon fill="#255000" stroke="#255000" points="359.14,-659.06 368.48,-654.05 358.06,-652.14 359.14,-659.06"/>
+</g>
+<!-- proc~arrayscatter_r8_2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node17" class="node">
+<title>proc~arrayscatter_r8_2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node17"><a xlink:href="../proc/arrayscatter_r8_2.html" xlink:title="MAPL_CommsMod::ArrayScatter_R8_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="263,-654 47,-654 47,-630 263,-630 263,-654"/>
+<text text-anchor="middle" x="155" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::ArrayScatter_R8_2</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscatter_r8_2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge16" class="edge">
+<title>proc~arrayscatter_r8_2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M263.28,-642C286.96,-642 312.05,-642 335.73,-642"/>
+<polygon fill="#255000" stroke="#255000" points="335.79,-645.5 345.79,-642 335.79,-638.5 335.79,-645.5"/>
+</g>
+<!-- proc~arrayscatter_r8_2~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node18" class="node">
+<title>proc~arrayscatter_r8_2~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node18"><a xlink:href="../proc/arrayscatter_r8_2~2.html" xlink:title="BinIOMod::ArrayScatter_R8_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="240,-612 70,-612 70,-588 240,-588 240,-612"/>
+<text text-anchor="middle" x="155" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BinIOMod::ArrayScatter_R8_2</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscatter_r8_2~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge17" class="edge">
+<title>proc~arrayscatter_r8_2~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M240.37,-611.18C263,-614.27 287.44,-617.68 310,-621 325.7,-623.31 342.44,-625.87 358.54,-628.39"/>
+<polygon fill="#255000" stroke="#255000" points="358.06,-631.86 368.48,-629.95 359.14,-624.94 358.06,-631.86"/>
+</g>
+<!-- proc~arrayscattershmr4d1 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node19" class="node">
+<title>proc~arrayscattershmr4d1</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node19"><a xlink:href="../proc/arrayscattershmr4d1.html" xlink:title="BinIOMod::ArrayScatterShmR4D1">
+<polygon fill="#d9534f" stroke="#d9534f" points="251,-570 59,-570 59,-546 251,-546 251,-570"/>
+<text text-anchor="middle" x="155" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BinIOMod::ArrayScatterShmR4D1</text>
+</a>
+</g>
+</g>
+<!-- proc~arrayscattershmr4d1&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge18" class="edge">
+<title>proc~arrayscattershmr4d1&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M251.04,-566.31C270.77,-569.32 291.25,-573.43 310,-579 347.3,-590.09 387.29,-610.28 413.57,-624.82"/>
+<polygon fill="#255000" stroke="#255000" points="412.17,-628.05 422.6,-629.89 415.6,-621.94 412.17,-628.05"/>
+</g>
+<!-- proc~create_cubed_sphere_grid -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node20" class="node">
+<title>proc~create_cubed_sphere_grid</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node20"><a xlink:href="../proc/create_cubed_sphere_grid.html" xlink:title="SupportMod::RegridSupport%create_cubed_sphere_grid">
+<polygon fill="#d9534f" stroke="#d9534f" points="310,-528 0,-528 0,-504 310,-504 310,-528"/>
+<text text-anchor="middle" x="155" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SupportMod::RegridSupport%create_cubed_sphere_grid</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge19" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M283.93,-528C292.9,-530.49 301.68,-533.46 310,-537 356.91,-556.94 401.24,-597.98 425,-622.43"/>
+<polygon fill="#255000" stroke="#255000" points="422.53,-624.91 431.97,-629.74 427.6,-620.08 422.53,-624.91"/>
+</g>
+<!-- proc~esmfl_fcollect_i4 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node21" class="node">
+<title>proc~esmfl_fcollect_i4</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node21"><a xlink:href="../proc/esmfl_fcollect_i4.html" xlink:title="ESMFL_MOD::ESMFL_FCOLLECT_I4">
+<polygon fill="#d9534f" stroke="#d9534f" points="252.5,-486 57.5,-486 57.5,-462 252.5,-462 252.5,-486"/>
+<text text-anchor="middle" x="155" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_MOD::ESMFL_FCOLLECT_I4</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_fcollect_i4&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge20" class="edge">
+<title>proc~esmfl_fcollect_i4&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M252.87,-476.76C272.57,-480.15 292.58,-485.81 310,-495 366.24,-524.67 410.58,-588.08 430.9,-621.08"/>
+<polygon fill="#255000" stroke="#255000" points="428.05,-623.13 436.2,-629.9 434.05,-619.52 428.05,-623.13"/>
+</g>
+<!-- proc~esmfl_fcollect_r4 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node22" class="node">
+<title>proc~esmfl_fcollect_r4</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node22"><a xlink:href="../proc/esmfl_fcollect_r4.html" xlink:title="ESMFL_MOD::ESMFL_FCOLLECT_R4">
+<polygon fill="#d9534f" stroke="#d9534f" points="254.5,-444 55.5,-444 55.5,-420 254.5,-420 254.5,-444"/>
+<text text-anchor="middle" x="155" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_MOD::ESMFL_FCOLLECT_R4</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_fcollect_r4&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge21" class="edge">
+<title>proc~esmfl_fcollect_r4&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M254.58,-433.3C273.96,-436.82 293.4,-442.9 310,-453 375.9,-493.09 417.83,-579.57 434.63,-620.14"/>
+<polygon fill="#255000" stroke="#255000" points="431.47,-621.66 438.44,-629.63 437.96,-619.05 431.47,-621.66"/>
+</g>
+<!-- proc~esmfl_fcollect_r8 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node23" class="node">
+<title>proc~esmfl_fcollect_r8</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node23"><a xlink:href="../proc/esmfl_fcollect_r8.html" xlink:title="ESMFL_MOD::ESMFL_FCOLLECT_R8">
+<polygon fill="#d9534f" stroke="#d9534f" points="254.5,-402 55.5,-402 55.5,-378 254.5,-378 254.5,-402"/>
+<text text-anchor="middle" x="155" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_MOD::ESMFL_FCOLLECT_R8</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_fcollect_r8&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge22" class="edge">
+<title>proc~esmfl_fcollect_r8&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M254.52,-390C274.11,-393.58 293.65,-400.01 310,-411 386.24,-462.27 424.22,-572.95 437.43,-620.06"/>
+<polygon fill="#255000" stroke="#255000" points="434.09,-621.11 440.07,-629.85 440.85,-619.28 434.09,-621.11"/>
+</g>
+<!-- proc~esmfl_halo_r4_2d -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node24" class="node">
+<title>proc~esmfl_halo_r4_2d</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node24"><a xlink:href="../proc/esmfl_halo_r4_2d.html" xlink:title="ESMFL_MOD::ESMFL_HALO_R4_2D">
+<polygon fill="#d9534f" stroke="#d9534f" points="252,-360 58,-360 58,-336 252,-336 252,-360"/>
+<text text-anchor="middle" x="155" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_MOD::ESMFL_HALO_R4_2D</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_halo_r4_2d&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge23" class="edge">
+<title>proc~esmfl_halo_r4_2d&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M252.3,-346.64C272.8,-350.15 293.28,-356.9 310,-369 396.72,-431.77 429.55,-566.72 439.42,-619.85"/>
+<polygon fill="#255000" stroke="#255000" points="436,-620.65 441.18,-629.9 442.9,-619.44 436,-620.65"/>
+</g>
+<!-- proc~get_esmf_grid_layout -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node25" class="node">
+<title>proc~get_esmf_grid_layout</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node25"><a xlink:href="../proc/get_esmf_grid_layout.html" xlink:title="time_ave::get_esmf_grid_layout">
+<polygon fill="#d9534f" stroke="#d9534f" points="246,-318 64,-318 64,-294 246,-294 246,-318"/>
+<text text-anchor="middle" x="155" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave::get_esmf_grid_layout</text>
+</a>
+</g>
+</g>
+<!-- proc~get_esmf_grid_layout&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge24" class="edge">
+<title>proc~get_esmf_grid_layout&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M246.37,-302.98C268.96,-306.14 291.9,-313.14 310,-327 407.42,-401.58 434.23,-561.06 440.94,-619.73"/>
+<polygon fill="#255000" stroke="#255000" points="437.47,-620.2 442,-629.77 444.43,-619.46 437.47,-620.2"/>
+</g>
+<!-- proc~mapl_createrequest -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node26" class="node">
+<title>proc~mapl_createrequest</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node26"><a xlink:href="../proc/mapl_createrequest.html" xlink:title="MAPL_CommsMod::MAPL_CreateRequest">
+<polygon fill="#d9534f" stroke="#d9534f" points="269.5,-276 40.5,-276 40.5,-252 269.5,-252 269.5,-276"/>
+<text text-anchor="middle" x="155" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::MAPL_CreateRequest</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge25" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M269.51,-265.14C284.2,-269.24 298.2,-275.56 310,-285 418.4,-371.74 438.45,-556.24 442.16,-619.87"/>
+<polygon fill="#255000" stroke="#255000" points="438.67,-620.17 442.67,-629.98 445.66,-619.82 438.67,-620.17"/>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node27" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node27"><a xlink:href="../proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericMod::MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="274,-234 36,-234 36,-210 274,-210 274,-234"/>
+<text text-anchor="middle" x="155" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge26" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M274.11,-224.06C287.17,-228.22 299.51,-234.3 310,-243 429.27,-341.89 442.19,-550.97 443.13,-619.63"/>
+<polygon fill="#255000" stroke="#255000" points="439.63,-619.77 443.19,-629.75 446.63,-619.73 439.63,-619.77"/>
+</g>
+<!-- proc~mapl_grid_interior -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node28" class="node">
+<title>proc~mapl_grid_interior</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node28"><a xlink:href="../proc/mapl_grid_interior.html" xlink:title="Base_Implementation::MAPL_GRID_INTERIOR">
+<polygon fill="#d9534f" stroke="#d9534f" points="281.5,-192 28.5,-192 28.5,-168 281.5,-168 281.5,-192"/>
+<text text-anchor="middle" x="155" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge27" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M281.61,-184.36C291.92,-188.39 301.59,-193.82 310,-201 376.36,-257.66 426.23,-538.2 439.5,-619.74"/>
+<polygon fill="#255000" stroke="#255000" points="436.09,-620.56 441.13,-629.88 443,-619.45 436.09,-620.56"/>
+</g>
+<!-- proc~mapl_gridgetinterior -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node29" class="node">
+<title>proc~mapl_gridgetinterior</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node29"><a xlink:href="../proc/mapl_gridgetinterior.html" xlink:title="Base_Implementation::MAPL_GridGetInterior">
+<polygon fill="#d9534f" stroke="#d9534f" points="280,-150 30,-150 30,-126 280,-126 280,-150"/>
+<text text-anchor="middle" x="155" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_GridGetInterior</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridgetinterior&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge28" class="edge">
+<title>proc~mapl_gridgetinterior&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M280.29,-141.55C291.12,-145.69 301.27,-151.36 310,-159 381.96,-221.96 428.42,-533.04 440.1,-619.61"/>
+<polygon fill="#255000" stroke="#255000" points="436.65,-620.21 441.43,-629.66 443.59,-619.28 436.65,-620.21"/>
+</g>
+<!-- proc~mapl_gridgetsection -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node30" class="node">
+<title>proc~mapl_gridgetsection</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node30"><a xlink:href="../proc/mapl_gridgetsection.html" xlink:title="MAPL_GenericMod::MAPL_GridGetSection">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="271.5,-108 38.5,-108 38.5,-84 271.5,-84 271.5,-108"/>
+<text text-anchor="middle" x="155" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GridGetSection</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridgetsection&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge29" class="edge">
+<title>proc~mapl_gridgetsection&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M271.65,-96.34C285.76,-100.63 299.03,-107.2 310,-117 387.58,-186.3 430.41,-528.02 440.6,-619.46"/>
+<polygon fill="#255000" stroke="#255000" points="437.14,-620 441.71,-629.56 444.1,-619.24 437.14,-620"/>
+</g>
+<!-- proc~mapl_tilemaskget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node31" class="node">
+<title>proc~mapl_tilemaskget</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node31"><a xlink:href="../proc/mapl_tilemaskget.html" xlink:title="FileIOSharedMod::MAPL_TileMaskGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="259,-66 51,-66 51,-42 259,-42 259,-66"/>
+<text text-anchor="middle" x="155" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileIOSharedMod::MAPL_TileMaskGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_tilemaskget&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge30" class="edge">
+<title>proc~mapl_tilemaskget&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M259.23,-50.94C277.92,-54.86 295.93,-62.2 310,-75 393.29,-150.74 432.31,-523.73 441.06,-619.54"/>
+<polygon fill="#255000" stroke="#255000" points="437.58,-619.93 441.96,-629.58 444.55,-619.31 437.58,-619.93"/>
+</g>
+<!-- proc~set~2 -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_node32" class="node">
+<title>proc~set~2</title>
+<g id="a_proc~~mapl_distgridget~~CalledByGraph_node32"><a xlink:href="../proc/set~2.html" xlink:title="mapl_MaplGrid::MaplGrid%set">
+<polygon fill="#d9534f" stroke="#d9534f" points="242,-24 68,-24 68,0 242,0 242,-24"/>
+<text text-anchor="middle" x="155" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MaplGrid%set</text>
+</a>
+</g>
+</g>
+<!-- proc~set~2&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_distgridget~~CalledByGraph_edge31" class="edge">
+<title>proc~set~2&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M242.17,-6.08C266.74,-8.71 291.76,-16.16 310,-33 399.09,-115.28 434.12,-520.23 441.47,-619.84"/>
+<polygon fill="#255000" stroke="#255000" points="437.99,-620.23 442.2,-629.96 444.97,-619.73 437.99,-620.23"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_DistGridGet</span><span class="p">(</span><span class="n">distGrid</span><span class="p">,</span><span class="n">minIndex</span><span class="p">,</span><span class="n">maxIndex</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_DistGrid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distGrid</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MinIndex</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MaxIndex</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">tileSize</span><span class="p">,</span><span class="n">tileCount</span><span class="p">,</span><span class="n">tile</span><span class="p">,</span><span class="n">deCount</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ESMFCubeSphere</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">elementCountPTile</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deToTileMap</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">oldMinIndex</span><span class="p">(:,:),</span><span class="n">oldMaxIndex</span><span class="p">(:,:)</span>
+
+<span class="w">     </span><span class="n">ESMFCubeSphere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">distGrid</span><span class="p">,</span><span class="n">tileCount</span><span class="o">=</span><span class="n">tileCount</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tileCount</span><span class="o">==</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="n">ESMFCubeSphere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMFCubeSphere</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        allocate</span><span class="p">(</span><span class="n">elementCountPTile</span><span class="p">(</span><span class="n">tileCount</span><span class="p">),</span><span class="err">__</span><span class="n">STAT__</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">distGrid</span><span class="p">,</span><span class="n">elementCountPTile</span><span class="o">=</span><span class="n">elementCountPTile</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="c">! All tile should have same number of elements</span>
+<span class="w">        </span><span class="n">tileSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">elementCountPTile</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">tileSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">SQRT</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">tileSize</span><span class="p">))</span>
+<span class="w">        </span><span class="k">deallocate</span><span class="p">(</span><span class="n">elementCountPTile</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">deCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">minIndex</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">deToTileMap</span><span class="p">(</span><span class="n">deCount</span><span class="p">),</span><span class="err">__</span><span class="n">STAT__</span><span class="p">)</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">deCount</span><span class="p">),</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">deCount</span><span class="p">),</span><span class="err">__</span><span class="n">STAT__</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">distGrid</span><span class="p">,</span><span class="n">MaxIndexPDe</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">,</span><span class="n">MinIndexPDe</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">deToTileMap</span><span class="o">=</span><span class="n">deToTileMap</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">deCount</span>
+<span class="w">           </span><span class="n">tile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deToTileMap</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">           </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">tile</span><span class="p">)</span>
+<span class="w">              </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(:,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(:,</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(:,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(:,</span><span class="n">i</span><span class="p">)</span>
+<span class="w">              </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w">  </span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w">  </span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="n">tileSize</span>
+<span class="w">              </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w">  </span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w">  </span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="n">tileSize</span>
+<span class="w">              </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">              </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">              </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMinIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">                 </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">oldMaxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">tileSize</span>
+<span class="w">           </span><span class="k">end select</span>
+<span class="k">        enddo</span>
+<span class="k">        deallocate</span><span class="p">(</span><span class="n">deToTileMap</span><span class="p">)</span>
+<span class="w">        </span><span class="k">deallocate</span><span class="p">(</span><span class="n">oldMaxIndex</span><span class="p">,</span><span class="n">oldMinIndex</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">else</span>
+
+<span class="k">        call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">distGrid</span><span class="p">,</span><span class="n">minIndexPDe</span><span class="o">=</span><span class="n">minIndex</span><span class="p">,</span><span class="n">maxIndexPDe</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">end if</span>
+
+<span class="k"> end subroutine </span><span class="n">MAPL_DistGridGet</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:50:03.403742             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
