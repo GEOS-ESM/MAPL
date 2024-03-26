@@ -1,0 +1,918 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>make_arbitrary_decomposition &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>make_arbitrary_decomposition
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">30 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_AbstractGridFactory.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_abstractgridfactory.f90.html'>MAPL_AbstractGridFactory.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_abstractgridfactorymod.html'>MAPL_AbstractGridFactoryMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">make_arbitrary_decomposition</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/make_arbitrary_decomposition.html#src">make_arbitrary_decomposition</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine make_arbitrary_decomposition(nx, ny, unusable, reduceFactor, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_arbitrary_decomposition~~UsesGraph Pages: 1 -->
+<svg id="procmake_arbitrary_decompositionUsesGraph" width="641pt" height="71pt"
+ viewBox="0.00 0.00 641.00 71.22" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_arbitrary_decomposition~~UsesGraph" class="graph" transform="scale(1.04 1.04) rotate(0) translate(4 70)">
+<title>proc~~make_arbitrary_decomposition~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 662,-70 662,4 -4,4"/>
+<!-- proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~UsesGraph_node1" class="node">
+<title>proc~make_arbitrary_decomposition</title>
+<polygon fill="none" stroke="black" points="658,-45 195,-45 195,-21 658,-21 658,-45"/>
+<text text-anchor="middle" x="426.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_AbstractGridFactoryMod::AbstractGridFactory%make_arbitrary_decomposition</text>
+</g>
+<!-- ESMF -->
+<g id="proc~~make_arbitrary_decomposition~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="106.5,-66 52.5,-66 52.5,-42 106.5,-42 106.5,-66"/>
+<text text-anchor="middle" x="79.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</g>
+<!-- proc~make_arbitrary_decomposition&#45;&gt;ESMF -->
+<g id="proc~~make_arbitrary_decomposition~~UsesGraph_edge1" class="edge">
+<title>proc~make_arbitrary_decomposition&#45;&gt;ESMF</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M228.31,-45C185.35,-47.62 144.47,-50.11 116.64,-51.8"/>
+<polygon fill="#255000" stroke="#255000" points="116.4,-48.31 106.64,-52.41 116.83,-55.3 116.4,-48.31"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="proc~~make_arbitrary_decomposition~~UsesGraph_node3" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_proc~~make_arbitrary_decomposition~~UsesGraph_node3"><a xlink:href="../module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="159,-24 0,-24 0,0 159,0 159,-24"/>
+<text text-anchor="middle" x="79.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- proc~make_arbitrary_decomposition&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="proc~~make_arbitrary_decomposition~~UsesGraph_edge2" class="edge">
+<title>proc~make_arbitrary_decomposition&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M228.31,-21C207.68,-19.74 187.53,-18.51 169.07,-17.39"/>
+<polygon fill="#255000" stroke="#255000" points="169.2,-13.89 159,-16.78 168.77,-20.88 169.2,-13.89"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmake_arbitrary_decompositionUsesGraph = svgPanZoom('#procmake_arbitrary_decompositionUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/abstractgridfactory.html'>AbstractGridFactory</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nx~30"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nx</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ny~31"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ny</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~305"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-reducefactor~3"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>reduceFactor</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1532"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_arbitrary_decomposition~~CallsGraph Pages: 1 -->
+<svg id="procmake_arbitrary_decompositionCallsGraph" width="641pt" height="84pt"
+ viewBox="0.00 0.00 641.00 84.05" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph" class="graph" transform="scale(1.88 1.88) rotate(0) translate(4 154)">
+<title>proc~~make_arbitrary_decomposition~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 1201,-154 1201,4 -4,4"/>
+<!-- proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node1" class="node">
+<title>proc~make_arbitrary_decomposition</title>
+<polygon fill="none" stroke="black" points="463,-87 0,-87 0,-63 463,-63 463,-87"/>
+<text text-anchor="middle" x="231.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_AbstractGridFactoryMod::AbstractGridFactory%make_arbitrary_decomposition</text>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node2" class="node">
+<title>ESMF_VMGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="667.5,-150 550.5,-150 550.5,-126 667.5,-126 667.5,-150"/>
+<text text-anchor="middle" x="609" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGet</text>
+</g>
+<!-- proc~make_arbitrary_decomposition&#45;&gt;ESMF_VMGet -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge1" class="edge">
+<title>proc~make_arbitrary_decomposition&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#255000" d="M304.46,-87.07C372.51,-98.49 473.88,-115.5 540.45,-126.67"/>
+<polygon fill="#255000" stroke="#255000" points="539.98,-130.14 550.42,-128.34 541.14,-123.23 539.98,-130.14"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node3" class="node">
+<title>ESMF_VMGetCurrent</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="687.5,-108 530.5,-108 530.5,-84 687.5,-84 687.5,-108"/>
+<text text-anchor="middle" x="609" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGetCurrent</text>
+</g>
+<!-- proc~make_arbitrary_decomposition&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge2" class="edge">
+<title>proc~make_arbitrary_decomposition&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#255000" d="M447.12,-87C472.76,-88.44 497.72,-89.83 520.04,-91.08"/>
+<polygon fill="#255000" stroke="#255000" points="519.91,-94.58 530.09,-91.64 520.3,-87.59 519.91,-94.58"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="719,-66 499,-66 499,-42 719,-42 719,-66"/>
+<text text-anchor="middle" x="609" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~make_arbitrary_decomposition&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge3" class="edge">
+<title>proc~make_arbitrary_decomposition&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M447.12,-63C461.26,-62.21 475.19,-61.43 488.58,-60.68"/>
+<polygon fill="#255000" stroke="#255000" points="488.93,-64.16 498.72,-60.11 488.54,-57.18 488.93,-64.16"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="716,-24 502,-24 502,0 716,0 716,-24"/>
+<text text-anchor="middle" x="609" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~make_arbitrary_decomposition&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge4" class="edge">
+<title>proc~make_arbitrary_decomposition&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M304.46,-62.93C367.86,-52.29 460.16,-36.8 526.31,-25.71"/>
+<polygon fill="#255000" stroke="#255000" points="527,-29.14 536.29,-24.03 525.85,-22.23 527,-29.14"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1008,-66 755,-66 755,-42 1008,-42 1008,-66"/>
+<text text-anchor="middle" x="881.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M719.24,-54C727.67,-54 736.25,-54 744.82,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="744.88,-57.5 754.88,-54 744.88,-50.5 744.88,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CallsGraph_node7"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="996,-24 767,-24 767,0 996,0 996,-24"/>
+<text text-anchor="middle" x="881.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M687.51,-41.96C720.48,-36.85 759.08,-30.85 793.06,-25.58"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="793.63,-29.03 802.97,-24.04 792.56,-22.11 793.63,-29.03"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M716.13,-12C729.34,-12 742.94,-12 756.39,-12"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="756.64,-15.5 766.64,-12 756.64,-8.5 756.64,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node8" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1147.5,-108 1093.5,-108 1093.5,-84 1147.5,-84 1147.5,-108"/>
+<text text-anchor="middle" x="1120.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge8" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M950.41,-66.04C993.55,-73.68 1047.7,-83.28 1082.93,-89.52"/>
+<polygon fill="#255000" stroke="#255000" points="1082.76,-93.04 1093.22,-91.34 1083.98,-86.15 1082.76,-93.04"/>
+</g>
+<!-- insert -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node9" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1147.5,-66 1093.5,-66 1093.5,-42 1147.5,-42 1147.5,-66"/>
+<text text-anchor="middle" x="1120.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge9" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1008.29,-54C1035.83,-54 1062.86,-54 1083.36,-54"/>
+<polygon fill="#255000" stroke="#255000" points="1083.46,-57.5 1093.46,-54 1083.46,-50.5 1083.46,-57.5"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_node10" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CallsGraph_node10"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1197,-24 1044,-24 1044,0 1197,0 1197,-24"/>
+<text text-anchor="middle" x="1120.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~make_arbitrary_decomposition~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M996.14,-12C1008.76,-12 1021.46,-12 1033.65,-12"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1033.77,-15.5 1043.77,-12 1033.77,-8.5 1033.77,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmake_arbitrary_decompositionCallsGraph = svgPanZoom('#procmake_arbitrary_decompositionCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_arbitrary_decomposition~~CalledByGraph Pages: 1 -->
+<svg id="procmake_arbitrary_decompositionCalledByGraph" width="641pt" height="153pt"
+ viewBox="0.00 0.00 641.00 153.13" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph" class="graph" transform="scale(1.58 1.58) rotate(0) translate(4 238)">
+<title>proc~~make_arbitrary_decomposition~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 1009,-238 1009,4 -4,4"/>
+<!-- proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_node1" class="node">
+<title>proc~make_arbitrary_decomposition</title>
+<polygon fill="none" stroke="black" points="1005,-129 542,-129 542,-105 1005,-105 1005,-129"/>
+<text text-anchor="middle" x="773.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_AbstractGridFactoryMod::AbstractGridFactory%make_arbitrary_decomposition</text>
+</g>
+<!-- proc~initialize_from_file_metadata~2 -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_node2" class="node">
+<title>proc~initialize_from_file_metadata~2</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CalledByGraph_node2"><a xlink:href="../proc/initialize_from_file_metadata~2.html" xlink:title="MAPL_LatLonGridFactoryMod::LatLonGridFactory%initialize_from_file_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="470,-234 36,-234 36,-210 470,-210 470,-234"/>
+<text text-anchor="middle" x="253" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LatLonGridFactoryMod::LatLonGridFactory%initialize_from_file_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_file_metadata~2&#45;&gt;proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize_from_file_metadata~2&#45;&gt;proc~make_arbitrary_decomposition</title>
+<path fill="none" stroke="#255000" d="M449.95,-209.97C468.97,-207.52 487.91,-204.56 506,-201 588.28,-184.81 680.95,-152.19 732.47,-132.7"/>
+<polygon fill="#255000" stroke="#255000" points="733.8,-135.94 741.9,-129.11 731.31,-129.4 733.8,-135.94"/>
+</g>
+<!-- proc~initialize_from_file_metadata~3 -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_node3" class="node">
+<title>proc~initialize_from_file_metadata~3</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CalledByGraph_node3"><a xlink:href="../proc/initialize_from_file_metadata~3.html" xlink:title="MAPL_TripolarGridFactoryMod::TripolarGridFactory%initialize_from_file_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="474,-192 32,-192 32,-168 474,-168 474,-192"/>
+<text text-anchor="middle" x="253" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TripolarGridFactoryMod::TripolarGridFactory%initialize_from_file_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_file_metadata~3&#45;&gt;proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_edge2" class="edge">
+<title>proc~initialize_from_file_metadata~3&#45;&gt;proc~make_arbitrary_decomposition</title>
+<path fill="none" stroke="#255000" d="M419.21,-167.97C448.17,-165.37 478,-162.37 506,-159 569.89,-151.31 641.97,-139.78 695.04,-130.74"/>
+<polygon fill="#255000" stroke="#255000" points="695.79,-134.16 705.05,-129.03 694.61,-127.27 695.79,-134.16"/>
+</g>
+<!-- proc~initialize_from_file_metadata~5 -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_node4" class="node">
+<title>proc~initialize_from_file_metadata~5</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CalledByGraph_node4"><a xlink:href="../proc/initialize_from_file_metadata~5.html" xlink:title="MAPL_XYGridFactoryMod::XYGridFactory%initialize_from_file_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="448.5,-150 57.5,-150 57.5,-126 448.5,-126 448.5,-150"/>
+<text text-anchor="middle" x="253" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_XYGridFactoryMod::XYGridFactory%initialize_from_file_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_file_metadata~5&#45;&gt;proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_edge3" class="edge">
+<title>proc~initialize_from_file_metadata~5&#45;&gt;proc~make_arbitrary_decomposition</title>
+<path fill="none" stroke="#255000" d="M448.55,-130.12C475.67,-129.02 503.81,-127.88 531.66,-126.75"/>
+<polygon fill="#255000" stroke="#255000" points="532.06,-130.24 541.91,-126.34 531.78,-123.25 532.06,-130.24"/>
+</g>
+<!-- proc~initialize_from_file_metadata~6 -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_node5" class="node">
+<title>proc~initialize_from_file_metadata~6</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CalledByGraph_node5"><a xlink:href="../proc/initialize_from_file_metadata~6.html" xlink:title="MAPL_CubedSphereGridFactoryMod::CubedSphereGridFactory%initialize_from_file_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="506,-108 0,-108 0,-84 506,-84 506,-108"/>
+<text text-anchor="middle" x="253" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CubedSphereGridFactoryMod::CubedSphereGridFactory%initialize_from_file_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_file_metadata~6&#45;&gt;proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_edge4" class="edge">
+<title>proc~initialize_from_file_metadata~6&#45;&gt;proc~make_arbitrary_decomposition</title>
+<path fill="none" stroke="#255000" d="M506.04,-106.21C514.65,-106.56 523.28,-106.91 531.88,-107.25"/>
+<polygon fill="#255000" stroke="#255000" points="531.82,-110.75 541.96,-107.66 532.11,-103.76 531.82,-110.75"/>
+</g>
+<!-- proc~initialize_from_file_metadata~7 -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_node6" class="node">
+<title>proc~initialize_from_file_metadata~7</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CalledByGraph_node6"><a xlink:href="../proc/initialize_from_file_metadata~7.html" xlink:title="MAPL_SwathGridFactoryMod::SwathGridFactory%initialize_from_file_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="466.5,-66 39.5,-66 39.5,-42 466.5,-42 466.5,-66"/>
+<text text-anchor="middle" x="253" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SwathGridFactoryMod::SwathGridFactory%initialize_from_file_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_file_metadata~7&#45;&gt;proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_edge5" class="edge">
+<title>proc~initialize_from_file_metadata~7&#45;&gt;proc~make_arbitrary_decomposition</title>
+<path fill="none" stroke="#255000" d="M419.21,-66.03C448.17,-68.63 478,-71.63 506,-75 569.89,-82.69 641.97,-94.22 695.04,-103.26"/>
+<polygon fill="#255000" stroke="#255000" points="694.61,-106.73 705.05,-104.97 695.79,-99.84 694.61,-106.73"/>
+</g>
+<!-- proc~test_make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_node7" class="node">
+<title>proc~test_make_arbitrary_decomposition</title>
+<g id="a_proc~~make_arbitrary_decomposition~~CalledByGraph_node7"><a xlink:href="../proc/test_make_arbitrary_decomposition.html" xlink:title="Test_SphericalToCartesian::test_make_arbitrary_decomposition">
+<polygon fill="#d9534f" stroke="#d9534f" points="427.5,-24 78.5,-24 78.5,0 427.5,0 427.5,-24"/>
+<text text-anchor="middle" x="253" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_SphericalToCartesian::test_make_arbitrary_decomposition</text>
+</a>
+</g>
+</g>
+<!-- proc~test_make_arbitrary_decomposition&#45;&gt;proc~make_arbitrary_decomposition -->
+<g id="proc~~make_arbitrary_decomposition~~CalledByGraph_edge6" class="edge">
+<title>proc~test_make_arbitrary_decomposition&#45;&gt;proc~make_arbitrary_decomposition</title>
+<path fill="none" stroke="#255000" d="M427.54,-21.36C453.96,-24.25 480.8,-28.04 506,-33 588.28,-49.19 680.95,-81.81 732.47,-101.3"/>
+<polygon fill="#255000" stroke="#255000" points="731.31,-104.6 741.9,-104.89 733.8,-98.06 731.31,-104.6"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmake_arbitrary_decompositionCalledByGraph = svgPanZoom('#procmake_arbitrary_decompositionCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">make_arbitrary_decomposition</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">reduceFactor</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">ESMF</span>
+<span class="w">      </span><span class="k">use </span><span class="n">MAPL_KeywordEnforcerMod</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ny</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reduceFactor</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pet_count</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="o">=</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;make_arbitrary_decomposition()&#39;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">petCount</span><span class="o">=</span><span class="n">pet_count</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">reduceFactor</span><span class="p">))</span><span class="w"> </span><span class="n">pet_count</span><span class="o">=</span><span class="n">pet_count</span><span class="o">/</span><span class="n">reduceFactor</span>
+
+<span class="w">      </span><span class="c">! count down from sqrt(n)</span>
+<span class="w">      </span><span class="c">! Note: inal iteration (nx=1) is guaranteed to succeed.</span>
+<span class="w">      </span><span class="k">do </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">floor</span><span class="p">(</span><span class="nb">sqrt</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pet_count</span><span class="p">))),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">mod</span><span class="p">(</span><span class="n">pet_count</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! found a decomposition</span>
+<span class="w">            </span><span class="n">ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pet_count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">            </span><span class="k">exit</span>
+<span class="k">         end if</span>
+<span class="k">      end do</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">make_arbitrary_decomposition</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

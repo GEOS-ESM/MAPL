@@ -1,0 +1,789 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CommsSendRecv_R4_2 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CommsSendRecv_R4_2
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">24 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Comms.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_comms.f90.html'>MAPL_Comms.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_CommsSendRecv_R4_2</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_CommsSendRecv_R4_2(layout, sendbuf, sendcount, DEST, recvbuf, recvcount, SOURCE, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-layout~74"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_delayout.html'>ESMF_DELayout</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>layout</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sendbuf~46"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>sendbuf</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sendcount~6"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>sendcount</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dest~10"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DEST</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-recvbuf~48"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>recvbuf</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-recvcount~11"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>recvcount</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-source~10"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SOURCE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~395"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_commssendrecv_r4_2~~CallsGraph Pages: 1 -->
+<svg id="procmapl_commssendrecv_r4_2CallsGraph" width="641pt" height="126pt"
+ viewBox="0.00 0.00 641.00 126.06" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph" class="graph" transform="scale(1.59 1.59) rotate(0) translate(4 196)">
+<title>proc~~mapl_commssendrecv_r4_2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1013,-196 1013,4 -4,4"/>
+<!-- proc~mapl_commssendrecv_r4_2 -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node1" class="node">
+<title>proc~mapl_commssendrecv_r4_2</title>
+<polygon fill="none" stroke="black" points="275,-108 0,-108 0,-84 275,-84 275,-108"/>
+<text text-anchor="middle" x="137.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CommsMod::MAPL_CommsSendRecv_R4_2</text>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node2" class="node">
+<title>ESMF_DELayoutGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="496.5,-192 345.5,-192 345.5,-168 496.5,-168 496.5,-192"/>
+<text text-anchor="middle" x="421" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DELayoutGet</text>
+</g>
+<!-- proc~mapl_commssendrecv_r4_2&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_commssendrecv_r4_2&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#255000" d="M167.04,-108.02C200.88,-121.9 259.23,-144.66 311,-159 319.96,-161.48 329.41,-163.77 338.86,-165.86"/>
+<polygon fill="#255000" stroke="#255000" points="338.16,-169.29 348.67,-167.96 339.63,-162.45 338.16,-169.29"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node3" class="node">
+<title>ESMF_VMGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="479.5,-150 362.5,-150 362.5,-126 479.5,-126 479.5,-150"/>
+<text text-anchor="middle" x="421" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGet</text>
+</g>
+<!-- proc~mapl_commssendrecv_r4_2&#45;&gt;ESMF_VMGet -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_commssendrecv_r4_2&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#255000" d="M219.17,-108.04C261.25,-114.31 312.16,-121.91 352.19,-127.88"/>
+<polygon fill="#255000" stroke="#255000" points="351.72,-131.35 362.12,-129.36 352.75,-124.43 351.72,-131.35"/>
+</g>
+<!-- mpi_sendrecv -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node4" class="node">
+<title>mpi_sendrecv</title>
+<polygon fill="#777777" stroke="#777777" points="464,-108 378,-108 378,-84 464,-84 464,-108"/>
+<text text-anchor="middle" x="421" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_sendrecv</text>
+</g>
+<!-- proc~mapl_commssendrecv_r4_2&#45;&gt;mpi_sendrecv -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_commssendrecv_r4_2&#45;&gt;mpi_sendrecv</title>
+<path fill="none" stroke="#255000" d="M275.13,-96C308.15,-96 341.47,-96 367.82,-96"/>
+<polygon fill="#255000" stroke="#255000" points="367.92,-99.5 377.92,-96 367.92,-92.5 367.92,-99.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="531,-66 311,-66 311,-42 531,-42 531,-66"/>
+<text text-anchor="middle" x="421" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_commssendrecv_r4_2&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_commssendrecv_r4_2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M219.17,-83.96C253.47,-78.85 293.64,-72.85 329,-67.58"/>
+<polygon fill="#255000" stroke="#255000" points="329.95,-70.97 339.32,-66.04 328.91,-64.05 329.95,-70.97"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="528,-24 314,-24 314,0 528,0 528,-24"/>
+<text text-anchor="middle" x="421" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_commssendrecv_r4_2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_commssendrecv_r4_2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M167.04,-83.98C200.88,-70.1 259.23,-47.34 311,-33 319.96,-30.52 329.41,-28.23 338.86,-26.14"/>
+<polygon fill="#255000" stroke="#255000" points="339.63,-29.55 348.67,-24.04 338.16,-22.71 339.63,-29.55"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node7" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CallsGraph_node7"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="820,-66 567,-66 567,-42 820,-42 820,-66"/>
+<text text-anchor="middle" x="693.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M531.24,-54C539.67,-54 548.25,-54 556.82,-54"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="556.88,-57.5 566.88,-54 556.88,-50.5 556.88,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node8" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CallsGraph_node8"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="808,-24 579,-24 579,0 808,0 808,-24"/>
+<text text-anchor="middle" x="693.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M499.51,-41.96C532.48,-36.85 571.08,-30.85 605.06,-25.58"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="605.63,-29.03 614.97,-24.04 604.56,-22.11 605.63,-29.03"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M528.13,-12C541.34,-12 554.94,-12 568.39,-12"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="568.64,-15.5 578.64,-12 568.64,-8.5 568.64,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node9" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="959.5,-108 905.5,-108 905.5,-84 959.5,-84 959.5,-108"/>
+<text text-anchor="middle" x="932.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge9" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M762.41,-66.04C805.55,-73.68 859.7,-83.28 894.93,-89.52"/>
+<polygon fill="#255000" stroke="#255000" points="894.76,-93.04 905.22,-91.34 895.98,-86.15 894.76,-93.04"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node10" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="959.5,-66 905.5,-66 905.5,-42 959.5,-42 959.5,-66"/>
+<text text-anchor="middle" x="932.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge10" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M820.29,-54C847.83,-54 874.86,-54 895.36,-54"/>
+<polygon fill="#255000" stroke="#255000" points="895.46,-57.5 905.46,-54 895.46,-50.5 895.46,-57.5"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_node11" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CallsGraph_node11"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1009,-24 856,-24 856,0 1009,0 1009,-24"/>
+<text text-anchor="middle" x="932.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M808.14,-12C820.76,-12 833.46,-12 845.65,-12"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="845.77,-15.5 855.77,-12 845.77,-8.5 845.77,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_commssendrecv_r4_2CallsGraph = svgPanZoom('#procmapl_commssendrecv_r4_2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_commssendrecv_r4_2~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_commssendrecv_r4_2CalledByGraph" width="641pt" height="52pt"
+ viewBox="0.00 0.00 641.00 51.78" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph" class="graph" transform="scale(2.24 2.24) rotate(0) translate(4 112)">
+<title>proc~~mapl_commssendrecv_r4_2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 1432,-112 1432,4 -4,4"/>
+<!-- proc~mapl_commssendrecv_r4_2 -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node1" class="node">
+<title>proc~mapl_commssendrecv_r4_2</title>
+<polygon fill="none" stroke="black" points="1428,-66 1153,-66 1153,-42 1428,-42 1428,-66"/>
+<text text-anchor="middle" x="1290.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CommsMod::MAPL_CommsSendRecv_R4_2</text>
+</g>
+<!-- interface~mapl_commssendrecv -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node2" class="node">
+<title>interface~mapl_commssendrecv</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node2"><a xlink:href="../interface/mapl_commssendrecv.html" xlink:title="MAPL_CommsMod::MAPL_CommsSendRecv">
+<polygon fill="#a7506f" stroke="#a7506f" points="1117,-66 873,-66 873,-42 1117,-42 1117,-66"/>
+<text text-anchor="middle" x="995" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::MAPL_CommsSendRecv</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commssendrecv&#45;&gt;proc~mapl_commssendrecv_r4_2 -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_commssendrecv&#45;&gt;proc~mapl_commssendrecv_r4_2</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M1117.07,-54C1125.58,-54 1134.22,-54 1142.85,-54"/>
+<polygon fill="#255000" stroke="#255000" points="1142.97,-57.5 1152.97,-54 1142.97,-50.5 1142.97,-57.5"/>
+</g>
+<!-- proc~esmfl_halo_r4_2d -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node3" class="node">
+<title>proc~esmfl_halo_r4_2d</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node3"><a xlink:href="../proc/esmfl_halo_r4_2d.html" xlink:title="ESMFL_MOD::ESMFL_HALO_R4_2D">
+<polygon fill="#d9534f" stroke="#d9534f" points="778,-108 584,-108 584,-84 778,-84 778,-108"/>
+<text text-anchor="middle" x="681" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_MOD::ESMFL_HALO_R4_2D</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_halo_r4_2d&#45;&gt;interface~mapl_commssendrecv -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_edge2" class="edge">
+<title>proc~esmfl_halo_r4_2d&#45;&gt;interface~mapl_commssendrecv</title>
+<path fill="none" stroke="#255000" d="M771.41,-83.96C810,-78.77 855.29,-72.67 894.91,-67.34"/>
+<polygon fill="#255000" stroke="#255000" points="895.41,-70.8 904.85,-66 894.47,-63.87 895.41,-70.8"/>
+</g>
+<!-- proc~halo~2 -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node4" class="node">
+<title>proc~halo~2</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node4"><a xlink:href="../proc/halo~2.html" xlink:title="MAPL_LatLonGridFactoryMod::LatLonGridFactory%halo">
+<polygon fill="#d9534f" stroke="#d9534f" points="833,-66 529,-66 529,-42 833,-42 833,-66"/>
+<text text-anchor="middle" x="681" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LatLonGridFactoryMod::LatLonGridFactory%halo</text>
+</a>
+</g>
+</g>
+<!-- proc~halo~2&#45;&gt;interface~mapl_commssendrecv -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_edge3" class="edge">
+<title>proc~halo~2&#45;&gt;interface~mapl_commssendrecv</title>
+<path fill="none" stroke="#255000" d="M833.43,-54C843.22,-54 853.04,-54 862.73,-54"/>
+<polygon fill="#255000" stroke="#255000" points="862.77,-57.5 872.77,-54 862.77,-50.5 862.77,-57.5"/>
+</g>
+<!-- proc~halo~3 -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node5" class="node">
+<title>proc~halo~3</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node5"><a xlink:href="../proc/halo~3.html" xlink:title="MAPL_TripolarGridFactoryMod::TripolarGridFactory%halo">
+<polygon fill="#d9534f" stroke="#d9534f" points="837,-24 525,-24 525,0 837,0 837,-24"/>
+<text text-anchor="middle" x="681" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TripolarGridFactoryMod::TripolarGridFactory%halo</text>
+</a>
+</g>
+</g>
+<!-- proc~halo~3&#45;&gt;interface~mapl_commssendrecv -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_edge4" class="edge">
+<title>proc~halo~3&#45;&gt;interface~mapl_commssendrecv</title>
+<path fill="none" stroke="#255000" d="M771.41,-24.04C810,-29.23 855.29,-35.33 894.91,-40.66"/>
+<polygon fill="#255000" stroke="#255000" points="894.47,-44.13 904.85,-42 895.41,-37.2 894.47,-44.13"/>
+</g>
+<!-- interface~esmfl_halo -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node6" class="node">
+<title>interface~esmfl_halo</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node6"><a xlink:href="../interface/esmfl_halo.html" xlink:title="ESMFL_MOD::ESMFL_HALO">
+<polygon fill="#a7506f" stroke="#a7506f" points="489,-108 335,-108 335,-84 489,-84 489,-108"/>
+<text text-anchor="middle" x="412" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_MOD::ESMFL_HALO</text>
+</a>
+</g>
+</g>
+<!-- interface~esmfl_halo&#45;&gt;proc~esmfl_halo_r4_2d -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_edge5" class="edge">
+<title>interface~esmfl_halo&#45;&gt;proc~esmfl_halo_r4_2d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M489.15,-96C515.37,-96 545.24,-96 573.43,-96"/>
+<polygon fill="#255000" stroke="#255000" points="573.73,-99.5 583.73,-96 573.73,-92.5 573.73,-99.5"/>
+</g>
+<!-- proc~mapl_locstreamtransformg2t -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node7" class="node">
+<title>proc~mapl_locstreamtransformg2t</title>
+<g id="a_proc~~mapl_commssendrecv_r4_2~~CalledByGraph_node7"><a xlink:href="../proc/mapl_locstreamtransformg2t.html" xlink:title="MAPL_LocStreamMod::MAPL_LocStreamTransformG2T">
+<polygon fill="#d9534f" stroke="#d9534f" points="299,-108 0,-108 0,-84 299,-84 299,-108"/>
+<text text-anchor="middle" x="149.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LocStreamMod::MAPL_LocStreamTransformG2T</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamtransformg2t&#45;&gt;interface~esmfl_halo -->
+<g id="proc~~mapl_commssendrecv_r4_2~~CalledByGraph_edge6" class="edge">
+<title>proc~mapl_locstreamtransformg2t&#45;&gt;interface~esmfl_halo</title>
+<path fill="none" stroke="#255000" d="M299.01,-96C307.79,-96 316.45,-96 324.83,-96"/>
+<polygon fill="#255000" stroke="#255000" points="324.91,-99.5 334.91,-96 324.91,-92.5 324.91,-99.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_commssendrecv_r4_2CalledByGraph = svgPanZoom('#procmapl_commssendrecv_r4_2CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

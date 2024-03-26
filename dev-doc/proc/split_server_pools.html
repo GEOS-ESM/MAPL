@@ -1,0 +1,1130 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>split_server_pools &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>split_server_pools
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">60 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ClientManager.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/clientmanager.f90.html'>ClientManager.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_clientmanagermod.html'>pFIO_ClientManagerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">split_server_pools</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/split_server_pools.html#src">split_server_pools</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine split_server_pools(this, unusable, n_server_split, n_hist_split, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/clientmanager.html'>ClientManager</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2747"></span>
+              class(<a href='../type/clientmanager.html'>ClientManager</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~222"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_server_split"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_server_split</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_hist_split"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_hist_split</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1076"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~split_server_pools~~CallsGraph Pages: 1 -->
+<svg id="procsplit_server_poolsCallsGraph" width="641pt" height="310pt"
+ viewBox="0.00 0.00 641.00 309.76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~split_server_pools~~CallsGraph" class="graph" transform="scale(2.28 2.28) rotate(0) translate(4 701.53)">
+<title>proc~~split_server_pools~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-701.53 1456,-701.53 1456,4 -4,4"/>
+<!-- proc~split_server_pools -->
+<g id="proc~~split_server_pools~~CallsGraph_node1" class="node">
+<title>proc~split_server_pools</title>
+<polygon fill="none" stroke="black" points="332,-465 0,-465 0,-441 332,-441 332,-465"/>
+<text text-anchor="middle" x="166" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_ClientManagerMod::ClientManager%split_server_pools</text>
+</g>
+<!-- at -->
+<g id="proc~~split_server_pools~~CallsGraph_node2" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1048.5,-695 994.5,-695 994.5,-671 1048.5,-671 1048.5,-695"/>
+<text text-anchor="middle" x="1021.5" y="-680.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~split_server_pools&#45;&gt;at -->
+<g id="proc~~split_server_pools~~CallsGraph_edge1" class="edge">
+<title>proc~split_server_pools&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M177.26,-465.26C204.57,-496.98 282.82,-581.99 368,-621 584.09,-719.95 881.9,-698.71 984.25,-687.53"/>
+<polygon fill="#255000" stroke="#255000" points="984.83,-690.99 994.37,-686.39 984.04,-684.03 984.83,-690.99"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~split_server_pools~~CallsGraph_node3" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node3"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_SortMod::MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="555,-339 401,-339 401,-315 555,-315 555,-339"/>
+<text text-anchor="middle" x="478" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~split_server_pools&#45;&gt;interface~mapl_sort -->
+<g id="proc~~split_server_pools~~CallsGraph_edge2" class="edge">
+<title>proc~split_server_pools&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#255000" d="M196.72,-440.92C252.97,-418.06 374.95,-368.48 437.8,-342.93"/>
+<polygon fill="#255000" stroke="#255000" points="439.42,-346.05 447.37,-339.04 436.78,-339.57 439.42,-346.05"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~split_server_pools~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="588,-612 368,-612 368,-588 588,-588 588,-612"/>
+<text text-anchor="middle" x="478" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~split_server_pools&#45;&gt;proc~mapl_return -->
+<g id="proc~~split_server_pools~~CallsGraph_edge3" class="edge">
+<title>proc~split_server_pools&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M192.37,-465.03C247.66,-491.25 379.12,-553.58 442.14,-583.47"/>
+<polygon fill="#255000" stroke="#255000" points="440.75,-586.68 451.28,-587.8 443.74,-580.36 440.75,-586.68"/>
+</g>
+<!-- push_back -->
+<g id="proc~~split_server_pools~~CallsGraph_node5" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="512.5,-297 443.5,-297 443.5,-273 512.5,-273 512.5,-297"/>
+<text text-anchor="middle" x="478" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~split_server_pools&#45;&gt;push_back -->
+<g id="proc~~split_server_pools~~CallsGraph_edge4" class="edge">
+<title>proc~split_server_pools&#45;&gt;push_back</title>
+<path fill="none" stroke="#255000" d="M179.37,-440.79C209.08,-412.24 287.94,-340.88 368,-306 388.56,-297.04 412.94,-291.89 433.43,-288.93"/>
+<polygon fill="#255000" stroke="#255000" points="433.98,-292.39 443.44,-287.62 433.07,-285.45 433.98,-292.39"/>
+</g>
+<!-- proc~sort1ld -->
+<g id="proc~~split_server_pools~~CallsGraph_node8" class="node">
+<title>proc~sort1ld</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node8"><a xlink:href="../proc/sort1ld.html" xlink:title="MAPL_SortMod::SORT1LD">
+<polygon fill="#d9534f" stroke="#d9534f" points="824.5,-570 676.5,-570 676.5,-546 824.5,-546 824.5,-570"/>
+<text text-anchor="middle" x="750.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ld -->
+<g id="proc~~split_server_pools~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ld</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M483.35,-339.01C497.31,-375.67 544.73,-486.62 624,-537 636.57,-544.99 651.23,-550.23 666,-553.61"/>
+<polygon fill="transparent" stroke="transparent" points="665.73,-557.13 676.22,-555.67 667.11,-550.26 665.73,-557.13"/>
+</g>
+<!-- proc~sort1lr -->
+<g id="proc~~split_server_pools~~CallsGraph_node9" class="node">
+<title>proc~sort1lr</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node9"><a xlink:href="../proc/sort1lr.html" xlink:title="MAPL_SortMod::SORT1LR">
+<polygon fill="#d9534f" stroke="#d9534f" points="824,-528 677,-528 677,-504 824,-504 824,-528"/>
+<text text-anchor="middle" x="750.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1lr -->
+<g id="proc~~split_server_pools~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1lr</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M485.52,-339.27C503.09,-371.02 554.82,-456.1 624,-495 637.11,-502.37 652.12,-507.31 667.1,-510.58"/>
+<polygon fill="transparent" stroke="transparent" points="666.43,-514.02 676.92,-512.5 667.78,-507.15 666.43,-514.02"/>
+</g>
+<!-- proc~sort1ls -->
+<g id="proc~~split_server_pools~~CallsGraph_node10" class="node">
+<title>proc~sort1ls</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node10"><a xlink:href="../proc/sort1ls.html" xlink:title="MAPL_SortMod::SORT1LS">
+<polygon fill="#d9534f" stroke="#d9534f" points="823.5,-486 677.5,-486 677.5,-462 823.5,-462 823.5,-486"/>
+<text text-anchor="middle" x="750.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ls -->
+<g id="proc~~split_server_pools~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ls</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M488.76,-339.14C510.2,-364.87 564.27,-424.84 624,-453 637.39,-459.32 652.38,-463.76 667.2,-466.89"/>
+<polygon fill="transparent" stroke="transparent" points="666.94,-470.4 677.42,-468.85 668.25,-463.53 666.94,-470.4"/>
+</g>
+<!-- proc~sort1sd -->
+<g id="proc~~split_server_pools~~CallsGraph_node11" class="node">
+<title>proc~sort1sd</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node11"><a xlink:href="../proc/sort1sd.html" xlink:title="MAPL_SortMod::SORT1SD">
+<polygon fill="#d9534f" stroke="#d9534f" points="824.5,-108 676.5,-108 676.5,-84 824.5,-84 824.5,-108"/>
+<text text-anchor="middle" x="750.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1sd -->
+<g id="proc~~split_server_pools~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1sd</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.15,-324.35C567.42,-320.76 579.02,-315 588,-306 648.4,-245.47 562.86,-176.78 624,-117 635.51,-105.74 650.64,-99.2 666.39,-95.59"/>
+<polygon fill="transparent" stroke="transparent" points="667.09,-99.02 676.25,-93.7 665.77,-92.14 667.09,-99.02"/>
+</g>
+<!-- proc~sort1sr -->
+<g id="proc~~split_server_pools~~CallsGraph_node12" class="node">
+<title>proc~sort1sr</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node12"><a xlink:href="../proc/sort1sr.html" xlink:title="MAPL_SortMod::SORT1SR">
+<polygon fill="#d9534f" stroke="#d9534f" points="824.5,-66 676.5,-66 676.5,-42 824.5,-42 824.5,-66"/>
+<text text-anchor="middle" x="750.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1sr -->
+<g id="proc~~split_server_pools~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1sr</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.13,-324.68C567.47,-321.07 579.1,-315.22 588,-306 660.15,-231.23 550.94,-148.88 624,-75 635.38,-63.49 650.54,-56.85 666.37,-53.23"/>
+<polygon fill="transparent" stroke="transparent" points="667.11,-56.65 676.28,-51.35 665.8,-49.77 667.11,-56.65"/>
+</g>
+<!-- proc~sort1ss -->
+<g id="proc~~split_server_pools~~CallsGraph_node13" class="node">
+<title>proc~sort1ss</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node13"><a xlink:href="../proc/sort1ss.html" xlink:title="MAPL_SortMod::SORT1SS">
+<polygon fill="#d9534f" stroke="#d9534f" points="824,-24 677,-24 677,0 824,0 824,-24"/>
+<text text-anchor="middle" x="750.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ss -->
+<g id="proc~~split_server_pools~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ss</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.03,-324.93C567.46,-321.31 579.14,-315.4 588,-306 671.94,-216.94 538.98,-121.03 624,-33 635.38,-21.22 650.68,-14.51 666.69,-10.9"/>
+<polygon fill="transparent" stroke="transparent" points="667.53,-14.31 676.72,-9.05 666.25,-7.43 667.53,-14.31"/>
+</g>
+<!-- proc~sort2al -->
+<g id="proc~~split_server_pools~~CallsGraph_node14" class="node">
+<title>proc~sort2al</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node14"><a xlink:href="../proc/sort2al.html" xlink:title="MAPL_SortMod::SORT2AL">
+<polygon fill="#d9534f" stroke="#d9534f" points="824,-318 677,-318 677,-294 824,-294 824,-318"/>
+<text text-anchor="middle" x="750.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2AL</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2al -->
+<g id="proc~~split_server_pools~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2al</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.07,-321.09C589.77,-318.4 630.95,-315.2 666.46,-312.45"/>
+<polygon fill="transparent" stroke="transparent" points="667.1,-315.91 676.79,-311.64 666.55,-308.93 667.1,-315.91"/>
+</g>
+<!-- proc~sort2as -->
+<g id="proc~~split_server_pools~~CallsGraph_node15" class="node">
+<title>proc~sort2as</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node15"><a xlink:href="../proc/sort2as.html" xlink:title="MAPL_SortMod::SORT2AS">
+<polygon fill="#d9534f" stroke="#d9534f" points="824.5,-234 676.5,-234 676.5,-210 824.5,-210 824.5,-234"/>
+<text text-anchor="middle" x="750.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2AS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2as -->
+<g id="proc~~split_server_pools~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2as</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.17,-321.08C566.88,-317.77 578.28,-312.95 588,-306 614.23,-287.24 597.54,-261.44 624,-243 636.49,-234.3 651.35,-228.76 666.39,-225.31"/>
+<polygon fill="transparent" stroke="transparent" points="667.16,-228.72 676.29,-223.33 665.79,-221.86 667.16,-228.72"/>
+</g>
+<!-- proc~sort2ld -->
+<g id="proc~~split_server_pools~~CallsGraph_node16" class="node">
+<title>proc~sort2ld</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node16"><a xlink:href="../proc/sort2ld.html" xlink:title="MAPL_SortMod::SORT2LD">
+<polygon fill="#d9534f" stroke="#d9534f" points="824.5,-444 676.5,-444 676.5,-420 824.5,-420 824.5,-444"/>
+<text text-anchor="middle" x="750.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ld -->
+<g id="proc~~split_server_pools~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ld</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M495.43,-339.2C521.34,-357.79 573.91,-392.97 624,-411 637.43,-415.83 652.07,-419.56 666.46,-422.44"/>
+<polygon fill="transparent" stroke="transparent" points="665.88,-425.89 676.36,-424.3 667.17,-419.01 665.88,-425.89"/>
+</g>
+<!-- proc~sort2lr -->
+<g id="proc~~split_server_pools~~CallsGraph_node17" class="node">
+<title>proc~sort2lr</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node17"><a xlink:href="../proc/sort2lr.html" xlink:title="MAPL_SortMod::SORT2LR">
+<polygon fill="#d9534f" stroke="#d9534f" points="824,-402 677,-402 677,-378 824,-378 824,-402"/>
+<text text-anchor="middle" x="750.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2lr -->
+<g id="proc~~split_server_pools~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2lr</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M516.24,-339.08C545.35,-348.21 586.95,-360.56 624,-369 637.83,-372.15 652.61,-375.04 667,-377.6"/>
+<polygon fill="transparent" stroke="transparent" points="666.43,-381.05 676.88,-379.32 667.63,-374.16 666.43,-381.05"/>
+</g>
+<!-- proc~sort2ls -->
+<g id="proc~~split_server_pools~~CallsGraph_node18" class="node">
+<title>proc~sort2ls</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node18"><a xlink:href="../proc/sort2ls.html" xlink:title="MAPL_SortMod::SORT2LS">
+<polygon fill="#d9534f" stroke="#d9534f" points="823.5,-360 677.5,-360 677.5,-336 823.5,-336 823.5,-360"/>
+<text text-anchor="middle" x="750.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ls -->
+<g id="proc~~split_server_pools~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ls</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.07,-332.91C589.91,-335.61 631.29,-338.82 666.89,-341.59"/>
+<polygon fill="transparent" stroke="transparent" points="667.02,-345.11 677.26,-342.39 667.56,-338.13 667.02,-345.11"/>
+</g>
+<!-- proc~sort2sd -->
+<g id="proc~~split_server_pools~~CallsGraph_node19" class="node">
+<title>proc~sort2sd</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node19"><a xlink:href="../proc/sort2sd.html" xlink:title="MAPL_SortMod::SORT2SD">
+<polygon fill="#d9534f" stroke="#d9534f" points="824.5,-192 676.5,-192 676.5,-168 824.5,-168 824.5,-192"/>
+<text text-anchor="middle" x="750.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2sd -->
+<g id="proc~~split_server_pools~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2sd</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.26,-322.93C567.22,-319.45 578.69,-314.09 588,-306 625.24,-273.64 586.37,-232.9 624,-201 635.96,-190.86 650.93,-184.73 666.32,-181.17"/>
+<polygon fill="transparent" stroke="transparent" points="667.33,-184.54 676.47,-179.18 665.99,-177.67 667.33,-184.54"/>
+</g>
+<!-- proc~sort2sr -->
+<g id="proc~~split_server_pools~~CallsGraph_node20" class="node">
+<title>proc~sort2sr</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node20"><a xlink:href="../proc/sort2sr.html" xlink:title="MAPL_SortMod::SORT2SR">
+<polygon fill="#d9534f" stroke="#d9534f" points="824.5,-150 676.5,-150 676.5,-126 824.5,-126 824.5,-150"/>
+<text text-anchor="middle" x="750.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2sr -->
+<g id="proc~~split_server_pools~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2sr</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.05,-323.87C567.25,-320.32 578.85,-314.7 588,-306 636.73,-259.64 574.7,-204.76 624,-159 635.62,-148.21 650.59,-141.82 666.12,-138.21"/>
+<polygon fill="transparent" stroke="transparent" points="667.22,-141.57 676.37,-136.23 665.89,-134.69 667.22,-141.57"/>
+</g>
+<!-- proc~sort2ss -->
+<g id="proc~~split_server_pools~~CallsGraph_node21" class="node">
+<title>proc~sort2ss</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node21"><a xlink:href="../proc/sort2ss.html" xlink:title="MAPL_SortMod::SORT2SS">
+<polygon fill="#d9534f" stroke="#d9534f" points="824,-276 677,-276 677,-252 824,-252 824,-276"/>
+<text text-anchor="middle" x="750.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ss -->
+<g id="proc~~split_server_pools~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ss</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.26,-315.73C566.41,-313.1 577.63,-309.9 588,-306 605.34,-299.49 606.58,-291.3 624,-285 637.5,-280.12 652.24,-276.36 666.71,-273.47"/>
+<polygon fill="transparent" stroke="transparent" points="667.49,-276.89 676.67,-271.61 666.2,-270.01 667.49,-276.89"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~split_server_pools~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="877,-654 624,-654 624,-630 877,-630 877,-654"/>
+<text text-anchor="middle" x="750.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~split_server_pools~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M556.51,-612.04C589.48,-617.15 628.08,-623.15 662.06,-628.42"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="661.56,-631.89 671.97,-629.96 662.63,-624.97 661.56,-631.89"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~split_server_pools~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node7"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="865,-612 636,-612 636,-588 865,-588 865,-612"/>
+<text text-anchor="middle" x="750.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~split_server_pools~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M588.24,-600C600.62,-600 613.3,-600 625.85,-600"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="625.88,-603.5 635.88,-600 625.88,-596.5 625.88,-603.5"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~split_server_pools~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M830.39,-654.02C881.34,-661.79 945.21,-671.52 984.42,-677.5"/>
+<polygon fill="#255000" stroke="#255000" points="983.9,-680.96 994.31,-679.01 984.95,-674.04 983.9,-680.96"/>
+</g>
+<!-- insert -->
+<g id="proc~~split_server_pools~~CallsGraph_node22" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1048.5,-653 994.5,-653 994.5,-629 1048.5,-629 1048.5,-653"/>
+<text text-anchor="middle" x="1021.5" y="-638.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M877.34,-641.53C916.5,-641.39 956.65,-641.24 984.42,-641.13"/>
+<polygon fill="#255000" stroke="#255000" points="984.45,-644.63 994.43,-641.1 984.42,-637.63 984.45,-644.63"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~split_server_pools~~CallsGraph_node24" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node24"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1098,-611 945,-611 945,-587 1098,-587 1098,-611"/>
+<text text-anchor="middle" x="1021.5" y="-596.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~split_server_pools~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#255950" d="M865.19,-599.58C888.34,-599.49 912.33,-599.4 934.33,-599.32"/>
+<polygon fill="#255950" stroke="#255950" points="934.64,-602.82 944.62,-599.28 934.61,-595.82 934.64,-602.82"/>
+</g>
+<!-- qsortl -->
+<g id="proc~~split_server_pools~~CallsGraph_node25" class="node">
+<title>qsortl</title>
+<polygon fill="#777777" stroke="#777777" points="1048.5,-444 994.5,-444 994.5,-420 1048.5,-420 1048.5,-444"/>
+<text text-anchor="middle" x="1021.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsortl</text>
+</g>
+<!-- proc~sort1ld&#45;&gt;qsortl -->
+<g id="proc~~split_server_pools~~CallsGraph_edge24" class="edge">
+<title>proc~sort1ld&#45;&gt;qsortl</title>
+<path fill="none" stroke="transparent" d="M824.8,-551.6C842.35,-548.49 860.71,-543.86 877,-537 926.5,-516.14 975,-475.13 1001,-451"/>
+<polygon fill="transparent" stroke="transparent" points="1003.45,-453.5 1008.32,-444.09 998.64,-448.41 1003.45,-453.5"/>
+</g>
+<!-- proc~sort1lr&#45;&gt;qsortl -->
+<g id="proc~~split_server_pools~~CallsGraph_edge25" class="edge">
+<title>proc~sort1lr&#45;&gt;qsortl</title>
+<path fill="none" stroke="transparent" d="M824.21,-506.97C841.69,-503.94 860.17,-500.02 877,-495 916.82,-483.13 960.21,-463 988.73,-448.69"/>
+<polygon fill="transparent" stroke="transparent" points="990.47,-451.73 997.8,-444.08 987.3,-445.49 990.47,-451.73"/>
+</g>
+<!-- proc~sort1ls&#45;&gt;qsortl -->
+<g id="proc~~split_server_pools~~CallsGraph_edge26" class="edge">
+<title>proc~sort1ls&#45;&gt;qsortl</title>
+<path fill="none" stroke="transparent" d="M823.59,-462.74C875.41,-454.65 943.12,-444.08 984.13,-437.68"/>
+<polygon fill="transparent" stroke="transparent" points="984.87,-441.11 994.21,-436.11 983.79,-434.19 984.87,-441.11"/>
+</g>
+<!-- qsorts -->
+<g id="proc~~split_server_pools~~CallsGraph_node26" class="node">
+<title>qsorts</title>
+<polygon fill="#777777" stroke="#777777" points="1048.5,-150 994.5,-150 994.5,-126 1048.5,-126 1048.5,-150"/>
+<text text-anchor="middle" x="1021.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsorts</text>
+</g>
+<!-- proc~sort1sd&#45;&gt;qsorts -->
+<g id="proc~~split_server_pools~~CallsGraph_edge27" class="edge">
+<title>proc~sort1sd&#45;&gt;qsorts</title>
+<path fill="none" stroke="#312550" d="M824.65,-107.42C876.46,-115.51 943.73,-126.01 984.42,-132.37"/>
+<polygon fill="#312550" stroke="#312550" points="984,-135.84 994.42,-133.93 985.08,-128.93 984,-135.84"/>
+</g>
+<!-- proc~sort1sr&#45;&gt;qsorts -->
+<g id="proc~~split_server_pools~~CallsGraph_edge28" class="edge">
+<title>proc~sort1sr&#45;&gt;qsorts</title>
+<path fill="none" stroke="#025563" d="M824.54,-63.08C841.92,-66.11 860.28,-70.01 877,-75 916.82,-86.87 960.21,-107 988.73,-121.31"/>
+<polygon fill="#025563" stroke="#025563" points="987.3,-124.51 997.8,-125.92 990.47,-118.27 987.3,-124.51"/>
+</g>
+<!-- proc~sort1ss&#45;&gt;qsorts -->
+<g id="proc~~split_server_pools~~CallsGraph_edge29" class="edge">
+<title>proc~sort1ss&#45;&gt;qsorts</title>
+<path fill="none" stroke="#025515" stroke-opacity="0.035294" d="M824.14,-18.28C841.89,-21.4 860.51,-26.05 877,-33 926.5,-53.86 975,-94.87 1001,-119"/>
+<polygon fill="#025515" fill-opacity="0.035294" stroke="#025515" stroke-opacity="0.035294" points="998.64,-121.59 1008.32,-125.91 1003.45,-116.5 998.64,-121.59"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_node23" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node23"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1130,-297 913,-297 913,-273 1130,-273 1130,-297"/>
+<text text-anchor="middle" x="1021.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~sort2al&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge30" class="edge">
+<title>proc~sort2al&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M824.3,-300.32C848.44,-298.43 875.97,-296.28 902.62,-294.2"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="903.08,-297.68 912.78,-293.41 902.54,-290.7 903.08,-297.68"/>
+</g>
+<!-- proc~sort2al&#45;&gt;qsortl -->
+<g id="proc~~split_server_pools~~CallsGraph_edge31" class="edge">
+<title>proc~sort2al&#45;&gt;qsortl</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M824.14,-312.28C841.89,-315.4 860.51,-320.05 877,-327 926.5,-347.86 975,-388.87 1001,-413"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="998.64,-415.59 1008.32,-419.91 1003.45,-410.5 998.64,-415.59"/>
+</g>
+<!-- proc~sort2as&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge32" class="edge">
+<title>proc~sort2as&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#015925" stroke-opacity="0.019608" d="M824.79,-232.76C841.99,-235.7 860.2,-239.15 877,-243 909.79,-250.51 946.15,-261.18 974.07,-269.89"/>
+<polygon fill="#015925" fill-opacity="0.019608" stroke="#015925" stroke-opacity="0.019608" points="973.36,-273.33 983.95,-273 975.46,-266.66 973.36,-273.33"/>
+</g>
+<!-- proc~sort2as&#45;&gt;qsorts -->
+<g id="proc~~split_server_pools~~CallsGraph_edge33" class="edge">
+<title>proc~sort2as&#45;&gt;qsorts</title>
+<path fill="none" stroke="#015925" stroke-opacity="0.019608" d="M824.54,-212.92C841.92,-209.89 860.28,-205.99 877,-201 916.82,-189.13 960.21,-169 988.73,-154.69"/>
+<polygon fill="#015925" fill-opacity="0.019608" stroke="#015925" stroke-opacity="0.019608" points="990.47,-157.73 997.8,-150.08 987.3,-151.49 990.47,-157.73"/>
+</g>
+<!-- proc~sort2ld&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge34" class="edge">
+<title>proc~sort2ld&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#063255" d="M824.6,-426.73C842.34,-423.59 860.83,-418.67 877,-411 930.98,-385.38 980.07,-333.39 1004.41,-304.85"/>
+<polygon fill="#063255" stroke="#063255" points="1007.13,-307.05 1010.87,-297.14 1001.77,-302.56 1007.13,-307.05"/>
+</g>
+<!-- proc~sort2ld&#45;&gt;qsortl -->
+<g id="proc~~split_server_pools~~CallsGraph_edge35" class="edge">
+<title>proc~sort2ld&#45;&gt;qsortl</title>
+<path fill="none" stroke="#063255" d="M824.65,-432C876.35,-432 943.44,-432 984.17,-432"/>
+<polygon fill="#063255" stroke="#063255" points="984.42,-435.5 994.42,-432 984.42,-428.5 984.42,-435.5"/>
+</g>
+<!-- proc~sort2lr&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge36" class="edge">
+<title>proc~sort2lr&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#310255" d="M824,-382.47C841.67,-379.38 860.28,-375.06 877,-369 921.82,-352.76 968.52,-322.52 996.03,-303.1"/>
+<polygon fill="#310255" stroke="#310255" points="998.17,-305.87 1004.26,-297.2 994.1,-300.18 998.17,-305.87"/>
+</g>
+<!-- proc~sort2lr&#45;&gt;qsortl -->
+<g id="proc~~split_server_pools~~CallsGraph_edge37" class="edge">
+<title>proc~sort2lr&#45;&gt;qsortl</title>
+<path fill="none" stroke="#310255" d="M824.3,-401.37C876.11,-409.46 943.53,-419.98 984.33,-426.35"/>
+<polygon fill="#310255" stroke="#310255" points="983.93,-429.83 994.35,-427.92 985.01,-422.92 983.93,-429.83"/>
+</g>
+<!-- proc~sort2ls&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge38" class="edge">
+<title>proc~sort2ls&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M823.8,-337.41C841.29,-334.43 859.88,-330.92 877,-327 909.79,-319.49 946.15,-308.82 974.07,-300.11"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="975.46,-303.34 983.95,-297 973.36,-296.67 975.46,-303.34"/>
+</g>
+<!-- proc~sort2ls&#45;&gt;qsortl -->
+<g id="proc~~split_server_pools~~CallsGraph_edge39" class="edge">
+<title>proc~sort2ls&#45;&gt;qsortl</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M823.55,-356.91C841.22,-359.96 859.96,-363.92 877,-369 916.82,-380.87 960.21,-401 988.73,-415.31"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="987.3,-418.51 997.8,-419.92 990.47,-412.27 987.3,-418.51"/>
+</g>
+<!-- proc~sort2sd&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge40" class="edge">
+<title>proc~sort2sd&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#223025" stroke-opacity="0.019608" d="M824.66,-187.65C842.13,-190.72 860.49,-195.02 877,-201 921.82,-217.24 968.52,-247.48 996.03,-266.9"/>
+<polygon fill="#223025" fill-opacity="0.019608" stroke="#223025" stroke-opacity="0.019608" points="994.1,-269.82 1004.26,-272.8 998.17,-264.13 994.1,-269.82"/>
+</g>
+<!-- proc~sort2sd&#45;&gt;qsorts -->
+<g id="proc~~split_server_pools~~CallsGraph_edge41" class="edge">
+<title>proc~sort2sd&#45;&gt;qsorts</title>
+<path fill="none" stroke="#223025" stroke-opacity="0.019608" d="M824.65,-168.58C876.46,-160.49 943.73,-149.99 984.42,-143.63"/>
+<polygon fill="#223025" fill-opacity="0.019608" stroke="#223025" stroke-opacity="0.019608" points="985.08,-147.07 994.42,-142.07 984,-140.16 985.08,-147.07"/>
+</g>
+<!-- proc~sort2sr&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge42" class="edge">
+<title>proc~sort2sr&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M824.6,-143.27C842.34,-146.41 860.83,-151.33 877,-159 930.98,-184.62 980.07,-236.61 1004.41,-265.15"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="1001.77,-267.44 1010.87,-272.86 1007.13,-262.95 1001.77,-267.44"/>
+</g>
+<!-- proc~sort2sr&#45;&gt;qsorts -->
+<g id="proc~~split_server_pools~~CallsGraph_edge43" class="edge">
+<title>proc~sort2sr&#45;&gt;qsorts</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M824.65,-138C876.35,-138 943.44,-138 984.17,-138"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="984.42,-141.5 994.42,-138 984.42,-134.5 984.42,-141.5"/>
+</g>
+<!-- proc~sort2ss&#45;&gt;interface~mapl_assert -->
+<g id="proc~~split_server_pools~~CallsGraph_edge44" class="edge">
+<title>proc~sort2ss&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255095" d="M824.3,-269.68C848.44,-271.57 875.97,-273.72 902.62,-275.8"/>
+<polygon fill="#255095" stroke="#255095" points="902.54,-279.3 912.78,-276.59 903.08,-272.32 902.54,-279.3"/>
+</g>
+<!-- proc~sort2ss&#45;&gt;qsorts -->
+<g id="proc~~split_server_pools~~CallsGraph_edge45" class="edge">
+<title>proc~sort2ss&#45;&gt;qsorts</title>
+<path fill="none" stroke="#255095" d="M824.14,-257.72C841.89,-254.6 860.51,-249.95 877,-243 926.5,-222.14 975,-181.13 1001,-157"/>
+<polygon fill="#255095" stroke="#255095" points="1003.45,-159.5 1008.32,-150.09 998.64,-154.41 1003.45,-159.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~split_server_pools~~CallsGraph_node27" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node27"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1445,-318 1173,-318 1173,-294 1445,-294 1445,-318"/>
+<text text-anchor="middle" x="1309" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~split_server_pools~~CallsGraph_edge46" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1130.03,-292.91C1140.68,-293.69 1151.61,-294.5 1162.56,-295.3"/>
+<polygon fill="transparent" stroke="transparent" points="1162.38,-298.8 1172.61,-296.04 1162.9,-291.82 1162.38,-298.8"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~split_server_pools~~CallsGraph_node28" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~split_server_pools~~CallsGraph_node28"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1452,-276 1166,-276 1166,-252 1452,-252 1452,-276"/>
+<text text-anchor="middle" x="1309" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~split_server_pools~~CallsGraph_edge47" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1130.03,-277.09C1138.44,-276.47 1147.02,-275.84 1155.64,-275.21"/>
+<polygon fill="transparent" stroke="transparent" points="1156.07,-278.68 1165.79,-274.46 1155.56,-271.7 1156.07,-278.68"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocsplit_server_poolsCallsGraph = svgPanZoom('#procsplit_server_poolsCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~split_server_pools~~CalledByGraph Pages: 1 -->
+<svg id="procsplit_server_poolsCalledByGraph" width="588pt" height="74pt"
+ viewBox="0.00 0.00 588.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~split_server_pools~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~split_server_pools~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 584,-70 584,4 -4,4"/>
+<!-- proc~split_server_pools -->
+<g id="proc~~split_server_pools~~CalledByGraph_node1" class="node">
+<title>proc~split_server_pools</title>
+<polygon fill="none" stroke="black" points="580,-45 248,-45 248,-21 580,-21 580,-45"/>
+<text text-anchor="middle" x="414" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_ClientManagerMod::ClientManager%split_server_pools</text>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~split_server_pools~~CalledByGraph_node2" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~split_server_pools~~CalledByGraph_node2"><a xlink:href="../proc/initialize.html" xlink:title="MAPL_HistoryGridCompMod::Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="212,-66 0,-66 0,-42 212,-42 212,-66"/>
+<text text-anchor="middle" x="106" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize&#45;&gt;proc~split_server_pools -->
+<g id="proc~~split_server_pools~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize&#45;&gt;proc~split_server_pools</title>
+<path fill="none" stroke="#255000" d="M212.31,-46.77C220.63,-46.2 229.17,-45.62 237.8,-45.02"/>
+<polygon fill="#255000" stroke="#255000" points="238.23,-48.5 247.97,-44.33 237.75,-41.52 238.23,-48.5"/>
+</g>
+<!-- program~main~6 -->
+<g id="proc~~split_server_pools~~CalledByGraph_node3" class="node">
+<title>program~main~6</title>
+<g id="a_proc~~split_server_pools~~CalledByGraph_node3"><a xlink:href="../program/main~6.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="133,-24 79,-24 79,0 133,0 133,-24"/>
+<text text-anchor="middle" x="106" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- program~main~6&#45;&gt;proc~split_server_pools -->
+<g id="proc~~split_server_pools~~CalledByGraph_edge2" class="edge">
+<title>program~main~6&#45;&gt;proc~split_server_pools</title>
+<path fill="none" stroke="#255000" d="M133.09,-13.79C157.59,-15.47 196.55,-18.15 237.71,-20.97"/>
+<polygon fill="#255000" stroke="#255000" points="237.72,-24.48 247.93,-21.67 238.2,-17.5 237.72,-24.48"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">split_server_pools</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">n_server_split</span><span class="p">,</span><span class="w"> </span><span class="n">n_hist_split</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ClientManager</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w">  </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_server_split</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_hist_split</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">nsplit</span><span class="p">,</span><span class="w"> </span><span class="n">tsize</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_sizes</span><span class="p">(:),</span><span class="w"> </span><span class="n">tmp_position</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pos</span>
+
+<span class="w">      </span><span class="n">tsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">server_sizes</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tsize</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot; oserver is not split&quot;</span>
+<span class="w">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      </span><span class="n">nsplit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">n_server_split</span><span class="p">))</span><span class="w"> </span><span class="n">nsplit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n_server_split</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">server_sizes</span><span class="p">(</span><span class="n">tsize</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">tmp_position</span><span class="p">(</span><span class="n">tsize</span><span class="p">))</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tsize</span>
+<span class="w">         </span><span class="n">server_sizes</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">server_sizes</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">         </span><span class="n">tmp_position</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">      </span><span class="k">enddo</span>
+<span class="k">      call </span><span class="n">MAPL_Sort</span><span class="p">(</span><span class="n">server_sizes</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_position</span><span class="p">)</span>
+<span class="w">      </span><span class="c">! if nsplit is out of scope, pick the mid point</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nsplit</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">server_sizes</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">nsplit</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">server_sizes</span><span class="p">(</span><span class="n">tsize</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tsize</span><span class="o">/</span><span class="mi">2</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">tsize</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">nsplit</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">server_sizes</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">               </span><span class="k">exit</span>
+<span class="k">            endif</span>
+<span class="k">         enddo</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tsize</span><span class="o">/</span><span class="mi">2</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      </span><span class="n">this</span><span class="p">%</span><span class="n">large_total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">small_total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">small_server_pool</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">tmp_position</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">small_total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">small_total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">server_sizes</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">tmp_position</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">      </span><span class="k">enddo</span>
+
+<span class="k">      do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">tsize</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">large_server_pool</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">tmp_position</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">large_total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">large_total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">server_sizes</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">tmp_position</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">      </span><span class="k">enddo</span>
+
+<span class="k">      </span><span class="n">this</span><span class="p">%</span><span class="n">writeCutoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">n_hist_split</span><span class="p">))</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">writeCutoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n_hist_split</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Oservers are split: &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">server_sizes</span>
+<span class="w">         </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Small pool oserver npes: &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">server_sizes</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">pos</span><span class="p">)</span>
+<span class="w">         </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Large pool oserver npes: &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">server_sizes</span><span class="p">(</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">tsize</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">split_server_pools</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

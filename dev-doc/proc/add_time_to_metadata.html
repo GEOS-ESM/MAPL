@@ -1,0 +1,1176 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>add_time_to_metadata &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>add_time_to_metadata
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">22 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_TimeMethods.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_timemethods.f90.html'>MAPL_TimeMethods.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_timedatamod.html'>MAPL_TimeDataMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">add_time_to_metadata</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/add_time_to_metadata.html#src">add_time_to_metadata</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine add_time_to_metadata(this, metadata, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/timedata.html'>timeData</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~492"></span>
+              class(<a href='../type/timedata.html'>timeData</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-metadata~6"></span>
+              type(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>metadata</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~212"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_time_to_metadata~~CallsGraph Pages: 1 -->
+<svg id="procadd_time_to_metadataCallsGraph" width="641pt" height="287pt"
+ viewBox="0.00 0.00 641.00 286.71" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_time_to_metadata~~CallsGraph" class="graph" transform="scale(2.9 2.9) rotate(0) translate(4 827.49)">
+<title>proc~~add_time_to_metadata~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-827.49 1855,-827.49 1855,4 -4,4"/>
+<!-- proc~add_time_to_metadata -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node1" class="node">
+<title>proc~add_time_to_metadata</title>
+<polygon fill="none" stroke="black" points="310,-499 0,-499 0,-475 310,-475 310,-499"/>
+<text text-anchor="middle" x="155" y="-484.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_TimeDataMod::timeData%add_time_to_metadata</text>
+</g>
+<!-- proc~add_dimension -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node2" class="node">
+<title>proc~add_dimension</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node2"><a xlink:href="../proc/add_dimension.html" xlink:title="pFIO_FileMetadataMod::FileMetadata%add_dimension">
+<polygon fill="#d9534f" stroke="#d9534f" points="984,-806 685,-806 685,-782 984,-782 984,-806"/>
+<text text-anchor="middle" x="834.5" y="-791.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%add_dimension</text>
+</a>
+</g>
+</g>
+<!-- proc~add_time_to_metadata&#45;&gt;proc~add_dimension -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge1" class="edge">
+<title>proc~add_time_to_metadata&#45;&gt;proc~add_dimension</title>
+<path fill="none" stroke="#255000" d="M159.83,-499.24C174.77,-544.73 234,-704.65 346,-768 480.13,-843.87 669.64,-825.09 768.2,-807.83"/>
+<polygon fill="#255000" stroke="#255000" points="769.1,-811.22 778.32,-806.01 767.86,-804.33 769.1,-811.22"/>
+</g>
+<!-- proc~add_variable -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node3" class="node">
+<title>proc~add_variable</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node3"><a xlink:href="../proc/add_variable.html" xlink:title="pFIO_FileMetadataMod::FileMetadata%add_variable">
+<polygon fill="#d9534f" stroke="#d9534f" points="639,-499 352,-499 352,-475 639,-475 639,-499"/>
+<text text-anchor="middle" x="495.5" y="-484.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod::FileMetadata%add_variable</text>
+</a>
+</g>
+</g>
+<!-- proc~add_time_to_metadata&#45;&gt;proc~add_variable -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge2" class="edge">
+<title>proc~add_time_to_metadata&#45;&gt;proc~add_variable</title>
+<path fill="none" stroke="#255000" d="M310.39,-487C320.72,-487 331.13,-487 341.45,-487"/>
+<polygon fill="#255000" stroke="#255000" points="341.74,-490.5 351.74,-487 341.74,-483.5 341.74,-490.5"/>
+</g>
+<!-- proc~define_time_variable -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node4" class="node">
+<title>proc~define_time_variable</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node4"><a xlink:href="../proc/define_time_variable.html" xlink:title="MAPL_TimeDataMod::timeData%define_time_variable">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="645,-171 346,-171 346,-147 645,-147 645,-171"/>
+<text text-anchor="middle" x="495.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimeDataMod::timeData%define_time_variable</text>
+</a>
+</g>
+</g>
+<!-- proc~add_time_to_metadata&#45;&gt;proc~define_time_variable -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge3" class="edge">
+<title>proc~add_time_to_metadata&#45;&gt;proc~define_time_variable</title>
+<path fill="none" stroke="#255000" d="M168.45,-474.94C219.35,-425.61 411.91,-239.03 474.62,-178.26"/>
+<polygon fill="#255000" stroke="#255000" points="477.19,-180.64 481.94,-171.17 472.32,-175.62 477.19,-180.64"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1308.5,-686 1088.5,-686 1088.5,-662 1308.5,-662 1308.5,-686"/>
+<text text-anchor="middle" x="1198.5" y="-671.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~add_time_to_metadata&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge4" class="edge">
+<title>proc~add_time_to_metadata&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M173.98,-499.18C238.74,-542.22 467.56,-687.12 681,-735 814.14,-764.86 852.92,-754.27 988,-735 1048.24,-726.41 1115.36,-704.58 1157.01,-689.51"/>
+<polygon fill="#255000" stroke="#255000" points="1158.34,-692.76 1166.52,-686.03 1155.93,-686.18 1158.34,-692.76"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="941.5,-192 727.5,-192 727.5,-168 941.5,-168 941.5,-192"/>
+<text text-anchor="middle" x="834.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~add_time_to_metadata&#45;&gt;proc~mapl_verify -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge5" class="edge">
+<title>proc~add_time_to_metadata&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M172.63,-474.95C235.43,-430.11 465.57,-271.87 681,-201 692.62,-197.18 704.96,-194.05 717.39,-191.49"/>
+<polygon fill="#255000" stroke="#255000" points="718.21,-194.9 727.36,-189.56 716.88,-188.03 718.21,-194.9"/>
+</g>
+<!-- proc~add_dimension&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge7" class="edge">
+<title>proc~add_dimension&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M945.72,-781.9C960.27,-778.38 974.73,-773.85 988,-768 1006.55,-759.83 1006.33,-749.94 1024,-740 1062.9,-718.12 1110.48,-700.6 1145.97,-689.13"/>
+<polygon fill="#255000" stroke="#255000" points="1147.18,-692.42 1155.65,-686.05 1145.06,-685.75 1147.18,-692.42"/>
+</g>
+<!-- insert -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1801.5,-707 1747.5,-707 1747.5,-683 1801.5,-683 1801.5,-707"/>
+<text text-anchor="middle" x="1774.5" y="-692.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~add_dimension&#45;&gt;insert -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge6" class="edge">
+<title>proc~add_dimension&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M949.58,-781.96C1161.62,-759.58 1606.74,-712.6 1736.98,-698.85"/>
+<polygon fill="#255000" stroke="#255000" points="1737.62,-702.31 1747.2,-697.78 1736.89,-695.34 1737.62,-702.31"/>
+</g>
+<!-- proc~add_variable&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge18" class="edge">
+<title>proc~add_variable&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M505.07,-499.38C528.59,-532.18 597.98,-621.1 681,-655 750.27,-683.29 948.5,-682.78 1078.26,-678.99"/>
+<polygon fill="transparent" stroke="transparent" points="1078.37,-682.49 1088.26,-678.69 1078.16,-675.49 1078.37,-682.49"/>
+</g>
+<!-- at -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node9" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1801.5,-489 1747.5,-489 1747.5,-465 1801.5,-465 1801.5,-489"/>
+<text text-anchor="middle" x="1774.5" y="-474.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~add_variable&#45;&gt;at -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge8" class="edge">
+<title>proc~add_variable&#45;&gt;at</title>
+<path fill="none" stroke="transparent" d="M504.66,-474.93C527.69,-442.1 596.97,-351.53 681,-319 824.67,-263.39 1221.87,-331.1 1373,-361 1510.06,-388.11 1668.1,-440.28 1737.58,-464.31"/>
+<polygon fill="transparent" stroke="transparent" points="1736.58,-467.67 1747.18,-467.65 1738.88,-461.06 1736.58,-467.67"/>
+</g>
+<!-- begin -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node10" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="861.5,-646 807.5,-646 807.5,-622 861.5,-622 861.5,-646"/>
+<text text-anchor="middle" x="834.5" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~add_variable&#45;&gt;begin -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge9" class="edge">
+<title>proc~add_variable&#45;&gt;begin</title>
+<path fill="none" stroke="transparent" d="M509.59,-499.22C538.16,-525.11 609.34,-585.37 681,-613 718.86,-627.6 765.46,-632.27 797.11,-633.65"/>
+<polygon fill="transparent" stroke="transparent" points="797.12,-637.15 807.23,-634 797.36,-630.16 797.12,-637.15"/>
+</g>
+<!-- get -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node11" class="node">
+<title>get</title>
+<polygon fill="#777777" stroke="#777777" points="861.5,-604 807.5,-604 807.5,-580 861.5,-580 861.5,-604"/>
+<text text-anchor="middle" x="834.5" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get</text>
+</g>
+<!-- proc~add_variable&#45;&gt;get -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge10" class="edge">
+<title>proc~add_variable&#45;&gt;get</title>
+<path fill="none" stroke="transparent" d="M517.59,-499.07C551.07,-517.66 618.97,-553.03 681,-571 719.86,-582.26 766.09,-587.55 797.38,-589.99"/>
+<polygon fill="transparent" stroke="transparent" points="797.16,-593.48 807.39,-590.71 797.67,-586.5 797.16,-593.48"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node13" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node13"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="943,-234 726,-234 726,-210 943,-210 943,-234"/>
+<text text-anchor="middle" x="834.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable&#45;&gt;interface~mapl_assert -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge11" class="edge">
+<title>proc~add_variable&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M514.52,-474.94C544.67,-454.04 605.87,-408.47 645,-358 666.92,-329.73 654.88,-310.45 681,-286 706.16,-262.46 741.25,-246.92 771.42,-237.06"/>
+<polygon fill="transparent" stroke="transparent" points="772.53,-240.38 781.03,-234.06 770.44,-233.7 772.53,-240.38"/>
+</g>
+<!-- next -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node14" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="861.5,-562 807.5,-562 807.5,-538 861.5,-538 861.5,-562"/>
+<text text-anchor="middle" x="834.5" y="-547.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~add_variable&#45;&gt;next -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge12" class="edge">
+<title>proc~add_variable&#45;&gt;next</title>
+<path fill="none" stroke="transparent" d="M544.05,-499.02C581.17,-508.12 634.14,-520.46 681,-529 720.51,-536.2 766.19,-542.19 797.17,-545.9"/>
+<polygon fill="transparent" stroke="transparent" points="797.15,-549.42 807.49,-547.12 797.97,-542.47 797.15,-549.42"/>
+</g>
+<!-- none~insert~96 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node16" class="node">
+<title>none~insert~96</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node16"><a xlink:href="../type/stringvariablemap.html#boundprocedure-insert~96" xlink:title="pFIO_StringVariableMapMod::StringVariableMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="988,-394 681,-394 681,-370 988,-370 988,-394"/>
+<text text-anchor="middle" x="834.5" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::StringVariableMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable&#45;&gt;none~insert~96 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge13" class="edge">
+<title>proc~add_variable&#45;&gt;none~insert~96</title>
+<path fill="none" stroke="transparent" d="M517.59,-474.93C551.07,-456.34 618.97,-420.97 681,-403 690.05,-400.38 699.5,-398.08 709.07,-396.07"/>
+<polygon fill="transparent" stroke="transparent" points="709.95,-399.46 719.07,-394.07 708.57,-392.59 709.95,-399.46"/>
+</g>
+<!-- proc~get_const_value -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node17" class="node">
+<title>proc~get_const_value</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node17"><a xlink:href="../proc/get_const_value.html" xlink:title="pFIO_VariableMod::Variable%get_const_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="961.5,-520 707.5,-520 707.5,-496 961.5,-496 961.5,-520"/>
+<text text-anchor="middle" x="834.5" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%get_const_value</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable&#45;&gt;proc~get_const_value -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge14" class="edge">
+<title>proc~add_variable&#45;&gt;proc~get_const_value</title>
+<path fill="none" stroke="transparent" d="M639.42,-495.91C658.58,-497.1 678.19,-498.32 697.23,-499.51"/>
+<polygon fill="transparent" stroke="transparent" points="697.24,-503.02 707.44,-500.14 697.67,-496.03 697.24,-503.02"/>
+</g>
+<!-- proc~get_dimensions~2 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node18" class="node">
+<title>proc~get_dimensions~2</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node18"><a xlink:href="../proc/get_dimensions~2.html" xlink:title="pFIO_VariableMod::Variable%get_dimensions">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="960.5,-436 708.5,-436 708.5,-412 960.5,-412 960.5,-436"/>
+<text text-anchor="middle" x="834.5" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%get_dimensions</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable&#45;&gt;proc~get_dimensions~2 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge15" class="edge">
+<title>proc~add_variable&#45;&gt;proc~get_dimensions~2</title>
+<path fill="none" stroke="transparent" d="M544.05,-474.98C581.17,-465.88 634.14,-453.54 681,-445 695.77,-442.31 711.41,-439.78 726.82,-437.49"/>
+<polygon fill="transparent" stroke="transparent" points="727.51,-440.92 736.9,-436.01 726.5,-434 727.51,-440.92"/>
+</g>
+<!-- proc~get_shape -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node20" class="node">
+<title>proc~get_shape</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node20"><a xlink:href="../proc/get_shape.html" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%get_shape">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="983.5,-726 685.5,-726 685.5,-702 983.5,-702 983.5,-726"/>
+<text text-anchor="middle" x="834.5" y="-711.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%get_shape</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable&#45;&gt;proc~get_shape -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge16" class="edge">
+<title>proc~add_variable&#45;&gt;proc~get_shape</title>
+<path fill="none" stroke="transparent" d="M503.46,-499.02C524.8,-534.65 593.22,-640.21 681,-688 688.71,-692.2 696.94,-695.75 705.43,-698.75"/>
+<polygon fill="transparent" stroke="transparent" points="704.52,-702.13 715.11,-701.9 706.69,-695.48 704.52,-702.13"/>
+</g>
+<!-- proc~is_empty -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node21" class="node">
+<title>proc~is_empty</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node21"><a xlink:href="../proc/is_empty.html" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%is_empty">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="980,-478 689,-478 689,-454 980,-454 980,-478"/>
+<text text-anchor="middle" x="834.5" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%is_empty</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable&#45;&gt;proc~is_empty -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge17" class="edge">
+<title>proc~add_variable&#45;&gt;proc~is_empty</title>
+<path fill="none" stroke="transparent" d="M639.42,-478.09C652.43,-477.28 665.64,-476.46 678.75,-475.64"/>
+<polygon fill="transparent" stroke="transparent" points="678.98,-479.14 688.74,-475.02 678.55,-472.15 678.98,-479.14"/>
+</g>
+<!-- push_back -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node24" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="869,-352 800,-352 800,-328 869,-328 869,-352"/>
+<text text-anchor="middle" x="834.5" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~add_variable&#45;&gt;push_back -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge19" class="edge">
+<title>proc~add_variable&#45;&gt;push_back</title>
+<path fill="none" stroke="transparent" d="M509.59,-474.78C538.16,-448.89 609.34,-388.63 681,-361 716.06,-347.48 758.61,-342.48 789.85,-340.71"/>
+<polygon fill="transparent" stroke="transparent" points="790.16,-344.2 799.98,-340.23 789.83,-337.21 790.16,-344.2"/>
+</g>
+<!-- proc~define_time_variable&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge24" class="edge">
+<title>proc~define_time_variable&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M519.24,-171.01C553.52,-188.74 620.84,-222.06 681,-243 813.75,-289.21 890.19,-218.05 988,-319 1041.14,-373.84 988.77,-419.25 1024,-487 1061.8,-559.69 1135.58,-624.98 1173.59,-655.6"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1171.57,-658.46 1181.57,-661.95 1175.92,-652.98 1171.57,-658.46"/>
+</g>
+<!-- proc~define_time_variable&#45;&gt;proc~mapl_verify -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge25" class="edge">
+<title>proc~define_time_variable&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M645.29,-168.27C669.41,-169.77 694.07,-171.31 717.26,-172.76"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="717.26,-176.26 727.46,-173.39 717.69,-169.28 717.26,-176.26"/>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node7" class="node">
+<title>ESMF_ClockGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="899.5,-66 769.5,-66 769.5,-42 899.5,-42 899.5,-66"/>
+<text text-anchor="middle" x="834.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ClockGet</text>
+</g>
+<!-- proc~define_time_variable&#45;&gt;ESMF_ClockGet -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge20" class="edge">
+<title>proc~define_time_variable&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M517.59,-146.93C551.07,-128.34 618.97,-92.97 681,-75 705.93,-67.78 733.89,-63.01 759,-59.88"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="759.68,-63.32 769.2,-58.67 758.86,-56.37 759.68,-63.32"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node8" class="node">
+<title>ESMF_TimeGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="898,-24 771,-24 771,0 898,0 898,-24"/>
+<text text-anchor="middle" x="834.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeGet</text>
+</g>
+<!-- proc~define_time_variable&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge21" class="edge">
+<title>proc~define_time_variable&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M509.59,-146.78C538.16,-120.89 609.34,-60.63 681,-33 705.99,-23.37 734.78,-18.06 760.56,-15.16"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="761.06,-18.63 770.66,-14.13 760.35,-11.67 761.06,-18.63"/>
+</g>
+<!-- proc~define_time_variable&#45;&gt;interface~mapl_assert -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge22" class="edge">
+<title>proc~define_time_variable&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M544.05,-171.02C581.17,-180.12 634.14,-192.46 681,-201 695.77,-203.69 711.41,-206.22 726.82,-208.51"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="726.5,-212 736.9,-209.99 727.51,-205.08 726.5,-212"/>
+</g>
+<!-- none~add_attribute~3 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node15" class="node">
+<title>none~add_attribute~3</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node15"><a xlink:href="../type/variable.html#boundprocedure-add_attribute~3" xlink:title="pFIO_VariableMod::Variable%add_attribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="954.5,-150 714.5,-150 714.5,-126 954.5,-126 954.5,-150"/>
+<text text-anchor="middle" x="834.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%add_attribute</text>
+</a>
+</g>
+</g>
+<!-- proc~define_time_variable&#45;&gt;none~add_attribute~3 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge23" class="edge">
+<title>proc~define_time_variable&#45;&gt;none~add_attribute~3</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M645.29,-149.73C664.96,-148.5 685,-147.25 704.3,-146.05"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="704.56,-149.54 714.32,-145.43 704.12,-142.56 704.56,-149.54"/>
+</g>
+<!-- proc~v_clear~20 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node23" class="node">
+<title>proc~v_clear~20</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node23"><a xlink:href="../proc/v_clear~20.html" xlink:title="MAPL_ESMFTimeVectorMod::ESMFTimeVector%v_clear">
+<polygon fill="#d9534f" stroke="#d9534f" points="985,-108 684,-108 684,-84 985,-84 985,-108"/>
+<text text-anchor="middle" x="834.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFTimeVectorMod::ESMFTimeVector%v_clear</text>
+</a>
+</g>
+</g>
+<!-- proc~define_time_variable&#45;&gt;proc~v_clear~20 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge26" class="edge">
+<title>proc~define_time_variable&#45;&gt;proc~v_clear~20</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M544.05,-146.98C581.17,-137.88 634.14,-125.54 681,-117 695.77,-114.31 711.41,-111.78 726.82,-109.49"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="727.51,-112.92 736.9,-108.01 726.5,-106 727.51,-112.92"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node19" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node19"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1662,-686 1409,-686 1409,-662 1662,-662 1662,-686"/>
+<text text-anchor="middle" x="1535.5" y="-671.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1308.73,-674C1337.46,-674 1368.81,-674 1398.75,-674"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1398.85,-677.5 1408.85,-674 1398.85,-670.5 1398.85,-677.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node22" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node22"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1650,-231 1421,-231 1421,-207 1650,-207 1650,-231"/>
+<text text-anchor="middle" x="1535.5" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1212.67,-661.66C1243.04,-632.84 1319.47,-558.12 1373,-487 1437.97,-400.67 1499.48,-286.7 1523.68,-240.16"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1526.91,-241.54 1528.39,-231.04 1520.69,-238.32 1526.91,-241.54"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M941.75,-180.11C1050.31,-180.99 1223.68,-184.5 1373,-197 1397.54,-199.05 1424.05,-202.25 1448.36,-205.58"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1447.89,-209.05 1458.28,-206.96 1448.85,-202.12 1447.89,-209.05"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node29" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node29"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1334.5,-230 1062.5,-230 1062.5,-206 1334.5,-206 1334.5,-230"/>
+<text text-anchor="middle" x="1198.5" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge30" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M943.13,-220.81C977.33,-220.43 1015.73,-220.01 1052.13,-219.61"/>
+<polygon fill="#025500" stroke="#025500" points="1052.37,-223.1 1062.34,-219.49 1052.3,-216.1 1052.37,-223.1"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node30" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node30"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1341.5,-272 1055.5,-272 1055.5,-248 1341.5,-248 1341.5,-272"/>
+<text text-anchor="middle" x="1198.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge31" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M943.13,-233.3C983.94,-237.58 1030.74,-242.49 1072.97,-246.93"/>
+<polygon fill="#025500" stroke="#025500" points="1072.73,-250.42 1083.04,-247.98 1073.46,-243.46 1072.73,-250.42"/>
+</g>
+<!-- proc~add_attribute_1d~2 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node25" class="node">
+<title>proc~add_attribute_1d~2</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node25"><a xlink:href="../proc/add_attribute_1d~2.html" xlink:title="pFIO_VariableMod::Variable%add_attribute_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="1328,-150 1069,-150 1069,-126 1328,-126 1328,-150"/>
+<text text-anchor="middle" x="1198.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod::Variable%add_attribute_1d</text>
+</a>
+</g>
+</g>
+<!-- none~add_attribute~3&#45;&gt;proc~add_attribute_1d~2 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge32" class="edge">
+<title>none~add_attribute~3&#45;&gt;proc~add_attribute_1d~2</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M954.53,-138C987.83,-138 1024.3,-138 1058.63,-138"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="1058.73,-141.5 1068.73,-138 1058.73,-134.5 1058.73,-141.5"/>
+</g>
+<!-- proc~m_insert_pair~9 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node28" class="node">
+<title>proc~m_insert_pair~9</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node28"><a xlink:href="../proc/m_insert_pair~9.html" xlink:title="pFIO_StringVariableMapMod::StringVariableMap%m_insert_pair">
+<polygon fill="#d9534f" stroke="#d9534f" points="1373,-394 1024,-394 1024,-370 1373,-370 1373,-394"/>
+<text text-anchor="middle" x="1198.5" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod::StringVariableMap%m_insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~96&#45;&gt;proc~m_insert_pair~9 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge33" class="edge">
+<title>none~insert~96&#45;&gt;proc~m_insert_pair~9</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M988.23,-382C996.7,-382 1005.25,-382 1013.81,-382"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1013.86,-385.5 1023.86,-382 1013.86,-378.5 1013.86,-385.5"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge34" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#002505" d="M1550.97,-661.97C1590.88,-628.8 1702.77,-535.79 1750.96,-495.74"/>
+<polygon fill="#002505" stroke="#002505" points="1753.47,-498.2 1758.92,-489.12 1748.99,-492.82 1753.47,-498.2"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge35" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#002505" d="M1662.29,-685.15C1689.83,-687.59 1716.86,-689.98 1737.36,-691.8"/>
+<polygon fill="#002505" stroke="#002505" points="1737.19,-695.3 1747.46,-692.69 1737.81,-688.32 1737.19,-695.3"/>
+</g>
+<!-- proc~get_shape&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge36" class="edge">
+<title>proc~get_shape&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#840255" d="M944.11,-702C986.52,-697.31 1035.28,-691.92 1078.63,-687.14"/>
+<polygon fill="#840255" stroke="#840255" points="1079.1,-690.6 1088.65,-686.03 1078.33,-683.65 1079.1,-690.6"/>
+</g>
+<!-- proc~is_empty&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge38" class="edge">
+<title>proc~is_empty&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M964.4,-478.1C972.54,-480.58 980.48,-483.53 988,-487 1074,-526.73 1150.14,-613.88 1181.85,-653.57"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1179.33,-656.03 1188.26,-661.73 1184.83,-651.7 1179.33,-656.03"/>
+</g>
+<!-- proc~get_value -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node26" class="node">
+<title>proc~get_value</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node26"><a xlink:href="../proc/get_value.html" xlink:title="pFIO_UnlimitedEntityMod::UnlimitedEntity%get_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1346,-478 1051,-478 1051,-454 1346,-454 1346,-478"/>
+<text text-anchor="middle" x="1198.5" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod::UnlimitedEntity%get_value</text>
+</a>
+</g>
+</g>
+<!-- proc~is_empty&#45;&gt;proc~get_value -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge37" class="edge">
+<title>proc~is_empty&#45;&gt;proc~get_value</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M980.13,-466C1000.01,-466 1020.5,-466 1040.59,-466"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1040.73,-469.5 1050.73,-466 1040.73,-462.5 1040.73,-469.5"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node27" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node27"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1851,-231 1698,-231 1698,-207 1851,-207 1851,-231"/>
+<text text-anchor="middle" x="1774.5" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1650.14,-219C1662.76,-219 1675.46,-219 1687.65,-219"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1687.77,-222.5 1697.77,-219 1687.77,-215.5 1687.77,-222.5"/>
+</g>
+<!-- proc~v_downsize~20 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_node31" class="node">
+<title>proc~v_downsize~20</title>
+<g id="a_proc~~add_time_to_metadata~~CallsGraph_node31"><a xlink:href="../proc/v_downsize~20.html" xlink:title="MAPL_ESMFTimeVectorMod::ESMFTimeVector%v_downsize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1360,-108 1037,-108 1037,-84 1360,-84 1360,-108"/>
+<text text-anchor="middle" x="1198.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFTimeVectorMod::ESMFTimeVector%v_downsize</text>
+</a>
+</g>
+</g>
+<!-- proc~v_clear~20&#45;&gt;proc~v_downsize~20 -->
+<g id="proc~~add_time_to_metadata~~CallsGraph_edge40" class="edge">
+<title>proc~v_clear~20&#45;&gt;proc~v_downsize~20</title>
+<path fill="none" stroke="transparent" d="M985.09,-96C998.87,-96 1012.91,-96 1026.86,-96"/>
+<polygon fill="transparent" stroke="transparent" points="1027,-99.5 1037,-96 1027,-92.5 1027,-99.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocadd_time_to_metadataCallsGraph = svgPanZoom('#procadd_time_to_metadataCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_time_to_metadata~~CalledByGraph Pages: 1 -->
+<svg id="procadd_time_to_metadataCalledByGraph" width="641pt" height="56pt"
+ viewBox="0.00 0.00 641.00 56.33" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_time_to_metadata~~CalledByGraph" class="graph" transform="scale(2.8 2.8) rotate(0) translate(4 154)">
+<title>proc~~add_time_to_metadata~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 1794,-154 1794,4 -4,4"/>
+<!-- proc~add_time_to_metadata -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node1" class="node">
+<title>proc~add_time_to_metadata</title>
+<polygon fill="none" stroke="black" points="1790,-108 1480,-108 1480,-84 1790,-84 1790,-108"/>
+<text text-anchor="middle" x="1635" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_TimeDataMod::timeData%add_time_to_metadata</text>
+</g>
+<!-- proc~add_metadata_route_handle -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node2" class="node">
+<title>proc~add_metadata_route_handle</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node2"><a xlink:href="../proc/add_metadata_route_handle.html" xlink:title="StationSamplerMod::StationSampler%add_metadata_route_handle">
+<polygon fill="#d9534f" stroke="#d9534f" points="1444,-129 1074,-129 1074,-105 1444,-105 1444,-129"/>
+<text text-anchor="middle" x="1259" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StationSamplerMod::StationSampler%add_metadata_route_handle</text>
+</a>
+</g>
+</g>
+<!-- proc~add_metadata_route_handle&#45;&gt;proc~add_time_to_metadata -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge1" class="edge">
+<title>proc~add_metadata_route_handle&#45;&gt;proc~add_time_to_metadata</title>
+<path fill="none" stroke="#255000" d="M1444.26,-106.65C1452.72,-106.18 1461.18,-105.7 1469.58,-105.23"/>
+<polygon fill="#255000" stroke="#255000" points="1470,-108.71 1479.79,-104.66 1469.61,-101.73 1470,-108.71"/>
+</g>
+<!-- proc~createfilemetadata -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node3" class="node">
+<title>proc~createfilemetadata</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node3"><a xlink:href="../proc/createfilemetadata.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%CreateFileMetaData">
+<polygon fill="#d9534f" stroke="#d9534f" points="1425.5,-87 1092.5,-87 1092.5,-63 1425.5,-63 1425.5,-87"/>
+<text text-anchor="middle" x="1259" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%CreateFileMetaData</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~add_time_to_metadata -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge2" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~add_time_to_metadata</title>
+<path fill="none" stroke="#255000" d="M1425.68,-84.3C1440.28,-85.12 1455.06,-85.95 1469.66,-86.77"/>
+<polygon fill="#255000" stroke="#255000" points="1469.54,-90.27 1479.72,-87.34 1469.94,-83.28 1469.54,-90.27"/>
+</g>
+<!-- proc~create_from_bundle -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node4" class="node">
+<title>proc~create_from_bundle</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node4"><a xlink:href="../proc/create_from_bundle.html" xlink:title="MAPL_ESMFFieldBundleWrite::FieldBundleWriter%create_from_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="1038,-87 656,-87 656,-63 1038,-63 1038,-87"/>
+<text text-anchor="middle" x="847" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::FieldBundleWriter%create_from_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge4" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1038.3,-75C1052.92,-75 1067.65,-75 1082.17,-75"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1082.19,-78.5 1092.19,-75 1082.19,-71.5 1082.19,-78.5"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node5" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node5"><a xlink:href="../proc/initialize.html" xlink:title="MAPL_HistoryGridCompMod::Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="953,-129 741,-129 741,-105 953,-105 953,-129"/>
+<text text-anchor="middle" x="847" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize&#45;&gt;proc~add_metadata_route_handle -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge3" class="edge">
+<title>proc~initialize&#45;&gt;proc~add_metadata_route_handle</title>
+<path fill="none" stroke="#255000" d="M953.05,-117C986.81,-117 1025.36,-117 1063.42,-117"/>
+<polygon fill="#255000" stroke="#255000" points="1063.61,-120.5 1073.61,-117 1063.61,-113.5 1063.61,-120.5"/>
+</g>
+<!-- proc~initialize&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge5" class="edge">
+<title>proc~initialize&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M953.05,-106.24C1007.11,-100.7 1073.43,-93.91 1130.41,-88.07"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1130.97,-91.53 1140.57,-87.03 1130.26,-84.57 1130.97,-91.53"/>
+</g>
+<!-- proc~run -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node6" class="node">
+<title>proc~run</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node6"><a xlink:href="../proc/run.html" xlink:title="MAPL_HistoryGridCompMod::Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="941,-45 753,-45 753,-21 941,-21 941,-45"/>
+<text text-anchor="middle" x="847" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge6" class="edge">
+<title>proc~run&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M941.04,-42.53C997.1,-48.27 1069.28,-55.67 1130.59,-61.95"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1130.42,-65.45 1140.73,-62.99 1131.14,-58.49 1130.42,-65.45"/>
+</g>
+<!-- proc~main -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node7" class="node">
+<title>proc~main</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node7"><a xlink:href="../proc/main.html" xlink:title="Regrid_Util::main">
+<polygon fill="#d9534f" stroke="#d9534f" points="518.5,-150 414.5,-150 414.5,-126 518.5,-126 518.5,-150"/>
+<text text-anchor="middle" x="466.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util::main</text>
+</a>
+</g>
+</g>
+<!-- proc~main&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge7" class="edge">
+<title>proc~main&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M518.8,-135.93C548.94,-133.5 587.41,-128.25 620,-117 637.51,-110.95 638.41,-101.81 656,-96 663.62,-93.48 671.49,-91.26 679.5,-89.28"/>
+<polygon fill="#255000" stroke="#255000" points="680.38,-92.67 689.34,-87 678.8,-85.85 680.38,-92.67"/>
+</g>
+<!-- proc~write_bundle_single_time -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node8" class="node">
+<title>proc~write_bundle_single_time</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node8"><a xlink:href="../proc/write_bundle_single_time.html" xlink:title="MAPL_ESMFFieldBundleWrite::write_bundle_single_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="620,-108 313,-108 313,-84 620,-84 620,-108"/>
+<text text-anchor="middle" x="466.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::write_bundle_single_time</text>
+</a>
+</g>
+</g>
+<!-- proc~write_bundle_single_time&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge8" class="edge">
+<title>proc~write_bundle_single_time&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M620.09,-87.53C628.57,-87.06 637.16,-86.59 645.78,-86.11"/>
+<polygon fill="#255000" stroke="#255000" points="646.11,-89.6 655.9,-85.55 645.72,-82.61 646.11,-89.6"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node9" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node9"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="497,-66 436,-66 436,-42 497,-42 497,-66"/>
+<text text-anchor="middle" x="466.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge9" class="edge">
+<title>program~time_ave&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M497.2,-55.65C530.48,-57.49 587.45,-60.66 645.81,-63.89"/>
+<polygon fill="#255000" stroke="#255000" points="645.77,-67.4 655.95,-64.46 646.16,-60.41 645.77,-67.4"/>
+</g>
+<!-- program~ut_regridding -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node10" class="node">
+<title>program~ut_regridding</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node10"><a xlink:href="../program/ut_regridding.html" xlink:title="ut_ReGridding">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="510.5,-24 422.5,-24 422.5,0 510.5,0 510.5,-24"/>
+<text text-anchor="middle" x="466.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
+</a>
+</g>
+</g>
+<!-- program~ut_regridding&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge10" class="edge">
+<title>program~ut_regridding&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#255000" d="M510.61,-13.46C541.74,-15.58 584.38,-20.7 620,-33 637.51,-39.05 638.41,-48.19 656,-54 663.62,-56.52 671.49,-58.74 679.5,-60.72"/>
+<polygon fill="#255000" stroke="#255000" points="678.8,-64.15 689.34,-63 680.38,-57.33 678.8,-64.15"/>
+</g>
+<!-- interface~mapl_write_bundle -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node11" class="node">
+<title>interface~mapl_write_bundle</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node11"><a xlink:href="../interface/mapl_write_bundle.html" xlink:title="MAPL_ESMFFieldBundleWrite::MAPL_Write_Bundle">
+<polygon fill="#a7506f" stroke="#a7506f" points="277,-108 0,-108 0,-84 277,-84 277,-108"/>
+<text text-anchor="middle" x="138.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleWrite::MAPL_Write_Bundle</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_write_bundle&#45;&gt;proc~write_bundle_single_time -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge12" class="edge">
+<title>interface~mapl_write_bundle&#45;&gt;proc~write_bundle_single_time</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M277.28,-96C285.62,-96 294.05,-96 302.48,-96"/>
+<polygon fill="transparent" stroke="transparent" points="302.76,-99.5 312.76,-96 302.75,-92.5 302.76,-99.5"/>
+</g>
+<!-- program~regrid_util -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_node12" class="node">
+<title>program~regrid_util</title>
+<g id="a_proc~~add_time_to_metadata~~CalledByGraph_node12"><a xlink:href="../program/regrid_util.html" xlink:title="Regrid_Util">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="173.5,-150 103.5,-150 103.5,-126 173.5,-126 173.5,-150"/>
+<text text-anchor="middle" x="138.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
+</a>
+</g>
+</g>
+<!-- program~regrid_util&#45;&gt;proc~main -->
+<g id="proc~~add_time_to_metadata~~CalledByGraph_edge11" class="edge">
+<title>program~regrid_util&#45;&gt;proc~main</title>
+<path fill="none" stroke="#255000" d="M173.77,-138C228.43,-138 336.1,-138 404.24,-138"/>
+<polygon fill="#255000" stroke="#255000" points="404.41,-141.5 414.41,-138 404.41,-134.5 404.41,-141.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocadd_time_to_metadataCalledByGraph = svgPanZoom('#procadd_time_to_metadataCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">add_time_to_metadata</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">metadata</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">class</span><span class="p">(</span><span class="n">timeData</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadata</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">Variable</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tdim</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">is_initialized</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">ntime</span><span class="o">==-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">tdim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pFIO_UNLIMITED</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">tdim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">ntime</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       call </span><span class="n">metadata</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">tdim</span><span class="p">)</span>
+<span class="w">       </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">define_time_variable</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">add_variable</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">add_time_to_metadata</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

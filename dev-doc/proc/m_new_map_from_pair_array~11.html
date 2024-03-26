@@ -1,0 +1,636 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>m_new_map_from_pair_array &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>m_new_map_from_pair_array
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">8 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/IntegerSocketMap.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/integersocketmap.f90.html'>IntegerSocketMap.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_integersocketmapmod.html'>pFIO_IntegerSocketMapMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">m_new_map_from_pair_array</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function m_new_map_from_pair_array(pairs) result(m)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pairs~11"></span>
+              type(<a href='../type/pair~3.html'>pair</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pairs</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-m~79"></span>
+          type(<a href='../type/integersocketmap.html'>IntegerSocketMap</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~m_new_map_from_pair_array~11~~CallsGraph Pages: 1 -->
+<svg id="procm_new_map_from_pair_array11CallsGraph" width="641pt" height="126pt"
+ viewBox="0.00 0.00 641.00 126.26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph" class="graph" transform="scale(2.58 2.58) rotate(0) translate(4 322)">
+<title>proc~~m_new_map_from_pair_array~11~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 1651,-322 1651,4 -4,4"/>
+<!-- proc~m_new_map_from_pair_array~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node1" class="node">
+<title>proc~m_new_map_from_pair_array~11</title>
+<polygon fill="none" stroke="black" points="325,-171 0,-171 0,-147 325,-147 325,-171"/>
+<text text-anchor="middle" x="162.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_IntegerSocketMapMod::m_new_map_from_pair_array</text>
+</g>
+<!-- none~insert~135 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node2" class="node">
+<title>none~insert~135</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node2"><a xlink:href="../type/integersocketmap.html#boundprocedure-insert~135" xlink:title="pFIO_IntegerSocketMapMod::IntegerSocketMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="666,-171 361,-171 361,-147 666,-147 666,-171"/>
+<text text-anchor="middle" x="513.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::IntegerSocketMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~m_new_map_from_pair_array~11&#45;&gt;none~insert~135 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge1" class="edge">
+<title>proc~m_new_map_from_pair_array~11&#45;&gt;none~insert~135</title>
+<path fill="none" stroke="#255000" d="M325.23,-159C333.66,-159 342.13,-159 350.56,-159"/>
+<polygon fill="#255000" stroke="#255000" points="350.82,-162.5 360.82,-159 350.82,-155.5 350.82,-162.5"/>
+</g>
+<!-- proc~m_insert_pair~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node3" class="node">
+<title>proc~m_insert_pair~13</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node3"><a xlink:href="../proc/m_insert_pair~13.html" xlink:title="pFIO_IntegerSocketMapMod::IntegerSocketMap%m_insert_pair">
+<polygon fill="#d9534f" stroke="#d9534f" points="1049,-171 702,-171 702,-147 1049,-147 1049,-171"/>
+<text text-anchor="middle" x="875.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::IntegerSocketMap%m_insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~135&#45;&gt;proc~m_insert_pair~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge2" class="edge">
+<title>none~insert~135&#45;&gt;proc~m_insert_pair~13</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M666.13,-159C674.62,-159 683.2,-159 691.79,-159"/>
+<polygon fill="#255000" stroke="#255000" points="691.87,-162.5 701.87,-159 691.87,-155.5 691.87,-162.5"/>
+</g>
+<!-- proc~s_insert~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node4" class="node">
+<title>proc~s_insert~13</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node4"><a xlink:href="../proc/s_insert~13.html" xlink:title="pFIO_IntegerSocketMapMod::set2%s_insert">
+<polygon fill="#d9534f" stroke="#d9534f" points="1326,-171 1085,-171 1085,-147 1326,-147 1326,-171"/>
+<text text-anchor="middle" x="1205.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::set2%s_insert</text>
+</a>
+</g>
+</g>
+<!-- proc~m_insert_pair~13&#45;&gt;proc~s_insert~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge3" class="edge">
+<title>proc~m_insert_pair~13&#45;&gt;proc~s_insert~13</title>
+<path fill="none" stroke="#255000" d="M1049.14,-159C1057.7,-159 1066.23,-159 1074.63,-159"/>
+<polygon fill="#255000" stroke="#255000" points="1074.81,-162.5 1084.81,-159 1074.81,-155.5 1074.81,-162.5"/>
+</g>
+<!-- none~at~177 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node5" class="node">
+<title>none~at~177</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node5"><a xlink:href="../type/tvector~3.html#boundprocedure-at~177" xlink:title="pFIO_IntegerSocketMapMod::tVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1617.5,-318 1391.5,-318 1391.5,-294 1617.5,-294 1617.5,-318"/>
+<text text-anchor="middle" x="1504.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::tVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~13&#45;&gt;none~at~177 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge4" class="edge">
+<title>proc~s_insert~13&#45;&gt;none~at~177</title>
+<path fill="none" stroke="#255000" d="M1217.13,-171.21C1240.44,-197.08 1299.02,-257.31 1362,-285 1368.26,-287.75 1374.82,-290.16 1381.53,-292.25"/>
+<polygon fill="#255000" stroke="#255000" points="1380.87,-295.71 1391.45,-295.11 1382.81,-288.98 1380.87,-295.71"/>
+</g>
+<!-- none~set~99 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node6" class="node">
+<title>none~set~99</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node6"><a xlink:href="../type/tvector~3.html#boundprocedure-set~99" xlink:title="pFIO_IntegerSocketMapMod::tVector%set">
+<polygon fill="#a7506f" stroke="#a7506f" points="1620.5,-276 1388.5,-276 1388.5,-252 1620.5,-252 1620.5,-276"/>
+<text text-anchor="middle" x="1504.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::tVector%set</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~13&#45;&gt;none~set~99 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge5" class="edge">
+<title>proc~s_insert~13&#45;&gt;none~set~99</title>
+<path fill="none" stroke="#255000" d="M1224.23,-171.27C1252.15,-189.96 1308.72,-225.27 1362,-243 1369.62,-245.54 1377.58,-247.77 1385.66,-249.73"/>
+<polygon fill="#255000" stroke="#255000" points="1385.04,-253.18 1395.57,-251.99 1386.6,-246.35 1385.04,-253.18"/>
+</g>
+<!-- proc~exists~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node7" class="node">
+<title>proc~exists~11</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node7"><a xlink:href="../proc/exists~11.html" xlink:title="pFIO_IntegerSocketMapMod::exists">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1603.5,-234 1405.5,-234 1405.5,-210 1603.5,-210 1603.5,-234"/>
+<text text-anchor="middle" x="1504.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::exists</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~13&#45;&gt;proc~exists~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge6" class="edge">
+<title>proc~s_insert~13&#45;&gt;proc~exists~11</title>
+<path fill="none" stroke="#255000" d="M1246.14,-171.08C1277.38,-180.26 1322.17,-192.69 1362,-201 1374.79,-203.67 1388.29,-206.12 1401.68,-208.34"/>
+<polygon fill="#255000" stroke="#255000" points="1401.45,-211.85 1411.88,-210 1402.57,-204.94 1401.45,-211.85"/>
+</g>
+<!-- proc~find_index~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node8" class="node">
+<title>proc~find_index~11</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node8"><a xlink:href="../proc/find_index~11.html" xlink:title="pFIO_IntegerSocketMapMod::set2%find_index">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1632,-192 1377,-192 1377,-168 1632,-168 1632,-192"/>
+<text text-anchor="middle" x="1504.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::set2%find_index</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~13&#45;&gt;proc~find_index~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge7" class="edge">
+<title>proc~s_insert~13&#45;&gt;proc~find_index~11</title>
+<path fill="none" stroke="#255000" d="M1326.02,-167.45C1339.38,-168.4 1353.06,-169.36 1366.61,-170.32"/>
+<polygon fill="#255000" stroke="#255000" points="1366.72,-173.84 1376.95,-171.05 1367.22,-166.86 1366.72,-173.84"/>
+</g>
+<!-- proc~rebalance~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node9" class="node">
+<title>proc~rebalance~13</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node9"><a xlink:href="../proc/rebalance~13.html" xlink:title="pFIO_IntegerSocketMapMod::set2%rebalance">
+<polygon fill="#d9534f" stroke="#d9534f" points="1631.5,-150 1377.5,-150 1377.5,-126 1631.5,-126 1631.5,-150"/>
+<text text-anchor="middle" x="1504.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::set2%rebalance</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~13&#45;&gt;proc~rebalance~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge8" class="edge">
+<title>proc~s_insert~13&#45;&gt;proc~rebalance~13</title>
+<path fill="none" stroke="#255000" d="M1326.02,-150.55C1339.64,-149.59 1353.59,-148.6 1367.41,-147.62"/>
+<polygon fill="#255000" stroke="#255000" points="1367.71,-151.11 1377.43,-146.91 1367.21,-144.13 1367.71,-151.11"/>
+</g>
+<!-- proc~s_lessthan~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node10" class="node">
+<title>proc~s_lessthan~13</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node10"><a xlink:href="../proc/s_lessthan~13.html" xlink:title="pFIO_IntegerSocketMapMod::s_lessThan">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1617.5,-108 1391.5,-108 1391.5,-84 1617.5,-84 1617.5,-108"/>
+<text text-anchor="middle" x="1504.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::s_lessThan</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~13&#45;&gt;proc~s_lessthan~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge9" class="edge">
+<title>proc~s_insert~13&#45;&gt;proc~s_lessthan~13</title>
+<path fill="none" stroke="#255000" d="M1246.14,-146.92C1277.38,-137.74 1322.17,-125.31 1362,-117 1374.79,-114.33 1388.29,-111.88 1401.68,-109.66"/>
+<polygon fill="#255000" stroke="#255000" points="1402.57,-113.06 1411.88,-108 1401.45,-106.15 1402.57,-113.06"/>
+</g>
+<!-- proc~s_ordereq~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node11" class="node">
+<title>proc~s_ordereq~13</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node11"><a xlink:href="../proc/s_ordereq~13.html" xlink:title="pFIO_IntegerSocketMapMod::s_orderEq">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1615.5,-66 1393.5,-66 1393.5,-42 1615.5,-42 1615.5,-66"/>
+<text text-anchor="middle" x="1504.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::s_orderEq</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~13&#45;&gt;proc~s_ordereq~13 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge10" class="edge">
+<title>proc~s_insert~13&#45;&gt;proc~s_ordereq~13</title>
+<path fill="none" stroke="#255000" d="M1224.23,-146.73C1252.15,-128.04 1308.72,-92.73 1362,-75 1369.62,-72.46 1377.58,-70.23 1385.66,-68.27"/>
+<polygon fill="#255000" stroke="#255000" points="1386.6,-71.65 1395.57,-66.01 1385.04,-64.82 1386.6,-71.65"/>
+</g>
+<!-- proc~tt_push_back~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_node12" class="node">
+<title>proc~tt_push_back~11</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CallsGraph_node12"><a xlink:href="../proc/tt_push_back~11.html" xlink:title="pFIO_IntegerSocketMapMod::tVector%tt_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="1647,-24 1362,-24 1362,0 1647,0 1647,-24"/>
+<text text-anchor="middle" x="1504.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::tVector%tt_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~13&#45;&gt;proc~tt_push_back~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CallsGraph_edge11" class="edge">
+<title>proc~s_insert~13&#45;&gt;proc~tt_push_back~11</title>
+<path fill="none" stroke="#255000" d="M1217.13,-146.79C1240.44,-120.92 1299.02,-60.69 1362,-33 1367.04,-30.78 1372.28,-28.79 1377.63,-27"/>
+<polygon fill="#255000" stroke="#255000" points="1378.85,-30.29 1387.37,-24 1376.78,-23.6 1378.85,-30.29"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocm_new_map_from_pair_array11CallsGraph = svgPanZoom('#procm_new_map_from_pair_array11CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~m_new_map_from_pair_array~11~~CalledByGraph Pages: 1 -->
+<svg id="procm_new_map_from_pair_array11CalledByGraph" width="634pt" height="32pt"
+ viewBox="0.00 0.00 634.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~m_new_map_from_pair_array~11~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~m_new_map_from_pair_array~11~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 630,-28 630,4 -4,4"/>
+<!-- proc~m_new_map_from_pair_array~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CalledByGraph_node1" class="node">
+<title>proc~m_new_map_from_pair_array~11</title>
+<polygon fill="none" stroke="black" points="626,-24 301,-24 301,0 626,0 626,-24"/>
+<text text-anchor="middle" x="463.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_IntegerSocketMapMod::m_new_map_from_pair_array</text>
+</g>
+<!-- interface~integersocketmap -->
+<g id="proc~~m_new_map_from_pair_array~11~~CalledByGraph_node2" class="node">
+<title>interface~integersocketmap</title>
+<g id="a_proc~~m_new_map_from_pair_array~11~~CalledByGraph_node2"><a xlink:href="../interface/integersocketmap.html" xlink:title="pFIO_IntegerSocketMapMod::IntegerSocketMap">
+<polygon fill="#a7506f" stroke="#a7506f" points="265,-24 0,-24 0,0 265,0 265,-24"/>
+<text text-anchor="middle" x="132.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod::IntegerSocketMap</text>
+</a>
+</g>
+</g>
+<!-- interface~integersocketmap&#45;&gt;proc~m_new_map_from_pair_array~11 -->
+<g id="proc~~m_new_map_from_pair_array~11~~CalledByGraph_edge1" class="edge">
+<title>interface~integersocketmap&#45;&gt;proc~m_new_map_from_pair_array~11</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M265.42,-12C273.84,-12 282.37,-12 290.93,-12"/>
+<polygon fill="#255000" stroke="#255000" points="290.99,-15.5 300.99,-12 290.99,-8.5 290.99,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

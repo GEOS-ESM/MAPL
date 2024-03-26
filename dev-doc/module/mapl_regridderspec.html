@@ -1,0 +1,1481 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mapl_RegridderSpec &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>mapl_RegridderSpec
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for modules and submodules.">123 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/RegridderSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/regridderspec.f90.html'>RegridderSpec.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mapl_RegridderSpec</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_regridderspec.html#variable-mod_name~18">MOD_NAME</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#inters-0"
+         aria-expanded="false" aria-controls="inters-0">
+         <h4 class="card-header bg-primary text-white">Interfaces</h4>
+      </a>
+      <div id="inters-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_regridderspec.html#interface-regridderspec">RegridderSpec</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_regridderspec.html#type-regridderspec">RegridderSpec</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_regridderspec.html#proc-equals~12">equals</a>
+            <a class="list-group-item" href="../module/mapl_regridderspec.html#proc-less_than~3">less_than</a>
+            <a class="list-group-item" href="../module/mapl_regridderspec.html#proc-newregridderspec">newRegridderSpec</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_regridderspec.html#proc-get_grid_type">get_grid_type</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <h3 id="module-mapl_regridderspec">MODULE: <code>mapl_RegridderSpec</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p>A RegridderSpec is used to indicate which subclass of regridder will be used.</p>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mapl_errorhandlingmod.html'>MAPL_ErrorHandlingMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_regridmethods.html'>mapl_RegridMethods</a></li>
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl_regridderspec~~UsesGraph Pages: 1 -->
+<svg id="modulemapl_regridderspecUsesGraph" width="464pt" height="197pt"
+ viewBox="0.00 0.00 464.00 197.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl_regridderspec~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 193)">
+<title>module~~mapl_regridderspec~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-193 460,-193 460,4 -4,4"/>
+<!-- module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsesGraph_node1" class="node">
+<title>module~mapl_regridderspec</title>
+<polygon fill="none" stroke="black" points="456,-107 332,-107 332,-83 456,-83 456,-107"/>
+<text text-anchor="middle" x="394" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_RegridderSpec</text>
+</g>
+<!-- ESMF -->
+<g id="module~~mapl_regridderspec~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-148 23.5,-148 23.5,-124 77.5,-124 77.5,-148"/>
+<text text-anchor="middle" x="50.5" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</g>
+<!-- module~mapl_regridderspec&#45;&gt;ESMF -->
+<g id="module~~mapl_regridderspec~~UsesGraph_edge1" class="edge">
+<title>module~mapl_regridderspec&#45;&gt;ESMF</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M331.86,-96.49C279.77,-98.48 203.07,-103.14 137,-114 120.66,-116.69 102.88,-121.03 87.78,-125.14"/>
+<polygon fill="#255000" stroke="#255000" points="86.5,-121.87 77.82,-127.93 88.39,-128.61 86.5,-121.87"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~mapl_regridderspec~~UsesGraph_node3" class="node">
+<title>iso_fortran_env</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="263.5,-147 169.5,-147 169.5,-123 263.5,-123 263.5,-147"/>
+<text text-anchor="middle" x="216.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</g>
+<!-- module~mapl_regridderspec&#45;&gt;iso_fortran_env -->
+<g id="module~~mapl_regridderspec~~UsesGraph_edge2" class="edge">
+<title>module~mapl_regridderspec&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M340.34,-107C319.25,-111.81 294.92,-117.35 273.5,-122.24"/>
+<polygon fill="#255000" stroke="#255000" points="272.54,-118.86 263.57,-124.5 274.1,-125.69 272.54,-118.86"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="module~~mapl_regridderspec~~UsesGraph_node4" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_module~~mapl_regridderspec~~UsesGraph_node4"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="288,-25 145,-25 145,-1 288,-1 288,-25"/>
+<text text-anchor="middle" x="216.5" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_regridderspec&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~mapl_regridderspec~~UsesGraph_edge3" class="edge">
+<title>module~mapl_regridderspec&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M377.02,-82.83C358.45,-69.2 326.45,-47.28 296,-34 291.07,-31.85 285.87,-29.87 280.58,-28.07"/>
+<polygon fill="#255000" stroke="#255000" points="281.61,-24.72 271.02,-25 279.48,-31.39 281.61,-24.72"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="module~~mapl_regridderspec~~UsesGraph_node5" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_module~~mapl_regridderspec~~UsesGraph_node5"><a xlink:href="../module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="296,-67 137,-67 137,-43 296,-43 296,-67"/>
+<text text-anchor="middle" x="216.5" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_regridderspec&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="module~~mapl_regridderspec~~UsesGraph_edge4" class="edge">
+<title>module~mapl_regridderspec&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M340.34,-83C321.43,-78.69 299.91,-73.78 280.22,-69.3"/>
+<polygon fill="#255000" stroke="#255000" points="280.95,-65.87 270.42,-67.06 279.39,-72.7 280.95,-65.87"/>
+</g>
+<!-- module~mapl_regridmethods -->
+<g id="module~~mapl_regridderspec~~UsesGraph_node6" class="node">
+<title>module~mapl_regridmethods</title>
+<g id="a_module~~mapl_regridderspec~~UsesGraph_node6"><a xlink:href="../module/mapl_regridmethods.html" xlink:title="mapl_RegridMethods">
+<polygon fill="#337ab7" stroke="#337ab7" points="278.5,-189 154.5,-189 154.5,-165 278.5,-165 278.5,-189"/>
+<text text-anchor="middle" x="216.5" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_RegridMethods</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_regridderspec&#45;&gt;module~mapl_regridmethods -->
+<g id="module~~mapl_regridderspec~~UsesGraph_edge5" class="edge">
+<title>module~mapl_regridderspec&#45;&gt;module~mapl_regridmethods</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M377.02,-107.17C358.45,-120.8 326.45,-142.72 296,-156 291.07,-158.15 285.87,-160.13 280.58,-161.93"/>
+<polygon fill="#255000" stroke="#255000" points="279.48,-158.61 271.02,-165 281.61,-165.28 279.48,-158.61"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~mapl_regridderspec~~UsesGraph_node7" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~mapl_regridderspec~~UsesGraph_node7"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-66 0,-66 0,-42 101,-42 101,-66"/>
+<text text-anchor="middle" x="50.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
+<g id="module~~mapl_regridderspec~~UsesGraph_edge6" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M167.18,-25.08C149.16,-29.58 128.51,-34.75 109.7,-39.45"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="108.61,-36.12 99.76,-41.94 110.31,-42.91 108.61,-36.12"/>
+</g>
+<!-- mpi -->
+<g id="module~~mapl_regridderspec~~UsesGraph_node8" class="node">
+<title>mpi</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-24 23.5,-24 23.5,0 77.5,0 77.5,-24"/>
+<text text-anchor="middle" x="50.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
+<g id="module~~mapl_regridderspec~~UsesGraph_edge7" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M145,-12.57C125.34,-12.45 104.79,-12.32 87.97,-12.22"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="87.53,-8.72 77.51,-12.16 87.49,-15.72 87.53,-8.72"/>
+</g>
+<!-- module~mapl_regridmethods&#45;&gt;ESMF -->
+<g id="module~~mapl_regridderspec~~UsesGraph_edge8" class="edge">
+<title>module~mapl_regridmethods&#45;&gt;ESMF</title>
+<path fill="none" stroke="#204025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M167.18,-164.92C141.67,-158.54 110.89,-150.85 87.49,-145"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="88.18,-141.56 77.63,-142.53 86.49,-148.35 88.18,-141.56"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~mapl_regridderspec~~UsedByGraph Pages: 1 -->
+<svg id="modulemapl_regridderspecUsedByGraph" width="620pt" height="665pt"
+ viewBox="0.00 0.00 620.00 665.41" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~mapl_regridderspec~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 661.41)">
+<title>module~~mapl_regridderspec~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-661.41 616,-661.41 616,4 -4,4"/>
+<!-- module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node1" class="node">
+<title>module~mapl_regridderspec</title>
+<polygon fill="none" stroke="black" points="124,-340.7 0,-340.7 0,-316.7 124,-316.7 124,-340.7"/>
+<text text-anchor="middle" x="62" y="-326.3" font-family="Helvetica,sans-Serif" font-size="10.50">mapl_RegridderSpec</text>
+</g>
+<!-- module~mapl_abstractregriddermod -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node2" class="node">
+<title>module~mapl_abstractregriddermod</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node2"><a xlink:href="../module/mapl_abstractregriddermod.html" xlink:title="MAPL_AbstractRegridderMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="469,-655.7 303,-655.7 303,-631.7 469,-631.7 469,-655.7"/>
+<text text-anchor="middle" x="386" y="-641.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridderMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_abstractregriddermod&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge1" class="edge">
+<title>module~mapl_abstractregriddermod&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M315.26,-655.71C266.68,-660.02 203.12,-657.04 160,-622.7 73.86,-554.1 63.47,-406.99 62.75,-350.98"/>
+<polygon fill="#255000" stroke="#255000" points="66.25,-350.75 62.72,-340.76 59.25,-350.77 66.25,-350.75"/>
+</g>
+<!-- module~mapl_esmfregriddermod -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node3" class="node">
+<title>module~mapl_esmfregriddermod</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node3"><a xlink:href="../module/mapl_esmfregriddermod.html" xlink:title="MAPL_EsmfRegridderMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="460,-613.7 312,-613.7 312,-589.7 460,-589.7 460,-613.7"/>
+<text text-anchor="middle" x="386" y="-599.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EsmfRegridderMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_esmfregriddermod&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge2" class="edge">
+<title>module~mapl_esmfregriddermod&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M311.86,-613.36C264.05,-616.87 202.77,-613.1 160,-580.7 84.96,-523.87 67.96,-401.14 64.12,-350.86"/>
+<polygon fill="#255000" stroke="#255000" points="67.6,-350.51 63.45,-340.76 60.62,-350.97 67.6,-350.51"/>
+</g>
+<!-- module~mapl_horizontalfluxregridder -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node4" class="node">
+<title>module~mapl_horizontalfluxregridder</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node4"><a xlink:href="../module/mapl_horizontalfluxregridder.html" xlink:title="mapl_HorizontalFluxRegridder">
+<polygon fill="#337ab7" stroke="#337ab7" points="473,-571.7 299,-571.7 299,-547.7 473,-547.7 473,-571.7"/>
+<text text-anchor="middle" x="386" y="-557.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_HorizontalFluxRegridder</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_horizontalfluxregridder&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge3" class="edge">
+<title>module~mapl_horizontalfluxregridder&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M298.91,-571.12C253.75,-572.6 199.72,-566.79 160,-538.7 95.92,-493.38 73.15,-394.87 65.96,-350.79"/>
+<polygon fill="#255000" stroke="#255000" points="69.41,-350.19 64.45,-340.83 62.49,-351.24 69.41,-350.19"/>
+</g>
+<!-- module~mapl_identityregriddermod -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node5" class="node">
+<title>module~mapl_identityregriddermod</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node5"><a xlink:href="../module/mapl_identityregriddermod.html" xlink:title="MAPL_IdentityRegridderMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="466.5,-529.7 305.5,-529.7 305.5,-505.7 466.5,-505.7 466.5,-529.7"/>
+<text text-anchor="middle" x="386" y="-515.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_IdentityRegridderMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_identityregriddermod&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge4" class="edge">
+<title>module~mapl_identityregriddermod&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M305.27,-527.49C259.4,-529.14 202.61,-524.02 160,-496.7 106.84,-462.62 79.52,-388.35 68.7,-351.04"/>
+<polygon fill="#255000" stroke="#255000" points="72,-349.85 65.97,-341.14 65.26,-351.71 72,-349.85"/>
+</g>
+<!-- module~mapl_latlontolatlonregriddermod -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node6" class="node">
+<title>module~mapl_latlontolatlonregriddermod</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node6"><a xlink:href="../module/mapl_latlontolatlonregriddermod.html" xlink:title="MAPL_LatLonToLatLonRegridderMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="488.5,-487.7 283.5,-487.7 283.5,-463.7 488.5,-463.7 488.5,-487.7"/>
+<text text-anchor="middle" x="386" y="-473.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LatLonToLatLonRegridderMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_latlontolatlonregriddermod&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge5" class="edge">
+<title>module~mapl_latlontolatlonregriddermod&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M283.27,-483.27C242.74,-482.06 197.02,-475.11 160,-454.7 116.97,-430.98 86.88,-379.32 72.54,-350.05"/>
+<polygon fill="#255000" stroke="#255000" points="75.57,-348.26 68.13,-340.72 69.24,-351.25 75.57,-348.26"/>
+</g>
+<!-- module~mapl_newregriddermanager_private -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node7" class="node">
+<title>module~mapl_newregriddermanager_private</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node7"><a xlink:href="../module/mapl_newregriddermanager_private.html" xlink:title="mapl_NewRegridderManager_private">
+<polygon fill="#337ab7" stroke="#337ab7" points="491,-445.7 281,-445.7 281,-421.7 491,-421.7 491,-445.7"/>
+<text text-anchor="middle" x="386" y="-431.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_NewRegridderManager_private</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_newregriddermanager_private&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge6" class="edge">
+<title>module~mapl_newregriddermanager_private&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M280.92,-437.22C241.7,-435.19 197.53,-428.72 160,-412.7 126.69,-398.49 96.56,-368.44 79.01,-348.41"/>
+<polygon fill="#255000" stroke="#255000" points="81.65,-346.11 72.5,-340.77 76.32,-350.65 81.65,-346.11"/>
+</g>
+<!-- module~mapl_regriddermanager_private -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node8" class="node">
+<title>module~mapl_regriddermanager_private</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node8"><a xlink:href="../module/mapl_regriddermanager_private.html" xlink:title="MAPL_RegridderManager_private">
+<polygon fill="#337ab7" stroke="#337ab7" points="480.5,-403.7 291.5,-403.7 291.5,-379.7 480.5,-379.7 480.5,-403.7"/>
+<text text-anchor="middle" x="386" y="-389.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RegridderManager_private</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_regriddermanager_private&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge7" class="edge">
+<title>module~mapl_regriddermanager_private&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M291.37,-389.56C250.52,-386.95 202.37,-381.56 160,-370.7 137.29,-364.89 113.1,-354.42 94.55,-345.39"/>
+<polygon fill="#255000" stroke="#255000" points="95.92,-342.16 85.4,-340.83 92.79,-348.42 95.92,-342.16"/>
+</g>
+<!-- module~mapl_regridderspecroutehandlemap -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node9" class="node">
+<title>module~mapl_regridderspecroutehandlemap</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node9"><a xlink:href="../module/mapl_regridderspecroutehandlemap.html" xlink:title="mapl_RegridderSpecRouteHandleMap">
+<polygon fill="#337ab7" stroke="#337ab7" points="493.5,-361.7 278.5,-361.7 278.5,-337.7 493.5,-337.7 493.5,-361.7"/>
+<text text-anchor="middle" x="386" y="-347.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_RegridderSpecRouteHandleMap</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_regridderspecroutehandlemap&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge8" class="edge">
+<title>module~mapl_regridderspecroutehandlemap&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M278.23,-342.74C231.04,-339.66 176.82,-336.13 134.6,-333.37"/>
+<polygon fill="#255000" stroke="#255000" points="134.62,-329.87 124.42,-332.71 134.17,-336.85 134.62,-329.87"/>
+</g>
+<!-- module~mapl_tilingregriddermod -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node10" class="node">
+<title>module~mapl_tilingregriddermod</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node10"><a xlink:href="../module/mapl_tilingregriddermod.html" xlink:title="MAPL_TilingRegridderMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="461,-319.7 311,-319.7 311,-295.7 461,-295.7 461,-319.7"/>
+<text text-anchor="middle" x="386" y="-305.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TilingRegridderMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_tilingregriddermod&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge9" class="edge">
+<title>module~mapl_tilingregriddermod&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M310.72,-312.55C257.7,-316.01 186.8,-320.63 134.43,-324.05"/>
+<polygon fill="#255000" stroke="#255000" points="133.97,-320.57 124.22,-324.71 134.42,-327.55 133.97,-320.57"/>
+</g>
+<!-- module~mapl_transposeregriddermod -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node11" class="node">
+<title>module~mapl_transposeregriddermod</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node11"><a xlink:href="../module/mapl_transposeregriddermod.html" xlink:title="MAPL_TransposeRegridderMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="473.5,-277.7 298.5,-277.7 298.5,-253.7 473.5,-253.7 473.5,-277.7"/>
+<text text-anchor="middle" x="386" y="-263.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TransposeRegridderMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_transposeregriddermod&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge10" class="edge">
+<title>module~mapl_transposeregriddermod&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M298.44,-267.41C256.15,-269.85 204.85,-275.21 160,-286.7 137.29,-292.52 113.1,-302.99 94.55,-312.02"/>
+<polygon fill="#255000" stroke="#255000" points="92.79,-308.99 85.4,-316.58 95.92,-315.25 92.79,-308.99"/>
+</g>
+<!-- module~maplbase_mod -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node12" class="node">
+<title>module~maplbase_mod</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node12"><a xlink:href="../module/maplbase_mod.html" xlink:title="MAPLBase_Mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="433.5,-235.7 338.5,-235.7 338.5,-211.7 433.5,-211.7 433.5,-235.7"/>
+<text text-anchor="middle" x="386" y="-221.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPLBase_Mod</text>
+</a>
+</g>
+</g>
+<!-- module~maplbase_mod&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge11" class="edge">
+<title>module~maplbase_mod&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M338.16,-219.95C291.19,-218.02 217.73,-220.06 160,-244.7 126.69,-258.92 96.56,-288.97 79.01,-309"/>
+<polygon fill="#255000" stroke="#255000" points="76.32,-306.76 72.5,-316.64 81.65,-311.3 76.32,-306.76"/>
+</g>
+<!-- proc~initialize_base -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node13" class="node">
+<title>proc~initialize_base</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node13"><a xlink:href="../proc/initialize_base.html" xlink:title="MAPL_AbstractRegridderMod::AbstractRegridder%initialize_base">
+<polygon fill="#d9534f" stroke="#d9534f" points="563.5,-193.7 208.5,-193.7 208.5,-169.7 563.5,-169.7 563.5,-193.7"/>
+<text text-anchor="middle" x="386" y="-179.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridderMod::AbstractRegridder%initialize_base</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_base&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge12" class="edge">
+<title>proc~initialize_base&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M208.47,-183.98C191.5,-188.35 175.03,-194.42 160,-202.7 116.97,-226.43 86.88,-278.08 72.54,-307.35"/>
+<polygon fill="#255000" stroke="#255000" points="69.24,-306.15 68.13,-316.69 75.57,-309.14 69.24,-306.15"/>
+</g>
+<!-- proc~initialize_subclass -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node14" class="node">
+<title>proc~initialize_subclass</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node14"><a xlink:href="../proc/initialize_subclass.html" xlink:title="MAPL_IdentityRegridderMod::IdentityRegridder%initialize_subclass">
+<polygon fill="#d9534f" stroke="#d9534f" points="568.5,-151.7 203.5,-151.7 203.5,-127.7 568.5,-127.7 568.5,-151.7"/>
+<text text-anchor="middle" x="386" y="-137.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_IdentityRegridderMod::IdentityRegridder%initialize_subclass</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_subclass&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge13" class="edge">
+<title>proc~initialize_subclass&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M203.26,-141.15C187.97,-145.82 173.29,-152.18 160,-160.7 106.84,-194.79 79.52,-269.06 68.7,-306.37"/>
+<polygon fill="#255000" stroke="#255000" points="65.26,-305.7 65.97,-316.27 72,-307.56 65.26,-305.7"/>
+</g>
+<!-- proc~initialize_subclass~3 -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node15" class="node">
+<title>proc~initialize_subclass~3</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node15"><a xlink:href="../proc/initialize_subclass~3.html" xlink:title="MAPL_LatLonToLatLonRegridderMod::LatLonToLatLonRegridder%initialize_subclass">
+<polygon fill="#d9534f" stroke="#d9534f" points="612,-109.7 160,-109.7 160,-85.7 612,-85.7 612,-109.7"/>
+<text text-anchor="middle" x="386" y="-95.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LatLonToLatLonRegridderMod::LatLonToLatLonRegridder%initialize_subclass</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_subclass~3&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge14" class="edge">
+<title>proc~initialize_subclass~3&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M174.48,-109.74C169.48,-112.44 164.64,-115.42 160,-118.7 95.92,-164.02 73.15,-262.54 65.96,-306.61"/>
+<polygon fill="#255000" stroke="#255000" points="62.49,-306.17 64.45,-316.58 69.41,-307.22 62.49,-306.17"/>
+</g>
+<!-- proc~initialize_subclass~6 -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node16" class="node">
+<title>proc~initialize_subclass~6</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node16"><a xlink:href="../proc/initialize_subclass~6.html" xlink:title="mapl_HorizontalFluxRegridder::HorizontalFluxRegridder%initialize_subclass">
+<polygon fill="#d9534f" stroke="#d9534f" points="593.5,-67.7 178.5,-67.7 178.5,-43.7 593.5,-43.7 593.5,-67.7"/>
+<text text-anchor="middle" x="386" y="-53.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_HorizontalFluxRegridder::HorizontalFluxRegridder%initialize_subclass</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_subclass~6&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge15" class="edge">
+<title>proc~initialize_subclass~6&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M306.56,-43.69C259.59,-40.85 201.2,-45.5 160,-76.7 84.96,-133.54 67.96,-256.27 64.12,-306.54"/>
+<polygon fill="#255000" stroke="#255000" points="60.62,-306.44 63.45,-316.65 67.6,-306.9 60.62,-306.44"/>
+</g>
+<!-- proc~initialize_subclass~7 -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_node17" class="node">
+<title>proc~initialize_subclass~7</title>
+<g id="a_module~~mapl_regridderspec~~UsedByGraph_node17"><a xlink:href="../proc/initialize_subclass~7.html" xlink:title="MAPL_EsmfRegridderMod::EsmfRegridder%initialize_subclass">
+<polygon fill="#d9534f" stroke="#d9534f" points="555,-25.7 217,-25.7 217,-1.7 555,-1.7 555,-25.7"/>
+<text text-anchor="middle" x="386" y="-11.3" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EsmfRegridderMod::EsmfRegridder%initialize_subclass</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_subclass~7&#45;&gt;module~mapl_regridderspec -->
+<g id="module~~mapl_regridderspec~~UsedByGraph_edge16" class="edge">
+<title>proc~initialize_subclass~7&#45;&gt;module~mapl_regridderspec</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M315.26,-1.7C266.68,2.61 203.12,-0.36 160,-34.7 73.86,-103.31 63.47,-250.42 62.75,-306.43"/>
+<polygon fill="#255000" stroke="#255000" points="59.25,-306.64 62.72,-316.65 66.25,-306.66 59.25,-306.64"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mod_name~18"></span>
+              character(len=*),
+            </td>
+              <td>private,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>MOD_NAME</strong></td>
+<td> =</td>
+                <td>&#39;MAPL_RegridderSpec_private::&#39;</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Interfaces</h2>
+              <div class="card">
+    <div class="card-header bg-light codesum">
+      <span class="anchor" id="interface-regridderspec"></span>
+      <h3>public        interface <a href='../interface/regridderspec.html'>RegridderSpec</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function <a href='../proc/newregridderspec.html'>newRegridderSpec</a>(grid_in, grid_out, regrid_method, unusable, hints, rc) result(spec)  
+
+    </h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_in~7"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_in</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_out~7"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_out</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-regrid_method~22"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>regrid_method</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~352"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hints~4"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hints</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1802"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/regridderspec.html'>RegridderSpec</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-regridderspec"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/regridderspec.html'>RegridderSpec</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+        <h4>Components</h4>
+          <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hints~3"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hints</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-regrid_method~21"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>regrid_method</strong></td>
+<td> =</td>
+                <td>UNSPECIFIED_REGRID_METHOD</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_in~6"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_in</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_out~6"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_out</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong><a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/proc/newregridderspec.html'>newRegridderSpec</a></strong>
+                    (grid_in, grid_out, regrid_method, unusable, hints, rc)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/regridderspec.html#boundprocedure-equals~28'>equals</a></strong></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/regridderspec.html#boundprocedure-get_grid_type~2'>get_grid_type</a></strong></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>  procedure, public ::
+  <strong><a href='../type/regridderspec.html#boundprocedure-less_than~6'>less_than</a></strong></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/regridderspec.html#boundprocedure-operator%20%28lt%29~2'>operator (<)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/type/regridderspec.html#boundprocedure-less_than~6'>less_than</a></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>  generic, public ::
+  <strong><a href='../type/regridderspec.html#boundprocedure-operator%20%28%3D%3D%29'>operator (==)</a></strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/type/regridderspec.html#boundprocedure-equals~28'>equals</a></td>
+                <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Functions</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-equals~12"></span> <h3>private  function <a href='../proc/equals~12.html'>equals</a>(a, b)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Two regridders are equivalent if their specs are identical.  This
+ can be used to check if a given regridder is already contained in
+ the regridder_manager without instantiating the regridder.
+ Currently the implementation assumes that two regridders are identical
+ if the corresponding grids are the same and the same method is in use.
+ This will need to be changed to incorporate LocStreams.</p><a href="../proc/equals~12.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~217"></span>
+              class(<a href='../type/regridderspec.html'>RegridderSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~134"></span>
+              type(<a href='../type/regridderspec.html'>RegridderSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-less_than~3"></span> <h3>private  function <a href='../proc/less_than~3.html'>less_than</a>(a, b)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~218"></span>
+              class(<a href='../type/regridderspec.html'>RegridderSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~135"></span>
+              type(<a href='../type/regridderspec.html'>RegridderSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-newregridderspec"></span> <h3>private  function <a href='../proc/newregridderspec.html'>newRegridderSpec</a>(grid_in, grid_out, regrid_method, unusable, hints, rc) result(spec)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_in~7"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_in</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_out~7"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_out</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-regrid_method~22"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>regrid_method</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~352"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hints~4"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hints</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1802"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/regridderspec.html'>RegridderSpec</a>)</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_grid_type"></span> <h3>private  subroutine <a href='../proc/get_grid_type.html'>get_grid_type</a>(this, unusable, grid_type_in, grid_type_out, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4558"></span>
+              class(<a href='../type/regridderspec.html'>RegridderSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~353"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_type_in~5"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_type_in</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_type_out~5"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_type_out</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1803"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

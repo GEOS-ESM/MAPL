@@ -1,0 +1,1731 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_VarSpecCreateInList &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_VarSpecCreateInList
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.2% of total for procedures.">322 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/VarSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/varspec.f90.html'>VarSpec.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_varspecmod.html'>MAPL_VarSpecMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_VarSpecCreateInList</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_varspeccreateinlist.html#src">MAPL_VarSpecCreateInList</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_VarSpecCreateInList(SPEC, SHORT_NAME, LONG_NAME, UNITS, DIMS, VLOCATION, FIELD, BUNDLE, STATE, NUM_SUBTILES, STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL, OFFSET, DEFAULT, FRIENDLYTO, HALOWIDTH, PRECISION, RESTART, ATTR_RNAMES, ATTR_INAMES, ATTR_RVALUES, ATTR_IVALUES, UNGRIDDED_DIMS, UNGRIDDED_UNIT, UNGRIDDED_NAME, UNGRIDDED_COORDS, FIELD_TYPE, STAGGERING, ROTATION, GRID, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>SPEC</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-short_name"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SHORT_NAME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-long_name~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LONG_NAME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-units~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UNITS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dims~13"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DIMS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vlocation"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>VLOCATION</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~14"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>FIELD</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~10"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>BUNDLE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state~10"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>STATE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-num_subtiles"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>NUM_SUBTILES</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-stat"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>STAT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-accmlt_interval"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ACCMLT_INTERVAL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-couple_interval"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>COUPLE_INTERVAL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-offset~4"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>OFFSET</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-default"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DEFAULT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-friendlyto"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FRIENDLYTO</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-halowidth"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>HALOWIDTH</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-precision"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>PRECISION</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-restart"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RESTART</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attr_rnames"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ATTR_RNAMES</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attr_inames"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ATTR_INAMES</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attr_rvalues"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ATTR_RVALUES</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attr_ivalues"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ATTR_IVALUES</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ungridded_dims"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UNGRIDDED_DIMS</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ungridded_unit"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UNGRIDDED_UNIT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ungridded_name"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UNGRIDDED_NAME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ungridded_coords"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UNGRIDDED_COORDS</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field_type"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FIELD_TYPE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-staggering"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>STAGGERING</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rotation"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ROTATION</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~28"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GRID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~99"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_varspeccreateinlist~~CallsGraph Pages: 1 -->
+<svg id="procmapl_varspeccreateinlistCallsGraph" width="641pt" height="66pt"
+ viewBox="0.00 0.00 641.00 65.63" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph" class="graph" transform="scale(2.61 2.61) rotate(0) translate(4 167.29)">
+<title>proc~~mapl_varspeccreateinlist~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-167.29 1669,-167.29 1669,4 -4,4"/>
+<!-- proc~mapl_varspeccreateinlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node1" class="node">
+<title>proc~mapl_varspeccreateinlist</title>
+<polygon fill="none" stroke="black" points="260,-102.29 0,-102.29 0,-78.29 260,-78.29 260,-102.29"/>
+<text text-anchor="middle" x="130" y="-87.89" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_VarSpecMod::MAPL_VarSpecCreateInList</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="829,-124.29 612,-124.29 612,-100.29 829,-100.29 829,-124.29"/>
+<text text-anchor="middle" x="720.5" y="-109.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspeccreateinlist&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_varspeccreateinlist&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M260.15,-95.12C362.05,-98.93 503,-104.2 601.8,-107.89"/>
+<polygon fill="#255000" stroke="#255000" points="601.71,-111.39 611.83,-108.27 601.97,-104.39 601.71,-111.39"/>
+</g>
+<!-- interface~mapl_varspecgetindex -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node3" class="node">
+<title>interface~mapl_varspecgetindex</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node3"><a xlink:href="../interface/mapl_varspecgetindex.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecGetIndex">
+<polygon fill="#a7506f" stroke="#a7506f" points="540,-82.29 296,-82.29 296,-58.29 540,-58.29 540,-82.29"/>
+<text text-anchor="middle" x="418" y="-67.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecGetIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspeccreateinlist&#45;&gt;interface~mapl_varspecgetindex -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_varspeccreateinlist&#45;&gt;interface~mapl_varspecgetindex</title>
+<path fill="none" stroke="#255000" d="M260.19,-81.26C268.61,-80.67 277.1,-80.07 285.53,-79.48"/>
+<polygon fill="#255000" stroke="#255000" points="286.04,-82.96 295.78,-78.77 285.56,-75.97 286.04,-82.96"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1154,-40.29 934,-40.29 934,-16.29 1154,-16.29 1154,-40.29"/>
+<text text-anchor="middle" x="1044" y="-25.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspeccreateinlist&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_varspeccreateinlist&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M174.52,-78.28C207.64,-69.43 254.46,-57.55 296,-49.29 544.71,0.15 611.86,7.59 865,-7.29 892.13,-8.88 921.47,-11.84 948.35,-15.03"/>
+<polygon fill="#255000" stroke="#255000" points="948.17,-18.54 958.52,-16.27 949.02,-11.59 948.17,-18.54"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="525,-163.29 311,-163.29 311,-139.29 525,-139.29 525,-163.29"/>
+<text text-anchor="middle" x="418" y="-148.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspeccreateinlist&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_varspeccreateinlist&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M187.5,-102.34C234.41,-112.35 301.21,-126.59 350.65,-137.14"/>
+<polygon fill="#255000" stroke="#255000" points="350.1,-140.6 360.61,-139.26 351.56,-133.75 350.1,-140.6"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node7" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node7"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1180,-124.29 908,-124.29 908,-100.29 1180,-100.29 1180,-124.29"/>
+<text text-anchor="middle" x="1044" y="-109.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M829,-112.29C851.03,-112.29 874.55,-112.29 897.65,-112.29"/>
+<polygon fill="#255000" stroke="#255000" points="897.87,-115.79 907.87,-112.29 897.87,-108.79 897.87,-115.79"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node8" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node8"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1187,-82.29 901,-82.29 901,-58.29 1187,-58.29 1187,-82.29"/>
+<text text-anchor="middle" x="1044" y="-67.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M813.63,-100.25C853.48,-95.05 900.27,-88.94 941.15,-83.6"/>
+<polygon fill="#255000" stroke="#255000" points="941.67,-87.06 951.14,-82.29 940.77,-80.12 941.67,-87.06"/>
+</g>
+<!-- proc~mapl_varspecgetindexbyname -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node10" class="node">
+<title>proc~mapl_varspecgetindexbyname</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node10"><a xlink:href="../proc/mapl_varspecgetindexbyname.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecGetIndexByName">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="865,-82.29 576,-82.29 576,-58.29 865,-58.29 865,-82.29"/>
+<text text-anchor="middle" x="720.5" y="-67.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecGetIndexByName</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecgetindex&#45;&gt;proc~mapl_varspecgetindexbyname -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_varspecgetindex&#45;&gt;proc~mapl_varspecgetindexbyname</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M540.36,-70.29C548.79,-70.29 557.34,-70.29 565.91,-70.29"/>
+<polygon fill="transparent" stroke="transparent" points="565.97,-73.79 575.97,-70.29 565.97,-66.79 565.97,-73.79"/>
+</g>
+<!-- proc~mapl_varspecgetindexofitem -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node11" class="node">
+<title>proc~mapl_varspecgetindexofitem</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node11"><a xlink:href="../proc/mapl_varspecgetindexofitem.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecGetIndexOfItem">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="860.5,-40.29 580.5,-40.29 580.5,-16.29 860.5,-16.29 860.5,-40.29"/>
+<text text-anchor="middle" x="720.5" y="-25.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecGetIndexOfItem</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecgetindex&#45;&gt;proc~mapl_varspecgetindexofitem -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_varspecgetindex&#45;&gt;proc~mapl_varspecgetindexofitem</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M505.11,-58.25C542.13,-53.08 585.54,-47.01 623.58,-41.7"/>
+<polygon fill="transparent" stroke="transparent" points="624.22,-45.14 633.64,-40.29 623.25,-38.21 624.22,-45.14"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1476,-61.29 1223,-61.29 1223,-37.29 1476,-37.29 1476,-61.29"/>
+<text text-anchor="middle" x="1349.5" y="-46.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1154.14,-35.84C1173.1,-37.15 1193.02,-38.53 1212.59,-39.89"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1212.57,-43.39 1222.78,-40.59 1213.05,-36.41 1212.57,-43.39"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node9" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node9"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1464,-118.29 1235,-118.29 1235,-94.29 1464,-94.29 1464,-118.29"/>
+<text text-anchor="middle" x="1349.5" y="-103.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1154.19,-40.09C1165.42,-42.59 1176.54,-45.62 1187,-49.29 1204.48,-55.42 1205.97,-63.01 1223,-70.29 1242.88,-78.78 1265.37,-85.95 1285.77,-91.59"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1285.02,-95.01 1295.59,-94.24 1286.85,-88.26 1285.02,-95.01"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M525.19,-153.56C673.64,-155.65 951.49,-155.62 1187,-133.29 1217.38,-130.41 1250.68,-125.2 1279.1,-120.12"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1279.73,-123.56 1288.94,-118.33 1278.48,-116.67 1279.73,-123.56"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1615.5,-29.29 1561.5,-29.29 1561.5,-5.29 1615.5,-5.29 1615.5,-29.29"/>
+<text text-anchor="middle" x="1588.5" y="-14.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge12" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1439.42,-37.28C1478.15,-32.06 1521.37,-26.22 1551.07,-22.21"/>
+<polygon fill="#255000" stroke="#255000" points="1551.93,-25.63 1561.37,-20.82 1550.99,-18.69 1551.93,-25.63"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1615.5,-71.29 1561.5,-71.29 1561.5,-47.29 1615.5,-47.29 1615.5,-71.29"/>
+<text text-anchor="middle" x="1588.5" y="-56.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1476.29,-54.6C1503.83,-55.76 1530.86,-56.9 1551.36,-57.77"/>
+<polygon fill="#255000" stroke="#255000" points="1551.33,-61.27 1561.46,-58.19 1551.62,-54.27 1551.33,-61.27"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M1180.33,-109.61C1195.1,-109.32 1210.08,-109.03 1224.7,-108.74"/>
+<polygon fill="transparent" stroke="transparent" points="1224.83,-112.24 1234.76,-108.54 1224.69,-105.24 1224.83,-112.24"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025500" d="M1187.42,-60.44C1195.85,-59.85 1204.32,-59.27 1212.72,-58.68"/>
+<polygon fill="#025500" stroke="#025500" points="1213.2,-62.16 1222.93,-57.98 1212.72,-55.18 1213.2,-62.16"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M1146.48,-82.33C1175.59,-85.78 1207.48,-89.56 1237.14,-93.08"/>
+<polygon fill="#025500" stroke="#025500" points="1236.77,-96.56 1247.11,-94.26 1237.59,-89.61 1236.77,-96.56"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_node14" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CallsGraph_node14"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1665,-118.29 1512,-118.29 1512,-94.29 1665,-94.29 1665,-118.29"/>
+<text text-anchor="middle" x="1588.5" y="-103.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1464.14,-106.29C1476.76,-106.29 1489.46,-106.29 1501.65,-106.29"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1501.77,-109.79 1511.77,-106.29 1501.77,-102.79 1501.77,-109.79"/>
+</g>
+<!-- proc~mapl_varspecgetindexbyname&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_varspecgetindexbyname&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002505" d="M813.63,-58.25C853.48,-53.05 900.27,-46.94 941.15,-41.6"/>
+<polygon fill="#002505" stroke="#002505" points="941.67,-45.06 951.14,-40.29 940.77,-38.12 941.67,-45.06"/>
+</g>
+<!-- proc~mapl_varspecgetindexofitem&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspeccreateinlist~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_varspecgetindexofitem&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M860.64,-28.29C881.55,-28.29 902.95,-28.29 923.4,-28.29"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="923.68,-31.79 933.68,-28.29 923.68,-24.79 923.68,-31.79"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_varspeccreateinlistCallsGraph = svgPanZoom('#procmapl_varspeccreateinlistCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_varspeccreateinlist~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_varspeccreateinlistCalledByGraph" width="641pt" height="84pt"
+ viewBox="0.00 0.00 641.00 84.18" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph" class="graph" transform="scale(2.38 2.38) rotate(0) translate(4 196)">
+<title>proc~~mapl_varspeccreateinlist~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1519,-196 1519,4 -4,4"/>
+<!-- proc~mapl_varspeccreateinlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node1" class="node">
+<title>proc~mapl_varspeccreateinlist</title>
+<polygon fill="none" stroke="black" points="1515,-108 1255,-108 1255,-84 1515,-84 1515,-108"/>
+<text text-anchor="middle" x="1385" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_VarSpecMod::MAPL_VarSpecCreateInList</text>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node2" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node2"><a xlink:href="../proc/initialize.html" xlink:title="MAPL_HistoryGridCompMod::Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1177.5,-192 965.5,-192 965.5,-168 1177.5,-168 1177.5,-192"/>
+<text text-anchor="middle" x="1071.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize&#45;&gt;proc~mapl_varspeccreateinlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize&#45;&gt;proc~mapl_varspeccreateinlist</title>
+<path fill="none" stroke="#255000" d="M1176.71,-167.98C1191.02,-165.48 1205.44,-162.51 1219,-159 1264.93,-147.1 1315.61,-126.57 1348.53,-112.19"/>
+<polygon fill="#255000" stroke="#255000" points="1350,-115.37 1357.73,-108.13 1347.17,-108.96 1350,-115.37"/>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmall -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node3" class="node">
+<title>proc~mapl_stateaddexportspecfrmall</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node3"><a xlink:href="../proc/mapl_stateaddexportspecfrmall.html" xlink:title="MAPL_GenericMod::MAPL_StateAddExportSpecFrmAll">
+<polygon fill="#d9534f" stroke="#d9534f" points="1219,-150 924,-150 924,-126 1219,-126 1219,-150"/>
+<text text-anchor="middle" x="1071.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_StateAddExportSpecFrmAll</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmall&#45;&gt;proc~mapl_varspeccreateinlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_stateaddexportspecfrmall&#45;&gt;proc~mapl_varspeccreateinlist</title>
+<path fill="none" stroke="#255000" d="M1161.76,-125.96C1200.3,-120.77 1245.51,-114.67 1285.07,-109.34"/>
+<polygon fill="#255000" stroke="#255000" points="1285.55,-112.81 1294.99,-108 1284.62,-105.87 1285.55,-112.81"/>
+</g>
+<!-- proc~mapl_varspecaddfromitem -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node4" class="node">
+<title>proc~mapl_varspecaddfromitem</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node4"><a xlink:href="../proc/mapl_varspecaddfromitem.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecAddFromItem">
+<polygon fill="#d9534f" stroke="#d9534f" points="1205.5,-108 937.5,-108 937.5,-84 1205.5,-84 1205.5,-108"/>
+<text text-anchor="middle" x="1071.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecAddFromItem</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspecaddfromitem&#45;&gt;proc~mapl_varspeccreateinlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_varspecaddfromitem&#45;&gt;proc~mapl_varspeccreateinlist</title>
+<path fill="none" stroke="#255000" d="M1205.51,-96C1218.43,-96 1231.56,-96 1244.53,-96"/>
+<polygon fill="#255000" stroke="#255000" points="1244.9,-99.5 1254.9,-96 1244.9,-92.5 1244.9,-99.5"/>
+</g>
+<!-- proc~test_add_spec_grows_container -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node5" class="node">
+<title>proc~test_add_spec_grows_container</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node5"><a xlink:href="../proc/test_add_spec_grows_container.html" xlink:title="Test_VarSpec::test_add_spec_grows_container">
+<polygon fill="#d9534f" stroke="#d9534f" points="1199.5,-66 943.5,-66 943.5,-42 1199.5,-42 1199.5,-66"/>
+<text text-anchor="middle" x="1071.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_VarSpec::test_add_spec_grows_container</text>
+</a>
+</g>
+</g>
+<!-- proc~test_add_spec_grows_container&#45;&gt;proc~mapl_varspeccreateinlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge4" class="edge">
+<title>proc~test_add_spec_grows_container&#45;&gt;proc~mapl_varspeccreateinlist</title>
+<path fill="none" stroke="#255000" d="M1161.76,-66.04C1200.3,-71.23 1245.51,-77.33 1285.07,-82.66"/>
+<polygon fill="#255000" stroke="#255000" points="1284.62,-86.13 1294.99,-84 1285.55,-79.19 1284.62,-86.13"/>
+</g>
+<!-- proc~test_simple_constructor -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node6" class="node">
+<title>proc~test_simple_constructor</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node6"><a xlink:href="../proc/test_simple_constructor.html" xlink:title="Test_VarSpec::test_simple_constructor">
+<polygon fill="#d9534f" stroke="#d9534f" points="1179,-24 964,-24 964,0 1179,0 1179,-24"/>
+<text text-anchor="middle" x="1071.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_VarSpec::test_simple_constructor</text>
+</a>
+</g>
+</g>
+<!-- proc~test_simple_constructor&#45;&gt;proc~mapl_varspeccreateinlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge5" class="edge">
+<title>proc~test_simple_constructor&#45;&gt;proc~mapl_varspeccreateinlist</title>
+<path fill="none" stroke="#255000" d="M1176.71,-24.02C1191.02,-26.52 1205.44,-29.49 1219,-33 1264.93,-44.9 1315.61,-65.43 1348.53,-79.81"/>
+<polygon fill="#255000" stroke="#255000" points="1347.17,-83.04 1357.73,-83.87 1350,-76.63 1347.17,-83.04"/>
+</g>
+<!-- interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node7" class="node">
+<title>interface~mapl_addexportspec</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node7"><a xlink:href="../interface/mapl_addexportspec.html" xlink:title="MAPL_GenericMod::MAPL_AddExportSpec">
+<polygon fill="#a7506f" stroke="#a7506f" points="873.5,-150 640.5,-150 640.5,-126 873.5,-126 873.5,-150"/>
+<text text-anchor="middle" x="757" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_AddExportSpec</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_addexportspec&#45;&gt;proc~mapl_stateaddexportspecfrmall -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge6" class="edge">
+<title>interface~mapl_addexportspec&#45;&gt;proc~mapl_stateaddexportspecfrmall</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M873.92,-138C886.86,-138 900.2,-138 913.54,-138"/>
+<polygon fill="transparent" stroke="transparent" points="913.74,-141.5 923.74,-138 913.74,-134.5 913.74,-141.5"/>
+</g>
+<!-- interface~mapl_varspecaddtolist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node8" class="node">
+<title>interface~mapl_varspecaddtolist</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node8"><a xlink:href="../interface/mapl_varspecaddtolist.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecAddToList">
+<polygon fill="#a7506f" stroke="#a7506f" points="550,-88 303,-88 303,-64 550,-64 550,-88"/>
+<text text-anchor="middle" x="426.5" y="-73.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecAddToList</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecaddtolist&#45;&gt;proc~mapl_varspecaddfromitem -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge8" class="edge">
+<title>interface~mapl_varspecaddtolist&#45;&gt;proc~mapl_varspecaddfromitem</title>
+<path fill="none" stroke="#025510" stroke-dasharray="5,2" stroke-opacity="0.007843" d="M550.34,-79.82C657.81,-83.16 814.01,-88.02 927.17,-91.54"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="927.19,-95.04 937.29,-91.86 927.41,-88.05 927.19,-95.04"/>
+</g>
+<!-- proc~mapl_varspecaddfromlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node9" class="node">
+<title>proc~mapl_varspecaddfromlist</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node9"><a xlink:href="../proc/mapl_varspecaddfromlist.html" xlink:title="MAPL_VarSpecMod::MAPL_VarSpecAddFromList">
+<polygon fill="#d9534f" stroke="#d9534f" points="888,-69 626,-69 626,-45 888,-45 888,-69"/>
+<text text-anchor="middle" x="757" y="-54.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecMod::MAPL_VarSpecAddFromList</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecaddtolist&#45;&gt;proc~mapl_varspecaddfromlist -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge11" class="edge">
+<title>interface~mapl_varspecaddtolist&#45;&gt;proc~mapl_varspecaddfromlist</title>
+<path fill="none" stroke="#002505" stroke-dasharray="5,2" d="M550.29,-68.9C571.7,-67.66 594.12,-66.36 615.96,-65.1"/>
+<polygon fill="#002505" stroke="#002505" points="616.16,-68.59 625.94,-64.52 615.76,-61.61 616.16,-68.59"/>
+</g>
+<!-- proc~mapl_varspecaddfromlist&#45;&gt;proc~mapl_varspecaddfromitem -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge7" class="edge">
+<title>proc~mapl_varspecaddfromlist&#45;&gt;proc~mapl_varspecaddfromitem</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M854.31,-69.02C889.14,-73.37 928.66,-78.3 964.3,-82.75"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="963.88,-86.22 974.24,-83.99 964.75,-79.28 963.88,-86.22"/>
+</g>
+<!-- proc~addnewspec -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node10" class="node">
+<title>proc~addnewspec</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node10"><a xlink:href="../proc/addnewspec.html" xlink:title="VarspecDescriptionMod::VarspecDescription%addNewSpec">
+<polygon fill="#d9534f" stroke="#d9534f" points="590,-181 263,-181 263,-157 590,-157 590,-181"/>
+<text text-anchor="middle" x="426.5" y="-166.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarspecDescriptionMod::VarspecDescription%addNewSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~addnewspec&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge9" class="edge">
+<title>proc~addnewspec&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#255000" d="M554.98,-156.97C579.7,-154.64 605.6,-152.19 630.28,-149.86"/>
+<polygon fill="#255000" stroke="#255000" points="630.77,-153.33 640.4,-148.91 630.11,-146.36 630.77,-153.33"/>
+</g>
+<!-- proc~setservices~5 -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node11" class="node">
+<title>proc~setservices~5</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node11"><a xlink:href="../proc/setservices~5.html" xlink:title="MAPL_OrbGridCompMod::SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="532.5,-139 320.5,-139 320.5,-115 532.5,-115 532.5,-139"/>
+<text text-anchor="middle" x="426.5" y="-124.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod::SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~5&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge10" class="edge">
+<title>proc~setservices~5&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#255000" d="M532.79,-130.53C563.78,-131.56 598,-132.71 630.14,-133.79"/>
+<polygon fill="#255000" stroke="#255000" points="630.38,-137.3 640.5,-134.13 630.62,-130.3 630.38,-137.3"/>
+</g>
+<!-- proc~addstate -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_node12" class="node">
+<title>proc~addstate</title>
+<g id="a_proc~~mapl_varspeccreateinlist~~CalledByGraph_node12"><a xlink:href="../proc/addstate.html" xlink:title="ExtDataUtRoot_GridCompMod::AddState">
+<polygon fill="#d9534f" stroke="#d9534f" points="227,-181 0,-181 0,-157 227,-157 227,-181"/>
+<text text-anchor="middle" x="113.5" y="-166.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataUtRoot_GridCompMod::AddState</text>
+</a>
+</g>
+</g>
+<!-- proc~addstate&#45;&gt;proc~addnewspec -->
+<g id="proc~~mapl_varspeccreateinlist~~CalledByGraph_edge12" class="edge">
+<title>proc~addstate&#45;&gt;proc~addnewspec</title>
+<path fill="none" stroke="#255000" d="M227.22,-169C235.59,-169 244.14,-169 252.76,-169"/>
+<polygon fill="#255000" stroke="#255000" points="252.91,-172.5 262.91,-169 252.91,-165.5 252.91,-172.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_varspeccreateinlistCalledByGraph = svgPanZoom('#procmapl_varspeccreateinlistCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_VarSpecCreateInList</span><span class="p">(</span><span class="n">SPEC</span><span class="p">,</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">LONG_NAME</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">UNITS</span><span class="p">,</span><span class="w">  </span><span class="n">Dims</span><span class="p">,</span><span class="w"> </span><span class="n">VLocation</span><span class="p">,</span><span class="w"> </span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">BUNDLE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">NUM_SUBTILES</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">ACCMLT_INTERVAL</span><span class="p">,</span><span class="w"> </span><span class="n">COUPLE_INTERVAL</span><span class="p">,</span><span class="w"> </span><span class="n">OFFSET</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="n">FRIENDLYTO</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">HALOWIDTH</span><span class="p">,</span><span class="w"> </span><span class="nb">PRECISION</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">RESTART</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">ATTR_RNAMES</span><span class="p">,</span><span class="w"> </span><span class="n">ATTR_INAMES</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">ATTR_RVALUES</span><span class="p">,</span><span class="w"> </span><span class="n">ATTR_IVALUES</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">UNGRIDDED_DIMS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">UNGRIDDED_UNIT</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">UNGRIDDED_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">UNGRIDDED_COORDS</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">FIELD_TYPE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">STAGGERING</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">ROTATION</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span><span class="w"> </span>
+<span class="w">        </span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">RC</span><span class="w">  </span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="w"> </span><span class="p">),</span><span class="w">             </span><span class="k">pointer</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">SPEC</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">               </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">SHORT_NAME</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">LONG_NAME</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">UNITS</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">FRIENDLYTO</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">DIMS</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">VLOCATION</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">NUM_SUBTILES</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ACCMLT_INTERVAL</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">COUPLE_INTERVAL</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">OFFSET</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="nb">STAT</span>
+<span class="nb">      </span><span class="kt">real</span><span class="w">               </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">DEFAULT</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FIELD</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BUNDLE</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">HALOWIDTH</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="nb">PRECISION</span>
+<span class="nb">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">RESTART</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ATTR_INAMES</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ATTR_RNAMES</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ATTR_IVALUES</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">               </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ATTR_RVALUES</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRIDDED_DIMS</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRIDDED_UNIT</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRIDDED_NAME</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">               </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRIDDED_COORDS</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">FIELD_TYPE</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">STAGGERING</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ROTATION</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+
+
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">TMP</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableDIMS</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableVLOC</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableACCMLT</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableCOUPLE</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableOFFSET</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableSTAT</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableNUM_SUBTILES</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableHALOWIDTH</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usablePRECISION</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableFIELD_TYPE</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableSTAGGERING</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableROTATION</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">usableRESTART</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableLONG</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableUNIT</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableFRIENDLYTO</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableATTR_INAMES</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableATTR_RNAMES</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                   </span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableATTR_IVALUES</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">                      </span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableATTR_RVALUES</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                   </span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableUNGRIDDED_DIMS</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">usableDEFAULT</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">usableGRID</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">usableFIELD</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableBUNDLE</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">usableSTATE</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">useableUngrd_Unit</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">useableUngrd_Name</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">                      </span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">usableUNGRIDDED_COORDS</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+
+<span class="w">      </span><span class="kt">INTEGER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">szINAMES</span><span class="p">,</span><span class="w"> </span><span class="n">szRNAMES</span><span class="p">,</span><span class="w"> </span><span class="n">szIVALUES</span><span class="p">,</span><span class="w"> </span><span class="n">szRVALUES</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">szUNGRD</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">defaultProvided</span>
+
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">SPEC</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="p">(</span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">SPEC</span><span class="p">,</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="p">)</span><span class="o">/=-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">         </span><span class="k">endif</span>
+<span class="k">      else</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">SPEC</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="nb">STAT</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableSTAT</span><span class="o">=</span><span class="nb">STAT</span>
+<span class="nb">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableSTAT</span><span class="o">=</span><span class="n">MAPL_FieldItem</span><span class="w"> </span><span class="c">!ALT: not sure if needs special attn for bundles</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ACCMLT_INTERVAL</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableACCMLT</span><span class="o">=</span><span class="n">ACCMLT_INTERVAL</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableACCMLT</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">COUPLE_INTERVAL</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableCOUPLE</span><span class="o">=</span><span class="n">COUPLE_INTERVAL</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableCOUPLE</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">OFFSET</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableOFFSET</span><span class="o">=</span><span class="n">OFFSET</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableOFFSET</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">LONG_NAME</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableLONG</span><span class="o">=</span><span class="n">LONG_NAME</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableLONG</span><span class="o">=</span><span class="n">SHORT_NAME</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UNITS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableUNIT</span><span class="o">=</span><span class="n">UNITS</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableUNIT</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">FRIENDLYTO</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableFRIENDLYTO</span><span class="o">=</span><span class="n">FRIENDLYTO</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">FRIENDLYTO</span><span class="p">))</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
+<span class="k">            </span><span class="n">usableSTAT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ior</span><span class="p">(</span><span class="n">usableSTAT</span><span class="p">,</span><span class="n">MAPL_FriendlyVariable</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      else</span>
+<span class="k">         </span><span class="n">usableFRIENDLYTO</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">DIMS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableDIMS</span><span class="o">=</span><span class="n">DIMS</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableDIMS</span><span class="o">=</span><span class="n">MAPL_DimsUnknown</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">VLOCATION</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableVLOC</span><span class="o">=</span><span class="n">VLOCATION</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableVLOC</span><span class="o">=</span><span class="n">MAPL_VLocationNone</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">NUM_SUBTILES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableNUM_SUBTILES</span><span class="o">=</span><span class="n">NUM_SUBTILES</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableNUM_SUBTILES</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">DEFAULT</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">defaultProvided</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">         </span><span class="n">usableDEFAULT</span><span class="o">=</span><span class="n">DEFAULT</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">defaultProvided</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="n">usableDEFAULT</span><span class="o">=</span><span class="mf">0.0</span><span class="w"> </span><span class="c">! ALT: this could be NaN</span>
+<span class="w">         </span><span class="c">!         usableDEFAULT=Z&#39;7F800001&#39; ! DSK: set to NaN, dies in FV Init</span>
+<span class="w">         </span><span class="c">!         usableDEFAULT=-999. ! DSK</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">FIELD_TYPE</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableFIELD_TYPE</span><span class="o">=</span><span class="n">FIELD_TYPE</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableFIELD_TYPE</span><span class="o">=</span><span class="n">MAPL_ScalarField</span><span class="w"> </span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">STAGGERING</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableSTAGGERING</span><span class="o">=</span><span class="n">STAGGERING</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableSTAGGERING</span><span class="o">=</span><span class="n">MAPL_AGrid</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ROTATION</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableROTATION</span><span class="o">=</span><span class="n">ROTATION</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableROTATION</span><span class="o">=</span><span class="n">MAPL_RotateLL</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">GRID</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableGRID</span><span class="o">=</span><span class="n">GRID</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="w">         </span><span class="c">!         usableGRID = ESMF_GridEmptyCreate(RC=STATUS)</span>
+<span class="w">         </span><span class="c">!         _VERIFY(STATUS)</span>
+<span class="w">         </span><span class="c">!         call ESMF_GridDestroy(usableGRID) !ALT we do not need RC</span>
+
+<span class="w">         </span><span class="c">! Initialize this grid object as invalid</span>
+<span class="w">         </span><span class="n">usableGrid</span><span class="p">%</span><span class="n">this</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_NULL_POINTER</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">FIELD</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableFIELD</span><span class="o">=&gt;</span><span class="n">FIELD</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">usableFIELD</span><span class="p">,</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="c">!         usableFIELD = ESMF_FieldEmptyCreate(NAME=SHORT_NAME,RC=STATUS)</span>
+<span class="w">         </span><span class="c">!         _VERIFY(STATUS)</span>
+<span class="w">         </span><span class="c">!         call ESMF_FieldDestroy(usableFIELD) !ALT we do not need RC</span>
+
+<span class="w">         </span><span class="c">! Initialize this field object as invalid</span>
+<span class="w">         </span><span class="n">usableField</span><span class="p">%</span><span class="n">ftypep</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BUNDLE</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableBUNDLE</span><span class="o">=&gt;</span><span class="n">BUNDLE</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">usableBUNDLE</span><span class="p">,</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="c">!         usableBUNDLE = ESMF_FieldBundleCreate(NAME=SHORT_NAME,RC=STATUS)</span>
+<span class="w">         </span><span class="c">!         _VERIFY(STATUS)</span>
+<span class="w">         </span><span class="c">!         call ESMF_FieldBundleDestroy(usableBUNDLE) !ALT we do not need RC</span>
+
+<span class="w">         </span><span class="c">! Initialize this fieldBundle object as invalid</span>
+<span class="w">         </span><span class="n">usableBundle</span><span class="p">%</span><span class="n">this</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">STATE</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableSTATE</span><span class="o">=&gt;</span><span class="n">STATE</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">usableSTATE</span><span class="p">,</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="c">!         usableSTATE = ESMF_StateCreate(NAME=SHORT_NAME,RC=STATUS)</span>
+<span class="w">         </span><span class="c">!         _VERIFY(STATUS)</span>
+<span class="w">         </span><span class="c">!         call ESMF_StateDestroy(usableSTATE) !ALT we do not need RC</span>
+
+<span class="w">         </span><span class="c">! Initialize this state object as invalid</span>
+<span class="w">         </span><span class="n">usableState</span><span class="p">%</span><span class="n">statep</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">HALOWIDTH</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableHALOWIDTH</span><span class="o">=</span><span class="n">HALOWIDTH</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableHALOWIDTH</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">RESTART</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usableRESTART</span><span class="o">=</span><span class="n">RESTART</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usableRESTART</span><span class="o">=</span><span class="n">MAPL_RestartOptional</span><span class="w"> </span><span class="c">! default</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="nb">PRECISION</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">usablePRECISION</span><span class="o">=</span><span class="nb">PRECISION</span>
+<span class="nb">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">usablePRECISION</span><span class="o">=</span><span class="nb">kind</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="w"> </span><span class="c">! default &quot;real&quot; kind</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="w">      </span><span class="c">! Sanity checks</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">usablePRECISION</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">ESMF_KIND_R4</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">usablePRECISION</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">         </span><span class="c">! only those 2 values are allowed</span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span><span class="w"> </span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">szRNAMES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ATTR_RNAMES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">szRNAMES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">ATTR_RNAMES</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">usableATTR_RNAMES</span><span class="p">(</span><span class="n">szRNAMES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="n">usableATTR_RNAMES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ATTR_RNAMES</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">szINAMES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ATTR_INAMES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">szINAMES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">ATTR_INAMES</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">usableATTR_INAMES</span><span class="p">(</span><span class="n">szINAMES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="n">usableATTR_INAMES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ATTR_INAMES</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">szRVALUES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ATTR_RVALUES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">szRVALUES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">ATTR_RVALUES</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">usableATTR_RVALUES</span><span class="p">(</span><span class="n">szRVALUES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="n">usableATTR_RVALUES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ATTR_RVALUES</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">szIVALUES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ATTR_IVALUES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">szIVALUES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">ATTR_INAMES</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">usableATTR_IVALUES</span><span class="p">(</span><span class="n">szIVALUES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="n">usableATTR_IVALUES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ATTR_IVALUES</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">szIVALUES</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">szINAMES</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">szRVALUES</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">szRNAMES</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">szUNGRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UNGRIDDED_DIMS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">szUNGRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">UNGRIDDED_DIMS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">usableUNGRIDDED_DIMS</span><span class="p">(</span><span class="n">szUNGRD</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="n">usableUNGRIDDED_DIMS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNGRIDDED_DIMS</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         NULLIFY</span><span class="p">(</span><span class="n">usableUNGRIDDED_DIMS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UNGRIDDED_UNIT</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">useableUngrd_Unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNGRIDDED_UNIT</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">useableUngrd_Unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;level&quot;</span><span class="w"> </span><span class="c">! ALT: we are changing the default from &quot;N/A&quot; to &quot;level&quot; to make GrADS happy</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UNGRIDDED_NAME</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">useableUngrd_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNGRIDDED_NAME</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">useableUngrd_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;N/A&quot;</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">szUNGRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UNGRIDDED_COORDS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">szUNGRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">UNGRIDDED_COORDS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">usableUNGRIDDED_COORDS</span><span class="p">(</span><span class="n">szUNGRD</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="n">usableUNGRIDDED_COORDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNGRIDDED_COORDS</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">SPEC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SPEC</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">SPEC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">,</span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">SHORT_NAME</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">SHORT_NAME</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">LONG_NAME</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="n">usableLONG</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">UNITS</span><span class="w">      </span><span class="o">=</span><span class="w">  </span><span class="n">usableUNIT</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">DIMS</span><span class="w">       </span><span class="o">=</span><span class="w">  </span><span class="n">usableDIMS</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">LOCATION</span><span class="w">   </span><span class="o">=</span><span class="w">  </span><span class="n">usableVLOC</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">NUM_SUBTILES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usableNUM_SUBTILES</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="nb">STAT</span><span class="w">       </span><span class="o">=</span><span class="w">  </span><span class="n">usableSTAT</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ACCMLT_INTERVAL</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="n">usableACCMLT</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">COUPLE_INTERVAL</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="n">usableCOUPLE</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">OFFSET</span><span class="w">     </span><span class="o">=</span><span class="w">  </span><span class="n">usableOFFSET</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">LABEL</span><span class="w">      </span><span class="o">=</span><span class="w">  </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">DEFAULT</span><span class="w">    </span><span class="o">=</span><span class="w">  </span><span class="n">usableDEFAULT</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">defaultProvided</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">defaultProvided</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">FIELD</span><span class="w">      </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">usableFIELD</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">BUNDLE</span><span class="w">     </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">usableBUNDLE</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">STATE</span><span class="w">      </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">usableSTATE</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">GRID</span><span class="w">       </span><span class="o">=</span><span class="w">  </span><span class="n">usableGRID</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">FRIENDLYTO</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">usableFRIENDLYTO</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">HALOWIDTH</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="n">usableHALOWIDTH</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">RESTART</span><span class="w">    </span><span class="o">=</span><span class="w">  </span><span class="n">usableRESTART</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="nb">PRECISION</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="n">usablePRECISION</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">FIELD_TYPE</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">usableFIELD_TYPE</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">UNGRIDDED_UNIT</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">useableUngrd_Unit</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">UNGRIDDED_NAME</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">useableUngrd_Name</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">STAGGERING</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">usableSTAGGERING</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ROTATION</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">usableROTATION</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">doNotAllocate</span><span class="w">    </span><span class="o">=</span><span class="w">  </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">alwaysAllocate</span><span class="w">   </span><span class="o">=</span><span class="w">  </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">usableATTR_IVALUES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ATTR_IVALUES</span><span class="w">  </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">usableATTR_IVALUES</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         NULLIFY</span><span class="p">(</span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ATTR_IVALUES</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">usableATTR_RVALUES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ATTR_RVALUES</span><span class="w">  </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">usableATTR_RVALUES</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         NULLIFY</span><span class="p">(</span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ATTR_RVALUES</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">usableUNGRIDDED_DIMS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">UNGRIDDED_DIMS</span><span class="w">  </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">usableUNGRIDDED_DIMS</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         NULLIFY</span><span class="p">(</span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">UNGRIDDED_DIMS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">usableUNGRIDDED_COORDS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">UNGRIDDED_COORDS</span><span class="w">  </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">usableUNGRIDDED_COORDS</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         NULLIFY</span><span class="p">(</span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">UNGRIDDED_COORDS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">usableATTR_RNAMES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ATTR_RNAMES</span><span class="o">=&gt;</span><span class="w">  </span><span class="n">usableATTR_RNAMES</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         NULLIFY</span><span class="p">(</span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ATTR_RNAMES</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">usableATTR_INAMES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ATTR_INAMES</span><span class="o">=&gt;</span><span class="w">  </span><span class="n">usableATTR_INAMES</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         NULLIFY</span><span class="p">(</span><span class="n">TMP</span><span class="p">(</span><span class="n">I</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">SPECPtr</span><span class="p">%</span><span class="n">ATTR_INAMES</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      </span><span class="n">SPEC</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">TMP</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_VarSpecCreateInList</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

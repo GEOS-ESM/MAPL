@@ -1,0 +1,765 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GetCurrentFile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GetCurrentFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">18 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_CFIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_cfio.f90.html'>MAPL_CFIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_cfiomod.html'>MAPL_CFIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GetCurrentFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_getcurrentfile.html#src">MAPL_GetCurrentFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_GetCurrentFile(filetmpl, time, filename, rc, EXPID)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filetmpl"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filetmpl</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~11"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filename~17"></span>
+              character(len=*),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~325"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-expid~5"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EXPID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getcurrentfile~~CallsGraph Pages: 1 -->
+<svg id="procmapl_getcurrentfileCallsGraph" width="641pt" height="125pt"
+ viewBox="0.00 0.00 641.00 124.99" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getcurrentfile~~CallsGraph" class="graph" transform="scale(2.8 2.8) rotate(0) translate(4 346)">
+<title>proc~~mapl_getcurrentfile~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-346 1791,-346 1791,4 -4,4"/>
+<!-- proc~mapl_getcurrentfile -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node1" class="node">
+<title>proc~mapl_getcurrentfile</title>
+<polygon fill="none" stroke="black" points="211,-214 0,-214 0,-190 211,-190 211,-214"/>
+<text text-anchor="middle" x="105.5" y="-199.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CFIOMod::MAPL_GetCurrentFile</text>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node2" class="node">
+<title>ESMF_TimeGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="942,-276 815,-276 815,-252 942,-252 942,-276"/>
+<text text-anchor="middle" x="878.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeGet</text>
+</g>
+<!-- proc~mapl_getcurrentfile&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_getcurrentfile&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#255000" d="M182.98,-214.02C203.73,-217.12 226.21,-220.33 247,-223 367.15,-238.4 397.16,-243.53 518,-252 617.01,-258.94 731.64,-261.89 804.34,-263.13"/>
+<polygon fill="#255000" stroke="#255000" points="804.7,-266.63 814.76,-263.3 804.82,-259.63 804.7,-266.63"/>
+</g>
+<!-- proc~fill_grads_template -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node3" class="node">
+<title>proc~fill_grads_template</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node3"><a xlink:href="../proc/fill_grads_template.html" xlink:title="MAPL_StringTemplate::fill_grads_template">
+<polygon fill="#d9534f" stroke="#d9534f" points="482,-214 247,-214 247,-190 482,-190 482,-214"/>
+<text text-anchor="middle" x="364.5" y="-199.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringTemplate::fill_grads_template</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getcurrentfile&#45;&gt;proc~fill_grads_template -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_getcurrentfile&#45;&gt;proc~fill_grads_template</title>
+<path fill="none" stroke="#255000" d="M211.03,-202C219.52,-202 228.16,-202 236.78,-202"/>
+<polygon fill="#255000" stroke="#255000" points="236.89,-205.5 246.89,-202 236.89,-198.5 236.89,-205.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1276,-316 1056,-316 1056,-292 1276,-292 1276,-316"/>
+<text text-anchor="middle" x="1166" y="-301.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getcurrentfile&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_getcurrentfile&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M135.84,-214.08C163.91,-225.14 207.66,-241.09 247,-250 568.86,-322.87 657.06,-317.49 987,-311 1005.96,-310.63 1026.05,-310.03 1045.63,-309.34"/>
+<polygon fill="#255000" stroke="#255000" points="1045.96,-312.83 1055.82,-308.97 1045.7,-305.84 1045.96,-312.83"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="985.5,-24 771.5,-24 771.5,0 985.5,0 985.5,-24"/>
+<text text-anchor="middle" x="878.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getcurrentfile&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_getcurrentfile&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M140.79,-189.95C210.9,-165.67 376,-110.25 518,-76 607.17,-54.49 710.39,-36.85 783.29,-25.58"/>
+<polygon fill="#255000" stroke="#255000" points="784.02,-29.01 793.37,-24.03 782.95,-22.09 784.02,-29.01"/>
+</g>
+<!-- proc~strtoint -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node6" class="node">
+<title>proc~strtoint</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node6"><a xlink:href="../proc/strtoint.html" xlink:title="ESMF_CFIOUtilMod::strToInt">
+<polygon fill="#d9534f" stroke="#d9534f" points="443,-34 286,-34 286,-10 443,-10 443,-34"/>
+<text text-anchor="middle" x="364.5" y="-19.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOUtilMod::strToInt</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getcurrentfile&#45;&gt;proc~strtoint -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_getcurrentfile&#45;&gt;proc~strtoint</title>
+<path fill="none" stroke="#255000" d="M113.9,-189.67C132.34,-160.09 183.44,-84.85 247,-48 255.97,-42.8 265.88,-38.64 276.02,-35.31"/>
+<polygon fill="#255000" stroke="#255000" points="277.23,-38.61 285.79,-32.37 275.21,-31.9 277.23,-38.61"/>
+</g>
+<!-- proc~fill_grads_template&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge6" class="edge">
+<title>proc~fill_grads_template&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="transparent" d="M433.31,-214.01C459.7,-218.45 490.21,-223.3 518,-227 617.05,-240.2 731.99,-251.3 804.72,-257.8"/>
+<polygon fill="transparent" stroke="transparent" points="804.43,-261.29 814.7,-258.69 805.05,-254.31 804.43,-261.29"/>
+</g>
+<!-- proc~fill_grads_template&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge10" class="edge">
+<title>proc~fill_grads_template&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M396.56,-214.08C427.04,-225.48 475.07,-242.24 518,-252 698.99,-293.14 914.91,-302.87 1045.9,-304.57"/>
+<polygon fill="transparent" stroke="transparent" points="1045.92,-308.07 1055.96,-304.69 1046,-301.07 1045.92,-308.07"/>
+</g>
+<!-- proc~fill_grads_template&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge11" class="edge">
+<title>proc~fill_grads_template&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="transparent" d="M383.43,-189.89C411.1,-171.75 466.42,-137.68 518,-119 610.03,-85.67 649.8,-125.92 734,-76 755.44,-63.29 748.54,-45.67 770,-33 773.08,-31.18 776.29,-29.51 779.59,-27.99"/>
+<polygon fill="transparent" stroke="transparent" points="781.21,-31.11 789.11,-24.06 778.54,-24.64 781.21,-31.11"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node7"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="987,-234 770,-234 770,-210 987,-210 987,-234"/>
+<text text-anchor="middle" x="878.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~fill_grads_template&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge7" class="edge">
+<title>proc~fill_grads_template&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M482,-206.55C565.09,-209.8 676.39,-214.14 759.76,-217.4"/>
+<polygon fill="transparent" stroke="transparent" points="759.65,-220.9 769.78,-217.79 759.92,-213.9 759.65,-220.9"/>
+</g>
+<!-- proc~check_token -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node8" class="node">
+<title>proc~check_token</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node8"><a xlink:href="../proc/check_token.html" xlink:title="MAPL_StringTemplate::check_token">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="726.5,-194 525.5,-194 525.5,-170 726.5,-170 726.5,-194"/>
+<text text-anchor="middle" x="626" y="-179.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringTemplate::check_token</text>
+</a>
+</g>
+</g>
+<!-- proc~fill_grads_template&#45;&gt;proc~check_token -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge8" class="edge">
+<title>proc~fill_grads_template&#45;&gt;proc~check_token</title>
+<path fill="none" stroke="transparent" d="M482.34,-192.99C493.37,-192.15 504.51,-191.29 515.46,-190.44"/>
+<polygon fill="transparent" stroke="transparent" points="515.75,-193.93 525.45,-189.67 515.21,-186.95 515.75,-193.93"/>
+</g>
+<!-- proc~evaluate_token -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node9" class="node">
+<title>proc~evaluate_token</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node9"><a xlink:href="../proc/evaluate_token.html" xlink:title="MAPL_StringTemplate::evaluate_token">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="734,-152 518,-152 518,-128 734,-128 734,-152"/>
+<text text-anchor="middle" x="626" y="-137.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringTemplate::evaluate_token</text>
+</a>
+</g>
+</g>
+<!-- proc~fill_grads_template&#45;&gt;proc~evaluate_token -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge9" class="edge">
+<title>proc~fill_grads_template&#45;&gt;proc~evaluate_token</title>
+<path fill="none" stroke="transparent" d="M407.05,-190C437.61,-181.38 480.21,-169.78 518,-161 528.38,-158.59 539.36,-156.22 550.19,-154"/>
+<polygon fill="transparent" stroke="transparent" points="550.95,-157.42 560.06,-152 549.56,-150.56 550.95,-157.42"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1598,-310 1345,-310 1345,-286 1598,-286 1598,-310"/>
+<text text-anchor="middle" x="1471.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M1276.14,-301.84C1295.1,-301.47 1315.02,-301.07 1334.59,-300.69"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1334.86,-304.18 1344.78,-300.49 1334.72,-297.18 1334.86,-304.18"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1586,-237 1357,-237 1357,-213 1586,-213 1586,-237"/>
+<text text-anchor="middle" x="1471.5" y="-222.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M1265.66,-291.99C1280.28,-289.47 1295.1,-286.49 1309,-283 1352.47,-272.09 1400.62,-253.98 1432.94,-240.89"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1434.51,-244.03 1442.44,-237 1431.86,-237.55 1434.51,-244.03"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M951.07,-24.06C963.16,-26.64 975.5,-29.63 987,-33 1160.07,-83.79 1357.36,-172.18 1435.75,-208.6"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1434.61,-211.93 1445.15,-212.98 1437.56,-205.58 1434.61,-211.93"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node18" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node18"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1302,-232 1030,-232 1030,-208 1302,-208 1302,-232"/>
+<text text-anchor="middle" x="1166" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M987.03,-221.25C997.68,-221.17 1008.61,-221.1 1019.56,-221.02"/>
+<polygon fill="#255000" stroke="#255000" points="1019.64,-224.52 1029.61,-220.95 1019.59,-217.52 1019.64,-224.52"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node19" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node19"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1309,-274 1023,-274 1023,-250 1309,-250 1309,-274"/>
+<text text-anchor="middle" x="1166" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M965.16,-234C997.76,-238.57 1035.11,-243.8 1068.64,-248.5"/>
+<polygon fill="#255000" stroke="#255000" points="1068.52,-252.02 1078.91,-249.94 1069.49,-245.08 1068.52,-252.02"/>
+</g>
+<!-- proc~evaluate_token&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge19" class="edge">
+<title>proc~evaluate_token&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M719.83,-152.03C724.87,-154.54 729.64,-157.51 734,-161 765.06,-185.89 738.93,-218.13 770,-243 780.02,-251.02 792.22,-256.27 804.76,-259.65"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="804.32,-263.14 814.85,-261.98 805.9,-256.32 804.32,-263.14"/>
+</g>
+<!-- proc~evaluate_token&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge22" class="edge">
+<title>proc~evaluate_token&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M710.44,-127.93C718.96,-124.37 727.03,-119.82 734,-114 764.25,-88.76 739.19,-57.55 770,-33 771.78,-31.58 773.63,-30.25 775.54,-29"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="777.31,-32.02 784.26,-24.02 773.84,-25.94 777.31,-32.02"/>
+</g>
+<!-- proc~evaluate_token&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge21" class="edge">
+<title>proc~evaluate_token&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M714.01,-152.03C720.99,-154.49 727.74,-157.45 734,-161 754.8,-172.8 749.19,-189.21 770,-201 773.44,-202.95 777.03,-204.72 780.72,-206.33"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="779.49,-209.61 790.08,-210 782.05,-203.09 779.49,-209.61"/>
+</g>
+<!-- ESMF_CalendarCreate -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node12" class="node">
+<title>ESMF_CalendarCreate</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="961.5,-108 795.5,-108 795.5,-84 961.5,-84 961.5,-108"/>
+<text text-anchor="middle" x="878.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_CalendarCreate</text>
+</g>
+<!-- proc~evaluate_token&#45;&gt;ESMF_CalendarCreate -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge17" class="edge">
+<title>proc~evaluate_token&#45;&gt;ESMF_CalendarCreate</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M695.45,-127.98C727.48,-122.35 765.8,-115.62 799.01,-109.79"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="799.89,-113.19 809.13,-108.01 798.68,-106.29 799.89,-113.19"/>
+</g>
+<!-- ESMF_CalendarDestroy -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node13" class="node">
+<title>ESMF_CalendarDestroy</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="964,-66 793,-66 793,-42 964,-42 964,-66"/>
+<text text-anchor="middle" x="878.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_CalendarDestroy</text>
+</g>
+<!-- proc~evaluate_token&#45;&gt;ESMF_CalendarDestroy -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge18" class="edge">
+<title>proc~evaluate_token&#45;&gt;ESMF_CalendarDestroy</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M701.46,-127.93C712.8,-124.41 724.03,-119.87 734,-114 754.33,-102.04 749.4,-86.5 770,-75 774.24,-72.63 778.7,-70.53 783.3,-68.66"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="784.72,-71.87 792.91,-65.14 782.31,-65.3 784.72,-71.87"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node14" class="node">
+<title>ESMF_TimeSet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="941,-192 816,-192 816,-168 941,-168 941,-192"/>
+<text text-anchor="middle" x="878.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_TimeSet</text>
+</g>
+<!-- proc~evaluate_token&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge20" class="edge">
+<title>proc~evaluate_token&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M702.16,-152C735.07,-157.26 773.51,-163.39 805.99,-168.58"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="805.44,-172.04 815.87,-170.16 806.55,-165.13 805.44,-172.04"/>
+</g>
+<!-- proc~skip_token -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node20" class="node">
+<title>proc~skip_token</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node20"><a xlink:href="../proc/skip_token.html" xlink:title="MAPL_StringTemplate::skip_token">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="973.5,-150 783.5,-150 783.5,-126 973.5,-126 973.5,-150"/>
+<text text-anchor="middle" x="878.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringTemplate::skip_token</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_token&#45;&gt;proc~skip_token -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge23" class="edge">
+<title>proc~evaluate_token&#45;&gt;proc~skip_token</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M734.32,-139.14C747.21,-139.04 760.36,-138.94 773.2,-138.83"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="773.46,-142.33 783.43,-138.75 773.4,-135.33 773.46,-142.33"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node15" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1737.5,-300 1683.5,-300 1683.5,-276 1737.5,-276 1737.5,-300"/>
+<text text-anchor="middle" x="1710.5" y="-285.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge24" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1598.29,-292.69C1625.83,-291.53 1652.86,-290.39 1673.36,-289.52"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1673.62,-293.02 1683.46,-289.1 1673.33,-286.02 1673.62,-293.02"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node16" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1737.5,-342 1683.5,-342 1683.5,-318 1737.5,-318 1737.5,-342"/>
+<text text-anchor="middle" x="1710.5" y="-327.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge25" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1561.42,-310.01C1600.15,-315.23 1643.37,-321.07 1673.07,-325.08"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1672.99,-328.6 1683.37,-326.47 1673.93,-321.66 1672.99,-328.6"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_node17" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~mapl_getcurrentfile~~CallsGraph_node17"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1787,-237 1634,-237 1634,-213 1787,-213 1787,-237"/>
+<text text-anchor="middle" x="1710.5" y="-222.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M1586.14,-225C1598.76,-225 1611.46,-225 1623.65,-225"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1623.77,-228.5 1633.77,-225 1623.77,-221.5 1623.77,-228.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M1302.33,-222.23C1317.1,-222.47 1332.08,-222.72 1346.7,-222.96"/>
+<polygon fill="#002505" stroke="#002505" points="1346.7,-226.46 1356.76,-223.13 1346.82,-219.46 1346.7,-226.46"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M1268.48,-274.04C1297.59,-277.49 1329.48,-281.27 1359.14,-284.79"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1358.77,-288.27 1369.11,-285.97 1359.59,-281.32 1358.77,-288.27"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getcurrentfile~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M1265.54,-249.99C1296.31,-246.24 1330.42,-242.08 1361.84,-238.25"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1362.43,-241.7 1371.94,-237.02 1361.59,-234.75 1362.43,-241.7"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_getcurrentfileCallsGraph = svgPanZoom('#procmapl_getcurrentfileCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_GetCurrentFile</span><span class="p">(</span><span class="n">FileTmpl</span><span class="p">,</span><span class="w"> </span><span class="nb">Time</span><span class="p">,</span><span class="w"> </span><span class="n">Filename</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">,</span><span class="w"> </span><span class="n">EXPID</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filetmpl</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w">     </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPID</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">DATE</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                             </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                             </span><span class="kd">::</span><span class="w"> </span><span class="n">nhms</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">Time</span><span class="p">,</span><span class="w"> </span><span class="n">timeString</span><span class="o">=</span><span class="n">DATE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">strToInt</span><span class="p">(</span><span class="n">DATE</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">fill_grads_template</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Filename</span><span class="p">,</span><span class="w"> </span><span class="n">FileTmpl</span><span class="p">,&amp;</span>
+<span class="w">                           </span><span class="n">experiment_id</span><span class="o">=</span><span class="n">EXPID</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="o">=</span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="o">=</span><span class="n">nhms</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_GetCurrentFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

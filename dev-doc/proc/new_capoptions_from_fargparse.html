@@ -1,0 +1,848 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>new_CapOptions_from_fargparse &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>new_CapOptions_from_fargparse
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">29 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FargparseCLI.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/fargparsecli.f90.html'>FargparseCLI.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_fargparseclimod.html'>MAPL_FargparseCLIMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">new_CapOptions_from_fargparse</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/new_capoptions_from_fargparse.html#src">new_CapOptions_from_fargparse</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function new_CapOptions_from_fargparse(unusable, dummy, extra, rc) result(cap_options)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~278"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dummy~11"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dummy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-extra"></span>
+              procedure(<a href='../interface/i_extraoptions.html'>I_extraoptions</a>),
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>extra</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1419"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-cap_options~7"></span>
+          type(<a href='../type/mapl_capoptions.html'>MAPL_CapOptions</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_capoptions_from_fargparse~~CallsGraph Pages: 1 -->
+<svg id="procnew_capoptions_from_fargparseCallsGraph" width="641pt" height="120pt"
+ viewBox="0.00 0.00 641.00 119.79" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph" class="graph" transform="scale(2.85 2.85) rotate(0) translate(4 338)">
+<title>proc~~new_capoptions_from_fargparse~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-338 1826,-338 1826,4 -4,4"/>
+<!-- proc~new_capoptions_from_fargparse -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node1" class="node">
+<title>proc~new_capoptions_from_fargparse</title>
+<polygon fill="none" stroke="black" points="322,-230 0,-230 0,-206 322,-206 322,-230"/>
+<text text-anchor="middle" x="161" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_FargparseCLIMod::new_CapOptions_from_fargparse</text>
+</g>
+<!-- argparser -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node2" class="node">
+<title>argparser</title>
+<polygon fill="#777777" stroke="#777777" points="594.5,-334 529.5,-334 529.5,-310 594.5,-310 594.5,-334"/>
+<text text-anchor="middle" x="562" y="-319.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">argparser</text>
+</g>
+<!-- proc~new_capoptions_from_fargparse&#45;&gt;argparser -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge1" class="edge">
+<title>proc~new_capoptions_from_fargparse&#45;&gt;argparser</title>
+<path fill="none" stroke="#255000" d="M184.46,-230.13C220.1,-248.78 292.33,-284.1 358,-301 412.57,-315.04 477.67,-319.74 519.17,-321.29"/>
+<polygon fill="#255000" stroke="#255000" points="519.08,-324.79 529.19,-321.62 519.31,-317.79 519.08,-324.79"/>
+</g>
+<!-- parse_args -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node3" class="node">
+<title>parse_args</title>
+<polygon fill="#777777" stroke="#777777" points="597.5,-292 526.5,-292 526.5,-268 597.5,-268 597.5,-292"/>
+<text text-anchor="middle" x="562" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_args</text>
+</g>
+<!-- proc~new_capoptions_from_fargparse&#45;&gt;parse_args -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge2" class="edge">
+<title>proc~new_capoptions_from_fargparse&#45;&gt;parse_args</title>
+<path fill="none" stroke="#255000" d="M212.5,-230.06C251.93,-239.11 308.19,-251.24 358,-259 412.22,-267.45 475.13,-273.36 516.38,-276.71"/>
+<polygon fill="#255000" stroke="#255000" points="516.13,-280.21 526.38,-277.51 516.69,-273.23 516.13,-280.21"/>
+</g>
+<!-- proc~add_command_line_options -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node4" class="node">
+<title>proc~add_command_line_options</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node4"><a xlink:href="../proc/add_command_line_options.html" xlink:title="MAPL_FargparseCLIMod::MAPL_FargparseCLI%add_command_line_options">
+<polygon fill="#d9534f" stroke="#d9534f" points="766,-250 358,-250 358,-226 766,-226 766,-250"/>
+<text text-anchor="middle" x="562" y="-235.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FargparseCLIMod::MAPL_FargparseCLI%add_command_line_options</text>
+</a>
+</g>
+</g>
+<!-- proc~new_capoptions_from_fargparse&#45;&gt;proc~add_command_line_options -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge3" class="edge">
+<title>proc~new_capoptions_from_fargparse&#45;&gt;proc~add_command_line_options</title>
+<path fill="none" stroke="#255000" d="M322.28,-226.03C330.69,-226.46 339.19,-226.88 347.73,-227.31"/>
+<polygon fill="#255000" stroke="#255000" points="347.61,-230.81 357.77,-227.81 347.96,-223.82 347.61,-230.81"/>
+</g>
+<!-- proc~fill_cap_options -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node5" class="node">
+<title>proc~fill_cap_options</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node5"><a xlink:href="../proc/fill_cap_options.html" xlink:title="MAPL_FargparseCLIMod::MAPL_FargparseCLI%fill_cap_options">
+<polygon fill="#d9534f" stroke="#d9534f" points="732.5,-150 391.5,-150 391.5,-126 732.5,-126 732.5,-150"/>
+<text text-anchor="middle" x="562" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FargparseCLIMod::MAPL_FargparseCLI%fill_cap_options</text>
+</a>
+</g>
+</g>
+<!-- proc~new_capoptions_from_fargparse&#45;&gt;proc~fill_cap_options -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge4" class="edge">
+<title>proc~new_capoptions_from_fargparse&#45;&gt;proc~fill_cap_options</title>
+<path fill="none" stroke="#255000" d="M222.17,-205.94C294.26,-191.48 414.82,-167.31 491.01,-152.03"/>
+<polygon fill="#255000" stroke="#255000" points="491.88,-155.43 501,-150.03 490.5,-148.56 491.88,-155.43"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1022,-230 802,-230 802,-206 1022,-206 1022,-230"/>
+<text text-anchor="middle" x="912" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~new_capoptions_from_fargparse&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge5" class="edge">
+<title>proc~new_capoptions_from_fargparse&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M322.18,-217.12C334.3,-217.07 346.35,-217.03 358,-217 539.33,-216.54 584.67,-216.37 766,-217 774.32,-217.03 782.92,-217.07 791.57,-217.11"/>
+<polygon fill="#255000" stroke="#255000" points="791.72,-220.61 801.74,-217.17 791.76,-213.61 791.72,-220.61"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1019,-24 805,-24 805,0 1019,0 1019,-24"/>
+<text text-anchor="middle" x="912" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~new_capoptions_from_fargparse&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge6" class="edge">
+<title>proc~new_capoptions_from_fargparse&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M180.92,-205.88C214.97,-184.62 289.41,-140.62 358,-117 504.3,-66.6 681.19,-38.38 794.85,-24.18"/>
+<polygon fill="#255000" stroke="#255000" points="795.47,-27.63 804.97,-22.93 794.62,-20.68 795.47,-27.63"/>
+</g>
+<!-- proc~add_command_line_options&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge8" class="edge">
+<title>proc~add_command_line_options&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025500" d="M766.19,-226.32C774.87,-225.82 783.45,-225.33 791.85,-224.85"/>
+<polygon fill="#025500" stroke="#025500" points="792.2,-228.33 801.98,-224.27 791.8,-221.34 792.2,-228.33"/>
+</g>
+<!-- add_argument -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node8" class="node">
+<title>add_argument</title>
+<polygon fill="#777777" stroke="#777777" points="957.5,-314 866.5,-314 866.5,-290 957.5,-290 957.5,-314"/>
+<text text-anchor="middle" x="912" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_argument</text>
+</g>
+<!-- proc~add_command_line_options&#45;&gt;add_argument -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge7" class="edge">
+<title>proc~add_command_line_options&#45;&gt;add_argument</title>
+<path fill="none" stroke="#025500" d="M733.68,-250C744.73,-252.51 755.59,-255.48 766,-259 783.76,-265 784.51,-274.23 802,-281 819.05,-287.6 838.44,-292.2 856.08,-295.36"/>
+<polygon fill="#025500" stroke="#025500" points="855.8,-298.86 866.24,-297.07 856.96,-291.96 855.8,-298.86"/>
+</g>
+<!-- push_back -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node15" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="946.5,-272 877.5,-272 877.5,-248 946.5,-248 946.5,-272"/>
+<text text-anchor="middle" x="912" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~add_command_line_options&#45;&gt;push_back -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge9" class="edge">
+<title>proc~add_command_line_options&#45;&gt;push_back</title>
+<path fill="none" stroke="#025500" d="M753.04,-250.01C795.95,-252.73 837.56,-255.36 867.29,-257.24"/>
+<polygon fill="#025500" stroke="#025500" points="867.09,-260.73 877.29,-257.87 867.53,-253.74 867.09,-260.73"/>
+</g>
+<!-- proc~fill_cap_options&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge14" class="edge">
+<title>proc~fill_cap_options&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M616.88,-150.09C657.8,-159.31 715.47,-172.35 766,-184 793.58,-190.36 824.09,-197.5 849.97,-203.58"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="849.49,-207.06 860.02,-205.95 851.09,-200.25 849.49,-207.06"/>
+</g>
+<!-- proc~fill_cap_options&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge15" class="edge">
+<title>proc~fill_cap_options&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M620.32,-125.97C662.76,-115.35 720.8,-97.12 766,-69 785.21,-57.05 782.01,-43.61 802,-33 805.73,-31.02 809.63,-29.22 813.63,-27.59"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="814.96,-30.83 823.13,-24.09 812.54,-24.27 814.96,-30.83"/>
+</g>
+<!-- at -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node9" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1772.5,-190 1718.5,-190 1718.5,-166 1772.5,-166 1772.5,-190"/>
+<text text-anchor="middle" x="1745.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~fill_cap_options&#45;&gt;at -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge10" class="edge">
+<title>proc~fill_cap_options&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M681.72,-150.02C720.07,-153.48 762.8,-156.89 802,-159 1154.53,-178.02 1582.15,-178.48 1708.01,-178.15"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1708.25,-181.65 1718.24,-178.12 1708.23,-174.65 1708.25,-181.65"/>
+</g>
+<!-- cast -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node10" class="node">
+<title>cast</title>
+<polygon fill="#777777" stroke="#777777" points="939,-108 885,-108 885,-84 939,-84 939,-108"/>
+<text text-anchor="middle" x="912" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cast</text>
+</g>
+<!-- proc~fill_cap_options&#45;&gt;cast -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge11" class="edge">
+<title>proc~fill_cap_options&#45;&gt;cast</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M662.72,-125.96C733.79,-117.39 825.2,-106.35 874.9,-100.36"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="875.34,-103.83 884.85,-99.16 874.51,-96.88 875.34,-103.83"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node11" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node11"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1020.5,-150 803.5,-150 803.5,-126 1020.5,-126 1020.5,-150"/>
+<text text-anchor="middle" x="912" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~fill_cap_options&#45;&gt;interface~mapl_assert -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge12" class="edge">
+<title>proc~fill_cap_options&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M732.67,-138C753.11,-138 773.63,-138 793.1,-138"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="793.18,-141.5 803.18,-138 793.18,-134.5 793.18,-141.5"/>
+</g>
+<!-- of -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node12" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="939,-66 885,-66 885,-42 939,-42 939,-66"/>
+<text text-anchor="middle" x="912" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~fill_cap_options&#45;&gt;of -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge13" class="edge">
+<title>proc~fill_cap_options&#45;&gt;of</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M605.1,-125.98C652.67,-112.62 732.55,-90.82 802,-75 826.22,-69.48 853.69,-64.2 874.99,-60.31"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="875.69,-63.74 884.91,-58.52 874.45,-56.85 875.69,-63.74"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1633,-230 1380,-230 1380,-206 1633,-206 1633,-230"/>
+<text text-anchor="middle" x="1506.5" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#002505" d="M1022.02,-218C1120.04,-218 1264.41,-218 1369.87,-218"/>
+<polygon fill="#002505" stroke="#002505" points="1369.95,-221.5 1379.95,-218 1369.95,-214.5 1369.95,-221.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node14"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1621,-91 1392,-91 1392,-67 1621,-67 1621,-91"/>
+<text text-anchor="middle" x="1506.5" y="-76.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M969.27,-205.96C1051.7,-188.18 1210.02,-153.49 1344,-121 1379.69,-112.34 1419.64,-101.96 1450.88,-93.68"/>
+<polygon fill="#002505" stroke="#002505" points="1451.93,-97.03 1460.7,-91.08 1450.13,-90.26 1451.93,-97.03"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1019.01,-12.36C1106.63,-14.05 1234.05,-19.69 1344,-37 1382.86,-43.12 1425.94,-54.57 1457.83,-63.97"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1457.18,-67.43 1467.77,-66.94 1459.19,-60.72 1457.18,-67.43"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node18" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node18"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1337,-70 1065,-70 1065,-46 1337,-46 1337,-70"/>
+<text text-anchor="middle" x="1201" y="-55.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M1001.54,-125.91C1008.66,-123.46 1015.58,-120.52 1022,-117 1042.4,-105.82 1037.36,-89.74 1058,-79 1061.79,-77.03 1065.72,-75.22 1069.73,-73.58"/>
+<polygon fill="#025563" stroke="#025563" points="1071.12,-76.79 1079.26,-70.01 1068.67,-70.24 1071.12,-76.79"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node19" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node19"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1344,-112 1058,-112 1058,-88 1344,-88 1344,-112"/>
+<text text-anchor="middle" x="1201" y="-97.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M1003.81,-125.98C1034.19,-121.95 1068.22,-117.45 1099.31,-113.33"/>
+<polygon fill="#025563" stroke="#025563" points="1099.84,-116.79 1109.29,-112.01 1098.92,-109.85 1099.84,-116.79"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#063255" d="M1578.61,-206C1621.36,-198.78 1673.97,-189.9 1708.32,-184.11"/>
+<polygon fill="#063255" stroke="#063255" points="1709.09,-187.53 1718.37,-182.41 1707.93,-180.62 1709.09,-187.53"/>
+</g>
+<!-- insert -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node16" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1772.5,-232 1718.5,-232 1718.5,-208 1772.5,-208 1772.5,-232"/>
+<text text-anchor="middle" x="1745.5" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#063255" d="M1633.29,-219.06C1660.83,-219.29 1687.86,-219.52 1708.36,-219.7"/>
+<polygon fill="#063255" stroke="#063255" points="1708.44,-223.2 1718.46,-219.78 1708.49,-216.2 1708.44,-223.2"/>
+</g>
+<!-- proc~initialize~9 -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_node17" class="node">
+<title>proc~initialize~9</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CallsGraph_node17"><a xlink:href="../proc/initialize~9.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1822,-91 1669,-91 1669,-67 1822,-67 1822,-91"/>
+<text text-anchor="middle" x="1745.5" y="-76.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~9 -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~9</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1621.14,-79C1633.76,-79 1646.46,-79 1658.65,-79"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1658.77,-82.5 1668.77,-79 1658.77,-75.5 1658.77,-82.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1337.33,-67.36C1352.1,-68.39 1367.08,-69.42 1381.7,-70.43"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1381.54,-73.93 1391.76,-71.13 1382.02,-66.95 1381.54,-73.93"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1233.05,-112.07C1288.26,-133.54 1403.46,-178.33 1464.88,-202.21"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1463.67,-205.49 1474.26,-205.86 1466.21,-198.97 1463.67,-205.49"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_capoptions_from_fargparse~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1344.42,-90.15C1356.81,-89.29 1369.29,-88.42 1381.52,-87.58"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1381.99,-91.05 1391.72,-86.87 1381.5,-84.07 1381.99,-91.05"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocnew_capoptions_from_fargparseCallsGraph = svgPanZoom('#procnew_capoptions_from_fargparseCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_capoptions_from_fargparse~~CalledByGraph Pages: 1 -->
+<svg id="procnew_capoptions_from_fargparseCalledByGraph" width="616pt" height="32pt"
+ viewBox="0.00 0.00 616.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_capoptions_from_fargparse~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~new_capoptions_from_fargparse~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 612,-28 612,4 -4,4"/>
+<!-- proc~new_capoptions_from_fargparse -->
+<g id="proc~~new_capoptions_from_fargparse~~CalledByGraph_node1" class="node">
+<title>proc~new_capoptions_from_fargparse</title>
+<polygon fill="none" stroke="black" points="608,-24 286,-24 286,0 608,0 608,-24"/>
+<text text-anchor="middle" x="447" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_FargparseCLIMod::new_CapOptions_from_fargparse</text>
+</g>
+<!-- interface~mapl_fargparsecli -->
+<g id="proc~~new_capoptions_from_fargparse~~CalledByGraph_node2" class="node">
+<title>interface~mapl_fargparsecli</title>
+<g id="a_proc~~new_capoptions_from_fargparse~~CalledByGraph_node2"><a xlink:href="../interface/mapl_fargparsecli.html" xlink:title="MAPL_FargparseCLIMod::MAPL_FargparseCLI">
+<polygon fill="#a7506f" stroke="#a7506f" points="250,-24 0,-24 0,0 250,0 250,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FargparseCLIMod::MAPL_FargparseCLI</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fargparsecli&#45;&gt;proc~new_capoptions_from_fargparse -->
+<g id="proc~~new_capoptions_from_fargparse~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_fargparsecli&#45;&gt;proc~new_capoptions_from_fargparse</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M250.18,-12C258.58,-12 267.11,-12 275.69,-12"/>
+<polygon fill="#255000" stroke="#255000" points="275.77,-15.5 285.77,-12 275.77,-8.5 275.77,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">new_CapOptions_from_fargparse</span><span class="p">(</span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">dummy</span><span class="p">,</span><span class="w"> </span><span class="n">extra</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="w"> </span><span class="p">(</span><span class="n">cap_options</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_CapOptions_</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_options</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dummy</span><span class="w"> </span><span class="c">!Needed for backward compatibility. Remove after 3.0</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_extraoptions</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extra</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_FargparseCLI</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fargparse_cli</span>
+
+<span class="w">      </span><span class="n">fargparse_cli</span><span class="p">%</span><span class="n">parser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ArgParser</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">fargparse_cli</span><span class="p">%</span><span class="n">add_command_line_options</span><span class="p">(</span><span class="n">fargparse_cli</span><span class="p">%</span><span class="n">parser</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">extra</span><span class="p">(</span><span class="n">fargparse_cli</span><span class="p">%</span><span class="n">parser</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">fargparse_cli</span><span class="p">%</span><span class="k">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fargparse_cli</span><span class="p">%</span><span class="n">parser</span><span class="p">%</span><span class="n">parse_args</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">fargparse_cli</span><span class="p">%</span><span class="n">fill_cap_options</span><span class="p">(</span><span class="n">cap_options</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">dummy</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">new_CapOptions_from_fargparse</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-26T13:29:20.716042             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
