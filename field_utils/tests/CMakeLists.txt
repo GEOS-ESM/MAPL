@@ -16,6 +16,7 @@ add_pfunit_ctest(MAPL.field_utils.tests
                 MAX_PES 4
                 )
 set_target_properties(MAPL.field_utils.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.field_utils.tests PROPERTIES LABELS "ESSENTIAL")
 
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")

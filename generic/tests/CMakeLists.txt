@@ -15,5 +15,6 @@ add_pfunit_ctest(MAPL.generic.tests
                 MAX_PES 1
                 )
 set_target_properties(MAPL.generic.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.generic.tests PROPERTIES LABELS "ESSENTIAL")
 
 add_dependencies(build-tests MAPL.generic.tests)
