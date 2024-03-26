@@ -3298,6 +3298,7 @@ ENDDO PARSER
     type(GriddedIOitem) :: item
 
     type(Logger), pointer          :: lgr
+    type(ESMF_Info)                :: infoh_state_out, infoh_final_state
 
 !=============================================================================
 
@@ -3668,7 +3669,9 @@ ENDDO PARSER
                      temp_field = MAPL_FieldCreate(state_field,list(n)%field_set%fields(3,m),DoCopy=.true.,_RC)
                      call ESMF_StateAdd(final_state,[temp_field],_RC)
                   enddo
-                  call ESMF_AttributeCopy(state_out,final_state,_RC)
+                  call ESMF_InfoGetFromHost(state_out, infoh_state_out,_RC)
+                  call ESMF_InfoGetFromHost(final_state, infoh_final_state, _RC)
+                  call ESMF_InfoSet(infoh_final_state, key="", value=infoh_state_out, _RC)
                   call shavebits(final_state,list(n),_RC)
                end if
 
