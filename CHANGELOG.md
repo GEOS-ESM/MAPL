@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug with split restart files
 - Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
 - Fixes to allow SCM model to run
+- Fixed non-Baselibs build using `ESMF::ESMF` target
 
 ### Removed
 
