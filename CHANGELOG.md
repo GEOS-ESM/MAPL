@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_env v4.0.0 (Baselibs 7, new yaFyaml interfaces)
 - Updated CI to use Baselibs 7
 - Update executables using FLAP to use fArgParse
+- Update `Findudunits.cmake` to also link with libdl
 
 ### Fixed
 
@@ -57,6 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x
+- Allow arithmetic operations to be performed on fields from bundles in History
+- Adapted subroutine RegridVector from GriddedIO.F90 to MAPL_EpochSwathMod.F90 (changing class name for this)
+- Give informative error message when swath grid Epoch does not equal swath sampler frequency
 - Add mask sampler for geostationary satellite (GEOS-R series)
 - Add geostation name into NC for station sampler
 - Add mapping between the IODA loc_index and trajectory NC output loc_index
@@ -77,9 +82,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The MAPL\_ESMFRegridder manage now does compute the transpose by default
 - Bypassed the I-Server reading call when there is no extdata
+- Update `components.yaml`
+  - ESMA_cmake v3.42.0
+    - Updates to MPI detection
+    - Enable `-quiet` flag for NAG
 
 ### Fixed
 
+- Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
 - Fixed bug with split restart files
 - Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
 - Fixes to allow SCM model to run
@@ -87,6 +97,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.44.2] - 2024-03-26
+
+### Fixed
+
+- Fixed bug in `time_ave_util.x` when the input files have a level size of 1
+
+## [2.44.1] - 2024-03-19
+
+### Fixed
+
+- Fix bug where bit-shaved, instantaneous binary output in History was modifying the original export state passed
 
 ## [2.44.0] - 2024-02-08
 

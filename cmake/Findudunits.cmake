@@ -53,5 +53,6 @@ if(udunits_FOUND AND NOT TARGET udunits::udunits)
 	add_library(udunits::udunits INTERFACE IMPORTED)
 	set_target_properties(udunits::udunits PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${udunits_INCLUDE_DIR})
   set_target_properties(udunits::udunits PROPERTIES INTERFACE_LINK_LIBRARIES ${udunits_LIBRARY})
+  set_property(TARGET udunits::udunits APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS})
 endif()
 

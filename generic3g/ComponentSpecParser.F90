@@ -157,7 +157,7 @@ contains
 
          b = ESMF_HConfigIterBegin(subcfg, _RC) 
          e = ESMF_HConfigIterEnd(subcfg, _RC) 
-         iter = ESMF_HConfigIterBegin(subcfg, _RC)
+         iter = b
          do while (ESMF_HConfigIterLoop(iter,b,e))
             name = ESMF_HConfigAsStringMapKey(iter, _RC)
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
@@ -607,7 +607,7 @@ contains
 
       iter_begin = ESMF_HCOnfigIterBegin(children_cfg, _RC)
       iter_end = ESMF_HConfigIterEnd(children_cfg, _RC)
-      iter = ESMF_HConfigIterBegin(children_cfg, _RC)
+      iter = iter_begin
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end))
          child_name = ESMF_HConfigAsStringMapKey(iter, _RC)
          child_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)

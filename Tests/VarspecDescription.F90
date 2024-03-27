@@ -38,6 +38,7 @@ contains
 
       type(StringVector) :: svec
       integer :: i
+      integer, pointer :: ungrid_ptr(:)
       character(ESMF_MAXSTR) :: tmpstring
 
       do i=1,nwords
@@ -47,7 +48,7 @@ contains
          call svec%push_back(trim(tmpstring))
       enddo
 
-      lcomp = (svec%size()==5 .or. svec%size()==7)
+      lcomp = (svec%size()==5 .or. svec%size()==6)
       _ASSERT(lcomp)
       VarspecDescr%short_name = svec%at(1)
       VarspecDescr%long_name = svec%at(2)
@@ -68,29 +69,13 @@ contains
       else if (trim(tmpstring) == 'e') then
          VarspecDescr%location = MAPL_VLocationEdge
       end if
-
-      if (svec%size() == 7) then
+      if (svec%size() == 6) then
          tmpstring = svec%at(6)
-         if (trim(tmpstring)== 'agrid') then
-            VarspecDescr%staggering = MAPL_AGrid
-         else if (trim(tmpstring)== 'cgrid') then
-            VarspecDescr%staggering = MAPL_CGrid
-         else if (trim(tmpstring)== 'dgrid') then
-            VarspecDescr%staggering = MAPL_DGrid
-         end if
-
-         tmpstring = svec%at(7)
-         if (trim(tmpstring)== 'grid_aligned') then
-            VarspecDescr%rotation = MAPL_RotateCube
-         else if (trim(tmpstring)== 'latlon_aligned') then
-            VarspecDescr%rotation = MAPL_RotateLL
-         end if
-
-      else
-         VarspecDescr%staggering = MAPL_AGrid
-         VarspecDescr%rotation = MAPL_AGrid
+         allocate(ungrid_ptr(1))
+         read(tmpstring,*)ungrid_ptr(1)
+         if (ungrid_ptr(1) > 0) VarspecDescr%ungridded_dims => ungrid_ptr
       end if
- 
+
 
    end function new_VarspecDescriptionFromConfig
 
@@ -99,7 +84,7 @@ contains
       type(ESMF_GridComp), intent(inout) :: gc
       character(*), intent(in) :: specType
       integer, optional, intent(out) :: rc
-  
+
       integer :: status
       character(len=*), parameter :: Iam = "addNewSpec"
 
@@ -110,8 +95,9 @@ contains
               UNITS = this%units, &
               DIMS = this%dims, &
               VLOCATION = this%location, &
-              STAGGERING = this%staggering, &
-              ROTATION = this%rotation, &
+              !STAGGERING = this%staggering, &
+              !ROTATION = this%rotation, &
+              UNGRIDDED_DIMS = this%ungridded_dims, &
               RC = status)
       else if (specType == "EXPORT") then
          call MAPL_AddExportSpec(GC, &
@@ -120,8 +106,9 @@ contains
               UNITS = this%units, &
               DIMS = this%dims, &
               VLOCATION = this%location, &
-              STAGGERING = this%staggering, &
-              ROTATION = this%rotation, &
+              !STAGGERING = this%staggering, &
+              !ROTATION = this%rotation, &
+              UNGRIDDED_DIMS = this%ungridded_dims, &
               RC = status)
       else
          _RETURN(_FAILURE)
@@ -140,6 +127,6 @@ module VarspecDescriptionVectorMod
 #define _vector VarspecDescriptionVector
 #define _iterator VarspecDescriptionVectorIterator
 #include "templates/vector.inc"
-   
+
 end module VarspecDescriptionVectorMod
 
