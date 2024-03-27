@@ -30,6 +30,25 @@ string_emit = lambda value: ("'" + value + "'") if value else None
 array_emit = lambda value: ('[' + value + ']') if value else None
 lstripped = lambda s: s.lower().strip(' .')
 
+# emit function for character arrays
+string_array_emit = lambda value: make_string_array(value) if value else None
+
+def make_string_array(s):
+    """ Returns a string representing a Fortran character array """
+    ss = s.strip()
+    if ',' in ss:
+        ls = [s.strip() for s in s.strip().split(',')]
+    else:
+        ls = s.strip().split()
+    ls = [rm_quotes(s) for s in ls]
+    ls = [s for s in ls if s]
+    n = max(ls)
+    ss = ','.join([add_quotes(s) for s in ls])
+    return f"[character(len={n}) :: {ss}]"
+
+rm_quotes = lambda s: s.strip().strip('"\'').strip()
+add_quotes = lambda s: "'" + s + "'"
+
 mangle_name = lambda name: string_emit(name.replace("*","'//trim(comp_name)//'")) if name else None 
 make_internal_name = lambda name: name.replace('*','') if name else None
 
@@ -56,7 +75,6 @@ FALSEVALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 TRUE_VALUE = '.true.'
 FALSE_VALUE = '.false.'
 logical_emit = lambda s: TRUE_VALUE if lstripped(s) in TRUEVALUES else FALSE_VALUE if lstripped(s) in FALSEVALUES else None
-
 # emit function for Option.ADD2EXPORT
 ADD2EXPORT_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
 
@@ -98,7 +116,7 @@ Option = Enum(value = 'Option', names = {
         'DATATYPE': ('datatype',),
         'DEFAULT': ('default',),
         'DEPENDS_ON_CHILDREN': ('depends_on_children', logical_emit),
-        'DEPENDS_ON': ('depends_on', string_emit),
+        'DEPENDS_ON': ('depends_on', string_array_emit),
         'FIELD_TYPE': ('field_type',),
         'FRIENDLYTO': ('friendlyto', string_emit),
         'FRIEND2': ('friendlyto', string_emit),
