@@ -17,7 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [2.35.4] - 2023-07-11
+## [v2.35.3+R21C_v1.1.0] - 2024-03-28
+
+### Fixed
+
+- Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
+
+## [v2.35.3+R21C_v1.0.0] - 2024-02-16
 
 ### Fixed
 

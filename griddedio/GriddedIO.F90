@@ -126,6 +126,7 @@ module MAPL_GriddedIOMod
         integer :: metadataVarsSize
         type(StringStringMapIterator) :: s_iter
         character(len=:), pointer :: attr_name, attr_val
+        class(Variable), pointer :: coord_var
         integer :: status
 
         this%items = items
@@ -155,6 +156,14 @@ module MAPL_GriddedIOMod
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
         call factory%append_metadata(this%metadata)
+        coord_var => this%metadata%get_variable('lons')
+        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+        coord_var => this%metadata%get_variable('lats')
+        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+        coord_var => this%metadata%get_variable('corner_lons')
+        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+        coord_var => this%metadata%get_variable('corner_lats')
+        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
 
         if (present(vdata)) then
            this%vdata=vdata

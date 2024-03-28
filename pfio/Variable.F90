@@ -49,6 +49,7 @@ module pFIO_VariableMod
 
       procedure :: get_chunksizes
       procedure :: get_deflation
+      procedure :: set_deflation
       procedure :: get_quantize_algorithm
       procedure :: get_quantize_level
       procedure :: is_attribute_present
@@ -281,6 +282,12 @@ contains
 
       deflateLevel=this%deflation
    end function get_deflation
+
+   subroutine set_deflation(this,deflate_level)
+      class (Variable), target, intent(inout) :: this
+      integer, intent(in) :: deflate_level
+      this%deflation = deflate_level
+   end subroutine
 
    function get_quantize_algorithm(this) result(quantizeAlgorithm)
       class (Variable), target, intent(In) :: this

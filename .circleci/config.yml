@@ -97,7 +97,8 @@ workflows:
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
-          mepodevelop: true
+          fixture_branch: R21C
+          mepodevelop: false
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
@@ -116,43 +117,10 @@ workflows:
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
-          mepodevelop: true
+          fixture_branch: R21C
+          mepodevelop: false
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
-
-      # Build GEOSldas on ifort
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: develop
-          checkout_mapl_branch: true
-
-      # Build GEOSldas on gfortran -- only to main
-      - ci/build:
-          filters:
-            branches:
-              only:
-                - main
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: develop
-          checkout_mapl_branch: true
 
       # Build GEOSadas (ifort only, needs a couple develop branches) -- only to main
       - ci/build:
@@ -170,9 +138,7 @@ workflows:
           baselibs_version: *baselibs_version
           repo: GEOSadas
           checkout_fixture: true
-          # This branch on GEOSadas will be used to track subrepos needed
-          # for GEOSadas + MAPL develop much like how we do with MAPL 3
-          fixture_branch: feature/mathomp4/mapldevelop
+          fixture_branch: R21C
           checkout_mapl_branch: true
           mepodevelop: false
           rebuild_procs: 1
@@ -214,67 +180,3 @@ workflows:
           bcs_version: *bcs_version
           gcm_ocean_type: MOM6
           change_layout: false
-
-      # Run MAPL Tutorials -- only to main
-      - ci/run_mapl_tutorial:
-          filters:
-            branches:
-              only:
-                - main
-          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              #compiler: [gfortran, ifort]
-              compiler: [ifort]
-              tutorial_name:
-                - hello_world
-                - parent_no_children
-                - parent_one_child_import_via_extdata
-                - parent_one_child_no_imports
-                - parent_two_siblings_connect_import_export
-          # We will only run the tutorials with GNU make. No need to double up
-          # as Ninja is a build test only
-          requires:
-            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
-          baselibs_version: *baselibs_version
-
-  build-and-publish-docker:
-    when:
-      equal: [ "release", << pipeline.parameters.GHA_Event >> ]
-    jobs:
-      - ci/publish-docker:
-          filters:
-            tags:
-              only: /^v.*$/
-          name: publish-intel-docker-image
-          context:
-            - docker-hub-creds
-            - ghcr-creds
-          os_version: *os_version
-          baselibs_version: *baselibs_version
-          container_name: mapl
-          mpi_name: intelmpi
-          mpi_version: 2021.6.0
-          compiler_name: intel
-          compiler_version: 2022.1.0
-          image_name: geos-env
-          tag_build_arg_name: *tag_build_arg_name
-      - ci/publish-docker:
-          filters:
-            tags:
-              only: /^v.*$/
-          name: publish-gcc-docker-image
-          context:
-            - docker-hub-creds
-            - ghcr-creds
-          os_version: *os_version
-          baselibs_version: *baselibs_version
-          container_name: mapl
-          mpi_name: openmpi
-          mpi_version: 4.1.4
-          compiler_name: gcc
-          compiler_version: 12.1.0
-          image_name: geos-env-mkl
-          tag_build_arg_name: *tag_build_arg_name
