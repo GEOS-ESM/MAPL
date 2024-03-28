@@ -13,11 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- The bundle I/O unit test was failing on NAG.  Partly due to an untrapped return code, but also some weird issue with setting values in ESMF Config. Probably not a bug in the compiler but something in  ESMF or MAPL handling line continuations.
-
 ### Removed
 
 ### Deprecated
+
+## [2.44.3] - 2024-03-28
+
+### Fixed
+
+- The bundle I/O unit test was failing on NAG.  Partly due to an untrapped return code, but also some weird issue with setting values in ESMF Config. Probably not a bug in the compiler but something in  ESMF or MAPL handling line continuations.
 
 ## [2.44.2] - 2024-03-26
 
