@@ -50,7 +50,7 @@ contains
 !======================= SCALAR VALUES (except logical) ========================
 #define RELATION(A, B) A==B
 #define ESMF_HCONFIG_AS ESMF_HConfigAsI4
-   subroutine get_value_i4(params, value, default, rc)
+   subroutine get_value_i4(params, value, default, valuestring_out, rc )
       integer(kind=ESMF_KIND_I4), intent(inout) :: value
       integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I4'
@@ -59,7 +59,7 @@ contains
 #undef ESMF_HCONFIG_AS
 
 #define ESMF_HCONFIG_AS ESMF_HConfigAsI8
-   subroutine get_value_i8(params, value, default, rc)
+   subroutine get_value_i8(params, value, default, valuestring_out, rc)
       integer(kind=ESMF_KIND_I8), intent(inout) :: value
       integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I8'
@@ -68,7 +68,7 @@ contains
 #undef ESMF_HCONFIG_AS
 
 #define ESMF_HCONFIG_AS ESMF_HConfigAsR4
-   subroutine get_value_r4(params, value, default, rc)
+   subroutine get_value_r4(params, value, default, valuestring_out, rc)
       real(kind=ESMF_KIND_R4), intent(inout) :: value
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'R4'
@@ -77,7 +77,7 @@ contains
 #undef ESMF_HCONFIG_AS
 
 #define ESMF_HCONFIG_AS ESMF_HConfigAsR8
-   subroutine get_value_r8(params, value, default, rc)
+   subroutine get_value_r8(params, value, default, valuestring_out, rc)
       real(kind=ESMF_KIND_R8), intent(inout) :: value
       real(kind=ESMF_KIND_R8), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'R8'
@@ -86,7 +86,7 @@ contains
 #undef ESMF_HCONFIG_AS
 
 #define ESMF_HCONFIG_AS ESMF_HConfigAsString
-   subroutine get_value_string(params, value, default, rc)
+   subroutine get_value_string(params, value, default, valuestring_out, rc)
       character(len=:), allocatable, intent(inout) :: value
       character(len=*), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'CH'
@@ -99,7 +99,7 @@ contains
 !========================== SCALAR VALUES (logical) ============================
 #define RELATION(A, B) A.eqv.B
 #define ESMF_HCONFIG_AS ESMF_HConfigAsLogical
-   subroutine get_value_logical(params, value, default, rc)
+   subroutine get_value_logical(params, value, default, valuestring_out, rc)
       logical, intent(inout) :: value
       logical, optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'L'
@@ -113,7 +113,7 @@ contains
 !==================== ARRAY VALUES (except logical array) ======================
 #define RELATION(A, B) all(A==B)
 #define ESMF_HCONFIG_AS ESMF_HConfigAsI4Seq
-   subroutine get_value_i4seq(params, value, default, rc)
+   subroutine get_value_i4seq(params, value, default, valuestring_out, rc)
       integer(kind=ESMF_KIND_I4), dimension(:), allocatable, intent(inout) :: value
       integer(kind=ESMF_KIND_I4), dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I4'
@@ -122,7 +122,7 @@ contains
 #undef ESMF_HCONFIG_AS
 
 #define ESMF_HCONFIG_AS ESMF_HConfigAsI8Seq
-   subroutine get_value_i8seq(params, value, default, rc)
+   subroutine get_value_i8seq(params, value, default, valuestring_out, rc)
       integer(kind=ESMF_KIND_I8), dimension(:), allocatable, intent(inout) :: value
       integer(kind=ESMF_KIND_I8), dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I8'
@@ -131,7 +131,7 @@ contains
 #undef ESMF_HCONFIG_AS
 
 #define ESMF_HCONFIG_AS ESMF_HConfigAsR4Seq
-   subroutine get_value_r4seq(params, value, default, rc)
+   subroutine get_value_r4seq(params, value, default, valuestring_out, rc)
       real(kind=ESMF_KIND_R4), dimension(:), allocatable, intent(inout) :: value
       real(kind=ESMF_KIND_R4), dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'R4'
@@ -140,7 +140,7 @@ contains
 #undef ESMF_HCONFIG_AS
 
 #define ESMF_HCONFIG_AS ESMF_HConfigAsR8Seq
-   subroutine get_value_r8seq(params, value, default, rc)
+   subroutine get_value_r8seq(params, value, default, valuestring_out, rc)
       real(kind=ESMF_KIND_R8), dimension(:), allocatable, intent(inout) :: value
       real(kind=ESMF_KIND_R8), dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'R8'
@@ -153,7 +153,7 @@ contains
 !======================== ARRAY VALUES (logical array) =========================
 #define RELATION(A, B) all(A.eqv.B)
 #define ESMF_HCONFIG_AS ESMF_HConfigAsLogicalSeq
-   subroutine get_value_logical_seq(params, value, default, rc)
+   subroutine get_value_logical_seq(params, value, default, valuestring_out, rc)
       logical, dimension(:), allocatable, intent(inout) :: value
       logical, optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'L'
