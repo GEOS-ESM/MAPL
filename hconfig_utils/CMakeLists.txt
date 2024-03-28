@@ -1,9 +1,10 @@
 esma_set_this (OVERRIDE MAPL.hconfig_utils)
 
 set(srcs
-  mapl3g_hconfig_get.F90
-  mapl3g_hconfig_get_private.F90
   HConfig3G.F90
+  mapl3g_hconfig_get.F90
+  mapl3g_hconfig_params.F90
+  mapl3g_hconfig_get_private.F90
   )
 
 if (BUILD_WITH_PFLOGGER)
