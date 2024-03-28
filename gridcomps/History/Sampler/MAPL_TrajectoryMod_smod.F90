@@ -20,6 +20,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MAPL_StringTemplate
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
+  use MPI, only : MPI_INTEGER, MPI_REAL, MPI_REAL8
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -132,7 +133,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          enddo
 
 
-
          ! __ s2. find nobs  &&  distinguish design with vs wo  '------'
          nobs=0
          call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
@@ -141,6 +141,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call ESMF_ConfigGetAttribute( config, STR1, _RC)
             if ( index(trim(STR1), '-----') > 0 ) nobs=nobs+1
          enddo
+
 
          ! __ s3. retrieve template and geoval, set metadata file_handle
          lgr => logging%get_logger('HISTORY.sampler')
@@ -168,7 +169,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             nobs=0   ! reuse counter
             head=1
             jvar=0
-
             !
             !   count '------' in history.rc as special markers for ngeoval
             !
@@ -221,12 +221,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             enddo
          end if
 
+
          do k=1, traj%nobs_type
             allocate (traj%obs(k)%metadata, _STAT)
             if (mapl_am_i_root()) then
                allocate (traj%obs(k)%file_handle, _STAT)
             end if
          end do
+
 
          call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
          do i=1, traj%nobs_type
@@ -238,11 +240,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
          end do
 
+
          _RETURN(_SUCCESS)
 
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
        end procedure HistoryTrajectory_from_config
+
 
 
        !
@@ -308,7 +312,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
          this%output_bundle = this%create_new_bundle(_RC)
          this%acc_bundle    = this%create_new_bundle(_RC)
-
 
          do k=1, this%nobs_type
             call this%obs(k)%metadata%add_dimension(this%index_name_x, this%obs(k)%nobs_epoch)
@@ -402,7 +405,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 !!              if (mapl_am_i_root()) write(6, '(2x,a,/,10(2x,a))') &
 !!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_xname(ig)', &
 !!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_xname(ig))
-
 
               endif
            enddo
@@ -538,7 +540,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Grid) :: grid
 
          type(ESMF_VM) :: vm
-         integer :: mypet, petcount
+         integer :: mypet, petcount, mpic
 
          integer :: i, j, k, L, ii, jj
          integer :: fid_s, fid_e
@@ -554,12 +556,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: nx2
          logical :: EX ! file
          logical :: zero_obs
+         integer, allocatable :: sendcount(:), displs(:)
+         integer :: recvcount
+         integer :: is, ie, ierr
+         integer :: M, N, ip
 
-!!         this%datetime_units = "seconds since 1970-01-01 00:00:00"
+
+         real(kind=REAL64), allocatable :: lons_chunk(:)
+         real(kind=REAL64), allocatable :: lats_chunk(:)
+         real(kind=REAL64), allocatable :: times_R8_chunk(:)
+
+
          lgr => logging%get_logger('HISTORY.sampler')
 
-         call ESMF_VMGetGlobal(vm,_RC)
-         call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
+         call ESMF_VMGetCurrent(vm,_RC)
+         call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
 
          if (this%index_name_x == '') then
             !
@@ -835,32 +846,77 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%nobs_epoch_sum = nx_sum
          call lgr%debug('%a %i20', 'nobservation points=', nx_sum)
 
+         !
+         !__ s1. distrubute data chunk for the locstream points : mpi_scatterV
+         !__ s2. create LS on parallel processors
+         !       caution about zero-sized array for MPI
+         !
+         ip = mypet    ! 0 to M-1
+         N = nx_sum
+         M = petCount
+         recvcount = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                     int(ip  , INT64) * int(N, INT64) / int(M, INT64)
 
+!!         write(6,'(2x,a,2x,2i10)') 'ip, recvcount', ip, recvcount
+
+         allocate ( sendcount (petCount) )
+         allocate ( displs    (petCount) )
+         do ip=0, M-1
+            sendcount(ip+1) = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                              int(ip  , INT64) * int(N, INT64) / int(M, INT64)
+         end do
+         displs(1)=0
+         do i = 2, petCount
+            displs(i) = displs(i-1) + sendcount(i-1)
+         end do
+
+         allocate ( lons_chunk (recvcount) )
+         allocate ( lats_chunk (recvcount) )
+         allocate ( times_R8_chunk (recvcount) )
+
+         arr(1) = recvcount
+         call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx2, &
+              count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
+         _ASSERT( nx2 == nx_sum, 'Erorr in recvcount' )
+
+         call MPI_Scatterv( this%lons, sendcount, &
+              displs, MPI_REAL8,  lons_chunk, &
+              recvcount, MPI_REAL8, 0, mpic, ierr)
+
+         call MPI_Scatterv( this%lats, sendcount, &
+              displs, MPI_REAL8,  lats_chunk, &
+              recvcount, MPI_REAL8, 0, mpic, ierr)
+
+         call MPI_Scatterv( this%times_R8, sendcount, &
+              displs, MPI_REAL8,  times_R8_chunk, &
+              recvcount, MPI_REAL8, 0, mpic, ierr)
+
+         ! -- root
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
          this%LS_rt = this%locstream_factory%create_locstream(_RC)
-         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)
 
-         this%fieldA = ESMF_FieldCreate (this%LS_rt, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
+         ! -- proc
+         this%locstream_factory = LocStreamFactory(lons_chunk,lats_chunk,_RC)
+         this%LS_chunk = this%locstream_factory%create_locstream_on_proc(_RC)
+
+         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+         this%LS_ds = this%locstream_factory%create_locstream_on_proc(grid=grid,_RC)
+
+         this%fieldA = ESMF_FieldCreate (this%LS_chunk, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
          this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
 
          call ESMF_FieldGet( this%fieldA, localDE=0, farrayPtr=ptAT)
          call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=this%obsTime)
-         if (mypet == 0) then
-            ptAT(:) = this%times_R8(:)
-         end if
+         ptAT(:) = times_R8_chunk(:)
          this%obsTime= -1.d0
 
          call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
          call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
 
-         !!write(6,'(2x,a,i5,2x,10E20.11)')  'pet=', mypet, this%obsTime(1:10)
-
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
          call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
          ! defer destroy fieldB at regen_grid step
          !
-
 
          _RETURN(_SUCCESS)
        end procedure create_grid
@@ -876,8 +932,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Field) :: acc_field
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
          real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-         real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
-         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
+         real(kind=REAL32), pointer :: p_acc_rt_2d(:)
+         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:), p_dst_t(:,:)   ! _t: transpose
+         real(kind=REAL32), pointer :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
+         real(kind=REAL32), pointer :: pt1(:), pt2(:)
+
+         type(ESMF_Field) :: acc_field_2d_chunk, acc_field_3d_chunk, chunk_field
+         real(kind=REAL32), pointer :: p_acc_chunk_3d(:,:),p_acc_chunk_2d(:)
 
          integer :: is, ie, nx
          integer :: lm
@@ -885,6 +946,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: status
          integer :: j, k, ig
          integer, allocatable :: ix(:)
+         type(ESMF_VM) :: vm
+         integer :: mypet, petcount, mpic, iroot
+
+         integer :: na, nb, nx_sum, nsend
+         integer, allocatable :: RecvCount(:), displs(:)
+         integer :: i, ierr
+         integer :: nsend_v
+         integer, allocatable :: recvcount_v(:), displs_v(:)
+         integer :: ip, M, N
 
          if (.NOT. this%active) then
             _RETURN(ESMF_SUCCESS)
@@ -915,16 +985,74 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          ! get RH from 2d field
          src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
-         dst_field = ESMF_FieldCreate(this%LS_rt,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
-         call ESMF_FieldRedistStore(src_field,dst_field,RH,_RC)
+         chunk_field = ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
+         call ESMF_FieldGet( src_field, localDE=0, farrayPtr=pt1, _RC )
+         call ESMF_FieldGet( chunk_field, localDE=0, farrayPtr=pt2, _RC )
+         pt1=0.0
+         pt2=0.0
+         call ESMF_FieldRedistStore(src_field,chunk_field,RH,_RC)
          call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
-         call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
+         call ESMF_FieldDestroy(chunk_field,noGarbage=.true.,_RC)
 
          ! redist and put_var
          lm = this%vdata%lm
          acc_field_2d_rt = ESMF_FieldCreate (this%LS_rt, name='field_2d_rt', typekind=ESMF_TYPEKIND_R4, _RC)
          acc_field_3d_rt = ESMF_FieldCreate (this%LS_rt, name='field_3d_rt', typekind=ESMF_TYPEKIND_R4, &
               gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+
+         acc_field_2d_chunk = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
+         acc_field_3d_chunk = ESMF_FieldCreate (this%LS_chunk, name='field_3d_chunk', typekind=ESMF_TYPEKIND_R4, &
+              gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+
+         !
+         !   caution about zero-sized array for MPI
+         !
+         nx_sum = this%nobs_epoch_sum
+         call ESMF_VMGetCurrent(vm,_RC)
+         call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
+
+         iroot = 0
+         ip = mypet
+         N = nx_sum
+         M = petCount
+         nsend = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                 int(ip  , INT64) * int(N, INT64) / int(M, INT64)
+         allocate ( recvcount (petCount) )
+         allocate ( displs    (petCount) )
+         do ip=0, M-1
+            recvcount(ip+1) =  int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+                               int(ip  , INT64) * int(N, INT64) / int(M, INT64)
+         end do
+         displs(1)=0
+         do i = 2, petCount
+            displs(i) = displs(i-1) + recvcount(i-1)
+         end do
+
+         nsend_v = nsend * lm      ! vertical
+         allocate (recvcount_v, source = recvcount * lm )
+         allocate (displs_v, source = displs * lm )
+
+         if (mapl_am_i_root()) then
+            allocate ( p_acc_rt_2d(nx_sum) )
+         else
+            allocate ( p_acc_rt_2d(1) )
+         end if
+         !
+         ! p_dst (lm, nx)
+         if (mapl_am_i_root()) then
+            allocate ( p_acc_rt_3d(nx_sum,lm) )
+            allocate ( p_dst_rt(lm, nx_sum) )
+         else
+            allocate ( p_acc_rt_3d(1,lm) )
+            allocate ( p_dst_rt(lm, 1) )
+         end if
+
+#define lev_b_lev  1
+#if defined(lev_b_lev)
+         if (mapl_am_i_root()) write(6,*) 'lev b lev: gatherV ls_chunk to ls_root'
+#else
+         if (mapl_am_i_root()) write(6,*) '3d: gatherV ls_chunk to ls_root'
+#endif
 
          iter = this%items%begin()
          do while (iter /= this%items%end())
@@ -933,10 +1061,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
                call ESMF_FieldGet(acc_field,rank=rank,_RC)
                if (rank==1) then
-!!                  if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'append:2d item%xname', trim(item%xname)
-                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
-                  call ESMF_FieldGet( acc_field_2d_rt, localDE=0, farrayPtr=p_acc_rt_2d, _RC)
-                  call ESMF_FieldRedist( acc_field,  acc_field_2d_rt, RH, _RC)
+                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC )
+                  call ESMF_FieldGet( acc_field_2d_chunk, localDE=0, farrayPtr=p_acc_chunk_2d, _RC )
+                  call ESMF_FieldRedist( acc_field,  acc_field_2d_chunk, RH, _RC )
+                  call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
+                       p_acc_rt_2d, recvcount, displs, MPI_REAL,&
+                       iroot, mpic, ierr )
+
                   if (mapl_am_i_root()) then
                      !
                      !-- pack fields to obs(k)%p2d and put_var
@@ -983,24 +1114,39 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      enddo
                   end if
                else if (rank==2) then
-                  !!if( MAPL_AM_I_ROOT() ) write(6, '(2x,a,2x,a)') 'append:3d item%xname', trim(item%xname)
-                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
-                  call ESMF_FieldGet( acc_field_3d_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
+                  if (mapl_am_i_root()) write(6,*) 'in append rank=2, bg gatherv'
 
-                  dst_field=ESMF_FieldCreate(this%LS_rt,typekind=ESMF_TYPEKIND_R4, &
+                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
+                  dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
                        gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
                   src_field=ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4, &
                        gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
 
                   call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
                   call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
-
                   p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
                   call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
-                  p_acc_rt_3d=reshape(p_dst, shape(p_acc_rt_3d), order=[2,1])
+
+#if defined(lev_b_lev)
+                  ! p_dst (lm, nx)
+                  allocate ( p_dst_t, source = reshape ( p_dst, [size(p_dst,2),size(p_dst,1)], order=[2,1] ) )
+                  do k = 1, lm
+                     call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
+                          p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
+                          iroot, mpic, ierr )
+                  end do
+                  deallocate (p_dst_t)
+#else
+                  call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
+                       p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
+                       iroot, mpic, ierr )
+                  p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
+#endif
 
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
+
+                  if (mapl_am_i_root()) write(6,*) 'in append rank=2, af gatherv'
 
                   if (mapl_am_i_root()) then
                      !
@@ -1043,19 +1189,19 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      enddo
                   end if
                endif
+
             else if (item%itemType == ItemTypeVector) then
                _FAIL("ItemTypeVector not yet supported")
             end if
             call iter%next()
          enddo
-         call ESMF_FieldDestroy(acc_field_2d_rt, noGarbage=.true., _RC)
-         call ESMF_FieldDestroy(acc_field_3d_rt, noGarbage=.true., _RC)
+         call ESMF_FieldDestroy(acc_field_2d_chunk, noGarbage=.true., _RC)
+         call ESMF_FieldDestroy(acc_field_3d_chunk, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+
 
          _RETURN(_SUCCESS)
        end procedure append_file
-
-
 
 
          module procedure regrid_accumulate_on_xsubset
@@ -1107,7 +1253,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            !
            !!arr(1)=1
            !!if (.NOT. (is > 0 .AND. is <= ie ))  arr(1)=0
-           !!call ESMF_VMGetGlobal(vm,_RC)
+           !!call ESMF_VMGetCurrent(vm,_RC)
            !!call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
            !!call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
            !!   count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
@@ -1318,5 +1464,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               item = adjustl( string_list)
            endif
          end function extract_unquoted_item
+
 
 end submodule HistoryTrajectory_implement
