@@ -524,9 +524,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          character(len=ESMF_MAXSTR) :: timeunits_file
          character :: new_char(ESMF_MAXSTR)
 
-         real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
-         real(kind=REAL64), allocatable :: times_R8_full(:)
-         real(kind=REAL64)              :: t_shift
+         real(REAL64), allocatable :: lons_full(:), lats_full(:)
+         real(REAL64), allocatable :: times_R8_full(:)
+         real(REAL64)              :: t_shift
          integer,           allocatable :: obstype_id_full(:)
          integer,           allocatable :: location_index_ioda_full(:)
          integer,           allocatable :: IA_full(:)
@@ -561,10 +561,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: is, ie, ierr
          integer :: M, N, ip
 
-
-         real(kind=REAL64), allocatable :: lons_chunk(:)
-         real(kind=REAL64), allocatable :: lats_chunk(:)
-         real(kind=REAL64), allocatable :: times_R8_chunk(:)
+         real(REAL64), allocatable :: lons_chunk(:)
+         real(REAL64), allocatable :: lats_chunk(:)
+         real(REAL64), allocatable :: times_R8_chunk(:)
 
 
          lgr => logging%get_logger('HISTORY.sampler')
@@ -931,14 +930,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Field) :: src_field, dst_field
          type(ESMF_Field) :: acc_field
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
-         real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-         real(kind=REAL32), pointer :: p_acc_rt_2d(:)
-         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:), p_dst_t(:,:)   ! _t: transpose
-         real(kind=REAL32), pointer :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
-         real(kind=REAL32), pointer :: pt1(:), pt2(:)
+         real(REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
+         real(REAL32), pointer :: p_acc_rt_2d(:)
+         real(REAL32), pointer :: p_src(:,:),p_dst(:,:), p_dst_t(:,:)   ! _t: transpose
+         real(REAL32), pointer :: p_dst_rt(:,:), p_acc_rt_3d(:,:)
+         real(REAL32), pointer :: pt1(:), pt2(:)
 
          type(ESMF_Field) :: acc_field_2d_chunk, acc_field_3d_chunk, chunk_field
-         real(kind=REAL32), pointer :: p_acc_chunk_3d(:,:),p_acc_chunk_2d(:)
+         real(REAL32), pointer :: p_acc_chunk_3d(:,:),p_acc_chunk_2d(:)
 
          integer :: is, ie, nx
          integer :: lm
@@ -1046,13 +1045,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate ( p_acc_rt_3d(1,lm) )
             allocate ( p_dst_rt(lm, 1) )
          end if
-
-#define lev_b_lev  1
-#if defined(lev_b_lev)
-         if (mapl_am_i_root()) write(6,*) 'lev b lev: gatherV ls_chunk to ls_root'
-#else
-         if (mapl_am_i_root()) write(6,*) '3d: gatherV ls_chunk to ls_root'
-#endif
 
          iter = this%items%begin()
          do while (iter /= this%items%end())
@@ -1213,10 +1205,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            type(GriddedIOitem), pointer :: item
            type(ESMF_Field) :: src_field,dst_field,acc_field
            integer :: rank
-           real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-           real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-           real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
-           real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
+           real(REAL32), allocatable :: p_new_lev(:,:,:)
+           real(REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
+           real(REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
+           real(REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
            type(ESMF_VM) :: vm
            integer :: mypet, petcount
            integer :: is, ie, nx_sum
