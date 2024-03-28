@@ -1,0 +1,658 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>is_valid_date &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>is_valid_date
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">5 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_ISO8601_DateTime.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_iso8601_datetime.f90.html'>MAPL_ISO8601_DateTime.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_iso8601_datetime.html'>MAPL_ISO8601_DateTime</a></li>
+            <li class="breadcrumb-item active" aria-current="page">is_valid_date</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/is_valid_date~2.html#src">is_valid_date</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public pure function is_valid_date(date)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-date~19"></span>
+              type(<a href='../type/date_fields.html'>date_fields</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>date</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-is_valid_date"></span>
+          logical
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~is_valid_date~2~~CallsGraph Pages: 1 -->
+<svg id="procis_valid_date2CallsGraph" width="641pt" height="95pt"
+ viewBox="0.00 0.00 641.00 94.55" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~is_valid_date~2~~CallsGraph" class="graph" transform="scale(1.63 1.63) rotate(0) translate(4 150)">
+<title>proc~~is_valid_date~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-150 1040,-150 1040,4 -4,4"/>
+<!-- proc~is_valid_date~2 -->
+<g id="proc~~is_valid_date~2~~CallsGraph_node1" class="node">
+<title>proc~is_valid_date~2</title>
+<polygon fill="none" stroke="black" points="224,-86 0,-86 0,-62 224,-62 224,-86"/>
+<text text-anchor="middle" x="112" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ISO8601_DateTime::is_valid_date</text>
+</g>
+<!-- proc~get_month_end -->
+<g id="proc~~is_valid_date~2~~CallsGraph_node2" class="node">
+<title>proc~get_month_end</title>
+<g id="a_proc~~is_valid_date~2~~CallsGraph_node2"><a xlink:href="../proc/get_month_end.html" xlink:title="MAPL_ISO8601_DateTime::get_month_end">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="498,-146 260,-146 260,-122 498,-122 498,-146"/>
+<text text-anchor="middle" x="379" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::get_month_end</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_date~2&#45;&gt;proc~get_month_end -->
+<g id="proc~~is_valid_date~2~~CallsGraph_edge1" class="edge">
+<title>proc~is_valid_date~2&#45;&gt;proc~get_month_end</title>
+<path fill="none" stroke="#255000" d="M164.33,-86.01C192.55,-92.58 228.19,-100.82 260,-108 277.11,-111.86 295.62,-115.97 312.8,-119.76"/>
+<polygon fill="#255000" stroke="#255000" points="312.23,-123.22 322.74,-121.95 313.73,-116.38 312.23,-123.22"/>
+</g>
+<!-- proc~is_between -->
+<g id="proc~~is_valid_date~2~~CallsGraph_node3" class="node">
+<title>proc~is_between</title>
+<g id="a_proc~~is_valid_date~2~~CallsGraph_node3"><a xlink:href="../proc/is_between.html" xlink:title="MAPL_ISO8601_DateTime::is_between">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="763.5,-66 548.5,-66 548.5,-42 763.5,-42 763.5,-66"/>
+<text text-anchor="middle" x="656" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::is_between</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_date~2&#45;&gt;proc~is_between -->
+<g id="proc~~is_valid_date~2~~CallsGraph_edge2" class="edge">
+<title>proc~is_valid_date~2&#45;&gt;proc~is_between</title>
+<path fill="none" stroke="#255000" d="M224.17,-74.84C236.26,-74.9 248.39,-74.96 260,-75 365.78,-75.36 392.46,-82.03 498,-75 521.65,-73.43 547.17,-70.53 570.62,-67.38"/>
+<polygon fill="#255000" stroke="#255000" points="571.1,-70.85 580.53,-66.02 570.15,-63.92 571.1,-70.85"/>
+</g>
+<!-- proc~is_valid_month -->
+<g id="proc~~is_valid_date~2~~CallsGraph_node4" class="node">
+<title>proc~is_valid_month</title>
+<g id="a_proc~~is_valid_date~2~~CallsGraph_node4"><a xlink:href="../proc/is_valid_month.html" xlink:title="MAPL_ISO8601_DateTime::is_valid_month">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="496.5,-66 261.5,-66 261.5,-42 496.5,-42 496.5,-66"/>
+<text text-anchor="middle" x="379" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::is_valid_month</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_date~2&#45;&gt;proc~is_valid_month -->
+<g id="proc~~is_valid_date~2~~CallsGraph_edge3" class="edge">
+<title>proc~is_valid_date~2&#45;&gt;proc~is_valid_month</title>
+<path fill="none" stroke="#255000" d="M224.23,-65.61C233.08,-64.94 242.06,-64.26 251.01,-63.58"/>
+<polygon fill="#255000" stroke="#255000" points="251.38,-67.07 261.09,-62.82 250.85,-60.09 251.38,-67.07"/>
+</g>
+<!-- proc~is_valid_year -->
+<g id="proc~~is_valid_date~2~~CallsGraph_node5" class="node">
+<title>proc~is_valid_year</title>
+<g id="a_proc~~is_valid_date~2~~CallsGraph_node5"><a xlink:href="../proc/is_valid_year.html" xlink:title="MAPL_ISO8601_DateTime::is_valid_year">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="491,-24 267,-24 267,0 491,0 491,-24"/>
+<text text-anchor="middle" x="379" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::is_valid_year</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_date~2&#45;&gt;proc~is_valid_year -->
+<g id="proc~~is_valid_date~2~~CallsGraph_edge4" class="edge">
+<title>proc~is_valid_date~2&#45;&gt;proc~is_valid_year</title>
+<path fill="none" stroke="#255000" d="M152.36,-61.92C181.81,-53.14 223.19,-41.39 260,-33 270.98,-30.5 282.6,-28.11 294.09,-25.91"/>
+<polygon fill="#255000" stroke="#255000" points="294.95,-29.31 304.13,-24.02 293.66,-22.43 294.95,-29.31"/>
+</g>
+<!-- proc~get_month_ends -->
+<g id="proc~~is_valid_date~2~~CallsGraph_node6" class="node">
+<title>proc~get_month_ends</title>
+<g id="a_proc~~is_valid_date~2~~CallsGraph_node6"><a xlink:href="../proc/get_month_ends.html" xlink:title="MAPL_ISO8601_DateTime::get_month_ends">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="778,-146 534,-146 534,-122 778,-122 778,-146"/>
+<text text-anchor="middle" x="656" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::get_month_ends</text>
+</a>
+</g>
+</g>
+<!-- proc~get_month_end&#45;&gt;proc~get_month_ends -->
+<g id="proc~~is_valid_date~2~~CallsGraph_edge5" class="edge">
+<title>proc~get_month_end&#45;&gt;proc~get_month_ends</title>
+<path fill="none" stroke="#255000" d="M498.22,-134C506.7,-134 515.27,-134 523.81,-134"/>
+<polygon fill="#255000" stroke="#255000" points="523.82,-137.5 533.82,-134 523.82,-130.5 523.82,-137.5"/>
+</g>
+<!-- proc~is_valid_month&#45;&gt;proc~is_between -->
+<g id="proc~~is_valid_date~2~~CallsGraph_edge6" class="edge">
+<title>proc~is_valid_month&#45;&gt;proc~is_between</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M496.62,-54C510.27,-54 524.2,-54 537.86,-54"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="538.24,-57.5 548.24,-54 538.24,-50.5 538.24,-57.5"/>
+</g>
+<!-- proc~is_valid_year&#45;&gt;proc~is_between -->
+<g id="proc~~is_valid_date~2~~CallsGraph_edge7" class="edge">
+<title>proc~is_valid_year&#45;&gt;proc~is_between</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M458.8,-24.04C492.32,-29.15 531.56,-35.15 566.1,-40.42"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="565.77,-43.91 576.18,-41.96 566.83,-36.99 565.77,-43.91"/>
+</g>
+<!-- proc~is_leap_year~2 -->
+<g id="proc~~is_valid_date~2~~CallsGraph_node7" class="node">
+<title>proc~is_leap_year~2</title>
+<g id="a_proc~~is_valid_date~2~~CallsGraph_node7"><a xlink:href="../proc/is_leap_year~2.html" xlink:title="MAPL_ISO8601_DateTime::is_leap_year">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1036,-146 814,-146 814,-122 1036,-122 1036,-146"/>
+<text text-anchor="middle" x="925" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::is_leap_year</text>
+</a>
+</g>
+</g>
+<!-- proc~get_month_ends&#45;&gt;proc~is_leap_year~2 -->
+<g id="proc~~is_valid_date~2~~CallsGraph_edge8" class="edge">
+<title>proc~get_month_ends&#45;&gt;proc~is_leap_year~2</title>
+<path fill="none" stroke="#255000" d="M778,-134C786.44,-134 794.94,-134 803.37,-134"/>
+<polygon fill="#255000" stroke="#255000" points="803.62,-137.5 813.62,-134 803.62,-130.5 803.62,-137.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocis_valid_date2CallsGraph = svgPanZoom('#procis_valid_date2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~is_valid_date~2~~CalledByGraph Pages: 1 -->
+<svg id="procis_valid_date2CalledByGraph" width="641pt" height="54pt"
+ viewBox="0.00 0.00 641.00 54.32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~is_valid_date~2~~CalledByGraph" class="graph" transform="scale(1.75 1.75) rotate(0) translate(4 91)">
+<title>proc~~is_valid_date~2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-91 1117,-91 1117,4 -4,4"/>
+<!-- proc~is_valid_date~2 -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_node1" class="node">
+<title>proc~is_valid_date~2</title>
+<polygon fill="none" stroke="black" points="1113,-45 889,-45 889,-21 1113,-21 1113,-45"/>
+<text text-anchor="middle" x="1001" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ISO8601_DateTime::is_valid_date</text>
+</g>
+<!-- proc~parse_date -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_node2" class="node">
+<title>proc~parse_date</title>
+<g id="a_proc~~is_valid_date~2~~CalledByGraph_node2"><a xlink:href="../proc/parse_date.html" xlink:title="MAPL_ISO8601_DateTime::parse_date">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="823.5,-66 608.5,-66 608.5,-42 823.5,-42 823.5,-66"/>
+<text text-anchor="middle" x="716" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::parse_date</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_date&#45;&gt;proc~is_valid_date~2 -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_edge1" class="edge">
+<title>proc~parse_date&#45;&gt;proc~is_valid_date~2</title>
+<path fill="none" stroke="#255000" d="M823.59,-46.09C841.57,-44.76 860.35,-43.36 878.67,-42"/>
+<polygon fill="#255000" stroke="#255000" points="879.08,-45.48 888.79,-41.25 878.56,-38.5 879.08,-45.48"/>
+</g>
+<!-- proc~test_is_valid_date -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_node3" class="node">
+<title>proc~test_is_valid_date</title>
+<g id="a_proc~~is_valid_date~2~~CalledByGraph_node3"><a xlink:href="../proc/test_is_valid_date.html" xlink:title="test_MAPL_ISO8601_DateTime::test_is_valid_date">
+<polygon fill="#d9534f" stroke="#d9534f" points="853,-24 579,-24 579,0 853,0 853,-24"/>
+<text text-anchor="middle" x="716" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_MAPL_ISO8601_DateTime::test_is_valid_date</text>
+</a>
+</g>
+</g>
+<!-- proc~test_is_valid_date&#45;&gt;proc~is_valid_date~2 -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_edge2" class="edge">
+<title>proc~test_is_valid_date&#45;&gt;proc~is_valid_date~2</title>
+<path fill="none" stroke="#255000" d="M853.11,-22.1C861.57,-22.73 870.05,-23.36 878.44,-23.98"/>
+<polygon fill="#255000" stroke="#255000" points="878.38,-27.48 888.61,-24.73 878.9,-20.5 878.38,-27.48"/>
+</g>
+<!-- proc~construct_iso8601date -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_node4" class="node">
+<title>proc~construct_iso8601date</title>
+<g id="a_proc~~is_valid_date~2~~CalledByGraph_node4"><a xlink:href="../proc/construct_iso8601date.html" xlink:title="MAPL_ISO8601_DateTime::construct_ISO8601Date">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="543,-87 262,-87 262,-63 543,-63 543,-87"/>
+<text text-anchor="middle" x="402.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::construct_ISO8601Date</text>
+</a>
+</g>
+</g>
+<!-- proc~construct_iso8601date&#45;&gt;proc~parse_date -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_edge3" class="edge">
+<title>proc~construct_iso8601date&#45;&gt;proc~parse_date</title>
+<path fill="none" stroke="#255000" d="M543.3,-65.57C561.56,-64.34 580.1,-63.09 597.93,-61.89"/>
+<polygon fill="#255000" stroke="#255000" points="598.59,-65.36 608.33,-61.19 598.12,-58.37 598.59,-65.36"/>
+</g>
+<!-- proc~test_parse_date -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_node5" class="node">
+<title>proc~test_parse_date</title>
+<g id="a_proc~~is_valid_date~2~~CalledByGraph_node5"><a xlink:href="../proc/test_parse_date.html" xlink:title="test_MAPL_ISO8601_DateTime::test_parse_date">
+<polygon fill="#d9534f" stroke="#d9534f" points="535,-45 270,-45 270,-21 535,-21 535,-45"/>
+<text text-anchor="middle" x="402.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_MAPL_ISO8601_DateTime::test_parse_date</text>
+</a>
+</g>
+</g>
+<!-- proc~test_parse_date&#45;&gt;proc~parse_date -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_edge4" class="edge">
+<title>proc~test_parse_date&#45;&gt;proc~parse_date</title>
+<path fill="none" stroke="#255000" d="M535.15,-41.88C556.13,-43.29 577.7,-44.74 598.3,-46.13"/>
+<polygon fill="#255000" stroke="#255000" points="598.12,-49.63 608.33,-46.81 598.59,-42.64 598.12,-49.63"/>
+</g>
+<!-- interface~iso8601date -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_node6" class="node">
+<title>interface~iso8601date</title>
+<g id="a_proc~~is_valid_date~2~~CalledByGraph_node6"><a xlink:href="../interface/iso8601date.html" xlink:title="MAPL_ISO8601_DateTime::ISO8601Date">
+<polygon fill="#a7506f" stroke="#a7506f" points="226,-87 0,-87 0,-63 226,-63 226,-87"/>
+<text text-anchor="middle" x="113" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ISO8601_DateTime::ISO8601Date</text>
+</a>
+</g>
+</g>
+<!-- interface~iso8601date&#45;&gt;proc~construct_iso8601date -->
+<g id="proc~~is_valid_date~2~~CalledByGraph_edge5" class="edge">
+<title>interface~iso8601date&#45;&gt;proc~construct_iso8601date</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M226.39,-75C234.77,-75 243.29,-75 251.85,-75"/>
+<polygon fill="#255000" stroke="#255000" points="251.89,-78.5 261.89,-75 251.89,-71.5 251.89,-78.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocis_valid_date2CalledByGraph = svgPanZoom('#procis_valid_date2CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">pure </span><span class="kt">logical </span><span class="k">function </span><span class="n">is_valid_date</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">date_fields</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">date</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LB_DAY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">      </span><span class="n">is_valid_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">is_valid_year</span><span class="p">(</span><span class="n">date</span><span class="p">%</span><span class="n">year_</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">is_valid_month</span><span class="p">(</span><span class="n">date</span><span class="p">%</span><span class="n">month_</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">is_between</span><span class="p">(</span><span class="n">LB_DAY</span><span class="p">,</span><span class="w"> </span><span class="n">get_month_end</span><span class="p">(</span><span class="n">date</span><span class="p">%</span><span class="n">year_</span><span class="p">,</span><span class="w"> </span><span class="n">date</span><span class="p">%</span><span class="n">month_</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">date</span><span class="p">%</span><span class="n">day_</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end function </span><span class="n">is_valid_date</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-28T22:30:26.346107             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

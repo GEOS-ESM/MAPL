@@ -1,0 +1,1152 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>initialize_gc &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>initialize_gc
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.1% of total for procedures.">222 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataDriverGridComp.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatadrivergridcomp.f90.html'>ExtDataDriverGridComp.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/extdata_drivergridcompmod.html'>ExtData_DriverGridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">initialize_gc</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/initialize_gc.html#src">initialize_gc</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine initialize_gc(gc, import_state, export_state, clock, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~18"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-import_state~15"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>import_state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-export_state~15"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>export_state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~46"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1434"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~initialize_gc~~CallsGraph Pages: 1 -->
+<svg id="procinitialize_gcCallsGraph" width="641pt" height="1164pt"
+ viewBox="0.00 0.00 641.00 1164.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize_gc~~CallsGraph" class="graph" transform="scale(1.04 1.04) rotate(0) translate(4 1204)">
+<title>proc~~initialize_gc~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1204 661,-1204 661,4 -4,4"/>
+<!-- proc~initialize_gc -->
+<g id="proc~~initialize_gc~~CallsGraph_node1" class="node">
+<title>proc~initialize_gc</title>
+<polygon fill="none" stroke="black" points="239,-612 0,-612 0,-588 239,-588 239,-612"/>
+<text text-anchor="middle" x="119.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtData_DriverGridCompMod::initialize_gc</text>
+</g>
+<!-- ESMF_ConfigCreate -->
+<g id="proc~~initialize_gc~~CallsGraph_node2" class="node">
+<title>ESMF_ConfigCreate</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="541.5,-1200 390.5,-1200 390.5,-1176 541.5,-1176 541.5,-1200"/>
+<text text-anchor="middle" x="466" y="-1185.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ConfigCreate</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;ESMF_ConfigCreate -->
+<g id="proc~~initialize_gc~~CallsGraph_edge1" class="edge">
+<title>proc~initialize_gc&#45;&gt;ESMF_ConfigCreate</title>
+<path fill="none" stroke="#255000" d="M122.01,-612.48C131.48,-688.64 185.24,-1090.25 275,-1167 303.59,-1191.45 344.11,-1198.36 380.39,-1198.48"/>
+<polygon fill="#255000" stroke="#255000" points="380.54,-1201.98 390.5,-1198.34 380.45,-1194.98 380.54,-1201.98"/>
+</g>
+<!-- ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_gc~~CallsGraph_node3" class="node">
+<title>ESMF_ConfigGetAttribute</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="556.5,-1158 375.5,-1158 375.5,-1134 556.5,-1134 556.5,-1158"/>
+<text text-anchor="middle" x="466" y="-1143.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ConfigGetAttribute</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_gc~~CallsGraph_edge2" class="edge">
+<title>proc~initialize_gc&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#255000" d="M122.23,-612.03C132.77,-683.77 190.88,-1054.53 275,-1125 299.79,-1145.77 333.24,-1153.77 365.17,-1155.71"/>
+<polygon fill="#255000" stroke="#255000" points="365.33,-1159.22 375.46,-1156.14 365.62,-1152.23 365.33,-1159.22"/>
+</g>
+<!-- ESMF_ConfigLoadFile -->
+<g id="proc~~initialize_gc~~CallsGraph_node4" class="node">
+<title>ESMF_ConfigLoadFile</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="546,-1116 386,-1116 386,-1092 546,-1092 546,-1116"/>
+<text text-anchor="middle" x="466" y="-1101.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_ConfigLoadFile</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;ESMF_ConfigLoadFile -->
+<g id="proc~~initialize_gc~~CallsGraph_edge3" class="edge">
+<title>proc~initialize_gc&#45;&gt;ESMF_ConfigLoadFile</title>
+<path fill="none" stroke="#255000" d="M120.04,-612.32C118.48,-674.56 120.31,-956.46 275,-1083 302.7,-1105.66 340.79,-1112.96 375.59,-1113.81"/>
+<polygon fill="#255000" stroke="#255000" points="375.76,-1117.31 385.79,-1113.88 375.81,-1110.31 375.76,-1117.31"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~initialize_gc~~CallsGraph_node5" class="node">
+<title>ESMF_GridCompGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="543,-1074 389,-1074 389,-1050 543,-1050 543,-1074"/>
+<text text-anchor="middle" x="466" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompGet</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~initialize_gc~~CallsGraph_edge4" class="edge">
+<title>proc~initialize_gc&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#255000" d="M120.46,-612.05C120.96,-670.55 131.51,-926.87 275,-1041 303.72,-1063.85 343.08,-1070.87 378.53,-1071.48"/>
+<polygon fill="#255000" stroke="#255000" points="378.9,-1074.98 388.9,-1071.49 378.9,-1067.98 378.9,-1074.98"/>
+</g>
+<!-- ESMF_GridCompInitialize -->
+<g id="proc~~initialize_gc~~CallsGraph_node6" class="node">
+<title>ESMF_GridCompInitialize</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="556,-1032 376,-1032 376,-1008 556,-1008 556,-1032"/>
+<text text-anchor="middle" x="466" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompInitialize</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;ESMF_GridCompInitialize -->
+<g id="proc~~initialize_gc~~CallsGraph_edge5" class="edge">
+<title>proc~initialize_gc&#45;&gt;ESMF_GridCompInitialize</title>
+<path fill="none" stroke="#255000" d="M120.94,-612.02C123.65,-667.13 142.82,-897.32 275,-999 300.52,-1018.63 333.97,-1026.4 365.69,-1028.48"/>
+<polygon fill="#255000" stroke="#255000" points="365.76,-1031.98 375.92,-1028.96 366.09,-1024.99 365.76,-1031.98"/>
+</g>
+<!-- ESMF_UtilStringUpperCase -->
+<g id="proc~~initialize_gc~~CallsGraph_node7" class="node">
+<title>ESMF_UtilStringUpperCase</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="560.5,-990 371.5,-990 371.5,-966 560.5,-966 560.5,-990"/>
+<text text-anchor="middle" x="466" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_UtilStringUpperCase</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;ESMF_UtilStringUpperCase -->
+<g id="proc~~initialize_gc~~CallsGraph_edge6" class="edge">
+<title>proc~initialize_gc&#45;&gt;ESMF_UtilStringUpperCase</title>
+<path fill="none" stroke="#255000" d="M121.54,-612.15C126.66,-663.95 154.14,-867.72 275,-957 299.58,-975.16 331.07,-982.97 361.3,-985.53"/>
+<polygon fill="#255000" stroke="#255000" points="361.29,-989.04 371.5,-986.2 361.75,-982.05 361.29,-989.04"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~initialize_gc~~CallsGraph_node8" class="node">
+<title>ESMF_VMGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="524.5,-948 407.5,-948 407.5,-924 524.5,-924 524.5,-948"/>
+<text text-anchor="middle" x="466" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_VMGet</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;ESMF_VMGet -->
+<g id="proc~~initialize_gc~~CallsGraph_edge7" class="edge">
+<title>proc~initialize_gc&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#255000" d="M122.25,-612.04C129.9,-659.89 165.1,-837.79 275,-915 310.02,-939.61 357.98,-944.75 396.95,-943.79"/>
+<polygon fill="#255000" stroke="#255000" points="397.31,-947.28 407.17,-943.4 397.04,-940.29 397.31,-947.28"/>
+</g>
+<!-- esmf_stateadd -->
+<g id="proc~~initialize_gc~~CallsGraph_node9" class="node">
+<title>esmf_stateadd</title>
+<polygon fill="#777777" stroke="#777777" points="511.5,-906 420.5,-906 420.5,-882 511.5,-882 511.5,-906"/>
+<text text-anchor="middle" x="466" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateadd</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;esmf_stateadd -->
+<g id="proc~~initialize_gc~~CallsGraph_edge8" class="edge">
+<title>proc~initialize_gc&#45;&gt;esmf_stateadd</title>
+<path fill="none" stroke="#255000" d="M123.22,-612.24C133.73,-656.33 176.11,-807.8 275,-873 314.84,-899.27 369.88,-902.65 410.47,-900.57"/>
+<polygon fill="#255000" stroke="#255000" points="410.7,-904.07 420.46,-899.94 410.26,-897.08 410.7,-904.07"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~initialize_gc~~CallsGraph_node10" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="510,-864 422,-864 422,-840 510,-840 510,-864"/>
+<text text-anchor="middle" x="466" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~initialize_gc&#45;&gt;esmf_stateget -->
+<g id="proc~~initialize_gc~~CallsGraph_edge9" class="edge">
+<title>proc~initialize_gc&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#255000" d="M124.39,-612.01C137.85,-651.41 186.54,-777.29 275,-831 315.97,-855.88 371.19,-859.37 411.53,-857.69"/>
+<polygon fill="#255000" stroke="#255000" points="411.92,-861.17 421.71,-857.14 411.54,-854.18 411.92,-861.17"/>
+</g>
+<!-- interface~mapl_addchild -->
+<g id="proc~~initialize_gc~~CallsGraph_node11" class="node">
+<title>interface~mapl_addchild</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node11"><a xlink:href="../interface/mapl_addchild.html" xlink:title="MAPL_GenericMod::MAPL_AddChild">
+<polygon fill="#a7506f" stroke="#a7506f" points="565.5,-822 366.5,-822 366.5,-798 565.5,-798 565.5,-822"/>
+<text text-anchor="middle" x="466" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_AddChild</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_addchild -->
+<g id="proc~~initialize_gc~~CallsGraph_edge10" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_addchild</title>
+<path fill="none" stroke="#255000" d="M126.34,-612.5C143.45,-647.5 197.17,-746.71 275,-789 299.54,-802.34 328.48,-809.17 356.28,-812.34"/>
+<polygon fill="#255000" stroke="#255000" points="356.16,-815.85 366.46,-813.35 356.85,-808.88 356.16,-815.85"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~initialize_gc~~CallsGraph_node12" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node12"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_CommsMod::MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="569,-780 363,-780 363,-756 569,-756 569,-780"/>
+<text text-anchor="middle" x="466" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod::MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~initialize_gc~~CallsGraph_edge11" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#255000" d="M128.86,-612.22C149.63,-641.44 206.85,-715.31 275,-747 298.88,-758.11 326.22,-764.34 352.57,-767.67"/>
+<polygon fill="#255000" stroke="#255000" points="352.28,-771.16 362.61,-768.8 353.07,-764.2 352.28,-771.16"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~initialize_gc~~CallsGraph_node13" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node13"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="574.5,-738 357.5,-738 357.5,-714 574.5,-714 574.5,-738"/>
+<text text-anchor="middle" x="466" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_assert -->
+<g id="proc~~initialize_gc~~CallsGraph_edge12" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M133.3,-612.01C158.28,-634.66 216.28,-683.33 275,-705 297.71,-713.38 322.91,-718.69 347.33,-722"/>
+<polygon fill="#255000" stroke="#255000" points="347.01,-725.49 357.37,-723.26 347.88,-718.54 347.01,-725.49"/>
+</g>
+<!-- interface~mapl_configsetattribute -->
+<g id="proc~~initialize_gc~~CallsGraph_node14" class="node">
+<title>interface~mapl_configsetattribute</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node14"><a xlink:href="../interface/mapl_configsetattribute.html" xlink:title="MAPL_ConfigMod::MAPL_ConfigSetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="587,-696 345,-696 345,-672 587,-672 587,-696"/>
+<text text-anchor="middle" x="466" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigMod::MAPL_ConfigSetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_configsetattribute -->
+<g id="proc~~initialize_gc~~CallsGraph_edge13" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_configsetattribute</title>
+<path fill="none" stroke="#255000" d="M144.15,-612.06C173.87,-626.66 226.85,-650.78 275,-663 294.06,-667.84 314.47,-671.56 334.59,-674.43"/>
+<polygon fill="#255000" stroke="#255000" points="334.37,-677.93 344.75,-675.81 335.31,-670.99 334.37,-677.93"/>
+</g>
+<!-- interface~mapl_get -->
+<g id="proc~~initialize_gc~~CallsGraph_node15" class="node">
+<title>interface~mapl_get</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node15"><a xlink:href="../interface/mapl_get.html" xlink:title="MAPL_GenericMod::MAPL_Get">
+<polygon fill="#a7506f" stroke="#a7506f" points="551.5,-654 380.5,-654 380.5,-630 551.5,-630 551.5,-654"/>
+<text text-anchor="middle" x="466" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_Get</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_get -->
+<g id="proc~~initialize_gc~~CallsGraph_edge14" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_get</title>
+<path fill="none" stroke="#255000" d="M206.26,-612.04C228.62,-615.08 252.7,-618.25 275,-621 305.92,-624.81 339.72,-628.65 370.12,-631.99"/>
+<polygon fill="#255000" stroke="#255000" points="369.98,-635.49 380.3,-633.1 370.74,-628.53 369.98,-635.49"/>
+</g>
+<!-- interface~mapl_getnodeinfo -->
+<g id="proc~~initialize_gc~~CallsGraph_node16" class="node">
+<title>interface~mapl_getnodeinfo</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node16"><a xlink:href="../interface/mapl_getnodeinfo.html" xlink:title="MAPL_Shmem::MAPL_GetNodeInfo">
+<polygon fill="#a7506f" stroke="#a7506f" points="564,-612 368,-612 368,-588 564,-588 564,-612"/>
+<text text-anchor="middle" x="466" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Shmem::MAPL_GetNodeInfo</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_getnodeinfo -->
+<g id="proc~~initialize_gc~~CallsGraph_edge15" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_getnodeinfo</title>
+<path fill="none" stroke="#255000" d="M239.06,-600C277.49,-600 319.87,-600 357.45,-600"/>
+<polygon fill="#255000" stroke="#255000" points="357.92,-603.5 367.92,-600 357.92,-596.5 357.92,-603.5"/>
+</g>
+<!-- interface~mapl_getresource -->
+<g id="proc~~initialize_gc~~CallsGraph_node17" class="node">
+<title>interface~mapl_getresource</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node17"><a xlink:href="../interface/mapl_getresource.html" xlink:title="MAPL_GenericMod::MAPL_GetResource">
+<polygon fill="#a7506f" stroke="#a7506f" points="576,-570 356,-570 356,-546 576,-546 576,-570"/>
+<text text-anchor="middle" x="466" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GetResource</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~initialize_gc~~CallsGraph_edge16" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#255000" d="M206.26,-587.96C228.62,-584.92 252.7,-581.75 275,-579 297.91,-576.18 322.4,-573.34 345.92,-570.7"/>
+<polygon fill="#255000" stroke="#255000" points="346.38,-574.17 355.93,-569.58 345.6,-567.21 346.38,-574.17"/>
+</g>
+<!-- interface~mapl_initializeshmem -->
+<g id="proc~~initialize_gc~~CallsGraph_node18" class="node">
+<title>interface~mapl_initializeshmem</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node18"><a xlink:href="../interface/mapl_initializeshmem.html" xlink:title="MAPL_Shmem::MAPL_InitializeShmem">
+<polygon fill="#a7506f" stroke="#a7506f" points="573,-528 359,-528 359,-504 573,-504 573,-528"/>
+<text text-anchor="middle" x="466" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Shmem::MAPL_InitializeShmem</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_initializeshmem -->
+<g id="proc~~initialize_gc~~CallsGraph_edge17" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_initializeshmem</title>
+<path fill="none" stroke="#255000" d="M144.15,-587.94C173.87,-573.34 226.85,-549.22 275,-537 298.47,-531.04 323.99,-526.78 348.48,-523.72"/>
+<polygon fill="#255000" stroke="#255000" points="349.03,-527.18 358.54,-522.52 348.2,-520.23 349.03,-527.18"/>
+</g>
+<!-- interface~mapl_set -->
+<g id="proc~~initialize_gc~~CallsGraph_node19" class="node">
+<title>interface~mapl_set</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node19"><a xlink:href="../interface/mapl_set.html" xlink:title="MAPL_GenericMod::MAPL_Set">
+<polygon fill="#a7506f" stroke="#a7506f" points="550.5,-486 381.5,-486 381.5,-462 550.5,-462 550.5,-486"/>
+<text text-anchor="middle" x="466" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_Set</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_set -->
+<g id="proc~~initialize_gc~~CallsGraph_edge18" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_set</title>
+<path fill="none" stroke="#255000" d="M133.3,-587.99C158.28,-565.34 216.28,-516.67 275,-495 305.2,-483.86 339.79,-478.14 371.12,-475.34"/>
+<polygon fill="#255000" stroke="#255000" points="371.47,-478.83 381.16,-474.53 370.91,-471.85 371.47,-478.83"/>
+</g>
+<!-- interface~mapl_stateadd -->
+<g id="proc~~initialize_gc~~CallsGraph_node20" class="node">
+<title>interface~mapl_stateadd</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node20"><a xlink:href="../interface/mapl_stateadd.html" xlink:title="MAPL_Base::MAPL_StateAdd">
+<polygon fill="#a7506f" stroke="#a7506f" points="547,-444 385,-444 385,-420 547,-420 547,-444"/>
+<text text-anchor="middle" x="466" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_StateAdd</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_stateadd -->
+<g id="proc~~initialize_gc~~CallsGraph_edge19" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_stateadd</title>
+<path fill="none" stroke="#255000" d="M128.86,-587.78C149.63,-558.56 206.85,-484.69 275,-453 305.68,-438.73 342.06,-432.5 374.73,-430.16"/>
+<polygon fill="#255000" stroke="#255000" points="374.97,-433.65 384.74,-429.56 374.55,-426.67 374.97,-433.65"/>
+</g>
+<!-- proc~get_capgridcomp_from_gc -->
+<g id="proc~~initialize_gc~~CallsGraph_node21" class="node">
+<title>proc~get_capgridcomp_from_gc</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node21"><a xlink:href="../proc/get_capgridcomp_from_gc.html" xlink:title="ExtData_DriverGridCompMod::get_CapGridComp_from_gc">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="627,-402 305,-402 305,-378 627,-378 627,-402"/>
+<text text-anchor="middle" x="466" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_DriverGridCompMod::get_CapGridComp_from_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~get_capgridcomp_from_gc -->
+<g id="proc~~initialize_gc~~CallsGraph_edge20" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~get_capgridcomp_from_gc</title>
+<path fill="none" stroke="#255000" d="M126.34,-587.5C143.45,-552.5 197.17,-453.29 275,-411 281.42,-407.51 288.13,-404.47 295.05,-401.82"/>
+<polygon fill="#255000" stroke="#255000" points="296.33,-405.08 304.6,-398.45 294,-398.48 296.33,-405.08"/>
+</g>
+<!-- proc~get_global_time_profiler -->
+<g id="proc~~initialize_gc~~CallsGraph_node22" class="node">
+<title>proc~get_global_time_profiler</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node22"><a xlink:href="../proc/get_global_time_profiler.html" xlink:title="mapl_TimeProfiler_private::get_global_time_profiler">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="609.5,-360 322.5,-360 322.5,-336 609.5,-336 609.5,-360"/>
+<text text-anchor="middle" x="466" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_TimeProfiler_private::get_global_time_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~initialize_gc~~CallsGraph_edge21" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#255000" d="M124.39,-587.99C137.85,-548.59 186.54,-422.71 275,-369 286.64,-361.93 299.43,-356.59 312.71,-352.6"/>
+<polygon fill="#255000" stroke="#255000" points="313.73,-355.95 322.45,-349.93 311.88,-349.2 313.73,-355.95"/>
+</g>
+<!-- proc~get_metacomp_from_gc -->
+<g id="proc~~initialize_gc~~CallsGraph_node23" class="node">
+<title>proc~get_metacomp_from_gc</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node23"><a xlink:href="../proc/get_metacomp_from_gc.html" xlink:title="ExtData_DriverGridCompMod::get_MetaComp_from_gc">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="618.5,-318 313.5,-318 313.5,-294 618.5,-294 618.5,-318"/>
+<text text-anchor="middle" x="466" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_DriverGridCompMod::get_MetaComp_from_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~get_metacomp_from_gc -->
+<g id="proc~~initialize_gc~~CallsGraph_edge22" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~get_metacomp_from_gc</title>
+<path fill="none" stroke="#255000" d="M123.22,-587.76C133.73,-543.67 176.11,-392.2 275,-327 283.82,-321.19 293.38,-316.49 303.37,-312.73"/>
+<polygon fill="#255000" stroke="#255000" points="304.74,-315.96 313.06,-309.4 302.46,-309.34 304.74,-315.96"/>
+</g>
+<!-- proc~mapl_clockinit -->
+<g id="proc~~initialize_gc~~CallsGraph_node24" class="node">
+<title>proc~mapl_clockinit</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node24"><a xlink:href="../proc/mapl_clockinit.html" xlink:title="ExtData_DriverGridCompMod::MAPL_ClockInit">
+<polygon fill="#d9534f" stroke="#d9534f" points="594,-276 338,-276 338,-252 594,-252 594,-276"/>
+<text text-anchor="middle" x="466" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_DriverGridCompMod::MAPL_ClockInit</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~mapl_clockinit -->
+<g id="proc~~initialize_gc~~CallsGraph_edge23" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~mapl_clockinit</title>
+<path fill="none" stroke="#255000" d="M122.25,-587.96C129.9,-540.11 165.1,-362.21 275,-285 290.72,-273.95 309.06,-266.83 328.01,-262.42"/>
+<polygon fill="#255000" stroke="#255000" points="328.89,-265.81 337.97,-260.35 327.47,-258.96 328.89,-265.81"/>
+</g>
+<!-- proc~mapl_memutilsdisable -->
+<g id="proc~~initialize_gc~~CallsGraph_node25" class="node">
+<title>proc~mapl_memutilsdisable</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node25"><a xlink:href="../proc/mapl_memutilsdisable.html" xlink:title="MAPL_MemUtilsMod::MAPL_MemUtilsDisable">
+<polygon fill="#d9534f" stroke="#d9534f" points="589.5,-234 342.5,-234 342.5,-210 589.5,-210 589.5,-234"/>
+<text text-anchor="middle" x="466" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtilsMod::MAPL_MemUtilsDisable</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~mapl_memutilsdisable -->
+<g id="proc~~initialize_gc~~CallsGraph_edge24" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~mapl_memutilsdisable</title>
+<path fill="none" stroke="#255000" d="M121.54,-587.85C126.66,-536.05 154.14,-332.28 275,-243 291.82,-230.57 311.88,-222.99 332.55,-218.62"/>
+<polygon fill="#255000" stroke="#255000" points="333.22,-222.06 342.41,-216.78 331.94,-215.18 333.22,-222.06"/>
+</g>
+<!-- proc~mapl_memutilsinit -->
+<g id="proc~~initialize_gc~~CallsGraph_node26" class="node">
+<title>proc~mapl_memutilsinit</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node26"><a xlink:href="../proc/mapl_memutilsinit.html" xlink:title="MAPL_MemUtilsMod::MAPL_MemUtilsInit">
+<polygon fill="#d9534f" stroke="#d9534f" points="578,-192 354,-192 354,-168 578,-168 578,-192"/>
+<text text-anchor="middle" x="466" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtilsMod::MAPL_MemUtilsInit</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~mapl_memutilsinit -->
+<g id="proc~~initialize_gc~~CallsGraph_edge25" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~mapl_memutilsinit</title>
+<path fill="none" stroke="#255000" d="M120.94,-587.98C123.65,-532.87 142.82,-302.68 275,-201 294.65,-185.88 319.01,-177.8 343.66,-173.93"/>
+<polygon fill="#255000" stroke="#255000" points="344.41,-177.37 353.86,-172.57 343.48,-170.43 344.41,-177.37"/>
+</g>
+<!-- proc~mapl_profdisable -->
+<g id="proc~~initialize_gc~~CallsGraph_node27" class="node">
+<title>proc~mapl_profdisable</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node27"><a xlink:href="../proc/mapl_profdisable.html" xlink:title="MAPL_ProfMod::MAPL_ProfDisable">
+<polygon fill="#d9534f" stroke="#d9534f" points="561,-150 371,-150 371,-126 561,-126 561,-150"/>
+<text text-anchor="middle" x="466" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ProfMod::MAPL_ProfDisable</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~mapl_profdisable -->
+<g id="proc~~initialize_gc~~CallsGraph_edge26" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~mapl_profdisable</title>
+<path fill="none" stroke="#255000" d="M120.46,-587.95C120.96,-529.45 131.51,-273.13 275,-159 298.92,-139.97 330.21,-131.92 360.49,-129.4"/>
+<polygon fill="#255000" stroke="#255000" points="360.94,-132.88 370.7,-128.76 360.5,-125.9 360.94,-132.88"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~initialize_gc~~CallsGraph_node28" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node28"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="576,-108 356,-108 356,-84 576,-84 576,-108"/>
+<text text-anchor="middle" x="466" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_gc~~CallsGraph_edge27" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M120.04,-587.68C118.48,-525.44 120.31,-243.54 275,-117 294.84,-100.77 320.01,-92.42 345.48,-88.68"/>
+<polygon fill="#255000" stroke="#255000" points="346.13,-92.12 355.63,-87.42 345.27,-85.17 346.13,-92.12"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~initialize_gc~~CallsGraph_node29" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node29"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="573,-66 359,-66 359,-42 573,-42 573,-66"/>
+<text text-anchor="middle" x="466" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~mapl_verify -->
+<g id="proc~~initialize_gc~~CallsGraph_edge28" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M122.23,-587.97C132.77,-516.23 190.88,-145.47 275,-75 295.53,-57.8 321.99,-49.36 348.61,-45.86"/>
+<polygon fill="#255000" stroke="#255000" points="349.24,-49.31 358.81,-44.76 348.49,-42.36 349.24,-49.31"/>
+</g>
+<!-- proc~parsetimes -->
+<g id="proc~~initialize_gc~~CallsGraph_node30" class="node">
+<title>proc~parsetimes</title>
+<g id="a_proc~~initialize_gc~~CallsGraph_node30"><a xlink:href="../proc/parsetimes.html" xlink:title="ExtData_DriverGridCompMod::ExtData_DriverGridComp%parseTimes">
+<polygon fill="#d9534f" stroke="#d9534f" points="657,-24 275,-24 275,0 657,0 657,-24"/>
+<text text-anchor="middle" x="466" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_DriverGridCompMod::ExtData_DriverGridComp%parseTimes</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~parsetimes -->
+<g id="proc~~initialize_gc~~CallsGraph_edge29" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~parsetimes</title>
+<path fill="none" stroke="#255000" d="M122.01,-587.52C131.48,-511.36 185.24,-109.75 275,-33 276.18,-31.99 277.39,-31.01 278.61,-30.06"/>
+<polygon fill="#255000" stroke="#255000" points="280.78,-32.81 286.94,-24.19 276.75,-27.08 280.78,-32.81"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocinitialize_gcCallsGraph = svgPanZoom('#procinitialize_gcCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">initialize_gc</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">import_state</span><span class="p">,</span><span class="w"> </span><span class="n">export_state</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_state</span><span class="p">,</span><span class="w"> </span><span class="n">export_state</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">NPES</span>
+
+<span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">amIRoot_</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">enableTimers</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">enableMemUtils</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">MemUtilsMode</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">ROOT_NAME</span>
+
+<span class="w">    </span><span class="c">! Misc locals</span>
+<span class="w">    </span><span class="c">!------------</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPID</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPDSC</span>
+
+
+<span class="w">    </span><span class="c">! Handles to the CAP&#39;s Gridded Components GCs</span>
+<span class="w">    </span><span class="c">! -------------------------------------------</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">itemcount</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">ITEMTYPES</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">ITEMNAMES</span><span class="p">(:)</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">RUN_DT</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ny</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">HEARTBEAT_DT</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">HIST_CF</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT_CF</span><span class="p">,</span><span class="w"> </span><span class="n">EXTDATA_CF</span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPLOBJ</span>
+<span class="w">    </span><span class="k">procedure</span><span class="p">(),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">root_set_services</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ExtData_DriverGridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap</span>
+<span class="w">    </span><span class="k">class</span><span class="p">(</span><span class="n">BaseProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t_p</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_extdata2g</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">useShmem</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">import_state</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">export_state</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">t_p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_global_time_profiler</span><span class="p">()</span>
+
+<span class="w">    </span><span class="n">cap</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_CapGridComp_from_gc</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+<span class="w">    </span><span class="n">maplobj</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_MetaComp_from_gc</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">vm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">mpiCommunicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">AmIRoot_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_Am_I_Root</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">vm</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetNodeInfo</span><span class="p">(</span><span class="n">comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">AmIRoot_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_Am_I_Root</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">vm</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">cap</span><span class="p">%</span><span class="n">AmIRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AmIRoot_</span>
+
+<span class="w">    </span><span class="c">!  Open the CAP&#39;s configuration from CAP.rc</span>
+<span class="w">    </span><span class="c">!------------------------------------------</span>
+
+<span class="w">    </span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ConfigCreate</span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigLoadFile</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">configFile</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+
+<span class="w">    </span><span class="c">!  CAP&#39;s MAPL MetaComp</span>
+<span class="w">    </span><span class="c">!---------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_Set</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_Set</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">cf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">useShmem</span><span class="p">,</span><span class="w">  </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;USE_SHMEM:&#39;</span><span class="p">,</span><span class="w">  </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">useShmem</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">MAPL_InitializeShmem</span><span class="w"> </span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="n">cap</span><span class="p">%</span><span class="n">run_fbf</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;RUN_FBF:&quot;</span><span class="p">,</span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="n">cap</span><span class="p">%</span><span class="n">run_hist</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;RUN_HISTORY:&quot;</span><span class="p">,</span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="n">cap</span><span class="p">%</span><span class="n">run_extdata</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;RUN_EXTDATA:&quot;</span><span class="p">,</span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+
+<span class="w">    </span><span class="c">! !RESOURCE_ITEM: string :: Name of ROOT&#39;s config file</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT_CF</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ROOT_CF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ROOT.rc&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! !RESOURCE_ITEM: string :: Name to assign to the ROOT component</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT_NAME</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ROOT_NAME:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ROOT&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! !RESOURCE_ITEM: string :: Name of HISTORY&#39;s config file</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">HIST_CF</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;HIST_CF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;HISTORY.rc&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! !RESOURCE_ITEM: string :: Name of ExtData&#39;s config file</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">EXTDATA_CF</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;EXTDATA_CF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ExtData.rc&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! !RESOURCE_ITEM: string :: Control Timers</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">enableTimers</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MAPL_ENABLE_TIMERS:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;NO&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! !RESOURCE_ITEM: string :: Control Memory Diagnostic Utility</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">enableMemUtils</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MAPL_ENABLE_MEMUTILS:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;NO&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">MemUtilsMode</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MAPL_MEMUTILS_MODE:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_MemUtilsModeBase</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="c">!EOR</span>
+<span class="w">    </span><span class="n">enableTimers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_UtilStringUpperCase</span><span class="p">(</span><span class="n">enableTimers</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">maplobj</span><span class="p">,</span><span class="n">use_extdata2g</span><span class="p">,</span><span class="s2">&quot;USE_EXTDATA2G:&quot;</span><span class="p">,</span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">enableTimers</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;YES&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">MAPL_ProfDisable</span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    </span><span class="n">enableMemUtils</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_UtilStringUpperCase</span><span class="p">(</span><span class="n">enableMemUtils</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">enableMemUtils</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;YES&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">MAPL_MemUtilsDisable</span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       call </span><span class="n">MAPL_MemUtilsInit</span><span class="p">(</span><span class="w"> </span><span class="n">mode</span><span class="o">=</span><span class="n">MemUtilsMode</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="w">    </span><span class="c">! Handle RUN_DT in ROOT_CF</span>
+<span class="w">    </span><span class="c">!-------------------------</span>
+
+<span class="w">    </span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ConfigCreate</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigLoadFile</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT_CF</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">HEARTBEAT_DT</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;HEARTBEAT_DT:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">run_dt</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;RUN_DT:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="n">heartbeat_dt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">run_dt</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;RUN_DT:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Add EXPID and EXPDSC from HISTORY.rc to AGCM.rc</span>
+<span class="w">    </span><span class="c">!------------------------------------------------</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">run_hist</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ConfigCreate</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigLoadFile</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="p">,</span><span class="w"> </span><span class="n">HIST_CF</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">HIST_CF</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;HIST_CF:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">EXPID</span><span class="p">,</span><span class="w">  </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;EXPID:&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">EXPDSC</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;EXPDSC:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">EXPID</span><span class="p">,</span><span class="w">  </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;EXPID:&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">EXPDSC</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;EXPDSC:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NX</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;NX:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NY</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;NY:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">NX</span><span class="p">,</span><span class="w">  </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;NX:&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">NY</span><span class="p">,</span><span class="w">  </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;NY:&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">run_dt</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;RUN_DT:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">run_extdata</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">       </span><span class="c">! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file</span>
+<span class="w">       </span><span class="n">cap</span><span class="p">%</span><span class="n">cf_ext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ConfigCreate</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigLoadFile</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_ext</span><span class="p">,</span><span class="w"> </span><span class="n">EXTDATA_CF</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NX</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;NX:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NY</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;NY:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_ext</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">NX</span><span class="p">,</span><span class="w">  </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;NX:&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_ext</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">NY</span><span class="p">,</span><span class="w">  </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;NY:&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_ext</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">run_dt</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;RUN_DT:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_ext</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">EXTDATA_CF</span><span class="p">,</span><span class="w">  </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;CF_EXTDATA:&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="w">    </span><span class="c">!  Create Root child</span>
+<span class="w">    </span><span class="c">!-------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_Set</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">CF</span><span class="o">=</span><span class="n">CAP</span><span class="p">%</span><span class="n">CF_ROOT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_ClockInit</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">nsteps</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">root_set_services</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">root_set_services</span>
+
+<span class="w">    </span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_AddChild</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root_name</span><span class="p">,</span><span class="w"> </span><span class="n">SS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root_set_services</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">run_hist</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">       call </span><span class="n">MAPL_Set</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">CF</span><span class="o">=</span><span class="n">CAP</span><span class="p">%</span><span class="n">CF_HIST</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">cap</span><span class="p">%</span><span class="n">history_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_AddChild</span><span class="p">(</span><span class="w"> </span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;HIST&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">SS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HIST_SetServices</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">run_extdata</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">       call </span><span class="n">MAPL_Set</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">CF</span><span class="o">=</span><span class="n">CAP</span><span class="p">%</span><span class="n">CF_EXT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">use_extdata2g</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="cp">#if defined(BUILD_WITH_EXTDATA2G)</span>
+<span class="w">          </span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_AddChild</span><span class="w"> </span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;EXTDATA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">SS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExtData2G_SetServices</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="cp">#else</span>
+<span class="w">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;ExtData2G requested but not built&#39;</span><span class="p">)</span>
+<span class="cp">#endif</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_AddChild</span><span class="w"> </span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;EXTDATA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">SS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExtData1G_SetServices</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="k">    end if</span>
+
+<span class="w">    </span><span class="c">!  Query MAPL for the the children&#39;s for GCS, IMPORTS, EXPORTS</span>
+<span class="w">    </span><span class="c">!-------------------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_Get</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">childrens_gridcomps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">gcs</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">childrens_import_states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">,</span><span class="w"> </span><span class="n">childrens_export_states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">!  Initialize the Computational Hierarchy</span>
+<span class="w">    </span><span class="c">!----------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompInitialize</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">gcs</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">importState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">exportState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">run_hist</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">       </span><span class="c">! All the EXPORTS of the Hierachy are made IMPORTS of History</span>
+<span class="w">       </span><span class="c">!------------------------------------------------------------</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_StateAdd</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">history_id</span><span class="p">),</span><span class="w"> </span><span class="p">[</span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">)],</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! Initialize the History</span>
+<span class="w">       </span><span class="c">!------------------------</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridCompInitialize</span><span class="w"> </span><span class="p">(</span><span class="n">CAP</span><span class="p">%</span><span class="n">GCS</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">history_id</span><span class="p">),</span><span class="w"> </span><span class="n">importState</span><span class="o">=</span><span class="n">CAP</span><span class="p">%</span><span class="n">IMPORTS</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">history_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">exportState</span><span class="o">=</span><span class="n">CAP</span><span class="p">%</span><span class="n">EXPORTS</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">history_id</span><span class="p">),</span><span class="w"> </span><span class="n">clock</span><span class="o">=</span><span class="n">CAP</span><span class="p">%</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">run_extdata</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">       </span><span class="c">! Prepare EXPORTS for ExtData</span>
+<span class="w">       </span><span class="c">! ---------------------------</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">itemcount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemcount</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">itemnames</span><span class="p">(</span><span class="n">itemcount</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">itemtypes</span><span class="p">(</span><span class="n">itemcount</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">itemnamelist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemnames</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">itemtypelist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemtypes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">itemcount</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ItemTypes</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_StateItem_Field</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">itemnames</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">ItemTypes</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_StateItem_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">itemnames</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       END DO</span>
+<span class="k">       deallocate</span><span class="p">(</span><span class="n">itemtypes</span><span class="p">)</span>
+<span class="w">       </span><span class="k">deallocate</span><span class="p">(</span><span class="n">itemnames</span><span class="p">)</span>
+
+
+<span class="w">       </span><span class="c">! Initialize the ExtData</span>
+<span class="w">       </span><span class="c">!------------------------</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridCompInitialize</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">gcs</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="n">importState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">exportState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">userRc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    call </span><span class="n">cap</span><span class="p">%</span><span class="n">parseTimes</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">times</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">run_fbf</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;can not run forwards and backwards with specific times&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">initialize_gc</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-28T22:30:26.346107             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

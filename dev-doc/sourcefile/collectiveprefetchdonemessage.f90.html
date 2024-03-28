@@ -1,0 +1,939 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CollectivePrefetchDoneMessage.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CollectivePrefetchDoneMessage.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for source files.">67 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CollectivePrefetchDoneMessage.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">CollectivePrefetchDoneMessage.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/pfio_collectiveprefetchdonemessagemod.html">pFIO_CollectivePrefetchDoneMessageMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/collectiveprefetchdonemessage.f90.html#src">CollectivePrefetchDoneMessage.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecollectiveprefetchdonemessagef90EfferentGraph" width="641pt" height="37pt"
+ viewBox="0.00 0.00 641.00 37.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph" class="graph" transform="scale(1.4 1.4) rotate(0) translate(4 48)">
+<title>sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-48 892,-48 892,4 -4,4"/>
+<!-- sourcefile~collectiveprefetchdonemessage.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~collectiveprefetchdonemessage.f90</title>
+<polygon fill="none" stroke="black" points="888,-24 682,-24 682,0 888,0 888,-24"/>
+<text text-anchor="middle" x="785" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">CollectivePrefetchDoneMessage.F90</text>
+</g>
+<!-- sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractmessage.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractmessage.f90.html" xlink:title="AbstractMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="646,-44 520,-44 520,-20 646,-20 646,-44"/>
+<text text-anchor="middle" x="583" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~collectiveprefetchdonemessage.f90&#45;&gt;sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~collectiveprefetchdonemessage.f90&#45;&gt;sourcefile~abstractmessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M681.95,-22.21C673.25,-23.07 664.58,-23.94 656.19,-24.78"/>
+<polygon fill="#255000" stroke="#255000" points="655.71,-21.31 646.11,-25.79 656.41,-28.28 655.71,-21.31"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484,-24 315,-24 315,0 484,0 484,-24"/>
+<text text-anchor="middle" x="399.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~collectiveprefetchdonemessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~collectiveprefetchdonemessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M681.89,-11.18C669.79,-11.1 657.62,-11.04 646,-11 590,-10.8 576,-10.77 520,-11 511.65,-11.03 502.97,-11.08 494.27,-11.14"/>
+<polygon fill="#255000" stroke="#255000" points="494.05,-7.64 484.07,-11.21 494.1,-14.64 494.05,-7.64"/>
+</g>
+<!-- sourcefile~abstractmessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~abstractmessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M519.79,-25.15C511.53,-24.23 502.92,-23.29 494.27,-22.33"/>
+<polygon fill="#255000" stroke="#255000" points="494.44,-18.83 484.12,-21.21 493.68,-25.79 494.44,-18.83"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_errorhandling.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/mapl_errorhandling.f90.html" xlink:title="MAPL_ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279,-44 136,-44 136,-20 279,-20 279,-44"/>
+<text text-anchor="middle" x="207.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M314.89,-20.8C306.3,-21.71 297.59,-22.62 289.03,-23.52"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="288.66,-20.04 279.08,-24.57 289.4,-27 288.66,-20.04"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-24 0,-24 0,0 100,0 100,-24"/>
+<text text-anchor="middle" x="50" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M314.93,-11.21C302.87,-11.12 290.62,-11.05 279,-11 215.45,-10.73 199.55,-10.63 136,-11 127.82,-11.05 119.19,-11.12 110.7,-11.21"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="110.4,-7.71 100.44,-11.32 110.48,-14.71 110.4,-7.71"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M135.58,-22.88C127.03,-21.78 118.38,-20.67 110.03,-19.59"/>
+<polygon fill="#255000" stroke="#255000" points="110.4,-16.11 100.03,-18.31 109.5,-23.05 110.4,-16.11"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecollectiveprefetchdonemessagef90EfferentGraph = svgPanZoom('#sourcefilecollectiveprefetchdonemessagef90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecollectiveprefetchdonemessagef90AfferentGraph" width="641pt" height="816pt"
+ viewBox="0.00 0.00 641.00 815.99" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph" class="graph" transform="scale(1.07 1.07) rotate(0) translate(4 868)">
+<title>sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-868 681,-868 681,4 -4,4"/>
+<!-- sourcefile~collectiveprefetchdonemessage.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~collectiveprefetchdonemessage.f90</title>
+<polygon fill="none" stroke="black" points="206,-318 0,-318 0,-294 206,-294 206,-318"/>
+<text text-anchor="middle" x="103" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50">CollectivePrefetchDoneMessage.F90</text>
+</g>
+<!-- sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~clientthread.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/clientthread.f90.html" xlink:title="ClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="497.5,-213 394.5,-213 394.5,-189 497.5,-189 497.5,-213"/>
+<text text-anchor="middle" x="446" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~clientthread.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~clientthread.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M405.88,-213.04C343.36,-232.3 221.01,-269.97 152.84,-290.96"/>
+<polygon fill="#255000" stroke="#255000" points="151.71,-287.65 143.18,-293.93 153.77,-294.34 151.71,-287.65"/>
+</g>
+<!-- sourcefile~messagevisitor.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~messagevisitor.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/messagevisitor.f90.html" xlink:title="MessageVisitor.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="355,-318 242,-318 242,-294 355,-294 355,-318"/>
+<text text-anchor="middle" x="298.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVisitor.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~clientthread.f90&#45;&gt;sourcefile~messagevisitor.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~clientthread.f90&#45;&gt;sourcefile~messagevisitor.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M433.02,-213.22C416.52,-229.6 385.37,-258.95 355,-279 349.35,-282.73 343.11,-286.26 336.92,-289.47"/>
+<polygon fill="transparent" stroke="transparent" points="335.35,-286.34 327.95,-293.91 338.46,-292.61 335.35,-286.34"/>
+</g>
+<!-- sourcefile~messagevisitor.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~messagevisitor.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M241.79,-306C233.6,-306 224.92,-306 216.07,-306"/>
+<polygon fill="#255000" stroke="#255000" points="216.02,-302.5 206.02,-306 216.02,-309.5 216.02,-302.5"/>
+</g>
+<!-- sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~protocolparser.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/protocolparser.f90.html" xlink:title="ProtocolParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="501,-738 391,-738 391,-714 501,-714 501,-738"/>
+<text text-anchor="middle" x="446" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtocolParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M434.79,-713.63C412.9,-687.99 358.59,-629.02 299.5,-600"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="500,-465 392,-465 392,-441 500,-441 500,-465"/>
+<text text-anchor="middle" x="446" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~serverthread.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~serverthread.f90&#45;&gt;sourcefile~collectiveprefetchdonemessage.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M440.55,-465.15C424.84,-506.03 369.12,-634.19 299.5,-600"/>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M297.5,-600C183.9,-544.22 127.46,-386.27 110.05,-327.97"/>
+<polygon fill="#255000" stroke="#255000" points="113.39,-326.92 107.24,-318.29 106.66,-328.87 113.39,-326.92"/>
+</g>
+<!-- sourcefile~serverthread.f90&#45;&gt;sourcefile~messagevisitor.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~serverthread.f90&#45;&gt;sourcefile~messagevisitor.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M433.09,-440.97C407.94,-415.56 349.21,-356.22 318.69,-325.38"/>
+<polygon fill="transparent" stroke="transparent" points="321.09,-322.84 311.57,-318.2 316.12,-327.77 321.09,-322.84"/>
+</g>
+<!-- sourcefile~baseserver.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~baseserver.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/baseserver.f90.html" xlink:title="BaseServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="654.5,-654 559.5,-654 559.5,-630 654.5,-630 654.5,-654"/>
+<text text-anchor="middle" x="607" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M559.31,-633.27C551.3,-630.3 543.49,-626.32 537,-621 512.24,-600.68 473.46,-515.02 456.02,-474.46"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="459.21,-473.02 452.07,-465.19 452.77,-475.76 459.21,-473.02"/>
+</g>
+<!-- sourcefile~basethread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~basethread.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/basethread.f90.html" xlink:title="BaseThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="495.5,-318 396.5,-318 396.5,-294 495.5,-294 495.5,-318"/>
+<text text-anchor="middle" x="446" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basethread.f90&#45;&gt;sourcefile~messagevisitor.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~basethread.f90&#45;&gt;sourcefile~messagevisitor.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M396.15,-306C386.24,-306 375.67,-306 365.29,-306"/>
+<polygon fill="transparent" stroke="transparent" points="365,-302.5 355,-306 365,-309.5 365,-302.5"/>
+</g>
+<!-- sourcefile~clientmanager.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~clientmanager.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/clientmanager.f90.html" xlink:title="ClientManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="663,-192 551,-192 551,-168 663,-168 663,-192"/>
+<text text-anchor="middle" x="607" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~clientmanager.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~clientmanager.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M550.84,-187.29C536.91,-189.13 521.87,-191.11 507.69,-192.98"/>
+<polygon fill="#255000" stroke="#255000" points="506.99,-189.55 497.54,-194.33 507.91,-196.49 506.99,-189.55"/>
+</g>
+<!-- sourcefile~clientthreadvector.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~clientthreadvector.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/clientthreadvector.f90.html" xlink:title="ClientThreadVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="675,-150 539,-150 539,-126 675,-126 675,-150"/>
+<text text-anchor="middle" x="607" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThreadVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~clientthreadvector.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~clientthreadvector.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M562.98,-150.06C554.31,-152.79 545.3,-155.82 537,-159 517.75,-166.38 496.86,-176.02 480.05,-184.21"/>
+<polygon fill="#255000" stroke="#255000" points="478.09,-181.27 470.67,-188.83 481.19,-187.55 478.09,-181.27"/>
+</g>
+<!-- sourcefile~directoryservice.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~directoryservice.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/directoryservice.f90.html" xlink:title="DirectoryService.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="669,-570 545,-570 545,-546 669,-546 669,-570"/>
+<text text-anchor="middle" x="607" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M547.53,-545.91C543.6,-543.46 540.02,-540.52 537,-537 463.37,-451.1 540.5,-391.02 501,-285 492.22,-261.42 476.04,-237.58 463.67,-221.35"/>
+<polygon fill="#255000" stroke="#255000" points="466.18,-218.89 457.26,-213.17 460.67,-223.2 466.18,-218.89"/>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M552.08,-570.09C546.7,-572.54 541.56,-575.48 537,-579 494.26,-612.07 467.03,-671.63 454.7,-703.85"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="451.26,-703.06 451.09,-713.66 457.83,-705.48 451.26,-703.06"/>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M556.58,-545.99C549.79,-543.48 543.07,-540.5 537,-537 507.65,-520.07 480.13,-491.89 463.44,-472.89"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="465.94,-470.43 456.77,-465.13 460.63,-474.99 465.94,-470.43"/>
+</g>
+<!-- sourcefile~fastclientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~fastclientthread.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/fastclientthread.f90.html" xlink:title="FastClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="669,-108 545,-108 545,-84 669,-84 669,-108"/>
+<text text-anchor="middle" x="607" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FastClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fastclientthread.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~fastclientthread.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M556.58,-108.01C549.79,-110.52 543.07,-113.5 537,-117 507.65,-133.93 480.13,-162.11 463.44,-181.11"/>
+<polygon fill="#255000" stroke="#255000" points="460.63,-179.01 456.77,-188.87 465.94,-183.57 460.63,-179.01"/>
+</g>
+<!-- sourcefile~messagevector.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~messagevector.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/messagevector.f90.html" xlink:title="MessageVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="664,-864 550,-864 550,-840 664,-840 664,-864"/>
+<text text-anchor="middle" x="607" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~messagevector.f90&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~messagevector.f90&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M554.41,-839.89C548.3,-837.43 542.35,-834.49 537,-831 503.11,-808.85 474.82,-770.33 459.45,-746.61"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="462.33,-744.61 454.04,-738.02 456.41,-748.34 462.33,-744.61"/>
+</g>
+<!-- sourcefile~mockclient.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~mockclient.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/mockclient.f90.html" xlink:title="MockClient.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="654,-66 560,-66 560,-42 654,-42 654,-66"/>
+<text text-anchor="middle" x="607" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockClient.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockclient.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mockclient.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M559.85,-63.43C551.79,-66.33 543.81,-70.1 537,-75 516.93,-89.42 479.27,-148.11 459.63,-180.05"/>
+<polygon fill="#255000" stroke="#255000" points="456.6,-178.3 454.38,-188.66 462.58,-181.95 456.6,-178.3"/>
+</g>
+<!-- sourcefile~mockclientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mockclientthread.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/mockclientthread.f90.html" xlink:title="MockClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="672.5,-24 541.5,-24 541.5,0 672.5,0 672.5,-24"/>
+<text text-anchor="middle" x="607" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockclientthread.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mockclientthread.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M550.62,-24.07C545.7,-26.52 541.06,-29.46 537,-33 508.22,-58.09 518.85,-77.25 501,-111 488.16,-135.28 471.72,-162.17 460.37,-180.18"/>
+<polygon fill="#255000" stroke="#255000" points="457.35,-178.4 454.95,-188.72 463.26,-182.16 457.35,-178.4"/>
+</g>
+<!-- sourcefile~mockclientthread.f90&#45;&gt;sourcefile~messagevisitor.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~mockclientthread.f90&#45;&gt;sourcefile~messagevisitor.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M555.73,-24.07C549.21,-26.56 542.79,-29.51 537,-33 427.3,-99.08 341.7,-233.04 311.39,-284.86"/>
+<polygon fill="transparent" stroke="transparent" points="308.19,-283.41 306.23,-293.82 314.25,-286.9 308.19,-283.41"/>
+</g>
+<!-- sourcefile~mockserverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mockserverthread.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/mockserverthread.f90.html" xlink:title="MockServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="675,-696 539,-696 539,-672 675,-672 675,-696"/>
+<text text-anchor="middle" x="607" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockserverthread.f90&#45;&gt;sourcefile~messagevisitor.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~mockserverthread.f90&#45;&gt;sourcefile~messagevisitor.f90</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M553.52,-671.85C547.69,-669.41 542.05,-666.49 537,-663 408.44,-574.24 331.05,-391.1 307.34,-327.96"/>
+<polygon fill="transparent" stroke="transparent" points="310.5,-326.42 303.76,-318.25 303.93,-328.84 310.5,-326.42"/>
+</g>
+<!-- sourcefile~mockserverthread.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~mockserverthread.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M550.11,-671.94C545.36,-669.49 540.89,-666.54 537,-663 505.76,-634.54 517.55,-613.88 501,-575 485.92,-539.57 467.65,-498.71 456.7,-474.41"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="459.79,-472.74 452.48,-465.07 453.41,-475.63 459.79,-472.74"/>
+</g>
+<!-- sourcefile~mpiserver.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mpiserver.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mpiserver.f90.html" xlink:title="MpiServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="651,-612 563,-612 563,-588 651,-588 651,-612"/>
+<text text-anchor="middle" x="607" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M562.73,-591.57C553.71,-588.55 544.63,-584.48 537,-579 498.7,-551.48 470.62,-502.5 456.75,-474.4"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="459.76,-472.58 452.28,-465.07 453.44,-475.6 459.76,-472.58"/>
+</g>
+<!-- sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~mpisocket.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/mpisocket.f90.html" xlink:title="MpiSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="652,-822 562,-822 562,-798 652,-798 652,-822"/>
+<text text-anchor="middle" x="607" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M561.77,-798.81C553.36,-796.05 544.77,-792.78 537,-789 512.24,-776.95 486.78,-758.45 469.29,-744.61"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="471.36,-741.79 461.38,-738.24 466.97,-747.24 471.36,-741.79"/>
+</g>
+<!-- sourcefile~multicommserver.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~multicommserver.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/multicommserver.f90.html" xlink:title="MultiCommServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="672,-528 542,-528 542,-504 672,-504 672,-528"/>
+<text text-anchor="middle" x="607" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiCommServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multicommserver.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~multicommserver.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M562.98,-503.94C554.31,-501.21 545.3,-498.18 537,-495 517.75,-487.62 496.86,-477.98 480.05,-469.79"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="481.19,-466.45 470.67,-465.17 478.09,-472.73 481.19,-466.45"/>
+</g>
+<!-- sourcefile~multigroupserver.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~multigroupserver.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/multigroupserver.f90.html" xlink:title="MultiGroupServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="670.5,-486 543.5,-486 543.5,-462 670.5,-462 670.5,-486"/>
+<text text-anchor="middle" x="607" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M543.16,-465.7C532.37,-464.28 521.15,-462.79 510.35,-461.37"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="510.52,-457.86 500.15,-460.02 509.61,-464.8 510.52,-457.86"/>
+</g>
+<!-- sourcefile~multilayerserver.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~multilayerserver.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/multilayerserver.f90.html" xlink:title="MultiLayerServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="669,-444 545,-444 545,-420 669,-420 669,-444"/>
+<text text-anchor="middle" x="607" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiLayerServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multilayerserver.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~multilayerserver.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M544.98,-440.06C533.53,-441.57 521.55,-443.15 510.04,-444.67"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="509.53,-441.21 500.08,-445.99 510.45,-448.15 509.53,-441.21"/>
+</g>
+<!-- sourcefile~openmpserver.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~openmpserver.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/openmpserver.f90.html" xlink:title="OpenMPServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="663,-402 551,-402 551,-378 663,-378 663,-402"/>
+<text text-anchor="middle" x="607" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OpenMPServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~openmpserver.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~openmpserver.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M562.98,-402.06C554.31,-404.79 545.3,-407.82 537,-411 517.75,-418.38 496.86,-428.02 480.05,-436.21"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="478.09,-433.27 470.67,-440.83 481.19,-439.55 478.09,-433.27"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="636,-276 578,-276 578,-252 636,-252 636,-276"/>
+<text text-anchor="middle" x="607" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~pfio.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M577.83,-256.4C565.2,-252.75 550.21,-248.06 537,-243 517.75,-235.62 496.86,-225.98 480.05,-217.79"/>
+<polygon fill="#255000" stroke="#255000" points="481.19,-214.45 470.67,-213.17 478.09,-220.73 481.19,-214.45"/>
+</g>
+<!-- sourcefile~pfio.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~pfio.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M577.76,-267.48C564.24,-270.34 548.52,-275.55 537,-285 512.24,-305.32 473.46,-390.98 456.02,-431.54"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="452.77,-430.24 452.07,-440.81 459.21,-432.98 452.77,-430.24"/>
+</g>
+<!-- sourcefile~serverthreadvector.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~serverthreadvector.f90</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/serverthreadvector.f90.html" xlink:title="ServerThreadVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="677,-360 537,-360 537,-336 677,-336 677,-360"/>
+<text text-anchor="middle" x="607" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~serverthreadvector.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~serverthreadvector.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M556.58,-360.01C549.79,-362.52 543.07,-365.5 537,-369 507.65,-385.93 480.13,-414.11 463.44,-433.11"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="460.63,-431.01 456.77,-440.87 465.94,-435.57 460.63,-431.01"/>
+</g>
+<!-- sourcefile~test_mpisocket.pf -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~test_mpisocket.pf</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/test_mpisocket.pf.html" xlink:title="Test_MpiSocket.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="660,-780 554,-780 554,-756 660,-756 660,-780"/>
+<text text-anchor="middle" x="607" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MpiSocket.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_mpisocket.pf&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~test_mpisocket.pf&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M560.44,-755.96C542.31,-751.18 521.28,-745.62 502.29,-740.6"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="503.13,-737.21 492.57,-738.04 501.34,-743.98 503.13,-737.21"/>
+</g>
+<!-- sourcefile~test_protocolparser.pf -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~test_protocolparser.pf</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/test_protocolparser.pf.html" xlink:title="Test_ProtocolParser.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="670.5,-738 543.5,-738 543.5,-714 670.5,-714 670.5,-738"/>
+<text text-anchor="middle" x="607" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ProtocolParser.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_protocolparser.pf&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~test_protocolparser.pf&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M543.16,-726C532.74,-726 521.93,-726 511.47,-726"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="511.16,-722.5 501.16,-726 511.16,-729.5 511.16,-722.5"/>
+</g>
+<!-- sourcefile~test_serverthread.pf -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~test_serverthread.pf</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/test_serverthread.pf.html" xlink:title="Test_ServerThread.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="669,-318 545,-318 545,-294 669,-294 669,-318"/>
+<text text-anchor="middle" x="607" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ServerThread.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_serverthread.pf&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~test_serverthread.pf&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M553.03,-318.12C547.36,-320.56 541.88,-323.49 537,-327 498.7,-354.52 470.62,-403.5 456.75,-431.6"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="453.44,-430.4 452.28,-440.93 459.76,-433.42 453.44,-430.4"/>
+</g>
+<!-- sourcefile~test_simplesocket.pf -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~test_simplesocket.pf</title>
+<g id="a_sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/test_simplesocket.pf.html" xlink:title="Test_SimpleSocket.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="669,-234 545,-234 545,-210 669,-210 669,-234"/>
+<text text-anchor="middle" x="607" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_SimpleSocket.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simplesocket.pf&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~test_simplesocket.pf&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M544.98,-213.94C532.73,-212.32 519.87,-210.62 507.63,-209.01"/>
+<polygon fill="#255000" stroke="#255000" points="507.91,-205.51 497.53,-207.67 506.99,-212.45 507.91,-205.51"/>
+</g>
+<!-- sourcefile~test_simplesocket.pf&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectiveprefetchdonemessage.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~test_simplesocket.pf&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#127025" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M550.17,-234.13C545.41,-236.57 540.92,-239.49 537,-243 537,-243 479.14,-378.02 456.2,-431.53"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="452.95,-430.23 452.23,-440.8 459.38,-432.99 452.95,-430.23"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecollectiveprefetchdonemessagef90AfferentGraph = svgPanZoom('#sourcefilecollectiveprefetchdonemessagef90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#include &quot;unused_dummy.H&quot;</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="k">module </span><span class="n">pFIO_CollectivePrefetchDoneMessageMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractMessageMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">INT32</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="k">   private</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CollectivePrefetchDoneMessage</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CollectivePrefetchDoneMessage</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="k">      procedure</span><span class="p">,</span><span class="w"> </span><span class="k">nopass</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_type_id</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_length</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">serialize</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deserialize</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">end type </span><span class="n">CollectivePrefetchDoneMessage</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">interface </span><span class="n">CollectivePrefetchDoneMessage</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_CollectivePrefetchDoneMessage</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">end interface</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="k">contains</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="c">! The Intel 17 compiler&#39;s default constructor for this class appears to be</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="c">! broken.   Possibly due to the extension of an abstract base class.</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">function </span><span class="n">new_CollectivePrefetchDoneMessage</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CollectivePrefetchDoneMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">return</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="k">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_CollectivePrefetchDoneMessage</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">get_type_id</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">type_id</span><span class="p">)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="n">type_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CollectivePrefetchDone_ID</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_type_id</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">get_length</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">CollectivePrefetchDoneMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">return</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="k">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_length</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">serialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">CollectivePrefetchDoneMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"> </span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">empty</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">serialize</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">deserialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">CollectivePrefetchDoneMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">deserialize</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">   </span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="k">end module </span><span class="n">pFIO_CollectivePrefetchDoneMessageMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-28T22:30:26.346107             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

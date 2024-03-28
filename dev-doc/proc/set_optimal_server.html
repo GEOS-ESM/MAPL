@@ -1,0 +1,1339 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>set_optimal_server &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>set_optimal_server
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 0.0% of total for procedures.">68 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ClientManager.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/clientmanager.f90.html'>ClientManager.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_clientmanagermod.html'>pFIO_ClientManagerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">set_optimal_server</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/set_optimal_server.html#src">set_optimal_server</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine set_optimal_server(this, nwriting, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/clientmanager.html'>ClientManager</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~875"></span>
+              class(<a href='../type/clientmanager.html'>ClientManager</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nwriting"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nwriting</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~107"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~375"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~set_optimal_server~~CallsGraph Pages: 1 -->
+<svg id="procset_optimal_serverCallsGraph" width="641pt" height="228pt"
+ viewBox="0.00 0.00 641.00 228.46" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~set_optimal_server~~CallsGraph" class="graph" transform="scale(3.17 3.17) rotate(0) translate(4 720.58)">
+<title>proc~~set_optimal_server~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-720.58 2029,-720.58 2029,4 -4,4"/>
+<!-- proc~set_optimal_server -->
+<g id="proc~~set_optimal_server~~CallsGraph_node1" class="node">
+<title>proc~set_optimal_server</title>
+<polygon fill="none" stroke="black" points="338,-439 0,-439 0,-415 338,-415 338,-439"/>
+<text text-anchor="middle" x="169" y="-424.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_ClientManagerMod::ClientManager%set_optimal_server</text>
+</g>
+<!-- at -->
+<g id="proc~~set_optimal_server~~CallsGraph_node2" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1975.5,-710 1921.5,-710 1921.5,-686 1975.5,-686 1975.5,-710"/>
+<text text-anchor="middle" x="1948.5" y="-695.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~set_optimal_server&#45;&gt;at -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge1" class="edge">
+<title>proc~set_optimal_server&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M178.06,-439.03C202.68,-474.71 280.89,-580.55 374,-630 553.25,-725.21 619.54,-716 822.5,-716 822.5,-716 822.5,-716 1405,-716 1595.65,-716 1823.78,-704.76 1911.08,-700.04"/>
+<polygon fill="#255000" stroke="#255000" points="1911.46,-703.53 1921.26,-699.49 1911.08,-696.54 1911.46,-703.53"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_node3" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node3"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1225,-377 1008,-377 1008,-353 1225,-353 1225,-377"/>
+<text text-anchor="middle" x="1116.5" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~set_optimal_server&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge2" class="edge">
+<title>proc~set_optimal_server&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M188.5,-414.88C223.26,-392.72 301.39,-345.86 374,-323 501.07,-282.99 843.43,-246.14 972,-281 1018.76,-293.68 1065.89,-325.84 1092.8,-346.49"/>
+<polygon fill="#255000" stroke="#255000" points="1090.77,-349.34 1100.8,-352.75 1095.08,-343.83 1090.77,-349.34"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~set_optimal_server~~CallsGraph_node4" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node4"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_SortMod::MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="583.5,-356 429.5,-356 429.5,-332 583.5,-332 583.5,-356"/>
+<text text-anchor="middle" x="506.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~set_optimal_server&#45;&gt;interface~mapl_sort -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge3" class="edge">
+<title>proc~set_optimal_server&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#255000" d="M218.78,-414.93C279.25,-399.97 382.2,-374.5 446.89,-358.5"/>
+<polygon fill="#255000" stroke="#255000" points="448.06,-361.82 456.93,-356.02 446.38,-355.02 448.06,-361.82"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~set_optimal_server~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1514,-650 1294,-650 1294,-626 1514,-626 1514,-650"/>
+<text text-anchor="middle" x="1404" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~set_optimal_server&#45;&gt;proc~mapl_return -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge4" class="edge">
+<title>proc~set_optimal_server&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M183.21,-439.37C214.13,-467.67 294.62,-537.66 374,-576 700.25,-733.58 1154.01,-680.7 1329.58,-651.68"/>
+<polygon fill="#255000" stroke="#255000" points="1330.2,-655.13 1339.48,-650.02 1329.04,-648.22 1330.2,-655.13"/>
+</g>
+<!-- proc~next_ -->
+<g id="proc~~set_optimal_server~~CallsGraph_node6" class="node">
+<title>proc~next_</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node6"><a xlink:href="../proc/next_.html" xlink:title="pFIO_ClientManagerMod::ClientManager%next_">
+<polygon fill="#d9534f" stroke="#d9534f" points="639,-234 374,-234 374,-210 639,-210 639,-234"/>
+<text text-anchor="middle" x="506.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ClientManagerMod::ClientManager%next_</text>
+</a>
+</g>
+</g>
+<!-- proc~set_optimal_server&#45;&gt;proc~next_ -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge5" class="edge">
+<title>proc~set_optimal_server&#45;&gt;proc~next_</title>
+<path fill="none" stroke="#255000" d="M179.94,-414.57C207.13,-381.53 286.51,-291.1 374,-248 382.92,-243.6 392.54,-239.95 402.35,-236.92"/>
+<polygon fill="#255000" stroke="#255000" points="403.58,-240.2 412.23,-234.08 401.65,-233.48 403.58,-240.2"/>
+</g>
+<!-- proc~set_current -->
+<g id="proc~~set_optimal_server~~CallsGraph_node7" class="node">
+<title>proc~set_current</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node7"><a xlink:href="../proc/set_current.html" xlink:title="pFIO_ClientManagerMod::ClientManager%set_current">
+<polygon fill="#d9534f" stroke="#d9534f" points="972,-650 675,-650 675,-626 972,-626 972,-650"/>
+<text text-anchor="middle" x="823.5" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ClientManagerMod::ClientManager%set_current</text>
+</a>
+</g>
+</g>
+<!-- proc~set_optimal_server&#45;&gt;proc~set_current -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge6" class="edge">
+<title>proc~set_optimal_server&#45;&gt;proc~set_current</title>
+<path fill="none" stroke="#255000" d="M195.9,-439.07C269.28,-472.76 485.57,-568.5 675,-617 685.46,-619.68 696.42,-622.04 707.45,-624.12"/>
+<polygon fill="#255000" stroke="#255000" points="707.13,-627.62 717.59,-625.95 708.37,-620.73 707.13,-627.62"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~set_optimal_server~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node9"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1540,-461 1268,-461 1268,-437 1540,-437 1540,-461"/>
+<text text-anchor="middle" x="1404" y="-446.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1158.41,-377.04C1209.6,-392.1 1297.28,-417.89 1352.58,-434.16"/>
+<polygon fill="transparent" stroke="transparent" points="1351.59,-437.52 1362.17,-436.99 1353.57,-430.81 1351.59,-437.52"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~set_optimal_server~~CallsGraph_node10" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node10"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1547,-566 1261,-566 1261,-542 1547,-542 1547,-566"/>
+<text text-anchor="middle" x="1404" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M1133.07,-377.17C1159.03,-397.29 1213.06,-438.39 1261,-470 1298.33,-494.61 1342.93,-520.44 1372.06,-536.85"/>
+<polygon fill="transparent" stroke="transparent" points="1370.51,-540 1380.94,-541.84 1373.94,-533.89 1370.51,-540"/>
+</g>
+<!-- proc~sort1ld -->
+<g id="proc~~set_optimal_server~~CallsGraph_node12" class="node">
+<title>proc~sort1ld</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node12"><a xlink:href="../proc/sort1ld.html" xlink:title="MAPL_SortMod::SORT1LD">
+<polygon fill="#d9534f" stroke="#d9534f" points="897.5,-608 749.5,-608 749.5,-584 897.5,-584 897.5,-608"/>
+<text text-anchor="middle" x="823.5" y="-593.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ld -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ld</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M520.05,-356.13C545.1,-380.85 602.08,-439.54 639,-497 659.64,-529.12 644.37,-552.2 675,-575 693.34,-588.66 716.61,-595.38 739.21,-598.34"/>
+<polygon fill="#025500" stroke="#025500" points="738.87,-601.82 749.19,-599.42 739.62,-594.86 738.87,-601.82"/>
+</g>
+<!-- proc~sort1lr -->
+<g id="proc~~set_optimal_server~~CallsGraph_node13" class="node">
+<title>proc~sort1lr</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node13"><a xlink:href="../proc/sort1lr.html" xlink:title="MAPL_SortMod::SORT1LR">
+<polygon fill="#d9534f" stroke="#d9534f" points="897,-566 750,-566 750,-542 897,-542 897,-566"/>
+<text text-anchor="middle" x="823.5" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1lr -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1lr</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M517.97,-356.27C553.01,-397.3 664.6,-527.4 675,-533 694.66,-543.57 717.82,-549.4 739.89,-552.49"/>
+<polygon fill="#025500" stroke="#025500" points="739.59,-555.98 749.94,-553.72 740.44,-549.03 739.59,-555.98"/>
+</g>
+<!-- proc~sort1ls -->
+<g id="proc~~set_optimal_server~~CallsGraph_node14" class="node">
+<title>proc~sort1ls</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node14"><a xlink:href="../proc/sort1ls.html" xlink:title="MAPL_SortMod::SORT1LS">
+<polygon fill="#d9534f" stroke="#d9534f" points="896.5,-524 750.5,-524 750.5,-500 896.5,-500 896.5,-524"/>
+<text text-anchor="middle" x="823.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1LS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ls -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ls</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M516.89,-356.08C540.13,-384.98 603.64,-458.2 675,-491 695.18,-500.27 718.41,-505.69 740.38,-508.79"/>
+<polygon fill="#025500" stroke="#025500" points="740.01,-512.27 750.37,-510.06 740.89,-505.33 740.01,-512.27"/>
+</g>
+<!-- proc~sort1sd -->
+<g id="proc~~set_optimal_server~~CallsGraph_node15" class="node">
+<title>proc~sort1sd</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node15"><a xlink:href="../proc/sort1sd.html" xlink:title="MAPL_SortMod::SORT1SD">
+<polygon fill="#d9534f" stroke="#d9534f" points="897.5,-108 749.5,-108 749.5,-84 897.5,-84 897.5,-108"/>
+<text text-anchor="middle" x="823.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1sd -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1sd</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M531.43,-331.88C561.08,-315.65 611.08,-284.07 639,-243 671.74,-194.84 631.1,-155.27 675,-117 692.58,-101.68 716.07,-94.54 739.13,-91.73"/>
+<polygon fill="#025500" stroke="#025500" points="739.7,-95.19 749.32,-90.75 739.03,-88.22 739.7,-95.19"/>
+</g>
+<!-- proc~sort1sr -->
+<g id="proc~~set_optimal_server~~CallsGraph_node16" class="node">
+<title>proc~sort1sr</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node16"><a xlink:href="../proc/sort1sr.html" xlink:title="MAPL_SortMod::SORT1SR">
+<polygon fill="#d9534f" stroke="#d9534f" points="897.5,-66 749.5,-66 749.5,-42 897.5,-42 897.5,-66"/>
+<text text-anchor="middle" x="823.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1sr -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1sr</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M532.4,-331.89C562.58,-315.88 612.63,-284.74 639,-243 679.79,-178.44 619.16,-127.08 675,-75 692.3,-58.87 716.05,-51.58 739.45,-48.88"/>
+<polygon fill="#025500" stroke="#025500" points="739.79,-52.36 749.44,-47.99 739.17,-45.39 739.79,-52.36"/>
+</g>
+<!-- proc~sort1ss -->
+<g id="proc~~set_optimal_server~~CallsGraph_node17" class="node">
+<title>proc~sort1ss</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node17"><a xlink:href="../proc/sort1ss.html" xlink:title="MAPL_SortMod::SORT1SS">
+<polygon fill="#d9534f" stroke="#d9534f" points="897,-24 750,-24 750,0 897,0 897,-24"/>
+<text text-anchor="middle" x="823.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT1SS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ss -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ss</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M532.95,-331.93C563.44,-316.05 613.57,-285.15 639,-243 687.91,-161.92 607.1,-99 675,-33 692.12,-16.36 716.07,-8.99 739.71,-6.36"/>
+<polygon fill="#025500" stroke="#025500" points="740.12,-9.84 749.79,-5.52 739.54,-2.87 740.12,-9.84"/>
+</g>
+<!-- proc~sort2al -->
+<g id="proc~~set_optimal_server~~CallsGraph_node18" class="node">
+<title>proc~sort2al</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node18"><a xlink:href="../proc/sort2al.html" xlink:title="MAPL_SortMod::SORT2AL">
+<polygon fill="#d9534f" stroke="#d9534f" points="897,-482 750,-482 750,-458 897,-458 897,-482"/>
+<text text-anchor="middle" x="823.5" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2AL</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2al -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2al</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M522.07,-356.16C549.84,-378.62 613.11,-426.36 675,-449 695.34,-456.44 718.16,-461.26 739.65,-464.38"/>
+<polygon fill="#025500" stroke="#025500" points="739.37,-467.87 749.75,-465.74 740.31,-460.93 739.37,-467.87"/>
+</g>
+<!-- proc~sort2as -->
+<g id="proc~~set_optimal_server~~CallsGraph_node19" class="node">
+<title>proc~sort2as</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node19"><a xlink:href="../proc/sort2as.html" xlink:title="MAPL_SortMod::SORT2AS">
+<polygon fill="#d9534f" stroke="#d9534f" points="897.5,-234 749.5,-234 749.5,-210 897.5,-210 897.5,-234"/>
+<text text-anchor="middle" x="823.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2AS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2as -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2as</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M538.57,-331.97C595.85,-309.78 718.07,-262.44 781.86,-237.74"/>
+<polygon fill="#025500" stroke="#025500" points="783.14,-241 791.2,-234.12 780.61,-234.47 783.14,-241"/>
+</g>
+<!-- proc~sort2ld -->
+<g id="proc~~set_optimal_server~~CallsGraph_node20" class="node">
+<title>proc~sort2ld</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node20"><a xlink:href="../proc/sort2ld.html" xlink:title="MAPL_SortMod::SORT2LD">
+<polygon fill="#d9534f" stroke="#d9534f" points="897.5,-440 749.5,-440 749.5,-416 897.5,-416 897.5,-440"/>
+<text text-anchor="middle" x="823.5" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ld -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ld</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M534.19,-356.12C566.76,-370.42 623.83,-393.9 675,-407 695.66,-412.29 718.31,-416.35 739.53,-419.42"/>
+<polygon fill="#025500" stroke="#025500" points="739.1,-422.9 749.48,-420.81 740.06,-415.96 739.1,-422.9"/>
+</g>
+<!-- proc~sort2lr -->
+<g id="proc~~set_optimal_server~~CallsGraph_node21" class="node">
+<title>proc~sort2lr</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node21"><a xlink:href="../proc/sort2lr.html" xlink:title="MAPL_SortMod::SORT2LR">
+<polygon fill="#d9534f" stroke="#d9534f" points="897,-398 750,-398 750,-374 897,-374 897,-398"/>
+<text text-anchor="middle" x="823.5" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2lr -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2lr</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M583.75,-354.17C630.92,-360.46 691.49,-368.53 739.81,-374.97"/>
+<polygon fill="#025500" stroke="#025500" points="739.55,-378.47 749.93,-376.32 740.48,-371.53 739.55,-378.47"/>
+</g>
+<!-- proc~sort2ls -->
+<g id="proc~~set_optimal_server~~CallsGraph_node22" class="node">
+<title>proc~sort2ls</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node22"><a xlink:href="../proc/sort2ls.html" xlink:title="MAPL_SortMod::SORT2LS">
+<polygon fill="#d9534f" stroke="#d9534f" points="896.5,-356 750.5,-356 750.5,-332 896.5,-332 896.5,-356"/>
+<text text-anchor="middle" x="823.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2LS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ls -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ls</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M583.75,-344C631.09,-344 691.92,-344 740.33,-344"/>
+<polygon fill="#025500" stroke="#025500" points="740.46,-347.5 750.46,-344 740.46,-340.5 740.46,-347.5"/>
+</g>
+<!-- proc~sort2sd -->
+<g id="proc~~set_optimal_server~~CallsGraph_node23" class="node">
+<title>proc~sort2sd</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node23"><a xlink:href="../proc/sort2sd.html" xlink:title="MAPL_SortMod::SORT2SD">
+<polygon fill="#d9534f" stroke="#d9534f" points="897.5,-192 749.5,-192 749.5,-168 897.5,-168 897.5,-192"/>
+<text text-anchor="middle" x="823.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2sd -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2sd</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M525.88,-331.7C552.21,-313.7 601.6,-278.45 639,-243 656.84,-226.09 653.45,-212.83 675,-201 694.47,-190.32 717.47,-184.44 739.44,-181.34"/>
+<polygon fill="#025500" stroke="#025500" points="739.95,-184.81 749.45,-180.11 739.09,-177.86 739.95,-184.81"/>
+</g>
+<!-- proc~sort2sr -->
+<g id="proc~~set_optimal_server~~CallsGraph_node24" class="node">
+<title>proc~sort2sr</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node24"><a xlink:href="../proc/sort2sr.html" xlink:title="MAPL_SortMod::SORT2SR">
+<polygon fill="#d9534f" stroke="#d9534f" points="897.5,-150 749.5,-150 749.5,-126 897.5,-126 897.5,-150"/>
+<text text-anchor="middle" x="823.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2sr -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge21" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2sr</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M529.88,-331.73C558.57,-315 608.28,-282.56 639,-243 663.91,-210.92 642.76,-183.7 675,-159 693.24,-145.02 716.59,-138.22 739.3,-135.29"/>
+<polygon fill="#025500" stroke="#025500" points="739.75,-138.77 749.33,-134.24 739.01,-131.8 739.75,-138.77"/>
+</g>
+<!-- proc~sort2ss -->
+<g id="proc~~set_optimal_server~~CallsGraph_node25" class="node">
+<title>proc~sort2ss</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node25"><a xlink:href="../proc/sort2ss.html" xlink:title="MAPL_SortMod::SORT2SS">
+<polygon fill="#d9534f" stroke="#d9534f" points="897,-314 750,-314 750,-290 897,-290 897,-314"/>
+<text text-anchor="middle" x="823.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod::SORT2SS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ss -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ss</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M583.75,-333.83C630.92,-327.54 691.49,-319.47 739.81,-313.03"/>
+<polygon fill="#025500" stroke="#025500" points="740.48,-316.47 749.93,-311.68 739.55,-309.53 740.48,-316.47"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~set_optimal_server~~CallsGraph_node8" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node8"><a xlink:href="../proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1836,-650 1583,-650 1583,-626 1836,-626 1836,-650"/>
+<text text-anchor="middle" x="1709.5" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1514.14,-638C1533.1,-638 1553.02,-638 1572.59,-638"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1572.78,-641.5 1582.78,-638 1572.78,-634.5 1572.78,-641.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~set_optimal_server~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1824,-566 1595,-566 1595,-542 1824,-542 1824,-566"/>
+<text text-anchor="middle" x="1709.5" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1448.48,-625.96C1503.02,-610.87 1596.5,-585 1655.26,-568.74"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1656.39,-572.05 1665.1,-566.01 1654.53,-565.31 1656.39,-572.05"/>
+</g>
+<!-- proc~set_current&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge25" class="edge">
+<title>proc~set_current&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M960.44,-625.95C964.53,-623.32 968.41,-620.35 972,-617 1027.84,-564.92 967.48,-513.73 1008,-449 1026.16,-419.98 1058.08,-396.96 1082.44,-382.4"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1084.45,-385.28 1091.36,-377.25 1080.95,-379.22 1084.45,-385.28"/>
+</g>
+<!-- proc~set_current&#45;&gt;proc~mapl_return -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge26" class="edge">
+<title>proc~set_current&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M972.35,-638C1068.99,-638 1193.56,-638 1283.84,-638"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1283.84,-641.5 1293.84,-638 1283.84,-634.5 1283.84,-641.5"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge27" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1758.18,-650.07C1803.41,-661.52 1870.39,-678.48 1911.37,-688.85"/>
+<polygon fill="#255000" stroke="#255000" points="1910.64,-692.28 1921.2,-691.34 1912.36,-685.49 1910.64,-692.28"/>
+</g>
+<!-- insert -->
+<g id="proc~~set_optimal_server~~CallsGraph_node26" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1975.5,-650 1921.5,-650 1921.5,-626 1975.5,-626 1975.5,-650"/>
+<text text-anchor="middle" x="1948.5" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge28" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#255000" d="M1836.29,-638C1863.83,-638 1890.86,-638 1911.36,-638"/>
+<polygon fill="#255000" stroke="#255000" points="1911.46,-641.5 1921.46,-638 1911.46,-634.5 1911.46,-641.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255840" d="M1439.82,-461.04C1495.12,-480.18 1603.02,-517.51 1663.91,-538.57"/>
+<polygon fill="#255840" stroke="#255840" points="1663.03,-541.97 1673.62,-541.93 1665.32,-535.36 1663.03,-541.97"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="transparent" d="M1448.48,-566.04C1503.02,-581.13 1596.5,-607 1655.26,-623.26"/>
+<polygon fill="transparent" stroke="transparent" points="1654.53,-626.69 1665.1,-625.99 1656.39,-619.95 1654.53,-626.69"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M1547.42,-554C1559.81,-554 1572.29,-554 1584.52,-554"/>
+<polygon fill="transparent" stroke="transparent" points="1584.72,-557.5 1594.72,-554 1584.72,-550.5 1584.72,-557.5"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~set_optimal_server~~CallsGraph_node27" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~set_optimal_server~~CallsGraph_node27"><a xlink:href="../proc/initialize~12.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="2025,-566 1872,-566 1872,-542 2025,-542 2025,-566"/>
+<text text-anchor="middle" x="1948.5" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="transparent" d="M1824.14,-554C1836.76,-554 1849.46,-554 1861.65,-554"/>
+<polygon fill="transparent" stroke="transparent" points="1861.77,-557.5 1871.77,-554 1861.77,-550.5 1861.77,-557.5"/>
+</g>
+<!-- qsortl -->
+<g id="proc~~set_optimal_server~~CallsGraph_node28" class="node">
+<title>qsortl</title>
+<polygon fill="#777777" stroke="#777777" points="1143.5,-482 1089.5,-482 1089.5,-458 1143.5,-458 1143.5,-482"/>
+<text text-anchor="middle" x="1116.5" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsortl</text>
+</g>
+<!-- proc~sort1ld&#45;&gt;qsortl -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge33" class="edge">
+<title>proc~sort1ld&#45;&gt;qsortl</title>
+<path fill="none" stroke="transparent" d="M897.62,-592.71C921.96,-589.76 948.76,-584.46 972,-575 1021.75,-554.75 1070.16,-513.52 1096.08,-489.18"/>
+<polygon fill="transparent" stroke="transparent" points="1098.56,-491.65 1103.37,-482.22 1093.72,-486.59 1098.56,-491.65"/>
+</g>
+<!-- proc~sort1lr&#45;&gt;qsortl -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge34" class="edge">
+<title>proc~sort1lr&#45;&gt;qsortl</title>
+<path fill="none" stroke="#842550" d="M897.34,-547.62C921.41,-544.46 948.12,-539.8 972,-533 1012.2,-521.55 1055.83,-501.15 1084.3,-486.67"/>
+<polygon fill="#842550" stroke="#842550" points="1086.06,-489.7 1093.34,-482.01 1082.85,-483.48 1086.06,-489.7"/>
+</g>
+<!-- proc~sort1ls&#45;&gt;qsortl -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge35" class="edge">
+<title>proc~sort1ls&#45;&gt;qsortl</title>
+<path fill="none" stroke="#025500" d="M896.53,-501.8C920.54,-498.39 947.42,-494.55 972,-491 1008.51,-485.73 1050.23,-479.61 1079.24,-475.35"/>
+<polygon fill="#025500" stroke="#025500" points="1079.94,-478.78 1089.32,-473.86 1078.92,-471.86 1079.94,-478.78"/>
+</g>
+<!-- qsorts -->
+<g id="proc~~set_optimal_server~~CallsGraph_node29" class="node">
+<title>qsorts</title>
+<polygon fill="#777777" stroke="#777777" points="1143.5,-150 1089.5,-150 1089.5,-126 1143.5,-126 1143.5,-150"/>
+<text text-anchor="middle" x="1116.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsorts</text>
+</g>
+<!-- proc~sort1sd&#45;&gt;qsorts -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge36" class="edge">
+<title>proc~sort1sd&#45;&gt;qsorts</title>
+<path fill="none" stroke="#025585" d="M897.66,-106.36C921.38,-109.73 947.81,-113.51 972,-117 1008.51,-122.27 1050.23,-128.39 1079.24,-132.65"/>
+<polygon fill="#025585" stroke="#025585" points="1078.92,-136.14 1089.32,-134.14 1079.94,-129.22 1078.92,-136.14"/>
+</g>
+<!-- proc~sort1sr&#45;&gt;qsorts -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge37" class="edge">
+<title>proc~sort1sr&#45;&gt;qsorts</title>
+<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M897.72,-60.43C921.68,-63.59 948.24,-68.23 972,-75 1012.2,-86.45 1055.83,-106.85 1084.3,-121.33"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="1082.85,-124.52 1093.34,-125.99 1086.06,-118.3 1082.85,-124.52"/>
+</g>
+<!-- proc~sort1ss&#45;&gt;qsorts -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge38" class="edge">
+<title>proc~sort1ss&#45;&gt;qsorts</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M897.25,-15.25C921.68,-18.18 948.64,-23.49 972,-33 1021.75,-53.25 1070.16,-94.48 1096.08,-118.82"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1093.72,-121.41 1103.37,-125.78 1098.56,-116.35 1093.72,-121.41"/>
+</g>
+<!-- proc~sort2al&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge39" class="edge">
+<title>proc~sort2al&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M897.1,-465.32C921.39,-462.28 948.31,-457.26 972,-449 1017.26,-433.22 1064.17,-402.58 1091.56,-382.99"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="1093.7,-385.75 1099.73,-377.05 1089.59,-380.09 1093.7,-385.75"/>
+</g>
+<!-- proc~sort2al&#45;&gt;qsortl -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge40" class="edge">
+<title>proc~sort2al&#45;&gt;qsortl</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M897.18,-470C955,-470 1033.49,-470 1078.9,-470"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="1079.16,-473.5 1089.16,-470 1079.16,-466.5 1079.16,-473.5"/>
+</g>
+<!-- proc~sort2as&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge41" class="edge">
+<title>proc~sort2as&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#084255" d="M897.6,-227.42C922.06,-231.16 948.95,-237.45 972,-248 1023.65,-271.64 1072.37,-318.4 1097.6,-345.09"/>
+<polygon fill="#084255" stroke="#084255" points="1095.28,-347.73 1104.65,-352.68 1100.41,-342.97 1095.28,-347.73"/>
+</g>
+<!-- proc~sort2as&#45;&gt;qsorts -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge42" class="edge">
+<title>proc~sort2as&#45;&gt;qsorts</title>
+<path fill="none" stroke="#084255" d="M897.72,-215.57C921.68,-212.41 948.24,-207.77 972,-201 1012.2,-189.55 1055.83,-169.15 1084.3,-154.67"/>
+<polygon fill="#084255" stroke="#084255" points="1086.06,-157.7 1093.34,-150.01 1082.85,-151.48 1086.06,-157.7"/>
+</g>
+<!-- proc~sort2ld&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge43" class="edge">
+<title>proc~sort2ld&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#002505" d="M897.64,-419.7C921.48,-416.43 947.98,-412.2 972,-407 1005.1,-399.84 1041.74,-389.07 1069.71,-380.22"/>
+<polygon fill="#002505" stroke="#002505" points="1071.14,-383.44 1079.6,-377.07 1069.01,-376.77 1071.14,-383.44"/>
+</g>
+<!-- proc~sort2ld&#45;&gt;qsortl -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge44" class="edge">
+<title>proc~sort2ld&#45;&gt;qsortl</title>
+<path fill="none" stroke="#002505" d="M897.66,-438.36C921.38,-441.73 947.81,-445.51 972,-449 1008.51,-454.27 1050.23,-460.39 1079.24,-464.65"/>
+<polygon fill="#002505" stroke="#002505" points="1078.92,-468.14 1089.32,-466.14 1079.94,-461.22 1078.92,-468.14"/>
+</g>
+<!-- proc~sort2lr&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge45" class="edge">
+<title>proc~sort2lr&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#840255" d="M897.18,-380.75C927.59,-378.56 963.73,-375.95 997.76,-373.5"/>
+<polygon fill="#840255" stroke="#840255" points="998.04,-376.99 1007.77,-372.77 997.54,-370 998.04,-376.99"/>
+</g>
+<!-- proc~sort2lr&#45;&gt;qsortl -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge46" class="edge">
+<title>proc~sort2lr&#45;&gt;qsortl</title>
+<path fill="none" stroke="#840255" d="M897.34,-392.38C921.41,-395.54 948.12,-400.2 972,-407 1012.2,-418.45 1055.83,-438.85 1084.3,-453.33"/>
+<polygon fill="#840255" stroke="#840255" points="1082.85,-456.52 1093.34,-457.99 1086.06,-450.3 1082.85,-456.52"/>
+</g>
+<!-- proc~sort2ls&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge47" class="edge">
+<title>proc~sort2ls&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M896.81,-349.22C927.29,-351.42 963.58,-354.04 997.74,-356.5"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="997.57,-360 1007.79,-357.23 998.07,-353.02 997.57,-360"/>
+</g>
+<!-- proc~sort2ls&#45;&gt;qsortl -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge48" class="edge">
+<title>proc~sort2ls&#45;&gt;qsortl</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M896.87,-347.2C921.4,-350.13 948.52,-355.44 972,-365 997.96,-375.57 1059.31,-423.98 1092.77,-451.23"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1090.68,-454.04 1100.63,-457.67 1095.11,-448.63 1090.68,-454.04"/>
+</g>
+<!-- proc~sort2sd&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge49" class="edge">
+<title>proc~sort2sd&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M897.86,-180.28C922.6,-182.95 949.6,-188.86 972,-201 1034.63,-234.95 1082.76,-307.68 1103.84,-343.78"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1101.06,-345.97 1109.06,-352.93 1107.14,-342.51 1101.06,-345.97"/>
+</g>
+<!-- proc~sort2sd&#45;&gt;qsorts -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge50" class="edge">
+<title>proc~sort2sd&#45;&gt;qsorts</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M897.66,-169.64C921.38,-166.27 947.81,-162.49 972,-159 1008.51,-153.73 1050.23,-147.61 1079.24,-143.35"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1079.94,-146.78 1089.32,-141.86 1078.92,-139.86 1079.94,-146.78"/>
+</g>
+<!-- proc~sort2sr&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge51" class="edge">
+<title>proc~sort2sr&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M897.53,-136.78C922.65,-139.27 949.97,-145.44 972,-159 1044.52,-203.65 1089.93,-300.15 1107.37,-343.33"/>
+<polygon fill="transparent" stroke="transparent" points="1104.2,-344.84 1111.12,-352.87 1110.72,-342.28 1104.2,-344.84"/>
+</g>
+<!-- proc~sort2sr&#45;&gt;qsorts -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge52" class="edge">
+<title>proc~sort2sr&#45;&gt;qsorts</title>
+<path fill="none" stroke="transparent" d="M897.56,-138C955.38,-138 1033.7,-138 1079,-138"/>
+<polygon fill="transparent" stroke="transparent" points="1079.23,-141.5 1089.23,-138 1079.23,-134.5 1079.23,-141.5"/>
+</g>
+<!-- proc~sort2ss&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge53" class="edge">
+<title>proc~sort2ss&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255085" d="M897.26,-310.25C921.2,-313.53 947.86,-317.78 972,-323 1005.1,-330.16 1041.74,-340.93 1069.71,-349.78"/>
+<polygon fill="#255085" stroke="#255085" points="1069.01,-353.23 1079.6,-352.93 1071.14,-346.56 1069.01,-353.23"/>
+</g>
+<!-- proc~sort2ss&#45;&gt;qsorts -->
+<g id="proc~~set_optimal_server~~CallsGraph_edge54" class="edge">
+<title>proc~sort2ss&#45;&gt;qsorts</title>
+<path fill="none" stroke="#255085" d="M862.04,-289.92C892.58,-279.42 936.3,-262.79 972,-243 1018,-217.5 1066.33,-179.44 1093.52,-156.82"/>
+<polygon fill="#255085" stroke="#255085" points="1095.84,-159.44 1101.25,-150.33 1091.34,-154.08 1095.84,-159.44"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocset_optimal_serverCallsGraph = svgPanZoom('#procset_optimal_serverCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~set_optimal_server~~CalledByGraph Pages: 1 -->
+<svg id="procset_optimal_serverCalledByGraph" width="641pt" height="79pt"
+ viewBox="0.00 0.00 641.00 78.80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~set_optimal_server~~CalledByGraph" class="graph" transform="scale(2.54 2.54) rotate(0) translate(4 196)">
+<title>proc~~set_optimal_server~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1623,-196 1623,4 -4,4"/>
+<!-- proc~set_optimal_server -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node1" class="node">
+<title>proc~set_optimal_server</title>
+<polygon fill="none" stroke="black" points="1619,-66 1281,-66 1281,-42 1619,-42 1619,-66"/>
+<text text-anchor="middle" x="1450" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_ClientManagerMod::ClientManager%set_optimal_server</text>
+</g>
+<!-- proc~mapl_bundlewritencpar -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node2" class="node">
+<title>proc~mapl_bundlewritencpar</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node2"><a xlink:href="../proc/mapl_bundlewritencpar.html" xlink:title="NCIOMod::MAPL_BundleWriteNCPar">
+<polygon fill="#d9534f" stroke="#d9534f" points="1245,-108 1045,-108 1045,-84 1245,-84 1245,-108"/>
+<text text-anchor="middle" x="1145" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_BundleWriteNCPar</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_bundlewritencpar&#45;&gt;proc~set_optimal_server -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_bundlewritencpar&#45;&gt;proc~set_optimal_server</title>
+<path fill="none" stroke="#255000" d="M1232.83,-83.96C1270.15,-78.79 1313.92,-72.72 1352.28,-67.41"/>
+<polygon fill="#255000" stroke="#255000" points="1353,-70.84 1362.42,-66 1352.04,-63.91 1353,-70.84"/>
+</g>
+<!-- proc~run -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node3" class="node">
+<title>proc~run</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node3"><a xlink:href="../proc/run.html" xlink:title="MAPL_HistoryGridCompMod::Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="1239,-66 1051,-66 1051,-42 1239,-42 1239,-66"/>
+<text text-anchor="middle" x="1145" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run&#45;&gt;proc~set_optimal_server -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge2" class="edge">
+<title>proc~run&#45;&gt;proc~set_optimal_server</title>
+<path fill="none" stroke="#255000" d="M1239.38,-54C1249.46,-54 1259.95,-54 1270.62,-54"/>
+<polygon fill="#255000" stroke="#255000" points="1270.89,-57.5 1280.89,-54 1270.89,-50.5 1270.89,-57.5"/>
+</g>
+<!-- proc~run_model -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node4" class="node">
+<title>proc~run_model</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node4"><a xlink:href="../proc/run_model.html" xlink:title="main::run_model">
+<polygon fill="#d9534f" stroke="#d9534f" points="1197,-24 1093,-24 1093,0 1197,0 1197,-24"/>
+<text text-anchor="middle" x="1145" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main::run_model</text>
+</a>
+</g>
+</g>
+<!-- proc~run_model&#45;&gt;proc~set_optimal_server -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge3" class="edge">
+<title>proc~run_model&#45;&gt;proc~set_optimal_server</title>
+<path fill="none" stroke="#255000" d="M1197.06,-19.08C1239.35,-24.94 1300.66,-33.44 1352.21,-40.58"/>
+<polygon fill="#255000" stroke="#255000" points="1351.99,-44.09 1362.38,-41.99 1352.95,-37.15 1351.99,-44.09"/>
+</g>
+<!-- interface~mapl_varwritencpar -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node5" class="node">
+<title>interface~mapl_varwritencpar</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node5"><a xlink:href="../interface/mapl_varwritencpar.html" xlink:title="NCIOMod::MAPL_VarWriteNCPar">
+<polygon fill="#a7506f" stroke="#a7506f" points="765,-108 585,-108 585,-84 765,-84 765,-108"/>
+<text text-anchor="middle" x="675" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_VarWriteNCPar</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varwritencpar&#45;&gt;proc~mapl_bundlewritencpar -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge5" class="edge">
+<title>interface~mapl_varwritencpar&#45;&gt;proc~mapl_bundlewritencpar</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M765.11,-96.8C777.17,-96.88 789.39,-96.95 801,-97 893.44,-97.37 916.56,-97.34 1009,-97 1017.34,-96.97 1025.97,-96.93 1034.64,-96.88"/>
+<polygon fill="#255000" stroke="#255000" points="1034.86,-100.38 1044.84,-96.82 1034.82,-93.38 1034.86,-100.38"/>
+</g>
+<!-- proc~mapl_statevarwritencpar -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node6" class="node">
+<title>proc~mapl_statevarwritencpar</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node6"><a xlink:href="../proc/mapl_statevarwritencpar.html" xlink:title="NCIOMod::MAPL_StateVarWriteNCPar">
+<polygon fill="#d9534f" stroke="#d9534f" points="1009,-88 801,-88 801,-64 1009,-64 1009,-88"/>
+<text text-anchor="middle" x="905" y="-73.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NCIOMod::MAPL_StateVarWriteNCPar</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varwritencpar&#45;&gt;proc~mapl_statevarwritencpar -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge8" class="edge">
+<title>interface~mapl_varwritencpar&#45;&gt;proc~mapl_statevarwritencpar</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M765.13,-88.18C773.57,-87.44 782.2,-86.68 790.82,-85.93"/>
+<polygon fill="#025500" stroke="#025500" points="791.27,-89.4 800.93,-85.04 790.66,-82.43 791.27,-89.4"/>
+</g>
+<!-- proc~mapl_statevarwritencpar&#45;&gt;proc~mapl_bundlewritencpar -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_statevarwritencpar&#45;&gt;proc~mapl_bundlewritencpar</title>
+<path fill="none" stroke="#255000" d="M1009.01,-84.66C1017.58,-85.38 1026.28,-86.11 1034.9,-86.83"/>
+<polygon fill="#255000" stroke="#255000" points="1034.72,-90.33 1044.97,-87.68 1035.3,-83.35 1034.72,-90.33"/>
+</g>
+<!-- program~main~2 -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node7" class="node">
+<title>program~main~2</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node7"><a xlink:href="../program/main~2.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="932,-24 878,-24 878,0 932,0 932,-24"/>
+<text text-anchor="middle" x="905" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- program~main~2&#45;&gt;proc~run_model -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge6" class="edge">
+<title>program~main~2&#45;&gt;proc~run_model</title>
+<path fill="none" stroke="#002505" d="M932.38,-12C968.42,-12 1034.14,-12 1082.81,-12"/>
+<polygon fill="#002505" stroke="#002505" points="1082.92,-15.5 1092.92,-12 1082.92,-8.5 1082.92,-15.5"/>
+</g>
+<!-- proc~mapl_esmfstatewritetofile -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node8" class="node">
+<title>proc~mapl_esmfstatewritetofile</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node8"><a xlink:href="../proc/mapl_esmfstatewritetofile.html" xlink:title="MAPL_GenericMod::MAPL_ESMFStateWriteToFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="549,-108 284,-108 284,-84 549,-84 549,-108"/>
+<text text-anchor="middle" x="416.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_ESMFStateWriteToFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_esmfstatewritetofile&#45;&gt;interface~mapl_varwritencpar -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge7" class="edge">
+<title>proc~mapl_esmfstatewritetofile&#45;&gt;interface~mapl_varwritencpar</title>
+<path fill="none" stroke="#255000" d="M549.13,-96C557.7,-96 566.25,-96 574.63,-96"/>
+<polygon fill="#255000" stroke="#255000" points="574.75,-99.5 584.75,-96 574.75,-92.5 574.75,-99.5"/>
+</g>
+<!-- interface~mapl_checkpointstate -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node9" class="node">
+<title>interface~mapl_checkpointstate</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node9"><a xlink:href="../interface/mapl_checkpointstate.html" xlink:title="MAPL_GenericMod::MAPL_CheckpointState">
+<polygon fill="#a7506f" stroke="#a7506f" points="244,-192 4,-192 4,-168 244,-168 244,-192"/>
+<text text-anchor="middle" x="124" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_CheckpointState</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_checkpointstate&#45;&gt;proc~mapl_esmfstatewritetofile -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge13" class="edge">
+<title>interface~mapl_checkpointstate&#45;&gt;proc~mapl_esmfstatewritetofile</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M208.5,-167.96C221.81,-165.4 235.35,-162.43 248,-159 294.26,-146.47 345.6,-126.17 379.09,-112"/>
+<polygon fill="#255000" stroke="#255000" points="380.64,-115.15 388.46,-108 377.89,-108.71 380.64,-115.15"/>
+</g>
+<!-- proc~capture -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node10" class="node">
+<title>proc~capture</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node10"><a xlink:href="../proc/capture.html" xlink:title="MAPL_GenericMod::capture">
+<polygon fill="#d9534f" stroke="#d9534f" points="203.5,-150 44.5,-150 44.5,-126 203.5,-126 203.5,-150"/>
+<text text-anchor="middle" x="124" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::capture</text>
+</a>
+</g>
+</g>
+<!-- proc~capture&#45;&gt;proc~mapl_esmfstatewritetofile -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge9" class="edge">
+<title>proc~capture&#45;&gt;proc~mapl_esmfstatewritetofile</title>
+<path fill="none" stroke="#255000" d="M203.61,-126.63C240.17,-121.35 283.92,-115.02 322.14,-109.5"/>
+<polygon fill="#255000" stroke="#255000" points="322.85,-112.93 332.25,-108.04 321.85,-106 322.85,-112.93"/>
+</g>
+<!-- proc~mapl_genericfinalize -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node11" class="node">
+<title>proc~mapl_genericfinalize</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node11"><a xlink:href="../proc/mapl_genericfinalize.html" xlink:title="MAPL_GenericMod::MAPL_GenericFinalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="241,-108 7,-108 7,-84 241,-84 241,-108"/>
+<text text-anchor="middle" x="124" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericFinalize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericfinalize&#45;&gt;proc~mapl_esmfstatewritetofile -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge10" class="edge">
+<title>proc~mapl_genericfinalize&#45;&gt;proc~mapl_esmfstatewritetofile</title>
+<path fill="none" stroke="#255000" d="M241.07,-96C251.83,-96 262.83,-96 273.79,-96"/>
+<polygon fill="#255000" stroke="#255000" points="273.85,-99.5 283.85,-96 273.85,-92.5 273.85,-99.5"/>
+</g>
+<!-- proc~mapl_genericstatesave -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node12" class="node">
+<title>proc~mapl_genericstatesave</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node12"><a xlink:href="../proc/mapl_genericstatesave.html" xlink:title="MAPL_GenericMod::MAPL_GenericStateSave">
+<polygon fill="#d9534f" stroke="#d9534f" points="248,-66 0,-66 0,-42 248,-42 248,-66"/>
+<text text-anchor="middle" x="124" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericStateSave</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericstatesave&#45;&gt;proc~mapl_esmfstatewritetofile -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge11" class="edge">
+<title>proc~mapl_genericstatesave&#45;&gt;proc~mapl_esmfstatewritetofile</title>
+<path fill="none" stroke="#255000" d="M208.25,-66.04C243.88,-71.19 285.64,-77.22 322.3,-82.52"/>
+<polygon fill="#255000" stroke="#255000" points="322.1,-86.03 332.49,-84 323.1,-79.1 322.1,-86.03"/>
+</g>
+<!-- proc~mapl_staterecord -->
+<g id="proc~~set_optimal_server~~CalledByGraph_node13" class="node">
+<title>proc~mapl_staterecord</title>
+<g id="a_proc~~set_optimal_server~~CalledByGraph_node13"><a xlink:href="../proc/mapl_staterecord.html" xlink:title="MAPL_GenericMod::MAPL_StateRecord">
+<polygon fill="#d9534f" stroke="#d9534f" points="232.5,-24 15.5,-24 15.5,0 232.5,0 232.5,-24"/>
+<text text-anchor="middle" x="124" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_StateRecord</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_staterecord&#45;&gt;proc~mapl_esmfstatewritetofile -->
+<g id="proc~~set_optimal_server~~CalledByGraph_edge12" class="edge">
+<title>proc~mapl_staterecord&#45;&gt;proc~mapl_esmfstatewritetofile</title>
+<path fill="none" stroke="#255000" d="M208.5,-24.04C221.81,-26.6 235.35,-29.57 248,-33 294.26,-45.53 345.6,-65.83 379.09,-80"/>
+<polygon fill="#255000" stroke="#255000" points="377.89,-83.29 388.46,-84 380.64,-76.85 377.89,-83.29"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocset_optimal_serverCalledByGraph = svgPanZoom('#procset_optimal_serverCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">set_optimal_server</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">nwriting</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ClientManager</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nwriting</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w">  </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nwritings</span><span class="p">(:)</span><span class="w"> </span><span class="c">! saved the past nwritings</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nwritings_large</span><span class="p">(:)</span><span class="w"> </span><span class="c">! saved the past large nwritings</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nwritings_small</span><span class="p">(:)</span><span class="w"> </span><span class="c">! saved the past small nwritings</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Cuttoff</span><span class="p">,</span><span class="w"> </span><span class="n">ssize</span><span class="p">,</span><span class="w"> </span><span class="n">lsize</span><span class="p">,</span><span class="w"> </span><span class="n">tsize</span><span class="p">,</span><span class="w"> </span><span class="n">ith</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nwritings_order</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">l_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">s_ratio</span>
+
+<span class="w">      </span><span class="c">! if there is no &quot;small&quot; pool, then there is no &quot;large&quot; pool either, just get next</span>
+<span class="w">      </span><span class="n">ssize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">small_server_pool</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">      </span><span class="n">lsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">large_server_pool</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">      </span><span class="n">tsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">server_sizes</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ssize</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">this</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">wait</span><span class="p">()</span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">lsize</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;large server pool must be great than zero&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="n">nwritings</span><span class="p">))</span><span class="w"> </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">nwritings</span><span class="p">(</span><span class="n">tsize</span><span class="p">),</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="n">nwritings_large</span><span class="p">))</span><span class="w"> </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">nwritings_large</span><span class="p">(</span><span class="n">lsize</span><span class="p">),</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="w"> </span><span class="p">(</span><span class="n">nwritings_small</span><span class="p">))</span><span class="w"> </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">nwritings_small</span><span class="p">(</span><span class="n">ssize</span><span class="p">),</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">Cuttoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">writeCutoff</span>
+<span class="w">      </span><span class="c">! if writeCutoff is not set, then pick one from the past experience</span>
+<span class="w">      </span><span class="c">! the whole pool size is used to determine how many past nwrting are saved</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">writeCutoff</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">nwritings</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="n">tsize</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nwritings</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">tsize</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nwritings</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">nwriting</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">nwritings_order</span><span class="p">(</span><span class="n">tsize</span><span class="p">),</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nwritings</span><span class="p">(:))</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_sort</span><span class="p">(</span><span class="n">nwritings_order</span><span class="p">)</span>
+<span class="w">         </span><span class="n">Cuttoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nwritings_order</span><span class="p">(</span><span class="n">tsize</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">nwritings_order</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">nwriting</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Cuttoff</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! after this block, nwrting /= Cuttoff</span>
+<span class="w">         </span><span class="n">l_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">nwritings_large</span><span class="p">)</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">large_total</span><span class="o">*</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="w">         </span><span class="n">s_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">nwritings_small</span><span class="p">)</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">small_total</span><span class="o">*</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s_ratio</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">l_ratio</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="c">! .true. means small pool is busier</span>
+<span class="w">            </span><span class="n">Cuttoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cuttoff</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c">! artificially decrease Cuttoff, so the next will go to large pool</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            </span><span class="n">Cuttoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cuttoff</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c">! artificially increase Cuttoff, so the next will go to small pool</span>
+<span class="w">         </span><span class="k">endif</span>
+<span class="k">      endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">nwriting</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">Cuttoff</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">largeCurrent</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">largeCurrent</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">largeCurrent</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">lsize</span><span class="p">)</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">largeCurrent</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">         </span><span class="n">ith</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">large_server_pool</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">largeCurrent</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set_current</span><span class="p">(</span><span class="w"> </span><span class="n">ith</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ith</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Large pool oserver is chosen, nwriting and server size :&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">nwriting</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">server_sizes</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">ith</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nwritings_large</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">lsize</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nwritings_large</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="n">lsize</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nwritings_large</span><span class="p">(</span><span class="n">lsize</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nwriting</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">nwriting</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Cuttoff</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">smallCurrent</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">smallCurrent</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">smallCurrent</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">ssize</span><span class="p">)</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">smallCurrent</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">         </span><span class="n">ith</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">small_server_pool</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">smallCurrent</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set_current</span><span class="p">(</span><span class="w"> </span><span class="n">ith</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ith</span><span class="w"> </span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Small pool oserver is chosen, nwriting and server size :&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">nwriting</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">server_sizes</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">ith</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nwritings_small</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">ssize</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nwritings_small</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="n">ssize</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nwritings_small</span><span class="p">(</span><span class="n">ssize</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nwriting</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">wait</span><span class="p">()</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">set_optimal_server</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>MAPL was developed by The MAPL Developers<br>&copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-03-28T22:30:26.346107             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
