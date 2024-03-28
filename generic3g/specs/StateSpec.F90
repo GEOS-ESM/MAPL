@@ -94,7 +94,6 @@ contains
       integer :: status
 
       call ESMF_StateDestroy(this%payload, _RC)
-      call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy

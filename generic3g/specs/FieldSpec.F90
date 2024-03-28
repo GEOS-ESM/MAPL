@@ -154,8 +154,6 @@ contains
       this%payload = ESMF_FieldEmptyCreate(_RC)
       call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
 
-      call this%set_created()
-
       _RETURN(ESMF_SUCCESS)
    end subroutine create
 
@@ -198,7 +196,6 @@ contains
       integer :: status
 
       call ESMF_FieldDestroy(this%payload, nogarbage=.true., _RC)
-      call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
@@ -312,7 +309,6 @@ contains
          this%payload = src_spec%payload
          call mirror(dst=this%typekind, src=src_spec%typekind, _RC)
 
-         call this%set_created()
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
