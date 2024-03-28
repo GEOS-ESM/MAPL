@@ -1046,6 +1046,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate ( p_dst_rt(lm, 1) )
          end if
 
+#define lev_b_lev  1
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
