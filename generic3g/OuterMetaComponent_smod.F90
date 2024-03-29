@@ -39,7 +39,7 @@ contains
       type(ESMF_GridComp) :: user_gridcomp
 
       this%component_spec = parse_component_spec(this%hconfig, _RC)
-      user_gridcomp = this%user_component%get_gridcomp()
+      user_gridcomp = this%user_gc_driver%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       call add_children(this, _RC)
       call user_setservices%run(user_gridcomp, _RC)
@@ -111,18 +111,20 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(GriddedComponentDriver) :: child_gc_driver
       type(ESMF_GridComp) :: child_gc
-      type(GriddedComponentDriver) :: child_comp
-      type(ESMF_Clock) :: clock_tmp
+      type(ESMF_Clock) :: clock
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
-      child_gc = create_grid_comp(child_name, setservices, hconfig, _RC)
+      clock = this%user_gc_driver%get_clock()
+      child_gc = create_grid_comp(child_name, setservices, hconfig, clock, _RC)
       call ESMF_GridCompSetServices(child_gc, generic_setservices, _RC)
-      child_comp = GriddedComponentDriver(child_gc, clock_tmp)
+
+      child_gc_driver = GriddedComponentDriver(child_gc, clock, MultiState())
 
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
-      call this%children%insert(child_name, child_comp)
+      call this%children%insert(child_name, child_gc_driver)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_child_by_name

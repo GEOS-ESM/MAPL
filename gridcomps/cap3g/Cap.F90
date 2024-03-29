@@ -43,9 +43,10 @@ contains
       integer :: status
 
       cap_name = ESMF_HConfigAsString(hconfig, keystring='cap_name', _RC)
-      clock = create_clock(hconfig, _RC)
       ! TODO:  Rename to MAPL_CreateGridComp() ?
-      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), hconfig, _RC)
+      clock = create_clock(hconfig, _RC)
+      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), hconfig, clock, _RC)
+
       driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
 
       _RETURN(_SUCCESS)

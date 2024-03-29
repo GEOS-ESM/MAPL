@@ -24,12 +24,19 @@ contains
       type(ESMF_HConfig) :: config
       type(GriddedComponentDriver) :: user_comp
       integer :: status
+      type(ESMF_Time) :: t
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Clock) :: clock
+
+      call ESMF_TimeSet(t, h=0)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(dt, t)
 
       config = ESMF_HConfigCreate(content='{}', rc=status)
       @assert_that(status, is(0))
 
       associate (ss_parent => user_setservices('libsimple_parent_gridcomp'))
-        parent_gc = create_grid_comp('parent', ss_parent, config, rc=status)
+        parent_gc = create_grid_comp('parent', ss_parent, config, clock, rc=status)
       end associate
 
       @assert_that(status, is(0))
@@ -46,7 +53,7 @@ contains
       call ESMF_GridCompSetServices(parent_gc, setServices, rc=status)
       @assert_that(status, is(0))
 
-      user_comp = parent_meta%get_user_component()
+      user_comp = parent_meta%get_user_gc_driver()
       user_gc = user_comp%get_gridcomp()
 
       call ESMF_HConfigDestroy(config, rc=status)
@@ -68,8 +75,6 @@ contains
    ! MAPL_RunChild() is called from withis _user_ gridcomps.
    subroutine test_MAPL_RunChild(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(ESMF_Clock) :: clock
-
       integer :: status
 
       call setup(this, rc=status)
@@ -85,8 +90,6 @@ contains
    @test(npes=[0])
    subroutine test_MAPL_RunChild_other_phase(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(ESMF_Clock) :: clock
-
       integer :: status
 
       call setup(this, rc=status)
@@ -104,9 +107,15 @@ contains
    subroutine test_init_children(this)
       class(MpiTestMethod), intent(inout) :: this
       type(ESMF_State) :: importState, exportState
+      type(ESMF_Time) :: t
+      type(ESMF_TimeInterval) :: dt
       type(ESMF_Clock) :: clock
 
       integer :: status
+
+      call ESMF_TimeSet(t, h=0)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(dt, t)
 
       call setup(this, rc=status)
       @assert_that(status, is(0))
@@ -124,9 +133,15 @@ contains
    subroutine test_finalize_children(this)
       class(MpiTestMethod), intent(inout) :: this
       type(ESMF_State) :: importState, exportState
-      type(ESMF_Clock) :: clock
 
       integer :: status
+      type(ESMF_Time) :: t
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Clock) :: clock
+
+      call ESMF_TimeSet(t, h=0)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(dt, t)
 
       call setup(this, rc=status)
       @assert_that(status, is(0))
@@ -144,14 +159,20 @@ contains
       class(MpiTestMethod), intent(inout) :: this
       
       type(ESMF_HConfig) :: config
-
       integer :: status
+      type(ESMF_Time) :: t
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Clock) :: clock
+
+      call ESMF_TimeSet(t, h=0)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(dt, t)
 
       config = ESMF_HConfigCreate(content='{}', rc=status)
       @assert_that(status, is(0))
 
       associate (ss_parent => user_setservices('libsimple_parent_gridcomp'))
-        parent_gc = create_grid_comp('parent', ss_parent, config, rc=status)
+        parent_gc = create_grid_comp('parent', ss_parent, config, clock, rc=status)
       end associate
       @assert_that(status, is(0))
       parent_meta => get_outer_meta(parent_gc, rc=status)

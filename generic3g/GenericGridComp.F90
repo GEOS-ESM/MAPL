@@ -14,6 +14,8 @@ module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
    use :: mapl3g_GenericPhases
+   use :: mapl3g_GriddedComponentDriver
+   use :: mapl3g_MultiState
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
@@ -79,12 +81,13 @@ contains
 
    
    recursive type(ESMF_GridComp) function create_grid_comp_primary( &
-        name, set_services, config, unusable, petlist, rc) result(gridcomp)
+        name, set_services, config, clock, unusable, petlist, rc) result(gridcomp)
       use :: mapl3g_UserSetServices, only: AbstractUserSetServices
 
       character(*), intent(in) :: name
       class(AbstractUserSetServices), intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
+      type(ESMF_Clock), intent(in) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
@@ -92,6 +95,8 @@ contains
       type(ESMF_GridComp) :: user_gridcomp
       type(OuterMetaComponent), pointer :: outer_meta
       type(OuterMetaComponent) :: outer_meta_tmp
+      type(ESMF_Clock) :: user_clock
+      type(GriddedComponentDriver) :: user_gc_driver
       integer :: status
 
       gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist,  _RC)
@@ -100,13 +105,16 @@ contains
       call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
 
+      user_clock = ESMF_ClockCreate(clock, _RC)
 #ifndef __GFORTRAN__
-      outer_meta = OuterMetaComponent(gridcomp, user_gridcomp, set_services, config)
+      user_gc_driver = GriddedComponentDriver(user_gridcomp, user_clock, MultiState())
+      outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, config)
 #else
-      ! GFortran 12. cannot directly assign to outer_meta.  But the
-      ! assignment works for an object without the POINTER attribute.
-      ! An internal procedure is a workaround, but ... ridiculous.
-      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gridcomp, set_services, config))
+      ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
+      ! the assignment works for an object without the POINTER
+      ! attribute.  An internal procedure is a workaround, but
+      ! ... ridiculous.
+      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_driver, config))
 #endif
       call outer_meta%setservices(set_services, _RC)
       call outer_meta%init_meta(_RC)

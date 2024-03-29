@@ -104,18 +104,12 @@ contains
    function new_GriddedComponentDriver(gridcomp, clock, states) result(child)
       type(GriddedComponentDriver) :: child
       type(ESMF_GridComp), intent(in) :: gridcomp
-      type(ESMF_Clock), optional, intent(in) :: clock
-      type(MultiState), optional, intent(in) :: states
+      type(ESMF_Clock), intent(in) :: clock
+      type(MultiState), intent(in) :: states
 
       child%gridcomp = gridcomp
-      ! Allow for lazy initialization of clock
-      if (present(clock)) child%clock = clock
-
-      if (present(states)) then
-         child%states = states
-         return
-      end if
-      child%states = MultiState()
+      child%clock = clock
+      child%states = states
 
    end function new_GriddedComponentDriver
 
