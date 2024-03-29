@@ -6,5 +6,4 @@
       logical :: found = .FALSE.
       logical :: value_equals_default = .FALSE.
       character(len=:), allocatable :: valuestring_
-      character(len=*), parameter :: fmtstr = '(' // FMT_ //')'
       character(len=ESMF_MAXSTR) :: buffer

@@ -29,14 +29,13 @@ module mapl3g_hconfig_get_private
       module procedure :: get_value_logical_seq
    end interface get_value
 
+   character(len=*), parameter :: DATADESC = 'G0'
+   character(len=*), parameter :: SCALAR_FMT = '(' // DATADESC // ')'
+   character(len=*), parameter :: ARRAY_FMT = '([' // DATADESC // ':*(", ",' // DATADESC // ':)])'
+
 contains
 
 !============================= INITIALIZE MACROS ===============================
-#if defined FMT_
-#  undef FMT_
-#endif
-#define FMT_ 'G0:", "'
-
 #if defined ESMF_HCONFIG_AS
 #   undef ESMF_HCONFIG_AS
 #endif
@@ -46,6 +45,24 @@ contains
 #endif
 !===============================================================================
 
+   subroutine get_hconfig_as_i4(value, params, rc)
+      integer(kind=ESMF_KIND_I4), intent(out) :: value
+      class(HConfigParams), intent(in) :: params
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call ESMF_HConfigAsI4(params%hconfig, params%label, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_hconfig_as_i4
+
+   logical function are_eq_i4(u, v) result(lval)
+      integer(kind=ESMF_KIND_I4), intent(in) :: u, v
+
+      lval = u == v
+
+   end function are_eq_i4
 
 !======================= SCALAR VALUES (except logical) ========================
 #define RELATION(A, B) A==B
@@ -53,6 +70,7 @@ contains
    subroutine get_value_i4(params, value, default, valuestring, rc )
       integer(kind=ESMF_KIND_I4), intent(inout) :: value
       integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = SCALAR_FMT
       character(len=*), parameter :: typestring = 'I4'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_i4
@@ -62,6 +80,7 @@ contains
    subroutine get_value_i8(params, value, default, valuestring, rc)
       integer(kind=ESMF_KIND_I8), intent(inout) :: value
       integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = SCALAR_FMT
       character(len=*), parameter :: typestring = 'I8'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_i8
@@ -71,6 +90,7 @@ contains
    subroutine get_value_r4(params, value, default, valuestring, rc)
       real(kind=ESMF_KIND_R4), intent(inout) :: value
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = SCALAR_FMT
       character(len=*), parameter :: typestring = 'R4'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_r4
@@ -80,6 +100,7 @@ contains
    subroutine get_value_r8(params, value, default, valuestring, rc)
       real(kind=ESMF_KIND_R8), intent(inout) :: value
       real(kind=ESMF_KIND_R8), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = SCALAR_FMT
       character(len=*), parameter :: typestring = 'R8'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_r8
@@ -89,6 +110,7 @@ contains
    subroutine get_value_string(params, value, default, valuestring, rc)
       character(len=:), allocatable, intent(inout) :: value
       character(len=*), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = SCALAR_FMT
       character(len=*), parameter :: typestring = 'CH'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_string
@@ -102,6 +124,7 @@ contains
    subroutine get_value_logical(params, value, default, valuestring, rc)
       logical, intent(inout) :: value
       logical, optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = SCALAR_FMT
       character(len=*), parameter :: typestring = 'L'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_logical
@@ -116,6 +139,7 @@ contains
    subroutine get_value_i4seq(params, value, default, valuestring, rc)
       integer(kind=ESMF_KIND_I4), dimension(:), allocatable, intent(inout) :: value
       integer(kind=ESMF_KIND_I4), dimension(:), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = ARRAY_FMT
       character(len=*), parameter :: typestring = 'I4'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_i4seq
@@ -125,6 +149,7 @@ contains
    subroutine get_value_i8seq(params, value, default, valuestring, rc)
       integer(kind=ESMF_KIND_I8), dimension(:), allocatable, intent(inout) :: value
       integer(kind=ESMF_KIND_I8), dimension(:), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = ARRAY_FMT
       character(len=*), parameter :: typestring = 'I8'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_i8seq
@@ -134,6 +159,7 @@ contains
    subroutine get_value_r4seq(params, value, default, valuestring, rc)
       real(kind=ESMF_KIND_R4), dimension(:), allocatable, intent(inout) :: value
       real(kind=ESMF_KIND_R4), dimension(:), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = ARRAY_FMT
       character(len=*), parameter :: typestring = 'R4'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_r4seq
@@ -143,6 +169,7 @@ contains
    subroutine get_value_r8seq(params, value, default, valuestring, rc)
       real(kind=ESMF_KIND_R8), dimension(:), allocatable, intent(inout) :: value
       real(kind=ESMF_KIND_R8), dimension(:), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = ARRAY_FMT
       character(len=*), parameter :: typestring = 'R8'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_r8seq
@@ -155,7 +182,8 @@ contains
 #define ESMF_HCONFIG_AS ESMF_HConfigAsLogicalSeq
    subroutine get_value_logical_seq(params, value, default, valuestring, rc)
       logical, dimension(:), allocatable, intent(inout) :: value
-      logical, optional, intent(in) :: default
+      logical, dimension(:), optional, intent(in) :: default
+      character(len=*), parameter :: fmtstr = ARRAY_FMT
       character(len=*), parameter :: typestring = 'L'
 #include "mapl3g_hconfig_get_value_template.h"
    end subroutine get_value_logical_seq

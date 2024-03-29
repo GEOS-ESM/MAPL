@@ -367,7 +367,7 @@ contains
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
 
-   end subroutine test_make_valuestringi4seq
+   end subroutine test_make_valuestring_i4seq
 
    @Test
    subroutine test_make_valuestring_r4seq()
@@ -390,8 +390,8 @@ contains
    @Test
    subroutine test_make_valuestring_i8seq()
       character(len=*), parameter :: EXPECTED = '[4294967296, 2494967296, 4294697296, 2949672964]'
-      integer(kind=ESMF_KIND_I8), parameter :: DEFAULT = [4294967296, 2494967296, 4294697296, 2949672964]
-      integer(kind=ESMF_KIND_I8) :: value
+      integer(kind=ESMF_KIND_I8), parameter :: DEFAULT(4) = [4294967296, 2494967296, 4294697296, 2949672964]
+      integer(kind=ESMF_KIND_I8), allocatable :: value(:)
       type(HConfigParams) :: params
       integer :: status
       character(len=:), allocatable :: valuestring
