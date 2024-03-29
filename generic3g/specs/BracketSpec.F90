@@ -77,7 +77,6 @@ contains
       integer :: i
 
       this%payload = ESMF_FieldBundleCreate(_RC)
-      call this%set_created()
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -120,7 +119,6 @@ contains
 
       call destroy_component_fields(this, _RC)
       call ESMF_FieldBundleDestroy(this%payload, nogarbage=.true., _RC)
-      call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
 
@@ -204,7 +202,6 @@ contains
               call this%field_specs(i)%connect_to(src_spec%field_specs(i), actual_pt, _RC)
            end do
          end associate
-         call this%set_created()
 
       class default
          _FAIL('Cannot connect field spec to non field spec.')

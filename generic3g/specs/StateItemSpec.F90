@@ -13,7 +13,6 @@ module mapl3g_StateItemSpec
       private
 
       logical :: active = .false.
-      logical :: created = .false.
       logical :: allocated = .false.
       type(ActualPtVector) :: dependencies
 
@@ -31,8 +30,6 @@ module mapl3g_StateItemSpec
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
 
-      procedure, non_overridable :: set_created
-      procedure, non_overridable :: is_created
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
@@ -149,22 +146,6 @@ contains
       is_allocated = this%allocated
    end function is_allocated
 
-   pure subroutine set_created(this, created)
-      class(StateItemSpec), intent(inout) :: this
-      logical, optional, intent(in) :: created
-
-      if (present(created)) then
-         this%created = created
-      else
-         this%created =  .true.
-      end if
-
-   end subroutine set_created
-
-   pure logical function is_created(this)
-      class(StateItemSpec), intent(in) :: this
-      is_created = this%created
-   end function is_created
 
    pure subroutine set_active(this, active)
       class(StateItemSpec), intent(inout) :: this

@@ -61,8 +61,6 @@ contains
 
       integer :: status
 
-      call this%set_created()
-
       _RETURN(ESMF_SUCCESS)
    end subroutine create
 
@@ -72,8 +70,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-
-      call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
