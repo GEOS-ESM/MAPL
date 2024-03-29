@@ -477,7 +477,7 @@ contains
       call this%export_couplers%insert(extension_pt, new_driver)
       deallocate(new_driver)
       new_driver => this%export_couplers%of(extension_pt)
-      ! TODO: need to cretae clock and multi-state.  But this is the wrong layer for such a thing.
+      ! TODO: need to create clock and multi-state.  But this is the wrong layer for such a thing.
       new_driver = GriddedComponentDriver(new_coupler, clock, MultiState())
       
       _RETURN(_SUCCESS)
