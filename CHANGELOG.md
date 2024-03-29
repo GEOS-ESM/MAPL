@@ -89,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
 - Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
 - Fixed bug with split restart files
 - Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
@@ -97,6 +98,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.44.3] - 2024-03-28
+
+### Fixed
+
+- The bundle I/O unit test was failing on NAG.  Partly due to an untrapped return code, but also some weird issue with setting values in ESMF Config. Probably not a bug in the compiler but something in  ESMF or MAPL handling line continuations.
 
 ## [2.44.2] - 2024-03-26
 

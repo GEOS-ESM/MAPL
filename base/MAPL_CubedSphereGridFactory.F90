@@ -701,7 +701,7 @@ contains
          else
 
             _ASSERT(n /= MAPL_UNDEFINED_INTEGER,'n not specified')
-            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,'m_wold not specified')
+            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,'m_world not specified')
             allocate(ms(n), stat=status)
             _VERIFY(status)
 
