@@ -4,6 +4,7 @@ module mapl3g_Cap
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use generic3g
    use mapl3g_GenericPhases
+   use mapl3g_MultiState
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
    use esmf
@@ -47,7 +48,7 @@ contains
       clock = create_clock(hconfig, _RC)
       cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), hconfig, clock, _RC)
 
-      driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
+      driver = GriddedComponentDriver(cap_gridcomp, clock, MultiState())
 
       _RETURN(_SUCCESS)
    end function make_driver
