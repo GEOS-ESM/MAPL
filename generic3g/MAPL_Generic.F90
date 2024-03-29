@@ -685,7 +685,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      params = HConfigParams(hconfig, keystring, value_set, logger)
+      params = HConfigParams(hconfig, keystring, check_value_set=present(value_set), logger=logger)
       call MAPL_HConfigGet(params, value, default, _RC) 
       if(present(value_set)) value_set = params%value_set
 

@@ -20,14 +20,15 @@
       params%value_set = .TRUE.
 
       ! If there is no logger, can return now.
-      _RETURN_UNLESS(params%has_logger() .or. present(valuestring_out))
+      _RETURN_UNLESS(params%has_logger() .or. present(valuestring))
       
       write(buffer, fmt=fmtstr, iostat=status) value
       _VERIFY(status)
-      valuestring = trim(buffer)
-      if(present(valuestring_out)) valuestring_out = valuestring
+      valuestring_ = trim(buffer)
+      if(present(valuestring)) valuestring = valuestring_
 
       _RETURN_UNLESS(params%has_logger())
-      call params%log_message(typestring, valuestring, _RC)
+      call params%log_message(typestring, valuestring_, _RC)
       
       _RETURN(_SUCCESS)
+

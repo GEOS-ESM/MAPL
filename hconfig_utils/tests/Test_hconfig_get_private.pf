@@ -10,7 +10,6 @@ module Test_hconfig_get_private
    character(len=*), parameter :: ERROR_ADD_FAIL = 'Add failed.'
    character(len=*), parameter :: ERROR_NOT_FOUND = 'Find failed for: '
    character(len=*), parameter :: ERROR_MISMATCH = 'actual does not match expected.'
-   character(len=*), parameter :: ERROR_VALSTRING = 'string does not match expected string.'
    character, parameter :: SPACE = ' '
    integer, parameter :: MAXSTRLEN = ESMF_MAXSTR
 
@@ -244,6 +243,90 @@ contains
 
    end subroutine test_get_logical_seq
 
+   @Test
+   subroutine test_make_valuestring_i4()
+      character(len=*), parameter :: EXPECTED = '613'
+      integer(kind=ESMF_KIND_I4), parameter :: DEFAULT = 613
+      integer(kind=ESMF_KIND_I4) :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_i4
+
+   @Test
+   subroutine test_make_valuestring_r4()
+      character(len=*), parameter :: EXPECTED = '613.0000'
+      real(kind=ESMF_KIND_R4), parameter :: DEFAULT = 613.0000
+      real(kind=ESMF_KIND_R4) :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_r4
+
+   @Test
+   subroutine test_make_valuestring_i8()
+      character(len=*), parameter :: EXPECTED = '4294967296'
+      integer(kind=ESMF_KIND_I8), parameter :: DEFAULT = 4294967296
+      integer(kind=ESMF_KIND_I8) :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_i8
+
+   @Test
+   subroutine test_make_valuestring_r8()
+      character(len=*), parameter :: EXPECTED = '613.0000400000000'
+      real(kind=ESMF_KIND_R8), parameter :: DEFAULT = 613.000040000000_ESMF_KIND_R8
+      real(kind=ESMF_KIND_R8) :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_HCONFIG_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_r8
+
+   function valuestring_mismatch(actual, expected) result(error_message)
+      character(len=:), allocatable :: error_message
+      character(len=*), intent(in) :: actual
+      character(len=*), intent(in) :: expected
+      character(len=*), parameter :: FMT_ = '(A, A, A, A)'
+      character(len=*), parameter :: ERROR_VALSTRING = 'valuestring does not match expected string.'
+      
+      error_message = 'Actual valuestring, "' // actual // &
+         '", does not match expected valuestring, "' // expected // '".'
+
+   end function valuestring_mismatch
+
    @Before
    subroutine set_up()
       
@@ -252,6 +335,8 @@ contains
       if(.not. hconfig_is_created) then
          hconfig = ESMF_HConfigCreate(rc=status)
          hconfig_is_created = (status == 0)
+         call ESMF_HConfigAdd(hconfig, 0, addKeyString='null', rc=status)
+         @assertEqual(0, status, 'Failed to add null vallue')
       end if
       @assertTrue(hconfig_is_created, 'HConfig was not created.')
 
