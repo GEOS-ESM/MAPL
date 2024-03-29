@@ -4,6 +4,7 @@ module mapl3g_Cap
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use generic3g
    use mapl3g_GenericPhases
+   use mapl3g_MultiState
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
    use esmf
@@ -43,10 +44,11 @@ contains
       integer :: status
 
       cap_name = ESMF_HConfigAsString(hconfig, keystring='cap_name', _RC)
-      clock = create_clock(hconfig, _RC)
       ! TODO:  Rename to MAPL_CreateGridComp() ?
-      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), hconfig, _RC)
-      driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
+      clock = create_clock(hconfig, _RC)
+      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), hconfig, clock, _RC)
+
+      driver = GriddedComponentDriver(cap_gridcomp, clock, MultiState())
 
       _RETURN(_SUCCESS)
    end function make_driver

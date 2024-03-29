@@ -138,11 +138,13 @@ contains
 
       type(ESMF_HConfig) :: config
       integer :: status, user_status
-      type(ESMF_Clock) :: clock
       integer :: i
       type(ESMF_State) :: importState, exportState
       character(:), allocatable :: file_name
       type(VerticalGeom) :: vertical_geom
+      type(ESMF_Time) :: t
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Clock) :: clock
 
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
       config = ESMF_HConfigCreate(filename=file_name)
@@ -152,7 +154,11 @@ contains
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
 
-        outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, _RC)
+        call ESMF_TimeSet(t, h=0)
+        call ESMF_TimeIntervalSet(dt, h=1)
+        clock = ESMF_ClockCreate(dt, t)
+
+        outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, clock, _RC)
         call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
         vertical_geom = VerticalGeom(4)
@@ -610,7 +616,7 @@ contains
       child_name = component_path(:idx-1)
       
       if (child_name == '<user>') then
-         user_component => outer_meta%get_user_component()
+         user_component => outer_meta%get_user_gc_driver()
          substates = user_component%get_states()
          return
       end if

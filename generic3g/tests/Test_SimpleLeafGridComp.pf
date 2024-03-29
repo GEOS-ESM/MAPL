@@ -22,8 +22,14 @@ contains
       integer, intent(out) :: rc
       
       integer :: status, userRC
+      type(ESMF_Time) :: t
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Clock) :: clock
 
-      outer_gc = create_grid_comp('A', user_setservices('libsimple_leaf_gridcomp'), config, rc=status)
+      call ESMF_TimeSet(t, h=0)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(dt, t)
+      outer_gc = create_grid_comp('A', user_setservices('libsimple_leaf_gridcomp'), config, clock, rc=status)
       @assert_that(status, is(0))
 
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, rc=status)

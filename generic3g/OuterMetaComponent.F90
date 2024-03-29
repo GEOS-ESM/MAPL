@@ -48,7 +48,7 @@ module mapl3g_OuterMetaComponent
       private
       
       type(ESMF_GridComp)                         :: self_gridcomp
-      type(GriddedComponentDriver)                :: user_component
+      type(GriddedComponentDriver)                :: user_gc_driver
       type(MethodPhasesMap)                       :: user_phases_map
       type(ESMF_HConfig)                          :: hconfig
 
@@ -69,7 +69,7 @@ module mapl3g_OuterMetaComponent
 
    contains
 
-      procedure :: get_user_component
+      procedure :: get_user_gc_driver
       procedure :: set_hconfig
       procedure :: get_hconfig
       procedure :: get_registry
@@ -178,16 +178,14 @@ contains
 
 
    ! Keep the constructor simple
-   type(OuterMetaComponent) function new_outer_meta(gridcomp, user_gridcomp, set_services, hconfig) result(outer_meta)
+   type(OuterMetaComponent) function new_outer_meta(gridcomp, user_gc_driver, hconfig) result(outer_meta)
       type(ESMF_GridComp), intent(in) :: gridcomp
-      type(ESMF_GridComp), intent(in) :: user_gridcomp
-      class(AbstractUserSetServices), intent(in) :: set_services
+      type(GriddedComponentDriver), intent(in) :: user_gc_driver
       type(ESMF_HConfig), intent(in) :: hconfig
 
-      type(ESMF_Clock) :: clock_tmp
       
       outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_component = GriddedComponentDriver(user_gridcomp, clock_tmp)
+      outer_meta%user_gc_driver = user_gc_driver
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
@@ -207,7 +205,7 @@ contains
       integer :: status
       character(:), allocatable :: user_gc_name
 
-      user_gc_name = this%user_component%get_name(_RC)
+      user_gc_name = this%user_gc_driver%get_name(_RC)
       this%registry = HierarchicalRegistry(user_gc_name)
 
       this%lgr => logging%get_logger('MAPL.GENERIC')
@@ -315,7 +313,7 @@ contains
       call MAPL_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
-      user_gridcomp = wrapper%outer_meta%user_component%get_gridcomp()
+      user_gridcomp = wrapper%outer_meta%user_gc_driver%get_gridcomp()
       call free_inner_meta(user_gridcomp, _RC)
 
       deallocate(wrapper%outer_meta)
@@ -371,7 +369,7 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_CLOCK'
 
-      call this%user_component%set_clock(clock) ! comp _driver_
+      call this%user_gc_driver%set_clock(clock) ! comp _driver_
       call apply_to_children(this, phase_idx=GENERIC_INIT_CLOCK, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -411,7 +409,7 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(phase_idx=phase, _RC)
+         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
       end if
 
       call apply_to_children(this, set_child_geom, _RC)
@@ -455,7 +453,7 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(phase_idx=phase, _RC)
+         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
       end if
 
       call self_advertise(this, _RC)
@@ -573,10 +571,10 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(phase_idx=phase, _RC)
+         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
       end if
 
-      user_states = this%user_component%get_states()
+      user_states = this%user_gc_driver%get_states()
       call this%registry%add_to_states(user_states, mode='user', _RC)
       
       outer_states = MultiState(importState=importState, exportState=exportState)
@@ -606,7 +604,7 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(phase_idx=phase, _RC)
+         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
       end if
 
       call apply_to_children(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
@@ -684,7 +682,7 @@ contains
       initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
       phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
       if (found) then
-         call this%user_component%initialize(phase_idx=phase, _RC)
+         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
       end if
 
       call apply_to_children(this, phase_idx=GENERIC_INIT_USER, _RC)
@@ -722,7 +720,7 @@ contains
          initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
          phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
          if (found) then
-            call this%user_component%initialize(phase_idx=phase, _RC)
+            call this%user_gc_driver%initialize(phase_idx=phase, _RC)
          end if
 
       end select
@@ -765,7 +763,7 @@ contains
         end do
       end associate
       
-      call this%user_component%run(phase_idx=phase, _RC)
+      call this%user_gc_driver%run(phase_idx=phase, _RC)
    
       export_couplers => this%registry%get_export_couplers()
       associate (e => export_couplers%ftn_end())
@@ -810,7 +808,7 @@ contains
 !#      integer :: phase
 !#
 !#      if (found) then
-!#         call this%user_component%clock_advance(_RC)
+!#         call this%user_gc_driver%clock_advance(_RC)
 !#      end if
 !#
 !#      _RETURN(ESMF_SUCCESS)
@@ -842,7 +840,7 @@ contains
         ! TODO:  Should there be a phase option here?  Probably not
         ! right as is when things get more complicated.
 
-        call this%user_component%finalize(_RC)
+        call this%user_gc_driver%finalize(_RC)
 
         associate(b => this%children%begin(), e => this%children%end())
           iter = b
@@ -957,7 +955,7 @@ contains
 
       type(MultiState) :: user_states
 
-      user_states = this%user_component%get_states()
+      user_states = this%user_gc_driver%get_states()
       internal_state = user_states%internalState
 
    end function get_internal_state
@@ -971,11 +969,11 @@ contains
 
    end function get_lgr
 
-   function get_user_component(this) result(user_component)
-      type(GriddedComponentDriver), pointer :: user_component
+   function get_user_gc_driver(this) result(user_gc_driver)
+      type(GriddedComponentDriver), pointer :: user_gc_driver
       class(OuterMetaComponent), target, intent(in) :: this
-      user_component => this%user_component
-   end function get_user_component
+      user_gc_driver => this%user_gc_driver
+   end function get_user_gc_driver
 
 
    
@@ -1030,7 +1028,7 @@ contains
 
       associate (phase_idx => get_phase_index(this%user_phases_map%of(method_flag), phase_name=phase_name_, found=found))
         _ASSERT(found, "run phase: <"//phase_name_//"> not found.")
-        user_gridcomp = this%user_component%get_gridcomp()
+        user_gridcomp = this%user_gc_driver%get_gridcomp()
         call ESMF_GridCompSetEntryPoint(user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
       end associate
 
