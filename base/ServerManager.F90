@@ -22,6 +22,7 @@ module MAPL_ServerManager
          procedure :: initialize
          procedure :: finalize
          procedure :: get_splitcomm
+         procedure :: check_resource
    end type
 
 contains
@@ -217,6 +218,7 @@ contains
      do i = 1, n_oserver_group
 
         if ( trim(s_name) =='o_server'//trim(i_to_string(i)) ) then
+
            if (oserver_type_ == 'multicomm' ) then
 
               allocate(this%o_server, source = MultiCommServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend))
@@ -227,11 +229,12 @@ contains
                        npes_out_backend, './pfio_writer.x'))
 
            else if (oserver_type_ == 'multigroup' ) then
-
+ 
               allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
                                                                 with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)
               _VERIFY(stat_alloc)
+              call this%check_resource(nodes_out(i), _RC)
            else
 
               allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
@@ -298,5 +301,23 @@ contains
       call this%splitter%free_sub_comm()
       _RETURN(_SUCCESS)
    end subroutine finalize
+
+   subroutine check_resource(this,nnode_out,rc)
+      class(ServerManager), intent(inout) :: this
+      integer, intent(in) :: nnode_out
+      integer, optional, intent(out) :: rc
+      integer :: status, rank
+      integer :: size, k
+      integer, allocatable :: node_sizes(:)
+
+      call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
+      if (rank == 0 .and. nnode_out /=0 ) then
+         if( this%o_server%node_num /= nnode_out) then
+            write(*,'(A, I0, A, I0, A)') "The requested ", nnode_out,  " nodes for output server is different from available ", k , " nodes"
+            _FAIL("Inconsistent output server number")
+         endif
+      endif
+      _RETURN(_SUCCESS)
+   end subroutine
 
 end module MAPL_ServerManager

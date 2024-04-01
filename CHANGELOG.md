@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Checked resource for o-server. It quits if the numer requested is inconsistent with being used
 - Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x
 - Allow arithmetic operations to be performed on fields from bundles in History
 - Adapted subroutine RegridVector from GriddedIO.F90 to MAPL_EpochSwathMod.F90 (changing class name for this)
