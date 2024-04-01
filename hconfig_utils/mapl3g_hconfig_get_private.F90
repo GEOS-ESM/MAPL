@@ -1,5 +1,4 @@
 #include "MAPL_ErrLog.h"
-#define 
 module mapl3g_hconfig_get_private
    use mapl3g_hconfig_params
    use mapl3g_get_hconfig
