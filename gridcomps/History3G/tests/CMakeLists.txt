@@ -2,7 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.history3g.tests")
 
 set (test_srcs
   Test_HistoryGridComp.pf
-  Test_HistoryCollectionGridComp.pf 
+  Test_HistoryCollectionGridComp.pf
   )
 
 
@@ -15,6 +15,7 @@ add_pfunit_ctest(MAPL.history3g.tests
                 MAX_PES 1
                 )
 set_target_properties(MAPL.history3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.history3g.tests PROPERTIES LABELS "ESSENTIAL")
 
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")
