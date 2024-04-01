@@ -17,9 +17,9 @@ foreach(TEST_CASE ${TEST_CASES_1G})
   endif()
   add_test(
      NAME "ExtData1G_${TEST_CASE}"
-     COMMAND ${CMAKE_COMMAND} 
-       -DTEST_CASE=${TEST_CASE} 
-       -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE} 
+     COMMAND ${CMAKE_COMMAND}
+       -DTEST_CASE=${TEST_CASE}
+       -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}
        -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
        -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
        -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
@@ -28,6 +28,7 @@ foreach(TEST_CASE ${TEST_CASES_1G})
        )
   if (${num_procs} LESS ${cutoff})
      set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA1G_SMALL_TESTS")
+     set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
   else()
      set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA1G_BIG_TESTS")
   endif()
@@ -37,7 +38,7 @@ endforeach()
 file(STRINGS "test_cases/extdata_2g_cases.txt" TEST_CASES_2G)
 
 foreach(TEST_CASE ${TEST_CASES_2G})
-     
+
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc)
      file(READ ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc num_procs)
   else()
@@ -45,9 +46,9 @@ foreach(TEST_CASE ${TEST_CASES_2G})
   endif()
   add_test(
      NAME "ExtData2G_${TEST_CASE}"
-     COMMAND ${CMAKE_COMMAND} 
-       -DTEST_CASE=${TEST_CASE} 
-       -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE} 
+     COMMAND ${CMAKE_COMMAND}
+       -DTEST_CASE=${TEST_CASE}
+       -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}
        -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
        -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
        -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
@@ -56,6 +57,7 @@ foreach(TEST_CASE ${TEST_CASES_2G})
      )
   if (${num_procs} LESS ${cutoff})
      set_tests_properties ("ExtData2G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA2G_SMALL_TESTS")
+     set_tests_properties ("ExtData2G_${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
   else()
      set_tests_properties ("ExtData2G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA2G_BIG_TESTS")
   endif()
