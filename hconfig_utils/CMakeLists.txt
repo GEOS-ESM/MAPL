@@ -5,6 +5,8 @@ set(srcs
   mapl3g_hconfig_get.F90
   mapl3g_hconfig_params.F90
   mapl3g_hconfig_get_private.F90
+  mapl3g_generalized_equality.F90
+  mapl3g_get_hconfig.F90
   )
 
 if (BUILD_WITH_PFLOGGER)

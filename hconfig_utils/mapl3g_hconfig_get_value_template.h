@@ -9,12 +9,15 @@
       
       value_equals_default = present(default) .and. .not. found
       if(found) then
-         value = ESMF_HCONFIG_AS (params%hconfig, keyString=params%label, _RC)
+         call get_hconfig(value, params, _RC)
       end if
 
       if(present(default)) then
-            if(.not. found) value = default
-            value_equals_default = found .and. RELATION(value, default)
+         if(found) then
+            value_equals_default = found .and. (are_equal(value, default))
+         else
+            value = default
+         end if
       end if
 
       params%value_set = .TRUE.
