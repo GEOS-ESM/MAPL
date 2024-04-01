@@ -141,8 +141,8 @@ contains
 
    @Test
    subroutine test_get_i4seq()
-      character(len=*), parameter :: LABEL = 'four_vector'
-      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED(4) = [-1, 1, 0, 0]
+      character(len=*), parameter :: LABEL = 'five'
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED(5) = [-1, 0, 1, 2, 3]
       integer(kind=ESMF_KIND_I4), allocatable :: actual(:)
       type(HConfigParams) :: params
       logical :: found
@@ -161,8 +161,8 @@ contains
 
    @Test
    subroutine test_get_i8seq()
-      character(len=*), parameter :: LABEL = 'quaternion'
-      integer(kind=ESMF_KIND_I8), parameter :: EXPECTED(4) = [-1, 1, 0, 0]
+      character(len=*), parameter :: LABEL = 'three'
+      integer(kind=ESMF_KIND_I8), parameter :: EXPECTED(3) = [-1, 0, 1]
       integer(kind=ESMF_KIND_I8), allocatable :: actual(:)
       type(HConfigParams) :: params
       logical :: found
@@ -353,8 +353,8 @@ contains
 
    @Test
    subroutine test_make_valuestring_i4seq()
-      character(len=*), parameter :: EXPECTED = '[613, 361, 631, 136]'
-      integer(kind=ESMF_KIND_I4), parameter :: DEFAULT(4) = [613, 361, 631, 136]
+      character(len=*), parameter :: EXPECTED = '613, 361, 631, 136, 163'
+      integer(kind=ESMF_KIND_I4), parameter :: DEFAULT(5) = [613, 361, 631, 136, 163]
       integer(kind=ESMF_KIND_I4), allocatable :: value(:)
       type(HConfigParams) :: params
       integer :: status
@@ -371,8 +371,8 @@ contains
 
    @Test
    subroutine test_make_valuestring_r4seq()
-      character(len=*), parameter :: EXPECTED = '[613.0000, 301.0060, 310.0060, 106.0030]'
-      real(kind=ESMF_KIND_R4), parameter :: DEFAULT(4) = [613.0000, 301.0060, 310.0060, 106.0030]
+      character(len=*), parameter :: EXPECTED = '613.0000, 301.0060, 310.0060'
+      real(kind=ESMF_KIND_R4), parameter :: DEFAULT(3) = [613.0000, 301.0060, 310.0060]
       real(kind=ESMF_KIND_R4), allocatable :: value(:)
       type(HConfigParams) :: params
       integer :: status
@@ -389,7 +389,7 @@ contains
 
    @Test
    subroutine test_make_valuestring_i8seq()
-      character(len=*), parameter :: EXPECTED = '[4294967296, 2494967296, 4294697296, 2949672964]'
+      character(len=*), parameter :: EXPECTED = '4294967296, 2494967296, 4294697296, 2949672964'
       integer(kind=ESMF_KIND_I8), parameter :: DEFAULT(4) = [4294967296, 2494967296, 4294697296, 2949672964]
       integer(kind=ESMF_KIND_I8), allocatable :: value(:)
       type(HConfigParams) :: params
@@ -408,8 +408,8 @@ contains
    @Test
    subroutine test_make_valuestring_r8seq()
       character(len=*), parameter :: EXPECTED = &
-         '[613.0000400000000, 413.0000600000000, ' // &
-         '361.0000700000000, 463.0000100000000]'
+         '613.0000400000000, 413.0000600000000, ' // &
+         '361.0000700000000, 463.0000100000000'
       real(kind=ESMF_KIND_R8), parameter :: DEFAULT(4) = &
          [613.000040000000_ESMF_KIND_R8, 413.000060000000_ESMF_KIND_R8, &
          361.000070000000_ESMF_KIND_R8, 463.000010000000_ESMF_KIND_R8]
@@ -429,7 +429,7 @@ contains
 
    @Test
    subroutine test_make_valuestring_logicalseq()
-      character(len=*), parameter :: EXPECTED = '[T, F, F, T]'
+      character(len=*), parameter :: EXPECTED = 'T, F, F, T'
       logical, parameter :: DEFAULT(4) = [ .TRUE., .FALSE., .FALSE., .TRUE. ]
       logical, allocatable :: value(:)
       type(HConfigParams) :: params
@@ -449,8 +449,6 @@ contains
       character(len=:), allocatable :: error_message
       character(len=*), intent(in) :: actual
       character(len=*), intent(in) :: expected
-      character(len=*), parameter :: FMT_ = '(A, A, A, A)'
-      character(len=*), parameter :: ERROR_VALSTRING = 'valuestring does not match expected string.'
       
       error_message = 'Actual valuestring, "' // actual // &
          '", does not match expected valuestring, "' // expected // '".'
