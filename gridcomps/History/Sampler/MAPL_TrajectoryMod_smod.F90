@@ -1046,7 +1046,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate ( p_dst_rt(lm, 1) )
          end if
 
-#define lev_b_lev  1
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -1120,21 +1119,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
                   call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
 
-#if defined(lev_b_lev)
-                  ! p_dst (lm, nx)
-                  allocate ( p_dst_t, source = reshape ( p_dst, [size(p_dst,2),size(p_dst,1)], order=[2,1] ) )
-                  do k = 1, lm
-                     call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
-                          p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
+                  if (this%level_by_level) then
+                     ! p_dst (lm, nx)
+                     allocate ( p_dst_t, source = reshape ( p_dst, [size(p_dst,2),size(p_dst,1)], order=[2,1] ) )
+                     do k = 1, lm
+                        call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
+                             p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
+                             iroot, mpic, ierr )
+                     end do
+                     deallocate (p_dst_t)
+                  else
+                     call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
+                          p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
                           iroot, mpic, ierr )
-                  end do
-                  deallocate (p_dst_t)
-#else
-                  call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
-                       p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
-                       iroot, mpic, ierr )
-                  p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
-#endif
+                     p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
+                  end if
 
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
