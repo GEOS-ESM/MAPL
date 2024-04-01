@@ -15,6 +15,7 @@ add_pfunit_ctest(${this}
                 MAX_PES 8
                 )
 set_target_properties(${this} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(${this} PROPERTIES LABELS "ESSENTIAL")
 
 add_dependencies(build-tests ${this})
 
