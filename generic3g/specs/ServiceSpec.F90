@@ -172,7 +172,6 @@ contains
       integer :: status
 
       call ESMF_FieldBundleDestroy(this%payload, noGarbage=.true., _RC)
-      call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy

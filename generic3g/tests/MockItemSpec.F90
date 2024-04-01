@@ -66,7 +66,6 @@ contains
       class(MockItemSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      call this%set_created()
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -75,8 +74,6 @@ contains
    subroutine destroy(this, rc)
       class(MockItemSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
-
-      call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy

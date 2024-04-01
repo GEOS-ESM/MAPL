@@ -28,10 +28,12 @@ contains
       
       integer :: status, userRC
       type(ESMF_Grid) :: grid
-      type(ESMF_Clock) :: clock
       type(ESMF_HConfig) :: config
       integer :: i
       type(VerticalGeom) :: vertical_geom
+      type(ESMF_Time) :: t
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Clock) :: clock
 
       rc = 0
       call NUOPC_FieldDictionarySetup('./scenarios/FieldDictionary.yml', _RC)
@@ -39,7 +41,11 @@ contains
       config = ESMF_HConfigCreate(filename = './scenarios/scenario_1/parent.yaml',rc=status)
       @assert_that(status, is(0))
 
-      outer_gc = create_grid_comp('P', user_setservices('libsimple_parent_gridcomp'), config, _RC)
+      call ESMF_TimeSet(t, h=0)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(dt, t)
+
+      outer_gc = create_grid_comp('P', user_setservices('libsimple_parent_gridcomp'), config, clock, _RC)
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
@@ -123,7 +129,7 @@ contains
          
          child_gc = child_comp%get_gridcomp()
          child_meta => get_outer_meta(child_gc)
-         user_component => child_meta%get_user_component()
+         user_component => child_meta%get_user_gc_driver()
          states = user_component%get_states()
          call states%get_state(state, state_intent, rc=status)
          if (status /= 0) then
@@ -213,7 +219,7 @@ contains
          
          child_gc = child_comp%get_gridcomp()
          child_meta => get_outer_meta(child_gc)
-         user_component => child_meta%get_user_component()
+         user_component => child_meta%get_user_gc_driver()
          states = user_component%get_states()
 
          call states%get_state(state, state_intent, rc=status)
@@ -271,7 +277,7 @@ contains
 
          status = -1
 
-         user_component => outer_meta%get_user_component()
+         user_component => outer_meta%get_user_gc_driver()
          states = user_component%get_states()
          call states%get_state(state, 'import', rc=status)
          if (status /= 0) then
@@ -390,7 +396,7 @@ contains
          
       child_gc = child_comp%get_gridcomp()
       child_meta => get_outer_meta(child_gc, rc=status)
-      user_component => child_meta%get_user_component()
+      user_component => child_meta%get_user_gc_driver()
       states = user_component%get_states()
 
       rc = 0

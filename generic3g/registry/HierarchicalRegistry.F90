@@ -454,6 +454,8 @@ contains
 
    ! "this" is _source_ registry
    subroutine add_state_extension(this, extension_pt, src_spec, extension, source_coupler, rc)
+      use mapl3g_ESMF_Subset, only: ESMF_Clock
+      use mapl3g_MultiState
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(ActualConnectionPt), intent(in) :: extension_pt
       class(StateItemSpec), intent(in) :: src_spec
@@ -466,6 +468,8 @@ contains
       type(GriddedComponentDriver), pointer :: new_driver
       type(ESMF_GridComp) :: new_coupler
 
+      type(ESMF_Clock) :: clock
+
       action = src_spec%make_action(extension, _RC)
       new_coupler = make_coupler(action, source_coupler, _RC)
       ! Need to ensure the stored copy of driver is kept and others are just pointers.
@@ -473,7 +477,8 @@ contains
       call this%export_couplers%insert(extension_pt, new_driver)
       deallocate(new_driver)
       new_driver => this%export_couplers%of(extension_pt)
-      new_driver = GriddedComponentDriver(new_coupler)
+      ! TODO: need to create clock and multi-state.  But this is the wrong layer for such a thing.
+      new_driver = GriddedComponentDriver(new_coupler, clock, MultiState())
       
       _RETURN(_SUCCESS)
    end subroutine add_state_extension

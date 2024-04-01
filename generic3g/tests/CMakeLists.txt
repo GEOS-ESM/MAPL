@@ -8,7 +8,7 @@ set (test_srcs
 #  Test_AddVarSpec.pf
 
   Test_VirtualConnectionPt.pf
- 
+
   Test_SimpleLeafGridComp.pf
   Test_SimpleParentGridComp.pf
   Test_RunChild.pf
@@ -26,7 +26,7 @@ set (test_srcs
   Test_Scenarios.pf
   Test_WriteYaml.pf
   Test_HConfigMatch.pf
-  
+
   )
 
 
@@ -40,6 +40,7 @@ add_pfunit_ctest(MAPL.generic3g.tests
                 MAX_PES 4
                 )
 set_target_properties(MAPL.generic3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.generic3g.tests PROPERTIES LABELS "ESSENTIAL")
 
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")
