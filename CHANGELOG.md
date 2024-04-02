@@ -80,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Trajectory sampler: ls_rt -> ls_chunk (via mpi_gatherV) -> ls_distributed(bk=cs_grid; via ESMF_FieldRedistStore), aiming to save computational time. To gather 3D data via mpi,  options for level by level and single-3D are added via ifdef.
 - The MAPL\_ESMFRegridder manage now does compute the transpose by default
 - Bypassed the I-Server reading call when there is no extdata
 - Created new `ESSENTIAL` ctest label for tests that must pass for a release

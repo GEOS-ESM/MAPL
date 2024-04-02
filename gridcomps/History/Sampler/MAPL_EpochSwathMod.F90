@@ -30,6 +30,7 @@ module MAPL_EpochSwathMod
   use Plain_netCDF_Time
   use, intrinsic :: ISO_C_BINDING
   use MAPL_CommsMod, only : MAPL_Am_I_Root
+  use pflogger, only: Logger, logging
   implicit none
   private
 
@@ -205,6 +206,7 @@ contains
     integer :: time_integer
     logical :: con
     integer :: status
+    type(Logger), pointer          :: lgr
 
     call ESMF_TimeIntervalGet(this%Frequency_epoch, s=hq_epoch_sec, _RC)
     freq_sec = MAPL_nsecf( frequency_from_list )
@@ -213,14 +215,15 @@ contains
          label=trim(swath_grid_label)//'.Epoch:', default=0, _RC)
     local_swath_epoch_sec = MAPL_nsecf( time_integer )
 
+    lgr => logging%get_logger('HISTORY.sampler')
     con = (hq_epoch_sec == local_swath_epoch_sec) .AND. (hq_epoch_sec == freq_sec)
-    if (mapl_am_i_root()) then
-       if (.not. con) then
-          write(6, '(2x,a,2x,i10)') 'hq_epoch_sec', hq_epoch_sec
-          write(6, '(2x,a,2x,i10)') 'local_swath_epoch_sec', local_swath_epoch_sec
-          write(6, '(2x,a,2x,i10)') 'freq_sec', freq_sec
-       end if
+
+    if (.not. con) then
+       call lgr%debug('%a %i', 'hq_epoch_sec', hq_epoch_sec)
+       call lgr%debug('%a %i', 'local_swath_epoch_sec', local_swath_epoch_sec)
+       call lgr%debug('%a %i', 'freq_sec', freq_sec)
     end if
+
     _ASSERT(con, 'Error in '//trim(swath_grid_label)//' related swath and list in History.rc: Epoch in all swath grids must be equal, and equal to list%freq')
     _RETURN(_SUCCESS)
   end subroutine verify_epoch_equals_freq
