@@ -47,11 +47,13 @@ if (APPLE)
 else()
   set(LD_PATH "LD_LIBRARY_PATH")
 endif ()
-set_property(TEST MAPL.generic3g.tests PROPERTY ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
 
-# This test requires UDUNITS2_XML_PATH to be set to the location of the udunits2.xml file
+# This test also requires UDUNITS2_XML_PATH to be set to the location of the udunits2.xml file
 # This is found by Findudunits.cmake and stored in the variable udunits_XML_PATH
-set_tests_properties(MAPL.generic3g.tests PROPERTIES ENVIRONMENT "UDUNITS2_XML_PATH=${udunits_XML_PATH}")
+
+set_tests_properties(MAPL.generic3g.tests
+  PROPERTIES ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
+  )
 
 add_dependencies(build-tests MAPL.generic3g.tests)
 
