@@ -855,8 +855,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          M = petCount
          recvcount = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
                      int(ip  , INT64) * int(N, INT64) / int(M, INT64)
-
-!!         write(6,'(2x,a,2x,2i10)') 'ip, recvcount', ip, recvcount
+         call lgr%debug('%a %i12 %i12', 'ip, recvcount', ip, recvcount)
 
          allocate ( sendcount (petCount) )
          allocate ( displs    (petCount) )
@@ -923,10 +922,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
       module procedure append_file
+      use pflogger, only: Logger, logging
          type(GriddedIOitemVectorIterator) :: iter
          type(GriddedIOitem), pointer :: item
          type(ESMF_RouteHandle) :: RH
-
+         type(Logger), pointer :: lgr
+         
          type(ESMF_Field) :: src_field, dst_field
          type(ESMF_Field) :: acc_field
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
@@ -963,7 +964,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             rc=0
             return
          endif
-
+         lgr => logging%get_logger('HISTORY.sampler')
+         
          is=1
          do k = 1, this%nobs_type
             !-- limit  nx < 2**32 (integer*4)
@@ -1045,7 +1047,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate ( p_acc_rt_3d(1,lm) )
             allocate ( p_dst_rt(lm, 1) )
          end if
-
+         
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -1092,9 +1094,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
-                              !!write(6,'(2x,a,2x,a)')  't this%obs(k)%geoval_xname(ig)', trim(this%obs(k)%geoval_xname(ig))
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 !!write(6, '(2x,a,2x,a)') 'append:2d inner put_var item%xname', trim(item%xname)
+                                 call lgr%debug('%a %a', 'append:2d inner put_var item%xname', trim(item%xname))
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
                                       start=[is],count=[nx])
                               end if
@@ -1106,7 +1107,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      enddo
                   end if
                else if (rank==2) then
-                  if (mapl_am_i_root()) write(6,*) 'in append rank=2, bg gatherv'
 
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
@@ -1138,7 +1138,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
                   call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
 
-                  if (mapl_am_i_root()) write(6,*) 'in append rank=2, af gatherv'
 
                   if (mapl_am_i_root()) then
                      !
@@ -1164,18 +1163,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 !!write(6, '(2x,a,2x,a)') 'append:3d inner put_var item%xname', trim(item%xname)
+                                 call lgr%debug('%a %a', 'append:3d inner put_var item%xname', trim(item%xname))
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
                                       start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
                               end if
                            end do
                         endif
                      enddo
-                     !!write(6,'(10f8.2)') p_acc_rt_3d(:,:)
-                     !!write(6,*) 'here in append_file:  put_var 3d'
-                     !!call this%obs(k)%file_handle%put_var(trim(item%xname),p_acc_rt_3d(:,:),&
-                     !!     start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
-                     !!
                      do k=1, this%nobs_type
                         deallocate (this%obs(k)%p3d, _STAT)
                      enddo
@@ -1190,7 +1184,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(acc_field_2d_chunk, noGarbage=.true., _RC)
          call ESMF_FieldDestroy(acc_field_3d_chunk, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-
 
          _RETURN(_SUCCESS)
        end procedure append_file
