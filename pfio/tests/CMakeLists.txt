@@ -45,6 +45,7 @@ add_pfunit_ctest(MAPL.pfio.tests
                 MAX_PES 8
                 )
 set_target_properties(MAPL.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
 
 include_directories(
    ${CMAKE_CURRENT_SOURCE_DIR}
