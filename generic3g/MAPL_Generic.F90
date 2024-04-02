@@ -147,27 +147,16 @@ module mapl3g_Generic
 
    interface MAPL_ResourceGet
       module procedure :: mapl_resource_get_i4_gc
-!      module procedure :: mapl_resource_get_i4_hconfig
       module procedure :: mapl_resource_get_i8_gc
-!      module procedure :: mapl_resource_get_i8_hconfig
       module procedure :: mapl_resource_get_r4_gc
-!      module procedure :: mapl_resource_get_r4_hconfig
       module procedure :: mapl_resource_get_r8_gc
-!      module procedure :: mapl_resource_get_r8_hconfig
       module procedure :: mapl_resource_get_logical_gc
-!      module procedure :: mapl_resource_get_logical_hconfig
       module procedure :: mapl_resource_get_i4seq_gc
-!      module procedure :: mapl_resource_get_i4seq_hconfig
       module procedure :: mapl_resource_get_i8seq_gc
-!      module procedure :: mapl_resource_get_i8seq_hconfig
       module procedure :: mapl_resource_get_r4seq_gc
-!      module procedure :: mapl_resource_get_r4seq_hconfig
       module procedure :: mapl_resource_get_r8seq_gc
-!      module procedure :: mapl_resource_get_r8seq_hconfig
       module procedure :: mapl_resource_get_logical_seq_gc
-!      module procedure :: mapl_resource_get_logical_seq_hconfig
       module procedure :: mapl_resource_get_string_gc
-      module procedure :: mapl_resource_get_string_hconfig
    end interface MAPL_ResourceGet
 
 contains
@@ -740,34 +729,14 @@ contains
       integer :: status
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
-      call MAPL_ResourceGet(hconfig, keystring, value, default=default, value_set=value_set, logger=logger, _RC)
-      if(present(value_set)) value_set = params%value_set
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-
-   end subroutine mapl_resource_get_string_gc
-
-   subroutine mapl_resource_get_string_hconfig(hconfig, keystring, value, unusable, default, value_set, logger, rc)
-      character(len=:), allocatable, intent(inout) :: value
-      character(len=*), optional, intent(in) :: default
-      type(ESMF_HConfig), intent(in) :: hconfig
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(out) :: value_set
-      class(Logger_t), optional, pointer, intent(in) :: logger
-      integer, optional, intent(out) :: rc
-      type(HConfigParams) :: params
-      integer :: status
-
-      params = HConfigParams(hconfig, keystring, check_value_set=present(value_set), logger=logger)
+      params = HConfigParams(hconfig, keystring, value_set, logger=logger)
       call MAPL_HConfigGet(params, value, default, _RC) 
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_string_hconfig
+   end subroutine mapl_resource_get_string_gc
 
    subroutine mapl_resource_get_i4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
       integer(kind=ESMF_KIND_I4), dimension(:), allocatable, intent(inout) :: value
