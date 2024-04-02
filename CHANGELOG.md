@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_env v4.0.0 (Baselibs 7, new yaFyaml interfaces)
 - Updated CI to use Baselibs 7
 - Update executables using FLAP to use fArgParse
-- Update `Findudunits.cmake` to also link with libdl
+- Update `Findudunits.cmake` to link with libdl and look for the `udunits2.xml` file (as some MAPL tests require it)
 
 ### Fixed
 

@@ -18,5 +18,9 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND NOT APPLE)
   target_link_libraries(udunits2f.tests ${CMAKE_DL_LIBS})
 endif ()
 
+# This test requires UDUNITS2_XML_PATH to be set to the location of the udunits2.xml file
+# This is found by Findudunits.cmake and stored in the variable udunits_XML_PATH
+set_tests_properties(udunits2f.tests PROPERTIES ENVIRONMENT "UDUNITS2_XML_PATH=${udunits_XML_PATH}")
+
 add_dependencies(build-tests udunits2f.tests)
 
