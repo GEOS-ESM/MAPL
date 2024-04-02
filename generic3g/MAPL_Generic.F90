@@ -1,14 +1,5 @@
 #include "MAPL_ErrLog.h"
 
-#if defined TYPE_
-#undef TYPE_
-#endif
-
-#if defined SELECT_TYPE
-#undef SELECT_TYPE
-#endif
-#define SELECT_TYPE(T, D, V) select type(D); type is (T); V = D; end select
-
 !---------------------------------------------------------------------
 
 ! This module contains procedures that are intended to be called from
@@ -155,12 +146,28 @@ module mapl3g_Generic
    end interface MAPL_ConnectAll
 
    interface MAPL_ResourceGet
-      module procedure :: mapl_resource_get_i4
-      module procedure :: mapl_resource_get_r4
-      module procedure :: mapl_resource_get_string
+      module procedure :: mapl_resource_get_i4_gc
+!      module procedure :: mapl_resource_get_i4_hconfig
+      module procedure :: mapl_resource_get_i8_gc
+!      module procedure :: mapl_resource_get_i8_hconfig
+      module procedure :: mapl_resource_get_r4_gc
+!      module procedure :: mapl_resource_get_r4_hconfig
+      module procedure :: mapl_resource_get_r8_gc
+!      module procedure :: mapl_resource_get_r8_hconfig
+      module procedure :: mapl_resource_get_logical_gc
+!      module procedure :: mapl_resource_get_logical_hconfig
+      module procedure :: mapl_resource_get_i4seq_gc
+!      module procedure :: mapl_resource_get_i4seq_hconfig
+      module procedure :: mapl_resource_get_i8seq_gc
+!      module procedure :: mapl_resource_get_i8seq_hconfig
+      module procedure :: mapl_resource_get_r4seq_gc
+!      module procedure :: mapl_resource_get_r4seq_hconfig
+      module procedure :: mapl_resource_get_r8seq_gc
+!      module procedure :: mapl_resource_get_r8seq_hconfig
+      module procedure :: mapl_resource_get_logical_seq_gc
+!      module procedure :: mapl_resource_get_logical_seq_hconfig
+      module procedure :: mapl_resource_get_string_gc
       module procedure :: mapl_resource_get_string_hconfig
-      module procedure :: mapl_resource_get_i4seq
-      module procedure :: mapl_resource_get_r4seq
    end interface MAPL_ResourceGet
 
 contains
@@ -604,7 +611,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
-   subroutine mapl_resource_get_i4(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine mapl_resource_get_i4_gc(gc, keystring, value, unusable, default, value_set, rc)
       integer(kind=ESMF_KIND_I4), intent(inout) :: value
       integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -625,9 +632,32 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_i4
+   end subroutine mapl_resource_get_i4_gc
 
-   subroutine mapl_resource_get_r4(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine mapl_resource_get_i8_gc(gc, keystring, value, unusable, default, value_set, rc)
+      integer(kind=ESMF_KIND_I8), intent(inout) :: value
+      integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine mapl_resource_get_i8_gc
+   
+   subroutine mapl_resource_get_r4_gc(gc, keystring, value, unusable, default, value_set, rc)
       real(kind=ESMF_KIND_R4), intent(inout) :: value
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -648,9 +678,55 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_r4
+   end subroutine mapl_resource_get_r4_gc
 
-   subroutine mapl_resource_get_string(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine mapl_resource_get_r8_gc(gc, keystring, value, unusable, default, value_set, rc)
+      real(kind=ESMF_KIND_R8), intent(inout) :: value
+      real(kind=ESMF_KIND_R8), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine mapl_resource_get_r8_gc
+
+   subroutine mapl_resource_get_logical_gc(gc, keystring, value, unusable, default, value_set, rc)
+      logical, intent(inout) :: value
+      logical, optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine mapl_resource_get_logical_gc
+
+   subroutine mapl_resource_get_string_gc(gc, keystring, value, unusable, default, value_set, rc)
       character(len=:), allocatable, intent(inout) :: value
       character(len=*), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -664,13 +740,13 @@ contains
       integer :: status
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
-      call MAPL_ResourceGet(hconfig, keystring, value, default=default, value_set=value_set, _RC)
+      call MAPL_ResourceGet(hconfig, keystring, value, default=default, value_set=value_set, logger=logger, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_string
+   end subroutine mapl_resource_get_string_gc
 
    subroutine mapl_resource_get_string_hconfig(hconfig, keystring, value, unusable, default, value_set, logger, rc)
       character(len=:), allocatable, intent(inout) :: value
@@ -693,7 +769,7 @@ contains
 
    end subroutine mapl_resource_get_string_hconfig
 
-   subroutine mapl_resource_get_i4seq(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine mapl_resource_get_i4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
       integer(kind=ESMF_KIND_I4), dimension(:), allocatable, intent(inout) :: value
       integer(kind=ESMF_KIND_I4), dimension(:), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -714,9 +790,32 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_i4seq
+   end subroutine mapl_resource_get_i4seq_gc
 
-   subroutine mapl_resource_get_r4seq(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine mapl_resource_get_i8seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+      integer(kind=ESMF_KIND_I8), dimension(:), allocatable, intent(inout) :: value
+      integer(kind=ESMF_KIND_I8), dimension(:), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine mapl_resource_get_i8seq_gc
+
+   subroutine mapl_resource_get_r4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
       real(kind=ESMF_KIND_R4), dimension(:), allocatable, intent(inout) :: value
       real(kind=ESMF_KIND_R4), dimension(:), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -737,6 +836,52 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_r4seq
+   end subroutine mapl_resource_get_r4seq_gc
+
+   subroutine mapl_resource_get_r8seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+      real(kind=ESMF_KIND_R8), dimension(:), allocatable, intent(inout) :: value
+      real(kind=ESMF_KIND_R8), dimension(:), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine mapl_resource_get_r8seq_gc
+
+   subroutine mapl_resource_get_logical_seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+      logical, dimension(:), allocatable, intent(inout) :: value
+      logical, dimension(:), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine mapl_resource_get_logical_seq_gc
 
 end module mapl3g_Generic
