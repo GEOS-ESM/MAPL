@@ -9,11 +9,11 @@
 #   - udunits_INCLUDE_DIR    - The include directory
 #   - udunits_LIBRARY        - The library
 #   - udunits_LIBRARY_SHARED - Whether the library is shared or not
+#   - udunits_XML_PATH       - path to udunits2.xml
 #
 # The following paths will be searched in order if set in CMake (first priority) or environment (second priority):
 #
 #   - UDUNITS2_INCLUDE_DIRS & UDUNITS2_LIBRARIES - folders containing udunits2.h and libudunits2, respectively.
-#   - UDUNITS2_XML_PATH                          - path to udunits2.xml
 #   - UDUNITS2_ROOT                 - root of udunits installation
 #   - UDUNITS2_PATH                 - root of udunits installation
 #
