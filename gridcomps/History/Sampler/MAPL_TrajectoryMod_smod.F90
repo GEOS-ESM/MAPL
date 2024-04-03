@@ -23,6 +23,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MPI, only : MPI_INTEGER, MPI_REAL, MPI_REAL8
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use, intrinsic :: iso_fortran_env, only: INT64
   implicit none
 
    contains
@@ -929,7 +930,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(GriddedIOitem), pointer :: item
          type(ESMF_RouteHandle) :: RH
          type(Logger), pointer :: lgr
-         
+
          type(ESMF_Field) :: src_field, dst_field
          type(ESMF_Field) :: acc_field
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
@@ -967,7 +968,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             return
          endif
          lgr => logging%get_logger('HISTORY.sampler')
-         
+
          is=1
          do k = 1, this%nobs_type
             !-- limit  nx < 2**32 (integer*4)
@@ -1049,7 +1050,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate ( p_acc_rt_3d(1,lm) )
             allocate ( p_dst_rt(lm, 1) )
          end if
-         
+
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
