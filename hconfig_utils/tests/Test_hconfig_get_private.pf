@@ -1,6 +1,6 @@
 module Test_hconfig_get_private
    use mapl3g_hconfig_get_private
-   use ESMF
+   use ESMF, R4 => ESMF_KIND_R4, R8 => ESMF_KIND_R8
    use pfunit
 
    implicit none
@@ -62,8 +62,8 @@ contains
    @Test
    subroutine test_get_r4()
       character(len=*), parameter :: LABEL = 'plank_mass'
-      real(kind=ESMF_KIND_R4), parameter :: EXPECTED =   1.85900000E-9_ESMF_KIND_R4
-      real(kind=ESMF_KIND_R4) :: actual
+      real(kind=R4), parameter :: EXPECTED =   1.85900000E-9_R4
+      real(kind=R4) :: actual
       type(HConfigParams) :: params
       logical :: found
       integer :: status
@@ -82,8 +82,8 @@ contains
    @Test
    subroutine test_get_r8()
       character(len=*), parameter :: LABEL = 'mu_mass'
-      real(kind=ESMF_KIND_R8), parameter :: EXPECTED = -9.28476470432000000E-23_ESMF_KIND_R8
-      real(kind=ESMF_KIND_R8) :: actual
+      real(kind=R8), parameter :: EXPECTED = -9.28476470432000000E-23_R8
+      real(kind=R8) :: actual
       type(HConfigParams) :: params
       logical :: found
       integer :: status
@@ -182,10 +182,9 @@ contains
    @Test
    subroutine test_get_r4seq()
       character(len=*), parameter :: LABEL = 'four'
-      real(kind=ESMF_KIND_R4), parameter :: EXPECTED(4) = &
-         [-1.23456780_ESMF_KIND_R4, 1.23456780_ESMF_KIND_R4, &
-         9.87654300_ESMF_KIND_R4, -9.87654300_ESMF_KIND_R4]
-      real(kind=ESMF_KIND_R4), allocatable :: actual(:)
+      real(kind=R4), parameter :: EXPECTED(4) = &
+         [-1.23456780_R4, 1.23456780_R4, 9.87654300_R4, -9.87654300_R4]
+      real(kind=R4), allocatable :: actual(:)
       type(HConfigParams) :: params
       logical :: found
       integer :: status
@@ -204,10 +203,9 @@ contains
    @Test
    subroutine test_get_r8seq()
       character(len=*), parameter :: LABEL = 'four'
-      real(kind=ESMF_KIND_R8), parameter :: EXPECTED(4) = &
-         [-1.2345678901234560_ESMF_KIND_R8, 1.2345678901234560_ESMF_KIND_R8, &
-         9.8765432109876540_ESMF_KIND_R8, -9.8765432109876540_ESMF_KIND_R8]
-      real(kind=ESMF_KIND_R8), allocatable :: actual(:)
+      real(kind=R8), parameter :: EXPECTED(4) = &
+         [613.00004000000000_R8, 413.00006000000000_R8, 361.00007000000000_R8, 463.00001000000000_R8]
+      real(kind=R8), allocatable :: actual(:)
       type(HConfigParams) :: params
       logical :: found
       integer :: status
@@ -264,8 +262,8 @@ contains
    @Test
    subroutine test_make_valuestring_r4()
       character(len=*), parameter :: EXPECTED = '613.0000'
-      real(kind=ESMF_KIND_R4), parameter :: DEFAULT = 613.0000
-      real(kind=ESMF_KIND_R4) :: value
+      real(kind=R4), parameter :: DEFAULT = 613.00000_R4
+      real(kind=R4) :: value
       type(HConfigParams) :: params
       integer :: status
       character(len=:), allocatable :: valuestring
@@ -299,9 +297,9 @@ contains
 
    @Test
    subroutine test_make_valuestring_r8()
-      character(len=*), parameter :: EXPECTED = '613.0000400000000'
-      real(kind=ESMF_KIND_R8), parameter :: DEFAULT = 613.000040000000_ESMF_KIND_R8
-      real(kind=ESMF_KIND_R8) :: value
+      character(len=*), parameter :: EXPECTED = '613.0000000000001'
+      real(kind=R8), parameter :: DEFAULT = 613.00000000000010_R8
+      real(kind=R8) :: value
       type(HConfigParams) :: params
       integer :: status
       character(len=:), allocatable :: valuestring
@@ -353,7 +351,7 @@ contains
 
    @Test
    subroutine test_make_valuestring_i4seq()
-      character(len=*), parameter :: EXPECTED = '613, 361, 631, 136, 163'
+      character(len=*), parameter :: EXPECTED = '[613, 361, 631, 136, 163]'
       integer(kind=ESMF_KIND_I4), parameter :: DEFAULT(5) = [613, 361, 631, 136, 163]
       integer(kind=ESMF_KIND_I4), allocatable :: value(:)
       type(HConfigParams) :: params
@@ -371,9 +369,9 @@ contains
 
    @Test
    subroutine test_make_valuestring_r4seq()
-      character(len=*), parameter :: EXPECTED = '613.0000, 301.0060, 310.0060'
-      real(kind=ESMF_KIND_R4), parameter :: DEFAULT(3) = [613.0000, 301.0060, 310.0060]
-      real(kind=ESMF_KIND_R4), allocatable :: value(:)
+      character(len=*), parameter :: EXPECTED = '[613.0000, 301.0060, 310.0060]'
+      real(kind=R4), parameter :: DEFAULT(3) = 1.00_R4 * [613.00000, 301.00600, 310.00600]
+      real(kind=R4), allocatable :: value(:)
       type(HConfigParams) :: params
       integer :: status
       character(len=:), allocatable :: valuestring
@@ -389,7 +387,7 @@ contains
 
    @Test
    subroutine test_make_valuestring_i8seq()
-      character(len=*), parameter :: EXPECTED = '4294967296, 2494967296, 4294697296, 2949672964'
+      character(len=*), parameter :: EXPECTED = '[4294967296, 2494967296, 4294697296, 2949672964]'
       integer(kind=ESMF_KIND_I8), parameter :: DEFAULT(4) = [4294967296, 2494967296, 4294697296, 2949672964]
       integer(kind=ESMF_KIND_I8), allocatable :: value(:)
       type(HConfigParams) :: params
@@ -408,12 +406,10 @@ contains
    @Test
    subroutine test_make_valuestring_r8seq()
       character(len=*), parameter :: EXPECTED = &
-         '613.0000400000000, 413.0000600000000, ' // &
-         '361.0000700000000, 463.0000100000000'
-      real(kind=ESMF_KIND_R8), parameter :: DEFAULT(4) = &
-         [613.000040000000_ESMF_KIND_R8, 413.000060000000_ESMF_KIND_R8, &
-         361.000070000000_ESMF_KIND_R8, 463.000010000000_ESMF_KIND_R8]
-      real(kind=ESMF_KIND_R8), allocatable :: value(:)
+         '[613.0000400000000, 413.0000600000000, 361.0000700000000, 463.0000100000000]'
+      real(kind=R8), parameter :: DEFAULT(4) = &
+         [613.00004000000000_R8, 413.00006000000000_R8, 361.00007000000000_R8, 463.00001000000000_R8]
+      real(kind=R8), allocatable :: value(:)
       type(HConfigParams) :: params
       integer :: status
       character(len=:), allocatable :: valuestring
@@ -429,7 +425,7 @@ contains
 
    @Test
    subroutine test_make_valuestring_logicalseq()
-      character(len=*), parameter :: EXPECTED = 'T, F, F, T'
+      character(len=*), parameter :: EXPECTED = '[T, F, F, T]'
       logical, parameter :: DEFAULT(4) = [ .TRUE., .FALSE., .FALSE., .TRUE. ]
       logical, allocatable :: value(:)
       type(HConfigParams) :: params

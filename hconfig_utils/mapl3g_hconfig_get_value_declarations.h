@@ -7,3 +7,4 @@
       logical :: value_equals_default = .FALSE.
       character(len=:), allocatable :: valuestring_
       character(len=ESMF_MAXSTR) :: buffer
+      character(len=:), allocatable :: fmtstr
