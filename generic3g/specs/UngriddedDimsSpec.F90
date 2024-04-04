@@ -3,6 +3,7 @@
 module mapl3g_UngriddedDimsSpec
    use mapl3g_DimSpecVector
    use mapl3g_UngriddedDimSpec
+   use mapl3g_LU_Bound
    use mapl_ErrorHandling
    implicit none
 
@@ -21,8 +22,7 @@ module mapl3g_UngriddedDimsSpec
       procedure :: add_dim_spec
       procedure :: get_num_ungridded
       procedure :: get_ith_dim_spec
-      procedure :: get_lbounds
-      procedure :: get_ubounds
+      procedure :: get_bounds
    end type UngriddedDimsSpec
 
    interface UngriddedDimsSpec
@@ -110,37 +110,20 @@ contains
    end function get_ith_dim_spec
 
 
-   function get_lbounds(this) result(lbounds)
-      integer, allocatable :: lbounds(:)
+   function get_bounds(this) result(bounds)
+      type(LU_Bound), allocatable :: bounds(:)
       class(UngriddedDimsSpec), intent(in) :: this
 
       integer :: i
       class(UngriddedDimSpec), pointer :: dim_spec
 
-      allocate(lbounds(this%get_num_ungridded()))
+      allocate(bounds(this%get_num_ungridded()))
       do i = 1, this%get_num_ungridded()
          dim_spec => this%dim_specs%of(i)
-         lbounds(i) = dim_spec%get_lbound()
+         bounds(i) = dim_spec%get_bounds()
       end do
 
-   end function get_lbounds
-
-
-   function get_ubounds(this) result(ubounds)
-      integer, allocatable :: ubounds(:)
-      class(UngriddedDimsSpec), intent(in) :: this
-
-      integer :: i
-      class(UngriddedDimSpec), pointer :: dim_spec
-      
-      allocate(ubounds(this%get_num_ungridded()))
-      do i = 1, this%get_num_ungridded()
-         dim_spec => this%dim_specs%of(i)
-         ubounds(i) = dim_spec%get_ubound()
-      end do
-
-   end function get_ubounds
-
+   end function get_bounds
 
    logical function equal_to(a, b)
       type(UngriddedDimsSpec), intent(in) :: a

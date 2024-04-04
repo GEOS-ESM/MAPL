@@ -1,4 +1,5 @@
 module mapl3g_UngriddedDimSpec
+   use mapl3g_LU_Bound
    implicit none
    private
 
@@ -16,8 +17,7 @@ module mapl3g_UngriddedDimSpec
       procedure :: get_name
       procedure :: get_units
       procedure :: get_coordinates
-      procedure :: get_lbound
-      procedure :: get_ubound
+      procedure :: get_bounds
    end type UngriddedDimSpec
 
    interface UngriddedDimSpec
@@ -112,16 +112,12 @@ contains
    end function get_coordinates
 
 
-   pure integer function get_lbound(this) result(lbound)
+   pure function get_bounds(this) result(bound)
+      type(LU_Bound) :: bound
       class(UngriddedDimSpec), intent(in) :: this
-      lbound = 1
-   end function get_lbound
-
-
-   pure integer function get_ubound(this) result(ubound)
-      class(UngriddedDimSpec), intent(in) :: this
-      ubound = size(this%coordinates)
-   end function get_ubound
+      bound%lower = 1
+      bound%upper = size(this%coordinates)
+   end function get_bounds
 
 
    pure logical function equal_to(a, b)

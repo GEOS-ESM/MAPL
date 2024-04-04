@@ -33,7 +33,7 @@ contains
 
    function get_num_levels(this) result(num_levels)
       integer :: num_levels
-      class(VerticalGeom), intent(inout) :: this
+      class(VerticalGeom), intent(in) :: this
       num_levels = this%num_levels
    end function
       

@@ -20,6 +20,7 @@ module mapl3g_FieldSpec
    use mapl3g_RegridAction
    use mapl3g_ConvertUnitsAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use mapl3g_LU_Bound
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
@@ -71,6 +72,7 @@ module mapl3g_FieldSpec
       procedure :: make_extension
       procedure :: make_extension_safely
       procedure :: make_action
+
    end type FieldSpec
 
    interface FieldSpec
@@ -208,29 +210,18 @@ contains
 
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
+      type(LU_Bound), allocatable :: bounds(:)
       integer, allocatable :: final_lbounds(:),final_ubounds(:)
-      integer :: num_levels, total_ungridded_dims
+      integer :: num_levels
 
-      num_levels = this%vertical_geom%get_num_levels()
-      if (this%vertical_dim == VERTICAL_DIM_NONE) then
-         final_lbounds = this%ungridded_dims%get_lbounds()
-         final_ubounds = this%ungridded_dims%get_ubounds()
-      else
-         total_ungridded_dims = size(this%ungridded_dims%get_lbounds())
-         if (this%vertical_dim == VERTICAL_DIM_CENTER) then
-            final_lbounds = [1, this%ungridded_dims%get_lbounds()]
-            final_ubounds=[num_levels, this%ungridded_dims%get_ubounds()]
-         else if (this%vertical_dim == VERTICAL_DIM_EDGE) then
-            final_lbounds = [0, this%ungridded_dims%get_lbounds()]
-            final_ubounds = [num_levels, this%ungridded_dims%get_ubounds()]
-         end if
-      end if
+      
+      bounds = get_ungridded_bounds(this)
        
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_GRIDSET) then
          call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
-              ungriddedLBound= final_lbounds,  &
-              ungriddedUBound= final_ubounds,  &
+              ungriddedLBound=bounds%lower,  &
+              ungriddedUBound=bounds%upper,  &
              _RC)
          call ESMF_FieldGet(this%payload, status=fstatus, _RC)
          _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
@@ -292,7 +283,36 @@ contains
             
    end subroutine allocate
 
-   subroutine connect_to(this, src_spec, actual_pt, rc)
+   function get_ungridded_bounds(this) result(bounds)
+      type(LU_Bound), allocatable :: bounds(:)
+      type(FieldSpec), intent(in) :: this
+
+      integer:: num_levels
+      type(LU_Bound) :: vertical_bounds
+
+      bounds = this%ungridded_dims%get_bounds()
+      if (this%vertical_dim == VERTICAL_DIM_NONE) return
+      
+      vertical_bounds = get_vertical_bounds(this%vertical_dim, this%vertical_geom)
+      bounds = [vertical_bounds, bounds]
+
+   end function get_ungridded_bounds
+
+   function get_vertical_bounds(vertical_dim_spec, vertical_geom) result(bounds)
+      type(LU_Bound) :: bounds
+      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
+      type(VerticalGeom), intent(in) :: vertical_geom
+
+      bounds%lower = 1
+      bounds%upper = vertical_geom%get_num_levels()
+
+      if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
+         bounds%upper = bounds%upper + 1
+      end if
+      
+   end function get_vertical_bounds
+
+  subroutine connect_to(this, src_spec, actual_pt, rc)
       class(FieldSpec), intent(inout) :: this
       class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
