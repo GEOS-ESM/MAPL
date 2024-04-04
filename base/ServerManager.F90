@@ -22,7 +22,6 @@ module MAPL_ServerManager
          procedure :: initialize
          procedure :: finalize
          procedure :: get_splitcomm
-         procedure :: check_resource
    end type
 
 contains
@@ -234,7 +233,10 @@ contains
                                                                 with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)
               _VERIFY(stat_alloc)
-              call this%check_resource(nodes_out(i), _RC)
+              if (nodes_out(i) > 0 .and. this%o_server%node_num /= nodes_out(i)) then
+                 _FAIL("Inconsistent output server number. " // "The requested "//i_to_string(nodes_out(i)) &
+                        //" nodes for output server is different from available "//i_to_string(this%o_server%node_num)// " nodes")
+              endif
            else
 
               allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
@@ -301,25 +303,5 @@ contains
       call this%splitter%free_sub_comm()
       _RETURN(_SUCCESS)
    end subroutine finalize
-
-   subroutine check_resource(this,nnode_out,rc)
-      class(ServerManager), intent(inout) :: this
-      integer, intent(in) :: nnode_out
-      integer, optional, intent(out) :: rc
-      integer :: status, rank
-      integer :: size, k
-      integer, allocatable :: node_sizes(:)
-
-      if (nnode_out == 0) then
-        _RETURN(_SUCCESS)
-      endif
-
-      call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
-      if (this%o_server%node_num /= nnode_out) then
-         _FAIL("Inconsistent output server number. " // "The requested "//i_to_string(nnode_out) &
-                        //" nodes for output server is different from available "//i_to_string(k)// " nodes")
-      endif
-      _RETURN(_SUCCESS)
-   end subroutine
 
 end module MAPL_ServerManager
