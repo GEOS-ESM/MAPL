@@ -310,12 +310,14 @@ contains
       integer :: size, k
       integer, allocatable :: node_sizes(:)
 
+      if (nnode_out == 0) then
+        _RETURN(_SUCCESS)
+      endif
+
       call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
-      if (rank == 0 .and. nnode_out /=0 ) then
-         if( this%o_server%node_num /= nnode_out) then
-            write(*,'(A, I0, A, I0, A)') "The requested ", nnode_out,  " nodes for output server is different from available ", k , " nodes"
-            _FAIL("Inconsistent output server number")
-         endif
+      if (this%o_server%node_num /= nnode_out) then
+         _FAIL("Inconsistent output server number. " // "The requested "//i_to_string(nnode_out) &
+                        //" nodes for output server is different from available "//i_to_string(k)// " nodes")
       endif
       _RETURN(_SUCCESS)
    end subroutine
