@@ -18,6 +18,7 @@ add_pfunit_ctest(MAPL.geom_mgr.tests
                 MAX_PES 8
                 )
 set_target_properties(MAPL.geom_mgr.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.geom_mgr.tests PROPERTIES LABELS "ESSENTIAL")
 
 add_dependencies(build-tests MAPL.geom_mgr.tests)
 

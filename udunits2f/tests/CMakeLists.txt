@@ -10,6 +10,7 @@ add_pfunit_ctest(udunits2f.tests
                 LINK_LIBRARIES udunits2f
                 )
 set_target_properties(udunits2f.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(udunits2f.tests PROPERTIES LABELS "ESSENTIAL")
 
 # With this test, it was shown that if you are building with the GNU Fortran
 # compiler and *not* on APPLE, then you need to link with the dl library.
