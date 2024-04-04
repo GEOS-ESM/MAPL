@@ -17,6 +17,7 @@ module HistoryTrajectoryMod
      private
      type(ESMF_LocStream)   :: LS_rt
      type(ESMF_LocStream)   :: LS_ds
+     type(ESMF_LocStream)   :: LS_chunk
      type(LocStreamFactory) :: locstream_factory
      type(obs_unit),    allocatable :: obs(:)
      type(ESMF_Time),   allocatable :: times(:)
@@ -24,7 +25,7 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      integer,           allocatable :: obstype_id(:)
-     integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file     
+     integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file
 
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
@@ -69,6 +70,14 @@ module HistoryTrajectoryMod
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
      logical                        :: active               ! case: when no obs. exist
+     logical                        :: level_by_level = .true.
+     ! note
+     ! for MPI_GATHERV of 3D data in procedure :: append_file
+     ! we have choice LEVEL_BY_LEVEL or ALL_AT_ONCE  (timing in sec below for extdata)
+     !    c1440_L137_M1260  57.276       69.870
+     !    c5760_L137_M8820  98.494       93.140
+     ! M=cores
+     ! hence start using ALL_AT_ONCE from c5760+
    contains
      procedure :: initialize => initialize_
      procedure :: create_variable => create_metadata_variable

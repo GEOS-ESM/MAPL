@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add mask sampler for geostationary satellite (GEOS-R series)
 - Add geostation name into NC for station sampler
 - Add mapping between the IODA loc_index and trajectory NC output loc_index
-- Add allocate(X, _STAT) to sampler codes
+- Add `allocate(X, _STAT)` to sampler codes
 - Skip destroy_regen_grid when list(n)%end_alarm is active (the last time step in sampler)
 - Add extract_unquoted_item(STR1) to fix a bug in geoval_xname(mx_ngeoval) in trajectory sampler
 - Add `if (compute_transpose)` to sub. destroy_route_handle to avoid destroying a nonexisting route handle
@@ -28,18 +28,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add python utilities to split and recombine restarts
 - Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer
 - Implemented a new algorthm to read tile files
+- Added two options, depends_on and depends_on_children, to ACG
 
 ### Changed
 
+- Trajectory sampler: ls_rt -> ls_chunk (via mpi_gatherV) -> ls_distributed(bk=cs_grid; via ESMF_FieldRedistStore), aiming to save computational time. To gather 3D data via mpi,  options for level by level and single-3D are added via ifdef.
 - The MAPL\_ESMFRegridder manage now does compute the transpose by default
 - Bypassed the I-Server reading call when there is no extdata
+- Created new `ESSENTIAL` ctest label for tests that must pass for a release
+  - These are "simple" quick tests that don't require a lot of resources
+  - With ESMA_cmake v3.43.0, `make tests` will only run tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
 - Update `components.yaml`
-  - ESMA_cmake v3.42.0
+  - ESMA_cmake v3.43.0
     - Updates to MPI detection
     - Enable `-quiet` flag for NAG
+    - `make tests` now only runs tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
+    - `BUILT_ON_SLES15` set to `FALSE` on NCCS if not built on SLES15
+  - ESMA_env v4.28.0 (Baselibs 7.23.0)
+    - Updates to GFE v1.15
+    - Fixes for NAG
+    - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
 
 ### Fixed
 
+- Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
 - Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
 - Fixed bug with split restart files
 - Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
@@ -49,6 +61,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.44.3] - 2024-03-28
+
+### Fixed
+
+- The bundle I/O unit test was failing on NAG.  Partly due to an untrapped return code, but also some weird issue with setting values in ESMF Config. Probably not a bug in the compiler but something in  ESMF or MAPL handling line continuations.
 
 ## [2.44.2] - 2024-03-26
 
