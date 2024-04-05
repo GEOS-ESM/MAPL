@@ -146,17 +146,17 @@ module mapl3g_Generic
    end interface MAPL_ConnectAll
 
    interface MAPL_ResourceGet
-      module procedure :: mapl_resource_get_i4_gc
-      module procedure :: mapl_resource_get_i8_gc
-      module procedure :: mapl_resource_get_r4_gc
-      module procedure :: mapl_resource_get_r8_gc
-      module procedure :: mapl_resource_get_logical_gc
-      module procedure :: mapl_resource_get_i4seq_gc
-      module procedure :: mapl_resource_get_i8seq_gc
-      module procedure :: mapl_resource_get_r4seq_gc
-      module procedure :: mapl_resource_get_r8seq_gc
-      module procedure :: mapl_resource_get_logical_seq_gc
-      module procedure :: mapl_resource_get_string_gc
+      procedure :: resource_get_i4_gc
+      procedure :: resource_get_i8_gc
+      procedure :: resource_get_r4_gc
+      procedure :: resource_get_r8_gc
+      procedure :: resource_get_logical_gc
+      procedure :: resource_get_i4seq_gc
+      procedure :: resource_get_i8seq_gc
+      procedure :: resource_get_r4seq_gc
+      procedure :: resource_get_r8seq_gc
+      procedure :: resource_get_logical_seq_gc
+      procedure :: resource_get_string_gc
    end interface MAPL_ResourceGet
 
 contains
