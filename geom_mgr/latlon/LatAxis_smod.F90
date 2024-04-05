@@ -152,7 +152,6 @@ contains
       end if
 
       pole = ESMF_HConfigAsString(hconfig, keyString='pole', _RC)
-!      call MAPL_HConfigGet(hconfig, 'pole', pole, _RC)
       select case (pole)
       case ('PE')
          delta = 180.d0 / jm_world
