@@ -207,7 +207,6 @@ contains
       _RETURN_UNLESS(supports)
 
       geom_schema = ESMF_HConfigAsString(hconfig, keyString='schema', _RC)
-!      call MAPL_HConfigGet(hconfig, 'schema', geom_schema, _RC)
       supports = (geom_schema == 'latlon')
       _RETURN_UNLESS(supports)
       
