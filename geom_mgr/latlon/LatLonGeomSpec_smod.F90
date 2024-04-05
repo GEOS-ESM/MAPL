@@ -3,7 +3,6 @@
 submodule (mapl3g_LatLonGeomSpec) LatLonGeomSpec_smod
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
-!   use hconfig3g
    use pfio
    use MAPL_RangeMod
    use MAPLBase_Mod
