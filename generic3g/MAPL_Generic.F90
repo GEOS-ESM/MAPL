@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 !---------------------------------------------------------------------
-
+!
 ! This module contains procedures that are intended to be called from
 ! within user-level gridded components.  These are primarily thin
 ! wrappers that access the internal private state of the gridcomp and
@@ -12,7 +12,7 @@
 ! E.g., MAPL2 usually provided gridcomp and meta overloads for many
 ! procedures.  Now the "meta" interfaces are OO methods in either
 ! inner or outer MetaComponent.
-
+!
 !---------------------------------------------------------------------
 
 module mapl3g_Generic
