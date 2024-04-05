@@ -79,8 +79,6 @@ contains
       if (has_ims) then
          ims = ESMF_HConfigAsI4Seq(hconfig, keyString='ims', _RC)
          jms = ESMF_HConfigAsI4Seq(hconfig, keyString='jms', _RC)
-!         call MAPL_HConfigGet(hconfig, 'ims', ims,  _RC)
-!         call MAPL_HConfigGet(hconfig, 'jms', jms, _RC)
          decomp = LatLonDecomposition(ims, jms)
          _RETURN(_SUCCESS)
       end if
