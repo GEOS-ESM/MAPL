@@ -63,7 +63,6 @@ contains
 
       if (has_range) then ! is regional
          t_range = ESMF_HConfigAsR4Seq(hconfig, keyString='lon_range', _RC)
-      !   call MAPL_HConfigGet(hconfig, 'lon_range', t_range, _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(t_range(1) < t_range(2), 'illegal lon_range')
          delta = (t_range(2) - t_range(1)) / im_world
