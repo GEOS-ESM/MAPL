@@ -1133,8 +1133,6 @@ module NCIOMod
 
        if(myiorank==0) then
 
-         !write(*,'(A,E11.4)') 'Max time spent in R4_2d mpi_gatherv (seconds) ', maxtime
-
           jprev = 0
           k=1
           do l=1,num_io_rows
@@ -2712,8 +2710,6 @@ module NCIOMod
        _VERIFY(STATUS)
 
        if(myiorank==0) then
-
-         !write(*,'(A,E11.4)') 'Max time spent in R8_2d mpi_gatherv (seconds) ', maxtime
 
           jprev = 0
           k=1
