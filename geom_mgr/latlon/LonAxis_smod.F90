@@ -3,7 +3,6 @@
 submodule (mapl3g_LonAxis) LonAxis_smod
    use mapl_RangeMod
    use mapl_ErrorHandling
-!   use hconfig3g
    use esmf
    implicit none
    integer, parameter :: R8 = ESMF_KIND_R8
@@ -63,7 +62,6 @@ contains
 
       if (has_range) then ! is regional
          t_range = ESMF_HConfigAsR4Seq(hconfig, keyString='lon_range', _RC)
-      !   call MAPL_HConfigGet(hconfig, 'lon_range', t_range, _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(t_range(1) < t_range(2), 'illegal lon_range')
          delta = (t_range(2) - t_range(1)) / im_world
@@ -76,7 +74,6 @@ contains
       end if
 
       delta = 360.d0 / im_world
-!      call MAPL_HConfigGet(hconfig, 'dateline', dateline, _RC)
       dateline = ESMF_HConfigAsString(hconfig, keyString='dateline', _RC)
       select case (dateline)
       case ('DC')
@@ -128,13 +125,10 @@ contains
       supports = .true.
 
       has_im_world = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
-!      has_im_world = MAPL_HConfigKeystringFound(hconfig, keystring='im_world', _RC)
       _RETURN_UNLESS(has_im_world)
 
       has_lon_range = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
       has_dateline = ESMF_HConfigIsDefined(hconfig, keystring='dateline', _RC)
-!      has_lon_range = MAPL_HConfigKeystringFound(hconfig, keystring='lon_range', _RC)
-!      has_dateline = MAPL_HConfigKeystringFound(hconfig, keystring='dateline', _RC)
       _RETURN_UNLESS(has_lon_range .neqv. has_dateline)
       supports = .true.
 

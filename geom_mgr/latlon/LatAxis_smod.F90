@@ -81,8 +81,6 @@ contains
 
       jm_world = ESMF_HConfigAsI4(hconfig, keyString='jm_world', asOkay=found, _RC)
       _ASSERT(found, '"jm_world" not found.')
-!      call MAPL_HConfigGet(hconfig, 'jm_world', jm_world, _RC)
-!      call MAPL_HConfigGet(hconfig, 'jm_world', jm_world, _RC) !wdb fixme deleteme
       _ASSERT(jm_world > 0, 'jm_world must be greater than 1')
 
       ranges = get_lat_range(hconfig, jm_world, _RC)
@@ -142,7 +140,6 @@ contains
 
       if (has_range) then ! is_regional
          t_range = ESMF_HConfigAsR4Seq(hconfig, keyString='lat_range', _RC)
-!         call MAPL_HConfigGet(hconfig, 'lat_range', t_range, _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(range(1) < range(2), 'illegal lat_range')
          delta = (range(2) - range(1)) / jm_world
@@ -155,7 +152,6 @@ contains
       end if
 
       pole = ESMF_HConfigAsString(hconfig, keyString='pole', _RC)
-!      call MAPL_HConfigGet(hconfig, 'pole', pole, _RC)
       select case (pole)
       case ('PE')
          delta = 180.d0 / jm_world

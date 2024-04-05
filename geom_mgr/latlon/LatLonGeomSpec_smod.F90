@@ -3,7 +3,6 @@
 submodule (mapl3g_LatLonGeomSpec) LatLonGeomSpec_smod
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
-!   use hconfig3g
    use pfio
    use MAPL_RangeMod
    use MAPLBase_Mod
@@ -80,8 +79,6 @@ contains
       if (has_ims) then
          ims = ESMF_HConfigAsI4Seq(hconfig, keyString='ims', _RC)
          jms = ESMF_HConfigAsI4Seq(hconfig, keyString='jms', _RC)
-!         call MAPL_HConfigGet(hconfig, 'ims', ims,  _RC)
-!         call MAPL_HConfigGet(hconfig, 'jms', jms, _RC)
          decomp = LatLonDecomposition(ims, jms)
          _RETURN(_SUCCESS)
       end if
@@ -93,8 +90,6 @@ contains
       if (has_nx) then
          nx = ESMF_HConfigAsI4(hconfig, keyString='nx', _RC)
          ny = ESMF_HConfigAsI4(hconfig, keyString='ny', _RC)
-!         call MAPL_HConfigGet(hconfig, 'nx', nx, _RC)
-!         call MAPL_HConfigGet(hconfig, 'ny', ny, _RC)
          decomp = LatLonDecomposition(dims, topology=[nx, ny])
          _RETURN(_SUCCESS)
       end if
@@ -210,7 +205,6 @@ contains
       _RETURN_UNLESS(supports)
 
       geom_schema = ESMF_HConfigAsString(hconfig, keyString='schema', _RC)
-!      call MAPL_HConfigGet(hconfig, 'schema', geom_schema, _RC)
       supports = (geom_schema == 'latlon')
       _RETURN_UNLESS(supports)
       
