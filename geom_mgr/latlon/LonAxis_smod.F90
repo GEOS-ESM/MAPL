@@ -129,8 +129,6 @@ contains
 
       has_lon_range = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
       has_dateline = ESMF_HConfigIsDefined(hconfig, keystring='dateline', _RC)
-!      has_lon_range = MAPL_HConfigKeystringFound(hconfig, keystring='lon_range', _RC)
-!      has_dateline = MAPL_HConfigKeystringFound(hconfig, keystring='dateline', _RC)
       _RETURN_UNLESS(has_lon_range .neqv. has_dateline)
       supports = .true.
 
