@@ -3,7 +3,6 @@
 submodule (mapl3g_LonAxis) LonAxis_smod
    use mapl_RangeMod
    use mapl_ErrorHandling
-!   use hconfig3g
    use esmf
    implicit none
    integer, parameter :: R8 = ESMF_KIND_R8
