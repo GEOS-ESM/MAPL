@@ -1,4 +1,5 @@
 target_sources(MAPL.generic3g PRIVATE
+  LU_Bound.F90
   VariableSpec.F90
   StateItem.F90
   VariableSpecVector.F90

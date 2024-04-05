@@ -1,4 +1,10 @@
+#include "MAPL_Generic.h"
 module mapl3g_UngriddedDimSpec
+   use mapl3g_LU_Bound
+   use mapl_ErrorHandling
+   use esmf, only: ESMF_Info
+   use esmf, only: ESMF_InfoCreate
+   use esmf, only: ESMF_InfoSet
    implicit none
    private
 
@@ -16,8 +22,8 @@ module mapl3g_UngriddedDimSpec
       procedure :: get_name
       procedure :: get_units
       procedure :: get_coordinates
-      procedure :: get_lbound
-      procedure :: get_ubound
+      procedure :: get_bounds
+      procedure :: make_info
    end type UngriddedDimSpec
 
    interface UngriddedDimSpec
@@ -112,16 +118,12 @@ contains
    end function get_coordinates
 
 
-   pure integer function get_lbound(this) result(lbound)
+   pure function get_bounds(this) result(bound)
+      type(LU_Bound) :: bound
       class(UngriddedDimSpec), intent(in) :: this
-      lbound = 1
-   end function get_lbound
-
-
-   pure integer function get_ubound(this) result(ubound)
-      class(UngriddedDimSpec), intent(in) :: this
-      ubound = size(this%coordinates)
-   end function get_ubound
+      bound%lower = 1
+      bound%upper = size(this%coordinates)
+   end function get_bounds
 
 
    pure logical function equal_to(a, b)
@@ -144,5 +146,24 @@ contains
       not_equal_to = .not. (a == b)
 
    end function not_equal_to
+
+   function make_info(this, rc) result(info)
+      type(ESMF_Info) :: info
+      class(UngriddedDimSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      info = ESMF_InfoCreate(_RC)
+      if (allocated(this%name)) then
+         call ESMF_InfoSet(info, key='name', value=this%name, _RC)
+      end if
+      if (allocated(this%units)) then
+         call ESMF_InfoSet(info, key='units', value=this%units, _RC)
+      end if
+      call ESMF_InfoSet(info, key='coordinates', values=this%coordinates, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_info
 
 end module mapl3g_UngriddedDimSpec
