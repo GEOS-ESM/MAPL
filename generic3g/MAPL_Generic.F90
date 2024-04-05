@@ -600,7 +600,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_hconfig
 
-   subroutine mapl_resource_get_i4_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_i4_gc(gc, keystring, value, unusable, default, value_set, rc)
       integer(kind=ESMF_KIND_I4), intent(inout) :: value
       integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -621,9 +621,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_i4_gc
+   end subroutine resource_get_i4_gc
 
-   subroutine mapl_resource_get_i8_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_i8_gc(gc, keystring, value, unusable, default, value_set, rc)
       integer(kind=ESMF_KIND_I8), intent(inout) :: value
       integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -644,9 +644,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_i8_gc
+   end subroutine resource_get_i8_gc
    
-   subroutine mapl_resource_get_r4_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_r4_gc(gc, keystring, value, unusable, default, value_set, rc)
       real(kind=ESMF_KIND_R4), intent(inout) :: value
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -667,9 +667,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_r4_gc
+   end subroutine resource_get_r4_gc
 
-   subroutine mapl_resource_get_r8_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_r8_gc(gc, keystring, value, unusable, default, value_set, rc)
       real(kind=ESMF_KIND_R8), intent(inout) :: value
       real(kind=ESMF_KIND_R8), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -690,9 +690,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_r8_gc
+   end subroutine resource_get_r8_gc
 
-   subroutine mapl_resource_get_logical_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_logical_gc(gc, keystring, value, unusable, default, value_set, rc)
       logical, intent(inout) :: value
       logical, optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -713,9 +713,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_logical_gc
+   end subroutine resource_get_logical_gc
 
-   subroutine mapl_resource_get_string_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_string_gc(gc, keystring, value, unusable, default, value_set, rc)
       character(len=:), allocatable, intent(inout) :: value
       character(len=*), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -736,9 +736,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_string_gc
+   end subroutine resource_get_string_gc
 
-   subroutine mapl_resource_get_i4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_i4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
       integer(kind=ESMF_KIND_I4), dimension(:), allocatable, intent(inout) :: value
       integer(kind=ESMF_KIND_I4), dimension(:), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -759,9 +759,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_i4seq_gc
+   end subroutine resource_get_i4seq_gc
 
-   subroutine mapl_resource_get_i8seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_i8seq_gc(gc, keystring, value, unusable, default, value_set, rc)
       integer(kind=ESMF_KIND_I8), dimension(:), allocatable, intent(inout) :: value
       integer(kind=ESMF_KIND_I8), dimension(:), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -782,9 +782,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_i8seq_gc
+   end subroutine resource_get_i8seq_gc
 
-   subroutine mapl_resource_get_r4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_r4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
       real(kind=ESMF_KIND_R4), dimension(:), allocatable, intent(inout) :: value
       real(kind=ESMF_KIND_R4), dimension(:), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -805,9 +805,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_r4seq_gc
+   end subroutine resource_get_r4seq_gc
 
-   subroutine mapl_resource_get_r8seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_r8seq_gc(gc, keystring, value, unusable, default, value_set, rc)
       real(kind=ESMF_KIND_R8), dimension(:), allocatable, intent(inout) :: value
       real(kind=ESMF_KIND_R8), dimension(:), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -828,9 +828,9 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_r8seq_gc
+   end subroutine resource_get_r8seq_gc
 
-   subroutine mapl_resource_get_logical_seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine resource_get_logical_seq_gc(gc, keystring, value, unusable, default, value_set, rc)
       logical, dimension(:), allocatable, intent(inout) :: value
       logical, dimension(:), optional, intent(in) :: default
       type(ESMF_GridComp), intent(inout) :: gc
@@ -851,6 +851,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine mapl_resource_get_logical_seq_gc
+   end subroutine resource_get_logical_seq_gc
 
 end module mapl3g_Generic
