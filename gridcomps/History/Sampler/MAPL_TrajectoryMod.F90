@@ -17,6 +17,7 @@ module HistoryTrajectoryMod
      private
      type(ESMF_LocStream)   :: LS_rt
      type(ESMF_LocStream)   :: LS_ds
+     type(ESMF_LocStream)   :: LS_chunk
      type(LocStreamFactory) :: locstream_factory
      type(obs_unit),    allocatable :: obs(:)
      type(ESMF_Time),   allocatable :: times(:)
@@ -24,6 +25,7 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      integer,           allocatable :: obstype_id(:)
+     integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file
 
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
@@ -40,17 +42,23 @@ module HistoryTrajectoryMod
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime
-     type(ESMF_TimeInterval)  :: epoch_frequency
+     type(ESMF_TimeInterval), public  :: epoch_frequency
 
      integer                        :: nobs_type
-     character(len=ESMF_MAXSTR)     :: nc_index
-     character(len=ESMF_MAXSTR)     :: nc_time
-     character(len=ESMF_MAXSTR)     :: nc_latitude
-     character(len=ESMF_MAXSTR)     :: nc_longitude
+!     character(len=ESMF_MAXSTR)     :: nc_index
+!     character(len=ESMF_MAXSTR)     :: nc_time
+!     character(len=ESMF_MAXSTR)     :: nc_latitude
+!     character(len=ESMF_MAXSTR)     :: nc_longitude
+
+     character(len=ESMF_MAXSTR)     :: index_name_x
      character(len=ESMF_MAXSTR)     :: var_name_time
      character(len=ESMF_MAXSTR)     :: var_name_lat
      character(len=ESMF_MAXSTR)     :: var_name_lon
+     character(len=ESMF_MAXSTR)     :: var_name_time_full
+     character(len=ESMF_MAXSTR)     :: var_name_lat_full
+     character(len=ESMF_MAXSTR)     :: var_name_lon_full
      character(len=ESMF_MAXSTR)     :: datetime_units
+     character(len=ESMF_MAXSTR)     :: Location_index_name
      integer                        :: epoch        ! unit: second
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
@@ -61,9 +69,17 @@ module HistoryTrajectoryMod
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
-     logical                        :: is_valid
+     logical                        :: active               ! case: when no obs. exist
+     logical                        :: level_by_level = .true.
+     ! note
+     ! for MPI_GATHERV of 3D data in procedure :: append_file
+     ! we have choice LEVEL_BY_LEVEL or ALL_AT_ONCE  (timing in sec below for extdata)
+     !    c1440_L137_M1260  57.276       69.870
+     !    c5760_L137_M8820  98.494       93.140
+     ! M=cores
+     ! hence start using ALL_AT_ONCE from c5760+
    contains
-     procedure :: initialize
+     procedure :: initialize => initialize_
      procedure :: create_variable => create_metadata_variable
      procedure :: create_file_handle
      procedure :: close_file_handle
@@ -89,7 +105,7 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 
-     module subroutine initialize(this,items,bundle,timeInfo,vdata,reinitialize,rc)
+     module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
        class(HistoryTrajectory), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
@@ -97,7 +113,7 @@ module HistoryTrajectoryMod
        type(VerticalData), optional, intent(inout) :: vdata
        logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
-     end subroutine initialize
+     end subroutine initialize_
 
      module subroutine  create_metadata_variable(this,vname,rc)
        class(HistoryTrajectory), intent(inout) :: this

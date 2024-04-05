@@ -108,7 +108,8 @@
                                           !! needed by a derived field where the primary fields
                                           !! are not actually required
      type(ESMF_Config)    :: CF
-     logical              :: active
+     logical              :: active = .true.
+     logical              :: file_weights = .false.
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF
@@ -290,7 +291,7 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
    call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
-   self%active = am_i_running(new_rc_file,_RC)
+   call get_global_options(new_rc_file,self%active,self%file_weights,_RC)
 
    call ESMF_ClockGet(CLOCK, currTIME=time, _RC)
 ! Get information from export state
@@ -626,7 +627,7 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
 
    call MAPL_TimerOn(MAPLSTATE,"---prefetch")
-   call MAPL_ExtDataPrefetch(IOBundles, vm=vm, rc=status)
+   call MAPL_ExtDataPrefetch(IOBundles, file_weights=self%file_weights, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---prefetch")
    _VERIFY(STATUS)
@@ -1386,16 +1387,19 @@ CONTAINS
 
   end subroutine MAPL_ExtDataDestroyCFIO
 
-  subroutine MAPL_ExtDataPrefetch(IOBundles, vm, rc)
+  subroutine MAPL_ExtDataPrefetch(IOBundles,file_weights,rc)
      type(IOBundleNGVector), target, intent(inout) :: IOBundles
-     type(ESMF_VM), optional, intent(in) :: vm
+     logical, intent(in) :: file_weights
      integer, optional,      intent(out  ) :: rc
 
-     integer :: n,nfiles
+     integer :: n,nfiles,regrid_hints
      type(ExtDataNG_IOBundle), pointer :: io_bundle => null()
      integer :: status
 
      nfiles = IOBundles%size()
+
+     regrid_hints = 0
+     if (file_weights) regrid_hints = IOR(regrid_hints,REGRID_HINT_FILE_WEIGHTS)
 
      do n = 1, nfiles
         io_bundle => IOBundles%at(n)
@@ -1403,6 +1407,7 @@ CONTAINS
         if (io_bundle%on_tiles) then
            call io_bundle%tile_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,_RC)
         else
+           call io_bundle%grid_io%set_param(regrid_hints=regrid_hints)
            call io_bundle%grid_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,_RC)
         end if
      enddo
@@ -1789,22 +1794,26 @@ CONTAINS
      _RETURN(_SUCCESS)
   end function get_item_index
 
-  function am_i_running(yaml_file,rc) result(am_running)
-     logical :: am_running
+  subroutine get_global_options(yaml_file,am_running,use_file_weights,rc)
      character(len=*), intent(in) :: yaml_file
+     logical,intent(out) :: am_running
+     logical,intent(out) :: use_file_weights
      integer, intent(out), optional :: rc
+     type(ESMF_HConfig), allocatable :: config
+     integer :: status
 
-      type(ESMF_HConfig), allocatable :: config
-      integer :: status
+     am_running=.true.
+     use_file_weights=.false.
+     config = ESMF_HConfigCreate(filename = trim(yaml_file),_RC)
+     if (ESMF_HConfigIsDefined(config,keyString="USE_EXTDATA")) then
+        am_running  = ESMF_HConfigAsLogical(config,keyString="USE_EXTDATA",_RC)
+     end if
+     if (ESMF_HConfigIsDefined(config,keyString="file_weights")) then
+        use_file_weights  = ESMF_HConfigAsLogical(config,keyString="file_weights",_RC)
+     end if
+     call ESMF_HConfigDestroy(config)
+     _RETURN(_SUCCESS)
+  end subroutine get_global_options
 
-      am_running=.true.
-
-      config = ESMF_HConfigCreate(filename = trim(yaml_file),_RC)
-      if (ESMF_HConfigIsDefined(config,keyString="USE_EXTDATA")) then
-         am_running  = ESMF_HConfigAsLogical(config,keyString="USE_EXTDATA",_RC)
-      end if
-      _RETURN(_SUCCESS)
-
-   end function am_i_running
 
  END MODULE MAPL_ExtDataGridComp2G

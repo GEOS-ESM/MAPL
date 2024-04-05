@@ -128,6 +128,7 @@ CONTAINS
        pole=grid_name(1:2)
 
        cf = MAPL_ConfigCreate(_RC)
+       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".other:",_RC)
        call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
        call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
        if (jm_world==6*im_world) then

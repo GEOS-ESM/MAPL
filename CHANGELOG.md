@@ -9,13 +9,134 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x
+- Allow arithmetic operations to be performed on fields from bundles in History
+- Adapted subroutine RegridVector from GriddedIO.F90 to MAPL_EpochSwathMod.F90 (changing class name for this)
+- Give informative error message when swath grid Epoch does not equal swath sampler frequency
+- Add mask sampler for geostationary satellite (GEOS-R series)
+- Add geostation name into NC for station sampler
+- Add mapping between the IODA loc_index and trajectory NC output loc_index
+- Add `allocate(X, _STAT)` to sampler codes
+- Skip destroy_regen_grid when list(n)%end_alarm is active (the last time step in sampler)
+- Add extract_unquoted_item(STR1) to fix a bug in geoval_xname(mx_ngeoval) in trajectory sampler
+- Add `if (compute_transpose)` to sub. destroy_route_handle to avoid destroying a nonexisting route handle
+- Add option to MAPL regridding layer to write and retrieve ESMF weights.
+- Add options to History and ExtData to turn on the ability to write and read route handle weights
+- Add option to renable the transpose computation when calling make\_regridder
+- Added procedures to remove an attribute from a FileMetadata object and from a Variable object in PFIO
+- Add per-collection timer output for History
+- Add python utilities to split and recombine restarts
+- Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer
+- Implemented a new algorthm to read tile files
+- Added two options, depends_on and depends_on_children, to ACG
+
 ### Changed
 
+- Trajectory sampler: ls_rt -> ls_chunk (via mpi_gatherV) -> ls_distributed(bk=cs_grid; via ESMF_FieldRedistStore), aiming to save computational time. To gather 3D data via mpi,  options for level by level and single-3D are added via ifdef.
+- The MAPL\_ESMFRegridder manage now does compute the transpose by default
+- Bypassed the I-Server reading call when there is no extdata
+- Created new `ESSENTIAL` ctest label for tests that must pass for a release
+  - These are "simple" quick tests that don't require a lot of resources
+  - With ESMA_cmake v3.43.0, `make tests` will only run tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
+- Update `components.yaml`
+  - ESMA_cmake v3.43.0
+    - Updates to MPI detection
+    - Enable `-quiet` flag for NAG
+    - `make tests` now only runs tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
+    - `BUILT_ON_SLES15` set to `FALSE` on NCCS if not built on SLES15
+  - ESMA_env v4.28.0 (Baselibs 7.23.0)
+    - Updates to GFE v1.15
+    - Fixes for NAG
+    - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
+
 ### Fixed
+
+- Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
+- Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
+- Fixed bug with split restart files
+- Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
+- Fixes to allow SCM model to run
 
 ### Removed
 
 ### Deprecated
+
+## [2.44.3] - 2024-03-28
+
+### Fixed
+
+- The bundle I/O unit test was failing on NAG.  Partly due to an untrapped return code, but also some weird issue with setting values in ESMF Config. Probably not a bug in the compiler but something in  ESMF or MAPL handling line continuations.
+
+## [2.44.2] - 2024-03-26
+
+### Fixed
+
+- Fixed bug in `time_ave_util.x` when the input files have a level size of 1
+
+## [2.44.1] - 2024-03-19
+
+### Fixed
+
+- Fix bug where bit-shaved, instantaneous binary output in History was modifying the original export state passed
+
+## [2.44.0] - 2024-02-08
+
+### Added
+
+- Added nf90 interface to read and write 1d string
+- Convert from ABI Fixed Grid to lon/lat coordinates used in MAPL_XYGridFactory (supporting geostationary GOES-R series)
+- Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
+- Modify swath sampler to handle two Epoch swath grids
+- Handle regrid accumulate for time step (1 sec) during which no obs exists
+- Use IntState%stampoffset(n) to adjust filenames for an epoch time
+- parse "GOCART::CO2" from 'geovals_fields' entry in PLATFORM
+- Add call MAPL_InitializeShmem to ExtDataDriverGridComp.F90
+- Read swath data on root, call MAPL_CommsBcast [which sends data to Shmem (when Shmem initialized) or to MAPL_comm otherwise]. This approach avoids race in reading nc files [e.g. 37 files for 3 hr swath data]
+- Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
+- Added capability in XY grid factory to add a mask to the grid any points are missing needed for geostationary input data
+- Added capability in the MAPL ESMF regridding wrapper to apply a destination mask if the destination grid contains a mask
+- Added `INSTALL.md` file to provide instructions on how to install MAPL
+
+### Changed
+
+- Updated ESMF required version to 8.6.0
+- Allocate gridded fields to use the pinflag option needed for the Single System Image  (SSI) capability.
+- Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
+- Replaced RC=STATUS plus `_VERIFY(RC)` in `Base_Base_implementation.F90` with just `_RC` in line with our new convention.
+- Updated CI to use Open MPI 5.0.0 for GNU
+- Enable Ninja for CI builds of MAPL
+- Removed use of `ESMF_HAS_ACHAR_BUG` CMake option and code use in `MAPL_Config.F90`. Testing has shown that with ESMF 8.6 (which is
+  now required), NAG no longer needs this workaround.
+- Refactor the CircleCI workflows for more flexibility
+- Fix field utils issue - add npes argument to test subroutine decorators.
+- Change MAPL CMake to use `ESMF::ESMF` target instead of `esmf` or `ESMF` as the imported target name
+  - Updated `FindESMF.cmake` to match that of ESMF `develop` as of commit `da8f410`. This will be in ESMF 8.6.1+
+  - Requires ESMA_cmake 3.40.0 or later as this adds the `ESMF::ESMF` target ALIAS for Baselibs and non-Baselibs builds
+- Changed `CMakePresets.json`
+  - Updated to version 7 and required CMake 3.27.0 (the minimum version that supports CMakePresets.json v7)
+  - Changed build style on NCCS machines to by default put build and install directories in a user-specified directory so as not to
+    pollute swdev
+
+### Fixed
+
+- Restore missing submodule interfaces
+- Explictly `use` some `iso_c_binding` types previously pulled in through ESMF. This is fixed in future ESMF versions (8.7+) and so
+  we anticipate this here
+- Add explicit `Fortran_MODULE_DIRECTORY` to `CMakeLists.txt` in benchmarks to avoid race condition in Ninja builds
+- Add check to make sure ESMF was not built as `mpiuni`
+- Fixed failing tests for `field_utils`.
+- Various fixes for NVHPC work
+
+### Removed
+
+### Deprecated
+- The write-by-face option for checkpoint/restart has been depreciated. This has been replaced by a more generic file-per-writer option
+
+## [2.43.2] - 2024-02-06
+
+### Fixed
+
+- Fixed memory leak affecting regional masking. Temporary ESMF field was created but never destroyed
 
 ## [2.43.1] - 2024-01-29
 

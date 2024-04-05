@@ -33,7 +33,7 @@ set (SRCS
 #  MAPL_Initialize.F90
 #  )
 #target_link_libraries (base_extras MAPL.shared MAPL.pfunit
-#                                   esmf NetCDF::NetCDF_Fortran)
+#                                   ESMF::ESMF NetCDF::NetCDF_Fortran)
 
 add_pfunit_ctest(MAPL.base.tests
                 TEST_SOURCES ${TEST_SRCS}
@@ -45,6 +45,7 @@ add_pfunit_ctest(MAPL.base.tests
                 MAX_PES 8
                 )
 set_target_properties(MAPL.base.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.base.tests PROPERTIES LABELS "ESSENTIAL")
 
 add_dependencies(build-tests MAPL.base.tests)
 
