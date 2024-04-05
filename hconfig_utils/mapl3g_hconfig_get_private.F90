@@ -10,7 +10,7 @@ module mapl3g_hconfig_get_private
 
    implicit none
    private
-   public :: get_value, HConfigParams
+   public :: get_value, HConfigParams, DEFAULT_TAG, ELLIPSIS
 
    interface get_value
       module procedure :: get_value_i4
@@ -26,9 +26,9 @@ module mapl3g_hconfig_get_private
       module procedure :: get_value_logical_seq
    end interface get_value
 
-   character(len=*), parameter :: DEFAULT_FMT = '(*(G0:", "))'
-   character(len=*), parameter :: SCALAR_FMT = '(G0)'
-   character(len=*), parameter :: ARRAY_FMT = '(G0:, *(", ", G0:))'
+   character(len=*), parameter :: DEFAULT_TAG = ' (default)'
+   character(len=*), parameter :: ELLIPSIS = ', ...'
+   integer, parameter :: MAX_NUM_ITEMS_OUTPUT = 3
 
 contains
 
