@@ -49,7 +49,6 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
-!   use hconfig3g
    use mapl3g_hconfig_get
    use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
