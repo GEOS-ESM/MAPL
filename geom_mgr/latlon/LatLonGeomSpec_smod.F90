@@ -92,8 +92,6 @@ contains
       if (has_nx) then
          nx = ESMF_HConfigAsI4(hconfig, keyString='nx', _RC)
          ny = ESMF_HConfigAsI4(hconfig, keyString='ny', _RC)
-!         call MAPL_HConfigGet(hconfig, 'nx', nx, _RC)
-!         call MAPL_HConfigGet(hconfig, 'ny', ny, _RC)
          decomp = LatLonDecomposition(dims, topology=[nx, ny])
          _RETURN(_SUCCESS)
       end if
