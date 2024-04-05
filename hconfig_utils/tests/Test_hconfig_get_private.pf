@@ -1,0 +1,559 @@
+module Test_hconfig_get_private
+   use mapl3g_hconfig_get_private, DEFTAG => DEFAULT_TAG
+   use ESMF, R4 => ESMF_KIND_R4, R8 => ESMF_KIND_R8
+   use pfunit
+
+   implicit none
+
+   ! error message stubs
+   character(len=*), parameter :: ERROR_GET_FAILED = 'get_value failed.'
+   character(len=*), parameter :: ERROR_ADD_FAIL = 'Add failed.'
+   character(len=*), parameter :: ERROR_NOT_FOUND = 'Find failed for: '
+   character(len=*), parameter :: ERROR_MISMATCH = 'actual does not match expected.'
+
+   ! instance variables
+   logical :: hconfig_is_created = .FALSE.
+   type(ESMF_HConfig) :: hconfig
+
+contains
+
+   @Test
+   subroutine test_get_i4()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED = 137
+      integer(kind=ESMF_KIND_I4) :: actual
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+
+   end subroutine test_get_i4
+
+   @Test
+   subroutine test_get_i4_not_found_default()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=ESMF_KIND_I4), parameter :: DEFAULT = 137
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '137' // DEFTAG
+      integer(kind=ESMF_KIND_I4) :: actual
+      character(len=:), allocatable :: valuestring
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertEqual(DEFAULT, actual, ERROR_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, valuestring_mismatch(valuestring, EXPECTED_VALUESTRING))
+
+   end subroutine test_get_i4_not_found_default
+
+   @Test
+   subroutine test_get_i4_value_equals_default()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED = 137
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '137' // DEFTAG
+      integer(kind=ESMF_KIND_I4) :: actual
+      character(len=:), allocatable :: valuestring
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, default=EXPECTED, valuestring=valuestring, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertEqual(EXPECTED, actual, ERROR_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, valuestring_mismatch(valuestring, EXPECTED_VALUESTRING))
+
+   end subroutine test_get_i4_value_equals_default
+
+   @Test
+   subroutine test_get_i4_value_not_equal_default()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED = 137
+      integer(kind=ESMF_KIND_I4), parameter :: DEFAULT = 1
+      character(len=*), parameter :: EXPECTED_VALUESTRING = '137'
+      integer(kind=ESMF_KIND_I4) :: actual
+      character(len=:), allocatable :: valuestring
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertEqual(EXPECTED, actual, ERROR_MISMATCH)
+      @assertEqual(EXPECTED_VALUESTRING, valuestring, valuestring_mismatch(valuestring, EXPECTED_VALUESTRING))
+
+   end subroutine test_get_i4_value_not_equal_default
+
+   @Test
+   subroutine test_get_i4_not_found_no_default()
+      character(len=*), parameter :: LABEL = 'inv_alpha'
+      integer(kind=ESMF_KIND_I4) :: actual
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status_
+
+      params = HConfigParams(hconfig, LABEL)
+      call get_value(params, actual, rc=status_)
+      found = params%value_set
+      @assertFalse(status_ == 0, 'get_value should have failed.')
+
+   end subroutine test_get_i4_not_found_no_default
+
+   @Test
+   subroutine test_get_i8()
+      character(len=*), parameter :: LABEL = 'num_h_on_pinhead'
+      integer(kind=ESMF_KIND_I8), parameter :: EXPECTED = 50000000000
+      integer(kind=ESMF_KIND_I8) :: actual
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+
+   end subroutine test_get_i8
+   
+   @Test
+   subroutine test_get_r4()
+      character(len=*), parameter :: LABEL = 'plank_mass'
+      real(kind=R4), parameter :: EXPECTED =   1.85900000E-9_R4
+      real(kind=R4) :: actual
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+
+   end subroutine test_get_r4
+   
+   @Test
+   subroutine test_get_r8()
+      character(len=*), parameter :: LABEL = 'mu_mass'
+      real(kind=R8), parameter :: EXPECTED = -9.28476470432000000E-23_R8
+      real(kind=R8) :: actual
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
+
+   end subroutine test_get_r8
+
+   @Test
+   subroutine test_get_string()
+      character(len=*), parameter :: LABEL = 'newton'
+      character(len=*), parameter :: EXPECTED = 'Fg = Gm1m2/r^2'
+      character(len=:), allocatable :: actual
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue((actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_get_string
+
+   @Test
+   subroutine test_get_logical()
+      character(len=*), parameter :: LABEL = 'p_or_np'
+      logical, parameter :: EXPECTED = .TRUE.
+      logical :: actual
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue((actual .eqv. EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_get_logical
+
+   @Test
+   subroutine test_get_i4seq()
+      character(len=*), parameter :: LABEL = 'five'
+      integer(kind=ESMF_KIND_I4), parameter :: EXPECTED(5) = [-1, 0, 1, 2, 3]
+      integer(kind=ESMF_KIND_I4), allocatable :: actual(:)
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_get_i4seq
+
+   @Test
+   subroutine test_get_i8seq()
+      character(len=*), parameter :: LABEL = 'three'
+      integer(kind=ESMF_KIND_I8), parameter :: EXPECTED(3) = [-1, 0, 1]
+      integer(kind=ESMF_KIND_I8), allocatable :: actual(:)
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_get_i8seq
+
+   @Test
+   subroutine test_get_r4seq()
+      character(len=*), parameter :: LABEL = 'four'
+      real(kind=R4), parameter :: EXPECTED(4) = &
+         [-1.23456780_R4, 1.23456780_R4, 9.87654300_R4, -9.87654300_R4]
+      real(kind=R4), allocatable :: actual(:)
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_get_r4seq
+
+   @Test
+   subroutine test_get_r8seq()
+      character(len=*), parameter :: LABEL = 'four'
+      real(kind=R8), parameter :: EXPECTED(4) = &
+         [613.00004000000000_R8, 413.00006000000000_R8, 361.00007000000000_R8, 463.00001000000000_R8]
+      real(kind=R8), allocatable :: actual(:)
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_get_r8seq
+
+   @Test
+   subroutine test_get_logical_seq()
+      character(len=*), parameter :: LABEL = 'tuffet'
+      logical, parameter :: EXPECTED(4) = [.TRUE., .FALSE., .FALSE., .TRUE.]
+      logical, allocatable :: actual(:)
+      type(HConfigParams) :: params
+      logical :: found
+      integer :: status
+
+      call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
+      @assertEqual(0, status, ERROR_ADD_FAIL)
+      params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
+      call get_value(params, actual, rc=status)
+      found = params%value_set
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      @assertTrue(found, ERROR_NOT_FOUND // LABEL)
+      @assertTrue(all(actual .eqv. EXPECTED), ERROR_MISMATCH)
+
+   end subroutine test_get_logical_seq
+
+   @Test
+   subroutine test_make_valuestring_i4()
+      character(len=*), parameter :: EXPECTED = '613' // DEFTAG
+      integer(kind=ESMF_KIND_I4), parameter :: DEFAULT = 613
+      integer(kind=ESMF_KIND_I4) :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_i4
+
+   @Test
+   subroutine test_make_valuestring_r4()
+      character(len=*), parameter :: EXPECTED = '613.0000' // DEFTAG
+      real(kind=R4), parameter :: DEFAULT = 613.00000_R4
+      real(kind=R4) :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_r4
+
+   @Test
+   subroutine test_make_valuestring_i8()
+      character(len=*), parameter :: EXPECTED = '4294967296' // DEFTAG
+      integer(kind=ESMF_KIND_I8), parameter :: DEFAULT = 4294967296
+      integer(kind=ESMF_KIND_I8) :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_i8
+
+   @Test
+   subroutine test_make_valuestring_r8()
+      character(len=*), parameter :: EXPECTED = '613.0000000000001' // DEFTAG
+      real(kind=R8), parameter :: DEFAULT = 613.00000000000010_R8
+      real(kind=R8) :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_r8
+
+   @Test
+   subroutine test_make_valuestring_logical()
+      character(len=*), parameter :: EXPECTED = 'T' // DEFTAG
+      logical, parameter :: DEFAULT = .TRUE.
+      logical :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_logical
+
+   @Test
+   subroutine test_make_valuestring_string()
+      character(len=*), parameter :: EXPECTED = 'Value' // DEFTAG
+      character(len=*), parameter :: DEFAULT = 'Value'
+      character(len=:), allocatable :: value
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_string
+
+   @Test
+   subroutine test_make_valuestring_i4seq()
+      character(len=*), parameter :: EXPECTED = '[613, 361, 631' // ELLIPSIS // ']' // DEFTAG
+      integer(kind=ESMF_KIND_I4), parameter :: DEFAULT(5) = [613, 361, 631, 136, 163]
+      integer(kind=ESMF_KIND_I4), allocatable :: value(:)
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_i4seq
+
+   @Test
+   subroutine test_make_valuestring_r4seq()
+      character(len=*), parameter :: EXPECTED = '[613.0000, 301.0060, 310.0060]' // DEFTAG
+      real(kind=R4), parameter :: DEFAULT(3) = 1.00_R4 * [613.00000, 301.00600, 310.00600]
+      real(kind=R4), allocatable :: value(:)
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_r4seq
+
+   @Test
+   subroutine test_make_valuestring_i8seq()
+      character(len=*), parameter :: EXPECTED = '[4294967296, 2494967296, 4294697296' // ELLIPSIS // ']' // DEFTAG
+      integer(kind=ESMF_KIND_I8), parameter :: DEFAULT(4) = [4294967296, 2494967296, 4294697296, 2949672964]
+      integer(kind=ESMF_KIND_I8), allocatable :: value(:)
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_i8seq
+
+   @Test
+   subroutine test_make_valuestring_r8seq()
+      character(len=*), parameter :: EXPECTED = &
+         '[613.0000400000000, 413.0000600000000, 361.0000700000000' // ELLIPSIS // ']' // DEFTAG
+      real(kind=R8), parameter :: DEFAULT(4) = &
+         [613.00004000000000_R8, 413.00006000000000_R8, 361.00007000000000_R8, 463.00001000000000_R8]
+      real(kind=R8), allocatable :: value(:)
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_r8seq
+
+   @Test
+   subroutine test_make_valuestring_logicalseq()
+      character(len=*), parameter :: EXPECTED = '[T, F, F' // ELLIPSIS // ']' // DEFTAG
+      logical, parameter :: DEFAULT(4) = [ .TRUE., .FALSE., .FALSE., .TRUE. ]
+      logical, allocatable :: value(:)
+      type(HConfigParams) :: params
+      integer :: status
+      character(len=:), allocatable :: valuestring
+      character(len=:), allocatable :: error_message
+
+      params = HConfigParams(hconfig, 'label')
+      call get_value(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      @assertEqual(0, status, ERROR_GET_FAILED)
+      if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
+      @assertEqual(EXPECTED, valuestring, error_message)
+
+   end subroutine test_make_valuestring_logicalseq
+
+   function valuestring_mismatch(actual, expected) result(error_message)
+      character(len=:), allocatable :: error_message
+      character(len=*), intent(in) :: actual
+      character(len=*), intent(in) :: expected
+      
+      error_message = 'Actual valuestring, "' // actual // &
+         '", does not match expected valuestring, "' // expected // '".'
+
+   end function valuestring_mismatch
+
+   @Before
+   subroutine set_up()
+      
+      integer :: status
+
+      if(.not. hconfig_is_created) then
+         hconfig = ESMF_HConfigCreate(rc=status)
+         hconfig_is_created = (status == 0)
+         call ESMF_HConfigAdd(hconfig, 0, addKeyString='null', rc=status)
+         @assertEqual(0, status, 'Failed to add null vallue')
+      end if
+      @assertTrue(hconfig_is_created, 'HConfig was not created.')
+
+   end subroutine set_up
+
+   @After
+   subroutine tear_down()
+
+      integer :: status
+
+      if(hconfig_is_created) call ESMF_HConfigDestroy(hconfig, rc=status)
+      hconfig_is_created = .FALSE.
+      @assertFalse(hconfig_is_created, 'HConfig was not destroyed.')
+
+   end subroutine tear_down
+
+end module Test_hconfig_get_private
