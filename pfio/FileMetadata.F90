@@ -237,12 +237,13 @@ contains
    end function has_attribute
 
    subroutine remove_attribute(this, attr_name)
-       class (FileMetadata), target, intent(inout) :: this
-       character(len=*), intent(in) :: attr_name
+      class (FileMetadata), target, intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
 
-       call this%global_var%remove_attribute(attr_name)
+      call this%global_var%remove_attribute(attr_name)
 
-    end subroutine
+   end subroutine
+
 
    function get_attributes(this, rc ) result(attributes)
       type (StringAttributeMap), pointer :: attributes
