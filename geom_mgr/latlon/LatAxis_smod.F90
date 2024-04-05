@@ -81,8 +81,6 @@ contains
 
       jm_world = ESMF_HConfigAsI4(hconfig, keyString='jm_world', asOkay=found, _RC)
       _ASSERT(found, '"jm_world" not found.')
-!      call MAPL_HConfigGet(hconfig, 'jm_world', jm_world, _RC)
-!      call MAPL_HConfigGet(hconfig, 'jm_world', jm_world, _RC) !wdb fixme deleteme
       _ASSERT(jm_world > 0, 'jm_world must be greater than 1')
 
       ranges = get_lat_range(hconfig, jm_world, _RC)
