@@ -125,7 +125,6 @@ contains
       supports = .true.
 
       has_im_world = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
-!      has_im_world = MAPL_HConfigKeystringFound(hconfig, keystring='im_world', _RC)
       _RETURN_UNLESS(has_im_world)
 
       has_lon_range = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
