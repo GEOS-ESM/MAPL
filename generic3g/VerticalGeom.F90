@@ -1,5 +1,10 @@
 #include "MAPL_Generic.h"
+
 module mapl3g_VerticalGeom
+   use mapl_ErrorHandling
+   use esmf, only: ESMF_Info
+   use esmf, only: ESMF_InfoCreate
+   use esmf, only: ESMF_InfoSet
    implicit none
    private
    public :: VerticalGeom
@@ -7,8 +12,9 @@ module mapl3g_VerticalGeom
    type VerticalGeom
       private
       integer :: num_levels = 0
-      contains
-         procedure :: get_num_levels
+   contains
+      procedure :: get_num_levels
+      procedure :: make_info
    end type
 
    interface operator(==)
@@ -46,5 +52,18 @@ contains
       type(VerticalGeom), intent(in) :: a, b
       not_equal_to = .not. (a == b)
    end function not_equal_to
+
+   function make_info(this, rc) result(info)
+      type(ESMF_Info) :: info
+      class(VerticalGeom), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      info =ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, "num_levels", this%num_levels, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_info
 
 end module mapl3g_VerticalGeom

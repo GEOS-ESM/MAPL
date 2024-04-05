@@ -1,5 +1,11 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_VerticalDimSpec
    !use mapl3g_UngriddedDimSpec
+   use esmf, only: ESMF_Info
+   use esmf, only: ESMF_InfoCreate
+   use esmf, only: ESMF_InfoSet
+   use mapl_ErrorHandling
    implicit none
    private
   
@@ -14,6 +20,8 @@ module mapl3g_VerticalDimSpec
    type :: VerticalDimSpec
       private
       integer :: id = -1
+   contains
+      procedure :: make_info
    end type VerticalDimSpec
 
    type(VerticalDimSpec), parameter :: VERTICAL_DIM_NONE = VerticalDimSpec(0)
@@ -41,5 +49,26 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to
 
-  
+   function make_info(this, rc) result(info)
+      type(ESMF_Info) :: info
+      class(VerticalDimSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      info = ESMF_InfoCreate(_RC)
+      select case (this%id)
+      case (VERTICAL_DIM_NONE%id)
+         call ESMF_InfoSet(info, key='vloc', value='VERTICAL_DIM_NONE', _RC)
+      case (VERTICAL_DIM_CENTER%id)
+         call ESMF_InfoSet(info, key='vloc', value='VERTICAL_DIM_CENTER', _RC)
+      case (VERTICAL_DIM_EDGE%id)
+         call ESMF_InfoSet(info, key='vloc', value='VERTICAL_DIM_EDGE', _RC)
+      case default
+         _FAIL('unsupported vertical dim spec')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_info
+   
 end module mapl3g_VerticalDimSpec

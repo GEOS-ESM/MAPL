@@ -5,6 +5,10 @@ module mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
    use mapl3g_LU_Bound
    use mapl_ErrorHandling
+   use esmf, only: ESMF_Info
+   use esmf, only: ESMF_InfoCreate
+   use esmf, only: ESMF_InfoSet
+   use esmf, only: ESMF_InfoDestroy
    implicit none
 
    private
@@ -23,6 +27,7 @@ module mapl3g_UngriddedDimsSpec
       procedure :: get_num_ungridded
       procedure :: get_ith_dim_spec
       procedure :: get_bounds
+      procedure :: make_info
    end type UngriddedDimsSpec
 
    interface UngriddedDimsSpec
@@ -153,6 +158,33 @@ contains
       not_equal_to = .not. (a == b)
 
    end function not_equal_to
+
+   function make_info(this, rc)  result(info)
+      type(ESMF_Info) :: info
+      class(UngriddedDimsSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      type(UngriddedDimSpec), pointer :: dim_spec
+      type(ESMF_Info) :: dim_info
+      character(5) :: dim_key
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
+
+      do i = 1, this%get_num_ungridded()
+         dim_spec => this%get_ith_dim_spec(i, _RC)
+         dim_info = dim_spec%make_info(_RC)
+
+         write(dim_key, '("dim_", i0)') i
+         call ESMF_InfoSet(info, key=dim_key, value=dim_info, _RC)
+         call ESMF_InfoDestroy(dim_info, _RC)
+      end do
+
+
+      _RETURN(_SUCCESS)
+   end function make_info
 
 end module mapl3g_UngriddedDimsSpec
 

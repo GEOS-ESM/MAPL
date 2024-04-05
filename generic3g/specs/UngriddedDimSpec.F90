@@ -1,5 +1,10 @@
+#include "MAPL_Generic.h"
 module mapl3g_UngriddedDimSpec
    use mapl3g_LU_Bound
+   use mapl_ErrorHandling
+   use esmf, only: ESMF_Info
+   use esmf, only: ESMF_InfoCreate
+   use esmf, only: ESMF_InfoSet
    implicit none
    private
 
@@ -18,6 +23,7 @@ module mapl3g_UngriddedDimSpec
       procedure :: get_units
       procedure :: get_coordinates
       procedure :: get_bounds
+      procedure :: make_info
    end type UngriddedDimSpec
 
    interface UngriddedDimSpec
@@ -140,5 +146,24 @@ contains
       not_equal_to = .not. (a == b)
 
    end function not_equal_to
+
+   function make_info(this, rc) result(info)
+      type(ESMF_Info) :: info
+      class(UngriddedDimSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      info = ESMF_InfoCreate(_RC)
+      if (allocated(this%name)) then
+         call ESMF_InfoSet(info, key='name', value=this%name, _RC)
+      end if
+      if (allocated(this%units)) then
+         call ESMF_InfoSet(info, key='units', value=this%units, _RC)
+      end if
+      call ESMF_InfoSet(info, key='coordinates', values=this%coordinates, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_info
 
 end module mapl3g_UngriddedDimSpec
