@@ -13,7 +13,7 @@ module mapl3g_hconfig_get_private
    public :: get_value, HConfigParams, DEFAULT_TAG, ELLIPSIS
 
    interface get_value
-      module procedure :: get_value_i4
+      procedure :: get_value_i4
       module procedure :: get_value_i8
       module procedure :: get_value_r4
       module procedure :: get_value_r8
