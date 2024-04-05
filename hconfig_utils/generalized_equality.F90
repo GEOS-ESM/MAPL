@@ -7,17 +7,17 @@ module mapl3g_generalized_equality
    public :: are_equal
 
    interface are_equal
-      module procedure :: equals_i4_scalar
-      module procedure :: equals_i8_scalar
-      module procedure :: equals_r4_scalar
-      module procedure :: equals_r8_scalar
-      module procedure :: equals_l_scalar
-      module procedure :: equals_string
-      module procedure :: equals_i4_array
-      module procedure :: equals_i8_array
-      module procedure :: equals_r4_array
-      module procedure :: equals_r8_array
-      module procedure :: equals_l_array
+      procedure :: equals_i4_scalar
+      procedure :: equals_i8_scalar
+      procedure :: equals_r4_scalar
+      procedure :: equals_r8_scalar
+      procedure :: equals_l_scalar
+      procedure :: equals_string
+      procedure :: equals_i4_array
+      procedure :: equals_i8_array
+      procedure :: equals_r4_array
+      procedure :: equals_r8_array
+      procedure :: equals_l_array
    end interface
 
 contains

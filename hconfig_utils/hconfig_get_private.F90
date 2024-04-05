@@ -49,7 +49,7 @@ contains
       integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I4'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_I4
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_i4
 
    subroutine get_value_i8(params, value, default, valuestring, rc)
@@ -57,7 +57,7 @@ contains
       integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I8'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_I8
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_i8
 
    subroutine get_value_r4(params, value, default, valuestring, rc)
@@ -65,7 +65,7 @@ contains
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'R4'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_R4
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_r4
 
    subroutine get_value_r8(params, value, default, valuestring, rc)
@@ -73,7 +73,7 @@ contains
       real(kind=ESMF_KIND_R8), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'R8'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_R8
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_r8
 
    subroutine get_value_string(params, value, default, valuestring, rc)
@@ -81,7 +81,7 @@ contains
       character(len=*), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'CH'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_CH
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_string
 
    subroutine get_value_logical(params, value, default, valuestring, rc)
@@ -89,7 +89,7 @@ contains
       logical, optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'L'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_L
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_logical
 
 !============== Scalar subroutines must appear above this line. ================
@@ -103,7 +103,7 @@ contains
       integer(kind=ESMF_KIND_I4), dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I4'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_I4
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_i4seq
 
    subroutine get_value_i8seq(params, value, default, valuestring, rc)
@@ -111,7 +111,7 @@ contains
       integer(kind=ESMF_KIND_I8), dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'I8'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_I8
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_i8seq
 
    subroutine get_value_r4seq(params, value, default, valuestring, rc)
@@ -119,7 +119,7 @@ contains
       real(kind=ESMF_KIND_R4), dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'R4'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_R4
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_r4seq
 
    subroutine get_value_r8seq(params, value, default, valuestring, rc)
@@ -127,7 +127,7 @@ contains
       real(kind=ESMF_KIND_R8), dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'R8'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_R8
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_r8seq
 
    subroutine get_value_logical_seq(params, value, default, valuestring, rc)
@@ -135,7 +135,7 @@ contains
       logical, dimension(:), optional, intent(in) :: default
       character(len=*), parameter :: typestring = 'L'
       character(len=*), parameter :: edit_descriptor = EDIT_DESC_L
-#include "mapl3g_hconfig_get_value_template.h"
+#include "hconfig_get_value_template.h"
    end subroutine get_value_logical_seq
 
    function make_fmt(descriptor) result(fmt)

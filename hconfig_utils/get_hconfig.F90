@@ -17,17 +17,17 @@ module mapl3g_get_hconfig
    public :: get_hconfig
 
    interface get_hconfig
-      module procedure :: get_hconfig_as_i4
-      module procedure :: get_hconfig_as_i8
-      module procedure :: get_hconfig_as_r4
-      module procedure :: get_hconfig_as_r8
-      module procedure :: get_hconfig_as_logical
-      module procedure :: get_hconfig_as_i4seq
-      module procedure :: get_hconfig_as_i8seq
-      module procedure :: get_hconfig_as_r4seq
-      module procedure :: get_hconfig_as_r8seq
-      module procedure :: get_hconfig_as_logical_seq
-      module procedure :: get_hconfig_as_string
+      procedure :: get_hconfig_as_i4
+      procedure :: get_hconfig_as_i8
+      procedure :: get_hconfig_as_r4
+      procedure :: get_hconfig_as_r8
+      procedure :: get_hconfig_as_logical
+      procedure :: get_hconfig_as_i4seq
+      procedure :: get_hconfig_as_i8seq
+      procedure :: get_hconfig_as_r4seq
+      procedure :: get_hconfig_as_r8seq
+      procedure :: get_hconfig_as_logical_seq
+      procedure :: get_hconfig_as_string
    end interface get_hconfig
 
 contains
