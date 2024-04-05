@@ -14,6 +14,7 @@ module MAPL_EsmfRegridderMod
    use MAPL_RegridderSpecRouteHandleMap
    use MAPL_MAPLGrid
    use MAPL_ConstantsMod
+   use MAPL_CommsMod
    implicit none
    private
 
@@ -1468,7 +1469,7 @@ contains
            rh_file_exists = .false.
         end if
         if (rh_file_exists) then
-           if (mapl_am_I_root()) write(*,*)"bmaa reading "//trim(rh_file)
+           if (mapl_am_I_root()) write(*,*)__FILE__," reading "//trim(rh_file)
            route_handle = ESMF_RouteHandleCreate(rh_file,_RC)
            call route_handles%insert(spec, route_handle)
            if (compute_transpose) then

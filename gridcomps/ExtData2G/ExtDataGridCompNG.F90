@@ -627,7 +627,7 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
 
    call MAPL_TimerOn(MAPLSTATE,"---prefetch")
-   call MAPL_ExtDataPrefetch(IOBundles, file_weights=self%file_weights, rc=status)
+   call MAPL_ExtDataPrefetch(IOBundles, file_weights=self%file_weights, vm=vm, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---prefetch")
    _VERIFY(STATUS)
@@ -1387,9 +1387,10 @@ CONTAINS
 
   end subroutine MAPL_ExtDataDestroyCFIO
 
-  subroutine MAPL_ExtDataPrefetch(IOBundles,file_weights,rc)
+  subroutine MAPL_ExtDataPrefetch(IOBundles,file_weights,vm,rc)
      type(IOBundleNGVector), target, intent(inout) :: IOBundles
      logical, intent(in) :: file_weights
+     type(ESMF_VM), optional, intent(in) :: vm
      integer, optional,      intent(out  ) :: rc
 
      integer :: n,nfiles,regrid_hints

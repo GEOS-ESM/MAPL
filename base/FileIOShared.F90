@@ -599,11 +599,11 @@ module FileIOSharedMod
        integer, intent(in) :: num_writers
        integer, optional, intent(out) :: rc
 
-       integer :: status, nx, ny, color, ny_by_writers, myid, j
+       integer :: status, nx, ny, color, ny_by_writers, myid, j, writer_rank
 
        nx = size(arrdes%i1)
        ny = size(arrdes%j1)
-       _ASSERT(num_writers < ny,'num writers must be less than NY')
+       _ASSERT(num_writers <= ny,'num writers must be less or equal to than NY')
        _ASSERT(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
        call mpi_comm_rank(full_comm,myid, _IERROR)
        color =  arrdes%NX0
@@ -647,6 +647,7 @@ module FileIOSharedMod
        ny = size(arrdes%j1)
        _ASSERT(num_readers <= ny,'num readers must be less than or equal to NY')
        _ASSERT(mod(ny,num_readers)==0,'num readers must evenly divide NY')
+
        call mpi_comm_rank(full_comm,myid, _IERROR)
        color =  arrdes%NX0
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, _IERROR)
