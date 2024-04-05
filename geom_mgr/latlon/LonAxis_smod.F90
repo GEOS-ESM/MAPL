@@ -74,7 +74,6 @@ contains
       end if
 
       delta = 360.d0 / im_world
-!      call MAPL_HConfigGet(hconfig, 'dateline', dateline, _RC)
       dateline = ESMF_HConfigAsString(hconfig, keyString='dateline', _RC)
       select case (dateline)
       case ('DC')
