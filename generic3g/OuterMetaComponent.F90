@@ -82,6 +82,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: init_meta  ! object
 
+      procedure :: run_custom
       procedure :: initialize_user
       procedure :: initialize_geom
       procedure :: initialize_advertise
@@ -379,11 +380,7 @@ contains
          this%geom = mapl_geom%get_geom()
       end if
 
-      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
-      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
-      if (found) then
-         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
-      end if
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call apply_to_children(this, set_child_geom, _RC)
       call apply_to_children(this, phase_idx=GENERIC_INIT_GEOM, _RC)
@@ -660,6 +657,24 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_user
 
+   subroutine run_custom(this, method_flag, phase_name, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_METHOD_FLAG), intent(in) :: method_flag
+      character(*), intent(in) :: phase_name
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      integer :: phase_idx
+      type(StringVector), pointer :: phases
+      logical :: found
+
+      phases => this%get_phases(method_flag)
+      phase_idx = get_phase_index(phases, phase_name, found=found)
+      if (found) then
+         call this%user_gc_driver%initialize(phase_idx=phase_idx, _RC)
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine run_custom
 
    recursive subroutine run(this, phase_name, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
