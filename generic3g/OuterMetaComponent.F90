@@ -82,7 +82,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: init_meta  ! object
 
-      procedure :: initialize ! init by phase name
+!#      procedure :: initialize ! init by phase name
       procedure :: initialize_user
       procedure :: initialize_clock
       procedure :: initialize_geom
@@ -91,7 +91,7 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize_realize
 
       procedure :: run
-!#      procedure :: run_clock_advance
+      procedure :: run_clock_advance
       procedure :: finalize
       procedure :: read_restart
       procedure :: write_restart
@@ -359,18 +359,17 @@ contains
    ! other initialize phases which act at the component level (and
    ! hence the OuterMetaComponent level).
    !-------
-   recursive subroutine initialize_clock(this, clock, unusable, rc)
+   recursive subroutine initialize_clock(this, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
-      type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_CLOCK'
 
-      call this%user_gc_driver%set_clock(clock) ! comp _driver_
-      call apply_to_children(this, phase_idx=GENERIC_INIT_CLOCK, _RC)
+!#      call this%user_gc_driver%set_clock() ! comp _driver_
+!#      call apply_to_children(this, phase_idx=GENERIC_INIT_CLOCK, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
@@ -385,11 +384,10 @@ contains
    !   - specifying an INIT_GEOM phase
    ! If both are specified, the INIT_GEOM overrides the config spec.
    ! ---------
-   recursive subroutine initialize_geom(this, clock, unusable, rc)
+   recursive subroutine initialize_geom(this, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
-      type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -437,10 +435,9 @@ contains
 
    end subroutine initialize_geom
 
-   recursive subroutine initialize_advertise(this, clock, unusable, rc)
+   recursive subroutine initialize_advertise(this, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
-      type(ESMF_Clock) :: clock
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -587,12 +584,10 @@ contains
    end subroutine initialize_post_advertise
 
 
-
-   recursive subroutine initialize_realize(this, clock, unusable, rc)
+   recursive subroutine initialize_realize(this, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
-      type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -665,9 +660,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine apply_to_children_custom
 
-   recursive subroutine initialize_user(this, clock, unusable, rc)
+   recursive subroutine initialize_user(this, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Clock) :: clock
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -710,11 +704,11 @@ contains
 
       select case (phase_name)
       case ('GENERIC::INIT_GEOM')
-         call this%initialize_geom(clock, _RC)
+         call this%initialize_geom(_RC)
       case ('GENERIC::INIT_ADVERTISE')
-         call this%initialize_advertise(clock, _RC)
+         call this%initialize_advertise(_RC)
       case ('GENERIC::INIT_USER')
-         call this%initialize_user(clock, _RC)
+         call this%initialize_user(_RC)
       case default ! custom user phase - does not auto propagate to children
 
          initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
@@ -729,9 +723,8 @@ contains
    end subroutine initialize
 
 
-   recursive subroutine run(this, clock, phase_name, unusable, rc)
+   recursive subroutine run(this, phase_name, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      type(ESMF_Clock) :: clock
       ! optional arguments
       character(len=*), optional, intent(in) :: phase_name
       class(KE), optional, intent(in) :: unusable
@@ -748,6 +741,12 @@ contains
       type(ActualPtComponentDriverMap), pointer :: import_Couplers
       type(ActualPtComponentDriverMapIterator) :: iter
       type(GriddedComponentDriver), pointer :: drvr
+
+      select case (phase_name)
+      case ('GENERIC::RUN_CLOCK_ADVANCE')
+         call this%run_clock_advance(_RC)
+         _RETURN(_SUCCESS)
+      end select
 
       run_phases => this%get_phases(ESMF_METHOD_RUN)
       phase = get_phase_index(run_phases, phase_name, found=found)
@@ -793,26 +792,29 @@ contains
    ! (alarm is ringing)
    
 
-!#   recursive subroutine run_clock_advance(this, clock, unusable, rc)
-!#      class(OuterMetaComponent), intent(inout) :: this
-!#      type(ESMF_Clock) :: clock
-!#      ! optional arguments
-!#      class(KE), optional, intent(in) :: unusable
-!#      integer, optional, intent(out) :: rc
-!#
-!#      integer :: status, userRC, i
-!#      integer :: phase_idx
-!#      type(StateExtension), pointer :: extension
-!#      type(StringVector), pointer :: run_phases
-!#      logical :: found
-!#      integer :: phase
-!#
-!#      if (found) then
-!#         call this%user_gc_driver%clock_advance(_RC)
-!#      end if
-!#
-!#      _RETURN(ESMF_SUCCESS)
-!#   end subroutine run_clock_advance
+   recursive subroutine run_clock_advance(this, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
+
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           child => iter%second()
+           call child%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+        end do
+      end associate
+
+      call this%user_gc_driver%clock_advance(_RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine run_clock_advance
 
    recursive subroutine finalize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this

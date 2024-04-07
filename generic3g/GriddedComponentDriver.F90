@@ -23,6 +23,7 @@ module mapl3g_GriddedComponentDriver
       procedure :: run
       procedure :: initialize
       procedure :: finalize
+      procedure :: clock_advance
 
       ! Accessors
       procedure :: get_clock
@@ -96,6 +97,11 @@ module mapl3g_GriddedComponentDriver
          class(GriddedComponentDriver), intent(inout) :: this
          integer, optional, intent(out) :: rc
       end subroutine run_import_couplers
+
+      module subroutine clock_advance(this, rc)
+         class(GriddedComponentDriver), intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine clock_advance
 
    end interface
 
