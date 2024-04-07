@@ -82,9 +82,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: init_meta  ! object
 
-!#      procedure :: initialize ! init by phase name
       procedure :: initialize_user
-      procedure :: initialize_clock
       procedure :: initialize_geom
       procedure :: initialize_advertise
       procedure :: initialize_post_advertise
@@ -351,29 +349,6 @@ contains
 
    ! ESMF initialize methods
 
-   !-------
-   ! initialize_geom():
-   !
-   ! Note that setting the clock is really an operation on component
-   ! drivers.  Thus, the structure here is a bit different than for
-   ! other initialize phases which act at the component level (and
-   ! hence the OuterMetaComponent level).
-   !-------
-   recursive subroutine initialize_clock(this, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      ! optional arguments
-      class(KE), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_CLOCK'
-
-!#      call this%user_gc_driver%set_clock() ! comp _driver_
-!#      call apply_to_children(this, phase_idx=GENERIC_INIT_CLOCK, _RC)
-
-      _RETURN(ESMF_SUCCESS)
-
-   end subroutine initialize_clock
 
    !----------
    ! The procedure initialize_geom() is responsible for passing grid
@@ -684,43 +659,6 @@ contains
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_user
-
-   recursive subroutine initialize(this, importState, exportState, clock, unusable, phase_name, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      ! optional arguments
-      class(KE), optional, intent(in) :: unusable
-      type(ESMF_State), optional :: importState
-      type(ESMF_State), optional :: exportState
-      type(ESMF_Clock), optional :: clock
-      character(len=*), optional, intent(in) :: phase_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status, userRC
-      type(StringVector), pointer :: initialize_phases
-      logical :: found
-      integer :: phase
-
-      _ASSERT(present(phase_name),'phase_name is mandatory')
-
-      select case (phase_name)
-      case ('GENERIC::INIT_GEOM')
-         call this%initialize_geom(_RC)
-      case ('GENERIC::INIT_ADVERTISE')
-         call this%initialize_advertise(_RC)
-      case ('GENERIC::INIT_USER')
-         call this%initialize_user(_RC)
-      case default ! custom user phase - does not auto propagate to children
-
-         initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
-         phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
-         if (found) then
-            call this%user_gc_driver%initialize(phase_idx=phase, _RC)
-         end if
-
-      end select
-
-      _RETURN(ESMF_SUCCESS)
-   end subroutine initialize
 
 
    recursive subroutine run(this, phase_name, unusable, rc)
