@@ -370,9 +370,6 @@ contains
       type(MaplGeom), pointer :: mapl_geom
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM'
       type(GeomManager), pointer :: geom_mgr
-      type(StringVector), pointer :: initialize_phases
-      logical :: found
-      integer :: phase
 
       if (this%component_spec%has_geom_hconfig()) then
          geom_mgr => get_geom_manager()
@@ -415,15 +412,8 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
-      type(StringVector), pointer :: initialize_phases
-      logical :: found
-      integer :: phase
 
-      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
-      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
-      if (found) then
-         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
-      end if
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
@@ -533,15 +523,8 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
       type(MultiState) :: outer_states, user_states
-      type(StringVector), pointer :: initialize_phases
-      logical :: found
-      integer :: phase
 
-      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
-      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
-      if (found) then
-         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
-      end if
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       user_states = this%user_gc_driver%get_states()
       call this%registry%add_to_states(user_states, mode='user', _RC)
@@ -564,16 +547,8 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
-      type(StringVector), pointer :: initialize_phases
-      logical :: found
-      integer :: phase
 
-      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
-      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
-      if (found) then
-         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
-      end if
-
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call apply_to_children(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
       call this%registry%allocate(_RC)
       
@@ -639,18 +614,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
-      type(StringVector), pointer :: initialize_phases
-      logical :: found
-      integer :: phase
 
-      initialize_phases => this%get_phases(ESMF_METHOD_INITIALIZE)
-      phase = get_phase_index(initialize_phases, PHASE_NAME, found=found)
-      if (found) then
-         call this%user_gc_driver%initialize(phase_idx=phase, _RC)
-      end if
-
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call apply_to_children(this, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -670,9 +636,17 @@ contains
 
       phases => this%get_phases(method_flag)
       phase_idx = get_phase_index(phases, phase_name, found=found)
-      if (found) then
+      _RETURN_UNLESS(found)
+      if (method_flag == ESMF_METHOD_INITIALIZE) then
          call this%user_gc_driver%initialize(phase_idx=phase_idx, _RC)
+      else if (method_flag == ESMF_METHOD_RUN) then
+         call this%user_gc_driver%run(phase_idx=phase_idx, _RC)
+      else if (method_flag == ESMF_METHOD_FINALIZE) then
+         call this%user_gc_driver%finalize(phase_idx=phase_idx, _RC)
+      else
+         _FAIL('Unknown ESMF method flag.')
       end if
+
       _RETURN(_SUCCESS)
    end subroutine run_custom
 
