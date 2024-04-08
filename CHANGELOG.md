@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add make_geom function in new module mapl3g_HistoryCollectionGridComp_private.
 - Use anchors for reading HConfig in Test_HistoryGridComp.
 - Add procedures for MAPL_GetResource from ESMF_HConfig.
+- Added GitHub Action to generate MAPL3 Ford Docs
 
 ### Changed
 
