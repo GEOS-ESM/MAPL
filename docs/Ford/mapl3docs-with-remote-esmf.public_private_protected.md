@@ -16,16 +16,16 @@ exclude: **/EsmfRegridder.F90
          **/MaplGeom.F90
          **/Regridder.F90
          **/StateSupplement.F90
-         ../../gridcomps/cap3g/ApplicationMode.F90
-         ../../gridcomps/cap3g/MAPL_Framework.F90
-         ../../gridcomps/cap3g/ModelMode.F90
-         ../../gridcomps/cap3g/ServerMode.F90
-         ../../gridcomps/cap3g/mit.F90
-         ../../generic3g/couplers/esmf-way/GenericCoupler.F90
-         ../../generic3g/couplers/esmf-way/CouplerMetaComponent.F90
-         ../../generic3g/couplers/ImportCoupler.F90
-         ../../generic3g/couplers/outer.F90
-         ../../generic3g/SetServices_smod.F90
+         **/gridcomps/cap3g/ApplicationMode.F90
+         **/gridcomps/cap3g/MAPL_Framework.F90
+         **/gridcomps/cap3g/ModelMode.F90
+         **/gridcomps/cap3g/ServerMode.F90
+         **/gridcomps/cap3g/mit.F90
+         **/generic3g/couplers/esmf-way/GenericCoupler.F90
+         **/generic3g/couplers/esmf-way/CouplerMetaComponent.F90
+         **/generic3g/couplers/ImportCoupler.F90
+         **/generic3g/couplers/outer.F90
+         **/generic3g/SetServices_smod.F90
 exclude_dir: ../../docs
              ../../Doxygen
              ../../ESMA_cmake
