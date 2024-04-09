@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Convert values in ESMF\_Field with compatible units using udunits2.
 - Add make_geom function in new module mapl3g_HistoryCollectionGridComp_private.
 - Use anchors for reading HConfig in Test_HistoryGridComp.
+- Add procedures for MAPL_GetResource from ESMF_HConfig.
+- Added GitHub Action to generate MAPL3 Ford Docs
 
 ### Changed
 
@@ -92,10 +94,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Enable `-quiet` flag for NAG
     - `make tests` now only runs tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
     - `BUILT_ON_SLES15` set to `FALSE` on NCCS if not built on SLES15
-  - ESMA_env v4.25.1
-    - Baselibs 7.17.1
-      - Fixes for NAG
-      - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
+  - ESMA_env v4.28.0 (Baselibs 7.23.0)
+    - Updates to GFE v1.15
+    - Fixes for NAG
+    - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
 
 ### Fixed
 

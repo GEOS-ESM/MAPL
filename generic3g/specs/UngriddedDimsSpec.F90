@@ -3,7 +3,12 @@
 module mapl3g_UngriddedDimsSpec
    use mapl3g_DimSpecVector
    use mapl3g_UngriddedDimSpec
+   use mapl3g_LU_Bound
    use mapl_ErrorHandling
+   use esmf, only: ESMF_Info
+   use esmf, only: ESMF_InfoCreate
+   use esmf, only: ESMF_InfoSet
+   use esmf, only: ESMF_InfoDestroy
    implicit none
 
    private
@@ -21,8 +26,8 @@ module mapl3g_UngriddedDimsSpec
       procedure :: add_dim_spec
       procedure :: get_num_ungridded
       procedure :: get_ith_dim_spec
-      procedure :: get_lbounds
-      procedure :: get_ubounds
+      procedure :: get_bounds
+      procedure :: make_info
    end type UngriddedDimsSpec
 
    interface UngriddedDimsSpec
@@ -110,37 +115,20 @@ contains
    end function get_ith_dim_spec
 
 
-   function get_lbounds(this) result(lbounds)
-      integer, allocatable :: lbounds(:)
+   function get_bounds(this) result(bounds)
+      type(LU_Bound), allocatable :: bounds(:)
       class(UngriddedDimsSpec), intent(in) :: this
 
       integer :: i
       class(UngriddedDimSpec), pointer :: dim_spec
 
-      allocate(lbounds(this%get_num_ungridded()))
+      allocate(bounds(this%get_num_ungridded()))
       do i = 1, this%get_num_ungridded()
          dim_spec => this%dim_specs%of(i)
-         lbounds(i) = dim_spec%get_lbound()
+         bounds(i) = dim_spec%get_bounds()
       end do
 
-   end function get_lbounds
-
-
-   function get_ubounds(this) result(ubounds)
-      integer, allocatable :: ubounds(:)
-      class(UngriddedDimsSpec), intent(in) :: this
-
-      integer :: i
-      class(UngriddedDimSpec), pointer :: dim_spec
-      
-      allocate(ubounds(this%get_num_ungridded()))
-      do i = 1, this%get_num_ungridded()
-         dim_spec => this%dim_specs%of(i)
-         ubounds(i) = dim_spec%get_ubound()
-      end do
-
-   end function get_ubounds
-
+   end function get_bounds
 
    logical function equal_to(a, b)
       type(UngriddedDimsSpec), intent(in) :: a
@@ -170,6 +158,33 @@ contains
       not_equal_to = .not. (a == b)
 
    end function not_equal_to
+
+   function make_info(this, rc)  result(info)
+      type(ESMF_Info) :: info
+      class(UngriddedDimsSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      type(UngriddedDimSpec), pointer :: dim_spec
+      type(ESMF_Info) :: dim_info
+      character(5) :: dim_key
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
+
+      do i = 1, this%get_num_ungridded()
+         dim_spec => this%get_ith_dim_spec(i, _RC)
+         dim_info = dim_spec%make_info(_RC)
+
+         write(dim_key, '("dim_", i0)') i
+         call ESMF_InfoSet(info, key=dim_key, value=dim_info, _RC)
+         call ESMF_InfoDestroy(dim_info, _RC)
+      end do
+
+
+      _RETURN(_SUCCESS)
+   end function make_info
 
 end module mapl3g_UngriddedDimsSpec
 

@@ -20,6 +20,7 @@ module mapl3g_FieldSpec
    use mapl3g_RegridAction
    use mapl3g_ConvertUnitsAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use mapl3g_LU_Bound
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
@@ -71,6 +72,9 @@ module mapl3g_FieldSpec
       procedure :: make_extension
       procedure :: make_extension_safely
       procedure :: make_action
+
+      procedure :: set_info
+
    end type FieldSpec
 
    interface FieldSpec
@@ -208,91 +212,110 @@ contains
 
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
-      integer, allocatable :: final_lbounds(:),final_ubounds(:)
-      integer :: num_levels, total_ungridded_dims
+      type(LU_Bound), allocatable :: bounds(:)
 
-      num_levels = this%vertical_geom%get_num_levels()
-      if (this%vertical_dim == VERTICAL_DIM_NONE) then
-         final_lbounds = this%ungridded_dims%get_lbounds()
-         final_ubounds = this%ungridded_dims%get_ubounds()
-      else
-         total_ungridded_dims = size(this%ungridded_dims%get_lbounds())
-         if (this%vertical_dim == VERTICAL_DIM_CENTER) then
-            final_lbounds = [1, this%ungridded_dims%get_lbounds()]
-            final_ubounds=[num_levels, this%ungridded_dims%get_ubounds()]
-         else if (this%vertical_dim == VERTICAL_DIM_EDGE) then
-            final_lbounds = [0, this%ungridded_dims%get_lbounds()]
-            final_ubounds = [num_levels, this%ungridded_dims%get_ubounds()]
-         end if
-      end if
-       
+      _RETURN_UNLESS(this%is_active())
+
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
-      if (fstatus == ESMF_FIELDSTATUS_GRIDSET) then
-         call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
-              ungriddedLBound= final_lbounds,  &
-              ungriddedUBound= final_ubounds,  &
-             _RC)
-         call ESMF_FieldGet(this%payload, status=fstatus, _RC)
-         _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
+      _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-         if (allocated(this%default_value)) then
-            call set_field_default(_RC)
-         end if
-          
-          call this%set_allocated()
+      bounds = get_ungridded_bounds(this)
+      call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
+           ungriddedLBound=bounds%lower,  &
+           ungriddedUBound=bounds%upper,  &
+           _RC)
+      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
+
+      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
+      _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
+      
+      if (allocated(this%default_value)) then
+         call set_field_default(_RC)
       end if
 
+      call this%set_info(this%payload, _RC)
+   
       _RETURN(ESMF_SUCCESS)
 
-      contains
-         subroutine set_field_default(rc)
-            integer, intent(out), optional :: rc
-            real(kind=ESMF_KIND_R4), pointer :: x_r4_1d(:),x_r4_2d(:,:),x_r4_3d(:,:,:),x_r4_4d(:,:,:,:)
-            real(kind=ESMF_KIND_R8), pointer :: x_r8_1d(:),x_r8_2d(:,:),x_r8_3d(:,:,:),x_r8_4d(:,:,:,:)
-            integer :: status, rank
-                
-            call ESMF_FieldGet(this%payload,rank=rank,_RC) 
-            if (this%typekind == ESMF_TYPEKIND_R4) then
-               if (rank == 1) then
-                  call ESMF_FieldGet(this%payload,farrayptr=x_r4_1d,_RC)
-                  x_r4_1d = this%default_value   
-               else if (rank == 2) then
-                  call ESMF_FieldGet(this%payload,farrayptr=x_r4_2d,_RC)
-                  x_r4_2d = this%default_value   
-               else if (rank == 3) then
-                  call ESMF_FieldGet(this%payload,farrayptr=x_r4_3d,_RC)
-                  x_r4_3d = this%default_value   
-               else if (rank == 4) then
-                  call ESMF_FieldGet(this%payload,farrayptr=x_r4_4d,_RC)
-                  x_r4_4d = this%default_value   
-               else
-                  _FAIL('unsupported rank')
-               end if
-            else if (this%typekind == ESMF_TYPEKIND_R8) then
-               if (rank == 1) then
-                  call ESMF_FieldGet(this%payload,farrayptr=x_r8_1d,_RC)
-                  x_r8_1d = this%default_value   
-               else if (rank == 2) then
-                  call ESMF_FieldGet(this%payload,farrayptr=x_r8_2d,_RC)
-                  x_r8_2d = this%default_value   
-               else if (rank == 3) then
-                  call ESMF_FieldGet(this%payload,farrayptr=x_r8_3d,_RC)
-                  x_r8_3d = this%default_value   
-               else if (rank == 4) then
-                  call ESMF_FieldGet(this%payload,farrayptr=x_r8_4d,_RC)
-                  x_r8_4d = this%default_value   
-               else
-                  _FAIL('unsupported rank')
-               end if
+   contains
+
+      subroutine set_field_default(rc)
+         integer, intent(out), optional :: rc
+         real(kind=ESMF_KIND_R4), pointer :: x_r4_1d(:),x_r4_2d(:,:),x_r4_3d(:,:,:),x_r4_4d(:,:,:,:)
+         real(kind=ESMF_KIND_R8), pointer :: x_r8_1d(:),x_r8_2d(:,:),x_r8_3d(:,:,:),x_r8_4d(:,:,:,:)
+         integer :: status, rank
+         
+         call ESMF_FieldGet(this%payload,rank=rank,_RC) 
+         if (this%typekind == ESMF_TYPEKIND_R4) then
+            if (rank == 1) then
+               call ESMF_FieldGet(this%payload,farrayptr=x_r4_1d,_RC)
+               x_r4_1d = this%default_value   
+            else if (rank == 2) then
+               call ESMF_FieldGet(this%payload,farrayptr=x_r4_2d,_RC)
+               x_r4_2d = this%default_value   
+            else if (rank == 3) then
+               call ESMF_FieldGet(this%payload,farrayptr=x_r4_3d,_RC)
+               x_r4_3d = this%default_value   
+            else if (rank == 4) then
+               call ESMF_FieldGet(this%payload,farrayptr=x_r4_4d,_RC)
+               x_r4_4d = this%default_value   
             else
-               _FAIL('unsupported typekind')
+               _FAIL('unsupported rank')
             end if
-            _RETURN(ESMF_SUCCESS)
-         end subroutine set_field_default
+         else if (this%typekind == ESMF_TYPEKIND_R8) then
+            if (rank == 1) then
+               call ESMF_FieldGet(this%payload,farrayptr=x_r8_1d,_RC)
+               x_r8_1d = this%default_value   
+            else if (rank == 2) then
+               call ESMF_FieldGet(this%payload,farrayptr=x_r8_2d,_RC)
+               x_r8_2d = this%default_value   
+            else if (rank == 3) then
+               call ESMF_FieldGet(this%payload,farrayptr=x_r8_3d,_RC)
+               x_r8_3d = this%default_value   
+            else if (rank == 4) then
+               call ESMF_FieldGet(this%payload,farrayptr=x_r8_4d,_RC)
+               x_r8_4d = this%default_value   
+            else
+               _FAIL('unsupported rank')
+            end if
+         else
+            _FAIL('unsupported typekind')
+         end if
+         _RETURN(ESMF_SUCCESS)
+      end subroutine set_field_default
             
    end subroutine allocate
 
-   subroutine connect_to(this, src_spec, actual_pt, rc)
+   function get_ungridded_bounds(this) result(bounds)
+      type(LU_Bound), allocatable :: bounds(:)
+      type(FieldSpec), intent(in) :: this
+
+      integer:: num_levels
+      type(LU_Bound) :: vertical_bounds
+
+      bounds = this%ungridded_dims%get_bounds()
+      if (this%vertical_dim == VERTICAL_DIM_NONE) return
+
+      vertical_bounds = get_vertical_bounds(this%vertical_dim, this%vertical_geom)
+      bounds = [vertical_bounds, bounds]
+
+   end function get_ungridded_bounds
+
+   function get_vertical_bounds(vertical_dim_spec, vertical_geom) result(bounds)
+      type(LU_Bound) :: bounds
+      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
+      type(VerticalGeom), intent(in) :: vertical_geom
+
+      bounds%lower = 1
+      bounds%upper = vertical_geom%get_num_levels()
+
+      if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
+         bounds%upper = bounds%upper + 1
+      end if
+      
+   end function get_vertical_bounds
+
+  subroutine connect_to(this, src_spec, actual_pt, rc)
       class(FieldSpec), intent(inout) :: this
       class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
@@ -637,5 +660,30 @@ contains
       class(FieldSpec), intent(in) :: this
       payload = this%payload
    end function get_payload
+
+   subroutine set_info(this, field, rc)
+      class(FieldSpec), intent(in) :: this
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: ungridded_dims_info
+      type(ESMF_Info) :: vertical_dim_info
+
+      type(ESMF_Info) :: field_info
+
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+
+      ungridded_dims_info = this%ungridded_dims%make_info(_RC)
+      call ESMF_InfoSet(field_info, key='MAPL/ungridded_dims', value=ungridded_dims_info, _RC)
+      call ESMF_InfoDestroy(ungridded_dims_info, _RC)
+
+      vertical_dim_info = this%vertical_dim%make_info(_RC)
+
+      call ESMF_InfoSet(field_info, key='MAPL/vertical', value=vertical_dim_info, _RC)
+      call ESMF_InfoDestroy(vertical_dim_info, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_info
 
 end module mapl3g_FieldSpec
