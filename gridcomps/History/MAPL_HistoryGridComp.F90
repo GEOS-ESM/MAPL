@@ -278,8 +278,7 @@ contains
     type(ESMF_TimeInterval)        :: oneMonth, dur
     type(ESMF_TimeInterval)        :: Frequency
     type(ESMF_Array)               :: array
-    type(ESMF_Field)               :: field
-    type(ESMF_Field)               :: f
+    type(ESMF_Field)               :: field,f_extra
     type(ESMF_Calendar)            ::  cal
     type(ESMF_Config)              :: config
     type(ESMF_DELayout)            :: layout
@@ -1392,11 +1391,11 @@ contains
                 statelist(k)     = list(n)%field_set%fields(2,m)
                 deallocate(   tmplist )
              endif
-          else
-             if (index(list(n)%field_set%fields(1,m),'%') /= 0) then
-                call WRITE_PARALLEL('Can not do arithmetic expression with bundle item')
-                _FAIL('needs informative message')
-             end if
+          !else
+             !if (index(list(n)%field_set%fields(1,m),'%') /= 0) then
+                !call WRITE_PARALLEL('Can not do arithmetic expression with bundle item')
+                !_FAIL('needs informative message')
+             !end if
           end if
        enddo
     enddo
@@ -1943,11 +1942,11 @@ ENDDO PARSER
             call MAPL_ExportStateGet(exptmp,list(n)%PExtraGridComp(m),parser_state,_RC)
             call MAPL_StateGet(parser_state,list(n)%PExtraFields(m),parser_field,_RC)
             call MAPL_AllocateCoupling(parser_field, _RC)
-            f = MAPL_FieldCreate(parser_field, name=list(n)%PExtraFields(m), _RC)
+            f_extra = MAPL_FieldCreate(parser_field, name=list(n)%PExtraFields(m), _RC)
             if (IntState%average(n)) then
-               call MAPL_StateAdd(IntState%CIM(N), f, _RC)
+               call MAPL_StateAdd(IntState%CIM(N), f_extra, _RC)
             else
-               call MAPL_StateAdd(IntState%GIM(N), f, _RC)
+               call MAPL_StateAdd(IntState%GIM(N), f_extra, _RC)
             end if
          end do
 
@@ -2020,29 +2019,29 @@ ENDDO PARSER
             end if
 
             if (.not.list(n)%rewrite(m) .or.special_name /= BLANK ) then
-               f = MAPL_FieldCreate(field, name=alias_name, _RC)
+               f_extra = MAPL_FieldCreate(field, name=alias_name, _RC)
             else
                DoCopy=.True.
-               f = MAPL_FieldCreate(field, name=alias_name, DoCopy=DoCopy, _RC)
+               f_extra = MAPL_FieldCreate(field, name=alias_name, DoCopy=DoCopy, _RC)
             endif
             if (special_name /= BLANK) then
                if (special_name == 'MIN') then
-                  call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMin, _RC)
+                  call ESMF_AttributeSet(f_extra, NAME='CPLFUNC', VALUE=MAPL_CplMin, _RC)
                else if (special_name == 'MAX') then
-                  call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMax, _RC)
+                  call ESMF_AttributeSet(f_extra, NAME='CPLFUNC', VALUE=MAPL_CplMax, _RC)
                else if (special_name == 'ACCUMULATE') then
-                  call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplAccumulate, _RC)
+                  call ESMF_AttributeSet(f_extra, NAME='CPLFUNC', VALUE=MAPL_CplAccumulate, _RC)
                else
                   call WRITE_PARALLEL("Functionality not supported yet")
                end if
             end if
 
             if (IntState%average(n)) then
-               call MAPL_StateAdd(IntState%CIM(N), f, _RC)
+               call MAPL_StateAdd(IntState%CIM(N), f_extra, _RC)
 
                ! borrow SPEC from FIELD
                ! modify SPEC to reflect accum/avg
-               call ESMF_FieldGet(f, name=short_name, grid=grid, _RC)
+               call ESMF_FieldGet(f_extra, name=short_name, grid=grid, _RC)
 
                call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, _RC)
                call ESMF_AttributeGet(FIELD, NAME='VLOCATION', VALUE=VLOCATION, _RC)
@@ -2203,9 +2202,9 @@ ENDDO PARSER
 
                REFRESH = MAPL_nsecf(list(n)%acc_interval)
                AVGINT  = MAPL_nsecf( list(n)%frequency )
-               call ESMF_AttributeSet(F, NAME='REFRESH_INTERVAL', VALUE=REFRESH, _RC)
-               call ESMF_AttributeSet(F, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, _RC)
-               call MAPL_StateAdd(IntState%GIM(N), f, _RC)
+               call ESMF_AttributeSet(F_extra, NAME='REFRESH_INTERVAL', VALUE=REFRESH, _RC)
+               call ESMF_AttributeSet(F_extra, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, _RC)
+               call MAPL_StateAdd(IntState%GIM(N), f_extra, _RC)
 
             endif
 
@@ -2213,7 +2212,7 @@ ENDDO PARSER
             !---------------------------------------------------------------
             if (associated(IntState%Regrid(n)%PTR)) then
                ! replace field with newly created fld on grid_out
-               field = MAPL_FieldCreate(f, grid_out, _RC)
+               field = MAPL_FieldCreate(f_extra, grid_out, _RC)
                ! add field to state_out
                call MAPL_StateAdd(IntState%Regrid(N)%PTR%state_out, &
                     field, _RC)
@@ -3267,7 +3266,8 @@ ENDDO PARSER
     integer                        :: n,m
     logical, allocatable           :: NewSeg(:)
     logical, allocatable           :: Writing(:)
-    type(ESMF_State)               :: state_out
+    type(ESMF_State)               :: state_out, final_state
+    type(ESMF_Field)               :: temp_field, state_field
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
     type(ESMF_Time)                :: current_time
@@ -3656,13 +3656,36 @@ ENDDO PARSER
                   INTSTATE%LCTL(n) = .false.
                endif
 
-               call shavebits(state_out, list(n), _RC)
+               if (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+                  final_state = ESMF_StateCreate(_RC)
+                  do m=1,list(n)%field_set%nfields
+                     call ESMF_StateGet(state_out,trim(list(n)%field_set%fields(3,m)),state_field,_RC)
+                     temp_field = MAPL_FieldCreate(state_field,list(n)%field_set%fields(3,m),DoCopy=.true.,_RC)
+                     call ESMF_StateAdd(final_state,[temp_field],_RC)
+                  enddo
+                  call ESMF_AttributeCopy(state_out,final_state,_RC)
+                  call shavebits(final_state,list(n),_RC)
+               end if
 
                do m=1,list(n)%field_set%nfields
-                  call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
-                       NAME=trim(list(n)%field_set%fields(3,m)), &
-                       forceWriteNoRestart=.true., _RC )
+                  if (list(n)%nbits_to_keep >=MAPL_NBITS_UPPER_LIMIT) then
+                     call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
+                        NAME=trim(list(n)%field_set%fields(3,m)), &
+                        forceWriteNoRestart=.true., _RC )
+                  else
+                     call MAPL_VarWrite ( list(n)%unit, STATE=final_state, &
+                        NAME=trim(list(n)%field_set%fields(3,m)), &
+                        forceWriteNoRestart=.true., _RC )
+                  endif
                enddo
+
+               if (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+                  do m=1,list(n)%field_set%nfields
+                     call ESMF_StateGet(final_state,trim(list(n)%field_set%fields(3,m)),temp_field,_RC)
+                     call ESMF_FieldDestroy(temp_field,noGarbage=.true.,_RC)
+                  enddo
+                  call ESMF_StateDestroy(final_state,noGarbage=.true.,_RC)
+               end if
                call WRITE_PARALLEL("Wrote GrADS Output for File: "//trim(filename(n)))
 
             end if IOTYPE
@@ -4751,7 +4774,6 @@ ENDDO PARSER
   type(ESMF_State)                        :: state
   type(ESMF_Field)                        :: field
   integer                                 :: dims
-  logical, allocatable                    :: isBundle(:)
   logical                                 :: hasField
 
 ! Set rewrite flag and tmpfields.
@@ -4765,28 +4787,18 @@ ENDDO PARSER
   ! check which fields are actual exports or expressions
   nPExtraFields = 0
   iRealFields = 0
-  allocate(isBundle(nfield))
   do m=1,nfield
 
     call MAPL_ExportStateGet(exptmp,fields(2,m),state,_RC)
-    if (index(fields(1,m),'%') == 0) then
-       call checkIfStateHasField(state, fields(1,m), hasField, _RC)
-       if (hasField) then
-          iRealFields = iRealFields + 1
-          rewrite(m)= .FALSE.
-          isBundle(m) = .FALSE.
-          tmpfields(m)= trim(fields(1,m))
-       else
-          isBundle(m) = .false.
-          rewrite(m)= .TRUE.
-          tmpfields(m)= trim(fields(1,m))
-       end if
-    else
-       isBundle(m)=.true.
+    call checkIfStateHasField(state, fields(1,m), hasField, _RC)
+    if (hasField) then
+       iRealFields = iRealFields + 1
        rewrite(m)= .FALSE.
        tmpfields(m)= trim(fields(1,m))
-    endif
-
+    else
+       rewrite(m)= .TRUE.
+       tmpfields(m)= trim(fields(1,m))
+      end if
   enddo
 
   ! now that we know this allocated a place to store the names of the real fields
@@ -4794,7 +4806,7 @@ ENDDO PARSER
   allocate(VarNeeded(iRealFields),_STAT)
   k=0
   do m=1,nfield
-     if ( (rewrite(m) .eqv. .False.) .and. (isBundle(m) .eqv. .False.) ) then
+     if ( (rewrite(m) .eqv. .False.)) then
         k=k+1
         VarNames(k)=fields(3,m)
      endif
@@ -4880,7 +4892,7 @@ ENDDO PARSER
 
   iRealFields = 0
   do i=1,nfield
-    if ( (.not.rewrite(i)) .and. (.not.isBundle(i)) ) then
+    if ( (.not.rewrite(i)) ) then
        iRealFields = iRealFields + 1
        TotVarNames(iRealFields) = trim(fields(1,i))
        TotCmpNames(iRealFields) = trim(fields(2,i))
@@ -4971,7 +4983,6 @@ ENDDO PARSER
  deallocate(TotAliasNames)
  deallocate(TotRank)
  deallocate(TotLoc)
- deallocate(isBundle)
 
  _RETURN(ESMF_SUCCESS)
 
@@ -4993,7 +5004,7 @@ ENDDO PARSER
   do m=1,nfield
      if (rewrite(m)) then
         fname = trim(fields(3,m))
-        call MAPL_StateGet(state,fname,field,_RC)
+        call MAPL_StateGet(state,fname,field,force_field=.true.,_RC)
         fexpr = tmpfields(m)
         call MAPL_StateEval(state,fexpr,field,_RC)
      end if
@@ -5050,19 +5061,26 @@ ENDDO PARSER
   end subroutine MAPL_StateDestroy
 #endif
 
-  subroutine MAPL_StateGet(state,name,field,rc)
+  subroutine MAPL_StateGet(state,name,field,force_field,rc)
     type(ESMF_State), intent(in) :: state
     character(len=*), intent(in) :: name
     type(ESMF_Field), intent(inout) :: field
+    logical, optional, intent(in) :: force_field
     integer, optional, intent(out  ) :: rc
 
     integer :: status
     character(len=ESMF_MAXSTR) :: bundlename, fieldname
     type(ESMF_FieldBundle) :: bundle
-
+    logical :: local_force_field
     integer :: i
 
-    i = index(name,"%")
+    if (present(force_field)) then
+       local_force_field = force_field
+    else
+       local_force_field = .false.
+    end if
+    i = 0
+    if (.not.local_force_field) i = index(name,"%")
     if (i.ne.0) then
         bundlename = name(:i-1)
         fieldname = name(i+1:)
@@ -5154,37 +5172,64 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
   end subroutine RecordRestart
 
-  subroutine  checkIfStateHasField(state, fieldName, hasField, rc)
+  subroutine  checkIfStateHasField(state, input_fieldName, hasField, rc)
     type(ESMF_State), intent(in) :: state ! export state
-    character(len=*), intent(in) :: fieldName
+    character(len=*), intent(in) :: input_fieldName
     logical, intent(out)         :: hasField
     integer, intent(out), optional :: rc ! Error code:
 
-    integer :: n, i, status
+    integer :: n, i, status, p_index
     character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
     type(ESMF_StateItem_Flag),   allocatable  :: itemTypeList(:)
+    character(len=:),allocatable :: field_name,bundle_name
+    logical :: is_bundle,isPresent
+    type(ESMF_FieldBundle) :: bundle
 
     call ESMF_StateGet(state, itemcount=n,  _RC)
 
     allocate(itemNameList(n), _STAT)
     allocate(itemTypeList(n), _STAT)
     call ESMF_StateGet(state,itemnamelist=itemNamelist,itemtypelist=itemTypeList,_RC)
+    p_index = index(input_fieldName,"%")
+    if (p_index/=0) then
+       is_bundle = .true.
+       bundle_name = input_fieldName(1:p_index-1)
+       field_name = input_fieldName(p_index+1:)
+    else
+       is_bundle = .false.
+       field_name = input_fieldName
+    end if
 
     hasField = .false.
-    do I=1,N
-       if(itemTypeList(I)/=ESMF_STATEITEM_FIELD) cycle
-       if(itemNameList(I)==fieldName) then
-          hasField = .true.
-          exit
-       end if
-    end do
+    if (is_bundle) then
+      do I=1,N
+         if(itemTypeList(I)/=ESMF_STATEITEM_FIELDBUNDLE) cycle
+         if(itemNameList(I)==bundle_name) then
+            call ESMF_StateGet(state,bundle_name,bundle,_RC)
+            call ESMF_FieldBundleGet(bundle,field_name,isPresent=isPresent,_RC)
+            if (isPresent) then
+               hasField = .true.
+               exit
+            end if
+         end if
+      end do
+
+    else
+      do I=1,N
+         if(itemTypeList(I)/=ESMF_STATEITEM_FIELD) cycle
+         if(itemNameList(I)==field_name) then
+            hasField = .true.
+            exit
+         end if
+      end do
+    end if
     deallocate(itemNameList, _STAT)
     deallocate(itemTypeList, _STAT)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine checkIfStateHasField
 
-  subroutine shavebits( state, list, rc)
+    subroutine shavebits( state, list, rc)
     type(ESMF_state), intent(inout) :: state
     type (HistoryCollection), intent(in) :: list
     integer, optional, intent(out):: rc
@@ -5194,10 +5239,6 @@ ENDDO PARSER
     real, pointer :: ptr1d(:), ptr2d(:,:), ptr3d(:,:,:)
     type(ESMF_VM) :: vm
     integer :: comm
-
-    if (list%nbits_to_keep >=MAPL_NBITS_UPPER_LIMIT) then
-       _RETURN(ESMF_SUCCESS)
-    endif
 
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm,mpiCommunicator=comm,_RC)

@@ -5,7 +5,6 @@
 program Example_Driver
    use MPI
    use MAPL
-   use mapl_CapOptionsMod, only: MAPL_CapOptions
    implicit none
 
    type (MAPL_Cap) :: cap
