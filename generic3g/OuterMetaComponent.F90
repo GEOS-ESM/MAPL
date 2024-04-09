@@ -166,8 +166,11 @@ module mapl3g_OuterMetaComponent
       end subroutine I_child_Op
    end interface
 
+   interface recurse
+      module procedure recurse_
+   end interface recurse
+
    interface apply_to_children
-      module procedure apply_to_children_simple
       module procedure apply_to_children_custom
    end interface apply_to_children
 
@@ -380,7 +383,7 @@ contains
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call apply_to_children(this, set_child_geom, _RC)
-      call apply_to_children(this, phase_idx=GENERIC_INIT_GEOM, _RC)
+      call recurse(this, phase_idx=GENERIC_INIT_GEOM, _RC)
 
       _RETURN(ESMF_SUCCESS)
    contains
@@ -417,7 +420,7 @@ contains
 
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
-      call apply_to_children(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
+      call recurse(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
 
       call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
@@ -532,7 +535,7 @@ contains
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
 
-      call apply_to_children(this, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
+      call recurse(this, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
       
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -549,7 +552,7 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call apply_to_children(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
+      call recurse(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
       call this%registry%allocate(_RC)
       
       _RETURN(ESMF_SUCCESS)
@@ -558,7 +561,9 @@ contains
 
    end subroutine initialize_realize
 
-   recursive subroutine apply_to_children_simple(this, phase_idx, rc)
+   ! This procedure is used to recursively invoke a given ESMF phase down
+   ! the hierarchy.
+   recursive subroutine recurse_(this, phase_idx, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer :: phase_idx
       integer, optional, intent(out) :: rc
@@ -577,7 +582,7 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
-   end subroutine apply_to_children_simple
+   end subroutine recurse_
 
    ! This procedure should not be invoked recursively - it is not for traversing the tree,
    ! but rather just to facilitate custom operations where a parent component must pass
@@ -617,7 +622,7 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call apply_to_children(this, phase_idx=GENERIC_INIT_USER, _RC)
+      call recurse(this, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -769,7 +774,7 @@ contains
         ! TODO:  Should there be a phase option here?  Probably not
         ! right as is when things get more complicated.
 
-        call this%user_gc_driver%finalize(_RC)
+        call this%run_custom(ESMF_METHOD_FINALIZE, PHASE_NAME, _RC)
 
         associate(b => this%children%begin(), e => this%children%end())
           iter = b
