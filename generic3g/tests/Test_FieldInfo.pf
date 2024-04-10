@@ -1,0 +1,76 @@
+#include "MAPL_TestErr.h"
+module Test_FieldInfo
+   use mapl3g_FieldSpec
+   use mapl3g_VerticalDimSpec
+   use mapl3g_VerticalGeom
+   use mapl3g_UngriddedDimsSpec
+   use mapl3g_UngriddedDimSpec
+   use esmf
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_field_set_info
+      type(FieldSpec) :: spec
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      type(VerticalGeom) :: vertical_geom
+      type(ESMF_Field) :: f
+      type(ESMF_Info) :: info
+      type(UngriddedDimsSpec) :: ungridded_dims_spec
+      integer :: status
+      logical :: found
+      real, allocatable :: coords(:)
+      
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+      vertical_geom = VerticalGeom(4)
+
+      call ungridded_dims_spec%add_dim_spec(UngriddedDimSpec('a', 'm', [1.,2.]))
+      call ungridded_dims_spec%add_dim_spec(UngriddedDimSpec('b', 's', [1.,2.,3.]))
+
+      spec = FieldSpec(geom, vertical_geom, VERTICAL_DIM_CENTER, &
+           ESMF_TYPEKIND_R4, ungridded_dims_spec, &
+           '', '', 'unknown')
+
+      f = ESMF_FieldCreate(geom, ESMF_TYPEKIND_R4, ungriddedLbound=[1,1], ungriddedUbound=[2,3], _RC)
+      call spec%set_info(f, _RC)
+
+      call ESMF_InfoGetFromHost(f, info, _RC)
+
+      found = ESMF_InfoIsPresent(info, key='MAPL/vertical', _RC)
+      @assert_that(found, is(true()))
+      found = ESMF_InfoIsPresent(info, key='MAPL/vertical/vloc', _RC)
+      @assert_that(found, is(true()))
+
+
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims', _RC)
+      @assert_that(found, is(true()))
+
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_1', _RC)
+      @assert_that(found, is(true()))
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_1/name', _RC)
+      @assert_that(found, is(true()))
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_1/units', _RC)
+      @assert_that(found, is(true()))
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_1/coordinates', _RC)
+      @assert_that(found, is(true()))
+      call ESMF_InfoGetAlloc(info, 'MAPL/ungridded_dims/dim_1/coordinates', coords, _RC)
+      @assert_that(coords, equal_to([1.,2.]))
+
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_2', _RC)
+      @assert_that(found, is(true()))
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_2/name', _RC)
+      @assert_that(found, is(true()))
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_2/units', _RC)
+      @assert_that(found, is(true()))
+      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_2/coordinates', _RC)
+      @assert_that(found, is(true()))
+      call ESMF_InfoGetAlloc(info, 'MAPL/ungridded_dims/dim_2/coordinates', coords, _RC)
+      @assert_that(coords, equal_to([1.,2.,3.]))
+
+
+   end subroutine test_field_set_info
+end module Test_FieldInfo

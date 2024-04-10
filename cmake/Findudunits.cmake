@@ -9,6 +9,7 @@
 #   - udunits_INCLUDE_DIR    - The include directory
 #   - udunits_LIBRARY        - The library
 #   - udunits_LIBRARY_SHARED - Whether the library is shared or not
+#   - udunits_XML_PATH       - path to udunits2.xml
 #
 # The following paths will be searched in order if set in CMake (first priority) or environment (second priority):
 #
@@ -29,6 +30,15 @@ find_path (
   PATH_SUFFIXES include include/udunits2
 	DOC "Path to udunits2.h" )
 
+find_file (
+  udunits_XML_PATH
+  udunits2.xml
+  HINTS ${UDUNITS2_XML_PATH} $ENV{UDUNITS2_XML_PATH}
+    ${UDUNITS2_ROOT} $ENV{UDUNITS2_ROOT}
+    ${UDUNITS2_PATH} $ENV{UDUNITS2_PATH}
+  PATH_SUFFIXES share share/udunits
+  DOC "Path to udunits2.xml" )
+
 find_library(udunits_LIBRARY
 	NAMES udunits2 udunits
 	HINTS ${UDUNITS2_LIBRARIES} $ENV{UDUNITS2_LIBRARIES}
@@ -45,9 +55,9 @@ else()
 endif()
 
 include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (udunits DEFAULT_MSG udunits_LIBRARY udunits_INCLUDE_DIR)
+find_package_handle_standard_args (udunits DEFAULT_MSG udunits_LIBRARY udunits_INCLUDE_DIR udunits_XML_PATH)
 
-mark_as_advanced (udunits_LIBRARY udunits_INCLUDE_DIR)
+mark_as_advanced (udunits_LIBRARY udunits_INCLUDE_DIR udunits_XML_PATH)
 
 if(udunits_FOUND AND NOT TARGET udunits::udunits)
 	add_library(udunits::udunits INTERFACE IMPORTED)

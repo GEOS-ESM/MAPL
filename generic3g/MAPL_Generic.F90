@@ -6,7 +6,7 @@
 ! within user-level gridded components.  These are primarily thin
 ! wrappers that access the internal private state of the gridcomp and
 ! then invoke methods on that type.
-!
+
 ! The names of these procedures are meant to be backward compatible
 ! with earlier MAPL.  However, not all interfaces will be provided.
 ! E.g., MAPL2 usually provided gridcomp and meta overloads for many
@@ -40,15 +40,16 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_ConfigGet
    use :: esmf, only: ESMF_HConfig
    use :: esmf, only: ESMF_HConfigIsDefined
-   use :: esmf, only: ESMF_HConfigAsString
    use :: esmf, only: ESMF_SUCCESS
    use :: esmf, only: ESMF_Method_Flag
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
    use :: esmf, only: ESMF_StateIntent_Flag
    use :: esmf, only: ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL
    use :: esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
+   use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
+   use mapl3g_hconfig_get
    use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -143,10 +144,20 @@ module mapl3g_Generic
       procedure :: gridcomp_connect_all
    end interface MAPL_ConnectAll
 
-
    interface MAPL_ResourceGet
-      procedure :: hconfig_get_string
+      procedure :: resource_get_i4_gc
+      procedure :: resource_get_i8_gc
+      procedure :: resource_get_r4_gc
+      procedure :: resource_get_r8_gc
+      procedure :: resource_get_logical_gc
+      procedure :: resource_get_i4seq_gc
+      procedure :: resource_get_i8seq_gc
+      procedure :: resource_get_r4seq_gc
+      procedure :: resource_get_r8seq_gc
+      procedure :: resource_get_logical_seq_gc
+      procedure :: resource_get_string_gc
    end interface MAPL_ResourceGet
+
 contains
 
    subroutine gridcomp_get(gridcomp, unusable, &
@@ -574,26 +585,271 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_connect_all
 
-   subroutine hconfig_get_string(hconfig, keystring, value, default, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
-      character(*), intent(in) :: keystring
-      character(:), allocatable :: value
-      character(*), optional, intent(in) :: default
+   subroutine gridcomp_get_hconfig(gridcomp, hconfig, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_HConfig), intent(out) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_key
+      type(ESMF_Config) :: config
       
-      has_key = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
-      if (has_key) then
-         value = ESMF_HConfigAsSTring(hconfig, keystring=keystring, _RC)
-         _RETURN(_SUCCESS)
-      end if
+      call ESMF_GridCompGet(gridcomp, config=config, _RC)
+      call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
 
-      _ASSERT(present(default), 'Keystring <'//keystring//'> not found in hconfig')
-      value = default
-      
       _RETURN(_SUCCESS)
-   end subroutine hconfig_get_string
+   end subroutine gridcomp_get_hconfig
+
+   subroutine resource_get_i4_gc(gc, keystring, value, unusable, default, value_set, rc)
+      integer(kind=ESMF_KIND_I4), intent(inout) :: value
+      integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_i4_gc
+
+   subroutine resource_get_i8_gc(gc, keystring, value, unusable, default, value_set, rc)
+      integer(kind=ESMF_KIND_I8), intent(inout) :: value
+      integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_i8_gc
+   
+   subroutine resource_get_r4_gc(gc, keystring, value, unusable, default, value_set, rc)
+      real(kind=ESMF_KIND_R4), intent(inout) :: value
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_r4_gc
+
+   subroutine resource_get_r8_gc(gc, keystring, value, unusable, default, value_set, rc)
+      real(kind=ESMF_KIND_R8), intent(inout) :: value
+      real(kind=ESMF_KIND_R8), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_r8_gc
+
+   subroutine resource_get_logical_gc(gc, keystring, value, unusable, default, value_set, rc)
+      logical, intent(inout) :: value
+      logical, optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_logical_gc
+
+   subroutine resource_get_string_gc(gc, keystring, value, unusable, default, value_set, rc)
+      character(len=:), allocatable, intent(inout) :: value
+      character(len=*), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger=logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_string_gc
+
+   subroutine resource_get_i4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+      integer(kind=ESMF_KIND_I4), dimension(:), allocatable, intent(inout) :: value
+      integer(kind=ESMF_KIND_I4), dimension(:), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_i4seq_gc
+
+   subroutine resource_get_i8seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+      integer(kind=ESMF_KIND_I8), dimension(:), allocatable, intent(inout) :: value
+      integer(kind=ESMF_KIND_I8), dimension(:), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_i8seq_gc
+
+   subroutine resource_get_r4seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+      real(kind=ESMF_KIND_R4), dimension(:), allocatable, intent(inout) :: value
+      real(kind=ESMF_KIND_R4), dimension(:), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_r4seq_gc
+
+   subroutine resource_get_r8seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+      real(kind=ESMF_KIND_R8), dimension(:), allocatable, intent(inout) :: value
+      real(kind=ESMF_KIND_R8), dimension(:), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_r8seq_gc
+
+   subroutine resource_get_logical_seq_gc(gc, keystring, value, unusable, default, value_set, rc)
+      logical, dimension(:), allocatable, intent(inout) :: value
+      logical, dimension(:), optional, intent(in) :: default
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: value_set
+      integer, optional, intent(out) :: rc
+      class(Logger_t), pointer :: logger
+      type(ESMF_HConfig) :: hconfig
+      type(HConfigParams) :: params
+      integer :: status
+
+      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      params = HConfigParams(hconfig, keystring, value_set, logger)
+      call MAPL_HConfigGet(params, value, default, _RC) 
+      if(present(value_set)) value_set = params%value_set
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine resource_get_logical_seq_gc
 
 end module mapl3g_Generic

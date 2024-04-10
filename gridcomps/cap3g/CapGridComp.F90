@@ -1,7 +1,6 @@
 #include "MAPL_Generic.h"
 module mapl3g_CapGridComp
    use :: generic3g, only: MAPL_GridCompSetEntryPoint
-   use :: generic3g, only: MAPL_ResourceGet
    use :: generic3g, only: MAPL_ConnectAll
    use :: generic3g, only: MAPL_GridCompGet
    use :: generic3g, only: GriddedComponentDriver
@@ -9,6 +8,7 @@ module mapl3g_CapGridComp
    use :: generic3g, only: MAPL_UserCompGetInternalState
    use :: generic3g, only: MAPL_UserCompSetInternalState
    use :: generic3g, only: GENERIC_INIT_USER
+   use :: hconfig3g, only: MAPL_HConfigGet, HConfigParams
    use :: mapl_ErrorHandling
    use :: esmf, only: ESMF_GridComp
    use :: esmf, only: ESMF_Config
@@ -42,6 +42,7 @@ contains
       type(CapGridComp), pointer :: cap
       type(ESMF_HConfig) :: hconfig
       character(:), allocatable :: extdata, history
+      type(HConfigParams) :: hconfig_params
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name='GENERIC::INIT_USER', _RC)
@@ -52,9 +53,12 @@ contains
 
       ! Get Names of children
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      call MAPL_ResourceGet(hconfig, keystring='extdata_name', value=cap%extdata_name, default='EXTDATA', _RC)
-      call MAPL_ResourceGet(hconfig, keystring='history_name', value=cap%history_name, default='HIST', _RC)
-      call MAPL_ResourceGet(hconfig, keystring='root_name', value=cap%root_name, _RC)
+      hconfig_params = HConfigParams(hconfig, 'extdata_name') 
+      call MAPL_HConfigGet(hconfig_params, value=cap%extdata_name, default='EXTDATA', _RC)
+      hconfig_params%label = 'history_name'
+      call MAPL_HConfigGet(hconfig_params, value=cap%history_name, default='HIST', _RC)
+      hconfig_params%label = 'root_name'
+      call MAPL_HConfigGet(hconfig_params, value=cap%root_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine setServices

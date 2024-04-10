@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Convert values in ESMF\_Field with compatible units using udunits2.
 - Add make_geom function in new module mapl3g_HistoryCollectionGridComp_private.
 - Use anchors for reading HConfig in Test_HistoryGridComp.
+- Add procedures for MAPL_GetResource from ESMF_HConfig.
+- Added GitHub Action to generate MAPL3 Ford Docs
 
 ### Changed
 
@@ -41,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_env v4.0.0 (Baselibs 7, new yaFyaml interfaces)
 - Updated CI to use Baselibs 7
 - Update executables using FLAP to use fArgParse
-- Update `Findudunits.cmake` to also link with libdl
+- Update `Findudunits.cmake` to link with libdl and look for the `udunits2.xml` file (as some MAPL tests require it)
 
 ### Fixed
 
@@ -57,6 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Replace local HorzIJIndex sear with the GlobalHorzIJindex search
+- Change grd_is_ok function to avoid collective call
 - Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x
 - Allow arithmetic operations to be performed on fields from bundles in History
 - Adapted subroutine RegridVector from GriddedIO.F90 to MAPL_EpochSwathMod.F90 (changing class name for this)

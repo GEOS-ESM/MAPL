@@ -1,0 +1,25 @@
+name: mapl3docs
+
+on:
+  push:
+    branches:
+      - release/MAPL-v3
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy-mapl3-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and Deploy Dev Docs
+        uses: ./.github/actions/deploy-ford-docs
+        with:
+          ford-input: docs/Ford/mapl3docs-with-remote-esmf.public_private_protected.md
+          doc-folder: docs/Ford/mapl3-doc
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target-folder: mapl3-doc
