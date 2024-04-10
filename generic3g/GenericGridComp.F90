@@ -53,20 +53,21 @@ contains
          integer :: status
          integer :: phase
 
-         associate (phases => outer_meta%get_phases(ESMF_METHOD_RUN))
-           do phase = 1, phases%size()
-              call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase=phase, _RC)
-           end do
-         end associate
-
          ! Mandatory generic initialize phases
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_CLOCK, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GEOM, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_POST_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
 !#         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_RESTORE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
+
+         ! Run phases, including mandatory
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+         associate (phases => outer_meta%get_phases(ESMF_METHOD_RUN))
+           do phase = 1, phases%size()
+              call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase=phase, _RC)
+           end do
+         end associate
 
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE,     finalize,      _RC)
 !#         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_READRESTART,  read_restart,  _RC)
@@ -149,20 +150,18 @@ contains
       outer_meta => get_outer_meta(gridcomp, _RC)
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
-      case (GENERIC_INIT_CLOCK)
-         call outer_meta%initialize_clock(clock, _RC)
       case (GENERIC_INIT_GEOM)
-         call outer_meta%initialize_geom(clock, _RC)
+         call outer_meta%initialize_geom(_RC)
       case (GENERIC_INIT_ADVERTISE)
-         call outer_meta%initialize_advertise(clock, _RC)
+         call outer_meta%initialize_advertise(_RC)
       case (GENERIC_INIT_POST_ADVERTISE)
          call outer_meta%initialize_post_advertise(importState, exportState, clock, _RC)
       case (GENERIC_INIT_REALIZE)
-         call outer_meta%initialize_realize(clock, _RC)
+         call outer_meta%initialize_realize(_RC)
 !#      case (GENERIC_INIT_RESTORE)
-!#         call outer_meta%initialize_realize(clock, _RC)
+!#         call outer_meta%initialize_realize(_RC)
       case (GENERIC_INIT_USER)
-         call outer_meta%initialize_user(clock, _RC)
+         call outer_meta%initialize_user(_RC)
       case default
          _FAIL('Unknown generic phase ')
       end select
@@ -191,7 +190,7 @@ contains
       phases => outer_meta%get_phases(ESMF_METHOD_RUN)
       phase_name => phases%of(phase)
    
-      call outer_meta%run(clock, phase_name=phase_name, _RC)
+      call outer_meta%run(phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run

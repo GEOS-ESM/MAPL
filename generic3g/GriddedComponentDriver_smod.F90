@@ -146,4 +146,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run_export_couplers
 
+   module subroutine clock_advance(this, rc)
+      class(GriddedComponentDriver), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      
+      call ESMF_ClockAdvance(this%clock, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine clock_advance
+
 end submodule GriddedComponentDriver_run_smod
