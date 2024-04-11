@@ -206,25 +206,28 @@ contains
 
    subroutine gridcomp_get(gridcomp, unusable, &
         hconfig, &
-        registry, &
+        outer_meta, &
         logger, &
+        registry, &
         rc)
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Hconfig), optional, intent(out) :: hconfig
-      type(HierarchicalRegistry), optional, pointer, intent(out) :: registry
+      type(OuterMetaComponent), pointer, optional, intent(out) :: outer_meta
       class(Logger_t), optional, pointer, intent(out) :: logger
+      type(HierarchicalRegistry), optional, pointer, intent(out) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponent), pointer :: outer_meta_
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-
-      if (present(hconfig)) hconfig = outer_meta%get_hconfig()
-      if (present(registry)) registry => outer_meta%get_registry()
-      if (present(logger)) logger => outer_meta%get_lgr()
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
+      
+      if (present(hconfig)) hconfig = outer_meta_%get_hconfig()
+      if (present(outer_meta)) outer_meta => outer_meta_
+      if (present(logger)) logger => outer_meta_%get_lgr()
+      if (present(registry)) registry => outer_meta_%get_registry()
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get
