@@ -2,13 +2,14 @@
 
 module mapl_GathervKernel
    use mapl_ErrorHandlingMod
+   use Kernel_mod
    use mpi
    implicit none
    private
 
    public :: GathervKernel
 
-   type :: GathervKernel
+   type, extends(Kernel_T) :: GathervKernel
       integer :: n
       integer :: comm
       integer :: rank
