@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Generic.h"
 
 !---------------------------------------------------------------------
 !
@@ -30,6 +30,10 @@ module mapl3g_Generic
    use :: mapl3g_VerticalGeom
    use :: mapl3g_HierarchicalRegistry
    use mapl_InternalConstantsMod
+   use :: esmf, only: ESMF_Info
+   use :: esmf, only: ESMF_InfoGetFromHost
+   use :: esmf, only: ESMF_InfoGet
+   use :: esmf, only: ESMF_InfoIsSet
    use :: esmf, only: ESMF_GridComp
    use :: esmf, only: ESMF_GridCompGet
    use :: esmf, only: ESMF_Geom, ESMF_GeomCreate
@@ -56,7 +60,11 @@ module mapl3g_Generic
    implicit none
    private
 
-   public :: get_outer_meta_from_inner_gc
+   public :: MAPL_GridCompGetOuterMeta
+   public :: MAPL_GridCompIsGeneric
+   public :: MAPL_GridCompIsUser
+
+  public :: get_outer_meta_from_inner_gc
 
    public :: MAPL_GridCompGet
    public :: MAPL_GridCompSetEntryPoint
@@ -88,12 +96,16 @@ module mapl3g_Generic
 
    ! Interfaces
 
+   interface MAPL_GridCompGetOuterMeta
+      procedure :: gridcomp_get_outer_meta
+   end interface MAPL_GridCompGetOuterMeta
+   
    interface MAPL_GridCompSetGeom
-      module procedure MAPL_GridCompSetGeom
-      module procedure MAPL_GridCompSetGeomGrid
-      module procedure MAPL_GridCompSetGeomMesh
-      module procedure MAPL_GridCompSetGeomXgrid
-      module procedure MAPL_GridCompSetGeomLocStream
+      procedure MAPL_GridCompSetGeom
+      procedure MAPL_GridCompSetGeomGrid
+      procedure MAPL_GridCompSetGeomMesh
+      procedure MAPL_GridCompSetGeomXgrid
+      procedure MAPL_GridCompSetGeomLocStream
    end interface MAPL_GridCompSetGeom
 
    interface MAPL_GridCompGet
@@ -102,21 +114,21 @@ module mapl3g_Generic
 
 
 !!$   interface MAPL_GetInternalState
-!!$      module procedure :: get_internal_state
+!!$      procedure :: get_internal_state
 !!$   end interface MAPL_GetInternalState
 
 
 
    interface MAPL_AddChild
-      module procedure :: add_child_by_name
+      procedure :: add_child_by_name
    end interface MAPL_AddChild
 
    interface MAPL_RunChild
-      module procedure :: run_child_by_name
+      procedure :: run_child_by_name
    end interface MAPL_RunChild
 
    interface MAPL_RunChildren
-      module procedure :: run_children
+      procedure :: run_children
    end interface MAPL_RunChildren
 
    interface MAPL_AddSpec
@@ -125,19 +137,19 @@ module mapl3g_Generic
    end interface MAPL_AddSpec
 
    interface MAPL_AddImportSpec
-      module procedure :: add_import_spec_legacy
+      procedure :: add_import_spec_legacy
    end interface MAPL_AddImportSpec
 
    interface MAPL_AddExportSpec
-      module procedure :: add_export_spec
+      procedure :: add_export_spec
    end interface MAPL_AddExportSpec
 
    interface MAPL_AddInternalSpec
-      module procedure :: add_internal_spec
+      procedure :: add_internal_spec
    end interface MAPL_AddInternalSpec
 
    interface MAPL_GridCompSetEntryPoint
-      module procedure gridcomp_set_entry_point
+      procedure gridcomp_set_entry_point
    end interface MAPL_GridCompSetEntryPoint
 
    interface MAPL_ConnectAll
@@ -158,7 +170,39 @@ module mapl3g_Generic
       procedure :: resource_get_string_gc
    end interface MAPL_ResourceGet
 
+   interface MAPL_GridCompIsGeneric
+      procedure :: gridcomp_is_generic
+   end interface MAPL_GridCompIsGeneric
+
+   interface MAPL_GridCompIsUser
+      procedure :: gridcomp_is_user
+   end interface MAPL_GridCompIsUser
+
+
 contains
+
+   recursive subroutine gridcomp_get_outer_meta(gridcomp, outer_meta, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: is_generic
+      type(ESMF_GridComp) :: outer_gc
+
+      is_generic = MAPL_GridCompIsGeneric(gridcomp, _RC)
+
+      if (is_generic) then
+         outer_meta => get_outer_meta(gridcomp, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      ! is user gridcomp
+      outer_gc = get_outer_gridcomp(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(outer_gc, outer_meta, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine
 
    subroutine gridcomp_get(gridcomp, unusable, &
         hconfig, &
@@ -176,7 +220,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
 
       if (present(hconfig)) hconfig = outer_meta%get_hconfig()
       if (present(registry)) registry => outer_meta%get_registry()
@@ -197,7 +241,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%add_child(child_name, setservices, config, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -217,7 +261,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%run_child(child_name, phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -234,7 +278,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%run_children(phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -249,9 +293,13 @@ contains
 
       integer :: status
       type(InnerMetaComponent), pointer :: inner_meta
+      logical :: is_user_gridcomp
 
+      is_user_gridcomp =  MAPL_GridCompIsUser(gridcomp, _RC)
+      _ASSERT(is_user_gridcomp, 'gridcomp argument must be a user gridcomp')
       inner_meta => get_inner_meta(gridcomp, _RC)
       outer_gc = inner_meta%get_outer_gridcomp()
+
       _RETURN(_SUCCESS)
    end function get_outer_gridcomp
 
@@ -286,7 +334,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(GriddedComponentDriver), pointer :: user_gc_driver
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       user_gc_driver => outer_meta%get_user_gc_driver()
       call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
 
@@ -304,7 +352,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
 
@@ -444,7 +492,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(VariableSpec(ESMF_STATEINTENT_EXPORT, &
            short_name=short_name, standard_name=standard_name))
@@ -464,7 +512,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(VariableSpec(ESMF_STATEINTENT_INTERNAL, &
            short_name=short_name, standard_name=standard_name))
@@ -480,8 +528,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
-
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_vertical_geom(vertical_geom)
 
       _RETURN(_SUCCESS)
@@ -495,7 +542,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
@@ -507,14 +554,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
       type(ESMF_Geom) :: geom
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
-
-      !TODO - staggerloc not needed in nextgen ESMF
       geom = ESMF_GeomCreate(grid, ESMF_STAGGERLOC_INVALID, _RC)
-      call outer_meta%set_geom(geom)
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+
 
       _RETURN(_SUCCESS)
    end subroutine MAPL_GridCompSetGeomGrid
@@ -525,13 +569,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
       type(ESMF_Geom) :: geom
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
-
       geom = ESMF_GeomCreate(mesh, _RC)
-      call outer_meta%set_geom(geom)
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine MAPL_GridCompSetGeomMesh
@@ -542,13 +583,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
       type(ESMF_Geom) :: geom
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
-
       geom = ESMF_GeomCreate(xgrid, _RC)
-      call outer_meta%set_geom(geom)
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine MAPL_GridCompSetGeomXGrid
@@ -559,13 +597,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
       type(ESMF_Geom) :: geom
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
-
       geom = ESMF_GeomCreate(locstream, _RC)
-      call outer_meta%set_geom(geom)
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+
 
       _RETURN(_SUCCESS)
    end subroutine MAPL_GridCompSetGeomLocStream
@@ -579,7 +615,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%connect_all(src_comp, dst_comp, _RC)
 
       _RETURN(_SUCCESS)
@@ -851,5 +887,36 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end subroutine resource_get_logical_seq_gc
+
+   logical function gridcomp_is_generic(gridcomp, rc)
+      type(ESMF_GridComp), intent(in) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+      logical :: found
+
+      gridcomp_is_generic = .false.
+      call ESMF_InfoGetFromHost(gridcomp, info, _RC)
+      found = ESMF_InfoIsSet(info, key='MAPL/GRIDCOMP_IS_GENERIC', _RC)
+      if (found) then
+         call ESMF_InfoGet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=gridcomp_is_generic, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function gridcomp_is_generic
+
+   logical function gridcomp_is_user(gridcomp, rc)
+      type(ESMF_GridComp), intent(in) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+      logical :: found
+
+      gridcomp_is_user = .not. MAPL_GridCompIsGeneric(gridcomp, _RC)
+
+      _RETURN(_SUCCESS)
+   end function gridcomp_is_user
 
 end module mapl3g_Generic

@@ -101,7 +101,10 @@ contains
       integer :: status
 
       gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist,  _RC)
+      call set_is_generic(gridcomp, _RC)
+
       user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
+      call set_is_generic(user_gridcomp, .false., _RC)
 
       call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
@@ -119,6 +122,7 @@ contains
 #endif
       call outer_meta%setservices(set_services, _RC)
       call outer_meta%init_meta(_RC)
+
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -256,4 +260,21 @@ contains
       outer_name = "[" // inner_name // "]"
    end function outer_name
 
+   subroutine set_is_generic(gridcomp, flag, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      logical, optional, intent(in) :: flag
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: flag_
+      type(ESMF_Info) :: info
+
+      flag_ = .true.
+      if (present(flag)) flag_ = flag
+
+      call ESMF_InfoGetFromHost(gridcomp, info, _RC)
+      call ESMF_InfoSet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=flag_, _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine set_is_generic
 end module mapl3g_GenericGridComp
