@@ -69,7 +69,6 @@ contains
       
       clock_config = ESMF_HConfigCreateAt(hconfig, keystring='clock', _RC)
 
-      calendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='CapCal', _RC)
       call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN,_RC)
       call set_time(startTime, 'start', clock_config, _RC)
       call ESMF_TimePrint(startTime, options='string', prestring='start time set: ' ,_RC)
