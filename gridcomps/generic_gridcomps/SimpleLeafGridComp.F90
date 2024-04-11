@@ -64,7 +64,6 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ESMF_State) :: internal
 
-      
       _RETURN(_SUCCESS)
    end subroutine run
 

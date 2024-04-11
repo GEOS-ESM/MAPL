@@ -1,13 +1,9 @@
-esma_set_this (OVERRIDE MAPL.simple3g)
-set (srcs
-    SimpleLeafGridComp.F90
-    )
+esma_set_this ()
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL TYPE ${MAPL_LIBRARY_TYPE})
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-  target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
-endif ()
-target_link_libraries(${this} PRIVATE ESMF::ESMF)
-target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-#target_compile_definitions(${this} PRIVATE SYSTEM_DSO_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}")
+esma_add_library(mapl3g_simple_leaf_gridcomp SRCS SimpleLeafGridComp.F90 DEPENDENCIES MAPL.generic3g TYPE ${MAPL_LIBRARY_TYPE})
+
+set (comps mapl3g_simple_leaf_gridcomp )
+foreach (comp ${comps})
+  target_include_directories(${comp} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)
+endforeach()  
+
