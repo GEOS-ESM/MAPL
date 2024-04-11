@@ -66,7 +66,6 @@ contains
       type(ESMF_Time) :: startTime, stopTime, end_of_segment
       type(ESMF_TimeInterval) :: timeStep, segment_duration
       type(ESMF_HConfig) :: clock_config
-      type(ESMF_Calendar) :: calendar
       
       clock_config = ESMF_HConfigCreateAt(hconfig, keystring='clock', _RC)
 
