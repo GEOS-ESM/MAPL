@@ -1,0 +1,1011 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>BundleRegrid1 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>BundleRegrid1
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">52 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMFL_Mod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmfl_mod.f90.html'>ESMFL_Mod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmfl_mod.html'>ESMFL_MOD</a></li>
+            <li class="breadcrumb-item active" aria-current="page">BundleRegrid1</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/bundleregrid1.html#src">BundleRegrid1</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine BundleRegrid1(srcBUN, Sgrid2D, dstBUN, Dgrid2D, vm, rh, rc)  
+</h2>
+    
+
+    <p>The subroutine <code>BundleRegrid1</code>
+ regrids members of a bundle using ESMF_FieldRegrid.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>17Apr2006  Cruz  Initial code.</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-srcbun"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>srcBUN</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sgrid2d~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Sgrid2D</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dstbun"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dstBUN</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dgrid2d~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Dgrid2D</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vm~137"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_vm.html'>ESMF_VM</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rh~4"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_routehandle.html'>ESMF_RouteHandle</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1109"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~bundleregrid1~~CallsGraph Pages: 1 -->
+<svg id="procbundleregrid1CallsGraph" width="641pt" height="305pt"
+ viewBox="0.00 0.00 641.00 304.62" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~bundleregrid1~~CallsGraph" class="graph" transform="scale(1.27 1.27) rotate(0) translate(4 384.26)">
+<title>proc~~bundleregrid1~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-384.26 813,-384.26 813,4 -4,4"/>
+<!-- proc~bundleregrid1 -->
+<g id="proc~~bundleregrid1~~CallsGraph_node1" class="node">
+<title>proc~bundleregrid1</title>
+<polygon fill="none" stroke="black" points="91,-254.26 0,-254.26 0,-230.26 91,-230.26 91,-254.26"/>
+<text text-anchor="middle" x="45.5" y="-239.86" font-family="Helvetica,sans-Serif" font-size="10.50">BundleRegrid1</text>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_node2" class="node">
+<title>ESMF_VMGet</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="228.5,-380.26 146.5,-380.26 146.5,-356.26 228.5,-356.26 228.5,-380.26"/>
+<text text-anchor="middle" x="187.5" y="-365.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~bundleregrid1&#45;&gt;ESMF_VMGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge1" class="edge">
+<title>proc~bundleregrid1&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#ff0000" d="M52.75,-254.49C64.45,-276.2 91.68,-321.62 127,-347.26 130.2,-349.59 133.68,-351.67 137.3,-353.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.94,-356.77 146.49,-357.75 138.86,-350.41 135.94,-356.77"/>
+</g>
+<!-- esmf_arrayget -->
+<g id="proc~~bundleregrid1~~CallsGraph_node3" class="node">
+<title>esmf_arrayget</title>
+<polygon fill="#777777" stroke="#777777" points="232.5,-338.26 142.5,-338.26 142.5,-314.26 232.5,-314.26 232.5,-338.26"/>
+<text text-anchor="middle" x="187.5" y="-323.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_arrayget</text>
+</g>
+<!-- proc~bundleregrid1&#45;&gt;esmf_arrayget -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge2" class="edge">
+<title>proc~bundleregrid1&#45;&gt;esmf_arrayget</title>
+<path fill="none" stroke="#ff0000" d="M59.23,-254.4C74.36,-268.27 100.86,-290.93 127,-305.26 130.27,-307.05 133.71,-308.74 137.24,-310.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.09,-313.63 146.67,-314.23 138.78,-307.17 136.09,-313.63"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~bundleregrid1~~CallsGraph_node4" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="248,-296.26 127,-296.26 127,-272.26 248,-272.26 248,-296.26"/>
+<text text-anchor="middle" x="187.5" y="-281.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~bundleregrid1&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge3" class="edge">
+<title>proc~bundleregrid1&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M86.62,-254.3C102.14,-258.96 120.08,-264.34 136.43,-269.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.79,-272.7 146.38,-272.23 137.8,-266 135.79,-272.7"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~bundleregrid1~~CallsGraph_node5" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="230,-254.26 145,-254.26 145,-230.26 230,-230.26 230,-254.26"/>
+<text text-anchor="middle" x="187.5" y="-239.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~bundleregrid1&#45;&gt;esmf_fieldget -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge4" class="edge">
+<title>proc~bundleregrid1&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M91.18,-242.26C104.96,-242.26 120.26,-242.26 134.48,-242.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.62,-245.76 144.62,-242.26 134.62,-238.76 134.62,-245.76"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~bundleregrid1~~CallsGraph_node6" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node6"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="231.5,-116.26 143.5,-116.26 143.5,-92.26 231.5,-92.26 231.5,-116.26"/>
+<text text-anchor="middle" x="187.5" y="-101.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~bundleregrid1&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge5" class="edge">
+<title>proc~bundleregrid1&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M58.92,-230.02C83.37,-205.92 137.89,-152.18 167.11,-123.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="169.64,-125.8 174.3,-116.29 164.72,-120.81 169.64,-125.8"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~bundleregrid1~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="530,-206.26 448,-206.26 448,-182.26 530,-182.26 530,-206.26"/>
+<text text-anchor="middle" x="489" y="-191.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~bundleregrid1&#45;&gt;proc~mapl_return -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge6" class="edge">
+<title>proc~bundleregrid1&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M86.73,-230.25C99.5,-226.84 113.75,-223.47 127,-221.26 236.83,-202.98 367.53,-197.07 437.62,-195.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="438.01,-198.66 447.92,-194.9 437.84,-191.66 438.01,-198.66"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~bundleregrid1~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="527,-31.26 451,-31.26 451,-7.26 527,-7.26 527,-31.26"/>
+<text text-anchor="middle" x="489" y="-16.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~bundleregrid1&#45;&gt;proc~mapl_verify -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge7" class="edge">
+<title>proc~bundleregrid1&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M49.83,-229.92C58.21,-200.88 82.75,-127.4 127,-83.26 214.92,4.44 271.22,5.66 395,-4.26 409.82,-5.45 425.85,-7.69 440.35,-10.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="440.16,-13.6 450.61,-11.83 441.34,-6.7 440.16,-13.6"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0091ff" d="M213.58,-116.42C232.58,-125.29 259.51,-137.13 284,-145.26 335.57,-162.39 396.32,-176.2 438.04,-184.74"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="437.46,-188.19 447.95,-186.74 438.84,-181.33 437.46,-188.19"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0091ff" d="M198.03,-92C213.62,-73.07 246.58,-37.41 284,-23.26 334.97,-3.99 398.33,-6.43 440.8,-11.45"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="440.5,-14.94 450.86,-12.74 441.38,-8 440.5,-14.94"/>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_node9" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="395,-56.26 284,-56.26 284,-32.26 395,-32.26 395,-56.26"/>
+<text text-anchor="middle" x="339.5" y="-41.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#0091ff" d="M218.85,-92.12C241.9,-82.9 273.8,-70.14 298.86,-60.12"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="300.46,-63.25 308.45,-56.28 297.86,-56.75 300.46,-63.25"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_node10" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="533,-80.26 445,-80.26 445,-56.26 533,-56.26 533,-80.26"/>
+<text text-anchor="middle" x="489" y="-65.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#0091ff" d="M231.73,-99.07C285.37,-92.62 376.81,-81.63 434.73,-74.67"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="435.27,-78.13 444.78,-73.46 434.44,-71.18 435.27,-78.13"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~bundleregrid1~~CallsGraph_node12" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node12"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="391.5,-136.26 287.5,-136.26 287.5,-112.26 391.5,-112.26 391.5,-136.26"/>
+<text text-anchor="middle" x="339.5" y="-121.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#0091ff" d="M231.89,-110.05C245.95,-111.92 261.82,-114.04 276.94,-116.06"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="276.88,-119.58 287.26,-117.43 277.81,-112.64 276.88,-119.58"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~bundleregrid1~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node11"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="707,-206.26 592,-206.26 592,-182.26 707,-182.26 707,-206.26"/>
+<text text-anchor="middle" x="649.5" y="-191.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M530.41,-194.26C545.97,-194.26 564.19,-194.26 581.6,-194.26"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="581.72,-197.76 591.72,-194.26 581.72,-190.76 581.72,-197.76"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~bundleregrid1~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="716,-80.26 583,-80.26 583,-56.26 716,-56.26 716,-80.26"/>
+<text text-anchor="middle" x="649.5" y="-65.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M529.75,-182.26C535.75,-179.71 541.7,-176.72 547,-173.26 582.78,-149.94 615.43,-111.84 633.57,-88.51"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="636.51,-90.43 639.79,-80.36 630.94,-86.19 636.51,-90.43"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M527.16,-30.75C548.86,-37.46 576.48,-46 599.89,-53.24"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="599.05,-56.64 609.64,-56.25 601.12,-49.95 599.05,-56.64"/>
+</g>
+<!-- at -->
+<g id="proc~~bundleregrid1~~CallsGraph_node16" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="807.5,-185.26 753.5,-185.26 753.5,-161.26 807.5,-161.26 807.5,-185.26"/>
+<text text-anchor="middle" x="780.5" y="-170.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge16" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ff66" d="M707.08,-185.05C719.42,-183.04 732.14,-180.97 743.42,-179.14"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="744.01,-182.59 753.32,-177.52 742.89,-175.68 744.01,-182.59"/>
+</g>
+<!-- insert -->
+<g id="proc~~bundleregrid1~~CallsGraph_node17" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="807.5,-227.26 753.5,-227.26 753.5,-203.26 807.5,-203.26 807.5,-227.26"/>
+<text text-anchor="middle" x="780.5" y="-212.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff66" d="M707.08,-203.47C719.42,-205.48 732.14,-207.55 743.42,-209.39"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="742.89,-212.85 753.32,-211 744.01,-205.94 742.89,-212.85"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M367.44,-136.31C376.34,-140.5 386.2,-145.38 395,-150.26 411.6,-159.48 413.99,-164.82 431,-173.26 434.56,-175.03 438.32,-176.74 442.12,-178.36"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="441.04,-181.69 451.62,-182.2 443.66,-175.2 441.04,-181.69"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0066ff" d="M352.6,-112.24C369.25,-96.11 400.65,-67.18 431,-47.26 437.21,-43.19 444.1,-39.32 450.88,-35.83"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="452.58,-38.89 459.99,-31.32 449.47,-32.62 452.58,-38.89"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#0066ff" d="M371.45,-112.15C388.91,-105.36 411.14,-96.76 431,-89.26 435.75,-87.47 440.73,-85.61 445.68,-83.77"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="446.95,-87.03 455.11,-80.28 444.52,-80.47 446.95,-87.03"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_node14" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node14"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="547,-164.26 431,-164.26 431,-140.26 547,-140.26 547,-164.26"/>
+<text text-anchor="middle" x="489" y="-149.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#0066ff" d="M391.67,-133.98C401.06,-135.76 410.99,-137.64 420.76,-139.5"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="420.38,-142.99 430.86,-141.42 421.69,-136.11 420.38,-142.99"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_node15" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node15"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="543,-122.26 435,-122.26 435,-98.26 543,-98.26 543,-122.26"/>
+<text text-anchor="middle" x="489" y="-107.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#0066ff" d="M391.67,-119.41C402.38,-118.39 413.78,-117.31 424.86,-116.26"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="425.29,-119.73 434.91,-115.3 424.63,-112.76 425.29,-119.73"/>
+</g>
+<!-- proc~initialize~10 -->
+<g id="proc~~bundleregrid1~~CallsGraph_node18" class="node">
+<title>proc~initialize~10</title>
+<g id="a_proc~~bundleregrid1~~CallsGraph_node18"><a xlink:href="../proc/initialize~10.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="809,-80.26 752,-80.26 752,-56.26 809,-56.26 809,-80.26"/>
+<text text-anchor="middle" x="780.5" y="-65.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~10 -->
+<g id="proc~~bundleregrid1~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~10</title>
+<path fill="none" stroke="#cc00ff" d="M716.13,-68.26C724.88,-68.26 733.59,-68.26 741.63,-68.26"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="741.77,-71.76 751.77,-68.26 741.77,-64.76 741.77,-71.76"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocbundleregrid1CallsGraph = svgPanZoom('#procbundleregrid1CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~bundleregrid1~~CalledByGraph Pages: 1 -->
+<svg id="procbundleregrid1CalledByGraph" width="222pt" height="32pt"
+ viewBox="0.00 0.00 222.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~bundleregrid1~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~bundleregrid1~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 218,-28 218,4 -4,4"/>
+<!-- proc~bundleregrid1 -->
+<g id="proc~~bundleregrid1~~CalledByGraph_node1" class="node">
+<title>proc~bundleregrid1</title>
+<polygon fill="none" stroke="black" points="214,-24 123,-24 123,0 214,0 214,-24"/>
+<text text-anchor="middle" x="168.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">BundleRegrid1</text>
+</g>
+<!-- interface~esmfl_regrid -->
+<g id="proc~~bundleregrid1~~CalledByGraph_node2" class="node">
+<title>interface~esmfl_regrid</title>
+<g id="a_proc~~bundleregrid1~~CalledByGraph_node2"><a xlink:href="../interface/esmfl_regrid.html" xlink:title="ESMFL_Regrid">
+<polygon fill="#a7506f" stroke="#a7506f" points="87,-24 0,-24 0,0 87,0 87,-24"/>
+<text text-anchor="middle" x="43.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_Regrid</text>
+</a>
+</g>
+</g>
+<!-- interface~esmfl_regrid&#45;&gt;proc~bundleregrid1 -->
+<g id="proc~~bundleregrid1~~CalledByGraph_edge1" class="edge">
+<title>interface~esmfl_regrid&#45;&gt;proc~bundleregrid1</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M87.17,-12C95.36,-12 104.04,-12 112.56,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.81,-15.5 122.81,-12 112.81,-8.5 112.81,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">BundleRegrid1</span><span class="w"> </span><span class="p">(</span><span class="n">srcBUN</span><span class="p">,</span><span class="w"> </span><span class="n">Sgrid2D</span><span class="p">,</span><span class="w"> </span><span class="n">dstBUN</span><span class="p">,</span><span class="w"> </span><span class="n">Dgrid2D</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="w">  </span><span class="k">implicit NONE</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inOUT</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">srcBUN</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">dstBUN</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">Sgrid2D</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">Dgrid2D</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_RouteHandle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rh</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="c">!</span>
+<span class="c">!-------------------------------------------------------------------------</span>
+
+<span class="c">! local vars</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">dstFLD</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">srcFLD</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Array</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">dstARR</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">grid3D</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sCPD</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">dCPD</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">deid</span><span class="p">,</span><span class="w"> </span><span class="n">kmax</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">numVars</span>
+
+<span class="c">! begin</span>
+
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">Sgrid2D</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">Dgrid2D</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rh</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">localPet</span><span class="o">=</span><span class="n">deid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! get number of fields in bundle</span>
+<span class="w">   </span><span class="c">! number in srcBUN should be the same as in dstBUN (we can change later)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="w">      </span><span class="p">(</span><span class="n">srcBUN</span><span class="p">,</span><span class="w"> </span><span class="n">FieldCount</span><span class="o">=</span><span class="n">NumVars</span><span class="p">,</span><span class="w">  </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="w"> </span><span class="p">(</span><span class="n">srcBUN</span><span class="p">,</span><span class="w">  </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">srcFLD</span><span class="p">,</span><span class="w">            </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="w"> </span><span class="p">(</span><span class="n">dstBUN</span><span class="p">,</span><span class="w">  </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">dstFLD</span><span class="p">,</span><span class="w">            </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! get rank from any field</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="k">array</span><span class="o">=</span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">dstARR</span><span class="p">,</span><span class="w"> </span><span class="n">RANK</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! get sCPD from srcFLD, Sgrid2D does not have correct 3rd dim</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">srcFLD</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid3D</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid3D</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">sCPD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="c">! get dCPD from Dgrid2D</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid3D</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid3D</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">dCPD</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! for MAPL and GSI sCPD(3) = dCPD(3)</span>
+
+<span class="w">   </span><span class="c">! assume 2D field</span>
+<span class="w">   </span><span class="n">kmax</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">   </span><span class="c">! if rank is three then km = # levels in srcFLD</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">kmax</span><span class="o">=</span><span class="n">sCPD</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+
+<span class="cp">#if 0</span>
+<span class="w">   </span><span class="c">! loop over fields in bundle</span>
+
+<span class="w">   </span><span class="k">do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NumVars</span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="w">     </span><span class="p">(</span><span class="n">srcBUN</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">srcFLD</span><span class="p">,</span><span class="w">           </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="w">           </span><span class="p">(</span><span class="n">srcFLD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">srcName</span><span class="p">,</span><span class="w">         </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="w">     </span><span class="p">(</span><span class="n">dstBUN</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">dstFLD</span><span class="p">,</span><span class="w">           </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="w">           </span><span class="p">(</span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">dstName</span><span class="p">,</span><span class="w">         </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">     </span><span class="c">! allocate f90 pointer to hold data</span>
+<span class="w">     </span><span class="c">! note halo width = 0</span>
+<span class="w">     </span><span class="k">if</span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">ESMF_FieldGet</span><span class="w"> </span><span class="p">(</span><span class="n">srcFLD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">sptr3d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">dptr3d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">else</span>
+<span class="k">       call </span><span class="n">ESMF_FieldGetDataPointer</span><span class="w"> </span><span class="p">(</span><span class="n">srcFLD</span><span class="p">,</span><span class="w"> </span><span class="n">sptr2d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGetDataPointer</span><span class="w"> </span><span class="p">(</span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">dptr2d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">end if</span>
+
+<span class="w">     </span><span class="c">! these are 2d pointers used to create 2d fields</span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">sptr</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">sCPD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">:</span><span class="n">sCPD</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">dptr</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">dCPD</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">:</span><span class="n">dCPD</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="c">! 2d ESMF arrays associated with pointers sptr and dptr</span>
+<span class="w">     </span><span class="n">newSrcARR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ArrayCreate</span><span class="p">(</span><span class="n">sptr</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_DATA_REF</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="n">newDstARR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ArrayCreate</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_DATA_REF</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">     </span><span class="c">! local fields built with 2d sized arrays and 2D grids</span>
+<span class="w">     </span><span class="n">srcFLD2D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">Sgrid2D</span><span class="p">,</span><span class="w"> </span><span class="n">newSrcARR</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">horzRelloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_CELL_CENTER</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">datamap</span><span class="o">=</span><span class="n">dmap</span><span class="p">,</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">haloWidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">name</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="n">dstFLD2D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">Dgrid2D</span><span class="p">,</span><span class="w"> </span><span class="n">newDstARR</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">horzRelloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_CELL_CENTER</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">datamap</span><span class="o">=</span><span class="n">dmap</span><span class="p">,</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">haloWidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">name</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">     </span><span class="c">! loop over field&#39;s vertical levels</span>
+
+<span class="w">     </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">kmax</span>
+
+<span class="w">     </span><span class="c">! modify field&#39;s pointer by reference</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">sptr</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sptr3d</span><span class="p">(:,:,</span><span class="n">k</span><span class="p">)</span>
+<span class="w">     </span><span class="k">else</span>
+<span class="k">       </span><span class="n">sptr</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sptr2d</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="k">end if</span>
+
+<span class="k">     call </span><span class="n">ESMF_FieldRegrid</span><span class="p">(</span><span class="n">srcFLD2D</span><span class="p">,</span><span class="w"> </span><span class="n">dstFLD2D</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">     </span><span class="c">!  Update contents (array pointer) of dstFLD</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldGetDataPointer</span><span class="w"> </span><span class="p">(</span><span class="n">dstFLD2D</span><span class="p">,</span><span class="w"> </span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">dptr3d</span><span class="p">(:,:,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dptr</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="k">else</span>
+<span class="k">       </span><span class="n">dptr2d</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dptr</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="k">end if</span>
+
+<span class="k">     end do</span><span class="w"> </span><span class="c">! k</span>
+
+<span class="w">     </span><span class="k">deallocate</span><span class="p">(</span><span class="n">sptr</span><span class="p">,</span><span class="w"> </span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end do</span><span class="w"> </span><span class="c">! L</span>
+
+<span class="cp">#else</span>
+<span class="w">   </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="cp">#endif</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">BundleRegrid1</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-11T14:25:19.480948             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

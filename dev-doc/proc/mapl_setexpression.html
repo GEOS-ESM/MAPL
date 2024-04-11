@@ -1,0 +1,1325 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_SetExpression &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_SetExpression
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">231 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_HistoryGridComp.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_historygridcomp.f90.html'>MAPL_HistoryGridComp.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_historygridcompmod.html'>MAPL_HistoryGridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_SetExpression</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_setexpression.html#src">MAPL_SetExpression</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_SetExpression(nfield, fields, tmpfields, rewrite, nPExtraFields, ExtraFields, ExtraGridComp, ExpState, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfield~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nfield</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fields~36"></span>
+              character(len=*),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fields</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tmpfields~2"></span>
+              character(len=*),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tmpfields</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rewrite"></span>
+              logical,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rewrite</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-npextrafields~2"></span>
+              integer,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nPExtraFields</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-extrafields"></span>
+              character(len=*),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>ExtraFields</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-extragridcomp"></span>
+              character(len=*),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>ExtraGridComp</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-expstate"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ExpState</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1679"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_setexpression~~CallsGraph Pages: 1 -->
+<svg id="procmapl_setexpressionCallsGraph" width="641pt" height="411pt"
+ viewBox="0.00 0.00 641.00 411.10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_setexpression~~CallsGraph" class="graph" transform="scale(1.4 1.4) rotate(0) translate(4 570)">
+<title>proc~~mapl_setexpression~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-570 891,-570 891,4 -4,4"/>
+<!-- proc~mapl_setexpression -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node1" class="node">
+<title>proc~mapl_setexpression</title>
+<polygon fill="none" stroke="black" points="121,-405 0,-405 0,-381 121,-381 121,-405"/>
+<text text-anchor="middle" x="60.5" y="-390.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SetExpression</text>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="276,-566 165,-566 165,-542 276,-542 276,-566"/>
+<text text-anchor="middle" x="220.5" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setexpression&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_setexpression&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#ff0000" d="M67.15,-405.18C79.76,-431.15 112.61,-492.49 157,-528 161.42,-531.53 166.38,-534.66 171.53,-537.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.4,-540.74 180.93,-541.93 173.44,-534.43 170.4,-540.74"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node3" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node3"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="420,-318 341,-318 341,-294 420,-294 420,-318"/>
+<text text-anchor="middle" x="380.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setexpression&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_setexpression&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M77.06,-380.98C95.19,-367.65 126.56,-346.63 157,-336 214.47,-315.92 284.64,-309.18 330.61,-306.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="330.77,-310.47 340.62,-306.54 330.48,-303.47 330.77,-310.47"/>
+</g>
+<!-- proc~checkifstatehasfield -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node4" class="node">
+<title>proc~checkifstatehasfield</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node4"><a xlink:href="../proc/checkifstatehasfield.html" xlink:title="checkIfStateHasField">
+<polygon fill="#d9534f" stroke="#d9534f" points="282.5,-486 158.5,-486 158.5,-462 282.5,-462 282.5,-486"/>
+<text text-anchor="middle" x="220.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">checkIfStateHasField</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setexpression&#45;&gt;proc~checkifstatehasfield -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_setexpression&#45;&gt;proc~checkifstatehasfield</title>
+<path fill="none" stroke="#ff0000" d="M78.06,-405.11C96.57,-418.24 127.8,-439.16 157,-453 161.01,-454.9 165.23,-456.7 169.52,-458.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="168.34,-461.7 178.93,-461.93 170.8,-455.14 168.34,-461.7"/>
+</g>
+<!-- proc~checksyntax -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node5" class="node">
+<title>proc~checksyntax</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node5"><a xlink:href="../proc/checksyntax.html" xlink:title="CheckSyntax">
+<polygon fill="#d9534f" stroke="#d9534f" points="261.5,-213 179.5,-213 179.5,-189 261.5,-189 261.5,-213"/>
+<text text-anchor="middle" x="220.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CheckSyntax</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setexpression&#45;&gt;proc~checksyntax -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_setexpression&#45;&gt;proc~checksyntax</title>
+<path fill="none" stroke="#ff0000" d="M71.38,-380.99C97.82,-348.87 170.36,-260.72 203.09,-220.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.97,-222.95 209.62,-213.01 200.56,-218.5 205.97,-222.95"/>
+</g>
+<!-- proc~mapl_exportstateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node6" class="node">
+<title>proc~mapl_exportstateget</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node6"><a xlink:href="../proc/mapl_exportstateget.html" xlink:title="MAPL_ExportStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="284,-426 157,-426 157,-402 284,-402 284,-426"/>
+<text text-anchor="middle" x="220.5" y="-411.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExportStateGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setexpression&#45;&gt;proc~mapl_exportstateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_setexpression&#45;&gt;proc~mapl_exportstateget</title>
+<path fill="none" stroke="#ff0000" d="M121.23,-400.94C129.59,-402.05 138.25,-403.2 146.81,-404.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.41,-407.82 156.79,-405.66 147.33,-400.88 146.41,-407.82"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="421.5,-360 339.5,-360 339.5,-336 421.5,-336 421.5,-360"/>
+<text text-anchor="middle" x="380.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setexpression&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_setexpression&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M82.29,-380.93C101.1,-370.74 129.92,-356.88 157,-351 214.96,-338.41 283.44,-339.84 328.96,-343.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="328.93,-346.51 339.16,-343.77 329.45,-339.53 328.93,-346.51"/>
+</g>
+<!-- proc~mapl_stateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node8" class="node">
+<title>proc~mapl_stateget</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node8"><a xlink:href="../proc/mapl_stateget.html" xlink:title="MAPL_StateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="267,-384 174,-384 174,-360 267,-360 267,-384"/>
+<text text-anchor="middle" x="220.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setexpression&#45;&gt;proc~mapl_stateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_setexpression&#45;&gt;proc~mapl_stateget</title>
+<path fill="none" stroke="#ff0000" d="M121.23,-385.06C135.16,-383.21 149.94,-381.25 163.69,-379.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.52,-382.84 173.97,-378.05 163.6,-375.9 164.52,-382.84"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="418.5,-486 342.5,-486 342.5,-462 418.5,-462 418.5,-486"/>
+<text text-anchor="middle" x="380.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setexpression&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_setexpression&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M68.2,-405.11C81.58,-427.86 114.05,-476.37 157,-495 216.36,-520.74 292.8,-504.03 338.88,-489.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="340.13,-492.53 348.51,-486.06 337.92,-485.89 340.13,-492.53"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node14" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node14"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="618,-278 484,-278 484,-254 618,-254 618,-278"/>
+<text text-anchor="middle" x="551" y="-263.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M420.16,-296.82C440.73,-291.94 466.5,-285.82 489.64,-280.33"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="490.45,-283.73 499.37,-278.02 488.84,-276.92 490.45,-283.73"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node15" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node15"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="625,-320 477,-320 477,-296 625,-296 625,-320"/>
+<text text-anchor="middle" x="551" y="-305.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M420.16,-306.46C434.08,-306.62 450.37,-306.82 466.63,-307.01"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="466.68,-310.51 476.72,-307.13 466.76,-303.51 466.68,-310.51"/>
+</g>
+<!-- proc~checkifstatehasfield&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge12" class="edge">
+<title>proc~checkifstatehasfield&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7fff00" d="M270.86,-462C275.63,-459.54 280.13,-456.57 284,-453 313.86,-425.46 290.35,-396.76 320,-369 323.1,-366.09 326.63,-363.59 330.39,-361.42"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="332.03,-364.52 339.47,-356.98 328.95,-358.23 332.03,-364.52"/>
+</g>
+<!-- proc~checkifstatehasfield&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge13" class="edge">
+<title>proc~checkifstatehasfield&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7fff00" d="M282.59,-474C298.96,-474 316.41,-474 331.93,-474"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="332.33,-477.5 342.32,-474 332.32,-470.5 332.33,-477.5"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node11" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="424.5,-444 336.5,-444 336.5,-420 424.5,-420 424.5,-444"/>
+<text text-anchor="middle" x="380.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~checkifstatehasfield&#45;&gt;esmf_stateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge11" class="edge">
+<title>proc~checkifstatehasfield&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#7fff00" d="M266.78,-461.96C285.41,-457.01 307.13,-451.24 326.5,-446.09"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="327.63,-449.41 336.39,-443.46 325.83,-442.65 327.63,-449.41"/>
+</g>
+<!-- proc~checksyntax&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge14" class="edge">
+<title>proc~checksyntax&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff3f" d="M232.83,-213.18C250.11,-231.11 284.75,-264.69 320,-285 323.63,-287.09 327.5,-289.03 331.47,-290.81"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="330.23,-294.08 340.81,-294.67 332.91,-287.61 330.23,-294.08"/>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge16" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff3f" d="M227.91,-213.28C241.55,-238.25 275.81,-295.23 320,-327 323.07,-329.21 326.4,-331.2 329.85,-333"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="328.67,-336.31 339.21,-337.31 331.6,-329.95 328.67,-336.31"/>
+</g>
+<!-- proc~checkundef -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node12" class="node">
+<title>proc~checkundef</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node12"><a xlink:href="../proc/checkundef.html" xlink:title="checkUndef">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="418.5,-234 342.5,-234 342.5,-210 418.5,-210 418.5,-234"/>
+<text text-anchor="middle" x="380.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">checkUndef</text>
+</a>
+</g>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~checkundef -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge15" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~checkundef</title>
+<path fill="none" stroke="#00ff3f" d="M261.78,-206.35C283.27,-209.21 309.83,-212.74 332.28,-215.72"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="331.9,-219.2 342.28,-217.05 332.82,-212.27 331.9,-219.2"/>
+</g>
+<!-- proc~mathfunctionindex -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node17" class="node">
+<title>proc~mathfunctionindex</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node17"><a xlink:href="../proc/mathfunctionindex.html" xlink:title="MathFunctionIndex">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="436.5,-192 324.5,-192 324.5,-168 436.5,-168 436.5,-192"/>
+<text text-anchor="middle" x="380.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MathFunctionIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~mathfunctionindex -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge17" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~mathfunctionindex</title>
+<path fill="none" stroke="#00ff3f" d="M261.78,-195.65C277.68,-193.53 296.35,-191.05 314.09,-188.69"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="314.94,-192.11 324.39,-187.32 314.02,-185.17 314.94,-192.11"/>
+</g>
+<!-- proc~parseerrmsg -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node18" class="node">
+<title>proc~parseerrmsg</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node18"><a xlink:href="../proc/parseerrmsg.html" xlink:title="ParseErrMsg">
+<polygon fill="#d9534f" stroke="#d9534f" points="420,-150 341,-150 341,-126 420,-126 420,-150"/>
+<text text-anchor="middle" x="380.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ParseErrMsg</text>
+</a>
+</g>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~parseerrmsg -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge18" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~parseerrmsg</title>
+<path fill="none" stroke="#00ff3f" d="M248.48,-188.94C268.17,-180.28 295.57,-168.51 320,-159 324.73,-157.16 329.69,-155.3 334.65,-153.48"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="335.91,-156.75 344.13,-150.07 333.53,-150.17 335.91,-156.75"/>
+</g>
+<!-- proc~realnum -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node19" class="node">
+<title>proc~realnum</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node19"><a xlink:href="../proc/realnum.html" xlink:title="RealNum">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="411,-108 350,-108 350,-84 411,-84 411,-108"/>
+<text text-anchor="middle" x="380.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RealNum</text>
+</a>
+</g>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~realnum -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge19" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~realnum</title>
+<path fill="none" stroke="#00ff3f" d="M232.83,-188.82C250.11,-170.89 284.75,-137.31 320,-117 326.33,-113.35 333.4,-110.18 340.39,-107.48"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="341.58,-110.78 349.81,-104.1 339.21,-104.19 341.58,-110.78"/>
+</g>
+<!-- proc~removespaces -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node20" class="node">
+<title>proc~removespaces</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node20"><a xlink:href="../proc/removespaces.html" xlink:title="RemoveSpaces">
+<polygon fill="#d9534f" stroke="#d9534f" points="427.5,-66 333.5,-66 333.5,-42 427.5,-42 427.5,-66"/>
+<text text-anchor="middle" x="380.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RemoveSpaces</text>
+</a>
+</g>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~removespaces -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge20" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~removespaces</title>
+<path fill="none" stroke="#00ff3f" d="M227.91,-188.72C241.55,-163.75 275.81,-106.77 320,-75 322.22,-73.41 324.57,-71.92 327,-70.55"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="328.72,-73.6 336.11,-66 325.6,-67.34 328.72,-73.6"/>
+</g>
+<!-- proc~replace -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node21" class="node">
+<title>proc~replace</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node21"><a xlink:href="../proc/replace.html" xlink:title="Replace">
+<polygon fill="#d9534f" stroke="#d9534f" points="408,-24 353,-24 353,0 408,0 408,-24"/>
+<text text-anchor="middle" x="380.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Replace</text>
+</a>
+</g>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~replace -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge21" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~replace</title>
+<path fill="none" stroke="#00ff3f" d="M225.31,-188.91C235.54,-158.31 266.54,-77.11 320,-33 326.74,-27.44 335.06,-23.3 343.32,-20.25"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="344.46,-23.55 352.88,-17.13 342.29,-16.9 344.46,-23.55"/>
+</g>
+<!-- proc~variableindex -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node22" class="node">
+<title>proc~variableindex</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node22"><a xlink:href="../proc/variableindex.html" xlink:title="VariableIndex">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="423,-276 338,-276 338,-252 423,-252 423,-276"/>
+<text text-anchor="middle" x="380.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~checksyntax&#45;&gt;proc~variableindex -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge22" class="edge">
+<title>proc~checksyntax&#45;&gt;proc~variableindex</title>
+<path fill="none" stroke="#00ff3f" d="M248.48,-213.06C268.17,-221.72 295.57,-233.49 320,-243 324.73,-244.84 329.69,-246.7 334.65,-248.52"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="333.53,-251.83 344.13,-251.93 335.91,-245.25 333.53,-251.83"/>
+</g>
+<!-- proc~mapl_exportstateget&#45;&gt;proc~mapl_exportstateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_exportstateget&#45;&gt;proc~mapl_exportstateget</title>
+<path fill="none" stroke="#00ffff" d="M194.04,-426.01C184.81,-434.97 193.62,-444 220.5,-444 237.3,-444 247.04,-440.47 249.73,-435.64"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="253.09,-434.65 246.96,-426.01 246.36,-436.59 253.09,-434.65"/>
+</g>
+<!-- proc~mapl_exportstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_exportstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M262.47,-401.97C269.78,-399.33 277.22,-396.33 284,-393 301.26,-384.53 302.8,-377.6 320,-369 323.59,-367.2 327.37,-365.49 331.22,-363.88"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="332.82,-367.01 340.83,-360.07 330.24,-360.5 332.82,-367.01"/>
+</g>
+<!-- proc~mapl_exportstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_exportstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M251.13,-426.07C270.63,-433.93 296.75,-444.3 320,-453 324.81,-454.8 329.86,-456.65 334.9,-458.46"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="333.9,-461.82 344.5,-461.89 336.26,-455.23 333.9,-461.82"/>
+</g>
+<!-- proc~mapl_exportstateget&#45;&gt;esmf_stateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_exportstateget&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#00ffff" d="M284.4,-421.17C298.25,-422.74 312.79,-424.4 326.22,-425.93"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="325.91,-429.42 336.25,-427.07 326.71,-422.46 325.91,-429.42"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="785,-393 670,-393 670,-369 785,-369 785,-393"/>
+<text text-anchor="middle" x="727.5" y="-378.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#003fff" d="M421.85,-354.55C438.84,-357.14 458.85,-359.98 477,-362 538.8,-368.87 609.49,-374 659.81,-377.19"/>
+<polygon fill="#003fff" stroke="#003fff" points="659.71,-380.69 669.91,-377.82 660.15,-373.7 659.71,-380.69"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node16" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node16"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="794,-324 661,-324 661,-300 794,-300 794,-324"/>
+<text text-anchor="middle" x="727.5" y="-309.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#003fff" d="M421.68,-345.95C470.04,-343.24 553.66,-337.74 625,-329 633.35,-327.98 642.06,-326.76 650.72,-325.44"/>
+<polygon fill="#003fff" stroke="#003fff" points="651.49,-328.86 660.83,-323.87 650.41,-321.95 651.49,-328.86"/>
+</g>
+<!-- proc~mapl_stateget&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_stateget&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#7f00ff" d="M246.33,-359.91C266.09,-350.47 294.55,-337.28 320,-327 324.52,-325.17 329.27,-323.35 334.03,-321.57"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="335.55,-324.75 343.75,-318.03 333.16,-318.17 335.55,-324.75"/>
+</g>
+<!-- proc~mapl_stateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_stateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7f00ff" d="M267.2,-365.06C286.6,-362.11 309.29,-358.67 329.17,-355.65"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="329.91,-359.07 339.28,-354.11 328.86,-352.15 329.91,-359.07"/>
+</g>
+<!-- proc~mapl_stateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_stateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7f00ff" d="M267.19,-383.07C273.2,-385.72 279,-388.98 284,-393 308.23,-412.49 295.91,-433.33 320,-453 323.98,-456.25 328.5,-459.02 333.23,-461.36"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="331.93,-464.61 342.49,-465.38 334.71,-458.19 331.93,-464.61"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node10" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="441,-402 320,-402 320,-378 441,-378 441,-402"/>
+<text text-anchor="middle" x="380.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~mapl_stateget&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_stateget&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#7f00ff" d="M267.2,-377.21C280.4,-378.71 295.12,-380.39 309.44,-382.02"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="309.44,-385.54 319.77,-383.2 310.23,-378.59 309.44,-385.54"/>
+</g>
+<!-- proc~mapl_stateget&#45;&gt;esmf_stateget -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_stateget&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#7f00ff" d="M260.15,-384.05C268.12,-386.79 276.39,-389.84 284,-393 300.52,-399.87 303.53,-404.01 320,-411 324.37,-412.86 328.97,-414.68 333.59,-416.44"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="332.45,-419.75 343.04,-419.94 334.87,-413.19 332.45,-419.75"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00bf" d="M417.95,-461.91C425.63,-459.15 433.63,-456.11 441,-453 535.71,-413.07 643.44,-356.76 695.33,-328.93"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="697.2,-331.9 704.35,-324.08 693.88,-325.74 697.2,-331.9"/>
+</g>
+<!-- proc~lowcase -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node26" class="node">
+<title>proc~lowcase</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node26"><a xlink:href="../proc/lowcase.html" xlink:title="LowCase">
+<polygon fill="#d9534f" stroke="#d9534f" points="581,-213 521,-213 521,-189 581,-189 581,-213"/>
+<text text-anchor="middle" x="551" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LowCase</text>
+</a>
+</g>
+</g>
+<!-- proc~checkundef&#45;&gt;proc~lowcase -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge35" class="edge">
+<title>proc~checkundef&#45;&gt;proc~lowcase</title>
+<path fill="none" stroke="#ffeb00" d="M418.9,-217.34C446.15,-213.94 482.99,-209.35 510.68,-205.9"/>
+<polygon fill="#ffeb00" stroke="#ffeb00" points="511.32,-209.35 520.81,-204.64 510.45,-202.4 511.32,-209.35"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node23" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="885.5,-384 831.5,-384 831.5,-360 885.5,-360 885.5,-384"/>
+<text text-anchor="middle" x="858.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge36" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#9cff00" d="M785.08,-377.05C797.29,-376.2 809.89,-375.32 821.08,-374.54"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="821.59,-378.01 831.32,-373.83 821.1,-371.03 821.59,-378.01"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node24" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="885.5,-426 831.5,-426 831.5,-402 885.5,-402 885.5,-426"/>
+<text text-anchor="middle" x="858.5" y="-411.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge37" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#9cff00" d="M775.44,-393.01C790.62,-396.89 807.22,-401.14 821.49,-404.79"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="820.86,-408.24 831.41,-407.33 822.59,-401.46 820.86,-408.24"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#27ff00" d="M597.85,-278.09C620.29,-284 647.49,-291.17 671.09,-297.39"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="670.4,-300.83 680.96,-299.99 672.18,-294.06 670.4,-300.83"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff4e" d="M580.82,-320.05C610.12,-332.31 655.69,-351.38 688.05,-364.92"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="687.07,-368.3 697.64,-368.93 689.77,-361.84 687.07,-368.3"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff4e" d="M625.25,-309.68C633.67,-309.87 642.27,-310.07 650.72,-310.26"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="650.86,-313.77 660.94,-310.5 651.02,-306.77 650.86,-313.77"/>
+</g>
+<!-- proc~initialize~10 -->
+<g id="proc~~mapl_setexpression~~CallsGraph_node25" class="node">
+<title>proc~initialize~10</title>
+<g id="a_proc~~mapl_setexpression~~CallsGraph_node25"><a xlink:href="../proc/initialize~10.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="887,-324 830,-324 830,-300 887,-300 887,-324"/>
+<text text-anchor="middle" x="858.5" y="-309.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~10 -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~10</title>
+<path fill="none" stroke="#00ffc4" d="M794.13,-312C802.88,-312 811.59,-312 819.63,-312"/>
+<polygon fill="#00ffc4" stroke="#00ffc4" points="819.77,-315.5 829.77,-312 819.77,-308.5 819.77,-315.5"/>
+</g>
+<!-- proc~mathfunctionindex&#45;&gt;proc~lowcase -->
+<g id="proc~~mapl_setexpression~~CallsGraph_edge42" class="edge">
+<title>proc~mathfunctionindex&#45;&gt;proc~lowcase</title>
+<path fill="none" stroke="#00c4ff" d="M436.67,-186.88C460.87,-189.89 488.71,-193.36 510.74,-196.11"/>
+<polygon fill="#00c4ff" stroke="#00c4ff" points="510.38,-199.59 520.73,-197.35 511.24,-192.64 510.38,-199.59"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_setexpressionCallsGraph = svgPanZoom('#procmapl_setexpressionCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_setexpression~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_setexpressionCalledByGraph" width="222pt" height="32pt"
+ viewBox="0.00 0.00 222.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_setexpression~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~mapl_setexpression~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 218,-28 218,4 -4,4"/>
+<!-- proc~mapl_setexpression -->
+<g id="proc~~mapl_setexpression~~CalledByGraph_node1" class="node">
+<title>proc~mapl_setexpression</title>
+<polygon fill="none" stroke="black" points="214,-24 93,-24 93,0 214,0 214,-24"/>
+<text text-anchor="middle" x="153.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SetExpression</text>
+</g>
+<!-- proc~initialize~2 -->
+<g id="proc~~mapl_setexpression~~CalledByGraph_node2" class="node">
+<title>proc~initialize~2</title>
+<g id="a_proc~~mapl_setexpression~~CalledByGraph_node2"><a xlink:href="../proc/initialize~2.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="57,-24 0,-24 0,0 57,0 57,-24"/>
+<text text-anchor="middle" x="28.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~2&#45;&gt;proc~mapl_setexpression -->
+<g id="proc~~mapl_setexpression~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize~2&#45;&gt;proc~mapl_setexpression</title>
+<path fill="none" stroke="#ff0000" d="M57.1,-12C64.82,-12 73.58,-12 82.58,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="82.8,-15.5 92.8,-12 82.8,-8.5 82.8,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_SetExpression</span><span class="p">(</span><span class="n">nfield</span><span class="p">,</span><span class="n">fields</span><span class="p">,</span><span class="n">tmpfields</span><span class="p">,</span><span class="n">rewrite</span><span class="p">,</span><span class="n">nPExtraFields</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">ExtraFields</span><span class="p">,</span><span class="n">ExtraGridComp</span><span class="p">,</span><span class="n">ExpState</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="kd">::</span><span class="n">nfield</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fields</span><span class="p">(:,:)</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmpfields</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rewrite</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nPExtraFields</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ExtraFields</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ExtraGridComp</span><span class="p">(:)</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ExpState</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="c">! Local variables:</span>
+
+<span class="w">  </span><span class="kt">integer</span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">status</span><span class="p">,</span><span class="n">largest_rank</span><span class="p">,</span><span class="n">iRepField</span><span class="p">,</span><span class="n">ivLoc</span>
+<span class="w">  </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ifound_vloc</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmpList</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VarName</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">idx</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VarNames</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w">                    </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VarNeeded</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">iRealFields</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">ExtVars</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">nExtraFields</span><span class="p">,</span><span class="n">nUniqueExtraFields</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NonUniqueVarNames</span><span class="p">(:,:)</span>
+
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TotVarNames</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TotCmpNames</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TotAliasNames</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w">                    </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">totRank</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w">                    </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">totLoc</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">totFields</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">exptmp</span><span class="w"> </span><span class="p">(:)</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">dims</span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">isBundle</span><span class="p">(:)</span>
+<span class="w">  </span><span class="kt">logical</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">hasField</span>
+
+<span class="c">! Set rewrite flag and tmpfields.</span>
+<span class="c">! To keep consistency, all the arithmetic parsing output fields must</span>
+<span class="c">! only be combinations of the alias output field variables (i.e., fields(3,:))</span>
+<span class="c">! rather than the actual output field variables (i.e., fields(1,:)).</span>
+<span class="c">! Also do check that there are no illegal operations</span>
+<span class="c">!-------------------------------------------------------------------</span>
+<span class="w">  </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">exptmp</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">  </span><span class="n">exptmp</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExpState</span>
+<span class="w">  </span><span class="c">! check which fields are actual exports or expressions</span>
+<span class="w">  </span><span class="n">nPExtraFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="n">iRealFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">isBundle</span><span class="p">(</span><span class="n">nfield</span><span class="p">))</span>
+<span class="w">  </span><span class="k">do </span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nfield</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_ExportStateGet</span><span class="p">(</span><span class="n">exptmp</span><span class="p">,</span><span class="n">fields</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">m</span><span class="p">),</span><span class="n">state</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">),</span><span class="s1">&#39;%&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">checkIfStateHasField</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">),</span><span class="w"> </span><span class="n">hasField</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasField</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">iRealFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iRealFields</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="n">rewrite</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">          </span><span class="n">isBundle</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">          </span><span class="n">tmpfields</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">isBundle</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">          </span><span class="n">rewrite</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="w">          </span><span class="n">tmpfields</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">    else</span>
+<span class="k">       </span><span class="n">isBundle</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">       </span><span class="n">rewrite</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">       </span><span class="n">tmpfields</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">  enddo</span>
+
+<span class="w">  </span><span class="c">! now that we know this allocated a place to store the names of the real fields</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">VarNames</span><span class="p">(</span><span class="n">iRealFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">VarNeeded</span><span class="p">(</span><span class="n">iRealFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">  </span><span class="n">k</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">  </span><span class="k">do </span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nfield</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">rewrite</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="n">False</span><span class="p">.)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">isBundle</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="n">False</span><span class="p">.)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">        </span><span class="n">VarNames</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">=</span><span class="n">fields</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">m</span><span class="p">)</span>
+<span class="w">     </span><span class="k">endif</span>
+<span class="k">  enddo</span>
+
+<span class="w">  </span><span class="c">! now we can have extra fields that are not in collection if they are in the component</span>
+<span class="w">  </span><span class="c">! we specify with the expression we get the number of these</span>
+
+<span class="w">  </span><span class="n">nExtraFields</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">  </span><span class="k">do </span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nfield</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rewrite</span><span class="p">(</span><span class="n">m</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         </span><span class="n">ExtVars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">         </span><span class="k">call </span><span class="n">CheckSyntax</span><span class="p">(</span><span class="n">tmpfields</span><span class="p">(</span><span class="n">m</span><span class="p">),</span><span class="n">VarNames</span><span class="p">,</span><span class="n">VarNeeded</span><span class="p">,</span><span class="n">ExtVar</span><span class="o">=</span><span class="n">ExtVars</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">tmpList</span><span class="o">=</span><span class="n">ExtVars</span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">tmpList</span><span class="p">)</span>
+<span class="w">            </span><span class="n">idx</span><span class="o">=</span><span class="nb">index</span><span class="p">(</span><span class="n">tmpList</span><span class="p">,</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">varName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmpList</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">               </span><span class="n">nExtraFields</span><span class="o">=</span><span class="n">nExtraFields</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">               </span><span class="n">tmpList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmpList</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               exit</span>
+<span class="k">            end if</span>
+<span class="k">         end do</span>
+
+<span class="k">      end if</span>
+<span class="k">   end do</span>
+
+<span class="k">  allocate</span><span class="p">(</span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">nExtraFields</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="w">  </span><span class="c">! get the number of extra fields, after this we will have to check for duplicates</span>
+<span class="w">  </span><span class="n">nExtraFields</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">  </span><span class="k">do </span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nfield</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rewrite</span><span class="p">(</span><span class="n">m</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         </span><span class="n">ExtVars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">         </span><span class="k">call </span><span class="n">CheckSyntax</span><span class="p">(</span><span class="n">tmpfields</span><span class="p">(</span><span class="n">m</span><span class="p">),</span><span class="n">VarNames</span><span class="p">,</span><span class="n">VarNeeded</span><span class="p">,</span><span class="n">ExtVar</span><span class="o">=</span><span class="n">ExtVars</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">tmpList</span><span class="o">=</span><span class="n">ExtVars</span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="nb">len_trim</span><span class="p">(</span><span class="n">tmpList</span><span class="p">)</span>
+<span class="w">            </span><span class="n">idx</span><span class="o">=</span><span class="nb">index</span><span class="p">(</span><span class="n">tmpList</span><span class="p">,</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">varName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmpList</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">               </span><span class="n">nExtraFields</span><span class="o">=</span><span class="n">nExtraFields</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">               </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">nExtraFields</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">VarName</span><span class="p">)</span>
+<span class="w">               </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">nExtraFields</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">m</span><span class="p">)</span>
+<span class="w">               </span><span class="n">tmpList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmpList</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               exit</span>
+<span class="k">            end if</span>
+<span class="k">         end do</span>
+
+<span class="k">      end if</span>
+<span class="k">   end do</span>
+
+
+<span class="k">   deallocate</span><span class="p">(</span><span class="n">VarNames</span><span class="p">)</span>
+<span class="w">   </span><span class="k">deallocate</span><span class="p">(</span><span class="n">VarNeeded</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">! blank out any duplicates</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nExtraFields</span>
+<span class="w">      </span><span class="n">VarName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">nExtraFields</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">VarName</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="s2">&quot;DUPLICATE&quot;</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end do</span>
+<span class="k">   end do</span>
+
+<span class="k">   </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nExtraFields</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s2">&quot;DUPLICATE&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">   </span><span class="k">end do</span>
+
+<span class="k">  </span><span class="n">totFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iRealFields</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nUniqueExtraFields</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">TotVarNames</span><span class="p">(</span><span class="n">totFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">TotCmpNames</span><span class="p">(</span><span class="n">totFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">TotAliasNames</span><span class="p">(</span><span class="n">totFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">TotRank</span><span class="p">(</span><span class="n">totFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">TotLoc</span><span class="p">(</span><span class="n">totFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+
+<span class="w">  </span><span class="n">iRealFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nfield</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">rewrite</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">isBundle</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">iRealFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iRealFields</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">       </span><span class="n">TotVarNames</span><span class="p">(</span><span class="n">iRealFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">))</span>
+<span class="w">       </span><span class="n">TotCmpNames</span><span class="p">(</span><span class="n">iRealFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fields</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">))</span>
+<span class="w">       </span><span class="n">TotAliasNames</span><span class="p">(</span><span class="n">iRealFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fields</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">i</span><span class="p">))</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_ExportStateGet</span><span class="p">(</span><span class="n">exptmp</span><span class="p">,</span><span class="n">fields</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">),</span><span class="n">state</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_StateGet</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">),</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;DIMS&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">TotRank</span><span class="p">(</span><span class="n">iRealFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;VLOCATION&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">TotLoc</span><span class="p">(</span><span class="n">iRealFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span>
+
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">  enddo</span>
+<span class="k">  </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nExtraFields</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s2">&quot;DUPLICATE&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="n">TotVarNames</span><span class="p">(</span><span class="n">iRealFields</span><span class="o">+</span><span class="n">nUniqueExtraFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">TotCmpNames</span><span class="p">(</span><span class="n">iRealFields</span><span class="o">+</span><span class="n">nUniqueExtraFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">        </span><span class="n">TotAliasNames</span><span class="p">(</span><span class="n">iRealFields</span><span class="o">+</span><span class="n">nUniqueExtraFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">MAPL_ExportStateGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">exptmp</span><span class="p">,</span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="n">state</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">MAPL_StateGet</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;DIMS&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="n">TotRank</span><span class="p">(</span><span class="n">iRealFields</span><span class="o">+</span><span class="n">nUniqueExtraFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;VLOCATION&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="n">TotLoc</span><span class="p">(</span><span class="n">iRealFields</span><span class="o">+</span><span class="n">nUniqueExtraFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span>
+<span class="w">     </span><span class="k">end if</span>
+<span class="k">  end do</span>
+
+<span class="k">  allocate</span><span class="p">(</span><span class="n">extraFields</span><span class="p">(</span><span class="n">nUniqueExtraFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">extraGridComp</span><span class="p">(</span><span class="n">nUniqueExtraFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">  </span><span class="n">nPExtraFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nUniqueExtraFields</span>
+<span class="w">  </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nExtraFields</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s2">&quot;DUPLICATE&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nUniqueExtraFields</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="n">extraFields</span><span class="p">(</span><span class="n">nUniqueExtraFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">extraGridComp</span><span class="p">(</span><span class="n">nUniqueExtraFields</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NonUniqueVarNames</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">     </span><span class="k">end if</span>
+<span class="k">  end do</span>
+
+<span class="k">  deallocate</span><span class="p">(</span><span class="n">NonUniqueVarNames</span><span class="p">)</span>
+<span class="w">  </span><span class="k">deallocate</span><span class="p">(</span><span class="n">exptmp</span><span class="p">)</span>
+<span class="c">! Change the arithmetic parsing field containing mutiple variables</span>
+<span class="c">! to the dummy default field containing a single field variable.</span>
+<span class="c">! Since MAPL_HistoryGridCompMod does not understand arithmetic parsing field variable,</span>
+<span class="c">! we need to change the arithmetic parsing field variable to the dummy field to allocate memory.</span>
+<span class="c">! But the actual arithmetic parsing field already has been copied to the temporialy field.</span>
+<span class="c">! Also we will do some syntax checking here since this is a good place</span>
+<span class="c">!----------------------------------------------------------------------</span>
+<span class="w"> </span><span class="k">allocate</span><span class="p">(</span><span class="n">VarNeeded</span><span class="p">(</span><span class="n">TotFields</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+
+<span class="w"> </span><span class="k">do </span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nfield</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Rewrite</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">largest_rank</span><span class="w"> </span><span class="o">=</span><span class="mi">0</span>
+<span class="w">         </span><span class="n">ifound_vloc</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="k">call </span><span class="n">CheckSyntax</span><span class="p">(</span><span class="n">tmpfields</span><span class="p">(</span><span class="n">m</span><span class="p">),</span><span class="n">TotAliasNames</span><span class="p">,</span><span class="n">VarNeeded</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">TotFields</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">VarNeeded</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               if</span><span class="w"> </span><span class="p">(</span><span class="n">TotRank</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">largest_rank</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">largest_rank</span><span class="o">=</span><span class="n">TotRank</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">iRepField</span><span class="o">=</span><span class="n">i</span>
+<span class="w">               </span><span class="k">end if</span>
+
+<span class="k">               if</span><span class="w"> </span><span class="p">(</span><span class="n">ifound_vloc</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  if</span><span class="w"> </span><span class="p">(</span><span class="n">ivLoc</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">Totloc</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">totloc</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;arithmetic expression has two different vlocations&#39;</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">end if</span>
+<span class="k">               else</span>
+<span class="k">                  if</span><span class="w"> </span><span class="p">(</span><span class="n">totloc</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="n">ivloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">totloc</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                     </span><span class="n">ifound_vloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                  </span><span class="k">endif</span>
+<span class="k">               end if</span>
+<span class="k">            end if</span>
+<span class="k">         end do</span>
+<span class="k">         </span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="n">TotVarNames</span><span class="p">(</span><span class="n">iRepField</span><span class="p">)</span>
+<span class="w">         </span><span class="n">fields</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">m</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="n">TotCmpNames</span><span class="p">(</span><span class="n">iRepField</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">endif</span>
+<span class="k"> enddo</span>
+
+<span class="k"> deallocate</span><span class="p">(</span><span class="n">VarNeeded</span><span class="p">)</span>
+<span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">TotVarNames</span><span class="p">)</span>
+<span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">TotCmpNames</span><span class="p">)</span>
+<span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">TotAliasNames</span><span class="p">)</span>
+<span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">TotRank</span><span class="p">)</span>
+<span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">TotLoc</span><span class="p">)</span>
+<span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">isBundle</span><span class="p">)</span>
+
+<span class="w"> </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w"> </span><span class="k">end subroutine </span><span class="n">MAPL_SetExpression</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-11T14:25:19.480948             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

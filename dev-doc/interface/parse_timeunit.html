@@ -1,0 +1,1018 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>parse_timeunit &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>parse_timeunit
+      <small>Interface</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 68 statements,  0.0% of total for procedures.">4 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Plain_netCDF_Time.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/plain_netcdf_time.f90.html'>Plain_netCDF_Time.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/plain_netcdf_time.html'>Plain_netCDF_Time</a></li>
+            <li class="breadcrumb-item active" aria-current="page">parse_timeunit</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../interface/parse_timeunit.html#moduleprocedure-parse_timeunit_i4">parse_timeunit_i4</a>
+            <a class="list-group-item" href="../interface/parse_timeunit.html#moduleprocedure-parse_timeunit_i8">parse_timeunit_i8</a>
+        </div>
+      </div>
+    </div>
+
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <h2>public interface parse_timeunit</h2>
+      
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Calls</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~parse_timeunit~~CallsGraph Pages: 1 -->
+<svg id="interfaceparse_timeunitCallsGraph" width="641pt" height="197pt"
+ viewBox="0.00 0.00 641.00 197.16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~parse_timeunit~~CallsGraph" class="graph" transform="scale(1.33 1.33) rotate(0) translate(4 258.98)">
+<title>interface~~parse_timeunit~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-258.98 851,-258.98 851,4 -4,4"/>
+<!-- interface~parse_timeunit -->
+<g id="interface~~parse_timeunit~~CallsGraph_node1" class="node">
+<title>interface~parse_timeunit</title>
+<polygon fill="none" stroke="black" points="92,-131.98 0,-131.98 0,-107.98 92,-107.98 92,-131.98"/>
+<text text-anchor="middle" x="46" y="-117.58" font-family="Helvetica,sans-Serif" font-size="10.50">parse_timeunit</text>
+</g>
+<!-- proc~parse_timeunit_i4 -->
+<g id="interface~~parse_timeunit~~CallsGraph_node2" class="node">
+<title>proc~parse_timeunit_i4</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node2"><a xlink:href="../proc/parse_timeunit_i4.html" xlink:title="parse_timeunit_i4">
+<polygon fill="#d9534f" stroke="#d9534f" points="235,-152.98 128,-152.98 128,-128.98 235,-128.98 235,-152.98"/>
+<text text-anchor="middle" x="181.5" y="-138.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_timeunit_i4</text>
+</a>
+</g>
+</g>
+<!-- interface~parse_timeunit&#45;&gt;proc~parse_timeunit_i4 -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge1" class="edge">
+<title>interface~parse_timeunit&#45;&gt;proc~parse_timeunit_i4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M92.2,-127.09C100.46,-128.39 109.22,-129.77 117.88,-131.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="117.55,-134.62 127.98,-132.72 118.64,-127.71 117.55,-134.62"/>
+</g>
+<!-- proc~parse_timeunit_i8 -->
+<g id="interface~~parse_timeunit~~CallsGraph_node3" class="node">
+<title>proc~parse_timeunit_i8</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node3"><a xlink:href="../proc/parse_timeunit_i8.html" xlink:title="parse_timeunit_i8">
+<polygon fill="#d9534f" stroke="#d9534f" points="235,-110.98 128,-110.98 128,-86.98 235,-86.98 235,-110.98"/>
+<text text-anchor="middle" x="181.5" y="-96.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_timeunit_i8</text>
+</a>
+</g>
+</g>
+<!-- interface~parse_timeunit&#45;&gt;proc~parse_timeunit_i8 -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge2" class="edge">
+<title>interface~parse_timeunit&#45;&gt;proc~parse_timeunit_i8</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M92.2,-112.87C100.46,-111.57 109.22,-110.2 117.88,-108.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.64,-112.26 127.98,-107.25 117.55,-105.34 118.64,-112.26"/>
+</g>
+<!-- ESMF_CalendarCreate -->
+<g id="interface~~parse_timeunit~~CallsGraph_node4" class="node">
+<title>ESMF_CalendarCreate</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_calendarcreate.html" xlink:title="ESMF_CalendarCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="401,-132.98 271,-132.98 271,-108.98 401,-108.98 401,-132.98"/>
+<text text-anchor="middle" x="336" y="-118.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CalendarCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_timeunit_i4&#45;&gt;ESMF_CalendarCreate -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge3" class="edge">
+<title>proc~parse_timeunit_i4&#45;&gt;ESMF_CalendarCreate</title>
+<path fill="none" stroke="#ff0000" d="M235.41,-134.04C243.63,-132.97 252.26,-131.83 260.85,-130.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="261.43,-134.16 270.89,-129.39 260.52,-127.22 261.43,-134.16"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="interface~~parse_timeunit~~CallsGraph_node5" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="401,-48.98 271,-48.98 271,-24.98 401,-24.98 401,-48.98"/>
+<text text-anchor="middle" x="336" y="-34.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_timeunit_i4&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge4" class="edge">
+<title>proc~parse_timeunit_i4&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M221.49,-128.87C226.33,-126.39 230.99,-123.45 235,-119.98 259.11,-99.15 246.24,-78.04 271,-57.98 272.77,-56.55 274.65,-55.21 276.59,-53.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="278.46,-56.93 285.54,-49.05 275.09,-50.79 278.46,-56.93"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="interface~~parse_timeunit~~CallsGraph_node6" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="381,-90.98 291,-90.98 291,-66.98 381,-66.98 381,-90.98"/>
+<text text-anchor="middle" x="336" y="-76.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_timeunit_i4&#45;&gt;ESMF_TimeSet -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge5" class="edge">
+<title>proc~parse_timeunit_i4&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M214.43,-128.96C221.28,-126.17 228.44,-123.1 235,-119.98 251.53,-112.12 254.23,-107.31 271,-99.98 275.39,-98.06 280.01,-96.22 284.68,-94.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="286.04,-97.71 294.28,-91.06 283.68,-91.12 286.04,-97.71"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="interface~~parse_timeunit~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node7"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="375.5,-212.98 296.5,-212.98 296.5,-188.98 375.5,-188.98 375.5,-212.98"/>
+<text text-anchor="middle" x="336" y="-198.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_timeunit_i4&#45;&gt;interface~mapl_assert -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge6" class="edge">
+<title>proc~parse_timeunit_i4&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M213.36,-153.13C236.9,-162.39 269.51,-175.22 295.04,-185.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.86,-188.56 304.45,-188.96 296.42,-182.04 293.86,-188.56"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="interface~~parse_timeunit~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="552,-130.98 470,-130.98 470,-106.98 552,-106.98 552,-130.98"/>
+<text text-anchor="middle" x="511" y="-116.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_timeunit_i4&#45;&gt;proc~mapl_return -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge7" class="edge">
+<title>proc~parse_timeunit_i4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M235.38,-141.68C247.11,-141.81 259.48,-141.92 271,-141.98 328.78,-142.31 343.53,-147.98 401,-141.98 420.48,-139.95 441.6,-135.93 460.01,-131.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="460.98,-135.18 469.94,-129.52 459.41,-128.36 460.98,-135.18"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="interface~~parse_timeunit~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="374,-254.98 298,-254.98 298,-230.98 374,-230.98 374,-254.98"/>
+<text text-anchor="middle" x="336" y="-240.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_timeunit_i4&#45;&gt;proc~mapl_verify -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge8" class="edge">
+<title>proc~parse_timeunit_i4&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M192.71,-153.16C208.03,-170.7 238.64,-203.06 271,-221.98 276.43,-225.16 282.41,-227.93 288.46,-230.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="287.37,-233.65 297.96,-233.78 289.76,-227.07 287.37,-233.65"/>
+</g>
+<!-- proc~parse_timeunit_i8&#45;&gt;ESMF_CalendarCreate -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge9" class="edge">
+<title>proc~parse_timeunit_i8&#45;&gt;ESMF_CalendarCreate</title>
+<path fill="none" stroke="#00ffff" d="M235.41,-106.62C243.63,-107.8 252.26,-109.05 260.85,-110.29"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="260.49,-113.77 270.89,-111.73 261.49,-106.84 260.49,-113.77"/>
+</g>
+<!-- proc~parse_timeunit_i8&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge10" class="edge">
+<title>proc~parse_timeunit_i8&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#00ffff" d="M206.58,-86.9C224.2,-78.29 248.79,-66.74 271,-57.98 275.84,-56.08 280.93,-54.2 286.04,-52.39"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="287.5,-55.59 295.82,-49.04 285.22,-48.97 287.5,-55.59"/>
+</g>
+<!-- proc~parse_timeunit_i8&#45;&gt;ESMF_TimeSet -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge11" class="edge">
+<title>proc~parse_timeunit_i8&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#00ffff" d="M235.41,-92.04C250.09,-90.12 266.04,-88.03 280.79,-86.09"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="281.32,-89.55 290.78,-84.78 280.41,-82.61 281.32,-89.55"/>
+</g>
+<!-- proc~parse_timeunit_i8&#45;&gt;interface~mapl_assert -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge12" class="edge">
+<title>proc~parse_timeunit_i8&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ffff" d="M217.1,-111.1C223.22,-113.72 229.41,-116.7 235,-119.98 265.18,-137.69 295.86,-164.05 315.14,-181.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="312.97,-184.62 322.66,-188.9 317.76,-179.51 312.97,-184.62"/>
+</g>
+<!-- proc~parse_timeunit_i8&#45;&gt;proc~mapl_return -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge13" class="edge">
+<title>proc~parse_timeunit_i8&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M190.78,-86.68C204.68,-67.28 234.76,-30.32 271,-15.98 324.73,5.27 347.31,5.37 401,-15.98 442.58,-32.52 477.47,-73.29 495.9,-98.29"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="493.26,-100.62 501.93,-106.71 498.95,-96.54 493.26,-100.62"/>
+</g>
+<!-- proc~parse_timeunit_i8&#45;&gt;proc~mapl_verify -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge14" class="edge">
+<title>proc~parse_timeunit_i8&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M223.17,-111.01C227.53,-113.48 231.6,-116.44 235,-119.98 268.29,-154.67 236.63,-188.37 271,-221.98 275.94,-226.82 282.02,-230.54 288.43,-233.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="287.4,-236.76 297.99,-237.02 289.88,-230.21 287.4,-236.76"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="interface~~parse_timeunit~~CallsGraph_node11" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node11"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="578,-214.98 444,-214.98 444,-190.98 578,-190.98 578,-214.98"/>
+<text text-anchor="middle" x="511" y="-200.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M375.82,-201.43C392.95,-201.63 413.71,-201.87 433.73,-202.1"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="433.75,-205.6 443.79,-202.22 433.83,-198.6 433.75,-205.6"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="interface~~parse_timeunit~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node12"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="585,-172.98 437,-172.98 437,-148.98 585,-148.98 585,-172.98"/>
+<text text-anchor="middle" x="511" y="-158.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M375.82,-192.01C397.1,-187.09 423.97,-180.87 448.07,-175.3"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="448.9,-178.7 457.85,-173.04 447.32,-171.88 448.9,-178.7"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="interface~~parse_timeunit~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="745,-151.98 630,-151.98 630,-127.98 745,-127.98 745,-151.98"/>
+<text text-anchor="middle" x="687.5" y="-137.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M552.03,-123.8C572.11,-126.22 596.95,-129.21 619.8,-131.96"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="619.44,-135.44 629.79,-133.16 620.28,-128.49 619.44,-135.44"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="interface~~parse_timeunit~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="754,-208.98 621,-208.98 621,-184.98 754,-184.98 754,-208.98"/>
+<text text-anchor="middle" x="687.5" y="-194.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M552.02,-128.57C562.91,-131.69 574.57,-135.52 585,-139.98 602.03,-147.27 604.88,-151.85 621,-160.98 632.2,-167.33 644.56,-174.16 655.5,-180.15"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="653.84,-183.24 664.29,-184.96 657.19,-177.09 653.84,-183.24"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M374.23,-242.26C422.98,-240.82 510.92,-236.56 585,-223.98 602.42,-221.03 621.19,-216.44 637.8,-211.88"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="639.15,-215.14 647.83,-209.06 637.25,-208.4 639.15,-215.14"/>
+</g>
+<!-- at -->
+<g id="interface~~parse_timeunit~~CallsGraph_node14" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="845.5,-119.98 791.5,-119.98 791.5,-95.98 845.5,-95.98 845.5,-119.98"/>
+<text text-anchor="middle" x="818.5" y="-105.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge20" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M736.9,-127.98C751.6,-124.33 767.49,-120.39 781.24,-116.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="782.43,-120.29 791.29,-114.48 780.74,-113.5 782.43,-120.29"/>
+</g>
+<!-- insert -->
+<g id="interface~~parse_timeunit~~CallsGraph_node15" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="845.5,-161.98 791.5,-161.98 791.5,-137.98 845.5,-137.98 845.5,-161.98"/>
+<text text-anchor="middle" x="818.5" y="-147.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M745.08,-144.37C757.29,-145.32 769.89,-146.29 781.08,-147.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="781.08,-150.67 791.32,-147.95 781.62,-143.69 781.08,-150.67"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7fff00" d="M578.47,-200.7C588.98,-200.34 599.92,-199.96 610.62,-199.59"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="610.92,-203.08 620.79,-199.24 610.68,-196.09 610.92,-203.08"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M585.25,-152.17C596.67,-150.79 608.43,-149.38 619.7,-148.02"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="620.38,-151.47 629.89,-146.8 619.54,-144.52 620.38,-151.47"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M570.59,-173.07C585.78,-176.2 602.27,-179.61 617.92,-182.84"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="617.56,-186.33 628.06,-184.93 618.98,-179.48 617.56,-186.33"/>
+</g>
+<!-- proc~initialize~10 -->
+<g id="interface~~parse_timeunit~~CallsGraph_node16" class="node">
+<title>proc~initialize~10</title>
+<g id="a_interface~~parse_timeunit~~CallsGraph_node16"><a xlink:href="../proc/initialize~10.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="847,-208.98 790,-208.98 790,-184.98 847,-184.98 847,-208.98"/>
+<text text-anchor="middle" x="818.5" y="-194.58" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~10 -->
+<g id="interface~~parse_timeunit~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~10</title>
+<path fill="none" stroke="#7f00ff" d="M754.13,-196.98C762.88,-196.98 771.59,-196.98 779.63,-196.98"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="779.77,-200.48 789.77,-196.98 779.77,-193.48 779.77,-200.48"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var paninterfaceparse_timeunitCallsGraph = svgPanZoom('#interfaceparse_timeunitCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Called by</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~parse_timeunit~~CalledByGraph Pages: 1 -->
+<svg id="interfaceparse_timeunitCalledByGraph" width="580pt" height="242pt"
+ viewBox="0.00 0.00 580.00 242.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~parse_timeunit~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 238)">
+<title>interface~~parse_timeunit~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 576,-238 576,4 -4,4"/>
+<!-- interface~parse_timeunit -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node1" class="node">
+<title>interface~parse_timeunit</title>
+<polygon fill="none" stroke="black" points="572,-97 480,-97 480,-73 572,-73 572,-97"/>
+<text text-anchor="middle" x="526" y="-82.6" font-family="Helvetica,sans-Serif" font-size="10.50">parse_timeunit</text>
+</g>
+<!-- proc~time_esmf_2_nc_int -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node2" class="node">
+<title>proc~time_esmf_2_nc_int</title>
+<g id="a_interface~~parse_timeunit~~CalledByGraph_node2"><a xlink:href="../proc/time_esmf_2_nc_int.html" xlink:title="time_esmf_2_nc_int">
+<polygon fill="#d9534f" stroke="#d9534f" points="444,-129 327,-129 327,-105 444,-105 444,-129"/>
+<text text-anchor="middle" x="385.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_esmf_2_nc_int</text>
+</a>
+</g>
+</g>
+<!-- proc~time_esmf_2_nc_int&#45;&gt;interface~parse_timeunit -->
+<g id="interface~~parse_timeunit~~CalledByGraph_edge1" class="edge">
+<title>proc~time_esmf_2_nc_int&#45;&gt;interface~parse_timeunit</title>
+<path fill="none" stroke="#ff0000" d="M438.47,-104.99C448.7,-102.63 459.48,-100.14 469.82,-97.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="470.61,-101.16 479.57,-95.5 469.03,-94.34 470.61,-101.16"/>
+</g>
+<!-- proc~time_nc_int_2_esmf -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node3" class="node">
+<title>proc~time_nc_int_2_esmf</title>
+<g id="a_interface~~parse_timeunit~~CalledByGraph_node3"><a xlink:href="../proc/time_nc_int_2_esmf.html" xlink:title="time_nc_int_2_esmf">
+<polygon fill="#d9534f" stroke="#d9534f" points="444,-66 327,-66 327,-42 444,-42 444,-66"/>
+<text text-anchor="middle" x="385.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_nc_int_2_esmf</text>
+</a>
+</g>
+</g>
+<!-- proc~time_nc_int_2_esmf&#45;&gt;interface~parse_timeunit -->
+<g id="interface~~parse_timeunit~~CalledByGraph_edge2" class="edge">
+<title>proc~time_nc_int_2_esmf&#45;&gt;interface~parse_timeunit</title>
+<path fill="none" stroke="#ff0000" d="M440.44,-66.07C450.14,-68.24 460.26,-70.51 469.98,-72.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="469.42,-76.15 479.94,-74.92 470.95,-69.32 469.42,-76.15"/>
+</g>
+<!-- interface~convert_time_esmf2nc -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node4" class="node">
+<title>interface~convert_time_esmf2nc</title>
+<g id="a_interface~~parse_timeunit~~CalledByGraph_node4"><a xlink:href="../interface/convert_time_esmf2nc.html" xlink:title="convert_time_esmf2nc">
+<polygon fill="#a7506f" stroke="#a7506f" points="212,-234 79,-234 79,-210 212,-210 212,-234"/>
+<text text-anchor="middle" x="145.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_time_esmf2nc</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_time_esmf2nc&#45;&gt;proc~time_esmf_2_nc_int -->
+<g id="interface~~parse_timeunit~~CalledByGraph_edge7" class="edge">
+<title>interface~convert_time_esmf2nc&#45;&gt;proc~time_esmf_2_nc_int</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M212.13,-220.56C237.71,-217.96 266.67,-212.4 291,-201 322.81,-186.1 351.59,-156.71 368.57,-136.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="371.37,-139.07 375.1,-129.15 366,-134.58 371.37,-139.07"/>
+</g>
+<!-- interface~convert_time_nc2esmf -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node5" class="node">
+<title>interface~convert_time_nc2esmf</title>
+<g id="a_interface~~parse_timeunit~~CalledByGraph_node5"><a xlink:href="../interface/convert_time_nc2esmf.html" xlink:title="convert_time_nc2esmf">
+<polygon fill="#a7506f" stroke="#a7506f" points="212,-24 79,-24 79,0 212,0 212,-24"/>
+<text text-anchor="middle" x="145.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_time_nc2esmf</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_time_nc2esmf&#45;&gt;proc~time_nc_int_2_esmf -->
+<g id="interface~~parse_timeunit~~CalledByGraph_edge8" class="edge">
+<title>interface~convert_time_nc2esmf&#45;&gt;proc~time_nc_int_2_esmf</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M212.13,-20.46C236.92,-23.93 265.32,-28.26 291,-33 301.77,-34.99 313.19,-37.34 324.2,-39.75"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="323.66,-43.21 334.18,-41.96 325.17,-36.38 323.66,-43.21"/>
+</g>
+<!-- proc~create_grid~3 -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node6" class="node">
+<title>proc~create_grid~3</title>
+<g id="a_interface~~parse_timeunit~~CalledByGraph_node6"><a xlink:href="../proc/create_grid~3.html" xlink:title="create_grid">
+<polygon fill="#d9534f" stroke="#d9534f" points="182,-192 109,-192 109,-168 182,-168 182,-192"/>
+<text text-anchor="middle" x="145.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_grid</text>
+</a>
+</g>
+</g>
+<!-- proc~create_grid~3&#45;&gt;proc~time_esmf_2_nc_int -->
+<g id="interface~~parse_timeunit~~CalledByGraph_edge3" class="edge">
+<title>proc~create_grid~3&#45;&gt;proc~time_esmf_2_nc_int</title>
+<path fill="none" stroke="#ff0000" d="M182.12,-177.59C211.73,-174.94 254.73,-169.56 291,-159 312.34,-152.79 335.1,-142.64 352.83,-133.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="354.77,-136.82 362.12,-129.19 351.62,-130.57 354.77,-136.82"/>
+</g>
+<!-- proc~get_x_subset -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node7" class="node">
+<title>proc~get_x_subset</title>
+<g id="a_interface~~parse_timeunit~~CalledByGraph_node7"><a xlink:href="../proc/get_x_subset.html" xlink:title="get_x_subset">
+<polygon fill="#d9534f" stroke="#d9534f" points="186,-150 105,-150 105,-126 186,-126 186,-150"/>
+<text text-anchor="middle" x="145.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_x_subset</text>
+</a>
+</g>
+</g>
+<!-- proc~get_x_subset&#45;&gt;proc~time_esmf_2_nc_int -->
+<g id="interface~~parse_timeunit~~CalledByGraph_edge4" class="edge">
+<title>proc~get_x_subset&#45;&gt;proc~time_esmf_2_nc_int</title>
+<path fill="none" stroke="#ff0000" d="M186.07,-134.51C221.48,-131.38 274.16,-126.74 316.35,-123.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="316.9,-126.48 326.55,-122.11 316.28,-119.51 316.9,-126.48"/>
+</g>
+<!-- proc~get_xy_subset~2 -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node8" class="node">
+<title>proc~get_xy_subset~2</title>
+<g id="a_interface~~parse_timeunit~~CalledByGraph_node8"><a xlink:href="../proc/get_xy_subset~2.html" xlink:title="SwathGridFactory%get_xy_subset">
+<polygon fill="#d9534f" stroke="#d9534f" points="240.5,-108 50.5,-108 50.5,-84 240.5,-84 240.5,-108"/>
+<text text-anchor="middle" x="145.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SwathGridFactory%get_xy_subset</text>
+</a>
+</g>
+</g>
+<!-- proc~get_xy_subset~2&#45;&gt;proc~time_esmf_2_nc_int -->
+<g id="interface~~parse_timeunit~~CalledByGraph_edge5" class="edge">
+<title>proc~get_xy_subset~2&#45;&gt;proc~time_esmf_2_nc_int</title>
+<path fill="none" stroke="#ff0000" d="M240.56,-104.3C265.92,-106.54 292.85,-108.91 316.48,-111"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="316.47,-114.51 326.73,-111.9 317.08,-107.54 316.47,-114.51"/>
+</g>
+<!-- proc~initialize_from_config_with_prefix~4 -->
+<g id="interface~~parse_timeunit~~CalledByGraph_node9" class="node">
+<title>proc~initialize_from_config_with_prefix~4</title>
+<g id="a_interface~~parse_timeunit~~CalledByGraph_node9"><a xlink:href="../proc/initialize_from_config_with_prefix~4.html" xlink:title="SwathGridFactory%initialize_from_config_with_prefix">
+<polygon fill="#d9534f" stroke="#d9534f" points="291,-66 0,-66 0,-42 291,-42 291,-66"/>
+<text text-anchor="middle" x="145.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SwathGridFactory%initialize_from_config_with_prefix</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~4&#45;&gt;proc~time_esmf_2_nc_int -->
+<g id="interface~~parse_timeunit~~CalledByGraph_edge6" class="edge">
+<title>proc~initialize_from_config_with_prefix~4&#45;&gt;proc~time_esmf_2_nc_int</title>
+<path fill="none" stroke="#ff0000" d="M252.98,-66.03C265.9,-68.5 278.83,-71.46 291,-75 312.34,-81.21 335.1,-91.36 352.83,-100.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="351.62,-103.43 362.12,-104.81 354.77,-97.18 351.62,-103.43"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+
+
+        <h2>Module Procedures</h2>
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-parse_timeunit_i4"></span> <h3>public  subroutine <a href='../proc/parse_timeunit_i4.html'>parse_timeunit_i4</a>(tunit, n, t0, dt, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tunit~9"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tunit</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~459"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t0~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>t0</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dt~9"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dt</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1428"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-parse_timeunit_i8"></span> <h3>public  subroutine <a href='../proc/parse_timeunit_i8.html'>parse_timeunit_i8</a>(tunit, n, t0, dt, rc)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tunit~10"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tunit</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~460"></span>
+              integer(kind=ESMF_KIND_I8),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t0~6"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>t0</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dt~10"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dt</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1429"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+</div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-11T14:25:19.480948             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

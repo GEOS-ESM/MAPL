@@ -1,0 +1,924 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_points_in_spherical_domain &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_points_in_spherical_domain
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">70 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_SphericalGeometry.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sphericalgeometry.f90.html'>MAPL_SphericalGeometry.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sphericalgeometry.html'>MAPL_SphericalGeometry</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_points_in_spherical_domain</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_points_in_spherical_domain.html#src">get_points_in_spherical_domain</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine get_points_in_spherical_domain(center_lons, center_lats, corner_lons, corner_lats, lons, lats, ii, jj, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-center_lons~2"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>center_lons</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-center_lats~2"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>center_lats</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-corner_lons~4"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>corner_lons</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-corner_lats~4"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>corner_lats</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lons~25"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lons</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lats~26"></span>
+              real(kind=real64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lats</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ii~11"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ii</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jj~9"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>jj</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1486"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_points_in_spherical_domain~~CallsGraph Pages: 1 -->
+<svg id="procget_points_in_spherical_domainCallsGraph" width="641pt" height="200pt"
+ viewBox="0.00 0.00 641.00 200.16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph" class="graph" transform="scale(1.21 1.21) rotate(0) translate(4 238)">
+<title>proc~~get_points_in_spherical_domain~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 771,-238 771,4 -4,4"/>
+<!-- proc~get_points_in_spherical_domain -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node1" class="node">
+<title>proc~get_points_in_spherical_domain</title>
+<polygon fill="none" stroke="black" points="182,-129 0,-129 0,-105 182,-105 182,-129"/>
+<text text-anchor="middle" x="91" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_points_in_spherical_domain</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="309,-129 230,-129 230,-105 309,-105 309,-129"/>
+<text text-anchor="middle" x="269.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_points_in_spherical_domain&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge1" class="edge">
+<title>proc~get_points_in_spherical_domain&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M182.06,-117C195.07,-117 208.04,-117 219.81,-117"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.83,-120.5 229.83,-117 219.83,-113.5 219.83,-120.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="472,-192 390,-192 390,-168 472,-168 472,-192"/>
+<text text-anchor="middle" x="431" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_points_in_spherical_domain&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge2" class="edge">
+<title>proc~get_points_in_spherical_domain&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M156.77,-129.07C221.82,-141.2 320.68,-159.62 379.95,-170.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="379.35,-174.12 389.82,-172.51 380.63,-167.24 379.35,-174.12"/>
+</g>
+<!-- proc~point_in_polygon -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node4" class="node">
+<title>proc~point_in_polygon</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node4"><a xlink:href="../proc/point_in_polygon.html" xlink:title="point_in_polygon">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="321,-66 218,-66 218,-42 321,-42 321,-66"/>
+<text text-anchor="middle" x="269.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">point_in_polygon</text>
+</a>
+</g>
+</g>
+<!-- proc~get_points_in_spherical_domain&#45;&gt;proc~point_in_polygon -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge3" class="edge">
+<title>proc~get_points_in_spherical_domain&#45;&gt;proc~point_in_polygon</title>
+<path fill="none" stroke="#ff0000" d="M126.03,-104.85C154.32,-94.75 194.75,-80.32 225.32,-69.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.63,-72.66 234.87,-66 224.28,-66.07 226.63,-72.66"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node8" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node8"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="498,-108 364,-108 364,-84 498,-84 498,-108"/>
+<text text-anchor="middle" x="431" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.11,-111.92C322.57,-110.14 338.19,-108.09 353.63,-106.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="354.28,-109.5 363.74,-104.72 353.36,-102.56 354.28,-109.5"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node9"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="505,-150 357,-150 357,-126 505,-126 505,-150"/>
+<text text-anchor="middle" x="431" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.11,-122.08C320.57,-123.59 333.59,-125.31 346.74,-127.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="346.43,-130.53 356.8,-128.36 347.34,-123.59 346.43,-130.53"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="665,-192 550,-192 550,-168 665,-168 665,-192"/>
+<text text-anchor="middle" x="607.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M472.03,-180C492.02,-180 516.73,-180 539.49,-180"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="539.79,-183.5 549.79,-180 539.79,-176.5 539.79,-183.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node10" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node10"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="674,-150 541,-150 541,-126 674,-126 674,-150"/>
+<text text-anchor="middle" x="607.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M472.03,-170.36C494.05,-165.06 521.82,-158.38 546.39,-152.47"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="547.44,-155.82 556.34,-150.07 545.8,-149.01 547.44,-155.82"/>
+</g>
+<!-- proc~convert_to_cart -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node5" class="node">
+<title>proc~convert_to_cart</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node5"><a xlink:href="../proc/convert_to_cart.html" xlink:title="convert_to_cart">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="478.5,-24 383.5,-24 383.5,0 478.5,0 478.5,-24"/>
+<text text-anchor="middle" x="431" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_to_cart</text>
+</a>
+</g>
+</g>
+<!-- proc~point_in_polygon&#45;&gt;proc~convert_to_cart -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge8" class="edge">
+<title>proc~point_in_polygon&#45;&gt;proc~convert_to_cart</title>
+<path fill="none" stroke="#0000ff" d="M316.21,-41.96C334.39,-37.18 355.49,-31.62 374.54,-26.6"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="375.51,-29.97 384.29,-24.04 373.73,-23.2 375.51,-29.97"/>
+</g>
+<!-- proc~lines_intersect -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node7" class="node">
+<title>proc~lines_intersect</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node7"><a xlink:href="../proc/lines_intersect.html" xlink:title="lines_intersect">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="475.5,-66 386.5,-66 386.5,-42 475.5,-42 475.5,-66"/>
+<text text-anchor="middle" x="431" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">lines_intersect</text>
+</a>
+</g>
+</g>
+<!-- proc~point_in_polygon&#45;&gt;proc~lines_intersect -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge9" class="edge">
+<title>proc~point_in_polygon&#45;&gt;proc~lines_intersect</title>
+<path fill="none" stroke="#0000ff" d="M321.41,-54C338.86,-54 358.44,-54 376.12,-54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="376.28,-57.5 386.28,-54 376.28,-50.5 376.28,-57.5"/>
+</g>
+<!-- at -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node11" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="765.5,-192 711.5,-192 711.5,-168 765.5,-168 765.5,-192"/>
+<text text-anchor="middle" x="738.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge10" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ffff00" d="M665.08,-180C677.29,-180 689.89,-180 701.08,-180"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="701.32,-183.5 711.32,-180 701.32,-176.5 701.32,-183.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="765.5,-234 711.5,-234 711.5,-210 765.5,-210 765.5,-234"/>
+<text text-anchor="middle" x="738.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge11" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ffff00" d="M645.47,-192.04C663.02,-197.75 683.92,-204.55 701.36,-210.23"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="700.59,-213.66 711.18,-213.43 702.75,-207.01 700.59,-213.66"/>
+</g>
+<!-- proc~cross_prod -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node13" class="node">
+<title>proc~cross_prod</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node13"><a xlink:href="../proc/cross_prod.html" xlink:title="cross_prod">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="642,-87 573,-87 573,-63 642,-63 642,-87"/>
+<text text-anchor="middle" x="607.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cross_prod</text>
+</a>
+</g>
+</g>
+<!-- proc~lines_intersect&#45;&gt;proc~cross_prod -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge12" class="edge">
+<title>proc~lines_intersect&#45;&gt;proc~cross_prod</title>
+<path fill="none" stroke="#00ff00" d="M475.58,-59.25C502.14,-62.44 535.97,-66.51 562.59,-69.72"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="562.43,-73.22 572.77,-70.94 563.26,-66.27 562.43,-73.22"/>
+</g>
+<!-- proc~normal_vect -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node15" class="node">
+<title>proc~normal_vect</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node15"><a xlink:href="../proc/normal_vect.html" xlink:title="normal_vect">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="647,-45 568,-45 568,-21 647,-21 647,-45"/>
+<text text-anchor="middle" x="607.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">normal_vect</text>
+</a>
+</g>
+</g>
+<!-- proc~lines_intersect&#45;&gt;proc~normal_vect -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge13" class="edge">
+<title>proc~lines_intersect&#45;&gt;proc~normal_vect</title>
+<path fill="none" stroke="#00ff00" d="M475.58,-48.75C500.63,-45.74 532.13,-41.95 557.96,-38.84"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="558.41,-42.31 567.92,-37.64 557.58,-35.36 558.41,-42.31"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M482,-108.04C502.18,-112.89 525.62,-118.53 546.68,-123.6"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="545.95,-127.03 556.49,-125.96 547.58,-120.22 545.95,-127.03"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M482,-150.04C502.18,-154.89 525.62,-160.53 546.68,-165.6"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="545.95,-169.03 556.49,-167.96 547.58,-162.22 545.95,-169.03"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M505.25,-138C513.67,-138 522.27,-138 530.72,-138"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="530.94,-141.5 540.94,-138 530.94,-134.5 530.94,-141.5"/>
+</g>
+<!-- proc~initialize~10 -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_node14" class="node">
+<title>proc~initialize~10</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CallsGraph_node14"><a xlink:href="../proc/initialize~10.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="767,-150 710,-150 710,-126 767,-126 767,-150"/>
+<text text-anchor="middle" x="738.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~10 -->
+<g id="proc~~get_points_in_spherical_domain~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~10</title>
+<path fill="none" stroke="#ff00ff" d="M674.13,-138C682.88,-138 691.59,-138 699.63,-138"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="699.77,-141.5 709.77,-138 699.77,-134.5 699.77,-141.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_points_in_spherical_domainCallsGraph = svgPanZoom('#procget_points_in_spherical_domainCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_points_in_spherical_domain~~CalledByGraph Pages: 1 -->
+<svg id="procget_points_in_spherical_domainCalledByGraph" width="510pt" height="32pt"
+ viewBox="0.00 0.00 510.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_points_in_spherical_domain~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~get_points_in_spherical_domain~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 506,-28 506,4 -4,4"/>
+<!-- proc~get_points_in_spherical_domain -->
+<g id="proc~~get_points_in_spherical_domain~~CalledByGraph_node1" class="node">
+<title>proc~get_points_in_spherical_domain</title>
+<polygon fill="none" stroke="black" points="502,-24 320,-24 320,0 502,0 502,-24"/>
+<text text-anchor="middle" x="411" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_points_in_spherical_domain</text>
+</g>
+<!-- proc~mapl_gethorzijindex -->
+<g id="proc~~get_points_in_spherical_domain~~CalledByGraph_node2" class="node">
+<title>proc~mapl_gethorzijindex</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CalledByGraph_node2"><a xlink:href="../proc/mapl_gethorzijindex.html" xlink:title="MAPL_GetHorzIJIndex">
+<polygon fill="#d9534f" stroke="#d9534f" points="284,-24 160,-24 160,0 284,0 284,-24"/>
+<text text-anchor="middle" x="222" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetHorzIJIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;proc~get_points_in_spherical_domain -->
+<g id="proc~~get_points_in_spherical_domain~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;proc~get_points_in_spherical_domain</title>
+<path fill="none" stroke="#ff0000" d="M284.23,-12C292.42,-12 300.99,-12 309.64,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="309.81,-15.5 319.81,-12 309.81,-8.5 309.81,-15.5"/>
+</g>
+<!-- interface~mapl_gethorzijindex -->
+<g id="proc~~get_points_in_spherical_domain~~CalledByGraph_node3" class="node">
+<title>interface~mapl_gethorzijindex</title>
+<g id="a_proc~~get_points_in_spherical_domain~~CalledByGraph_node3"><a xlink:href="../interface/mapl_gethorzijindex.html" xlink:title="MAPL_GetHorzIJIndex">
+<polygon fill="#a7506f" stroke="#a7506f" points="124,-24 0,-24 0,0 124,0 124,-24"/>
+<text text-anchor="middle" x="62" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetHorzIJIndex</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gethorzijindex&#45;&gt;proc~mapl_gethorzijindex -->
+<g id="proc~~get_points_in_spherical_domain~~CalledByGraph_edge2" class="edge">
+<title>interface~mapl_gethorzijindex&#45;&gt;proc~mapl_gethorzijindex</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M124.09,-12C132.51,-12 141.23,-12 149.81,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.82,-15.5 159.82,-12 149.82,-8.5 149.82,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w"> </span><span class="k">subroutine </span><span class="n">get_points_in_spherical_domain</span><span class="p">(</span><span class="n">center_lons</span><span class="p">,</span><span class="n">center_lats</span><span class="p">,</span><span class="n">corner_lons</span><span class="p">,</span><span class="n">corner_lats</span><span class="p">,</span><span class="n">lons</span><span class="p">,</span><span class="n">lats</span><span class="p">,</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">center_lats</span><span class="p">(:,:),</span><span class="n">center_lons</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corner_lats</span><span class="p">(:,:),</span><span class="n">corner_lons</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(:),</span><span class="n">lats</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ii</span><span class="p">(:),</span><span class="n">jj</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npts</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">niter</span><span class="p">,</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">,</span><span class="n">iub</span><span class="p">,</span><span class="n">jub</span><span class="p">,</span><span class="n">ifound</span><span class="p">,</span><span class="n">jfound</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lold</span><span class="p">,</span><span class="n">uold</span><span class="p">,</span><span class="n">lnew</span><span class="p">,</span><span class="n">unew</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">in_region</span><span class="p">,</span><span class="n">in_sub_region</span>
+
+<span class="w">    </span><span class="n">npts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span><span class="o">==</span><span class="n">size</span><span class="p">(</span><span class="n">lons</span><span class="p">),</span><span class="s2">&quot;lats and lons do not match&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">npts</span><span class="o">==</span><span class="n">size</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span><span class="s2">&quot;size of ii does not match&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">npts</span><span class="o">==</span><span class="n">size</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span><span class="s2">&quot;size of jj does not match&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">im</span><span class="o">=</span><span class="n">size</span><span class="p">(</span><span class="n">corner_lons</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">    </span><span class="n">jm</span><span class="o">=</span><span class="n">size</span><span class="p">(</span><span class="n">corner_lons</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">    </span><span class="n">niter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">npts</span>
+<span class="w">       </span><span class="n">ifound</span><span class="o">=-</span><span class="mi">1</span>
+<span class="w">       </span><span class="n">jfound</span><span class="o">=-</span><span class="mi">1</span>
+<span class="w">       </span><span class="n">ilb</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">       </span><span class="n">iub</span><span class="o">=</span><span class="n">im</span>
+<span class="w">       </span><span class="n">jlb</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">       </span><span class="n">jub</span><span class="o">=</span><span class="n">jm</span>
+<span class="w">       </span><span class="n">in_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">point_in_polygon</span><span class="p">([</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">)],[</span><span class="n">center_lons</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">center_lats</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">iub</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">iub</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">iub</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">iub</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ilb</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_region</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">          </span><span class="c">! bisect first dimension</span>
+<span class="w">          </span><span class="n">lnew</span><span class="o">=</span><span class="n">ilb</span>
+<span class="w">          </span><span class="n">unew</span><span class="o">=</span><span class="n">iub</span><span class="w"> </span>
+<span class="w">          </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">niter</span>
+<span class="w">             </span><span class="n">lold</span><span class="o">=</span><span class="n">lnew</span>
+<span class="w">             </span><span class="n">uold</span><span class="o">=</span><span class="n">unew</span>
+<span class="w">             </span><span class="n">unew</span><span class="o">=</span><span class="n">lold</span><span class="o">+</span><span class="p">(</span><span class="n">uold</span><span class="o">-</span><span class="n">lold</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+<span class="w">             </span><span class="n">in_sub_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">point_in_polygon</span><span class="p">([</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">)],</span><span class="w"> </span><span class="p">[</span><span class="n">center_lons</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">center_lats</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jlb</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jlb</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">lnew</span><span class="p">,</span><span class="n">jub</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_sub_region</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">lnew</span><span class="o">=</span><span class="n">lold</span>
+<span class="w">               </span><span class="n">unew</span><span class="o">=</span><span class="n">unew</span><span class="w"> </span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">               </span><span class="n">lnew</span><span class="o">=</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">               </span><span class="n">unew</span><span class="o">=</span><span class="n">uold</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">unew</span><span class="o">==</span><span class="n">lnew</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">ifound</span><span class="o">=</span><span class="n">unew</span>
+<span class="w">                </span><span class="k">exit</span>
+<span class="k">             end if</span>
+<span class="k">          enddo</span>
+<span class="w">          </span><span class="c">! bisect 2nd dimension</span>
+<span class="w">          </span><span class="n">lnew</span><span class="o">=</span><span class="n">jlb</span>
+<span class="w">          </span><span class="n">unew</span><span class="o">=</span><span class="n">jub</span>
+<span class="w">          </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">niter</span>
+<span class="w">             </span><span class="n">lold</span><span class="o">=</span><span class="n">lnew</span>
+<span class="w">             </span><span class="n">uold</span><span class="o">=</span><span class="n">unew</span>
+<span class="w">             </span><span class="n">unew</span><span class="o">=</span><span class="n">lold</span><span class="o">+</span><span class="p">(</span><span class="n">uold</span><span class="o">-</span><span class="n">lold</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+<span class="w">             </span><span class="n">in_sub_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">point_in_polygon</span><span class="p">([</span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">)],</span><span class="w"> </span><span class="p">[</span><span class="n">center_lons</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">lnew</span><span class="p">),</span><span class="n">center_lats</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">lnew</span><span class="p">)]</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">lnew</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">lnew</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ifound</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">lnew</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ifound</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">lnew</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ifound</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ifound</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="p">[</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">ifound</span><span class="p">,</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_sub_region</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">lnew</span><span class="o">=</span><span class="n">lold</span>
+<span class="w">               </span><span class="n">unew</span><span class="o">=</span><span class="n">unew</span><span class="w"> </span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">               </span><span class="n">lnew</span><span class="o">=</span><span class="n">unew</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">               </span><span class="n">unew</span><span class="o">=</span><span class="n">uold</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">unew</span><span class="o">==</span><span class="n">lnew</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">jfound</span><span class="o">=</span><span class="n">unew</span>
+<span class="w">                </span><span class="k">exit</span>
+<span class="k">             end if</span>
+<span class="k">          enddo</span>
+<span class="k">       end if</span>
+<span class="k">       </span><span class="n">ii</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">ifound</span>
+<span class="w">       </span><span class="n">jj</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">jfound</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">         </span>
+<span class="w"> </span><span class="k">end subroutine </span><span class="n">get_points_in_spherical_domain</span><span class="w"> </span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-11T14:25:19.480948             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
