@@ -1,0 +1,1081 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_DestroyStateSave &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_DestroyStateSave
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">28 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_DestroyStateSave</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_destroystatesave.html#src">MAPL_DestroyStateSave</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public recursive subroutine MAPL_DestroyStateSave(GC, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~87"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1010"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_destroystatesave~~CallsGraph Pages: 1 -->
+<svg id="procmapl_destroystatesaveCallsGraph" width="641pt" height="346pt"
+ viewBox="0.00 0.00 641.00 345.99" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_destroystatesave~~CallsGraph" class="graph" transform="scale(1.94 1.94) rotate(0) translate(4 668)">
+<title>proc~~mapl_destroystatesave~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-668 1241,-668 1241,4 -4,4"/>
+<!-- proc~mapl_destroystatesave -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node1" class="node">
+<title>proc~mapl_destroystatesave</title>
+<polygon fill="none" stroke="black" points="141,-300 0,-300 0,-276 141,-276 141,-300"/>
+<text text-anchor="middle" x="70.5" y="-285.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_DestroyStateSave</text>
+</g>
+<!-- proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroystatesave -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroystatesave</title>
+<path fill="none" stroke="#ff0000" d="M33.46,-300.01C20.53,-308.97 32.88,-318 70.5,-318 94.6,-318 108.33,-314.29 111.69,-309.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.82,-307.71 107.54,-300.01 108.43,-310.57 114.82,-307.71"/>
+</g>
+<!-- proc~get_child_gridcomp -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node2" class="node">
+<title>proc~get_child_gridcomp</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node2"><a xlink:href="../proc/get_child_gridcomp.html" xlink:title="MAPL_MetaComp%get_child_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="404,-580 186,-580 186,-556 404,-556 404,-580"/>
+<text text-anchor="middle" x="295" y="-565.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_destroystatesave&#45;&gt;proc~get_child_gridcomp -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_destroystatesave&#45;&gt;proc~get_child_gridcomp</title>
+<path fill="none" stroke="#ff0000" d="M80.27,-300.36C98.04,-325.26 139.76,-383.1 177,-430 211.02,-472.84 252.9,-521.26 276.2,-547.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="273.85,-550.47 283.08,-555.67 279.11,-545.84 273.85,-550.47"/>
+</g>
+<!-- proc~get_num_children~2 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node3" class="node">
+<title>proc~get_num_children~2</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node3"><a xlink:href="../proc/get_num_children~2.html" xlink:title="CompositeComponent%get_num_children">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="413,-421 177,-421 177,-397 413,-397 413,-421"/>
+<text text-anchor="middle" x="295" y="-406.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_destroystatesave&#45;&gt;proc~get_num_children~2 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_destroystatesave&#45;&gt;proc~get_num_children~2</title>
+<path fill="none" stroke="#ff0000" d="M92.84,-300.12C114.1,-312.15 147.7,-331.04 177,-347 205.52,-362.53 238.18,-379.8 261.74,-392.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="260.13,-395.26 270.61,-396.8 263.38,-389.06 260.13,-395.26"/>
+</g>
+<!-- proc~getfile -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node4" class="node">
+<title>proc~getfile</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node4"><a xlink:href="../proc/getfile.html" xlink:title="GETFILE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="323,-163 267,-163 267,-139 323,-139 323,-163"/>
+<text text-anchor="middle" x="295" y="-148.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GETFILE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_destroystatesave&#45;&gt;proc~getfile -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_destroystatesave&#45;&gt;proc~getfile</title>
+<path fill="none" stroke="#ff0000" d="M91.25,-275.84C130.83,-251.47 220,-196.56 265.76,-168.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.62,-171.35 274.3,-163.13 263.95,-165.39 267.62,-171.35"/>
+</g>
+<!-- proc~mapl_destroyfile -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node5" class="node">
+<title>proc~mapl_destroyfile</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node5"><a xlink:href="../proc/mapl_destroyfile.html" xlink:title="MAPL_DestroyFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="347.5,-62 242.5,-62 242.5,-38 347.5,-38 347.5,-62"/>
+<text text-anchor="middle" x="295" y="-47.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DestroyFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroyfile -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroyfile</title>
+<path fill="none" stroke="#ff0000" d="M77.56,-275.78C91.93,-247.66 130.38,-177.14 177,-130 202.43,-104.29 237.22,-81.74 262.24,-67.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="264.03,-70.19 270.98,-62.2 260.56,-64.11 264.03,-70.19"/>
+</g>
+<!-- proc~mapl_internalstateretrieve -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node6" class="node">
+<title>proc~mapl_internalstateretrieve</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node6"><a xlink:href="../proc/mapl_internalstateretrieve.html" xlink:title="MAPL_InternalStateRetrieve">
+<polygon fill="#d9534f" stroke="#d9534f" points="375,-338 215,-338 215,-314 375,-314 375,-338"/>
+<text text-anchor="middle" x="295" y="-323.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalStateRetrieve</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_destroystatesave&#45;&gt;proc~mapl_internalstateretrieve -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_destroystatesave&#45;&gt;proc~mapl_internalstateretrieve</title>
+<path fill="none" stroke="#ff0000" d="M141.29,-299.92C164.26,-303.84 189.99,-308.24 213.68,-312.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.25,-315.76 223.69,-313.99 214.42,-308.86 213.25,-315.76"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="876,-278 800,-278 800,-254 876,-254 876,-278"/>
+<text text-anchor="middle" x="838" y="-263.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_destroystatesave&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_destroystatesave&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M141.12,-286C294.71,-281.59 659.26,-271.11 789.62,-267.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="789.8,-270.86 799.69,-267.07 789.6,-263.86 789.8,-270.86"/>
+</g>
+<!-- proc~get_gridcomp -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node10" class="node">
+<title>proc~get_gridcomp</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node10"><a xlink:href="../proc/get_gridcomp.html" xlink:title="MaplGenericComponent%get_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="675,-622 449,-622 449,-598 675,-598 675,-622"/>
+<text text-anchor="middle" x="562" y="-607.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%get_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_gridcomp&#45;&gt;proc~get_gridcomp -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge8" class="edge">
+<title>proc~get_child_gridcomp&#45;&gt;proc~get_gridcomp</title>
+<path fill="none" stroke="#ff0000" d="M371.94,-580.04C404.09,-585.13 441.72,-591.1 474.91,-596.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="474.63,-599.85 485.05,-597.96 475.72,-592.94 474.63,-599.85"/>
+</g>
+<!-- proc~get_ith_child -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node11" class="node">
+<title>proc~get_ith_child</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node11"><a xlink:href="../proc/get_ith_child.html" xlink:title="MAPL_MetaComp%get_ith_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="652.5,-580 471.5,-580 471.5,-556 652.5,-556 652.5,-580"/>
+<text text-anchor="middle" x="562" y="-565.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_ith_child</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_gridcomp&#45;&gt;proc~get_ith_child -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge9" class="edge">
+<title>proc~get_child_gridcomp&#45;&gt;proc~get_ith_child</title>
+<path fill="none" stroke="#ff0000" d="M404.17,-568C423.01,-568 442.52,-568 461.12,-568"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="461.36,-571.5 471.36,-568 461.36,-564.5 461.36,-571.5"/>
+</g>
+<!-- proc~get_num_children~3 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node12" class="node">
+<title>proc~get_num_children~3</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node12"><a xlink:href="../proc/get_num_children~3.html" xlink:title="ConcreteComposite%get_num_children">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="673,-462 451,-462 451,-438 673,-438 673,-462"/>
+<text text-anchor="middle" x="562" y="-447.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConcreteComposite%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- proc~get_num_children~2&#45;&gt;proc~get_num_children~3 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge10" class="edge">
+<title>proc~get_num_children~2&#45;&gt;proc~get_num_children~3</title>
+<path fill="none" stroke="#ffff00" d="M373.72,-421.02C404.86,-425.84 440.91,-431.42 473.01,-436.39"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="472.87,-439.91 483.28,-437.98 473.94,-432.99 472.87,-439.91"/>
+</g>
+<!-- proc~getfile&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge15" class="edge">
+<title>proc~getfile&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff00" d="M323.19,-159.17C353.66,-168.16 404.59,-182.7 449,-193 548.6,-216.11 575.14,-214.04 675,-236 691.11,-239.54 694.85,-241.64 711,-245 736.91,-250.39 766.05,-255.32 789.77,-259.04"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="789.5,-262.54 799.92,-260.62 790.57,-255.63 789.5,-262.54"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node8" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node8"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="889,-128 787,-128 787,-104 889,-104 889,-128"/>
+<text text-anchor="middle" x="838" y="-113.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~getfile&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge11" class="edge">
+<title>proc~getfile&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#00ff00" d="M313.81,-138.87C341.35,-120.94 396.55,-88.16 449,-76 569.34,-48.09 715.19,-80.27 789.09,-101.07"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="788.45,-104.53 799.03,-103.92 790.38,-97.8 788.45,-104.53"/>
+</g>
+<!-- proc~getfilemem -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node13" class="node">
+<title>proc~getfilemem</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node13"><a xlink:href="../proc/getfilemem.html" xlink:title="GETFILEMEM">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="602.5,-142 521.5,-142 521.5,-118 602.5,-118 602.5,-142"/>
+<text text-anchor="middle" x="562" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GETFILEMEM</text>
+</a>
+</g>
+</g>
+<!-- proc~getfile&#45;&gt;proc~getfilemem -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge12" class="edge">
+<title>proc~getfile&#45;&gt;proc~getfilemem</title>
+<path fill="none" stroke="#00ff00" d="M323.36,-148.83C367.68,-145.32 455.8,-138.34 511.39,-133.93"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="511.68,-137.42 521.37,-133.14 511.13,-130.44 511.68,-137.42"/>
+</g>
+<!-- proc~mapl_open -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node16" class="node">
+<title>proc~mapl_open</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node16"><a xlink:href="../proc/mapl_open.html" xlink:title="MAPL_OPEN">
+<polygon fill="#d9534f" stroke="#d9534f" points="599.5,-184 524.5,-184 524.5,-160 599.5,-160 599.5,-184"/>
+<text text-anchor="middle" x="562" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OPEN</text>
+</a>
+</g>
+</g>
+<!-- proc~getfile&#45;&gt;proc~mapl_open -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge13" class="edge">
+<title>proc~getfile&#45;&gt;proc~mapl_open</title>
+<path fill="none" stroke="#00ff00" d="M323.36,-153.17C368.33,-156.73 458.41,-163.87 513.83,-168.26"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="513.84,-171.77 524.09,-169.07 514.4,-164.8 513.84,-171.77"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node17" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node17"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="879,-236 797,-236 797,-212 879,-212 879,-236"/>
+<text text-anchor="middle" x="838" y="-221.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~getfile&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge14" class="edge">
+<title>proc~getfile&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M323.06,-140.21C386.47,-116.59 548.82,-65.71 675,-109 694.17,-115.58 694.65,-125.01 711,-137 744.75,-161.75 784.64,-188.96 810.36,-206.25"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="808.58,-209.26 818.83,-211.93 812.47,-203.45 808.58,-209.26"/>
+</g>
+<!-- proc~dealloc_ -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node9" class="node">
+<title>proc~dealloc_</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node9"><a xlink:href="../proc/dealloc_.html" xlink:title="dealloc_">
+<polygon fill="#d9534f" stroke="#d9534f" points="590.5,-24 533.5,-24 533.5,0 590.5,0 590.5,-24"/>
+<text text-anchor="middle" x="562" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dealloc_</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_destroyfile&#45;&gt;proc~dealloc_ -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_destroyfile&#45;&gt;proc~dealloc_</title>
+<path fill="none" stroke="#00ffff" d="M347.72,-42.58C399.29,-35.19 477.24,-24.01 523.25,-17.41"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="523.99,-20.84 533.39,-15.96 522.99,-13.91 523.99,-20.84"/>
+</g>
+<!-- proc~mapl_internalstateretrieve&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_internalstateretrieve&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M375.12,-324.56C452.05,-322.33 572.03,-316.61 675,-302 686.35,-300.39 746.17,-286.88 789.82,-276.88"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="790.73,-280.26 799.7,-274.61 789.17,-273.43 790.73,-280.26"/>
+</g>
+<!-- proc~mapl_internalstatecreate -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node14" class="node">
+<title>proc~mapl_internalstatecreate</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node14"><a xlink:href="../proc/mapl_internalstatecreate.html" xlink:title="MAPL_InternalStateCreate">
+<polygon fill="#d9534f" stroke="#d9534f" points="637.5,-420 486.5,-420 486.5,-396 637.5,-396 637.5,-420"/>
+<text text-anchor="middle" x="562" y="-405.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalStateCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstateretrieve&#45;&gt;proc~mapl_internalstatecreate -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_internalstateretrieve&#45;&gt;proc~mapl_internalstatecreate</title>
+<path fill="none" stroke="#0000ff" d="M321.72,-338.05C351.69,-351.66 403,-373.65 449,-387 457.79,-389.55 467.06,-391.86 476.35,-393.94"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="475.91,-397.43 486.42,-396.11 477.38,-390.59 475.91,-397.43"/>
+</g>
+<!-- proc~mapl_internalstateget -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node15" class="node">
+<title>proc~mapl_internalstateget</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node15"><a xlink:href="../proc/mapl_internalstateget.html" xlink:title="MAPL_InternalStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="629,-378 495,-378 495,-354 629,-354 629,-378"/>
+<text text-anchor="middle" x="562" y="-363.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalStateGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstateretrieve&#45;&gt;proc~mapl_internalstateget -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_internalstateretrieve&#45;&gt;proc~mapl_internalstateget</title>
+<path fill="none" stroke="#0000ff" d="M375.15,-337.95C409.85,-343.19 450.42,-349.31 484.78,-354.49"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="484.35,-357.97 494.76,-356 485.4,-351.05 484.35,-357.97"/>
+</g>
+<!-- proc~mapl_internalstateretrieve&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_internalstateretrieve&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M355.01,-313.95C435.39,-297.66 583.86,-268 711,-245 736,-240.48 763.85,-235.8 787,-232.01"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="787.64,-235.45 796.94,-230.39 786.51,-228.54 787.64,-235.45"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node18" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node18"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1139,-278 1006,-278 1006,-254 1139,-254 1139,-278"/>
+<text text-anchor="middle" x="1072.5" y="-263.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M876.1,-266C908.24,-266 955.77,-266 995.9,-266"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="995.93,-269.5 1005.93,-266 995.93,-262.5 995.93,-269.5"/>
+</g>
+<!-- proc~mapl_am_i_root_layout -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node30" class="node">
+<title>proc~mapl_am_i_root_layout</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node30"><a xlink:href="../proc/mapl_am_i_root_layout.html" xlink:title="MAPL_Am_I_Root_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1144,-149 1001,-149 1001,-125 1144,-125 1144,-149"/>
+<text text-anchor="middle" x="1072.5" y="-134.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M889.16,-120.53C918.68,-123.2 956.71,-126.63 990.4,-129.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="990.42,-133.19 1000.7,-130.61 991.05,-126.22 990.42,-133.19"/>
+</g>
+<!-- proc~mapl_am_i_root_vm -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node31" class="node">
+<title>proc~mapl_am_i_root_vm</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node31"><a xlink:href="../proc/mapl_am_i_root_vm.html" xlink:title="MAPL_Am_I_Root_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1135,-107 1010,-107 1010,-83 1135,-83 1135,-107"/>
+<text text-anchor="middle" x="1072.5" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge23" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M889.16,-111.47C921.36,-108.56 963.69,-104.74 999.45,-101.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1000.19,-104.96 1009.84,-100.57 999.56,-97.98 1000.19,-104.96"/>
+</g>
+<!-- proc~dealloc_&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge25" class="edge">
+<title>proc~dealloc_&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff8b00" d="M590.95,-23.06C615.36,-33.78 650.6,-51.94 675,-76 697.42,-98.1 689.55,-113.96 711,-137 738.34,-166.36 777.25,-191.34 804.57,-206.9"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="802.92,-209.99 813.36,-211.81 806.33,-203.88 802.92,-209.99"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node22" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node22"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="877.5,-24 798.5,-24 798.5,0 877.5,0 877.5,-24"/>
+<text text-anchor="middle" x="838" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~dealloc_&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge24" class="edge">
+<title>proc~dealloc_&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff8b00" d="M590.53,-12C636.65,-12 730.13,-12 787.79,-12"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="788.11,-15.5 798.11,-12 788.11,-8.5 788.11,-15.5"/>
+</g>
+<!-- proc~get_current_thread -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node25" class="node">
+<title>proc~get_current_thread</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node25"><a xlink:href="../proc/get_current_thread.html" xlink:title="get_current_thread">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="894.5,-622 781.5,-622 781.5,-598 894.5,-598 894.5,-622"/>
+<text text-anchor="middle" x="838" y="-607.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_current_thread</text>
+</a>
+</g>
+</g>
+<!-- proc~get_gridcomp&#45;&gt;proc~get_current_thread -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge26" class="edge">
+<title>proc~get_gridcomp&#45;&gt;proc~get_current_thread</title>
+<path fill="none" stroke="#e7ff00" d="M675.24,-610C707.75,-610 742.18,-610 770.89,-610"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="771.19,-613.5 781.19,-610 771.19,-606.5 771.19,-613.5"/>
+</g>
+<!-- proc~is_threading_active -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node29" class="node">
+<title>proc~is_threading_active</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node29"><a xlink:href="../proc/is_threading_active.html" xlink:title="MaplGenericComponent%is_threading_active">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="965,-664 711,-664 711,-640 965,-640 965,-664"/>
+<text text-anchor="middle" x="838" y="-649.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%is_threading_active</text>
+</a>
+</g>
+</g>
+<!-- proc~get_gridcomp&#45;&gt;proc~is_threading_active -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge27" class="edge">
+<title>proc~get_gridcomp&#45;&gt;proc~is_threading_active</title>
+<path fill="none" stroke="#e7ff00" d="M641.52,-622.04C674.91,-627.15 714.01,-633.15 748.43,-638.42"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="748.06,-641.91 758.47,-639.96 749.12,-634.99 748.06,-641.91"/>
+</g>
+<!-- none~get_child~26 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node23" class="node">
+<title>none~get_child~26</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node23"><a xlink:href="../type/mapl_metacomp.html#boundprocedure-get_child~26" xlink:title="MAPL_MetaComp%get_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="919,-580 757,-580 757,-556 919,-556 919,-580"/>
+<text text-anchor="middle" x="838" y="-565.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~get_ith_child&#45;&gt;none~get_child~26 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge28" class="edge">
+<title>proc~get_ith_child&#45;&gt;none~get_child~26</title>
+<path fill="none" stroke="#5cff00" d="M652.72,-568C682.87,-568 716.5,-568 746.69,-568"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="746.79,-571.5 756.79,-568 746.79,-564.5 746.79,-571.5"/>
+</g>
+<!-- proc~mapl_internalstatecreate&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_internalstatecreate&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00b9ff" d="M637.57,-404.84C651.13,-401.4 664.33,-395.83 675,-387 708.82,-359 677.76,-323.69 711,-295 732.6,-276.36 763.82,-269.08 789.78,-266.47"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="790.11,-269.96 799.8,-265.67 789.55,-262.98 790.11,-269.96"/>
+</g>
+<!-- proc~mapl_internalstatecreate&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_internalstatecreate&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00b9ff" d="M637.6,-406.09C651.4,-402.59 664.69,-396.68 675,-387 722.46,-342.43 663.09,-289.09 711,-245 731.08,-226.52 760.97,-220.96 786.59,-220.16"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="786.93,-223.66 796.91,-220.08 786.88,-216.66 786.93,-223.66"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node19" class="node">
+<title>ESMF_GridCompGet</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node19"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html" xlink:title="ESMF_GridCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="897.5,-370 778.5,-370 778.5,-346 897.5,-346 897.5,-370"/>
+<text text-anchor="middle" x="838" y="-355.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstatecreate&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_internalstatecreate&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#00b9ff" d="M629.11,-395.98C644.21,-393.13 660.17,-390.04 675,-387 691.06,-383.71 694.91,-382.13 711,-379 729.55,-375.4 749.7,-371.87 768.34,-368.76"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="768.93,-372.21 778.23,-367.13 767.79,-365.3 768.93,-372.21"/>
+</g>
+<!-- ESMF_UserCompSetInternalState -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node21" class="node">
+<title>ESMF_UserCompSetInternalState</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node21"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_usercompsetinternalstate.html" xlink:title="ESMF_UserCompSetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="932,-412 744,-412 744,-388 932,-388 932,-412"/>
+<text text-anchor="middle" x="838" y="-397.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UserCompSetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstatecreate&#45;&gt;ESMF_UserCompSetInternalState -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_internalstatecreate&#45;&gt;ESMF_UserCompSetInternalState</title>
+<path fill="none" stroke="#00b9ff" d="M637.51,-405.82C667.11,-404.96 701.66,-403.95 733.62,-403.02"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="734,-406.51 743.89,-402.72 733.79,-399.51 734,-406.51"/>
+</g>
+<!-- proc~get_component -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node24" class="node">
+<title>proc~get_component</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node24"><a xlink:href="../proc/get_component.html" xlink:title="ConcreteComposite%get_component">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="943.5,-538 732.5,-538 732.5,-514 943.5,-514 943.5,-538"/>
+<text text-anchor="middle" x="838" y="-523.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConcreteComposite%get_component</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstatecreate&#45;&gt;proc~get_component -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_internalstatecreate&#45;&gt;proc~get_component</title>
+<path fill="none" stroke="#00b9ff" d="M637.67,-411.9C651.07,-415.3 664.19,-420.66 675,-429 704.6,-451.82 681.17,-482.48 711,-505 714.73,-507.82 718.71,-510.32 722.86,-512.53"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="721.66,-515.83 732.2,-516.92 724.64,-509.5 721.66,-515.83"/>
+</g>
+<!-- proc~initialize~6 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node28" class="node">
+<title>proc~initialize~6</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node28"><a xlink:href="../proc/initialize~6.html" xlink:title="ConcreteComposite%initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="924,-496 752,-496 752,-472 924,-472 924,-496"/>
+<text text-anchor="middle" x="838" y="-481.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConcreteComposite%initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstatecreate&#45;&gt;proc~initialize~6 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_internalstatecreate&#45;&gt;proc~initialize~6</title>
+<path fill="none" stroke="#00b9ff" d="M637.57,-415.81C650.48,-418.87 663.45,-423.12 675,-429 694.61,-438.99 691.29,-453.21 711,-463 720.66,-467.8 731.19,-471.53 741.92,-474.43"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="741.26,-477.87 751.81,-476.86 742.93,-471.07 741.26,-477.87"/>
+</g>
+<!-- proc~set_composite -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node32" class="node">
+<title>proc~set_composite</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node32"><a xlink:href="../proc/set_composite.html" xlink:title="CompositeComponent%set_composite">
+<polygon fill="#d9534f" stroke="#d9534f" points="947,-454 729,-454 729,-430 947,-430 947,-454"/>
+<text text-anchor="middle" x="838" y="-439.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%set_composite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstatecreate&#45;&gt;proc~set_composite -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_internalstatecreate&#45;&gt;proc~set_composite</title>
+<path fill="none" stroke="#00b9ff" d="M637.51,-417.25C666.04,-420.79 699.17,-424.9 730.13,-428.74"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="729.75,-432.22 740.1,-429.98 730.61,-425.27 729.75,-432.22"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#002eff" d="M629.28,-358.24C645.08,-354.38 661.32,-348.62 675,-340 696.67,-326.35 689.32,-308.63 711,-295 734.55,-280.2 764.83,-272.93 789.8,-269.37"/>
+<polygon fill="#002eff" stroke="#002eff" points="790.31,-272.84 799.79,-268.1 789.43,-265.89 790.31,-272.84"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002eff" d="M592.71,-353.89C616.9,-342.96 650.89,-325.07 675,-302 696.65,-281.29 686.04,-261.58 711,-245 733.06,-230.34 761.97,-224.79 786.52,-223.04"/>
+<polygon fill="#002eff" stroke="#002eff" points="786.95,-226.52 796.75,-222.51 786.58,-219.53 786.95,-226.52"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#002eff" d="M629.33,-364.06C671.32,-362.84 725.51,-361.26 768.01,-360.01"/>
+<polygon fill="#002eff" stroke="#002eff" points="768.37,-363.51 778.27,-359.71 768.17,-356.51 768.37,-363.51"/>
+</g>
+<!-- ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node20" class="node">
+<title>ESMF_UserCompGetInternalState</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node20"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_usercompgetinternalstate.html" xlink:title="ESMF_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="933,-328 743,-328 743,-304 933,-304 933,-328"/>
+<text text-anchor="middle" x="838" y="-313.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState</title>
+<path fill="none" stroke="#002eff" d="M622.34,-353.97C649.35,-348.6 681.76,-342.3 711,-337 724.43,-334.57 738.69,-332.09 752.6,-329.73"/>
+<polygon fill="#002eff" stroke="#002eff" points="753.37,-333.15 762.65,-328.03 752.21,-326.24 753.37,-333.15"/>
+</g>
+<!-- proc~mapl_open&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_open&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#5c00ff" d="M599.75,-174.21C622.89,-177.06 652.52,-183.51 675,-198 697.12,-212.26 688.45,-231.45 711,-245 734.56,-259.16 764.83,-264.53 789.8,-266.3"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="789.61,-269.8 799.79,-266.85 789.99,-262.81 789.61,-269.8"/>
+</g>
+<!-- proc~mapl_open&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_open&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#5c00ff" d="M599.62,-165.4C621.52,-161.38 649.89,-156.07 675,-151 708.7,-144.2 746.24,-136.12 776.69,-129.44"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="777.71,-132.8 786.72,-127.23 776.21,-125.96 777.71,-132.8"/>
+</g>
+<!-- proc~mapl_open&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_open&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#5c00ff" d="M599.67,-178.96C647.89,-188.11 732.83,-204.23 786.93,-214.5"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="786.52,-217.98 796.99,-216.41 787.82,-211.1 786.52,-217.98"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#e700ff" d="M879.06,-230.37C903.85,-234.38 936.31,-239.78 965,-245 977.07,-247.2 989.89,-249.63 1002.29,-252.05"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="1001.65,-255.49 1012.13,-253.97 1002.99,-248.62 1001.65,-255.49"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node26" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node26"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1130,-236 1015,-236 1015,-212 1130,-212 1130,-236"/>
+<text text-anchor="middle" x="1072.5" y="-221.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#e700ff" d="M879.23,-224C913.74,-224 964.16,-224 1004.71,-224"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="1004.79,-227.5 1014.79,-224 1004.79,-220.5 1004.79,-227.5"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_node27" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~mapl_destroystatesave~~CallsGraph_node27"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1237,-278 1180,-278 1180,-254 1237,-254 1237,-278"/>
+<text text-anchor="middle" x="1208.5" y="-263.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~mapl_destroystatesave~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#ff008b" d="M1139.32,-266C1149.71,-266 1160.13,-266 1169.6,-266"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="1169.82,-269.5 1179.82,-266 1169.82,-262.5 1169.82,-269.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_destroystatesaveCallsGraph = svgPanZoom('#procmapl_destroystatesaveCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_destroystatesave~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_destroystatesaveCalledByGraph" width="387pt" height="50pt"
+ viewBox="0.00 0.00 387.00 50.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_destroystatesave~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 46)">
+<title>proc~~mapl_destroystatesave~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-46 383,-46 383,4 -4,4"/>
+<!-- proc~mapl_destroystatesave -->
+<g id="proc~~mapl_destroystatesave~~CalledByGraph_node1" class="node">
+<title>proc~mapl_destroystatesave</title>
+<polygon fill="none" stroke="black" points="379,-24 238,-24 238,0 379,0 379,-24"/>
+<text text-anchor="middle" x="308.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_DestroyStateSave</text>
+</g>
+<!-- proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroystatesave -->
+<g id="proc~~mapl_destroystatesave~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_destroystatesave&#45;&gt;proc~mapl_destroystatesave</title>
+<path fill="none" stroke="#ff0000" d="M274.44,-24.01C262.54,-32.97 273.9,-42 308.5,-42 330.67,-42 343.29,-38.29 346.38,-33.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="349.61,-31.93 342.56,-24.01 343.13,-34.59 349.61,-31.93"/>
+</g>
+<!-- proc~destroy_state -->
+<g id="proc~~mapl_destroystatesave~~CalledByGraph_node2" class="node">
+<title>proc~destroy_state</title>
+<g id="a_proc~~mapl_destroystatesave~~CalledByGraph_node2"><a xlink:href="../proc/destroy_state.html" xlink:title="MAPL_CapGridComp%destroy_state">
+<polygon fill="#d9534f" stroke="#d9534f" points="202,-24 0,-24 0,0 202,0 202,-24"/>
+<text text-anchor="middle" x="101" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp%destroy_state</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_state&#45;&gt;proc~mapl_destroystatesave -->
+<g id="proc~~mapl_destroystatesave~~CalledByGraph_edge1" class="edge">
+<title>proc~destroy_state&#45;&gt;proc~mapl_destroystatesave</title>
+<path fill="none" stroke="#ff0000" d="M202.04,-12C210.68,-12 219.34,-12 227.78,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.95,-15.5 237.95,-12 227.95,-8.5 227.95,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">MAPL_DestroyStateSave</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_InternalStateRetrieve</span><span class="p">(</span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">STATE</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span>
+<span class="w">         </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">GET_CHILD_GRIDCOMP</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_DestroyStateSave</span><span class="w"> </span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">enddo</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">initial_state</span><span class="p">%</span><span class="n">imp_fname</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">UNIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GETFILE</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">initial_state</span><span class="p">%</span><span class="n">IMP_FNAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_DestroyFile</span><span class="p">(</span><span class="n">unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">initial_state</span><span class="p">%</span><span class="n">imp_fname</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">state</span><span class="p">%</span><span class="n">initial_state</span><span class="p">%</span><span class="n">int_fname</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">UNIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GETFILE</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">initial_state</span><span class="p">%</span><span class="n">INT_FNAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_DestroyFile</span><span class="p">(</span><span class="n">unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">state</span><span class="p">%</span><span class="n">initial_state</span><span class="p">%</span><span class="n">int_fname</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">   end subroutine </span><span class="n">MAPL_DestroyStateSave</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-11T14:21:55.936862             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

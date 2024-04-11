@@ -1,0 +1,1220 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_BalanceCreate &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_BalanceCreate
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">96 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_LoadBalance.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_loadbalance.f90.html'>MAPL_LoadBalance.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_loadbalancemod.html'>MAPL_LoadBalanceMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_BalanceCreate</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_balancecreate.html#src">MAPL_BalanceCreate</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_BalanceCreate(OrgLen, Comm, MaxPasses, BalCond, Handle, BalLen, BufLen, rc)  
+</h2>
+    
+
+    <p>This routine creates a balancing strategy over an MPI communicator (Comm)
+ given the work in the local rank (OrgLen). The startegy can be committed
+ and used later through Handle. If a handle is not requested, the latest
+ non-committed strategy is kept at Handle=0, which will be the default strategy
+ for the other methods. The number of passes may be optionally controlled
+ with an upper limit (MaxPasses) or a limiting criterion (BalCond).
+ The amount of work resulting for the local rank can be returned (BalLen).</p>
+<div class="alert alert-info">
+<p class="alert-title h4">Note</p>
+<p>As there may be more than one communicator, Comm is required. This
+ will most likely be the communicator from the ESMF VM.</p>
+</div>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orglen"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>OrgLen</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-maxpasses"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MaxPasses</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-balcond"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BalCond</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-handle~3"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Handle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ballen"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BalLen</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buflen"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BufLen</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~586"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_balancecreate~~CallsGraph Pages: 1 -->
+<svg id="procmapl_balancecreateCallsGraph" width="641pt" height="550pt"
+ viewBox="0.00 0.00 641.00 550.11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_balancecreate~~CallsGraph" class="graph" transform="scale(1.45 1.45) rotate(0) translate(4 794.14)">
+<title>proc~~mapl_balancecreate~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-794.14 926,-794.14 926,4 -4,4"/>
+<!-- proc~mapl_balancecreate -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node1" class="node">
+<title>proc~mapl_balancecreate</title>
+<polygon fill="none" stroke="black" points="125,-148 0,-148 0,-124 125,-124 125,-148"/>
+<text text-anchor="middle" x="62.5" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_BalanceCreate</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="476,-478 397,-478 397,-454 476,-454 476,-478"/>
+<text text-anchor="middle" x="436.5" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M125.06,-146.02C209.7,-160.04 352.57,-184.75 361,-193 415.58,-246.4 375.8,-287.64 397,-361 405.52,-390.5 418.2,-423.61 426.66,-444.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="423.42,-445.96 430.43,-453.9 429.9,-443.32 423.42,-445.96"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node3" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node3"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="245.5,-478 177.5,-478 177.5,-454 245.5,-454 245.5,-478"/>
+<text text-anchor="middle" x="211.5" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;interface~mapl_sort -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#ff0000" d="M68.91,-148.14C90.74,-197.15 172.6,-380.92 200.85,-444.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.78,-446.04 205.04,-453.75 204.17,-443.19 197.78,-446.04"/>
+</g>
+<!-- mpi_allgather -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node4" class="node">
+<title>mpi_allgather</title>
+<polygon fill="#777777" stroke="#777777" points="254.5,-108 168.5,-108 168.5,-84 254.5,-84 254.5,-108"/>
+<text text-anchor="middle" x="211.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_allgather</text>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;mpi_allgather -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;mpi_allgather</title>
+<path fill="none" stroke="#ff0000" d="M107.6,-124C123.57,-119.65 141.76,-114.71 158.35,-110.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="159.71,-113.45 168.44,-107.44 157.88,-106.69 159.71,-113.45"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node5" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="262,-66 161,-66 161,-42 262,-42 262,-66"/>
+<text text-anchor="middle" x="211.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;mpi_comm_rank -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#ff0000" d="M80.97,-123.89C100.11,-110.91 131.96,-90.13 161,-75 164.12,-73.38 167.39,-71.78 170.7,-70.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="172.36,-73.32 180.05,-66.03 169.49,-66.93 172.36,-73.32"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node6" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="260,-24 163,-24 163,0 260,0 260,-24"/>
+<text text-anchor="middle" x="211.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;mpi_comm_size -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#ff0000" d="M72.19,-123.98C87.85,-103.04 122.78,-59.55 161,-33 163.11,-31.53 165.35,-30.14 167.65,-28.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="169.49,-31.8 176.75,-24.09 166.27,-25.59 169.49,-31.8"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="627,-415 545,-415 545,-391 627,-391 627,-415"/>
+<text text-anchor="middle" x="586" y="-400.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M125.01,-130.73C188.33,-128.17 287.79,-132.36 361,-174 457.33,-228.79 539.42,-337.04 571.07,-382.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="568.32,-384.5 576.88,-390.74 574.08,-380.53 568.32,-384.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="474.5,-750 398.5,-750 398.5,-726 474.5,-726 474.5,-750"/>
+<text text-anchor="middle" x="436.5" y="-735.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M63.15,-148.03C61.7,-223.41 64.88,-632.44 298,-781 334.32,-804.14 383.99,-776.7 412.61,-756.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="414.84,-758.96 420.79,-750.19 410.67,-753.34 414.84,-758.96"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node10" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node10"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="653,-499 519,-499 519,-475 653,-475 653,-499"/>
+<text text-anchor="middle" x="586" y="-484.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M476.25,-471.52C486.35,-472.96 497.6,-474.56 508.91,-476.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="508.45,-479.64 518.84,-477.58 509.44,-472.71 508.45,-479.64"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node11" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node11"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="660,-457 512,-457 512,-433 660,-433 660,-457"/>
+<text text-anchor="middle" x="586" y="-442.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M476.25,-460.48C484.25,-459.34 492.97,-458.1 501.87,-456.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="502.56,-460.27 511.97,-455.4 501.58,-453.34 502.56,-460.27"/>
+</g>
+<!-- proc~sort1ld -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node13" class="node">
+<title>proc~sort1ld</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node13"><a xlink:href="../proc/sort1ld.html" xlink:title="SORT1LD">
+<polygon fill="#d9534f" stroke="#d9534f" points="360.5,-226 298.5,-226 298.5,-202 360.5,-202 360.5,-226"/>
+<text text-anchor="middle" x="329.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT1LD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ld -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ld</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M214.32,-453.96C220.33,-417.49 242.46,-306.39 298,-235 298.47,-234.39 298.97,-233.79 299.49,-233.21"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="302.06,-235.59 307.03,-226.24 297.31,-230.45 302.06,-235.59"/>
+</g>
+<!-- proc~sort1lr -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node14" class="node">
+<title>proc~sort1lr</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node14"><a xlink:href="../proc/sort1lr.html" xlink:title="SORT1LR">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-310 299,-310 299,-286 360,-286 360,-310"/>
+<text text-anchor="middle" x="329.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT1LR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1lr -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1lr</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M217.39,-453.79C228.55,-427.02 258.07,-362.1 298,-319 298.74,-318.2 299.52,-317.41 300.33,-316.64"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="302.67,-319.24 308.12,-310.15 298.19,-313.86 302.67,-319.24"/>
+</g>
+<!-- proc~sort1ls -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node15" class="node">
+<title>proc~sort1ls</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node15"><a xlink:href="../proc/sort1ls.html" xlink:title="SORT1LS">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-268 299,-268 299,-244 360,-244 360,-268"/>
+<text text-anchor="middle" x="329.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT1LS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ls -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ls</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M215.57,-453.7C224.05,-421.62 250.42,-333.92 298,-277 298.6,-276.29 299.22,-275.59 299.87,-274.91"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="302.34,-277.39 307.53,-268.15 297.72,-272.14 302.34,-277.39"/>
+</g>
+<!-- proc~sort1sd -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node16" class="node">
+<title>proc~sort1sd</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node16"><a xlink:href="../proc/sort1sd.html" xlink:title="SORT1SD">
+<polygon fill="#d9534f" stroke="#d9534f" points="361,-688 298,-688 298,-664 361,-664 361,-688"/>
+<text text-anchor="middle" x="329.5" y="-673.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT1SD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1sd -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1sd</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M215.57,-478.3C224.05,-510.38 250.42,-598.08 298,-655 298.6,-655.71 299.22,-656.41 299.87,-657.09"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="297.72,-659.86 307.53,-663.85 302.34,-654.61 297.72,-659.86"/>
+</g>
+<!-- proc~sort1sr -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node17" class="node">
+<title>proc~sort1sr</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node17"><a xlink:href="../proc/sort1sr.html" xlink:title="SORT1SR">
+<polygon fill="#d9534f" stroke="#d9534f" points="360.5,-772 298.5,-772 298.5,-748 360.5,-748 360.5,-772"/>
+<text text-anchor="middle" x="329.5" y="-757.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT1SR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1sr -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1sr</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M213.5,-478.15C217.39,-518.92 234.6,-653.08 298,-739 298.46,-739.62 298.94,-740.23 299.44,-740.83"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="297.22,-743.54 306.89,-747.87 302.03,-738.45 297.22,-743.54"/>
+</g>
+<!-- proc~sort1ss -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node18" class="node">
+<title>proc~sort1ss</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node18"><a xlink:href="../proc/sort1ss.html" xlink:title="SORT1SS">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-730 299,-730 299,-706 360,-706 360,-730"/>
+<text text-anchor="middle" x="329.5" y="-715.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT1SS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort1ss -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort1ss</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M214.32,-478.04C220.33,-514.51 242.46,-625.61 298,-697 298.47,-697.61 298.97,-698.21 299.49,-698.79"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="297.31,-701.55 307.03,-705.76 302.06,-696.41 297.31,-701.55"/>
+</g>
+<!-- proc~sort2al -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node19" class="node">
+<title>proc~sort2al</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node19"><a xlink:href="../proc/sort2al.html" xlink:title="SORT2AL">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-352 299,-352 299,-328 360,-328 360,-352"/>
+<text text-anchor="middle" x="329.5" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT2AL</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2al -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2al</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M220.74,-453.72C234.96,-433.1 265.69,-390.81 298,-361 298.96,-360.12 299.95,-359.24 300.98,-358.38"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="303.36,-360.96 309.15,-352.09 299.09,-355.41 303.36,-360.96"/>
+</g>
+<!-- proc~sort2as -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node20" class="node">
+<title>proc~sort2as</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node20"><a xlink:href="../proc/sort2as.html" xlink:title="SORT2AS">
+<polygon fill="#d9534f" stroke="#d9534f" points="360.5,-646 298.5,-646 298.5,-622 360.5,-622 360.5,-646"/>
+<text text-anchor="middle" x="329.5" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT2AS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2as -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2as</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M217.39,-478.21C228.55,-504.98 258.07,-569.9 298,-613 298.74,-613.8 299.52,-614.59 300.33,-615.36"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="298.19,-618.14 308.12,-621.85 302.67,-612.76 298.19,-618.14"/>
+</g>
+<!-- proc~sort2ld -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node21" class="node">
+<title>proc~sort2ld</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node21"><a xlink:href="../proc/sort2ld.html" xlink:title="SORT2LD">
+<polygon fill="#d9534f" stroke="#d9534f" points="360.5,-478 298.5,-478 298.5,-454 360.5,-454 360.5,-478"/>
+<text text-anchor="middle" x="329.5" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT2LD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ld -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ld</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M245.74,-466C258.97,-466 274.32,-466 288.18,-466"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="288.42,-469.5 298.42,-466 288.42,-462.5 288.42,-469.5"/>
+</g>
+<!-- proc~sort2lr -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node22" class="node">
+<title>proc~sort2lr</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node22"><a xlink:href="../proc/sort2lr.html" xlink:title="SORT2LR">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-436 299,-436 299,-412 360,-412 360,-436"/>
+<text text-anchor="middle" x="329.5" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT2LR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2lr -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2lr</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M245.74,-453.96C259.34,-449.04 275.17,-443.31 289.33,-438.18"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="290.6,-441.44 298.81,-434.75 288.22,-434.86 290.6,-441.44"/>
+</g>
+<!-- proc~sort2ls -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node23" class="node">
+<title>proc~sort2ls</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node23"><a xlink:href="../proc/sort2ls.html" xlink:title="SORT2LS">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-394 299,-394 299,-370 360,-370 360,-394"/>
+<text text-anchor="middle" x="329.5" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT2LS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ls -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ls</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M228.78,-453.77C245.9,-440.96 273.67,-420.33 298,-403 299.4,-402 300.85,-400.98 302.31,-399.95"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="304.48,-402.7 310.69,-394.12 300.48,-396.96 304.48,-402.7"/>
+</g>
+<!-- proc~sort2sd -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node24" class="node">
+<title>proc~sort2sd</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node24"><a xlink:href="../proc/sort2sd.html" xlink:title="SORT2SD">
+<polygon fill="#d9534f" stroke="#d9534f" points="361,-604 298,-604 298,-580 361,-580 361,-604"/>
+<text text-anchor="middle" x="329.5" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT2SD</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2sd -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge21" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2sd</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M220.74,-478.28C234.96,-498.9 265.69,-541.19 298,-571 298.96,-571.88 299.95,-572.76 300.98,-573.62"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="299.09,-576.59 309.15,-579.91 303.36,-571.04 299.09,-576.59"/>
+</g>
+<!-- proc~sort2sr -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node25" class="node">
+<title>proc~sort2sr</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node25"><a xlink:href="../proc/sort2sr.html" xlink:title="SORT2SR">
+<polygon fill="#d9534f" stroke="#d9534f" points="360.5,-562 298.5,-562 298.5,-538 360.5,-538 360.5,-562"/>
+<text text-anchor="middle" x="329.5" y="-547.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT2SR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2sr -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2sr</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M228.78,-478.23C245.9,-491.04 273.67,-511.67 298,-529 299.4,-530 300.85,-531.02 302.31,-532.05"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="300.48,-535.04 310.69,-537.88 304.48,-529.3 300.48,-535.04"/>
+</g>
+<!-- proc~sort2ss -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node26" class="node">
+<title>proc~sort2ss</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node26"><a xlink:href="../proc/sort2ss.html" xlink:title="SORT2SS">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-520 299,-520 299,-496 360,-496 360,-520"/>
+<text text-anchor="middle" x="329.5" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SORT2SS</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_sort&#45;&gt;proc~sort2ss -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge23" class="edge">
+<title>interface~mapl_sort&#45;&gt;proc~sort2ss</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M245.74,-478.04C259.34,-482.96 275.17,-488.69 289.33,-493.82"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="288.22,-497.14 298.81,-497.25 290.6,-490.56 288.22,-497.14"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node9" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node9"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="820,-436 705,-436 705,-412 820,-412 820,-436"/>
+<text text-anchor="middle" x="762.5" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M627.03,-407.82C647.11,-410.23 671.95,-413.22 694.8,-415.97"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="694.44,-419.46 704.79,-417.18 695.28,-412.51 694.44,-419.46"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node12" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node12"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="829,-493 696,-493 696,-469 829,-469 829,-493"/>
+<text text-anchor="middle" x="762.5" y="-478.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M627.02,-412.58C637.91,-415.71 649.57,-419.54 660,-424 677.03,-431.28 679.88,-435.87 696,-445 707.2,-451.34 719.56,-458.18 730.5,-464.17"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="728.84,-467.25 739.29,-468.98 732.19,-461.11 728.84,-467.25"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M452.69,-725.95C504.67,-684.72 675.63,-549.12 738.25,-499.44"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="740.68,-501.98 746.34,-493.02 736.33,-496.5 740.68,-501.98"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node27" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="920.5,-446 866.5,-446 866.5,-422 920.5,-422 920.5,-446"/>
+<text text-anchor="middle" x="893.5" y="-431.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge27" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M820.08,-428.39C832.29,-429.33 844.89,-430.31 856.08,-431.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="856.08,-434.69 866.32,-431.97 856.62,-427.71 856.08,-434.69"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node28" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="920.5,-404 866.5,-404 866.5,-380 920.5,-380 920.5,-404"/>
+<text text-anchor="middle" x="893.5" y="-389.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge28" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M811.9,-411.99C826.6,-408.35 842.49,-404.41 856.24,-400.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="857.43,-404.31 866.29,-398.5 855.74,-397.51 857.43,-404.31"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff5400" d="M653.47,-484.71C663.98,-484.35 674.92,-483.98 685.62,-483.61"/>
+<polygon fill="#ff5400" stroke="#ff5400" points="685.92,-487.1 695.79,-483.26 685.68,-480.11 685.92,-487.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ffaa00" d="M660.25,-436.19C671.67,-434.81 683.43,-433.4 694.7,-432.04"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="695.38,-435.48 704.89,-430.81 694.54,-428.53 695.38,-435.48"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ffaa00" d="M645.59,-457.09C660.78,-460.22 677.27,-463.62 692.92,-466.85"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="692.56,-470.35 703.06,-468.94 693.98,-463.5 692.56,-470.35"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node29" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node29"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="922,-493 865,-493 865,-469 922,-469 922,-493"/>
+<text text-anchor="middle" x="893.5" y="-478.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#ffff00" d="M829.13,-481C837.88,-481 846.59,-481 854.63,-481"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="854.77,-484.5 864.77,-481 854.77,-477.5 854.77,-484.5"/>
+</g>
+<!-- qsortl -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node30" class="node">
+<title>qsortl</title>
+<polygon fill="#777777" stroke="#777777" points="463.5,-352 409.5,-352 409.5,-328 463.5,-328 463.5,-352"/>
+<text text-anchor="middle" x="436.5" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsortl</text>
+</g>
+<!-- proc~sort1ld&#45;&gt;qsortl -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge33" class="edge">
+<title>proc~sort1ld&#45;&gt;qsortl</title>
+<path fill="none" stroke="#aaff00" d="M350.33,-226.14C354.06,-228.84 357.8,-231.84 361,-235 387.18,-260.82 410.48,-296.81 423.79,-319.24"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="420.8,-321.07 428.86,-327.96 426.85,-317.55 420.8,-321.07"/>
+</g>
+<!-- proc~sort1lr&#45;&gt;qsortl -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge34" class="edge">
+<title>proc~sort1lr&#45;&gt;qsortl</title>
+<path fill="none" stroke="#54ff00" d="M360.03,-309.81C372.4,-314.76 386.9,-320.56 399.86,-325.74"/>
+<polygon fill="#54ff00" stroke="#54ff00" points="398.83,-329.1 409.41,-329.56 401.43,-322.6 398.83,-329.1"/>
+</g>
+<!-- proc~sort1ls&#45;&gt;qsortl -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge35" class="edge">
+<title>proc~sort1ls&#45;&gt;qsortl</title>
+<path fill="none" stroke="#00ff00" d="M348.77,-268.15C352.85,-270.98 357.12,-274.03 361,-277 379.62,-291.23 399.88,-308.48 414.56,-321.33"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="412.28,-323.99 422.1,-327.97 416.91,-318.74 412.28,-323.99"/>
+</g>
+<!-- qsorts -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node31" class="node">
+<title>qsorts</title>
+<polygon fill="#777777" stroke="#777777" points="463.5,-646 409.5,-646 409.5,-622 463.5,-622 463.5,-646"/>
+<text text-anchor="middle" x="436.5" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsorts</text>
+</g>
+<!-- proc~sort1sd&#45;&gt;qsorts -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge36" class="edge">
+<title>proc~sort1sd&#45;&gt;qsorts</title>
+<path fill="none" stroke="#00ff55" d="M360.59,-663.96C372.85,-659.06 387.13,-653.35 399.91,-648.24"/>
+<polygon fill="#00ff55" stroke="#00ff55" points="401.35,-651.43 409.33,-644.47 398.75,-644.93 401.35,-651.43"/>
+</g>
+<!-- proc~sort1sr&#45;&gt;qsorts -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge37" class="edge">
+<title>proc~sort1sr&#45;&gt;qsorts</title>
+<path fill="none" stroke="#00ffa9" d="M350.33,-747.86C354.06,-745.16 357.8,-742.16 361,-739 387.18,-713.18 410.48,-677.19 423.79,-654.76"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="426.85,-656.45 428.86,-646.04 420.8,-652.93 426.85,-656.45"/>
+</g>
+<!-- proc~sort1ss&#45;&gt;qsorts -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge38" class="edge">
+<title>proc~sort1ss&#45;&gt;qsorts</title>
+<path fill="none" stroke="#00ffff" d="M348.77,-705.85C352.85,-703.02 357.12,-699.97 361,-697 379.62,-682.77 399.88,-665.52 414.56,-652.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="416.91,-655.26 422.1,-646.03 412.28,-650.01 416.91,-655.26"/>
+</g>
+<!-- proc~sort2al&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge39" class="edge">
+<title>proc~sort2al&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00a9ff" d="M350.33,-352.14C354.06,-354.84 357.8,-357.84 361,-361 387.18,-386.82 410.48,-422.81 423.79,-445.24"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="420.8,-447.07 428.86,-453.96 426.85,-443.55 420.8,-447.07"/>
+</g>
+<!-- proc~sort2al&#45;&gt;qsortl -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge40" class="edge">
+<title>proc~sort2al&#45;&gt;qsortl</title>
+<path fill="none" stroke="#00a9ff" d="M360.03,-340C372.16,-340 386.33,-340 399.09,-340"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="399.41,-343.5 409.41,-340 399.41,-336.5 399.41,-343.5"/>
+</g>
+<!-- proc~sort2as&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge41" class="edge">
+<title>proc~sort2as&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0054ff" d="M351.03,-621.98C354.62,-619.32 358.12,-616.29 361,-613 394.52,-574.66 417.45,-518.56 428.3,-487.94"/>
+<polygon fill="#0054ff" stroke="#0054ff" points="431.7,-488.84 431.64,-478.24 425.08,-486.56 431.7,-488.84"/>
+</g>
+<!-- proc~sort2as&#45;&gt;qsorts -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge42" class="edge">
+<title>proc~sort2as&#45;&gt;qsorts</title>
+<path fill="none" stroke="#0054ff" d="M360.59,-634C372.61,-634 386.57,-634 399.16,-634"/>
+<polygon fill="#0054ff" stroke="#0054ff" points="399.33,-637.5 409.33,-634 399.33,-630.5 399.33,-637.5"/>
+</g>
+<!-- proc~sort2ld&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge43" class="edge">
+<title>proc~sort2ld&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0000ff" d="M360.59,-466C368.69,-466 377.67,-466 386.51,-466"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="386.77,-469.5 396.77,-466 386.77,-462.5 386.77,-469.5"/>
+</g>
+<!-- proc~sort2ld&#45;&gt;qsortl -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge44" class="edge">
+<title>proc~sort2ld&#45;&gt;qsortl</title>
+<path fill="none" stroke="#0000ff" d="M350.33,-453.86C354.06,-451.16 357.8,-448.16 361,-445 387.18,-419.18 410.48,-383.19 423.79,-360.76"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="426.85,-362.45 428.86,-352.04 420.8,-358.93 426.85,-362.45"/>
+</g>
+<!-- proc~sort2lr&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge45" class="edge">
+<title>proc~sort2lr&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#5400ff" d="M360.03,-435.81C371.23,-440.29 384.16,-445.47 396.13,-450.25"/>
+<polygon fill="#5400ff" stroke="#5400ff" points="394.88,-453.52 405.47,-453.99 397.48,-447.02 394.88,-453.52"/>
+</g>
+<!-- proc~sort2lr&#45;&gt;qsortl -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge46" class="edge">
+<title>proc~sort2lr&#45;&gt;qsortl</title>
+<path fill="none" stroke="#5400ff" d="M348.77,-411.85C352.85,-409.02 357.12,-405.97 361,-403 379.62,-388.77 399.88,-371.52 414.56,-358.67"/>
+<polygon fill="#5400ff" stroke="#5400ff" points="416.91,-361.26 422.1,-352.03 412.28,-356.01 416.91,-361.26"/>
+</g>
+<!-- proc~sort2ls&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge47" class="edge">
+<title>proc~sort2ls&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#aa00ff" d="M348.77,-394.15C352.85,-396.98 357.12,-400.03 361,-403 379.62,-417.23 399.88,-434.48 414.56,-447.33"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="412.28,-449.99 422.1,-453.97 416.91,-444.74 412.28,-449.99"/>
+</g>
+<!-- proc~sort2ls&#45;&gt;qsortl -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge48" class="edge">
+<title>proc~sort2ls&#45;&gt;qsortl</title>
+<path fill="none" stroke="#aa00ff" d="M360.03,-370.19C372.4,-365.24 386.9,-359.44 399.86,-354.26"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="401.43,-357.4 409.41,-350.44 398.83,-350.9 401.43,-357.4"/>
+</g>
+<!-- proc~sort2sd&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge49" class="edge">
+<title>proc~sort2sd&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff00ff" d="M350.33,-579.86C354.06,-577.16 357.8,-574.16 361,-571 387.18,-545.18 410.48,-509.19 423.79,-486.76"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="426.85,-488.45 428.86,-478.04 420.8,-484.93 426.85,-488.45"/>
+</g>
+<!-- proc~sort2sd&#45;&gt;qsorts -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge50" class="edge">
+<title>proc~sort2sd&#45;&gt;qsorts</title>
+<path fill="none" stroke="#ff00ff" d="M360.59,-604.04C372.85,-608.94 387.13,-614.65 399.91,-619.76"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="398.75,-623.07 409.33,-623.53 401.35,-616.57 398.75,-623.07"/>
+</g>
+<!-- proc~sort2sr&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge51" class="edge">
+<title>proc~sort2sr&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff00aa" d="M348.77,-537.85C352.85,-535.02 357.12,-531.97 361,-529 379.62,-514.77 399.88,-497.52 414.56,-484.67"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="416.91,-487.26 422.1,-478.03 412.28,-482.01 416.91,-487.26"/>
+</g>
+<!-- proc~sort2sr&#45;&gt;qsorts -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge52" class="edge">
+<title>proc~sort2sr&#45;&gt;qsorts</title>
+<path fill="none" stroke="#ff00aa" d="M348.77,-562.15C352.85,-564.98 357.12,-568.03 361,-571 379.62,-585.23 399.88,-602.48 414.56,-615.33"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="412.28,-617.99 422.1,-621.97 416.91,-612.74 412.28,-617.99"/>
+</g>
+<!-- proc~sort2ss&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge53" class="edge">
+<title>proc~sort2ss&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0055" d="M360.03,-496.19C371.23,-491.71 384.16,-486.53 396.13,-481.75"/>
+<polygon fill="#ff0055" stroke="#ff0055" points="397.48,-484.98 405.47,-478.01 394.88,-478.48 397.48,-484.98"/>
+</g>
+<!-- proc~sort2ss&#45;&gt;qsorts -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge54" class="edge">
+<title>proc~sort2ss&#45;&gt;qsorts</title>
+<path fill="none" stroke="#ff0055" d="M350.33,-520.14C354.06,-522.84 357.8,-525.84 361,-529 387.18,-554.82 410.48,-590.81 423.79,-613.24"/>
+<polygon fill="#ff0055" stroke="#ff0055" points="420.8,-615.07 428.86,-621.96 426.85,-611.55 420.8,-615.07"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_balancecreateCallsGraph = svgPanZoom('#procmapl_balancecreateCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_BalanceCreate</span><span class="p">(</span><span class="n">OrgLen</span><span class="p">,</span><span class="w"> </span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">MaxPasses</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                </span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">BalLen</span><span class="p">,</span><span class="w"> </span><span class="n">BufLen</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">OrgLen</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">Comm</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">MaxPasses</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">BalLen</span><span class="p">,</span><span class="w"> </span><span class="n">BufLen</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond_</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MaxPasses_</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Balance</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">J</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">WORK</span><span class="p">(:),</span><span class="w"> </span><span class="n">RANK</span><span class="p">(:),</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:)</span>
+
+<span class="c">! Defaults of optional Inputs</span>
+<span class="c">!----------------------------</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalCond</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">BalCond_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BalCond</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">BalCond_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">MaxPasses</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">MaxPasses_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MaxPasses</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">MaxPasses_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="c">! Get Communicator parameters</span>
+<span class="c">!----------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SIZE</span><span class="p">(</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="c">! Allocate temporary space</span>
+<span class="c">!-------------------------</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">MaxPasses_</span><span class="p">),</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">NPES</span><span class="p">),</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">NPES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="c">! Initialize global lists of work load and corresponding rank</span>
+<span class="c">!------------------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_AllGather</span><span class="p">(</span><span class="n">OrgLen</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_INTEGER</span><span class="p">,&amp;</span>
+<span class="w">                       </span><span class="n">Work</span><span class="w">  </span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="n">Comm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">do</span><span class="w"> </span><span class="k">concurrent</span><span class="w"> </span><span class="p">(</span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">:</span><span class="n">NPES</span><span class="p">)</span>
+<span class="w">       </span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">J</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="k">    call </span><span class="n">CreateStrategy</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond_</span><span class="p">,</span><span class="w"> </span><span class="n">Kpass</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span><span class="p">,</span><span class="w"> </span><span class="n">NOP</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">)</span>
+
+<span class="c">! Done with balancing strategy. Prepare optional Outputs.</span>
+<span class="c">!--------------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Handle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       do </span><span class="n">Balance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">MAX_NUM_STRATEGIES</span>
+<span class="w">          </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">))</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">       enddo</span>
+
+<span class="k">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">Balance</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">MAX_NUM_STRATEGIES</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="n">Handle</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">Balance</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">Balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="k">deallocate</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalLen</span><span class="p">))</span><span class="w"> </span><span class="n">BalLen</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MyNewWork</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BufLen</span><span class="p">))</span><span class="w"> </span><span class="n">BufLen</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MyBufSize</span>
+
+<span class="c">! Save the Strategy</span>
+<span class="c">!------------------</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">))</span>
+
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">BALANCED_LENGTH</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">MyNewWork</span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">BUFFER_LENGTH</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">MyBufSize</span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">UNBALANCED_LENGTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">PASSES</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="n">KPASS</span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">COMM</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="n">Comm</span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="w">               </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:</span><span class="n">KPASS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">NOP</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">LDB_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">contains</span>
+
+<span class="k">    subroutine </span><span class="n">CreateStrategy</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond</span><span class="p">,</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span><span class="p">,</span><span class="w"> </span><span class="n">NOP</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Work</span><span class="p">(:),</span><span class="w"> </span><span class="n">Rank</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MyPE</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">JSPARD</span><span class="p">,</span><span class="w"> </span><span class="nb">LEN</span><span class="p">,</span><span class="w"> </span><span class="n">MaxPasses</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">MEAN</span>
+
+<span class="w">      </span><span class="n">NPES</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span>
+<span class="w">      </span><span class="n">MaxPasses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">NOP</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c">! Loop over passes until either MaxPasses or BalanceCondition is met</span>
+<span class="c">!-------------------------------------------------------------------</span>
+
+<span class="w">      </span><span class="n">KPASS</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">MEAN</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">NPES</span><span class="p">)</span>
+<span class="w">      </span><span class="n">MyNewWork</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span>
+<span class="w">      </span><span class="n">MyBufSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span>
+
+<span class="w">      </span><span class="n">PASSES</span><span class="p">:</span><span class="w"> </span><span class="k">do while</span><span class="p">(</span><span class="n">KPASS</span><span class="o">&lt;</span><span class="n">MaxPasses</span><span class="p">)</span>
+
+<span class="c">! Sort latest work-load and rank lists in ascending order of work</span>
+<span class="c">!----------------------------------------------------------------</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_Sort</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">)</span>
+
+<span class="c">! Check for balance condition on the ratio of max minus min work</span>
+<span class="c">!  to the ideal average work</span>
+<span class="c">!---------------------------------------------------------------</span>
+
+<span class="w">         </span><span class="k">if</span><span class="p">((</span><span class="n">Work</span><span class="p">(</span><span class="n">NPES</span><span class="p">)</span><span class="o">-</span><span class="n">Work</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">MEAN</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">BalCond</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+
+<span class="c">! Fold the sorted work list and compute the transfers needed</span>
+<span class="c">!  to balance the &quot;least with the greatest&quot;.</span>
+<span class="c">!-----------------------------------------------------------</span>
+
+<span class="w">         </span><span class="n">KPASS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KPASS</span><span class="o">+</span><span class="mi">1</span>
+
+<span class="w">         </span><span class="n">FOLD</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NPES</span><span class="o">/</span><span class="mi">2</span>
+
+<span class="w">            </span><span class="c">! Js partner in the fold has &gt;= the work as J</span>
+<span class="w">            </span><span class="n">JSPARD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NPES</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">J</span>
+
+<span class="w">            </span><span class="c">! Half the difference will be sent to J (can be zero)</span>
+<span class="w">            </span><span class="nb">LEN</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="o">-</span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span>
+
+<span class="w">            </span><span class="c">! New lengths that obtain after completion of this pass</span>
+<span class="w">            </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="w">     </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="w">     </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">LEN</span>
+<span class="nb">            </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">LEN</span>
+
+<span class="w">            </span><span class="c">! A negative length means J receives from partner</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MyPE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="nb">LEN</span>
+<span class="nb">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="c">! Partners rank</span>
+<span class="w">               </span><span class="n">MyNewWork</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
+<span class="w">               </span><span class="n">MyBufSize</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">MyBufSize</span><span class="p">,</span><span class="n">MyNewWork</span><span class="p">)</span>
+<span class="w">            </span><span class="k">endif</span>
+
+<span class="w">            </span><span class="c">! If I am the partner, I will send to J</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">Rank</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MyPE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN</span>
+<span class="nb">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w">  </span><span class="c">! Js rank</span>
+<span class="w">               </span><span class="n">MyNewWork</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span>
+<span class="w">               </span><span class="n">MyBufSize</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">MyBufSize</span><span class="p">,</span><span class="n">MyNewWork</span><span class="p">)</span>
+<span class="w">            </span><span class="k">endif</span>
+
+<span class="k">         enddo </span><span class="n">FOLD</span>
+
+<span class="w">      </span><span class="k">enddo </span><span class="n">PASSES</span>
+
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">CreateStrategy</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_BalanceCreate</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-11T14:21:55.936862             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

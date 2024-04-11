@@ -1,0 +1,901 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CreateTimeInterval &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CreateTimeInterval
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">93 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataGridCompMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompmod.f90.html'>ExtDataGridCompMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcompmod.html'>MAPL_ExtDataGridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">CreateTimeInterval</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/createtimeinterval.html#src">CreateTimeInterval</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine CreateTimeInterval(item, clock, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~112"></span>
+              type(<a href='../type/primaryexport~2.html'>PrimaryExport</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~45"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1528"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~createtimeinterval~~CallsGraph Pages: 1 -->
+<svg id="proccreatetimeintervalCallsGraph" width="641pt" height="375pt"
+ viewBox="0.00 0.00 641.00 374.97" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~createtimeinterval~~CallsGraph" class="graph" transform="scale(1.18 1.18) rotate(0) translate(4 440)">
+<title>proc~~createtimeinterval~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-440 755,-440 755,4 -4,4"/>
+<!-- proc~createtimeinterval -->
+<g id="proc~~createtimeinterval~~CallsGraph_node1" class="node">
+<title>proc~createtimeinterval</title>
+<polygon fill="none" stroke="black" points="115,-228 0,-228 0,-204 115,-204 115,-228"/>
+<text text-anchor="middle" x="57.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50">CreateTimeInterval</text>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="proc~~createtimeinterval~~CallsGraph_node2" class="node">
+<title>ESMF_ClockGet</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="275,-436 181,-436 181,-412 275,-412 275,-436"/>
+<text text-anchor="middle" x="228" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;ESMF_ClockGet -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge1" class="edge">
+<title>proc~createtimeinterval&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#ff0000" d="M60.91,-228.2C68.16,-261.56 92.92,-355.02 151,-403 157.01,-407.97 164.11,-411.76 171.51,-414.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.4,-417.98 180.99,-417.88 172.65,-411.35 170.4,-417.98"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~createtimeinterval~~CallsGraph_node3" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="273.5,-394 182.5,-394 182.5,-370 273.5,-370 273.5,-394"/>
+<text text-anchor="middle" x="228" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge2" class="edge">
+<title>proc~createtimeinterval&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M62.79,-228.26C73.23,-256.29 102.73,-325.34 151,-361 157.5,-365.8 165.04,-369.5 172.79,-372.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="171.71,-375.69 182.31,-375.44 173.87,-369.03 171.71,-375.69"/>
+</g>
+<!-- ESMF_TimeIntervalGet -->
+<g id="proc~~createtimeinterval~~CallsGraph_node4" class="node">
+<title>ESMF_TimeIntervalGet</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="294,-352 162,-352 162,-328 294,-328 294,-352"/>
+<text text-anchor="middle" x="228" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;ESMF_TimeIntervalGet -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge3" class="edge">
+<title>proc~createtimeinterval&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#ff0000" d="M66.03,-228.22C80.03,-249.87 112.17,-294.96 151,-319 153.94,-320.82 157.04,-322.49 160.24,-324.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.9,-327.24 169.47,-327.94 161.64,-320.8 158.9,-327.24"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~createtimeinterval~~CallsGraph_node5" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="293,-310 163,-310 163,-286 293,-286 293,-310"/>
+<text text-anchor="middle" x="228" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge4" class="edge">
+<title>proc~createtimeinterval&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M73.66,-228.18C91.3,-241.81 121.75,-263.72 151,-277 155.44,-279.02 160.12,-280.88 164.88,-282.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.12,-286.03 174.72,-285.89 166.35,-279.39 164.12,-286.03"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~createtimeinterval~~CallsGraph_node6" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="273,-268 183,-268 183,-244 273,-244 273,-268"/>
+<text text-anchor="middle" x="228" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge5" class="edge">
+<title>proc~createtimeinterval&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M109.06,-228C129.22,-232.79 152.46,-238.3 172.95,-243.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="172.23,-246.6 182.77,-245.5 173.85,-239.78 172.23,-246.6"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~createtimeinterval~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node7"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="267.5,-188 188.5,-188 188.5,-164 267.5,-164 267.5,-188"/>
+<text text-anchor="middle" x="228" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;interface~mapl_assert -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge6" class="edge">
+<title>proc~createtimeinterval&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M109.06,-204C130.98,-198.79 156.55,-192.72 178.27,-187.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.35,-190.91 188.27,-185.19 177.73,-184.1 179.35,-190.91"/>
+</g>
+<!-- proc~debug -->
+<g id="proc~~createtimeinterval~~CallsGraph_node8" class="node">
+<title>proc~debug</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node8"><a xlink:href="../proc/debug.html" xlink:title="Logger%debug">
+<polygon fill="#d9534f" stroke="#d9534f" points="275,-108 181,-108 181,-84 275,-84 275,-108"/>
+<text text-anchor="middle" x="228" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%debug</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;proc~debug -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge7" class="edge">
+<title>proc~createtimeinterval&#45;&gt;proc~debug</title>
+<path fill="none" stroke="#ff0000" d="M67.38,-203.85C82.46,-184.02 114.95,-144.68 151,-122 157.25,-118.07 164.16,-114.65 171.2,-111.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="172.76,-114.85 180.82,-107.97 170.23,-108.33 172.76,-114.85"/>
+</g>
+<!-- proc~isenabledfor -->
+<g id="proc~~createtimeinterval~~CallsGraph_node9" class="node">
+<title>proc~isenabledfor</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node9"><a xlink:href="../proc/isenabledfor.html" xlink:title="Logger%isEnabledFor">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="292.5,-66 163.5,-66 163.5,-42 292.5,-42 292.5,-66"/>
+<text text-anchor="middle" x="228" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%isEnabledFor</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;proc~isenabledfor -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge8" class="edge">
+<title>proc~createtimeinterval&#45;&gt;proc~isenabledfor</title>
+<path fill="none" stroke="#ff0000" d="M63.05,-203.66C73.84,-176.15 103.68,-109.49 151,-75 153.13,-73.45 155.37,-72.01 157.69,-70.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="159.59,-73.64 166.98,-66.05 156.47,-67.38 159.59,-73.64"/>
+</g>
+<!-- proc~mapl_ncioparsetimeunits -->
+<g id="proc~~createtimeinterval~~CallsGraph_node10" class="node">
+<title>proc~mapl_ncioparsetimeunits</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node10"><a xlink:href="../proc/mapl_ncioparsetimeunits.html" xlink:title="MAPL_NCIOParseTimeUnits">
+<polygon fill="#d9534f" stroke="#d9534f" points="305,-24 151,-24 151,0 305,0 305,-24"/>
+<text text-anchor="middle" x="228" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NCIOParseTimeUnits</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;proc~mapl_ncioparsetimeunits -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge9" class="edge">
+<title>proc~createtimeinterval&#45;&gt;proc~mapl_ncioparsetimeunits</title>
+<path fill="none" stroke="#ff0000" d="M61.1,-203.58C68.7,-170.52 93.99,-79.69 151,-33 152.76,-31.56 154.62,-30.21 156.55,-28.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.37,-31.95 165.41,-24.03 154.97,-25.83 158.37,-31.95"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~createtimeinterval~~CallsGraph_node11" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node11"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="456,-125 374,-125 374,-101 456,-101 456,-125"/>
+<text text-anchor="middle" x="415" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;proc~mapl_return -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge10" class="edge">
+<title>proc~createtimeinterval&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M72.48,-203.98C89.73,-189.86 120.52,-166.85 151,-155 221.65,-127.54 309.67,-118.03 363.83,-114.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="364.08,-118.23 373.87,-114.17 363.69,-111.24 364.08,-118.23"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~createtimeinterval~~CallsGraph_node12" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node12"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="453,-251 377,-251 377,-227 453,-227 453,-251"/>
+<text text-anchor="middle" x="415" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~createtimeinterval&#45;&gt;proc~mapl_verify -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge11" class="edge">
+<title>proc~createtimeinterval&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M115.22,-219.67C184.82,-224.17 301.54,-231.72 366.58,-235.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="366.36,-239.42 376.56,-236.58 366.81,-232.44 366.36,-239.42"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~createtimeinterval~~CallsGraph_node14" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node14"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="482,-209 348,-209 348,-185 482,-185 482,-209"/>
+<text text-anchor="middle" x="415" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M267.78,-180.4C288.09,-182.71 313.67,-185.61 337.74,-188.34"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="337.62,-191.85 347.95,-189.5 338.41,-184.9 337.62,-191.85"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~createtimeinterval~~CallsGraph_node15" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node15"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="489,-167 341,-167 341,-143 489,-143 489,-167"/>
+<text text-anchor="middle" x="415" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M267.78,-171.6C286.16,-169.51 308.86,-166.93 330.86,-164.44"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="331.35,-167.9 340.89,-163.3 330.56,-160.95 331.35,-167.9"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~createtimeinterval~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="649,-146 534,-146 534,-122 649,-122 649,-146"/>
+<text text-anchor="middle" x="591.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#e700ff" d="M456.03,-117.82C476.11,-120.23 500.95,-123.22 523.8,-125.97"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="523.44,-129.46 533.79,-127.18 524.28,-122.51 523.44,-129.46"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~createtimeinterval~~CallsGraph_node16" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node16"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="658,-203 525,-203 525,-179 658,-179 658,-203"/>
+<text text-anchor="middle" x="591.5" y="-188.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#e700ff" d="M456.02,-122.58C466.91,-125.71 478.57,-129.54 489,-134 506.03,-141.28 508.88,-145.87 525,-155 536.2,-161.34 548.56,-168.18 559.5,-174.17"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="557.84,-177.25 568.29,-178.98 561.19,-171.11 557.84,-177.25"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff008b" d="M453.01,-228.82C477.42,-222.1 509.8,-213.2 537,-205.72"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="538.05,-209.06 546.76,-203.03 536.19,-202.31 538.05,-209.06"/>
+</g>
+<!-- at -->
+<g id="proc~~createtimeinterval~~CallsGraph_node17" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="749.5,-114 695.5,-114 695.5,-90 749.5,-90 749.5,-114"/>
+<text text-anchor="middle" x="722.5" y="-99.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M640.9,-121.99C655.6,-118.35 671.49,-114.41 685.24,-110.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="686.43,-114.31 695.29,-108.5 684.74,-107.51 686.43,-114.31"/>
+</g>
+<!-- insert -->
+<g id="proc~~createtimeinterval~~CallsGraph_node18" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="749.5,-156 695.5,-156 695.5,-132 749.5,-132 749.5,-156"/>
+<text text-anchor="middle" x="722.5" y="-141.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M649.08,-138.39C661.29,-139.33 673.89,-140.31 685.08,-141.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="685.08,-144.69 695.32,-141.97 685.62,-137.71 685.08,-144.69"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7fff00" d="M482.47,-194.71C492.98,-194.35 503.92,-193.98 514.62,-193.61"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="514.92,-197.1 524.79,-193.26 514.68,-190.11 514.92,-197.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M489.25,-146.19C500.67,-144.81 512.43,-143.4 523.7,-142.04"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="524.38,-145.48 533.89,-140.81 523.54,-138.53 524.38,-145.48"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M474.59,-167.09C489.78,-170.22 506.27,-173.62 521.92,-176.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="521.56,-180.35 532.06,-178.94 522.98,-173.5 521.56,-180.35"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~createtimeinterval~~CallsGraph_node19" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~createtimeinterval~~CallsGraph_node19"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="751,-203 694,-203 694,-179 751,-179 751,-203"/>
+<text text-anchor="middle" x="722.5" y="-188.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~createtimeinterval~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#7f00ff" d="M658.13,-191C666.88,-191 675.59,-191 683.63,-191"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="683.77,-194.5 693.77,-191 683.77,-187.5 683.77,-194.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreatetimeintervalCallsGraph = svgPanZoom('#proccreatetimeintervalCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~createtimeinterval~~CalledByGraph Pages: 1 -->
+<svg id="proccreatetimeintervalCalledByGraph" width="221pt" height="32pt"
+ viewBox="0.00 0.00 221.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~createtimeinterval~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~createtimeinterval~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 217,-28 217,4 -4,4"/>
+<!-- proc~createtimeinterval -->
+<g id="proc~~createtimeinterval~~CalledByGraph_node1" class="node">
+<title>proc~createtimeinterval</title>
+<polygon fill="none" stroke="black" points="213,-24 98,-24 98,0 213,0 213,-24"/>
+<text text-anchor="middle" x="155.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">CreateTimeInterval</text>
+</g>
+<!-- proc~initialize_~5 -->
+<g id="proc~~createtimeinterval~~CalledByGraph_node2" class="node">
+<title>proc~initialize_~5</title>
+<g id="a_proc~~createtimeinterval~~CalledByGraph_node2"><a xlink:href="../proc/initialize_~5.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="62,-24 0,-24 0,0 62,0 62,-24"/>
+<text text-anchor="middle" x="31" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~5&#45;&gt;proc~createtimeinterval -->
+<g id="proc~~createtimeinterval~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize_~5&#45;&gt;proc~createtimeinterval</title>
+<path fill="none" stroke="#ff0000" d="M62.28,-12C70.11,-12 78.85,-12 87.74,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.81,-15.5 97.81,-12 87.81,-8.5 87.81,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">     </span><span class="k">subroutine </span><span class="n">CreateTimeInterval</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">PrimaryExport</span><span class="p">)</span><span class="w">      </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">          </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">         </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">        </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">iyy</span><span class="p">,</span><span class="n">imm</span><span class="p">,</span><span class="n">idd</span><span class="p">,</span><span class="n">ihh</span><span class="p">,</span><span class="n">imn</span><span class="p">,</span><span class="n">isc</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lasttoken</span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">token</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="n">start_time</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">cindex</span><span class="p">,</span><span class="n">pindex</span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">creffTime</span><span class="p">,</span><span class="w"> </span><span class="n">ctInt</span>
+
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">        </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+
+<span class="w">        </span><span class="n">creffTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">        </span><span class="n">ctInt</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="w"> </span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">currTIME</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">startTime</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">item</span><span class="p">%</span><span class="n">hasFileReffTime</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">           </span><span class="c">! if int_frequency is less than zero than try to guess it from the file template</span>
+<span class="w">           </span><span class="c">! if that fails then it must be a single file or a climatology</span>
+
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihh</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="w">  </span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="c">!=======================================================================</span>
+<span class="w">           </span><span class="c">! Using &quot;now&quot; as a reference time makes it difficult to find a file if</span>
+<span class="w">           </span><span class="c">! we need to extrapolate, and doesn&#39;t make an awful lot of sense anyway.</span>
+<span class="w">           </span><span class="c">! Instead, use the start of (current year - 20) or 1985, whichever is</span>
+<span class="w">           </span><span class="c">! earlier (SDE 2016-12-30)</span>
+<span class="w">           </span><span class="n">iyy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Min</span><span class="p">(</span><span class="n">iyy</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="mi">1985</span><span class="p">)</span>
+<span class="w">           </span><span class="n">imm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="n">idd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="n">ihh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">           </span><span class="n">imn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">           </span><span class="n">isc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">           </span><span class="c">!=======================================================================</span>
+<span class="w">           </span><span class="n">lasttoken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">,</span><span class="n">back</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lasttoken</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="p">(</span><span class="n">lasttoken</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">lasttoken</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">              </span><span class="k">select case</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+<span class="w">              </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;y4&quot;</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">reff_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="n">startTime</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;m2&quot;</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">reff_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="n">startTime</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;d2&quot;</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">reff_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="n">startTime</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span><span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;h2&quot;</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">reff_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihh</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="n">startTime</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;n2&quot;</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">reff_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihh</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="n">startTime</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end select</span>
+<span class="k">           else</span>
+<span class="w">              </span><span class="c">! couldn&#39;t find any tokens so all the data must be on one file</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">              </span><span class="c">! check if non-token file exists</span>
+<span class="w">              </span><span class="k">inquire</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="p">),</span><span class="n">EXIST</span><span class="o">=</span><span class="n">found</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">found</span><span class="p">,</span><span class="s1">&#39;File &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39; not found&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">        else</span>
+<span class="w">           </span><span class="c">! Reference time should look like:</span>
+<span class="w">           </span><span class="c">! YYYY-MM-DDThh:mm:ssPYYYY-MM-DDThh:mm:ss</span>
+<span class="w">           </span><span class="c">! The date before the P is the reference time, from which future times</span>
+<span class="w">           </span><span class="c">! will be taken. The date after the P is the frequency with which the</span>
+<span class="w">           </span><span class="c">! file changes. For example, if the data is referenced to 1985 and</span>
+<span class="w">           </span><span class="c">! there is 1 file per year, the reference time should be</span>
+<span class="w">           </span><span class="c">! 1985-01-01T00:00:00P0001-00-00T00:00:00</span>
+<span class="w">           </span><span class="c">! Get refference time, if not provided use current model date</span>
+<span class="w">           </span><span class="n">pindex</span><span class="o">=</span><span class="nb">index</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">FileReffTime</span><span class="p">,</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pindex</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;ERROR: File template &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39; has invalid reference date format&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">           </span><span class="n">cReffTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">FileReffTime</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">pindex</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cReffTime</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">item</span><span class="p">%</span><span class="n">reff_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Time</span>
+<span class="nb">           </span><span class="k">else</span>
+<span class="k">              call </span><span class="n">MAPL_NCIOParseTimeUnits</span><span class="p">(</span><span class="n">cReffTime</span><span class="p">,</span><span class="n">iyy</span><span class="p">,</span><span class="n">imm</span><span class="p">,</span><span class="n">idd</span><span class="p">,</span><span class="n">ihh</span><span class="p">,</span><span class="n">imn</span><span class="p">,</span><span class="n">isc</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">reff_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihh</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="w">           </span><span class="c">! now get time interval. Put 0000-00-00 in front if not there so parsetimeunits doesn&#39;t complain</span>
+<span class="w">           </span><span class="n">ctInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">FileReffTime</span><span class="p">(</span><span class="n">pindex</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">           </span><span class="n">cindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">ctInt</span><span class="p">,</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cindex</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">ctInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;0000-00-00T&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">ctInt</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_NCIOParseTimeUnits</span><span class="p">(</span><span class="n">ctInt</span><span class="p">,</span><span class="n">iyy</span><span class="p">,</span><span class="n">imm</span><span class="p">,</span><span class="n">idd</span><span class="p">,</span><span class="n">ihh</span><span class="p">,</span><span class="n">imn</span><span class="p">,</span><span class="n">isc</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">d</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihh</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">lgr</span><span class="p">%</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; &gt;&gt; REFFTIME for %a~: %a&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;&lt;&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">FileReffTime</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;&gt;&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">reff_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihh</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; &gt;&gt; Reference time: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iYy</span><span class="p">,</span><span class="w"> </span><span class="n">iMm</span><span class="p">,</span><span class="w"> </span><span class="n">iDd</span><span class="p">,</span><span class="w"> </span><span class="n">iHh</span><span class="p">,</span><span class="w"> </span><span class="n">iMn</span><span class="p">,</span><span class="w"> </span><span class="n">iSc</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">frequency</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyy</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">d</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihh</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; &gt;&gt; Frequency     : %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iYy</span><span class="p">,</span><span class="w"> </span><span class="n">iMm</span><span class="p">,</span><span class="w"> </span><span class="n">iDd</span><span class="p">,</span><span class="w"> </span><span class="n">iHh</span><span class="p">,</span><span class="w"> </span><span class="n">iMn</span><span class="p">,</span><span class="w"> </span><span class="n">iSc</span><span class="p">)</span>
+<span class="w">        </span><span class="k">endif</span>
+<span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">end subroutine </span><span class="n">CreateTimeInterval</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-11T14:21:55.936862             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
