@@ -241,7 +241,7 @@ contains
          _RETURN(_FAILURE)
       end if
 
-      units = get_units(this, _RC)
+      call fill_units(this, units, _RC)
 
       field_spec = FieldSpec(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
            standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
@@ -266,27 +266,31 @@ contains
 
       end function valid
 
-      function get_units(this, rc) result(units)
-         character(:), allocatable :: units
-         class(VariableSpec), intent(in) :: this
-         integer, optional, intent(out) :: rc
-
-         character(len=ESMF_MAXSTR) :: canonical_units
-         integer :: status
-
-         if (allocated(this%units)) then ! user override of canonical
-            units = this%units
-            _RETURN(_SUCCESS)
-         end if
-
-         call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
-         _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
-         units = trim(canonical_units)
-
-         _RETURN(_SUCCESS)
-      end function get_units
-
    end function make_BracketSpec
+
+   subroutine fill_units(this, units, rc)
+      class(VariableSpec), intent(in) :: this
+      character(:), allocatable, intent(out) :: units
+      integer, optional, intent(out) :: rc
+      
+      character(len=ESMF_MAXSTR) :: canonical_units
+      integer :: status
+
+      ! Only fill if not already specified
+      if (allocated(this%units)) then
+         units = this%units
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Only fill if standard name is provided
+      _RETURN_UNLESS(allocated(this%standard_name))
+
+      call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
+      _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
+      units = trim(canonical_units)
+      
+      _RETURN(_SUCCESS)
+   end subroutine fill_units
 
    function make_FieldSpec(this, geom, vertical_geom, rc) result(field_spec)
       type(FieldSpec) :: field_spec
@@ -302,7 +306,7 @@ contains
          _RETURN(_FAILURE)
       end if
 
-      units = get_units(this, _RC)
+      call fill_units(this, units, _RC)
 
       field_spec = FieldSpec(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
            standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
@@ -317,31 +321,12 @@ contains
          is_valid = .false. ! unless
 
          if (.not. this%itemtype == MAPL_STATEITEM_FIELD) return
-         if (.not. allocated(this%standard_name)) return
+!#         if (.not. allocated(this%standard_name)) return
 
          is_valid = .true.
 
       end function valid
 
-      function get_units(this, rc) result(units)
-         character(:), allocatable :: units
-         class(VariableSpec), intent(in) :: this
-         integer, optional, intent(out) :: rc
-
-         character(len=ESMF_MAXSTR) :: canonical_units
-         integer :: status
-
-         if (allocated(this%units)) then ! user override of canonical
-            units = this%units
-            _RETURN(_SUCCESS)
-         end if
-
-         call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
-         _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
-         units = trim(canonical_units)
-
-         _RETURN(_SUCCESS)
-      end function get_units
 
    end function make_FieldSpec
 
