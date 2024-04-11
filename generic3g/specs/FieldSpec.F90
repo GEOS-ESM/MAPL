@@ -322,6 +322,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      interface mirror
+         procedure :: mirror_typekind
+         procedure :: mirror_string
+      end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
 
@@ -330,7 +334,8 @@ contains
          ! ok
          call this%destroy(_RC)
          this%payload = src_spec%payload
-         call mirror(dst=this%typekind, src=src_spec%typekind, _RC)
+         call mirror(dst=this%typekind, src=src_spec%typekind)
+         call mirror(dst=this%units, src=src_spec%units)
 
       class default
          _FAIL('Cannot connect field spec to non field spec.')
@@ -341,23 +346,36 @@ contains
 
    contains
       
-      subroutine mirror(dst, src, rc)
+      subroutine mirror_typekind(dst, src)
          type(ESMF_TypeKind_Flag), intent(inout) :: dst, src
-         integer, optional, intent(out) :: rc
 
-         if (dst /= src) then
-            if (dst == MAPL_TYPEKIND_MIRROR) then
-               dst = src
-               _RETURN(_SUCCESS)
-            end if
-            if (src == MAPL_TYPEKIND_MIRROR) then
-               src = dst
-               _RETURN(_SUCCESS)
-            end if
+         if (dst == src) return
+
+         if (dst == MAPL_TYPEKIND_MIRROR) then
+            dst = src
+         end if
+
+         if (src == MAPL_TYPEKIND_MIRROR) then
+            src = dst
          end if
 
          _ASSERT(dst == src, 'unsupported typekind mismatch')
-      end subroutine mirror
+      end subroutine mirror_typekind
+
+      subroutine mirror_string(dst, src)
+         character(len=:), allocatable, intent(inout) :: dst, src
+
+         if (allocated(dst) .eqv. allocated(src)) return
+
+         if (.not. allocated(dst)) then
+            dst = src
+         end if
+
+         if (.not. allocated(src)) then
+            src = dst
+         end if
+
+      end subroutine mirror_string
 
    end subroutine connect_to
 
@@ -374,7 +392,7 @@ contains
       select type(src_spec)
       class is (FieldSpec)
          can_convert_units_ = can_connect_units(this%units, src_spec%units, _RC)
-          can_connect_to = all ([ &
+         can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
               this%vertical_dim == src_spec%vertical_dim, &
               this%ungridded_dims == src_spec%ungridded_dims, & 
@@ -542,7 +560,7 @@ contains
             _RETURN(_SUCCESS)
          end if
          
-         if (this%units /= dst_spec%units) then
+         if (.not. match(this%units,dst_spec%units)) then
             deallocate(action)
             action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
             _RETURN(_SUCCESS)
@@ -581,11 +599,30 @@ contains
 
    logical function match_string(a, b) result(match)
       character(:), allocatable, intent(in) :: a, b
-      match = .true.
+
+      logical :: mirror_a, mirror_b
+
+      match = (mirror(a) .neqv. mirror(b))
+      if (match) return
+
+      ! Neither is mirror
       if (allocated(a) .and. allocated(b)) then
          match = (a == b)
+         return
       end if
+
+      ! Both are mirror
+      match = .false.
    end function match_string
+
+   logical function mirror(str)
+      character(:), allocatable :: str
+
+      mirror = .not. allocated(str)
+      if (mirror) return
+
+      mirror = (str == '_MIRROR_')
+   end function mirror
 
    logical function can_connect_units(dst_units, src_units, rc)
       character(:), allocatable, intent(in) :: dst_units
@@ -600,7 +637,6 @@ contains
 
       ! Otherwise need a coupler, but need to check if units are convertible
       can_connect_units = UDUNITS_are_convertible(src_units, dst_units, _RC)
-
       _RETURN(_SUCCESS)
    end function can_connect_units
 
