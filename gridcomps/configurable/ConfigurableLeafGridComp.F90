@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_SimpleLeafGridComp
+module ConfigurableLeafGridComp
    use generic3g
    use mapl_ErrorHandling
    use pFlogger, only: logger
@@ -67,18 +67,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run
 
-end module mapl3g_SimpleLeafGridComp
+end module ConfigurableLeafGridComp
 
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_SimpleLeafGridComp, only: SimpleLeaf_setServices => SetServices    
+   use ConfigurableLeafGridComp, only: ConfigurableLeaf_setServices => SetServices    
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 
    integer :: status
 
-   call SimpleLeaf_setServices(gridcomp,_RC)
+   call ConfigurableLeaf_setServices(gridcomp,_RC)
    _RETURN(_SUCCESS)
 
 end subroutine
