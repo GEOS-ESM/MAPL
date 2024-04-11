@@ -234,8 +234,7 @@ contains
               _VERIFY(status)
               _VERIFY(stat_alloc)
               if (nodes_out(i) > 0 .and. this%o_server%node_num /= nodes_out(i)) then
-                 _FAIL("Inconsistent output server number. " // "The requested "//i_to_string(nodes_out(i)) &
-                        //" nodes for output server is different from available "//i_to_string(this%o_server%node_num)// " nodes")
+                 _FAIL("Inconsistent output server number. " // "The requested "//i_to_string(nodes_out(i)) //" nodes for output server is different from available "//i_to_string(this%o_server%node_num)// " nodes")
               endif
            else
 
