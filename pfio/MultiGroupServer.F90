@@ -312,7 +312,7 @@ contains
      class (MultiGroupServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
 
-     integer :: i, client_num
+     integer :: i, client_num, status
      class (ServerThread),pointer :: thread_ptr
 
      type (MessageVectorIterator) :: iter
@@ -419,13 +419,15 @@ contains
 
         call Mpi_Bcast( back_local_rank, 1, MPI_INTEGER, 0, this%front_comm, ierror)
 
-        if (allocated(this%buffers(back_local_rank+1)%buffer)) call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
         call f_d_ms(collection_counter)%serialize(this%buffers(back_local_rank+1)%buffer)
+        call f_d_ms(collection_counter)%destroy(_RC)
         msg_size= size(this%buffers(back_local_rank+1)%buffer)
         call Mpi_send(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
         call Mpi_Isend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(back_local_rank+1)%request,ierror)
+        call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
+        deallocate(this%buffers(back_local_rank+1)%buffer)
         if (associated(ioserver_profiler)) call ioserver_profiler%stop("collection_"//i_to_string(collection_id))
      enddo
      if (associated(ioserver_profiler)) call ioserver_profiler%stop("forward_data")
@@ -841,9 +843,18 @@ contains
                call file_timer%stop()
             end select
             call msg_iter%next()
+            call attr_ptr%destroy(_RC)
+            call vars_map%erase(var_iter)
          enddo
+         msg_iter = msg_map%begin()
+         do while (msg_iter /= msg_map%end())
+           call msg_map%erase(msg_iter)
+           msg_iter = msg_map%begin()
+         enddo
+
          call thread_ptr%clear_hist_collections()
          call thread_ptr%hist_collections%clear()
+         deallocate (buffer_fmd)
 
          time = file_timer%get_total()
          file_size = file_size*4./1024./1024. ! 4-byte integer, unit is converted to MB
@@ -852,7 +863,6 @@ contains
          call lgr%info(" Writing time: %f9.3 s, speed: %f9.3 MB/s, size: %f9.3 MB, at server node: %i0~:%i0~, file: %a", time, speed, file_size, this%node_rank, this%innode_rank, filename)
          call file_timer%reset()
 
-         deallocate (buffer_fmd)
 
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          ! telling captain it is idle by sending its own rank
