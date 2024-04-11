@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer
 - Implemented a new algorthm to read tile files
 - Added two options, depends_on and depends_on_children, to ACG
+- Added memory diagnostics for ExtData2G
 
 ### Changed
 
