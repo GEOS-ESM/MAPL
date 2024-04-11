@@ -33,11 +33,11 @@ contains
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
       has_active_collections = ESMF_HConfigIsDefined(hconfig, keyString='active_collections', _RC)
-      if (.not. has_active_collections) then
-         call MAPL_GridCompGet(gridcomp,logger=lgr, _RC)
-         call lgr%warning("no active collection specified in History")
-         _RETURN(_SUCCESS)
-      end if
+      !if (.not. has_active_collections) then
+         !call MAPL_GridCompGet(gridcomp,logger=lgr, _RC)
+         !call lgr%warning("no active collection specified in History")
+         !_RETURN(_SUCCESS)
+      !end if
 
       collections_config = ESMF_HConfigCreateAt(hconfig, keystring='active_collections', _RC)
       num_collections = ESMF_HConfigGetSize(collections_config, _RC)
@@ -49,12 +49,11 @@ contains
 
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          _VERIFY(status)
-
-         collection_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+         collection_name = ESMF_HConfigAsString(iter, _RC)
          child_hconfig = make_child_hconfig(hconfig, collection_name)
          child_name = make_child_name(collection_name, _RC)
          call MAPL_AddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, _RC)
-         call ESMF_HConfigDestroy(child_hconfig, _RC)
+         !call ESMF_HConfigDestroy(child_hconfig, _RC)
          
       end do
       
@@ -69,10 +68,6 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
-
-      ! To Do:
-      ! - determine run frequencey and offset (save as alarm)
-
       
       _RETURN(_SUCCESS)
    end subroutine init
@@ -86,7 +81,7 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
-
+ 
       call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
 
       _RETURN(_SUCCESS)
