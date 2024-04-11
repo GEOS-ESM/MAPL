@@ -116,7 +116,7 @@ contains
         call this%msg_vec%erase(iter)
         iter = this%msg_vec%begin()
      enddo
-
+      _RETURN(_SUCCESS)
    end subroutine
 
 end module pFIO_ForwardDataAndMessageMod
