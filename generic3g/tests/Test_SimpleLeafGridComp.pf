@@ -29,8 +29,10 @@ contains
       call ESMF_TimeSet(t, h=0)
       call ESMF_TimeIntervalSet(dt, h=1)
       clock = ESMF_ClockCreate(dt, t)
+      _HERE
       outer_gc = create_grid_comp('A', user_setservices('libsimple_leaf_gridcomp'), config, clock, rc=status)
       @assert_that(status, is(0))
+      _HERE
 
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, rc=status)
       if (status /= 0) then
