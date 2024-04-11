@@ -5,7 +5,6 @@ list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWOR
 file(STRINGS "cases.txt" TEST_CASES)
 
 foreach(TEST_CASE ${TEST_CASES})
-  message("bmaa adding test ${TEST_CASE}")
   add_test(
      NAME "${TEST_CASE}"
      COMMAND ${CMAKE_COMMAND}
