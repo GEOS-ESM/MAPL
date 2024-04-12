@@ -28,6 +28,7 @@ set (test_srcs
   Test_HConfigMatch.pf
 
   Test_FieldInfo.pf
+  Test_GenericGridComp.pf
 
   )
 
