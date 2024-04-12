@@ -1,7 +1,7 @@
 ---
 preprocessor: cpp -traditional-cpp -E
 src_dir: ../../
-output_dir: mapl3-dev-doc
+output_dir: mapl3-doc
 search: true
 graph: true
 coloured_edges: true
@@ -70,8 +70,6 @@ macro: USE_MPI=1
 fixed_length_limit: false
 source: true
 display: public
-         private
-         protected
 extra_mods: iso_fortran_env:https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html
             iso_c_binding:https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fC_005fBINDING.html#ISO_005fC_005fBINDING
 external: remote = https://mathomp4.github.io/esmf
