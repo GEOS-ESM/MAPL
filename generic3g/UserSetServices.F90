@@ -156,6 +156,7 @@ contains
       logical :: found
 
       _HERE, this%sharedObj
+      _HERE, this%userRoutine
       _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
       call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
            userRoutine=this%userRoutine, userRoutinefound=found, userRC=userRC, rc=status)

@@ -27,9 +27,13 @@ contains
 
       driver = make_driver(hconfig, _RC)
 
-      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+       _HERE
+     call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      _HERE
       call integrate(driver, _RC)
+      _HERE
       call driver%finalize(_RC)
+      _HERE
 
       _RETURN(_SUCCESS)
    end subroutine MAPL_run_driver
@@ -45,6 +49,7 @@ contains
       character(:), allocatable :: cap_name
       integer :: status, user_status
 
+      _HERE
       cap_name = ESMF_HConfigAsString(hconfig, keystring='cap_name', _RC)
       ! TODO:  Rename to MAPL_CreateGridComp() ?
       clock = create_clock(hconfig, _RC)
@@ -52,7 +57,9 @@ contains
       call ESMF_GridCompSetServices(cap_gridcomp, generic_setServices, userRC=user_status, _RC)
       _VERIFY(user_status)
 
+      _HERE
       driver = GriddedComponentDriver(cap_gridcomp, clock, MultiState())
+      _HERE
 
       _RETURN(_SUCCESS)
    end function make_driver
