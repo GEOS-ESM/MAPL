@@ -11,7 +11,7 @@ macro(run_case CASE)
       WORKING_DIRECTORY ${tempdir}
       )
     execute_process(
-      COMMAND ${CMAKE_COMMAND} -E cat ${tmpdir}/PET0.ESMF_LogFile
+      COMMAND ${CMAKE_COMMAND} -E cat ${tempdir}/PET0.ESMF_LogFile
       )
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E rm -rf ${tempdir}
