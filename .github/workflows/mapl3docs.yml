@@ -19,7 +19,11 @@ jobs:
       - name: Build and Deploy Dev Docs
         uses: ./.github/actions/deploy-ford-docs
         with:
-          ford-input: docs/Ford/mapl3docs-with-remote-esmf.public_private_protected.md
+          # Due to a bug in ford, for now we do *not* want to use
+          # the full path to the ford input file. Rather, the
+          # action will cd into docs/Ford and then run ford
+          # relative path to the ford input file.
+          ford-input: mapl3docs-with-remote-esmf.public_private_protected.md
           doc-folder: docs/Ford/mapl3-doc
           token: ${{ secrets.GITHUB_TOKEN }}
           target-folder: mapl3-doc
