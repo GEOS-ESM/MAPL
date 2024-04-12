@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Checked resource for o-server. It quits if the numer requested is inconsistent with being used
 - Replace local HorzIJIndex sear with the GlobalHorzIJindex search
 - Change grd_is_ok function to avoid collective call
 - Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x
