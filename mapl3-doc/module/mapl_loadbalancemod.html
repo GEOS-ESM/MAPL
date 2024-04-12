@@ -120,8 +120,6 @@
         <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/mapl_loadbalancemod.html#variable-mapl_distribute">MAPL_Distribute</a>
             <a class="list-group-item" href="../module/mapl_loadbalancemod.html#variable-mapl_retrieve">MAPL_Retrieve</a>
-            <a class="list-group-item" href="../module/mapl_loadbalancemod.html#variable-max_num_strategies">MAX_NUM_STRATEGIES</a>
-            <a class="list-group-item" href="../module/mapl_loadbalancemod.html#variable-the_strategies">THE_STRATEGIES</a>
         </div>
       </div>
     </div>
@@ -145,18 +143,7 @@
     </div>
 
   
-      <div class="card mb-4">
-      <a data-bs-toggle="collapse" href="#types-0"
-         aria-expanded="false" aria-controls="types-0">
-         <h4 class="card-header bg-primary text-white">Derived Types</h4>
-      </a>
-      <div id="types-0" class="collapse">
-        <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../module/mapl_loadbalancemod.html#type-tbalancestrategy">TBalanceStrategy</a>
-        </div>
-      </div>
-    </div>
-
+  
   
       <div class="card mb-4">
       <a data-bs-toggle="collapse" href="#subs-0"
@@ -168,8 +155,6 @@
             <a class="list-group-item" href="../module/mapl_loadbalancemod.html#proc-mapl_balancecreate">MAPL_BalanceCreate</a>
             <a class="list-group-item" href="../module/mapl_loadbalancemod.html#proc-mapl_balancedestroy">MAPL_BalanceDestroy</a>
             <a class="list-group-item" href="../module/mapl_loadbalancemod.html#proc-mapl_balanceget">MAPL_BalanceGet</a>
-            <a class="list-group-item" href="../module/mapl_loadbalancemod.html#proc-mapl_balancework4">MAPL_BalanceWork4</a>
-            <a class="list-group-item" href="../module/mapl_loadbalancemod.html#proc-mapl_balancework8">MAPL_BalanceWork8</a>
         </div>
       </div>
     </div>
@@ -734,18 +719,18 @@ large graphs.</div>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M356.81,-227.13C340.84,-230.35 321.9,-235.38 306,-243 282.48,-254.28 259.18,-272.95 243.37,-287.04"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="240.85,-284.61 235.82,-293.93 245.57,-289.77 240.85,-284.61"/>
 </g>
-<!-- program~utcfio~3 -->
+<!-- program~utcfio -->
 <g id="module~~mapl_loadbalancemod~~UsedByGraph_node15" class="node">
-<title>program~utcfio~3</title>
-<g id="a_module~~mapl_loadbalancemod~~UsedByGraph_node15"><a xlink:href="../program/utcfio~3.html" xlink:title="utCFIO">
+<title>program~utcfio</title>
+<g id="a_module~~mapl_loadbalancemod~~UsedByGraph_node15"><a xlink:href="../program/utcfio.html" xlink:title="utCFIO">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="419,-192 365,-192 365,-168 419,-168 419,-192"/>
 <text text-anchor="middle" x="392" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO</text>
 </a>
 </g>
 </g>
-<!-- program~utcfio~3&#45;&gt;module~maplbase_mod -->
+<!-- program~utcfio&#45;&gt;module~maplbase_mod -->
 <g id="module~~mapl_loadbalancemod~~UsedByGraph_edge10" class="edge">
-<title>program~utcfio~3&#45;&gt;module~maplbase_mod</title>
+<title>program~utcfio&#45;&gt;module~maplbase_mod</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.7,-182.02C346.94,-184.4 323.62,-189.62 306,-201 273.31,-222.12 248.02,-260.69 234.48,-284.74"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="231.27,-283.32 229.56,-293.78 237.42,-286.67 231.27,-283.32"/>
 </g>
@@ -877,60 +862,6 @@ parameter
                 
             </td>
         </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-max_num_strategies"></span>
-              integer,
-            </td>
-              <td>private,</td>
-            <td>
-parameter               
-            </td>
-            <td>::</td>
-            <td><strong>MAX_NUM_STRATEGIES</strong></td>
-<td> =</td>
-                <td>1000</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-the_strategies"></span>
-              type(<a href='../type/tbalancestrategy.html'>TBalanceStrategy</a>),
-            </td>
-              <td>private,</td>
-            <td>
-              save
-            </td>
-            <td>::</td>
-            <td><strong>THE_STRATEGIES</strong>(0:MAX_NUM_STRATEGIES)</td>
-                <td></td>
-                <td></td>
-            <td>
-                <h3 id="example">EXAMPLE</h3>
-<p>```fortran
-      REAL A(IM,JM,LM), B(IM,JM), C(IM,JM,LM)
-      REAL, allocatable :: AT(:,:), BT(:), CT(:,:)
-      LOGICAL MASK(IM,JM)
-      &hellip;
-      LENGTH = COUNT(MASK)
-      IRUN   = MAPL_BalanceCreate(LENGTH)
-      IDIM   = max(length,irun)</p>
-<div class="codehilite"><pre><span></span><code>  <span class="n">allocate</span><span class="p">(</span><span class="n">AT</span><span class="p">(</span><span class="n">IDIM</span><span class="p">,</span><span class="n">LM</span><span class="p">),</span><span class="n">BT</span><span class="p">(</span><span class="n">IDIM</span><span class="p">),</span><span class="n">CT</span><span class="p">(</span><span class="n">IDIM</span><span class="p">,</span><span class="n">LM</span><span class="p">)</span>
-
-  <span class="n">BT</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">LENGTH</span><span class="p">)</span> <span class="o">=</span> <span class="n">PACK</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="n">MASK</span><span class="p">)</span>
-
-  <span class="kr">DO</span> <span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span>
-   <span class="n">AT</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">LENGTH</span><span class="p">,</span><span class="n">L</span><span class="p">)</span> <span class="o">=</span> <span class="n">PACK</span><span class="p">(</span><span class="n">A</span><span class="p">(:,:,</span><span class="n">L</span><span class="p">),</span><span class="n">MASK</span><span class="p">)</span>
-  <span class="n">ENDDO</span>
-</code></pre></div>
-
-<p>! DISTRIBUTE THE INPUTS</p>
-<p>! PLUG COMPATIBLE ROUTINE AT(IN), BT(INOUT), CT(OUT)</p>
-<p>! RETRIEVE THE OUTPUTS</p>
-            </td>
-        </tr>
     </tbody>
   </table>
 
@@ -949,10 +880,9 @@ parameter
     <ul class="list-group">
           <li class="list-group-item">
                 <h3>
-    private  subroutine <a href='../proc/mapl_balancework4.html'>MAPL_BalanceWork4</a>(A, Idim, Direction, Handle, rc)  
+    private  subroutine MAPL_BalanceWork4(A, Idim, Direction, Handle, rc)  
 
     </h3>
-    
   <p>Depending on the argument &ldquo;Direction&rdquo;, this performs the actual distribution
 of work or the gathering of results for a given strategy. The strategy has to
 have been predefined by a call to MAPL_BalanceCreate. A strategy &ldquo;Handle&rdquo;
@@ -978,7 +908,7 @@ MAPL_BalanceCreate for details.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~19"></span>
+              <span class="anchor" id="variable-a~56"></span>
               real,
             </td>
 <td>intent(inout)</td>
@@ -988,7 +918,7 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>A</strong>(:)</td>
             <td>
-
+                
             </td>
         </tr>
         <tr>
@@ -1003,7 +933,7 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>Idim</strong></td>
             <td>
-
+                
             </td>
         </tr>
         <tr>
@@ -1018,7 +948,7 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>Direction</strong></td>
             <td>
-
+                
             </td>
         </tr>
         <tr>
@@ -1033,12 +963,12 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>Handle</strong></td>
             <td>
-
+                
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~342"></span>
+              <span class="anchor" id="variable-rc~1341"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1048,7 +978,7 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+                
             </td>
         </tr>
     </tbody>
@@ -1058,10 +988,9 @@ MAPL_BalanceCreate for details.</p>
           </li>
           <li class="list-group-item">
                 <h3>
-    private  subroutine <a href='../proc/mapl_balancework8.html'>MAPL_BalanceWork8</a>(A, Idim, Direction, Handle, rc)  
+    private  subroutine MAPL_BalanceWork8(A, Idim, Direction, Handle, rc)  
 
     </h3>
-    
   <p>Depending on the argument &ldquo;Direction&rdquo;, this performs the actual distribution
 of work or the gathering of results for a given strategy. The strategy has to
 have been predefined by a call to MAPL_BalanceCreate. A strategy &ldquo;Handle&rdquo;
@@ -1087,7 +1016,7 @@ MAPL_BalanceCreate for details.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~20"></span>
+              <span class="anchor" id="variable-a~57"></span>
               real(kind=MAPL_R8),
             </td>
 <td>intent(inout)</td>
@@ -1097,7 +1026,7 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>A</strong>(:)</td>
             <td>
-
+                
             </td>
         </tr>
         <tr>
@@ -1112,7 +1041,7 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>Idim</strong></td>
             <td>
-
+                
             </td>
         </tr>
         <tr>
@@ -1127,7 +1056,7 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>Direction</strong></td>
             <td>
-
+                
             </td>
         </tr>
         <tr>
@@ -1142,12 +1071,12 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>Handle</strong></td>
             <td>
-
+                
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~343"></span>
+              <span class="anchor" id="variable-rc~1342"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1157,7 +1086,7 @@ MAPL_BalanceCreate for details.</p>
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+                
             </td>
         </tr>
     </tbody>
@@ -1172,144 +1101,6 @@ MAPL_BalanceCreate for details.</p>
         <br>
 
 
-        <section>
-          <h2>Derived Types</h2>
-              <div class="card">
-    <div class="card-header codesum">
-      <span class="anchor" id="type-tbalancestrategy"></span>
-      <h3>
-        type, private&nbsp;::&nbsp;
-        <a href='../type/tbalancestrategy.html'>TBalanceStrategy</a>
-        
-      </h3>
-    </div>
-    <div class="card-body">
-      
-
-        <h4>Components</h4>
-          <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th scope="col">Type</th>
-<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
-        <th scope="col"></th>
-        <th scope="col">Name</th>
-<th></th><th scope="col">Initial</th>        <th scope="col"></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-balanced_length"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>BALANCED_LENGTH</strong></td>
-<td> =</td>
-                <td>-1</td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-buffer_length"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>BUFFER_LENGTH</strong></td>
-<td> =</td>
-                <td>-1</td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-comm"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>COMM</strong></td>
-<td> =</td>
-                <td>-1</td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-nop"></span>
-              integer,
-            </td>
-              <td>public,</td>
-            <td>
-              pointer
-            </td>
-            <td>::</td>
-            <td><strong>NOP</strong>(:,:)</td>
-<td>=&gt; </td>
-                <td>Null()</td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-passes"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>PASSES</strong></td>
-<td> =</td>
-                <td>-1</td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-unbalanced_length"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>UNBALANCED_LENGTH</strong></td>
-<td> =</td>
-                <td>-1</td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-
-
-    </div>
-  </div>
-
-        </section>
-        <br>
 
 
         <section>
@@ -1355,7 +1146,7 @@ MAPL_BalanceCreate for details.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm"></span>
+              <span class="anchor" id="variable-comm~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -1445,7 +1236,7 @@ MAPL_BalanceCreate for details.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~344"></span>
+              <span class="anchor" id="variable-rc~1343"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1500,7 +1291,7 @@ MAPL_BalanceCreate for details.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~345"></span>
+              <span class="anchor" id="variable-rc~1344"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1600,7 +1391,7 @@ MAPL_BalanceCreate for details.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~2"></span>
+              <span class="anchor" id="variable-comm~3"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1615,227 +1406,7 @@ MAPL_BalanceCreate for details.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~346"></span>
-              integer,
-            </td>
-<td>intent(out),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>rc</strong></td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-    </div>
-  </div>
-
-              <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-mapl_balancework4"></span> <h3>private  subroutine <a href='../proc/mapl_balancework4.html'>MAPL_BalanceWork4</a>(A, Idim, Direction, Handle, rc)  
-</h3></div>
-    <div class="card-body">
-          
-  <p>Depending on the argument &ldquo;Direction&rdquo;, this performs the actual distribution
-of work or the gathering of results for a given strategy. The strategy has to
-have been predefined by a call to MAPL_BalanceCreate. A strategy &ldquo;Handle&rdquo;
-obtained from that call can be optionally used to specify the strategy. Otherwise,
-a default strategy is assumed (see MAPL_BalanceCreate for details).
-Work (Results) is distributed (retrieved) using the buffer A, which is assumed
-to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
-The blocksize of A (Idim) must be at least as large as the BufLen associated
-with the strategy. This size can be obtained by quering the strategy using
-its handle or be saving it from the MAPL_BalanceCreate call. Again, see
-MAPL_BalanceCreate for details.</p>
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th scope="col">Type</th>
-<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
-        <th scope="col"></th>
-        <th scope="col">Name</th>
-        <th scope="col"></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-a~19"></span>
-              real,
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>A</strong>(:)</td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-idim"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>Idim</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-direction"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>Direction</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-handle"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>Handle</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-rc~342"></span>
-              integer,
-            </td>
-<td>intent(out),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>rc</strong></td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-    </div>
-  </div>
-
-              <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-mapl_balancework8"></span> <h3>private  subroutine <a href='../proc/mapl_balancework8.html'>MAPL_BalanceWork8</a>(A, Idim, Direction, Handle, rc)  
-</h3></div>
-    <div class="card-body">
-          
-  <p>Depending on the argument &ldquo;Direction&rdquo;, this performs the actual distribution
-of work or the gathering of results for a given strategy. The strategy has to
-have been predefined by a call to MAPL_BalanceCreate. A strategy &ldquo;Handle&rdquo;
-obtained from that call can be optionally used to specify the strategy. Otherwise,
-a default strategy is assumed (see MAPL_BalanceCreate for details).
-Work (Results) is distributed (retrieved) using the buffer A, which is assumed
-to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
-The blocksize of A (Idim) must be at least as large as the BufLen associated
-with the strategy. This size can be obtained by quering the strategy using
-its handle or be saving it from the MAPL_BalanceCreate call. Again, see
-MAPL_BalanceCreate for details.</p>
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th scope="col">Type</th>
-<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
-        <th scope="col"></th>
-        <th scope="col">Name</th>
-        <th scope="col"></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-a~20"></span>
-              real(kind=MAPL_R8),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>A</strong>(:)</td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-idim~2"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>Idim</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-direction~2"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>Direction</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-handle~2"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>Handle</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-rc~343"></span>
+              <span class="anchor" id="variable-rc~1345"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1878,7 +1449,7 @@ MAPL_BalanceCreate for details.</p>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-04-12T19:40:24.213569             </p>
+ on 2024-04-12T20:28:44.416678             </p>
           </div>
         </div>
         <br>
