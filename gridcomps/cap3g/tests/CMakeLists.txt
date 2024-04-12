@@ -4,6 +4,12 @@ list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWOR
 
 file(STRINGS "cases.txt" TEST_CASES)
 
+if (APPLE)
+  set(LD_PATH "DYLD_LIBRARY_PATH")
+else()
+  set(LD_PATH "LD_LIBRARY_PATH")
+endif ()
+
 foreach(TEST_CASE ${TEST_CASES})
   add_test(
      NAME "${TEST_CASE}"
@@ -16,4 +22,7 @@ foreach(TEST_CASE ${TEST_CASES})
        -P ${CMAKE_CURRENT_SOURCE_DIR}/run_captest.cmake
      )
    set_tests_properties("${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
+   set_tests_properties("${TEST_CASE}"
+     PROPERTIES ENVIRONMENT "${LD_PATH}=${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
+     )
 endforeach()
