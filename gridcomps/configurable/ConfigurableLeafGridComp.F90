@@ -27,7 +27,7 @@ contains
       type(ESMF_GridComp) outer_gridcomp
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_RC)
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
     
       outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC) 
