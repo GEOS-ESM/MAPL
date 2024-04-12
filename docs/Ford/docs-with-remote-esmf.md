@@ -28,7 +28,6 @@ exclude_dir: ../../docs
 macro: USE_MPI=1
        BUILD_WITH_PFLOGGER=1
        BUILD_WITH_EXTDATA2G=1
-       USE_FLAP=1
        H5_HAVE_PARALLEL=1
        TWO_SIDED_COMM=1
        MAPL_MODE=1
